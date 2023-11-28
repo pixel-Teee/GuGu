@@ -1,0 +1,9 @@
+{
+    cmdlines = {
+        [[xmake lua D:\xmake\modules\private\utils\statistics.lua]],
+        "xmake project -k vsxmake -m debug,release",
+        "xmake project -k vsxmake -m debug,release",
+        "xmake project -k vsxmake -m debug,release",
+        "xmake project -k vsxmake -m debug,release"
+    }
+}
