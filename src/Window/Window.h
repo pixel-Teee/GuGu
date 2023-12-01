@@ -8,7 +8,7 @@ namespace GuGu {
 	public:
 		//static void DeferGeneratePlatformWindow(std::shared_ptr<Window> pWindow);
 
-		virtual void DeferGeneratePlatformWindow() = 0;
+		virtual void ToGeneratePlatformWindow() = 0;
 	};
 
 	std::shared_ptr<Window> CreateWindowFactory();

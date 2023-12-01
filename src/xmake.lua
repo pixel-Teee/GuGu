@@ -1,3 +1,4 @@
+add_rules("mode.debug","mode.debug")
 target("GuGu")
     set_kind("binary")
 
@@ -24,7 +25,10 @@ target("GuGu")
         add_files("Application/Platform/Windows/*.cpp")
         add_headerfiles("Application/Platform/Windows/*.h")
 
-        add_defines("WINDOW")
+        add_defines("WIN32", "UNICODE", "_UNICODE")
+        add_cxflags("/execution-charset:utf-8")
+        add_syslinks("User32")
+        add_ldflags("/subsystem:windows")
     end
 
     if is_plat("android") then

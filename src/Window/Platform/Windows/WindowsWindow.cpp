@@ -10,22 +10,37 @@ namespace GuGu {
 		return std::make_shared<WindowsWindow>();
 	}
 
-	LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
-	void WindowsWindow::DeferGeneratePlatformWindow()
+	void WindowsWindow::ToGeneratePlatformWindow()
 	{
-		const wchar_t ClassName[] = L"WindowsWindow";
+		const wchar_t windowClassName[] = L"GuGuWindowClass";
 
-		WNDCLASS wc = {};
+		m_windowHandle = CreateWindowEx(
+			0, //optional window style
+			windowClassName, //window class
+			L"GuGuWindow", //window title
+			WS_OVERLAPPEDWINDOW,
 
-		wc.lpfnWndProc = WindowProc;
+			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, //size and position
+			nullptr,//parent window
+			nullptr,//menu
+			m_ownerApplicationHandle, //owner application handle
+			nullptr
+		);
 
-		//need hInstance
-		//wc.lpszClassName = ClassName;
+		if (m_windowHandle == nullptr) return; //todo:report create window error
+
+		ShowWindow(m_windowHandle, m_startCmdShow);
 	}
 
-	LRESULT WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+	void WindowsWindow::setNativeApplicationHandleAndCmdShowToCreateWindow(HINSTANCE applicationHandle, int32_t cmdShow)
 	{
-		return DefWindowProc(hwnd, uMsg, wParam, lParam);
+		m_ownerApplicationHandle = applicationHandle;
+		m_startCmdShow = cmdShow;
 	}
+
+	HWND WindowsWindow::getNativeWindowHandle()
+	{
+		return m_windowHandle;
+	}
+
 }
