@@ -1,7 +1,5 @@
 add_rules("mode.debug","mode.debug")
 target("GuGu")
-    set_kind("binary")
-
     add_includedirs(".")
 
     add_files("*.cpp")
@@ -19,6 +17,7 @@ target("GuGu")
 
     -- Platform
     if is_plat("windows") then
+        set_kind("binary")
         add_files("Window/Platform/Windows/*.cpp")
         add_headerfiles("Window/Platform/Windows/*.h")
 
@@ -32,11 +31,22 @@ target("GuGu")
     end
 
     if is_plat("android") then
-        add_files("Android/Platform/Android/*.cpp")
-        add_headerfiles("Android/Platform/Android/*.h")
+
+        set_kind("shared")
+        add_files("Application/Platform/Android/*.cpp")
+        add_headerfiles("Application/Platform/Android/*.h")
 
         add_files("Application/Platform/Android/*.cpp")
         add_headerfiles("Application/Platform/Android/*.h")
 
         add_defines("ANDROID")
+        --add_packages("game-activity")
+        --on_load(function (target)
+        --    target:add(find_packages("game-activity"))
+        --end)
+        --find_packages("game-activity")
+        add_links("game-activity")
+
+
+
     end
