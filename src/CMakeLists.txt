@@ -8,7 +8,7 @@ file(GLOB SourceFile "main.cpp"
 "main.cpp"
 "pch.h")
 
-if(WINDOWS)
+if(WIN32)
     message("[message]:this platform is windows!")
     file(GLOB PlatformSourceFile "Window/Platform/Windows/*.h" "Window/Platform/Windows/*.cpp" "Application/Platform/Windows/*.h" "Application/Platform/Windows/*.cpp")
     list(APPEND SourceFile ${PlatformSourceFile})
