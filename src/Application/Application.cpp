@@ -12,6 +12,7 @@ namespace GuGu{
         //todo:add exit check
         while (!m_alreadyExit)
         {
+            //todo:add update
             pumpMessage();
         }
     }
