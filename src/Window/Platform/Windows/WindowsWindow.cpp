@@ -20,7 +20,7 @@ namespace GuGu {
 			L"GuGuWindow", //window title
 			WS_OVERLAPPEDWINDOW,
 
-			CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, //size and position
+			0, 0, 800, 600, //size and position
 			nullptr,//parent window
 			nullptr,//menu
 			m_ownerApplicationHandle, //owner application handle

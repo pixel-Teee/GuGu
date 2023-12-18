@@ -2,6 +2,8 @@
 #include "WindowsApplication.h"
 #include <Window/Platform/Windows/WindowsWindow.h>
 
+#include <Renderer/Platform/D3D12/D3D12Renderer.h>
+
 namespace GuGu {
 	std::shared_ptr<WindowsApplication> globalApplication;
 	LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -28,14 +30,29 @@ namespace GuGu {
 		m_windows.push_back(window);
 	}
 
-	void WindowsApplication::pumpMessage()
+	bool WindowsApplication::pumpMessage()
 	{
 		MSG msg = {};
-		while (GetMessage(&msg, nullptr, 0, 0) > 0)
+		
+		bool  handlingMessage = false;
+		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
 		{
+			handlingMessage = true;
 			TranslateMessage(&msg);
-			TranslateMessage(&msg);
+			DispatchMessage(&msg);
 		}
+
+		if (msg.message == WM_QUIT)
+			setExit(true);
+
+		return handlingMessage;
+	}
+
+	void WindowsApplication::init()
+	{
+		//create renderer
+		m_renderer = std::make_shared<D3D12Renderer>();
+		m_renderer->init();
 	}
 
 	std::vector<std::shared_ptr<WindowsWindow>> WindowsApplication::getPlatformWindows()
@@ -43,6 +60,10 @@ namespace GuGu {
 		return m_windows;
 	}
 
+	std::shared_ptr<WindowsApplication> WindowsApplication::getApplication()
+	{
+		return globalApplication;
+	}
 	std::shared_ptr<Application> CreateApplicationFactory()
 	{
 		globalApplication = std::make_shared<WindowsApplication>();

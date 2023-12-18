@@ -5,15 +5,18 @@ file(GLOB SourceFile "main.cpp"
 "Window/*.cpp"
 "Application/*.h"
 "Application/*.cpp"
+"Renderer/*.h"
+"Renderer/*.cpp"
 "main.cpp"
 "pch.h")
 
 if(WIN32)
     message("[message]:this platform is windows!")
-    file(GLOB PlatformSourceFile "Window/Platform/Windows/*.h" "Window/Platform/Windows/*.cpp" "Application/Platform/Windows/*.h" "Application/Platform/Windows/*.cpp")
+    file(GLOB PlatformSourceFile "Window/Platform/Windows/*.h" "Window/Platform/Windows/*.cpp" "Application/Platform/Windows/*.h" "Application/Platform/Windows/*.cpp"
+    "Renderer/Platform/D3D12/*.h" "Renderer/Platform/D3D12/*.cpp")
     list(APPEND SourceFile ${PlatformSourceFile})
     add_executable(GuGu WIN32 ${SourceFile})
-    target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application")
+    target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer")
     add_definitions(-DUNICODE -D_UNICODE)
     if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
         message("[message]:set msvc utf8 successful!")
@@ -25,7 +28,7 @@ elseif(ANDROID)
     file(GLOB PlatformSourceFile "Window/Platform/Android/*.h" "Window/Platform/Android/*.cpp" "Application/Platform/Android/*.h" "Application/Platform/Android/*.cpp")
     list(APPEND SourceFile ${PlatformSourceFile})
     add_library(GuGu SHARED ${SourceFile})
-    target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application")
+    target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer")
 
     find_package(game-activity)
     find_library(log-lib log) #ndk library

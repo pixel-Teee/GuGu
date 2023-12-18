@@ -18,6 +18,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	std::shared_ptr<GuGu::WindowsApplication> windowsApplication = std::static_pointer_cast<GuGu::WindowsApplication>(application);
 	windowsApplication->setNativeApplicationHandleAndCmdShow(hInstance, nCmdShow);
 
+    application->init();
 	application->Run();
 	return 0;
 }
@@ -41,6 +42,7 @@ void handle_cmd(android_app *pApp, int32_t cmd) {
             // android_main function and the APP_CMD_TERM_WINDOW handler case.
             //pApp->userData = new Renderer(pApp);
             androidApplication->setSurfaceReady(true);
+            androidApplication->setAndroidNativeWindow(pApp);
             break;
         case APP_CMD_TERM_WINDOW:
             // The window is being destroyed. Use this to clean up your userData to avoid leaking

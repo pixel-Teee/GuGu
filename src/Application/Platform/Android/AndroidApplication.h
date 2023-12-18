@@ -4,10 +4,13 @@
 
 struct android_app;
 namespace GuGu{
+    class AndroidWindow;
     class AndroidApplication : public Application
     {
     public:
         AndroidApplication();
+
+        void setAndroidNativeWindow(android_app* pApp);
 
         virtual ~AndroidApplication();
 
@@ -22,5 +25,7 @@ namespace GuGu{
         android_app* m_android_app;
 
         bool m_surface_initialize_ready;
+
+        std::shared_ptr<AndroidWindow> m_window;
     };
 }

@@ -2,6 +2,8 @@
 
 #include "Application.h"
 
+#include "Renderer/Renderer.h"
+
 namespace GuGu{
     Application::Application()
     {
@@ -13,14 +15,25 @@ namespace GuGu{
         while (!m_alreadyExit)
         {
             //todo:add update
-            pumpMessage();
+            bool handlingMessage = pumpMessage();
+
+            //m_renderer->onRender();
+
+            if (!handlingMessage)
+                m_renderer->onRender();
         }
+
+        m_renderer->onDestroy();
     }
-    void Application::pumpMessage()
+    bool Application::pumpMessage()
     {
+        return false;
     }
     void Application::setExit(bool value)
     {
         m_alreadyExit = value;
+    }
+    void Application::init()
+    {
     }
 }

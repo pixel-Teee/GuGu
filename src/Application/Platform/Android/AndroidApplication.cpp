@@ -3,6 +3,7 @@
 #include "AndroidApplication.h"
 
 #include "AndroidMisc.h"
+#include <Window/Platform/Android/AndroidWindow.h>
 
 namespace GuGu{
     AndroidApplication::AndroidApplication()
@@ -28,6 +29,11 @@ namespace GuGu{
 
     void AndroidApplication::pumpMessage() {
         processAndroidEvents(m_android_app);
+    }
+
+    void AndroidApplication::setAndroidNativeWindow(android_app *pApp) {
+        m_window = std::make_shared<AndroidWindow>();//note:just one window
+        m_window->setNativeWindow(pApp->window);
     }
 
 
