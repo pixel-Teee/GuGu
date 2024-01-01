@@ -4,8 +4,10 @@
 
 #include "AndroidMisc.h"
 #include <Window/Platform/Android/AndroidWindow.h>
+#include <Renderer/Platform/Vulkan/VulkanRenderer.h>
 
 namespace GuGu{
+    std::shared_ptr<AndroidApplication> globalApplication;
     AndroidApplication::AndroidApplication()
     {
         m_surface_initialize_ready = false;
@@ -36,9 +38,32 @@ namespace GuGu{
         m_window->setNativeWindow(pApp->window);
     }
 
+    std::shared_ptr<AndroidApplication> AndroidApplication::getApplication() {
+        return globalApplication;
+    }
+
+    void AndroidApplication::init() {
+        //create renderer and init
+        m_renderer = std::make_shared<VulkanRenderer>();
+        m_renderer->init();
+    }
+
+    std::shared_ptr <AndroidWindow> AndroidApplication::getPlatformWindow() {
+        return m_window;
+    }
+
+    void AndroidApplication::setAssetManager(AAssetManager* assetManager) {
+        m_assetManager = assetManager;
+    }
+
+    AAssetManager *AndroidApplication::getAssetManager() {
+        return m_assetManager;
+    }
+
 
     std::shared_ptr<Application> CreateApplicationFactory()
     {
-        return std::make_shared<AndroidApplication>();
+        globalApplication = std::make_shared<AndroidApplication>();
+        return globalApplication;
     }
 }

@@ -9,6 +9,8 @@ namespace GuGu{
         virtual void ToGeneratePlatformWindow() override;
 
         void setNativeWindow(ANativeWindow* nativeWindow);
+
+        ANativeWindow* getNativeHandle();
     private:
         ANativeWindow* m_nativeWindow;
     };

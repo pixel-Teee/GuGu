@@ -8,11 +8,13 @@ namespace GuGu {
 
 		void Run();
 
-		virtual bool pumpMessage();
+		virtual void pumpMessage();
 
 		void setExit(bool value);
 
 		virtual void init();
+
+		std::shared_ptr<Renderer> getRenderer();
 	protected:
 		std::shared_ptr<Renderer> m_renderer;
 	private:

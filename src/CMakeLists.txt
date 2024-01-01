@@ -25,14 +25,18 @@ if(WIN32)
     endif()
 elseif(ANDROID)
     message("[message]:this platform is android!")
-    file(GLOB PlatformSourceFile "Window/Platform/Android/*.h" "Window/Platform/Android/*.cpp" "Application/Platform/Android/*.h" "Application/Platform/Android/*.cpp")
+    #find_package(Vulkan REQUIRED)
+    file(GLOB PlatformSourceFile "Window/Platform/Android/*.h" "Window/Platform/Android/*.cpp" "Application/Platform/Android/*.h" "Application/Platform/Android/*.cpp"
+    "Renderer/Platform/Vulkan/*.h" "Renderer/Platform/Vulkan/*.cpp"
+    "../thirdParty/vkbootstrap/*.h" "../thirdParty/vkbootstrap/*.cpp")
+    #message(${PlatformSourceFile})
     list(APPEND SourceFile ${PlatformSourceFile})
     add_library(GuGu SHARED ${SourceFile})
-    target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer")
-
+    target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer" PRIVATE "../thirdParty/vkbootstrap")
+    add_definitions(-DVK_USE_PLATFORM_ANDROID_KHR=TRUE) #fix this
     find_package(game-activity)
     find_library(log-lib log) #ndk library
-    target_link_libraries(GuGu android game-activity::game-activity ${log-lib})  
+    target_link_libraries(GuGu android game-activity::game-activity ${log-lib} vulkan)
 endif()
 
 target_precompile_headers(GuGu PRIVATE "pch.h")

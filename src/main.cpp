@@ -28,12 +28,15 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	#include <game-activity/GameActivity.cpp>
 	#include <game-text-input/gametextinput.cpp>
     #include <android/log.h>
+    #include <Renderer/Platform/Vulkan/VulkanRenderer.h>
     //#define LOG_TAG "AndroidLog"
     //#define ALOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 extern "C" {
 	#include <game-activity/native_app_glue/android_native_app_glue.c>
 void handle_cmd(android_app *pApp, int32_t cmd) {
     std::shared_ptr<GuGu::AndroidApplication> androidApplication = *reinterpret_cast<std::shared_ptr<GuGu::AndroidApplication>*>(pApp->userData);
+    //std::shared_ptr<GuGu::Renderer> renderer = androidApplication->getRenderer();
+    //std::shared_ptr<GuGu::VulkanRenderer> vulkanRenderer = std::static_pointer_cast<GuGu::VulkanRenderer>(renderer);
     switch (cmd) {
         case APP_CMD_INIT_WINDOW:
             // A new window is created, associate a renderer with it. You may replace this with a
@@ -43,6 +46,8 @@ void handle_cmd(android_app *pApp, int32_t cmd) {
             //pApp->userData = new Renderer(pApp);
             androidApplication->setSurfaceReady(true);
             androidApplication->setAndroidNativeWindow(pApp);
+
+            androidApplication->setAssetManager(pApp->activity->assetManager);
             break;
         case APP_CMD_TERM_WINDOW:
             // The window is being destroyed. Use this to clean up your userData to avoid leaking
@@ -60,6 +65,16 @@ void handle_cmd(android_app *pApp, int32_t cmd) {
             break;
     }
 }
+
+//int32_t on_input_event(android_app *pApp, AInputEvent* input_event)
+//{
+//    std::shared_ptr<GuGu::AndroidApplication> androidApplication = *reinterpret_cast<std::shared_ptr<GuGu::AndroidApplication>*>(pApp->userData);
+//
+//    std::int32_t event_source = AInputEvent_getSource(input_event);
+//
+//    return 1;
+//}
+
 void android_main(struct android_app *pApp) {
 	//ALOGD("Hello, JNI");
 
@@ -69,8 +84,10 @@ void android_main(struct android_app *pApp) {
     androidApplication->setAndroidApp(pApp);
 
     pApp->onAppCmd = handle_cmd;
+    //pApp->onInputEvent = on_input_event;
     pApp->userData = reinterpret_cast<void*>(&androidApplication);
 
+    //------open hole, similar to setNativeApplicationHandleAndCmdShow------
     ALOGD("waiting on window surface to be created ready!")
     do{
         if(!GuGu::processAndroidEvents(pApp))
@@ -79,6 +96,7 @@ void android_main(struct android_app *pApp) {
         }
     }while(!androidApplication->getSurfaceReady());
 
+    androidApplication->init();
 
     androidApplication->Run();
 
@@ -107,6 +125,7 @@ void android_main(struct android_app *pApp) {
     //        //pRenderer->render();
     //    }
     //} while (!pApp->destroyRequested);
+
 }
 }
 	#endif

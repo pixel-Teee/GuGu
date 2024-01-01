@@ -15,19 +15,18 @@ namespace GuGu{
         while (!m_alreadyExit)
         {
             //todo:add update
-            bool handlingMessage = pumpMessage();
+            pumpMessage();
 
             //m_renderer->onRender();
 
-            if (!handlingMessage)
-                m_renderer->onRender();
+            m_renderer->onRender();
         }
 
         m_renderer->onDestroy();
     }
-    bool Application::pumpMessage()
+    void Application::pumpMessage()
     {
-        return false;
+
     }
     void Application::setExit(bool value)
     {
@@ -35,5 +34,9 @@ namespace GuGu{
     }
     void Application::init()
     {
+    }
+
+    std::shared_ptr<Renderer> Application::getRenderer() {
+        return m_renderer;
     }
 }

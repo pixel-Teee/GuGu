@@ -1,3 +1,4 @@
+#pragma once
 #include "Renderer.h"
 
 namespace GuGu {

@@ -14,4 +14,8 @@ namespace GuGu{
     void AndroidWindow::setNativeWindow(ANativeWindow *nativeWindow) {
         m_nativeWindow = nativeWindow;
     }
+
+    ANativeWindow *AndroidWindow::getNativeHandle() {
+        return m_nativeWindow;
+    }
 }

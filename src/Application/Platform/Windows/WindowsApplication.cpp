@@ -34,18 +34,15 @@ namespace GuGu {
 	{
 		MSG msg = {};
 		
-		bool  handlingMessage = false;
-		if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+		while(PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
 		{
-			handlingMessage = true;
+
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
 
 		if (msg.message == WM_QUIT)
 			setExit(true);
-
-		return handlingMessage;
 	}
 
 	void WindowsApplication::init()
