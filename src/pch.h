@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <cstring>
 #include <memory>
+#include <cassert>
 
 #ifdef WIN32
 //------window platform header file------

@@ -30,7 +30,7 @@ namespace GuGu {
 		m_windows.push_back(window);
 	}
 
-	bool WindowsApplication::pumpMessage()
+	void WindowsApplication::pumpMessage()
 	{
 		MSG msg = {};
 		

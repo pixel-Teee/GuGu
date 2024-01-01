@@ -8,6 +8,8 @@ file(GLOB SourceFile "main.cpp"
 "Renderer/*.h"
 "Renderer/*.cpp"
 "main.cpp"
+"Core/*.h"
+"Core/*.cpp"
 "pch.h")
 
 if(WIN32)
@@ -16,13 +18,15 @@ if(WIN32)
     "Renderer/Platform/D3D12/*.h" "Renderer/Platform/D3D12/*.cpp")
     list(APPEND SourceFile ${PlatformSourceFile})
     add_executable(GuGu WIN32 ${SourceFile})
-    target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer")
-    add_definitions(-DUNICODE -D_UNICODE)
-    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-        message("[message]:set msvc utf8 successful!")
-	    add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
-	    add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
-    endif()
+    target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer" PRIVATE "Core")
+    add_definitions(-DUNICODE -D_UNICODE -DWIN32)
+    #if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    #    message("[message]:set msvc utf8 successful!")
+	#    add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+	#    add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+    #endif()
+    set(CMAKE_CXX_FLAGS "/utf-8")
+    set(CMAKE_C_FLAGS "/utf-8")
 elseif(ANDROID)
     message("[message]:this platform is android!")
     #find_package(Vulkan REQUIRED)
@@ -32,7 +36,7 @@ elseif(ANDROID)
     #message(${PlatformSourceFile})
     list(APPEND SourceFile ${PlatformSourceFile})
     add_library(GuGu SHARED ${SourceFile})
-    target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer" PRIVATE "../thirdParty/vkbootstrap")
+    target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer" PRIVATE "../thirdParty/vkbootstrap" PRIVATE "Core")
     add_definitions(-DVK_USE_PLATFORM_ANDROID_KHR=TRUE) #fix this
     find_package(game-activity)
     find_library(log-lib log) #ndk library

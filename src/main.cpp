@@ -1,5 +1,7 @@
 #include <Window/Window.h>
 
+#include <Core/GuGuUtf8Str.h>
+
 #ifdef WIN32
 #include <Application/Platform/Windows/WindowsApplication.h>
 #else 
@@ -11,14 +13,30 @@
 
 #ifdef WIN32
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
+//int32_t main()
 {
-	//std::shared_ptr<GuGu::Window> window = GuGu::CreateWindowFactory();
+	std::shared_ptr<GuGu::Window> window = GuGu::CreateWindowFactory();
+    //system("chcp 65001");
+    //GuGu::GuGuUtf8Str str(u8"你好呀!我日，想自由");
+    //std::cout << str;
+
+
+	//std::ofstream f(u8"测试.txt", std::ios_base::out);
+	//for (size_t i = 0; i < str.len(); ++i)
+	//{
+	//	GuGu::GuGuUtf8Str q = str[i];
+	//	f << q << u8'\n';
+	//}
+    //GuGu::GuGuUtf8Str q = str.substr(3, -1);
+	//f << q;
+		
+	//f.close();
 
 	std::shared_ptr<GuGu::Application> application = GuGu::CreateApplicationFactory();
 	std::shared_ptr<GuGu::WindowsApplication> windowsApplication = std::static_pointer_cast<GuGu::WindowsApplication>(application);
 	windowsApplication->setNativeApplicationHandleAndCmdShow(hInstance, nCmdShow);
 
-    application->init();
+	application->init();
 	application->Run();
 	return 0;
 }

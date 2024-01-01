@@ -16,7 +16,7 @@ namespace GuGu {
 
 		void setNativeApplicationHandleAndCmdShow(HINSTANCE applicationInstance, int32_t cmdShow);
 
-		virtual bool pumpMessage() override;
+		virtual void pumpMessage() override;
 
 		virtual void init() override;
 

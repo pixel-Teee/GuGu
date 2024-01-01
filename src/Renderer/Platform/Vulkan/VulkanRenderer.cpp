@@ -14,6 +14,8 @@
 #include <android/log.h>
 #include <android/asset_manager_jni.h>
 
+#include <Core/GuGuUtf8Str.h>
+
 #define LOG_TAG "AndroidLog"
 #define ALOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 
@@ -82,6 +84,8 @@ std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path,
         initSyncStructures();
         initPipelines();
         //AndroidApplication::getApplication()->setExit(true);
+        //GuGuUtf8Str str(u8"你好呀，android studio!");
+        //ALOGD("%s", str.getStr());
     }
 
     void VulkanRenderer::onRender() {
@@ -194,7 +198,7 @@ std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path,
         //increase the number of frames drawn
         m_frameNumber++;
 
-        ALOGD("%d", m_frameNumber);
+        //ALOGD("%d", m_frameNumber);
     }
 
     void VulkanRenderer::onDestroy() {
