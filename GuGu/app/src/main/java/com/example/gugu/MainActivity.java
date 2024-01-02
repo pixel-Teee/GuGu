@@ -1,5 +1,7 @@
 package com.example.gugu;
 
+import android.content.Context;
+import android.os.Bundle;
 import android.view.View;
 
 import com.google.androidgamesdk.GameActivity;
@@ -17,6 +19,16 @@ public class MainActivity extends GameActivity {
             hideSystemUi();
         }
     }
+    @Override
+    protected void onCreate(Bundle savedInstanceState)
+    {
+        super.onCreate(savedInstanceState);
+
+        Context androidContext = getApplicationContext();
+        String dataDirStr = androidContext.getDataDir().getAbsolutePath();
+        String fileDirStr = androidContext.getFilesDir().getAbsolutePath();
+        passInternalStorageDataPathAndFilePath(dataDirStr, fileDirStr);
+    }
 
     private void hideSystemUi() {
         View decorView = getWindow().getDecorView();
@@ -29,4 +41,6 @@ public class MainActivity extends GameActivity {
                         | View.SYSTEM_UI_FLAG_FULLSCREEN
         );
     }
+
+    private native void passInternalStorageDataPathAndFilePath(String dataPath, String filePath);
 }

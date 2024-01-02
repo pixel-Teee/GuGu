@@ -462,5 +462,9 @@ namespace GuGu {
 			out << str.m_str[i];
 		return out;
 	}
+
+    const char *GuGuUtf8Str::getStr() const {
+        return m_str;
+    }
 }
 

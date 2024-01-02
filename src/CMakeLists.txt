@@ -15,7 +15,7 @@ file(GLOB SourceFile "main.cpp"
 if(WIN32)
     message("[message]:this platform is windows!")
     file(GLOB PlatformSourceFile "Window/Platform/Windows/*.h" "Window/Platform/Windows/*.cpp" "Application/Platform/Windows/*.h" "Application/Platform/Windows/*.cpp"
-    "Renderer/Platform/D3D12/*.h" "Renderer/Platform/D3D12/*.cpp")
+    "Renderer/Platform/D3D12/*.h" "Renderer/Platform/D3D12/*.cpp" "Core/Platform/Windows/*.h" "Core/Platform/Windows/*.h")
     list(APPEND SourceFile ${PlatformSourceFile})
     add_executable(GuGu WIN32 ${SourceFile})
     target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer" PRIVATE "Core")
@@ -32,7 +32,7 @@ elseif(ANDROID)
     #find_package(Vulkan REQUIRED)
     file(GLOB PlatformSourceFile "Window/Platform/Android/*.h" "Window/Platform/Android/*.cpp" "Application/Platform/Android/*.h" "Application/Platform/Android/*.cpp"
     "Renderer/Platform/Vulkan/*.h" "Renderer/Platform/Vulkan/*.cpp"
-    "../thirdParty/vkbootstrap/*.h" "../thirdParty/vkbootstrap/*.cpp")
+    "../thirdParty/vkbootstrap/*.h" "../thirdParty/vkbootstrap/*.cpp" "Core/Platform/Android/*.h" "Core/Platform/Android/*.cpp")
     #message(${PlatformSourceFile})
     list(APPEND SourceFile ${PlatformSourceFile})
     add_library(GuGu SHARED ${SourceFile})

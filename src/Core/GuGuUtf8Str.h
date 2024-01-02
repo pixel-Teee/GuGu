@@ -50,6 +50,8 @@ namespace GuGu {
 
 		char* getStr();
 
+		const char* getStr() const;
+
 		void clear();
 
 		friend std::ostream& operator<<(std::ostream& out, const GuGuUtf8Str& str);

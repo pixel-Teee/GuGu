@@ -16,6 +16,8 @@
 
 #include <Core/GuGuUtf8Str.h>
 
+#include <Core/Platform/Android/AndroidGuGuFile.h>
+
 //#define LOG_TAG "AndroidLog"
 //#define ALOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 
@@ -57,6 +59,30 @@ std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path,
 
     AAsset_read(file, file_content.data(), file_length);
     AAsset_close(file);
+    return file_content;
+}
+
+std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path){
+    std::vector<uint8_t> file_content;
+
+    GuGuUtf8Str filePath(file_path);
+    AndroidGuGuFile file;
+    file.OpenFile(filePath, GuGuFile::FileMode::OnlyRead);
+
+    int32_t fileLength = file.getFileSize();
+    file_content.resize(fileLength);
+
+    file.ReadFile(file_content.data(), fileLength);
+    //assert(assetManager);
+    //AAsset *file =
+    //        AAssetManager_open(assetManager, file_path, AASSET_MODE_BUFFER);
+    //size_t file_length = AAsset_getLength(file);
+//
+    //file_content.resize(file_length);
+//
+    //AAsset_read(file, file_content.data(), file_length);
+    //AAsset_close(file);
+    file.CloseFile();
     return file_content;
 }
 //#else
@@ -447,7 +473,8 @@ std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path,
     bool VulkanRenderer::loadShaderModule(const char *filePath, VkShaderModule *outShaderModule) {
         std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
 
-        std::vector<uint8_t> buffer = LoadBinaryFileToVector(filePath, androidApplication->getAssetManager());
+        //std::vector<uint8_t> buffer = LoadBinaryFileToVector(filePath, androidApplication->getAssetManager());
+        std::vector<uint8_t> buffer = LoadBinaryFileToVector(filePath);
         //create a new shader module, using the buffer we loaded
         VkShaderModuleCreateInfo createInfo = {};
         createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;

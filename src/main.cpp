@@ -17,12 +17,26 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 //int32_t main()
 {
 	//std::shared_ptr<GuGu::Window> window = GuGu::CreateWindowFactory();
-	//system("chcp 65001");
+	//
 	GuGu::GuGuUtf8Str str(u8"你好呀!我日，想自由");
 	////std::cout << str;
+	
+
+	if (::GetConsoleWindow() == NULL)
+	{
+		if (::AllocConsole())
+		{
+			(void)freopen("CONIN$", "r", stdin);
+			(void)freopen("CONOUT$", "w", stdout);
+			(void)freopen("CONOUT$", "w", stderr);
+
+			//SetFocus(::GetConsoleWindow());
+		}
+	}
+
+    system("chcp 65001");
 	GuGu_LOGD("%s", str.getStr());
 	GuGu_LOGI("%s", str.getStr());
-
 	//std::ofstream f(u8"测试.txt", std::ios_base::out);
 	//for (size_t i = 0; i < str.len(); ++i)
 	//{
@@ -49,10 +63,25 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	#include <game-text-input/gametextinput.cpp>
     #include <android/log.h>
     #include <Renderer/Platform/Vulkan/VulkanRenderer.h>
+    #include <Core/Platform/Android/AndroidGuGuFile.h>
     //#define LOG_TAG "AndroidLog"
     //#define ALOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 extern "C" {
 	#include <game-activity/native_app_glue/android_native_app_glue.c>
+JNIEXPORT void JNICALL
+Java_com_example_gugu_MainActivity_passInternalStorageDataPathAndFilePath(JNIEnv *env, jobject thiz,
+                                                                          jstring data_path,
+                                                                          jstring file_path) {
+    const char* internalStorageDataPath = env->GetStringUTFChars(data_path, NULL);
+    const char* internalStorageFilePath = env->GetStringUTFChars(file_path, NULL);
+    //ALOGD("internal storage data path : %s", internalStorageDataPath);
+    //ALOGD("internal storage file path : %s", internalStorageFilePath);
+    GuGu::GuGuUtf8Str dataPath(internalStorageDataPath);
+    GuGu::GuGuUtf8Str filePath(internalStorageFilePath);
+    GuGu::AndroidGuGuFile::setInternalPath(dataPath, filePath);
+    env->ReleaseStringUTFChars(data_path, internalStorageDataPath);
+    env->ReleaseStringUTFChars(file_path, internalStorageFilePath);
+}
 void handle_cmd(android_app *pApp, int32_t cmd) {
     std::shared_ptr<GuGu::AndroidApplication> androidApplication = *reinterpret_cast<std::shared_ptr<GuGu::AndroidApplication>*>(pApp->userData);
     //std::shared_ptr<GuGu::Renderer> renderer = androidApplication->getRenderer();
@@ -67,7 +96,8 @@ void handle_cmd(android_app *pApp, int32_t cmd) {
             androidApplication->setSurfaceReady(true);
             androidApplication->setAndroidNativeWindow(pApp);
 
-            androidApplication->setAssetManager(pApp->activity->assetManager);
+            //androidApplication->setAssetManager(pApp->activity->assetManager);
+            GuGu::AndroidGuGuFile::setAssetManager(pApp->activity->assetManager);
             break;
         case APP_CMD_TERM_WINDOW:
             // The window is being destroyed. Use this to clean up your userData to avoid leaking
