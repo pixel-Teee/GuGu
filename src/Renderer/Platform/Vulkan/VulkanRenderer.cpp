@@ -16,8 +16,8 @@
 
 #include <Core/GuGuUtf8Str.h>
 
-#define LOG_TAG "AndroidLog"
-#define ALOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
+//#define LOG_TAG "AndroidLog"
+//#define ALOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 
 namespace GuGu{
 
@@ -29,8 +29,7 @@ namespace GuGu{
 		VkResult err = x;                                           \
 		if (err)                                                    \
 		{                                                           \
-            ALOGD("Detected Vulkan error: ");                       \
-            ALOGD("%d, %d", err, __LINE__ );                                       \
+            GuGu_LOGE("Detected Vulkan error: %d errorCode", err);   \
 			abort();                                                \
 		}                                                           \
 	} while (0)
@@ -41,7 +40,7 @@ inline VKAPI_ATTR VkBool32 VKAPI_CALL default_debug_callback(VkDebugUtilsMessage
                                                              void*) {
     auto ms = vkb::to_string_message_severity(messageSeverity);
     auto mt = vkb::to_string_message_type(messageType);
-    ALOGD("[%s: %s]\n%s\n", ms, mt, pCallbackData->pMessage);
+    GuGu_LOGD("[%s: %s]\n%s\n", ms, mt, pCallbackData->pMessage);
 
     return VK_FALSE; // Applications must return false here
 }
@@ -471,20 +470,20 @@ std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path,
         VkShaderModule triangleFragShader;
         if (!loadShaderModule("triangle.frag.spv", &triangleFragShader))
         {
-            ALOGD("Error when building the triangle fragment shader module");
+            GuGu_LOGE("Error when building the triangle fragment shader module");
         }
         else {
-            ALOGD("Triangle fragment shader successfully loaded");
+            GuGu_LOGD("Triangle fragment shader successfully loaded");
         }
 
         VkShaderModule triangleVertexShader;
         if (!loadShaderModule("triangle.vert.spv", &triangleVertexShader))
         {
-            ALOGD("Error when building the triangle vertex shader module");
+            GuGu_LOGE("Error when building the triangle vertex shader module");
 
         }
         else {
-            ALOGD("Triangle vertex shader successfully loaded");
+            GuGu_LOGD("Triangle vertex shader successfully loaded");
         }
 
         //build the pipeline layout that controls the inputs/outputs of the shader

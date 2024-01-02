@@ -5,6 +5,7 @@
 #include <cstring>
 #include <memory>
 #include <cassert>
+#include <log.h>
 
 #ifdef WIN32
 //------window platform header file------

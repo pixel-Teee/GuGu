@@ -12,14 +12,16 @@
 #endif
 
 #ifdef WIN32
+#include <fstream>
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow)
 //int32_t main()
 {
-	std::shared_ptr<GuGu::Window> window = GuGu::CreateWindowFactory();
-    //system("chcp 65001");
-    //GuGu::GuGuUtf8Str str(u8"你好呀!我日，想自由");
-    //std::cout << str;
-
+	//std::shared_ptr<GuGu::Window> window = GuGu::CreateWindowFactory();
+	//system("chcp 65001");
+	GuGu::GuGuUtf8Str str(u8"你好呀!我日，想自由");
+	////std::cout << str;
+	GuGu_LOGD("%s", str.getStr());
+	GuGu_LOGI("%s", str.getStr());
 
 	//std::ofstream f(u8"测试.txt", std::ios_base::out);
 	//for (size_t i = 0; i < str.len(); ++i)
@@ -27,9 +29,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	//	GuGu::GuGuUtf8Str q = str[i];
 	//	f << q << u8'\n';
 	//}
-    //GuGu::GuGuUtf8Str q = str.substr(3, -1);
+	//GuGu::GuGuUtf8Str q = str.substr(3, -1);
 	//f << q;
-		
+	//
 	//f.close();
 
 	std::shared_ptr<GuGu::Application> application = GuGu::CreateApplicationFactory();
