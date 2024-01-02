@@ -48,6 +48,8 @@ namespace GuGu {
 
 		GuGuUtf8Str operator[](size_t pos);
 
+		std::wstring getUtf16String() const;//useful for win32 api
+
 		char* getStr();
 
 		const char* getStr() const;

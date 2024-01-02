@@ -1,6 +1,8 @@
 #pragma once
 #include "Renderer.h"
 
+#include "CustomInclude.h"
+
 namespace GuGu {
 	class D3D12Renderer : public Renderer
 	{
@@ -65,5 +67,7 @@ namespace GuGu {
 		uint64_t m_fenceValue;
 
 		float m_aspectRatio;
+
+		CustomInclude m_include;
 	};
 }

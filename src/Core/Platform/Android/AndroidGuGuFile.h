@@ -21,7 +21,7 @@ namespace GuGu{
 
         virtual void WriteFile(void* buffer, int32_t numberOfBytesToWrite) override;
 
-        virtual void ReadFile(void* buffer, int32_t numberOfBytesToRead) override;
+        virtual int32_t ReadFile(void* buffer, int32_t numberOfBytesToRead) override;
 
         static void setInternalPath(const GuGuUtf8Str& internalDataPath, const GuGuUtf8Str& internalFilePath);
 

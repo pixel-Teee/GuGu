@@ -15,7 +15,7 @@ file(GLOB SourceFile "main.cpp"
 if(WIN32)
     message("[message]:this platform is windows!")
     file(GLOB PlatformSourceFile "Window/Platform/Windows/*.h" "Window/Platform/Windows/*.cpp" "Application/Platform/Windows/*.h" "Application/Platform/Windows/*.cpp"
-    "Renderer/Platform/D3D12/*.h" "Renderer/Platform/D3D12/*.cpp" "Core/Platform/Windows/*.h" "Core/Platform/Windows/*.h")
+    "Renderer/Platform/D3D12/*.h" "Renderer/Platform/D3D12/*.cpp" "Core/Platform/Windows/*.h" "Core/Platform/Windows/*.h" "Core/Platform/Windows/*.h" "Core/Platform/Windows/*.cpp")
     list(APPEND SourceFile ${PlatformSourceFile})
     add_executable(GuGu WIN32 ${SourceFile})
     target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer" PRIVATE "Core")

@@ -211,8 +211,8 @@ namespace GuGu {
 #else
 			uint32_t compileFlags = 0;
 #endif
-			D3DCompileFromFile(L"..//..//asset//shaders.hlsl", nullptr, nullptr, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, nullptr);
-			D3DCompileFromFile(L"..//..//asset//shaders.hlsl", nullptr, nullptr, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, nullptr);
+			D3DCompileFromFile(L"..//..//asset//shaders.hlsl", nullptr, &m_include, "VSMain", "vs_5_0", compileFlags, 0, &vertexShader, nullptr);
+			D3DCompileFromFile(L"..//..//asset//shaders.hlsl", nullptr, &m_include, "PSMain", "ps_5_0", compileFlags, 0, &pixelShader, nullptr);
 
 			//define the vertex input layout
 			D3D12_INPUT_ELEMENT_DESC inputElementsDescs[] = {

@@ -436,6 +436,37 @@ namespace GuGu {
 		assert(pos < m_len);
 		return substr(pos, 1);
 	}
+	std::wstring GuGuUtf8Str::getUtf16String() const
+	{
+		std::wstring res;
+		uint32_t currentByteCount = 0;
+		//covert utf8 to unicode
+		for (int32_t i = 0; i < m_characterByteCount.size(); ++i)
+		{
+			uint32_t unicode = 0;
+			if (m_characterByteCount[i] == 1)
+			{
+				unicode = m_str[currentByteCount];
+			}
+			else if (m_characterByteCount[i] == 2)
+			{
+				unicode = ((m_str[currentByteCount] & 0x1F) << 6) | (m_str[currentByteCount + 1] & 0x3F);
+			}
+			else if (m_characterByteCount[i] == 3)
+			{
+				unicode = ((m_str[currentByteCount] & 0x0F) << 12) | ((m_str[currentByteCount + 1] & 0x3F) << 6) | (m_str[currentByteCount + 2] & 0x3F);
+			}
+			else if (m_characterByteCount[i] == 4)
+			{
+				unicode = ((m_str[currentByteCount] & 0x07) << 18) | ((m_str[currentByteCount + 1] & 0x3F) << 12) | ((m_str[currentByteCount + 2] & 0x3F) << 6) | (m_str[currentByteCount + 3] & 0x3F);
+			}
+			currentByteCount += m_characterByteCount[i];
+
+			res.push_back(unicode);
+		}
+
+		return res;
+	}
 	char* GuGuUtf8Str::getStr()
 	{
 		return m_str;
