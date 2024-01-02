@@ -72,7 +72,8 @@ std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path){
     int32_t fileLength = file.getFileSize();
     file_content.resize(fileLength);
 
-    file.ReadFile(file_content.data(), fileLength);
+    int32_t haveReadedLength = 0;
+    file.ReadFile(file_content.data(), fileLength, haveReadedLength);
     //assert(assetManager);
     //AAsset *file =
     //        AAssetManager_open(assetManager, file_path, AASSET_MODE_BUFFER);

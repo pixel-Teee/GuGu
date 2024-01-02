@@ -65,18 +65,21 @@ namespace GuGu{
         fwrite(buffer, 1, numberOfBytesToWrite, m_fileHandle);
     }
 
-    int32_t AndroidGuGuFile::ReadFile(void *buffer, int32_t numberOfBytesToRead) {
+    int32_t AndroidGuGuFile::ReadFile(void *buffer, int32_t numberOfBytesToRead, int32_t& numberOfBytesHaveReaded) {
         if(!m_usingAssetManager)
         {
-            int32_t size = fread(buffer, 1, numberOfBytesToRead, m_fileHandle);
-            GuGu_LOGD("read file size: %d", size);
-            return size;
+            numberOfBytesHaveReaded = fread(buffer, 1, numberOfBytesToRead, m_fileHandle);
+            GuGu_LOGD("read file size: %d", numberOfBytesHaveReaded);
+
+            if(!numberOfBytesHaveReaded) return false;
+            return true;
         }
         else
         {
-            int32_t size = AAsset_read(m_asset, buffer, numberOfBytesToRead);
-            GuGu_LOGD("read file size: %d", size);
-            return size;
+            numberOfBytesHaveReaded = AAsset_read(m_asset, buffer, numberOfBytesToRead);
+            GuGu_LOGD("read file size: %d", numberOfBytesHaveReaded);
+            if(numberOfBytesHaveReaded < 0) return false;
+            return true;
         }
     }
 

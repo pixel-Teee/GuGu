@@ -40,13 +40,13 @@ namespace GuGu {
 		::WriteFile(m_fileHandle, buffer, numberOfBytesToWrite, tmpValue, nullptr);
 		numberOfBytesWereWritten = *tmpValue;
 	}
-	int32_t WindowsGuGuFile::ReadFile(void* buffer, int32_t numberOfBytesToRead)
+	int32_t WindowsGuGuFile::ReadFile(void* buffer, int32_t numberOfBytesToRead, int32_t& numberOfBytesHaveReaded)
 	{
-		int32_t numberOfBytesWereRead = 0;
+		//int32_t numberOfBytesWereRead = 0;
 		LPDWORD tmpValue = 0;
-		::ReadFile(m_fileHandle, buffer, numberOfBytesToRead, tmpValue, nullptr);
-		numberOfBytesWereRead = *tmpValue;
-		return numberOfBytesToRead;
+		bool retValue = ::ReadFile(m_fileHandle, buffer, numberOfBytesToRead, tmpValue, nullptr);
+		numberOfBytesHaveReaded = *tmpValue;
+		return retValue;
 	}
 	int32_t WindowsGuGuFile::getFileSize()
 	{

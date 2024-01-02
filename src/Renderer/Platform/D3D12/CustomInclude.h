@@ -24,8 +24,11 @@ namespace GuGu {
 			GuGuUtf8Str pathStr(pFileName);
 			m_file.OpenFile(pathStr, GuGuFile::OnlyRead);
 			int32_t fileSize = m_file.getFileSize();
-			*pBytes = m_file.ReadFile(ppData, fileSize);
-			return S_OK;
+			int32_t haveReadedBytes = 0;
+			bool retValue = m_file.ReadFile(ppData, fileSize, haveReadedBytes);
+			*pBytes = haveReadedBytes;
+			if (retValue) return S_OK;
+			else return S_FALSE;
 		}
 
 		STDMETHOD(Close)(LPCVOID pData) {

@@ -21,7 +21,7 @@ namespace GuGu {
 
 		virtual void WriteFile(void* buffer, int32_t numberOfBytesToWrite) = 0;
 
-		virtual int32_t ReadFile(void* buffer, int32_t numberOfBytesToRead) = 0;
+		virtual int32_t ReadFile(void* buffer, int32_t numberOfBytesToRead, int32_t& numberOfBytesHaveReaded) = 0;
 
 		virtual int32_t getFileSize() = 0;
 	};

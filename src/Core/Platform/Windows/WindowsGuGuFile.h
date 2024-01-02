@@ -15,7 +15,7 @@ namespace GuGu {
 
 		virtual void WriteFile(void* buffer, int32_t numberOfBytesToWrite) override;
 
-		virtual int32_t ReadFile(void* buffer, int32_t numberOfBytesToRead) override;
+		virtual int32_t ReadFile(void* buffer, int32_t numberOfBytesToRead, int32_t& numberOfBytesHaveReaded) override;
 
 		virtual int32_t getFileSize() override;
 	private:
