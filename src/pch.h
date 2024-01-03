@@ -6,6 +6,9 @@
 #include <memory>
 #include <cassert>
 #include <log.h>
+#include <optional>
+#include <map>
+#include <set>
 
 #ifdef WIN32
 //------window platform header file------

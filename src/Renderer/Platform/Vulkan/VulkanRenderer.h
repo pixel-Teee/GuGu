@@ -43,6 +43,7 @@ namespace GuGu{
     };
 
     class VulkanAdapter;
+    class VulkanDevice;
     class VulkanRenderer : public Renderer
     {
     public:
@@ -112,5 +113,6 @@ namespace GuGu{
         DeletionQueue m_mainDeletionQueue;
 
         std::shared_ptr<VulkanAdapter> m_adapter;
+        std::shared_ptr<VulkanDevice> m_logicDevice;
     };
 }

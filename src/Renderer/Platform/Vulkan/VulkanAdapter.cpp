@@ -4,13 +4,11 @@
 
 #include <vector>
 
+//#include "VulkanDevice.h"
+
+#include "VulkanCommon.h"
+
 namespace GuGu{
-
-    constexpr bool enableValidationLayers = true;
-
-    const std::vector<const char*> validationLayers = {
-         "VK_LAYER_KHRONOS_validation"
-    };
 
     bool checkValidationLayerSupport(){
        uint32_t layerCount;
@@ -88,8 +86,28 @@ namespace GuGu{
         createInfo.pfnUserCallback = debugCallback;
     }
 
+    int rateDeviceSuitability(VkPhysicalDevice device) {
+
+        //int score = 0;
+//
+        //// Discrete GPUs have a significant performance advantage
+        //if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
+        //    score += 1000;
+        //}
+//
+        //// Maximum possible size of textures affects graphics quality
+        //score += deviceProperties.limits.maxImageDimension2D;
+//
+        //// Application can't function without geometry shaders
+        //if (!deviceFeatures.geometryShader) {
+        //    return 0;
+        //}
+
+        return 100;
+    }
+
     void VulkanAdapter::init() {
-        VkApplicationInfo appInfo;
+        VkApplicationInfo appInfo{};
         appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
         appInfo.pApplicationName = "GuGu";
         appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
@@ -123,15 +141,15 @@ namespace GuGu{
         }
 
         //------enumerate extension------
-        //uint32_t extensionCount = 0;
-        //vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-        //std::vector<VkExtensionProperties> extensions(extensionCount);
-        //vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
-        //GuGu_LOGD("available extensions:\n");
-//
-        //for (const auto& extension : extensions) {
-        //    GuGu_LOGD("%s\n", extension.extensionName);
-        //}
+        uint32_t enumerationExtensionCount = 0;
+        vkEnumerateInstanceExtensionProperties(nullptr, &enumerationExtensionCount, nullptr);
+        std::vector<VkExtensionProperties> enumerationExtension(enumerationExtensionCount);
+        vkEnumerateInstanceExtensionProperties(nullptr, &enumerationExtensionCount, enumerationExtension.data());
+        GuGu_LOGD("available extensions:\n");
+
+        for (const auto& extension : enumerationExtension) {
+            GuGu_LOGD("%s\n", extension.extensionName);
+        }
 
         auto extensions = getRequiredExtensions();
         createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
@@ -149,6 +167,7 @@ namespace GuGu{
     VulkanAdapter::VulkanAdapter() {
         init();
         setupDebugMessenger();
+        pickPhysicalDevice();
     }
 
     void VulkanAdapter::setupDebugMessenger() {
@@ -180,5 +199,79 @@ namespace GuGu{
 
     VkDebugUtilsMessengerEXT VulkanAdapter::getDebugMessenger() {
         return m_debugMessenger;
+    }
+
+
+
+    bool checkDeviceExtensionSupport(VkPhysicalDevice device) {
+        uint32_t extensionCount;
+        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
+
+        std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+
+        GuGu_LOGD("available device extensions:\n");
+        for (const auto& extension : availableExtensions) {
+            GuGu_LOGD("%s\n", extension.extensionName);
+        }
+
+        std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
+
+        for (const auto& extension : availableExtensions) {
+            requiredExtensions.erase(extension.extensionName);
+        }
+
+        return requiredExtensions.empty();
+    }
+
+    bool isDeviceSuitable(VkPhysicalDevice device) {
+        QueueFamilyIndices indices = findQueueFamilies(device);
+
+        bool extensionsSupported = checkDeviceExtensionSupport(device);
+
+        return indices.isComplete() && extensionsSupported;
+    }
+
+    void VulkanAdapter::pickPhysicalDevice() {
+        uint32_t deviceCount = 0;
+        vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
+
+        if(deviceCount == 0)
+        {
+            GuGu_LOGD("failed to find GPUs with Vulkan support!");
+        }
+
+        std::vector<VkPhysicalDevice> devices(deviceCount);
+        vkEnumeratePhysicalDevices(m_instance, &deviceCount, devices.data());
+
+        for (const auto& device : devices) {
+            if (isDeviceSuitable(device)) {
+                m_physicalDevice = device;
+                break;
+            }
+        }
+
+        if (m_physicalDevice == VK_NULL_HANDLE) {
+            GuGu_LOGD("failed to find a suitable GPU!");
+        }
+
+        // Use an ordered map to automatically sort candidates by increasing score
+        std::multimap<int, VkPhysicalDevice> candidates;
+
+        for (const auto& device : devices) {
+            int score = rateDeviceSuitability(device);
+            candidates.insert(std::make_pair(score, device));
+        }
+
+        // Check if the best candidate is suitable at all
+        if (candidates.rbegin()->first > 0) {
+            m_physicalDevice = candidates.rbegin()->second;
+        } else {
+            GuGu_LOGD("failed to find a suitable GPU!");
+        }
+    }
+
+    VkPhysicalDevice VulkanAdapter::getAdapterHandle() {
+        return m_physicalDevice;
     }
 }
