@@ -20,5 +20,16 @@
 #else
     #ifdef ANDROID
         #include <vulkan/vulkan.h>
+
+        #define VK_CHECK(x)                                             \
+	    do                                                              \
+	    {                                                               \
+		    VkResult err = x;                                           \
+		    if (err)                                                    \
+		    {                                                           \
+                GuGu_LOGE("Detected Vulkan error: %d errorCode", err);  \
+		    	abort();                                                \
+		    }                                                           \
+	    } while (0)
     #endif
 #endif

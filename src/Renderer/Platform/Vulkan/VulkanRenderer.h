@@ -42,6 +42,7 @@ namespace GuGu{
         }
     };
 
+    class VulkanAdapter;
     class VulkanRenderer : public Renderer
     {
     public:
@@ -109,5 +110,7 @@ namespace GuGu{
         VkPipeline m_trianglePipeline;
         VkPipelineLayout  m_trianglePipelineLayout;
         DeletionQueue m_mainDeletionQueue;
+
+        std::shared_ptr<VulkanAdapter> m_adapter;
     };
 }

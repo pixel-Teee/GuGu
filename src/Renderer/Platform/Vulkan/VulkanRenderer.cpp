@@ -21,6 +21,8 @@
 //#define LOG_TAG "AndroidLog"
 //#define ALOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 
+#include "VulkanAdapter.h"
+
 namespace GuGu{
 
     constexpr bool bUseValidationLayers = true;
@@ -102,6 +104,8 @@ std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path){
 
     void VulkanRenderer::init() {
         m_frameNumber = 0;
+        //m_adapter = std::make_shared<VulkanAdapter>();
+        //m_adapter->init();
         initVulkan();
         initSwapchain();
         initCommands();
