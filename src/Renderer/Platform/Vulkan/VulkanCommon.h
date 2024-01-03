@@ -24,4 +24,12 @@ namespace GuGu{
     const std::vector<const char*> deviceExtensions = {
             VK_KHR_SWAPCHAIN_EXTENSION_NAME
     };
+
+    struct SwapChainSupportDetails{
+        VkSurfaceCapabilitiesKHR capabilities;
+        std::vector<VkSurfaceFormatKHR> m_formats;
+        std::vector<VkPresentModeKHR> m_presentModes;
+    };
+
+    //SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
 }

@@ -23,6 +23,7 @@
 
 #include "VulkanAdapter.h"
 #include "VulkanDevice.h"
+#include "VulkanSwapchain.h"
 
 namespace GuGu{
 
@@ -162,9 +163,9 @@ std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path){
         rpInfo.renderArea.offset.x = 0;
         rpInfo.renderArea.offset.y = 0;
         //------width and height------
-        std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
-        std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
-        vkb::SwapchainBuilder swapchainBuilder{m_chosenGPU, m_device, m_surface};
+        //std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
+        //std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
+        //vkb::SwapchainBuilder swapchainBuilder{m_chosenGPU, m_device, m_surface};
         //int32_t height = ANativeWindow_getHeight(androidWindow->getNativeHandle());
         //int32_t width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
         //------width and height------
@@ -318,22 +319,28 @@ std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path){
     void VulkanRenderer::initSwapchain() {
         std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
         std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
-        vkb::SwapchainBuilder swapchainBuilder{m_chosenGPU, m_device, m_surface};
+        //vkb::SwapchainBuilder swapchainBuilder{m_chosenGPU, m_device, m_surface};
         m_height = ANativeWindow_getHeight(androidWindow->getNativeHandle());
         m_width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
-        vkb::Swapchain vkbSwapchain = swapchainBuilder
-                .use_default_format_selection()
-                //use vsync present mode
-                .set_desired_present_mode(VK_PRESENT_MODE_FIFO_KHR)
-                .set_desired_extent(m_width, m_height)
-                .build()
-                .value();
-
+        //vkb::Swapchain vkbSwapchain = swapchainBuilder
+        //        .use_default_format_selection()
+        //        //use vsync present mode
+        //        .set_desired_present_mode(VK_PRESENT_MODE_FIFO_KHR)
+        //        .set_desired_extent(m_width, m_height)
+        //        .build()
+        //        .value();
+        m_swapChainNew = std::make_shared<VulkanSwapChain>(&m_chosenGPU, &m_device, &m_surface);
+        //SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice);
+//
+        //VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
+        //VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
+        //VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
+        m_swapChainNew->init();
         //store the swapchain and its related images
-        m_swapChain = vkbSwapchain.swapchain;
-        m_swapchainImages = vkbSwapchain.get_images().value();
-        m_swapchainImageViews = vkbSwapchain.get_image_views().value();
-        m_swapchainImageFormat = vkbSwapchain.image_format;
+        m_swapChain = m_swapChainNew->getSwapChain();
+        m_swapchainImages = m_swapChainNew->getImages();
+        m_swapchainImageViews = m_swapChainNew->getImageViews();
+        m_swapchainImageFormat = m_swapChainNew->getFormat();
 
         m_mainDeletionQueue.push_function([=](){
             vkDestroySwapchainKHR(m_device, m_swapChain, nullptr);
@@ -442,7 +449,7 @@ std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path){
     void VulkanRenderer::initFrameBuffers() {
         std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
         std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
-        vkb::SwapchainBuilder swapchainBuilder{m_chosenGPU, m_device, m_surface};
+        //vkb::SwapchainBuilder swapchainBuilder{m_chosenGPU, m_device, m_surface};
         //m_height = ANativeWindow_getHeight(androidWindow->getNativeHandle());
         //m_width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
 

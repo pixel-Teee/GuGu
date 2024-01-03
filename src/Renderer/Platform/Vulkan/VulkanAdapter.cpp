@@ -224,7 +224,7 @@ namespace GuGu{
         return requiredExtensions.empty();
     }
 
-    bool isDeviceSuitable(VkPhysicalDevice device) {
+    bool isDeviceSuitable(VkPhysicalDevice device) { //todo:add swapchain support query
         QueueFamilyIndices indices = findQueueFamilies(device);
 
         bool extensionsSupported = checkDeviceExtensionSupport(device);
