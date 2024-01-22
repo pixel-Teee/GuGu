@@ -6,6 +6,9 @@
 #include <Window/Platform/Android/AndroidWindow.h>
 #include <Renderer/Platform/Vulkan/VulkanRenderer.h>
 
+#include <Renderer/nvrhi.h>//todo:remove this
+#include <Renderer/DeviceManager.h>//todo:remove this
+
 namespace GuGu{
     std::shared_ptr<AndroidApplication> globalApplication;
     AndroidApplication::AndroidApplication()
@@ -46,6 +49,14 @@ namespace GuGu{
         //create renderer and init
         m_renderer = std::make_shared<VulkanRenderer>();
         m_renderer->init();
+
+        GuGu::nvrhi::GraphicsAPI api = GuGu::nvrhi::GraphicsAPI::VULKAN;
+        GuGu::DeviceManager* deviceManager = GuGu::DeviceManager::Create(api);
+        GuGu::DeviceCreationParameters deviceParams;
+#ifdef _DEBUG
+        deviceParams.enableDebugRuntime = true;
+        deviceParams.enableNvrhiValidationLayer = true;
+#endif
     }
 
     std::shared_ptr <AndroidWindow> AndroidApplication::getPlatformWindow() {

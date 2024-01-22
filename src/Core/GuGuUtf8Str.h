@@ -14,6 +14,8 @@ namespace GuGu {
 
 		GuGuUtf8Str& operator=(const GuGuUtf8Str& rhs);
 
+        GuGuUtf8Str(const std::string& str);
+
 		~GuGuUtf8Str();
 
 		int32_t len() const;
@@ -63,6 +65,8 @@ namespace GuGu {
 
 		//iterator begin();
 		//iterator end();
+
+        bool operator==(const GuGuUtf8Str& rhs) const;
 	private:
 		char* m_str;
 		int32_t m_capacity;
@@ -70,4 +74,22 @@ namespace GuGu {
 		int32_t m_totalByteCount;
 		std::vector<uint32_t> m_characterByteCount;//every character byte count
 	};
+}
+
+namespace std
+{
+    template<>
+    struct hash<GuGu::GuGuUtf8Str>
+    {
+        size_t operator()(const GuGu::GuGuUtf8Str& s) const
+        {
+            size_t val = 0;
+            const char* str = s.getStr();
+            for(size_t i = 0; str[i]; ++i)
+            {
+                val ^= static_cast<size_t>(str[i]);
+            }
+            return val;
+        }
+    };
 }

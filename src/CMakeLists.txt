@@ -39,6 +39,8 @@ elseif(ANDROID)
     add_library(GuGu SHARED ${SourceFile})
     target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer" PRIVATE "../thirdParty/vkbootstrap" PRIVATE "Core")
     add_definitions(-DVK_USE_PLATFORM_ANDROID_KHR=TRUE) #fix this
+    add_definitions(-DUSE_VK)
+    add_definitions(-D_DEBUG)
     find_package(game-activity)
     find_library(log-lib log) #ndk library
     target_link_libraries(GuGu android game-activity::game-activity ${log-lib} vulkan)

@@ -11,6 +11,14 @@ namespace GuGu {
 	//	m_totalByteCount = 0;
 	//	m_characterByteCount.clear();
 	//}
+
+	GuGuUtf8Str::GuGuUtf8Str(const std::string &str) {
+		m_capacity = str.size();
+		m_str = new char[m_capacity + 1];
+		strcpy(m_str, str.c_str());
+		m_len = calculateCharacterByteCount();
+		m_totalByteCount = m_capacity;
+	}
 	GuGuUtf8Str::GuGuUtf8Str(const char* str) //this contains \0
 	{
 		m_capacity = strlen(str);
@@ -497,5 +505,16 @@ namespace GuGu {
     const char *GuGuUtf8Str::getStr() const {
         return m_str;
     }
+
+	bool GuGuUtf8Str::operator==(const GuGuUtf8Str &rhs) const {
+		//bool result = true;
+		if(m_len != rhs.m_len) return false;
+		for(int32_t i = 0; m_str[i] && rhs.m_str[i]; ++i)
+		{
+			if(m_str[i] != rhs.m_str[i]) return false;
+		}
+		return true;
+	}
+
 }
 
