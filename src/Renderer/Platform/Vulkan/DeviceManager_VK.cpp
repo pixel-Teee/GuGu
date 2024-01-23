@@ -255,10 +255,16 @@ namespace GuGu{
     }
 
     void DeviceManager_VK::DestroyDeviceAndSwapChain() {
+        m_rendererString.clear();
         if(m_VulkanDevice)
         {
             vkDestroyDevice(m_VulkanDevice, nullptr);
             m_VulkanDevice = nullptr;
+        }
+        if(m_windowSurface)
+        {
+            vkDestroySurfaceKHR(m_VulkanInstance, m_windowSurface, nullptr);
+            m_windowSurface = VK_NULL_HANDLE;
         }
         if(m_debugMessenger)
         {
@@ -302,6 +308,34 @@ namespace GuGu{
         pickPhysicalDevice();
         findQueueFamilies(m_VulkanPhysicalDevice);
         createDevice();
+
+        auto vecInstanceExt = stringSetToVector(enabledExtensions.instance);
+        auto vecLayers = stringSetToVector(enabledExtensions.layers);
+        auto vecDeviceExt = stringSetToVector(enabledExtensions.device);
+
+        nvrhi::vulkan::DeviceDesc deviceDesc;
+        deviceDesc.instance = m_VulkanInstance;
+        deviceDesc.physicalDevice = m_VulkanPhysicalDevice;
+        deviceDesc.device = m_VulkanDevice;
+        deviceDesc.graphicsQueue = m_GraphicsQueue;
+        deviceDesc.graphicsQueueIndex = m_GraphicsQueueFamily;
+        if (m_deviceParams.enableComputeQueue)
+        {
+            deviceDesc.computeQueue = m_ComputeQueue;
+            deviceDesc.computeQueueIndex = m_ComputeQueueFamily;
+        }
+        if (m_deviceParams.enableCopyQueue)
+        {
+            deviceDesc.transferQueue = m_TransferQueue;
+            deviceDesc.transferQueueIndex = m_TransferQueueFamily;
+        }
+        deviceDesc.instanceExtensions = vecInstanceExt.data();
+        deviceDesc.numInstanceExtensions = vecInstanceExt.size();
+        deviceDesc.deviceExtensions = vecDeviceExt.data();
+        deviceDesc.numDeviceExtensions = vecDeviceExt.size();
+        deviceDesc.bufferDeviceAddressSupported = m_BufferDeviceAddressSupported;
+
+
         return true;
     }
 
