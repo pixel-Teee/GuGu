@@ -1,5 +1,7 @@
 #include <pch.h>
 
+#include "DeviceManager_VK.h"
+
 #include <Renderer/DeviceManager.h>
 
 #include <Core/GuGuUtf8Str.h>
@@ -25,13 +27,13 @@ namespace GuGu{
     VulkanExtensions enabledExtensions = {
             //instance
             {
-                    VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME
+                    //VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME
             },
             //layers
             {},
             //device
             {
-                    VK_KHR_MAINTENANCE1_EXTENSION_NAME
+                    //VK_KHR_MAINTENANCE1_EXTENSION_NAME
             }
     };
 
@@ -48,14 +50,14 @@ namespace GuGu{
             },
             // device
             {
-                    VK_EXT_DEBUG_MARKER_EXTENSION_NAME,
-                    VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
-                    VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
-                    VK_NV_MESH_SHADER_EXTENSION_NAME,
-                    VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME,
+                    //VK_EXT_DEBUG_MARKER_EXTENSION_NAME,
+                    //VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
+                    //VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
+                    //VK_NV_MESH_SHADER_EXTENSION_NAME,
+                    //VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME,
                     //VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME,
                     //VK_KHR_MAINTENANCE_4_EXTENSION_NAME,
-                    VK_KHR_SWAPCHAIN_MUTABLE_FORMAT_EXTENSION_NAME
+                    //VK_KHR_SWAPCHAIN_MUTABLE_FORMAT_EXTENSION_NAME
             },
     };
 
@@ -105,37 +107,12 @@ namespace GuGu{
         createInfo.pfnUserCallback = debugCallback;
     }
 
-    class DeviceManager_VK : public DeviceManager{
-    public:
-
-    protected:
-        bool CreateInstanceInternal() override;
-        void DestroyDeviceAndSwapChain() override;
-        bool CreateDevice() override;
-    private:
-        bool createInstance();
-        bool createWindowSurface();
-        void installDebugCallback();
-        bool pickPhysicalDevice();
-        bool findQueueFamilies(VkPhysicalDevice physicalDevice);
-        bool createDevice();
-
-        VkInstance m_VulkanInstance;
-        //VkDebugReportCallbackEXT m_debugReportCallback;
-        VkDebugUtilsMessengerEXT m_debugMessenger;//debug messenger
-        VkSurfaceKHR m_windowSurface;
-
-        VkPhysicalDevice m_VulkanPhysicalDevice;
-        int32_t m_GraphicsQueueFamily = -1;
-        int32_t m_ComputeQueueFamily = -1;
-        int32_t m_TransferQueueFamily = -1;
-        int32_t m_PresentQueueFamily = -1;
-    };
 
     bool DeviceManager_VK::CreateInstanceInternal() {
         if(m_deviceParams.enableDebugRuntime)
         {
-            enabledExtensions.instance.insert(u8"VK_EXT_debug_report");
+            //enabledExtensions.instance.insert(u8"VK_EXT_debug_report");
+            //enabledExtensions.instance.insert(u8"VK_EXT_debug_utils");
             enabledExtensions.layers.insert(u8"VK_LAYER_KHRONOS_validation");
         }
 
@@ -206,10 +183,14 @@ namespace GuGu{
             GuGu_LOGD("%s\n", ext.getStr());
         }
 
+        if(m_deviceParams.enableDebugRuntime) {
+            enabledExtensions.instance.insert("VK_EXT_debug_utils");//todo:fix this
+        }
+
         std::unordered_set<GuGuUtf8Str> requiredLayers = enabledExtensions.layers;
         uint32_t enumerationLayerExtensionCount = 0;
         vkEnumerateInstanceLayerProperties(&enumerationLayerExtensionCount, nullptr);
-        std::vector<VkLayerProperties> enumerationLayerExtension(enumerationExtensionCount);
+        std::vector<VkLayerProperties> enumerationLayerExtension(enumerationLayerExtensionCount);
         vkEnumerateInstanceLayerProperties(&enumerationLayerExtensionCount, enumerationLayerExtension.data());
 
         for(const auto& layer : enumerationLayerExtension)
@@ -234,7 +215,7 @@ namespace GuGu{
             return false;
         }
 
-        GuGu_LOGD("enabled vulkan instance extensions:");
+        GuGu_LOGD("enabled vulkan layers:");
         for(const auto& layer : enabledExtensions.layers)
         {
             GuGu_LOGD("%s\n", layer.getStr());
@@ -259,12 +240,26 @@ namespace GuGu{
         createInfo.ppEnabledLayerNames = layerVec.data();
         createInfo.enabledExtensionCount = static_cast<uint32_t>(instanceExtVec.size());
         createInfo.ppEnabledExtensionNames = instanceExtVec.data();
+
+        if(m_deviceParams.enableDebugRuntime)
+        {
+            //enabledExtensions.instance.insert("VK_EXT_debug_utils");//todo:fix this
+            VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
+            populateDebugMessengerCreateInfo(debugCreateInfo);
+            createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*) &debugCreateInfo;
+        }
+
         VK_CHECK(vkCreateInstance(&createInfo, nullptr, &m_VulkanInstance));
 
         return true;
     }
 
     void DeviceManager_VK::DestroyDeviceAndSwapChain() {
+        if(m_VulkanDevice)
+        {
+            vkDestroyDevice(m_VulkanDevice, nullptr);
+            m_VulkanDevice = nullptr;
+        }
         if(m_debugMessenger)
         {
             DestroyDebugUtilsMessengerEXT(m_VulkanInstance, m_debugMessenger, nullptr);
@@ -296,17 +291,17 @@ namespace GuGu{
         if(!m_deviceParams.headlessDevice)
         {
             //need to adjust the swap chain format before creating the device because it affects physical device selection
-            if(m_deviceParams.swapChainFormat == nvrhi::Format::SRGBA8_UNORM)
-                m_deviceParams.swapChainFormat = nvrhi::Format::SBGRA8_UNORM;
-            else if(m_deviceParams.swapChainFormat == nvrhi::Format::RGBA8_UNORM)
-                m_deviceParams.swapChainFormat = nvrhi::Format::BGRA8_UNORM;
+            //if(m_deviceParams.swapChainFormat == nvrhi::Format::SRGBA8_UNORM)
+            //    m_deviceParams.swapChainFormat = nvrhi::Format::SBGRA8_UNORM;
+            //else if(m_deviceParams.swapChainFormat == nvrhi::Format::RGBA8_UNORM)
+            //    m_deviceParams.swapChainFormat = nvrhi::Format::BGRA8_UNORM;
 
             createWindowSurface();
         }
 
         pickPhysicalDevice();
         findQueueFamilies(m_VulkanPhysicalDevice);
-
+        createDevice();
         return true;
     }
 
@@ -331,6 +326,7 @@ namespace GuGu{
 
         VK_CHECK(vkCreateAndroidSurfaceKHR(m_VulkanInstance, &create_info,
                                            nullptr /* pAllocator */, &m_windowSurface));
+        return true;//todo:fix this
     }
 
     bool DeviceManager_VK::pickPhysicalDevice() {
@@ -407,12 +403,12 @@ namespace GuGu{
                 deviceIsGood = false;
             }
 
-            if(!physicalDeviceFeatures.textureCompressionBC)
-            {
-                errorStr.append(u8"\n");
-                errorStr.append(u8"- doest not support textureCompressionBC");
-                deviceIsGood = false;
-            }
+            //if(!physicalDeviceFeatures.textureCompressionBC)
+            //{
+            //    errorStr.append(u8"\n");
+            //    errorStr.append(u8"- doest not support textureCompressionBC");
+            //    deviceIsGood = false;
+            //}
 
             if(!findQueueFamilies(dev)) //todo:fix android platform
             {
@@ -592,8 +588,223 @@ namespace GuGu{
 
     bool DeviceManager_VK::createDevice() {
         //figure out which optional extensions are supported
-        
+        uint32_t deviceExtensionsCount;
+        vkEnumerateDeviceExtensionProperties(m_VulkanPhysicalDevice, nullptr, &deviceExtensionsCount, nullptr);
+        std::vector<VkExtensionProperties> deviceExtensions(deviceExtensionsCount);
+        vkEnumerateDeviceExtensionProperties(m_VulkanPhysicalDevice, nullptr, &deviceExtensionsCount, deviceExtensions.data());
+        for(const auto& ext : deviceExtensions)
+        {
+            const GuGuUtf8Str name(ext.extensionName);
+            if(optionalExtensions.device.find(name) != optionalExtensions.device.end())
+            {
+                if (name == VK_KHR_SWAPCHAIN_MUTABLE_FORMAT_EXTENSION_NAME && m_deviceParams.headlessDevice)
+                    continue;
+                enabledExtensions.device.insert(name);
+            }
+
+            //todo:add ray tracing check
+            //if(m_deviceParams.enableRayTracingExtensions && )
+            //{
+            //    enabledExtensions.device.insert(name);
+            //}
+        }
+        if(!m_deviceParams.headlessDevice)
+        {
+            enabledExtensions.device.insert(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+        }
+
+        VkPhysicalDeviceProperties physicalDeviceProperties;
+        vkGetPhysicalDeviceProperties(m_VulkanPhysicalDevice, &physicalDeviceProperties);
+        m_rendererString = physicalDeviceProperties.deviceName;
+
+        bool accelStructSupported = false;
+        bool rayPipelineSupported = false;
+        bool rayQuerySupported = false;
+        bool meshletsSupported = false;
+        bool vrsSupported = false;
+        bool synchronization2Supported = false;
+        bool maintenance4Supported = false;
+        GuGu_LOGD("Enabled Vulkan device extensions:");
+        for(const auto& ext : enabledExtensions.device)
+        {
+            GuGu_LOGD("%s", ext.getStr());
+            //if (ext == VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME)
+            //    accelStructSupported = true;
+            //else if (ext == VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME)
+            //    rayPipelineSupported = true;
+            //else if (ext == VK_KHR_RAY_QUERY_EXTENSION_NAME)
+            //    rayQuerySupported = true;
+            if (ext == VK_NV_MESH_SHADER_EXTENSION_NAME)
+                meshletsSupported = true;
+            else if (ext == VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME)
+                vrsSupported = true;
+            //else if (ext == VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME)
+            //    synchronization2Supported = true;
+            //else if (ext == VK_KHR_MAINTENANCE_4_EXTENSION_NAME)
+            //    maintenance4Supported = true;
+            else if (ext == VK_KHR_SWAPCHAIN_MUTABLE_FORMAT_EXTENSION_NAME)
+                m_SwapChainMutableFormatSupported = true;
+        }
+#define APPEND_EXTENSION(condition, desc) if(condition) { (desc).pNext = pNext; pNext = &(desc); }
+        void* pNext = nullptr;
+        //VkPhysicalDeviceFeatures2 physicalDeviceFeatures = {};
+        //determine support for buffer device address, the vulkan 1.2 way
+        VkPhysicalDeviceBufferDeviceAddressFeaturesEXT bufferDeviceAddressFeatures{};
+        //determine support for maintenance4
+        //todo:fix this
+        //VkPhysicalDeviceMaintenance4Features maintenance4Features = {};
+
+        APPEND_EXTENSION(true, bufferDeviceAddressFeatures);
+        //APPEND(maintenance4Supported, maintenance4Features);
+
+        //physicalDeviceFeatures.pNext = pNext;
+        //vkGetPhysicalDeviceFeatures2(m_VulkanPhysicalDevice, &physicalDeviceFeatures);
+
+        std::unordered_set<int32_t> uniqueQueueFamilies = { m_GraphicsQueueFamily };
+
+        if(!m_deviceParams.headlessDevice)
+            uniqueQueueFamilies.insert(m_PresentQueueFamily);
+
+        if (m_deviceParams.enableComputeQueue)
+            uniqueQueueFamilies.insert(m_ComputeQueueFamily);
+
+        if (m_deviceParams.enableCopyQueue)
+            uniqueQueueFamilies.insert(m_TransferQueueFamily);
+
+        float priority = 1.0f;
+        std::vector<VkDeviceQueueCreateInfo> queueDesc;
+        queueDesc.reserve(uniqueQueueFamilies.size());
+        for(int queueFamily : uniqueQueueFamilies)
+        {
+            VkDeviceQueueCreateInfo queueCreateInfo{};
+            queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+            queueCreateInfo.queueFamilyIndex = queueFamily;
+            queueCreateInfo.queueCount = 1;
+            queueCreateInfo.pQueuePriorities = &priority;
+            queueDesc.push_back(queueCreateInfo);
+        }
+
+        //VkPhysicalDeviceAccelerationStructureFeaturesKHR accelStructFeatures = {};
+        //accelStructFeatures.accelerationStructure = true;
+
+        //VkPhysicalDeviceRayTracingPipelineFeaturesKHR rayPipelineFeatures = {};
+        //rayPipelineFeatures.rayTracingPipeline = true;
+        //rayPipelineFeatures.rayTraversalPrimitiveCulling = true;
+
+        //VkPhysicalDeviceRayQueryFeaturesKHR rayQueryFeatures{};
+        //rayQueryFeatures.rayQuery = true;
+
+        VkPhysicalDeviceMeshShaderFeaturesNV meshletFeatures{};
+        meshletFeatures.taskShader = true;
+        meshletFeatures.meshShader = true;
+
+        VkPhysicalDeviceFragmentShadingRateFeaturesKHR vrsFeatures{};
+        vrsFeatures.pipelineFragmentShadingRate = true;
+        vrsFeatures.primitiveFragmentShadingRate = true;
+        vrsFeatures.attachmentFragmentShadingRate = true;
+
+        //VkPhysicalDeviceVulkan13Features vulkan13Features{};
+        //vulkan13Features.synchronization2 = synchronization2Supported;
+        //vulkan13Features.maintenance4 =
+
+        pNext = nullptr;
+        //APPEND_EXTENSION(accelStructSupported, accelStructFeatures)
+        //APPEND_EXTENSION(rayPipelineSupported, rayPipelineFeatures)
+        //APPEND_EXTENSION(rayQuerySupported, rayQueryFeatures)
+        //APPEND_EXTENSION(meshletsSupported, meshletFeatures)
+        //APPEND_EXTENSION(vrsSupported, vrsFeatures)
+        //APPEND_EXTENSION(physicalDeviceProperties.apiVersion >= VK_API_VERSION_1_3, vulkan13features)
+        //APPEND_EXTENSION(physicalDeviceProperties.apiVersion < VK_API_VERSION_1_3 && maintenance4Supported, maintenance4Features);
+#undef APPEND_EXTENSION
+        VkPhysicalDeviceFeatures deviceFeatures{};
+        //deviceFeatures.shaderImageGatherExtended = true;
+        //deviceFeatures.samplerAnisotropy = true;
+        //deviceFeatures.tessellationShader = true;
+        //deviceFeatures.textureCompressionBC = true;
+        //deviceFeatures.geometryShader = true;
+        //deviceFeatures.imageCubeArray = true;
+        //deviceFeatures.dualSrcBlend = true;
+        deviceFeatures.shaderImageGatherExtended = false;
+        deviceFeatures.samplerAnisotropy = true;
+        deviceFeatures.tessellationShader = false;
+        deviceFeatures.textureCompressionBC = false;
+        deviceFeatures.geometryShader = false;
+        deviceFeatures.imageCubeArray = false;
+        deviceFeatures.dualSrcBlend = false;
+
+        VkPhysicalDeviceVulkan12Features vulkan12Features{};
+        vulkan12Features.descriptorIndexing = true;
+        vulkan12Features.runtimeDescriptorArray = true;
+        vulkan12Features.descriptorBindingPartiallyBound = true;
+        vulkan12Features.descriptorBindingVariableDescriptorCount = true;
+        vulkan12Features.timelineSemaphore = true;
+        vulkan12Features.shaderSampledImageArrayNonUniformIndexing = true;
+        vulkan12Features.bufferDeviceAddress = bufferDeviceAddressFeatures.bufferDeviceAddress;
+        vulkan12Features.pNext = pNext;
+
+        auto layerVec = stringSetToVector(enabledExtensions.layers);
+        auto extVec = stringSetToVector(enabledExtensions.device);
+
+        VkDeviceCreateInfo deviceDesc = {};
+        deviceDesc.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+        deviceDesc.pQueueCreateInfos = queueDesc.data();
+        deviceDesc.queueCreateInfoCount = queueDesc.size();
+        deviceDesc.pEnabledFeatures = &deviceFeatures;
+        deviceDesc.enabledExtensionCount = extVec.size();
+        deviceDesc.ppEnabledExtensionNames = extVec.data();
+        deviceDesc.enabledLayerCount = layerVec.size();
+        deviceDesc.ppEnabledLayerNames = layerVec.data();
+        //deviceDesc.pNext = &vulkan12Features;
+        deviceDesc.pNext = nullptr;//todo:fix this
+
+        if (m_deviceParams.deviceCreateInfoCallback)
+            m_deviceParams.deviceCreateInfoCallback(deviceDesc);
+
+        VK_CHECK(vkCreateDevice(m_VulkanPhysicalDevice, &deviceDesc, nullptr, &m_VulkanDevice));
+
+        vkGetDeviceQueue(m_VulkanDevice, m_GraphicsQueueFamily, 0, &m_GraphicsQueue);
+        if (m_deviceParams.enableComputeQueue)
+            vkGetDeviceQueue(m_VulkanDevice, m_ComputeQueueFamily, 0, &m_ComputeQueue);
+        if (m_deviceParams.enableCopyQueue)
+            vkGetDeviceQueue(m_VulkanDevice, m_TransferQueueFamily, 0, &m_TransferQueue);
+        if (!m_deviceParams.headlessDevice)
+            vkGetDeviceQueue(m_VulkanDevice, m_PresentQueueFamily, 0, &m_PresentQueue);
+
+        // remember the bufferDeviceAddress feature enablement
+        m_BufferDeviceAddressSupported = vulkan12Features.bufferDeviceAddress;
+
+        GuGu_LOGD("Created Vulkan device: %s", m_rendererString.getStr());
+        return true;
     }
+#if 1
+    VkInstance DeviceManager_VK::getInstance() {
+        return m_VulkanInstance;
+    }
+
+    VkDebugUtilsMessengerEXT DeviceManager_VK::getDebugMessenger() {
+        return m_debugMessenger;
+    }
+
+    VkDevice DeviceManager_VK::getDevice() {
+        return m_VulkanDevice;
+    }
+
+    VkPhysicalDevice DeviceManager_VK::getPhysicalDevice() {
+        return m_VulkanPhysicalDevice;
+    }
+
+    VkQueue DeviceManager_VK::getQueue() {
+        return m_GraphicsQueue;
+    }
+
+    int32_t DeviceManager_VK::getQueueFamilyIndex() {
+        return m_GraphicsQueueFamily;
+    }
+
+    VkSurfaceKHR DeviceManager_VK::getSurface() {
+        return m_windowSurface;
+    };
+#endif
 
 
     DeviceManager *DeviceManager::CreateVK() {

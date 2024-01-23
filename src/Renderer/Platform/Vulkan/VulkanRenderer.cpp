@@ -25,6 +25,10 @@
 #include "VulkanDevice.h"
 #include "VulkanSwapchain.h"
 
+#include <Renderer/nvrhi.h>//todo:remove this
+#include <Renderer/DeviceManager.h>//todo:remove this
+#include "DeviceManager_VK.h"
+
 namespace GuGu{
 
     constexpr bool bUseValidationLayers = true;
@@ -106,10 +110,24 @@ std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path){
 
     void VulkanRenderer::init() {
         m_frameNumber = 0;
-        m_adapter = std::make_shared<VulkanAdapter>();
+        //m_adapter = std::make_shared<VulkanAdapter>();
         //m_adapter->init();
-        m_logicDevice = std::make_shared<VulkanDevice>(m_adapter);
-        m_logicDevice->init();
+        //m_logicDevice = std::make_shared<VulkanDevice>(m_adapter);
+
+        GuGu::nvrhi::GraphicsAPI api = GuGu::nvrhi::GraphicsAPI::VULKAN;
+        m_deviceManager = GuGu::DeviceManager::Create(api); //todo:delete this device manager
+        GuGu::DeviceCreationParameters deviceParams;
+#ifdef _DEBUG
+        deviceParams.enableDebugRuntime = true;
+        deviceParams.enableNvrhiValidationLayer = true;
+#endif
+        GuGuUtf8Str windowTitle = "VulkanApp";
+        if(!m_deviceManager->CreateWindowDeviceAndSwapChain(deviceParams, windowTitle))
+        {
+            GuGu_LOGE("Cannot initialize a graphics device with the requested parameters");
+            return;
+        }
+        //m_logicDevice->init();
         initVulkan();
         //vulkan_functions().init_instance_funcs(m_adapter->getInstance());
         //vulkan_functions().init_instance_funcs(m_adapter->getInstance());
@@ -264,11 +282,13 @@ std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path){
         //        .set_debug_callback(default_debug_callback)
         //        .require_api_version(1, 1, 0)
         //        .build();
-
+        DeviceManager_VK* vkDeviceManager = (DeviceManager_VK*)(m_deviceManager);
         //vkb::Instance vkbInst = instRet.value();
         //grab the instance
-        m_instance = m_adapter->getInstance();
-        m_debugMessenger = m_adapter->getDebugMessenger();
+        m_instance = vkDeviceManager->getInstance();
+        m_debugMessenger = vkDeviceManager->getDebugMessenger();
+        //m_instance = m_adapter->getInstance();
+        //m_debugMessenger = m_adapter->getDebugMessenger();
 
         //vulkan 1.3 features
         //VkPhysicalDeviceVulkan13Features features{};
@@ -281,15 +301,15 @@ std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path){
         //features12.descriptorIndexing = true;
 
         //create surface
-        const VkAndroidSurfaceCreateInfoKHR create_info{
-                .sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR,
-                .pNext = nullptr,
-                .flags = 0,
-                .window = androidWindow->getNativeHandle()};
-
-        VK_CHECK(vkCreateAndroidSurfaceKHR(m_instance, &create_info,
-                                           nullptr /* pAllocator */, &m_surface));
-
+       //const VkAndroidSurfaceCreateInfoKHR create_info{
+       //        .sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR,
+       //        .pNext = nullptr,
+       //        .flags = 0,
+       //        .window = androidWindow->getNativeHandle()};
+//
+       //VK_CHECK(vkCreateAndroidSurfaceKHR(m_instance, &create_info,
+       //                                   nullptr /* pAllocator */, &m_surface));
+        m_surface = vkDeviceManager->getSurface();
        //use vkbootstrap to select a gpu
        //we want a gpu that can write to surface and supports vulkan 1.3 with the correct features
         //vkb::PhysicalDeviceSelector selector{ vkbInst };
@@ -304,15 +324,20 @@ std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path){
         //vkb::Device vkbDevice = deviceBuilder.build().value();
 
         //get the VkDevice handle used in the rest of a vulkan application
-        m_device = m_logicDevice->getDeviceHandle();
-        m_chosenGPU = m_adapter->getAdapterHandle();
+        m_device = vkDeviceManager->getDevice();
+        m_chosenGPU = vkDeviceManager->getPhysicalDevice();
+
+        //m_device = m_logicDevice->getDeviceHandle();
+        //m_chosenGPU = m_adapter->getAdapterHandle();
 
         //use vkbootstrap to get a graphics queue
         //m_graphicsQueue = vkbDevice.get_queue(vkb::QueueType::graphics).value();
         //m_graphicsQueueFamily = vkbDevice.get_queue_index(vkb::QueueType::graphics).value();
-        m_graphicsQueue = m_logicDevice->getGraphicsQueue();
-        QueueFamilyIndices indices = findQueueFamilies(m_adapter->getAdapterHandle());
-        m_graphicsQueueFamily = indices.graphicsFamily.value();
+        m_graphicsQueue = vkDeviceManager->getQueue();
+        //m_graphicsQueue = m_logicDevice->getGraphicsQueue();
+        //QueueFamilyIndices indices = findQueueFamilies(m_adapter->getAdapterHandle());
+        m_graphicsQueueFamily = vkDeviceManager->getQueueFamilyIndex();
+        //m_graphicsQueueFamily = indices.graphicsFamily.value();;
         ++m_frameNumber;
     }
 

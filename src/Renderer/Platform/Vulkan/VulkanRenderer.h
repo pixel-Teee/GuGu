@@ -42,9 +42,11 @@ namespace GuGu{
         }
     };
 
+
     class VulkanAdapter;
     class VulkanDevice;
     class VulkanSwapChain;
+    class DeviceManager;//todo:remove this
     class VulkanRenderer : public Renderer
     {
     public:
@@ -116,5 +118,7 @@ namespace GuGu{
         std::shared_ptr<VulkanAdapter> m_adapter;
         std::shared_ptr<VulkanDevice> m_logicDevice;
         std::shared_ptr<VulkanSwapChain> m_swapChainNew;
+
+        DeviceManager* m_deviceManager;//todo:remove this
     };
 }

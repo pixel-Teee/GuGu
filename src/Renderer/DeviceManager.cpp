@@ -108,8 +108,11 @@ namespace GuGu{
 
         //todo:add message call back handle
 
+        if(!CreateDevice())
+            return false;
 
         //todo:reset the back buffer size state to enforce a resize event
+
 
         return true;
     }

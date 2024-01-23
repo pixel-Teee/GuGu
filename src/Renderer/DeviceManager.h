@@ -27,6 +27,7 @@ namespace GuGu{
         bool vsyncEnabled = false;
         bool enableComputeQueue = false;
         bool enableCopyQueue = false;
+        bool enableRayTracingExtensions = false;//for vulkan
         nvrhi::Format swapChainFormat = nvrhi::Format::RGBA8_UNORM;
 
         //index of the adapter(dx11, dx12) or physical device(vk) on which to initialize the device
@@ -36,6 +37,7 @@ namespace GuGu{
 #if USE_VK
         std::vector<GuGuUtf8Str> requiredVulkanDeviceExtensions;
         std::vector<GuGuUtf8Str> optionalVulkanDeviceExtensions;
+        std::function<void(VkDeviceCreateInfo&)> deviceCreateInfoCallback;
 #endif
     };
 
