@@ -2,14 +2,19 @@
 
 #include <Renderer/nvrhi.h>
 
-
+#include <Renderer/resource.h>
 
 namespace GuGu{
+    namespace nvrhi{
+        class IMessageCallback;
+    }
     namespace nvrhi::vulkan{
         VkFormat convertFormat(nvrhi::Format format);
 
+
         struct DeviceDesc{
             //todo:add message call back
+            IMessageCallback* errorCB = nullptr;
             VkInstance instance;
             VkPhysicalDevice physicalDevice;
             VkDevice device;
@@ -47,5 +52,9 @@ namespace GuGu{
             //virtual FramebufferHandle createHandleForNativeFramebuffer(VkRenderPass renderPass,
             //                                                           VkFramebuffer framebuffer, const FramebufferDesc& desc, bool transferOwnership) = 0;
         };
+
+        typedef RefCountPtr<IDevice> DeviceHandle;
+
+        DeviceHandle createDevice(const DeviceDesc& desc);
     }
 }

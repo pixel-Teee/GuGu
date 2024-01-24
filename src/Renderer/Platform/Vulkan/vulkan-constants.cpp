@@ -4,6 +4,8 @@
 
 #include <array>
 
+//#include "vulkan-backend.h"
+
 namespace GuGu{
     namespace nvrhi::vulkan{
         struct FormatMapping
@@ -86,5 +88,10 @@ namespace GuGu{
 
             return c_FormatMap[uint32_t(format)].vkFormat;
         }
+
+        //DeviceHandle createDevice(const DeviceDesc &desc) {
+        //    Device* device = new Device(desc);
+        //    return DeviceHandle::Create(device); //attach
+        //}
     }
 }

@@ -314,6 +314,7 @@ namespace GuGu{
         auto vecDeviceExt = stringSetToVector(enabledExtensions.device);
 
         nvrhi::vulkan::DeviceDesc deviceDesc;
+        deviceDesc.errorCB = &DefaultMessageCallback::GetInstance();
         deviceDesc.instance = m_VulkanInstance;
         deviceDesc.physicalDevice = m_VulkanPhysicalDevice;
         deviceDesc.device = m_VulkanDevice;

@@ -6,7 +6,14 @@
 #include <string>
 #include <Core/GuGuUtf8Str.h>
 
+
 namespace GuGu{
+    struct DefaultMessageCallback : public nvrhi::IMessageCallback
+    {
+        static DefaultMessageCallback& GetInstance();
+
+        void message(nvrhi::MessageSeverity severity, const char* messageText) override;
+    };
 
     struct InstanceParameters{
         bool enableDebugRuntime = false;

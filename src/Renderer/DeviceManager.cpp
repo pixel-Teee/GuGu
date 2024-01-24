@@ -132,4 +132,26 @@ namespace GuGu{
 
         m_instanceCreated = false;
     }
+
+    DefaultMessageCallback &DefaultMessageCallback::GetInstance() {
+        static DefaultMessageCallback Instance;
+        return Instance;
+    }
+
+    void DefaultMessageCallback::message(nvrhi::MessageSeverity severity, const char *messageText) {
+        switch(severity)
+        {
+            case nvrhi::MessageSeverity::Info:
+                GuGu_LOGI("%s", messageText);
+                break;
+            case nvrhi::MessageSeverity::Warning:
+                GuGu_LOGW("%s", messageText);
+                break;
+            case nvrhi::MessageSeverity::Error:
+                GuGu_LOGE("%s", messageText);
+                break;
+            //case nvrhi::MessageSeverity::Fatal:
+            //    break;
+        }
+    }
 }

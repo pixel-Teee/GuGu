@@ -88,6 +88,32 @@ namespace GuGu{
             COUNT,
         };
 
+        enum class MessageSeverity : uint8_t
+        {
+            Info,
+            Warning,
+            Error,
+            Fatal
+        };
+
+        // IMessageCallback should be implemented by the application.
+        class IMessageCallback
+        {
+        protected:
+            IMessageCallback() = default;
+            virtual ~IMessageCallback() = default;
+
+        public:
+            // NVRHI will call message(...) whenever it needs to signal something.
+            // The application is free to ignore the messages, show message boxes, or terminate.
+            virtual void message(MessageSeverity severity, const char* messageText) = 0;
+
+            IMessageCallback(const IMessageCallback&) = delete;
+            IMessageCallback(const IMessageCallback&&) = delete;
+            IMessageCallback& operator=(const IMessageCallback&) = delete;
+            IMessageCallback& operator=(const IMessageCallback&&) = delete;
+        };
+
         //IDevice
         class IDevice : public IResource
         {
