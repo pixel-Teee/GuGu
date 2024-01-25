@@ -6,8 +6,13 @@
 
 #include <vulkan/vulkan.h>
 
+#include "utils.h"
+
+#include <list>
+
 namespace GuGu{
     namespace nvrhi::vulkan{
+
         struct VulkanContext{
             VulkanContext(
                     VkInstance instance,
@@ -26,6 +31,73 @@ namespace GuGu{
             VkAllocationCallbacks* allocationCallbacks;
             VkPipelineCache pipelineCache;
         };
+        class VulkanAllocator{
+        public:
+            explicit VulkanAllocator(const VulkanContext& context)
+            : m_Context(context)
+            {}
+
+        private:
+            const VulkanContext& m_Context;
+        };
+
+        //command buffer with resource tracking
+        class TrackedCommandBuffer
+        {
+        public:
+            //the command buffer itself
+            VkCommandBuffer cmdBuf = {};
+            VkCommandPool cmdPool = {};
+
+            std::vector<RefCountPtr<IResource>> referencedResources;//to keep them alive
+            //todo:fix this
+            //std::vector<RefCountPtr<Buffer>> referencedStagingBuffers;//to allow synchronous mapBuffer
+
+            uint64_t recordingId = 0;
+            uint64_t submissionId = 0;
+
+            explicit TrackedCommandBuffer(const VulkanContext& context)
+            : m_Context(context)
+            {}
+
+            ~TrackedCommandBuffer(){}
+        private:
+            const VulkanContext& m_Context;
+        };
+
+        typedef std::shared_ptr<TrackedCommandBuffer> TrackedCommandBufferPtr;
+
+        //represents a hardware queue
+        class Queue{
+        public:
+            VkSemaphore trackingSemaphore;
+
+            //todo:add definition
+            Queue(const VulkanContext& context, CommandQueue queueID, VkQueue queue, uint32_t queueFamilyIndex);
+            ~Queue();
+
+        private:
+            const VulkanContext& m_Context;
+
+            VkQueue m_Queue;
+            CommandQueue m_QueueID;
+            uint32_t m_QueueFamilyIndex = uint32_t(-1);
+
+            std::mutex m_Mutex;
+            std::vector<VkSemaphore> m_WaitSemahpores;
+            std::vector<uint64_t> m_WaitSemahporeValues;
+            std::vector<VkSemaphore> m_SignalSemaphores;
+            std::vector<uint64_t> m_SignalSemaphoreValues;
+
+            uint64_t m_LastRecordingID = 0;
+            uint64_t m_LastSubmittedID = 0;
+            uint64_t m_LastFinishedID = 0;
+
+            //tracks the list of command buffers in flight on this queue
+            std::list<TrackedCommandBufferPtr> m_CommandBuffersInFlight;
+            std::list<TrackedCommandBufferPtr> m_CommandBuffersPool;
+        };
+
         class Device : public nvrhi::RefCounter<nvrhi::vulkan::IDevice>
         {
         public:
@@ -131,10 +203,10 @@ namespace GuGu{
 
         private:
             VulkanContext m_Context;
-            //VulkanAllocator m_Allocator;
+            VulkanAllocator m_Allocator;
 
             //vk::QueryPool m_TimerQueryPool = nullptr;
-            //utils::BitSetAllocator m_TimerQueryAllocator;
+            utils::BitSetAllocator m_TimerQueryAllocator;
 
             //std::mutex m_Mutex;
 

@@ -96,6 +96,15 @@ namespace GuGu{
             Fatal
         };
 
+        enum class CommandQueue : uint8_t
+        {
+            Graphics = 0,
+            Compute,
+            Copy,
+
+            Count
+        };
+
         // IMessageCallback should be implemented by the application.
         class IMessageCallback
         {
