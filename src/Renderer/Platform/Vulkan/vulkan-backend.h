@@ -9,6 +9,7 @@
 #include "utils.h"
 
 #include <list>
+#include <array>
 
 namespace GuGu{
     namespace nvrhi::vulkan{
@@ -211,7 +212,7 @@ namespace GuGu{
             //std::mutex m_Mutex;
 
             //// array of submission queues
-            //std::array<std::unique_ptr<Queue>, uint32_t(CommandQueue::Count)> m_Queues;
+            std::array<std::unique_ptr<Queue>, uint32_t(CommandQueue::Count)> m_Queues;
 
             //void *mapBuffer(IBuffer* b, CpuAccessMode flags, uint64_t offset, size_t size) const;
         };
