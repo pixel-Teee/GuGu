@@ -43,6 +43,14 @@ namespace GuGu{
         VkSurfaceFormatKHR m_SwapChainFormat;
         VkSwapchainKHR m_SwapChain;
 
+        struct SwapChainImage
+        {
+            VkImage image;
+            nvrhi::TextureHandle rhiHandle;
+        };
+        std::vector<SwapChainImage> m_SwapChainImages;
+        uint32_t m_SwapChainIndex = uint32_t(-1);
+
         VkPhysicalDevice m_VulkanPhysicalDevice;
 
         int32_t m_GraphicsQueueFamily = -1;

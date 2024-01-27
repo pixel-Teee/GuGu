@@ -942,8 +942,23 @@ namespace GuGu{
         vkGetSwapchainImagesKHR(m_VulkanDevice, m_SwapChain, &swapChainImageCount, images.data());
         for(auto image : images)
         {
-            //todo:add more logic
+            SwapChainImage sci;
+            sci.image = image;
+
+            nvrhi::TextureDesc textureDesc;
+            textureDesc.width = m_deviceParams.backBufferWidth;
+            textureDesc.height = m_deviceParams.backBufferHeight;
+            textureDesc.format = m_deviceParams.swapChainFormat;
+            textureDesc.debugName = "Swap chain image";
+            textureDesc.initialState = nvrhi::ResourceStates::Present;
+            textureDesc.keepInitialState = true;
+            textureDesc.isRenderTarget = true;
+
+            sci.rhiHandle = m_NvrhiDevice->createHandleForNativeTexture(nvrhi::ObjectTypes::VK_Image, nvrhi::Object(sci.image), textureDesc);
+            m_SwapChainImages.push_back(sci);
         }
+
+        m_SwapChainIndex = 0;
 
         return true;
     }

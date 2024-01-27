@@ -153,7 +153,7 @@ namespace GuGu{
             //MemoryRequirements getTextureMemoryRequirements(ITexture* texture) override;
             //bool bindTextureMemory(ITexture* texture, IHeap* heap, uint64_t offset) override;
 //
-            //TextureHandle createHandleForNativeTexture(ObjectType objectType, Object texture, const TextureDesc& desc) override;
+            TextureHandle createHandleForNativeTexture(ObjectType objectType, Object texture, const TextureDesc& desc) override;
 //
             //StagingTextureHandle createStagingTexture(const TextureDesc& d, CpuAccessMode cpuAccess) override;
             //void *mapStagingTexture(IStagingTexture* tex, const TextureSlice& slice, CpuAccessMode cpuAccess, size_t *outRowPitch) override;
