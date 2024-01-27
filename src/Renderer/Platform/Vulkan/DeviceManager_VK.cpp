@@ -71,6 +71,18 @@ namespace GuGu{
         return ret;
     }
 
+    template <typename T>
+    static std::vector<T> setToVector(const std::unordered_set<T>& set)
+    {
+        std::vector<T> ret;
+        for(const auto& s : set)
+        {
+            ret.push_back(s);
+        }
+
+        return ret;
+    }
+
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
             VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
             VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -855,11 +867,89 @@ namespace GuGu{
     bool DeviceManager_VK::createSwapChain() {
         destroySwapChain();
 
+        m_SwapChainFormat.format = nvrhi::vulkan::convertFormat(m_deviceParams.swapChainFormat);
+        m_SwapChainFormat.colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
         //todo:add more logic
+
+        VkExtent2D extent{};
+        extent.width = m_deviceParams.backBufferWidth;
+        extent.height = m_deviceParams.backBufferHeight;
+
+        std::unordered_set<uint32_t> uniqueQueues = {
+                (uint32_t)(m_GraphicsQueueFamily),
+                (uint32_t)(m_PresentQueueFamily)
+        };
+
+        std::vector<uint32_t> queues = setToVector(uniqueQueues);
+
+        const bool enableSwapChainSharing = queues.size() > 1;
+
+        VkSwapchainCreateInfoKHR swapchainCreateInfoKhr{};
+        swapchainCreateInfoKhr.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+        swapchainCreateInfoKhr.surface = m_windowSurface;
+        swapchainCreateInfoKhr.minImageCount = m_deviceParams.swapChainBufferCount;
+        swapchainCreateInfoKhr.imageFormat = m_SwapChainFormat.format;
+        swapchainCreateInfoKhr.imageColorSpace = m_SwapChainFormat.colorSpace;
+        swapchainCreateInfoKhr.imageExtent = extent;
+        swapchainCreateInfoKhr.imageArrayLayers = 1;
+        swapchainCreateInfoKhr.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+                VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+                VK_IMAGE_USAGE_SAMPLED_BIT;
+        swapchainCreateInfoKhr.imageSharingMode = enableSwapChainSharing ? VK_SHARING_MODE_CONCURRENT : VK_SHARING_MODE_EXCLUSIVE;
+        swapchainCreateInfoKhr.flags = m_SwapChainMutableFormatSupported ? VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR : 0;//note:this may be error
+        swapchainCreateInfoKhr.queueFamilyIndexCount = enableSwapChainSharing ? uint32_t(queues.size()) : 0;
+        swapchainCreateInfoKhr.pQueueFamilyIndices = enableSwapChainSharing ? queues.data() : nullptr;
+        swapchainCreateInfoKhr.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+        swapchainCreateInfoKhr.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+        swapchainCreateInfoKhr.presentMode = m_deviceParams.vsyncEnabled ? VK_PRESENT_MODE_FIFO_KHR : VK_PRESENT_MODE_IMMEDIATE_KHR;
+        swapchainCreateInfoKhr.clipped = true;
+        swapchainCreateInfoKhr.oldSwapchain = VK_NULL_HANDLE;
+
+        std::vector<VkFormat> imageFormats = { m_SwapChainFormat.format };
+        switch(m_SwapChainFormat.format)
+        {
+            case VK_FORMAT_R8G8B8A8_UNORM:
+                imageFormats.push_back(VK_FORMAT_R8G8B8A8_SRGB);
+                break;
+            case VK_FORMAT_R8G8B8A8_SRGB:
+                imageFormats.push_back(VK_FORMAT_R8G8B8A8_UNORM);
+                break;
+            case VK_FORMAT_B8G8R8A8_UNORM:
+                imageFormats.push_back(VK_FORMAT_B8G8R8A8_SRGB);
+                break;
+            case VK_FORMAT_B8G8R8A8_SRGB:
+                imageFormats.push_back(VK_FORMAT_B8G8R8A8_UNORM);
+                break;
+        }
+
+        VkImageFormatListCreateInfo imageFormatListCreateInfo{};
+        imageFormatListCreateInfo.pViewFormats = imageFormats.data();
+
+        if(m_SwapChainMutableFormatSupported)
+            swapchainCreateInfoKhr.pNext = &imageFormatListCreateInfo;
+
+        VkResult res = vkCreateSwapchainKHR(m_VulkanDevice, &swapchainCreateInfoKhr, nullptr, &m_SwapChain);
+        if(res != VK_SUCCESS)
+        {
+            GuGu_LOGE("failed to create a vulkan swap chain, error code = %s", nvrhi::vulkan::resultToString(VkResult(res)));
+            return false;
+        }
+
+        //retrieve swap chain images
+        uint32_t swapChainImageCount = 0;
+        vkGetSwapchainImagesKHR(m_VulkanDevice, m_SwapChain, &swapChainImageCount, nullptr);
+        std::vector<VkImage> images(swapChainImageCount);
+        vkGetSwapchainImagesKHR(m_VulkanDevice, m_SwapChain, &swapChainImageCount, images.data());
+        for(auto image : images)
+        {
+            //todo:add more logic
+        }
+
+        return true;
     }
 
     void DeviceManager_VK::destroySwapChain() {
-        return false;
+
     }
 
 }

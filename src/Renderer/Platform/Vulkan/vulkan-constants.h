@@ -10,7 +10,7 @@ namespace GuGu{
     }
     namespace nvrhi::vulkan{
         VkFormat convertFormat(nvrhi::Format format);
-
+        const char* resultToString(VkResult result);
         //typedef RefCountPtr<IDevice> DeviceHandle;
 
         struct DeviceDesc{

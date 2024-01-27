@@ -40,6 +40,9 @@ namespace GuGu{
         VkDebugUtilsMessengerEXT m_debugMessenger;//debug messenger
         VkSurfaceKHR m_windowSurface;
 
+        VkSurfaceFormatKHR m_SwapChainFormat;
+        VkSwapchainKHR m_SwapChain;
+
         VkPhysicalDevice m_VulkanPhysicalDevice;
 
         int32_t m_GraphicsQueueFamily = -1;
