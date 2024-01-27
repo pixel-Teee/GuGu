@@ -2,6 +2,8 @@
 
 #include "vulkan-backend.h"
 
+#include <Core/GuGuUtf8Str.h>
+
 namespace GuGu {
     namespace nvrhi::vulkan {
         Queue::Queue(const VulkanContext &context, CommandQueue queueID, VkQueue queue,
@@ -26,6 +28,13 @@ namespace GuGu {
             trackingSemaphore = VK_NULL_HANDLE;
         }
 
+        void VulkanContext::warning(const GuGuUtf8Str &message) const {
+            messageCallback->message(MessageSeverity::Warning, message.getStr());
+        }
+
+        void VulkanContext::error(const GuGuUtf8Str &message) const {
+            messageCallback->message(MessageSeverity::Warning, message.getStr());
+        }
     }
 
 }

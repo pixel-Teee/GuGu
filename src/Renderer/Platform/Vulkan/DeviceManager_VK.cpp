@@ -256,6 +256,7 @@ namespace GuGu{
 
     void DeviceManager_VK::DestroyDeviceAndSwapChain() {
         m_rendererString.clear();
+        m_NvrhiDevice = nullptr;
         if(m_VulkanDevice)
         {
             vkDestroyDevice(m_VulkanDevice, nullptr);
@@ -336,7 +337,9 @@ namespace GuGu{
         deviceDesc.numDeviceExtensions = vecDeviceExt.size();
         deviceDesc.bufferDeviceAddressSupported = m_BufferDeviceAddressSupported;
 
+        m_NvrhiDevice = nvrhi::vulkan::createDevice(deviceDesc);
 
+        //todo:add validation layer functionality
         return true;
     }
 
@@ -811,6 +814,10 @@ namespace GuGu{
         GuGu_LOGD("Created Vulkan device: %s", m_rendererString.getStr());
         return true;
     }
+    bool DeviceManager_VK::CreateSwapChain() {
+
+        return true;
+    };
 #if 1
     VkInstance DeviceManager_VK::getInstance() {
         return m_VulkanInstance;
@@ -838,13 +845,21 @@ namespace GuGu{
 
     VkSurfaceKHR DeviceManager_VK::getSurface() {
         return m_windowSurface;
-    };
+    }
 #endif
 
 
     DeviceManager *DeviceManager::CreateVK() {
         return new DeviceManager_VK();
     }
+    bool DeviceManager_VK::createSwapChain() {
+        destroySwapChain();
 
+        //todo:add more logic
+    }
+
+    void DeviceManager_VK::destroySwapChain() {
+        return false;
+    }
 
 }

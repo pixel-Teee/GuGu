@@ -11,6 +11,7 @@ namespace GuGu{
     namespace nvrhi::vulkan{
         VkFormat convertFormat(nvrhi::Format format);
 
+        //typedef RefCountPtr<IDevice> DeviceHandle;
 
         struct DeviceDesc{
             //todo:add message call back

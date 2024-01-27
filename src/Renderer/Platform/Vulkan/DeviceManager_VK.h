@@ -2,6 +2,8 @@
 
 #include <Renderer/DeviceManager.h>
 
+#include "vulkan-constants.h"
+
 namespace GuGu{
     class DeviceManager_VK : public DeviceManager{
     public:
@@ -10,7 +12,7 @@ namespace GuGu{
         bool CreateInstanceInternal() override;
         void DestroyDeviceAndSwapChain() override;
         bool CreateDevice() override;
-
+        bool CreateSwapChain() override;
 #if 1
     public:
         VkInstance getInstance();
@@ -28,6 +30,8 @@ namespace GuGu{
         bool pickPhysicalDevice();
         bool findQueueFamilies(VkPhysicalDevice physicalDevice);
         bool createDevice();
+        bool createSwapChain();
+        void destroySwapChain();
 
         GuGuUtf8Str m_rendererString;
 
@@ -50,6 +54,8 @@ namespace GuGu{
         VkQueue m_PresentQueue;
 
         bool m_BufferDeviceAddressSupported = false;
+
+        nvrhi::vulkan::DeviceHandle m_NvrhiDevice;
 
         bool m_SwapChainMutableFormatSupported = false;
     };

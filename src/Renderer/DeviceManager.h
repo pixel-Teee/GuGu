@@ -68,6 +68,7 @@ namespace GuGu{
         virtual bool CreateInstanceInternal() = 0;
         virtual void DestroyDeviceAndSwapChain() = 0;
         virtual bool CreateDevice() = 0;
+        virtual bool CreateSwapChain() = 0;
     public:
         virtual void ShutDown();
     };
