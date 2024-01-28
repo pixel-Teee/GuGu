@@ -7,9 +7,13 @@
 #include <vulkan/vulkan.h>
 
 #include "utils.h"
+#include "vk_types.h"
 
 #include <list>
 #include <array>
+#include <Renderer/state-tracking.h>
+
+#include <tuple>
 
 namespace GuGu{
     class GuGuUtf8Str;
@@ -62,6 +66,14 @@ namespace GuGu{
             void warning(const GuGuUtf8Str& message) const;
             void error(const GuGuUtf8Str& message) const;
         };
+
+        class MemoryResource
+        {
+        public:
+            bool managed = true;
+            VkDeviceMemory memory;
+        };
+
         class VulkanAllocator{
         public:
             explicit VulkanAllocator(const VulkanContext& context)
@@ -128,6 +140,107 @@ namespace GuGu{
             std::list<TrackedCommandBufferPtr> m_CommandBuffersInFlight;
             std::list<TrackedCommandBufferPtr> m_CommandBuffersPool;
         };
+
+        class Texture;
+        struct TextureSubresourceView
+        {
+            Texture& texture;
+            TextureSubresourceSet subresource;
+
+            VkImageView view = VK_NULL_HANDLE;
+            VkImageSubresourceRange subresourceRange;
+
+            TextureSubresourceView(Texture& texture)
+                    : texture(texture)
+            { }
+
+            TextureSubresourceView(const TextureSubresourceView&) = delete;
+
+            bool operator==(const TextureSubresourceView& other) const
+            {
+                return &texture == &other.texture &&
+                       subresource == other.subresource &&
+                       view == other.view &&
+                       subresourceRange.aspectMask == other.subresourceRange.aspectMask &&
+                       subresourceRange.baseMipLevel == other.subresourceRange.baseMipLevel &&
+                       subresourceRange.levelCount == other.subresourceRange.levelCount &&
+                       subresourceRange.baseArrayLayer == other.subresourceRange.baseArrayLayer &&
+                       subresourceRange.layerCount == other.subresourceRange.layerCount;
+            }
+        };
+
+        class Texture : public MemoryResource, public RefCounter<ITexture>, public TextureStateExtension
+        {
+        public:
+
+            enum class TextureSubresourceViewType // see getSubresourceView()
+            {
+                AllAspects,
+                DepthOnly,
+                StencilOnly
+            };
+
+            struct Hash
+            {
+                std::size_t operator()(std::tuple<TextureSubresourceSet, TextureSubresourceViewType, TextureDimension, Format> const& s) const noexcept
+                {
+                    const auto& [subresources, viewType, dimension, format] = s;
+
+                    size_t hash = 0;
+
+                    hash_combine(hash, subresources.baseMipLevel);
+                    hash_combine(hash, subresources.numMipLevels);
+                    hash_combine(hash, subresources.baseArraySlice);
+                    hash_combine(hash, subresources.numArraySlices);
+                    hash_combine(hash, viewType);
+                    hash_combine(hash, dimension);
+                    hash_combine(hash, format);
+
+                    return hash;
+                }
+            };
+
+
+            TextureDesc desc;
+//
+            VkImageCreateInfo imageInfo;
+            VkExternalMemoryImageCreateInfo externalMemoryImageInfo;
+            VkImage image;
+//
+            //HeapHandle heap;
+//
+            void* sharedHandle = nullptr;
+//
+            //// contains subresource views for this texture
+            //// note that we only create the views that the app uses, and that multiple views may map to the same subresources
+            std::unordered_map<std::tuple<TextureSubresourceSet, TextureSubresourceViewType, TextureDimension, Format>, TextureSubresourceView, Texture::Hash> subresourceViews;
+//
+            Texture(const VulkanContext& context, VulkanAllocator& allocator)
+                    : TextureStateExtension(desc)
+                    , m_Context(context)
+                    , m_Allocator(allocator)
+            { }
+            //todo:implement function
+             //returns a subresource view for an arbitrary range of mip levels and array layers.
+             //'viewtype' only matters when asking for a depthstencil view; in situations where only depth or stencil can be bound
+             //(such as an SRV with ImageLayout::eShaderReadOnlyOptimal), but not both, then this specifies which of the two aspect bits is to be set.
+            TextureSubresourceView& getSubresourceView(const TextureSubresourceSet& subresources, TextureDimension dimension,
+                                                       Format format, TextureSubresourceViewType viewtype = TextureSubresourceViewType::AllAspects);
+
+            uint32_t getNumSubresources() const;
+            uint32_t getSubresourceIndex(uint32_t mipLevel, uint32_t arrayLayer) const;
+
+            ~Texture() override;
+            const TextureDesc& getDesc() const override { return desc; }
+            Object getNativeObject(ObjectType objectType) override;
+            Object getNativeView(ObjectType objectType, Format format, TextureSubresourceSet subresources, TextureDimension dimension, bool isReadOnlyDSV = false) override;
+
+        private:
+            const VulkanContext& m_Context;
+            VulkanAllocator& m_Allocator;
+            std::mutex m_Mutex;
+        };
+
 
         class Device : public nvrhi::RefCounter<nvrhi::vulkan::IDevice>
         {

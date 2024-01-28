@@ -445,6 +445,14 @@ namespace GuGu{
            //    return executeCommandLists(&commandList, 1, executionQueue);
            //}
         };
+
+
+        template <class T>
+        void hash_combine(size_t& seed, const T& v)
+        {
+            std::hash<T> hasher;
+            seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        }
     }
 
 
