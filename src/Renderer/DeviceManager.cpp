@@ -111,8 +111,8 @@ namespace GuGu{
         if(!CreateDevice())
             return false;
 
-        //if(!CreateSwapChain())
-        //    return false;
+        if(!CreateSwapChain())
+            return false;
 
         //todo:reset the back buffer size state to enforce a resize event
 

@@ -354,22 +354,27 @@ std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path){
         //        .set_desired_extent(m_width, m_height)
         //        .build()
         //        .value();
-        m_swapChainNew = std::make_shared<VulkanSwapChain>(&m_chosenGPU, &m_device, &m_surface);
+        //m_swapChainNew = std::make_shared<VulkanSwapChain>(&m_chosenGPU, &m_device, &m_surface);
         //SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice);
 //
         //VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
         //VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
         //VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
-        m_swapChainNew->init();
+        //m_swapChainNew->init();
         //store the swapchain and its related images
-        m_swapChain = m_swapChainNew->getSwapChain();
-        m_swapchainImages = m_swapChainNew->getImages();
-        m_swapchainImageViews = m_swapChainNew->getImageViews();
-        m_swapchainImageFormat = m_swapChainNew->getFormat();
-
-        m_mainDeletionQueue.push_function([=](){
-            vkDestroySwapchainKHR(m_device, m_swapChain, nullptr);
-        });
+        //m_swapChain = m_swapChainNew->getSwapChain();
+        //m_swapchainImages = m_swapChainNew->getImages();
+        //m_swapchainImageViews = m_swapChainNew->getImageViews();
+        //m_swapchainImageFormat = m_swapChainNew->getFormat();
+//
+        //m_mainDeletionQueue.push_function([=](){
+        //    vkDestroySwapchainKHR(m_device, m_swapChain, nullptr);
+        //});
+        DeviceManager_VK* vkDeviceManager = (DeviceManager_VK*)(m_deviceManager);
+        m_swapChain = vkDeviceManager->getSwapChain();
+        m_swapchainImages = vkDeviceManager->getSwapChainImage();
+        m_swapchainImageViews = vkDeviceManager->getSwapChainImageViews();
+        m_swapchainImageFormat = vkDeviceManager->getSwapChainFormat();
     }
 
     void VulkanRenderer::initCommands() {
@@ -475,8 +480,8 @@ std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path){
         std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
         std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
         //vkb::SwapchainBuilder swapchainBuilder{m_chosenGPU, m_device, m_surface};
-        //m_height = ANativeWindow_getHeight(androidWindow->getNativeHandle());
-        //m_width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
+        int32_t height = ANativeWindow_getHeight(androidWindow->getNativeHandle());
+        int32_t width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
 
         //create the framebuffers for the swapchain images. This will connect the render-pass to the images for rendering
         VkFramebufferCreateInfo fb_info = {};
@@ -485,8 +490,8 @@ std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path){
 
         fb_info.renderPass = m_renderPass;
         fb_info.attachmentCount = 1;
-        fb_info.width = m_width;
-        fb_info.height = m_height;
+        fb_info.width = width;
+        fb_info.height = height;
         fb_info.layers = 1;
 
         //grab how many images we have in the swapchain

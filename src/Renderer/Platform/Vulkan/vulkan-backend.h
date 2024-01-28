@@ -63,6 +63,7 @@ namespace GuGu{
             VkPhysicalDeviceFragmentShadingRateFeaturesKHR shadingRateFeatures;
             IMessageCallback* messageCallback = nullptr;
 
+            void nameVKObject(const void* handle, VkDebugReportObjectTypeEXT objtype, const char* name) const;
             void warning(const GuGuUtf8Str& message) const;
             void error(const GuGuUtf8Str& message) const;
         };
@@ -74,12 +75,14 @@ namespace GuGu{
             VkDeviceMemory memory;
         };
 
+        class Texture;
         class VulkanAllocator{
         public:
             explicit VulkanAllocator(const VulkanContext& context)
             : m_Context(context)
             {}
-
+            void freeTextureMemory(Texture* texture) const;
+            void freeMemory(MemoryResource* res) const;
         private:
             const VulkanContext& m_Context;
         };

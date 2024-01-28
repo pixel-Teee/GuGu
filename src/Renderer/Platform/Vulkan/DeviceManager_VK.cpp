@@ -27,7 +27,7 @@ namespace GuGu{
     VulkanExtensions enabledExtensions = {
             //instance
             {
-                    //VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME
+                    VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME
             },
             //layers
             {},
@@ -50,7 +50,8 @@ namespace GuGu{
             },
             // device
             {
-                    //VK_EXT_DEBUG_MARKER_EXTENSION_NAME,
+                    VK_EXT_DEBUG_MARKER_EXTENSION_NAME,
+                    VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME,//todo:maybe need to remove
                     //VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
                     //VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
                     //VK_NV_MESH_SHADER_EXTENSION_NAME,
@@ -170,6 +171,7 @@ namespace GuGu{
         for(const auto& instanceExt : enumerationExtension)
         {
             const GuGuUtf8Str name = instanceExt.extensionName;
+            GuGu_LOGD("%s\n", name.getStr());
             if(optionalExtensions.instance.find(name) != optionalExtensions.instance.end())
             {
                 enabledExtensions.instance.insert(name);
@@ -243,7 +245,7 @@ namespace GuGu{
         appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
         appInfo.pEngineName = "No Engine";
         appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-        appInfo.apiVersion = VK_API_VERSION_1_0;
+        appInfo.apiVersion = VK_API_VERSION_1_2;
 
         VkInstanceCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -645,6 +647,7 @@ namespace GuGu{
         for(const auto& ext : deviceExtensions)
         {
             const GuGuUtf8Str name(ext.extensionName);
+            GuGu_LOGD("%s\n", name.getStr());
             if(optionalExtensions.device.find(name) != optionalExtensions.device.end())
             {
                 if (name == VK_KHR_SWAPCHAIN_MUTABLE_FORMAT_EXTENSION_NAME && m_deviceParams.headlessDevice)
@@ -783,6 +786,8 @@ namespace GuGu{
         deviceFeatures.dualSrcBlend = false;
 
         VkPhysicalDeviceVulkan12Features vulkan12Features{};
+        //vulkan12Features.timelineSemaphore = true;//todo:remove this
+        vulkan12Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
         vulkan12Features.descriptorIndexing = true;
         vulkan12Features.runtimeDescriptorArray = true;
         vulkan12Features.descriptorBindingPartiallyBound = true;
@@ -804,8 +809,8 @@ namespace GuGu{
         deviceDesc.ppEnabledExtensionNames = extVec.data();
         deviceDesc.enabledLayerCount = layerVec.size();
         deviceDesc.ppEnabledLayerNames = layerVec.data();
-        //deviceDesc.pNext = &vulkan12Features;
-        deviceDesc.pNext = nullptr;//todo:fix this
+        deviceDesc.pNext = &vulkan12Features;
+        //deviceDesc.pNext = nullptr;//todo:fix this
 
         if (m_deviceParams.deviceCreateInfoCallback)
             m_deviceParams.deviceCreateInfoCallback(deviceDesc);
@@ -827,6 +832,11 @@ namespace GuGu{
         return true;
     }
     bool DeviceManager_VK::CreateSwapChain() {
+        createSwapChain();
+
+        //todo:create command list
+
+        //todo:create present semaphore
 
         return true;
     };
@@ -858,6 +868,36 @@ namespace GuGu{
     VkSurfaceKHR DeviceManager_VK::getSurface() {
         return m_windowSurface;
     }
+
+    VkSwapchainKHR DeviceManager_VK::getSwapChain() {
+        return m_SwapChain;
+    }
+    std::vector<VkImage> DeviceManager_VK::getSwapChainImage() {
+        //return m_SwapChainImages;
+        std::vector<VkImage> vkImages;
+        for(size_t i = 0; i < m_SwapChainImages.size(); ++i)
+        {
+            vkImages.push_back(m_SwapChainImages[i].image);
+        }
+        return vkImages;
+    }
+    std::vector<VkImageView> DeviceManager_VK::getSwapChainImageViews() {
+        std::vector<VkImageView> vkImageViews;
+        nvrhi::TextureSubresourceSet subresourceSet{};
+        //subresourceSet.baseMipLevel = 1;
+        //subresourceSet.baseArraySlice = 1;
+        for(size_t i = 0; i < m_SwapChainImages.size(); ++i)
+        {
+            vkImageViews.push_back(reinterpret_cast<VkImageView>((m_SwapChainImages[i].rhiHandle->getNativeView(nvrhi::ObjectTypes::VK_ImageView, nvrhi::Format::UNKNOWN, subresourceSet,
+                                                                                 nvrhi::TextureDimension::Texture2D, false).pointer)));
+        }
+        return vkImageViews;
+    }
+
+    VkFormat DeviceManager_VK::getSwapChainFormat() {
+        return m_SwapChainFormat.format;
+    }
+
 #endif
 
 
@@ -900,7 +940,11 @@ namespace GuGu{
         swapchainCreateInfoKhr.queueFamilyIndexCount = enableSwapChainSharing ? uint32_t(queues.size()) : 0;
         swapchainCreateInfoKhr.pQueueFamilyIndices = enableSwapChainSharing ? queues.data() : nullptr;
         swapchainCreateInfoKhr.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+#ifdef ANDROID
+        swapchainCreateInfoKhr.compositeAlpha = VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR;
+#else
         swapchainCreateInfoKhr.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+#endif
         swapchainCreateInfoKhr.presentMode = m_deviceParams.vsyncEnabled ? VK_PRESENT_MODE_FIFO_KHR : VK_PRESENT_MODE_IMMEDIATE_KHR;
         swapchainCreateInfoKhr.clipped = true;
         swapchainCreateInfoKhr.oldSwapchain = VK_NULL_HANDLE;
@@ -945,9 +989,18 @@ namespace GuGu{
             SwapChainImage sci;
             sci.image = image;
 
+            //todo:remove these
+            std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
+            std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
+
+            int32_t width = ANativeWindow_getHeight(androidWindow->getNativeHandle());
+            int32_t height = ANativeWindow_getWidth(androidWindow->getNativeHandle());
+
             nvrhi::TextureDesc textureDesc;
-            textureDesc.width = m_deviceParams.backBufferWidth;
-            textureDesc.height = m_deviceParams.backBufferHeight;
+            //textureDesc.width = m_deviceParams.backBufferWidth;
+            //textureDesc.height = m_deviceParams.backBufferHeight;
+            textureDesc.width = width;
+            textureDesc.height = height;
             textureDesc.format = m_deviceParams.swapChainFormat;
             textureDesc.debugName = "Swap chain image";
             textureDesc.initialState = nvrhi::ResourceStates::Present;
@@ -964,7 +1017,18 @@ namespace GuGu{
     }
 
     void DeviceManager_VK::destroySwapChain() {
+        if(m_VulkanDevice)
+        {
+            //todo:add wait idle
+        }
 
+        if(m_SwapChain)
+        {
+            vkDestroySwapchainKHR(m_VulkanDevice, m_SwapChain, VK_NULL_HANDLE);//todo:fix this
+            m_SwapChain = VK_NULL_HANDLE;
+        }
+        m_SwapChainImages.clear();
     }
+
 
 }

@@ -22,6 +22,10 @@ namespace GuGu{
         VkQueue getQueue();
         int32_t getQueueFamilyIndex();
         VkSurfaceKHR getSurface();
+        VkSwapchainKHR getSwapChain();
+        std::vector<VkImage>  getSwapChainImage();
+        std::vector<VkImageView> getSwapChainImageViews();
+        VkFormat getSwapChainFormat();
 #endif
     private:
         bool createInstance();

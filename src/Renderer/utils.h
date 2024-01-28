@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 namespace GuGu{
+    class GuGuUtf8Str;
     namespace nvrhi::utils{
         class BitSetAllocator{
         public:
@@ -15,5 +16,8 @@ namespace GuGu{
             bool m_MultiThreaded;
             std::mutex m_Mutex;
         };
+
+        void InvalidEnum();
+        const char* DebugNameToString(const GuGuUtf8Str& debugName);
     }
 }

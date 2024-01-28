@@ -108,6 +108,7 @@ namespace GuGu{
         , m_Allocator(m_Context)
         , m_TimerQueryAllocator(desc.maxTimerQueries, true) //256
         {
+            //todo:fix these
             if(desc.graphicsQueue)
             {
                 m_Queues[uint32_t(CommandQueue::Graphics)] = std::make_unique<Queue>(m_Context,
@@ -177,7 +178,8 @@ namespace GuGu{
             //VkPhysicalDeviceOpacityMicromapPropertiesEXT opacityMicromapProperties;
             //VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV nvRayTracingInvocationReorderProperties;
 
-            VkPhysicalDeviceProperties2 deviceProperties2;
+            //VkPhysicalDeviceProperties2 deviceProperties2;
+            //deviceProperties2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
 
             //if (m_Context.extensions.KHR_acceleration_structure)
             //{
@@ -215,12 +217,12 @@ namespace GuGu{
             //    pNext = &nvRayTracingInvocationReorderProperties;
             //}
 
-            deviceProperties2.pNext = pNext;
+            //deviceProperties2.pNext = pNext;
 
-            vkGetPhysicalDeviceProperties2(m_Context.physicalDevice, &deviceProperties2);
+            //vkGetPhysicalDeviceProperties2(m_Context.physicalDevice, &deviceProperties2);
             //m_Context.physicalDevice.getProperties2(&deviceProperties2);
 
-            m_Context.physicalDeviceProperties = deviceProperties2.properties;
+            //m_Context.physicalDeviceProperties = deviceProperties2.properties;
             //m_Context.accelStructProperties = accelStructProperties;
             //.rayTracingPipelineProperties = rayTracingPipelineProperties;
             m_Context.conservativeRasterizationProperties = conservativeRasterizationProperties;
@@ -248,6 +250,7 @@ namespace GuGu{
             //auto pipelineInfo = VkPipelineCacheCreateInfo();
 
             VkPipelineCacheCreateInfo pipelineInfo{};
+            pipelineInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
 
             VkResult res = vkCreatePipelineCache(m_Context.device, &pipelineInfo, m_Context.allocationCallbacks,
                                   &m_Context.pipelineCache);
@@ -259,6 +262,12 @@ namespace GuGu{
             {
                 m_Context.error("Failed to create the pipeline cache");
             }
+
+            //vkDebugMarkerSetObjectTagEXT = PFN_vkDebugMarkerSetObjectTagEXT( vkGetDeviceProcAddr( m_Context.device, "vkDebugMarkerSetObjectTagEXT" ) );
+            //vkDebugMarkerSetObjectNameEXT = PFN_vkDebugMarkerSetObjectNameEXT( vkGetDeviceProcAddr( m_Context.device, "vkDebugMarkerSetObjectNameEXT" ) );
+            //vkCmdDebugMarkerBeginEXT = PFN_vkCmdDebugMarkerBeginEXT( vkGetDeviceProcAddr( m_Context.device, "vkCmdDebugMarkerBeginEXT" ) );
+            //vkCmdDebugMarkerEndEXT = PFN_vkCmdDebugMarkerEndEXT( vkGetDeviceProcAddr( m_Context.device, "vkCmdDebugMarkerEndEXT" ) );
+            //vkCmdDebugMarkerInsertEXT = PFN_vkCmdDebugMarkerInsertEXT( vkGetDeviceProcAddr( m_Context.device, "vkCmdDebugMarkerInsertEXT" ) );
         }
 
         Device::~Device() {
@@ -276,8 +285,32 @@ namespace GuGu{
             }
         }
 
+        void VulkanContext::nameVKObject(const void *handle, VkDebugReportObjectTypeEXT objtype,
+                                         const char *name) const {
+            if (extensions.EXT_debug_marker && name && *name && handle)
+            {
+                VkDebugMarkerObjectNameInfoEXT info = {};
+                info.objectType = objtype;
+                info.object = reinterpret_cast<uint64_t>(handle);
+                info.pObjectName = name;
+                //auto info = vk::DebugMarkerObjectNameInfoEXT()
+                //        .setObjectType(objtype)
+                //        .setObject(reinterpret_cast<uint64_t>(handle))
+                //        .setPObjectName(name);
+#ifndef ANDROID
+                vkDebugMarkerSetObjectNameEXT(device, &info); //todo:fix this
+#endif
+                //(void)device.debugMarkerSetObjectNameEXT(&info);
+            }
+        }
 
+        void VulkanContext::warning(const GuGuUtf8Str &message) const {
+            messageCallback->message(MessageSeverity::Warning, message.getStr());
+        }
 
+        void VulkanContext::error(const GuGuUtf8Str &message) const {
+            messageCallback->message(MessageSeverity::Warning, message.getStr());
+        }
 
     }
 }

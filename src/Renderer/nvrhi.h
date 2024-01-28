@@ -2,6 +2,8 @@
 
 #include "resource.h"
 
+#include <Core/GuGuUtf8Str.h>
+
 #define NVRHI_ENUM_CLASS_FLAG_OPERATORS(T) \
     inline T operator | (T a, T b) { return T(uint32_t(a) | uint32_t(b)); } \
     inline T operator & (T a, T b) { return T(uint32_t(a) & uint32_t(b)); } /* NOLINT(bugprone-macro-parentheses) */ \
@@ -108,6 +110,33 @@ namespace GuGu{
             COUNT,
         };
 
+        enum class FormatKind : uint8_t
+        {
+            Integer,
+            Normalized,
+            Float,
+            DepthStencil
+        };
+
+        struct FormatInfo
+        {
+            Format format;
+            const char* name;
+            uint8_t bytesPerBlock;
+            uint8_t blockSize;
+            FormatKind kind;
+            bool hasRed : 1;
+            bool hasGreen : 1;
+            bool hasBlue : 1;
+            bool hasAlpha : 1;
+            bool hasDepth : 1;
+            bool hasStencil : 1;
+            bool isSigned : 1;
+            bool isSRGB : 1;
+        };
+
+        const FormatInfo& getFormatInfo(Format format);
+
         enum class MessageSeverity : uint8_t
         {
             Info,
@@ -204,7 +233,7 @@ namespace GuGu{
             uint32_t sampleQuality = 0;
             Format format = Format::UNKNOWN;
             TextureDimension dimension = TextureDimension::Texture2D;
-            std::string debugName;
+            GuGuUtf8Str debugName;
 
             bool isShaderResource = true; // Note: isShaderResource is initialized to 'true' for backward compatibility
             bool isRenderTarget = false;

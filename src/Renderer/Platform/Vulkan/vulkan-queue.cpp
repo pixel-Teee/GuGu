@@ -13,7 +13,7 @@ namespace GuGu {
         , m_QueueID(queueID)
         , m_QueueFamilyIndex(queueFamilyIndex){
             VkSemaphoreTypeCreateInfo semaphoreTypeCreateInfo{};
-            semaphoreTypeCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+            semaphoreTypeCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO;
             semaphoreTypeCreateInfo.semaphoreType = VK_SEMAPHORE_TYPE_TIMELINE;
 
             VkSemaphoreCreateInfo semaphoreCreateInfo{};
@@ -28,13 +28,8 @@ namespace GuGu {
             trackingSemaphore = VK_NULL_HANDLE;
         }
 
-        void VulkanContext::warning(const GuGuUtf8Str &message) const {
-            messageCallback->message(MessageSeverity::Warning, message.getStr());
-        }
 
-        void VulkanContext::error(const GuGuUtf8Str &message) const {
-            messageCallback->message(MessageSeverity::Warning, message.getStr());
-        }
+
     }
 
 }

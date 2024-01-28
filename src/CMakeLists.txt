@@ -29,7 +29,7 @@ if(WIN32)
     set(CMAKE_C_FLAGS "/utf-8")
 elseif(ANDROID)
     message("[message]:this platform is android!")
-    find_package(Vulkan REQUIRED)
+    # find_package(Vulkan REQUIRED)
     file(GLOB PlatformSourceFile "Window/Platform/Android/*.h" "Window/Platform/Android/*.cpp" "Application/Platform/Android/*.h" "Application/Platform/Android/*.cpp"
     "Renderer/Platform/Vulkan/*.h" "Renderer/Platform/Vulkan/*.cpp"
     "../thirdParty/vkbootstrap/*.h" "../thirdParty/vkbootstrap/*.cpp"

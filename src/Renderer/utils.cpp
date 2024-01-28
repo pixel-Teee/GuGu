@@ -2,6 +2,8 @@
 
 #include "utils.h"
 
+#include <Core/GuGuUtf8Str.h>
+
 namespace GuGu{
     namespace nvrhi::utils{
 
@@ -50,6 +52,16 @@ namespace GuGu{
                 if (m_MultiThreaded)
                     m_Mutex.unlock();
             }
+        }
+
+        void InvalidEnum()
+        {
+            assert(!"Invalid Enumeration Value");  // NOLINT(clang-diagnostic-string-conversion)
+        }
+
+        const char* DebugNameToString(const GuGuUtf8Str& debugName)
+        {
+            return debugName.len() == 0 ? "<UNNAMED>" : debugName.getStr();
         }
     }
 }
