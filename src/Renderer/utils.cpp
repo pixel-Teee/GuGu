@@ -4,6 +4,8 @@
 
 #include <Core/GuGuUtf8Str.h>
 
+//#include <algorithm>
+
 namespace GuGu{
     namespace nvrhi::utils{
 

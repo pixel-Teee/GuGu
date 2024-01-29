@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include <mutex>
 namespace GuGu{
     class GuGuUtf8Str;
     namespace nvrhi::utils{
