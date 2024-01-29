@@ -51,6 +51,7 @@ namespace GuGu{
     class GuGuUtf8Str;
     class DeviceManager{
     public:
+
         static DeviceManager* Create(nvrhi::GraphicsAPI api);
 
         bool CreateWindowDeviceAndSwapChain(const DeviceCreationParameters& params, GuGuUtf8Str& windowTitle);
@@ -64,12 +65,36 @@ namespace GuGu{
         bool m_requestedVsync = false;
         bool m_instanceCreated = false;
 
+        uint32_t m_FrameIndex = 0;
+
         //device-specific methods
         virtual bool CreateInstanceInternal() = 0;
         virtual void DestroyDeviceAndSwapChain() = 0;
         virtual bool CreateDevice() = 0;
         virtual bool CreateSwapChain() = 0;
     public:
+        [[nodiscard]] virtual nvrhi::IDevice *GetDevice() const = 0;
+        [[nodiscard]] uint32_t GetFrameIndex() const { return m_FrameIndex; }
+
         virtual void ShutDown();
+        virtual ~DeviceManager() = default;
+    };
+
+    class IRenderPass
+    {
+    private:
+        DeviceManager* m_DeviceManager;
+
+    public:
+        virtual ~IRenderPass() = default;
+
+        //virtual void Render(nvrhi::IFramebuffer* framebuffer) { }
+        virtual void Animate(float fElapsedTimeSeconds) { }
+        virtual void BackBufferResizing() { }
+        virtual void BackBufferResized(const uint32_t width, const uint32_t height, const uint32_t sampleCount) { }
+
+        [[nodiscard]] DeviceManager* GetDeviceManager() const { return m_DeviceManager; }
+        [[nodiscard]] nvrhi::IDevice* GetDevice() const { return m_DeviceManager->GetDevice(); }
+        [[nodiscard]] uint32_t GetFrameIndex() const { return m_DeviceManager->GetFrameIndex(); }
     };
 }

@@ -269,8 +269,17 @@ namespace GuGu{
     }
 
     void DeviceManager_VK::DestroyDeviceAndSwapChain() {
-        m_rendererString.clear();
+        destroySwapChain();
+
+        if(m_PresentSemaphore)
+        {
+            vkDestroySemaphore(m_VulkanDevice, m_PresentSemaphore, nullptr);//todo:fix this
+            m_PresentSemaphore = VK_NULL_HANDLE;
+        }
+        m_BarrierCommandList = nullptr;
         m_NvrhiDevice = nullptr;
+        m_rendererString.clear();
+
         if(m_VulkanDevice)
         {
             vkDestroyDevice(m_VulkanDevice, nullptr);
@@ -839,9 +848,12 @@ namespace GuGu{
         createSwapChain();
 
         //todo:create command list
+        m_BarrierCommandList = m_NvrhiDevice->createCommandList();
 
         //todo:create present semaphore
-
+        VkSemaphoreCreateInfo semaphoreCreateInfo{};
+        semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+        vkCreateSemaphore(m_VulkanDevice, &semaphoreCreateInfo, nullptr, &m_PresentSemaphore);
         return true;
     };
 #if 1

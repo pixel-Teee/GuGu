@@ -7,6 +7,13 @@
 namespace GuGu{
     class DeviceManager_VK : public DeviceManager{
     public:
+        [[nodiscard]] nvrhi::IDevice* GetDevice() const override
+        {
+            //if (m_ValidationLayer)
+            //    return m_ValidationLayer;
+
+            return m_NvrhiDevice;
+        }
 
     protected:
         bool CreateInstanceInternal() override;
@@ -46,6 +53,7 @@ namespace GuGu{
 
         VkSurfaceFormatKHR m_SwapChainFormat;
         VkSwapchainKHR m_SwapChain;
+        bool m_SwapChainMutableFormatSupported = false;
 
         struct SwapChainImage
         {
@@ -72,7 +80,8 @@ namespace GuGu{
 
         nvrhi::vulkan::DeviceHandle m_NvrhiDevice;
 
-        bool m_SwapChainMutableFormatSupported = false;
+        nvrhi::CommandListHandle m_BarrierCommandList;
+        VkSemaphore m_PresentSemaphore;
     };
 
 }
