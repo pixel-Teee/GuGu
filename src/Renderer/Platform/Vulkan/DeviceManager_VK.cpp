@@ -33,7 +33,7 @@ namespace GuGu{
             {},
             //device
             {
-                    //VK_KHR_MAINTENANCE1_EXTENSION_NAME
+                    VK_KHR_MAINTENANCE1_EXTENSION_NAME
             }
     };
 
@@ -52,8 +52,8 @@ namespace GuGu{
             {
                     VK_EXT_DEBUG_MARKER_EXTENSION_NAME,
                     VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME,//todo:maybe need to remove
-                    //VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
-                    //VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
+                    VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
+                    VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
                     //VK_NV_MESH_SHADER_EXTENSION_NAME,
                     //VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME,
                     //VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME,
@@ -700,18 +700,19 @@ namespace GuGu{
         }
 #define APPEND_EXTENSION(condition, desc) if(condition) { (desc).pNext = pNext; pNext = &(desc); }
         void* pNext = nullptr;
-        //VkPhysicalDeviceFeatures2 physicalDeviceFeatures = {};
+        VkPhysicalDeviceFeatures2 physicalDeviceFeatures = {};
         //determine support for buffer device address, the vulkan 1.2 way
         VkPhysicalDeviceBufferDeviceAddressFeaturesEXT bufferDeviceAddressFeatures{};
+        bufferDeviceAddressFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_EXT;
         //determine support for maintenance4
         //todo:fix this
         //VkPhysicalDeviceMaintenance4Features maintenance4Features = {};
 
         APPEND_EXTENSION(true, bufferDeviceAddressFeatures);
         //APPEND(maintenance4Supported, maintenance4Features);
-
-        //physicalDeviceFeatures.pNext = pNext;
-        //vkGetPhysicalDeviceFeatures2(m_VulkanPhysicalDevice, &physicalDeviceFeatures);
+        physicalDeviceFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+        physicalDeviceFeatures.pNext = pNext;
+        vkGetPhysicalDeviceFeatures2(m_VulkanPhysicalDevice, &physicalDeviceFeatures);
 
         std::unordered_set<int32_t> uniqueQueueFamilies = { m_GraphicsQueueFamily };
 
@@ -748,10 +749,12 @@ namespace GuGu{
         //rayQueryFeatures.rayQuery = true;
 
         VkPhysicalDeviceMeshShaderFeaturesNV meshletFeatures{};
+        meshletFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MESH_SHADER_FEATURES_NV;
         meshletFeatures.taskShader = true;
         meshletFeatures.meshShader = true;
 
         VkPhysicalDeviceFragmentShadingRateFeaturesKHR vrsFeatures{};
+        vrsFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_FEATURES_KHR;
         vrsFeatures.pipelineFragmentShadingRate = true;
         vrsFeatures.primitiveFragmentShadingRate = true;
         vrsFeatures.attachmentFragmentShadingRate = true;
@@ -764,8 +767,8 @@ namespace GuGu{
         //APPEND_EXTENSION(accelStructSupported, accelStructFeatures)
         //APPEND_EXTENSION(rayPipelineSupported, rayPipelineFeatures)
         //APPEND_EXTENSION(rayQuerySupported, rayQueryFeatures)
-        //APPEND_EXTENSION(meshletsSupported, meshletFeatures)
-        //APPEND_EXTENSION(vrsSupported, vrsFeatures)
+        APPEND_EXTENSION(meshletsSupported, meshletFeatures)
+        APPEND_EXTENSION(vrsSupported, vrsFeatures)
         //APPEND_EXTENSION(physicalDeviceProperties.apiVersion >= VK_API_VERSION_1_3, vulkan13features)
         //APPEND_EXTENSION(physicalDeviceProperties.apiVersion < VK_API_VERSION_1_3 && maintenance4Supported, maintenance4Features);
 #undef APPEND_EXTENSION
@@ -785,8 +788,10 @@ namespace GuGu{
         deviceFeatures.imageCubeArray = false;
         deviceFeatures.dualSrcBlend = false;
 
+        //VkPhysicalDeviceVulkan11Features vulkan11Features{};
+
         VkPhysicalDeviceVulkan12Features vulkan12Features{};
-        //vulkan12Features.timelineSemaphore = true;//todo:remove this
+        ////vulkan12Features.timelineSemaphore = true;//todo:remove this
         vulkan12Features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
         vulkan12Features.descriptorIndexing = true;
         vulkan12Features.runtimeDescriptorArray = true;
@@ -810,7 +815,6 @@ namespace GuGu{
         deviceDesc.enabledLayerCount = layerVec.size();
         deviceDesc.ppEnabledLayerNames = layerVec.data();
         deviceDesc.pNext = &vulkan12Features;
-        //deviceDesc.pNext = nullptr;//todo:fix this
 
         if (m_deviceParams.deviceCreateInfoCallback)
             m_deviceParams.deviceCreateInfoCallback(deviceDesc);
