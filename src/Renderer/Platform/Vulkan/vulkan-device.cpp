@@ -285,6 +285,16 @@ namespace GuGu{
             }
         }
 
+
+        CommandListHandle Device::createCommandList(const CommandListParameters &params) {
+            if(!m_Queues[uint32_t(params.queueType)])
+                return nullptr;
+
+            CommandList* cmdList = new CommandList(this, m_Context, params);
+
+            return CommandListHandle::Create(cmdList);
+        }
+
         void VulkanContext::nameVKObject(const void *handle, VkDebugReportObjectTypeEXT objtype,
                                          const char *name) const {
             if (extensions.EXT_debug_marker && name && *name && handle)
@@ -311,6 +321,7 @@ namespace GuGu{
         void VulkanContext::error(const GuGuUtf8Str &message) const {
             messageCallback->message(MessageSeverity::Warning, message.getStr());
         }
+
 
     }
 }

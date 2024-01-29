@@ -281,6 +281,7 @@ namespace GuGu{
             //return nullptr;
         }
 
+
         TextureSubresourceView& Texture::getSubresourceView(const TextureSubresourceSet& subresource, TextureDimension dimension,
                                                             Format format, TextureSubresourceViewType viewtype)
         {
