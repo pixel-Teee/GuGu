@@ -136,6 +136,48 @@ namespace GuGu{
         m_instanceCreated = false;
     }
 
+    void DeviceManager::AddRenderPassToFront(IRenderPass *pRenderPass) {
+        m_vRenderPasses.remove(pRenderPass);
+        m_vRenderPasses.push_front(pRenderPass);
+
+        pRenderPass->BackBufferResizing();
+        pRenderPass->BackBufferResized(
+                m_deviceParams.backBufferWidth,
+                m_deviceParams.backBufferHeight,
+                m_deviceParams.swapChainSampleCount);
+    }
+
+    void DeviceManager::AddRenderPassToBack(IRenderPass *pRenderPass) {
+        m_vRenderPasses.remove(pRenderPass);
+        m_vRenderPasses.push_back(pRenderPass);
+        pRenderPass->BackBufferResizing();
+        pRenderPass->BackBufferResized(
+                m_deviceParams.backBufferWidth,
+                m_deviceParams.backBufferHeight,
+                m_deviceParams.swapChainSampleCount
+        );
+    }
+
+    void DeviceManager::RemoveRenderPass(IRenderPass *pRenderPass) {
+        m_vRenderPasses.remove(pRenderPass);
+    }
+
+    void DeviceManager::RunMessageLoop() {
+        //todo:record previous frame time stamp
+
+        AnimateRenderPresent();
+    }
+
+    void DeviceManager::AnimateRenderPresent() {
+
+
+        ++m_FrameIndex;
+    }
+
+    void DeviceManager::Render() {
+        //todo:add begin frame
+    }
+
     DefaultMessageCallback &DefaultMessageCallback::GetInstance() {
         static DefaultMessageCallback Instance;
         return Instance;

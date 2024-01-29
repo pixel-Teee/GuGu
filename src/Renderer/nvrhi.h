@@ -14,6 +14,8 @@
 
 namespace GuGu{
     namespace nvrhi{
+        static constexpr uint32_t c_ConstantBufferOffsetSizeAlignment = 256; // Partially bound constant buffers must have offsets aligned to this and sizes multiple of this
+
         struct Color
         {
             float r, g, b, a;

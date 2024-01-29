@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 #include <Core/GuGuUtf8Str.h>
-
+#include <list>
 
 namespace GuGu{
     struct DefaultMessageCallback : public nvrhi::IMessageCallback
@@ -36,7 +36,7 @@ namespace GuGu{
         bool enableCopyQueue = false;
         bool enableRayTracingExtensions = false;//for vulkan
         nvrhi::Format swapChainFormat = nvrhi::Format::RGBA8_UNORM;
-
+        uint32_t swapChainSampleCount = 1;
         //index of the adapter(dx11, dx12) or physical device(vk) on which to initialize the device
         //negative values mean automatic detection
         //the order of indices matches that returned by DeviceManager::EnumerateAdapters
@@ -49,6 +49,7 @@ namespace GuGu{
     };
 
     class GuGuUtf8Str;
+    class IRenderPass;
     class DeviceManager{
     public:
 
@@ -57,15 +58,25 @@ namespace GuGu{
         bool CreateWindowDeviceAndSwapChain(const DeviceCreationParameters& params, GuGuUtf8Str& windowTitle);
 
         bool CreateInstance(const InstanceParameters& params);
+
+        void AddRenderPassToFront(IRenderPass* pController);
+        void AddRenderPassToBack(IRenderPass* pController);
+        void RemoveRenderPass(IRenderPass* pController);
+
+        void RunMessageLoop();
     private:
         static DeviceManager* CreateVK();
 
     protected:
         DeviceCreationParameters m_deviceParams;
+        std::list<IRenderPass*> m_vRenderPasses;
         bool m_requestedVsync = false;
         bool m_instanceCreated = false;
 
         uint32_t m_FrameIndex = 0;
+
+        void Render();
+        void AnimateRenderPresent();
 
         //device-specific methods
         virtual bool CreateInstanceInternal() = 0;
@@ -86,6 +97,7 @@ namespace GuGu{
         DeviceManager* m_DeviceManager;
 
     public:
+        explicit IRenderPass(DeviceManager* deviceManager) : m_DeviceManager(deviceManager){}
         virtual ~IRenderPass() = default;
 
         //virtual void Render(nvrhi::IFramebuffer* framebuffer) { }
