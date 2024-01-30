@@ -1046,5 +1046,15 @@ namespace GuGu{
         m_SwapChainImages.clear();
     }
 
+    void DeviceManager_VK::BeginFrame() {
+
+        VK_CHECK(vkAcquireNextImageKHR(m_VulkanDevice, m_SwapChain, std::numeric_limits<uint64_t>::max(), m_PresentSemaphore,
+                              VK_NULL_HANDLE, &m_SwapChainIndex));
+
+        //assert(res == VK_SUCCESS);
+
+        m_NvrhiDevice->queueWaitForSemaphore(nvrhi::CommandQueue::Graphics, m_PresentSemaphore, 0);
+    }
+
 
 }

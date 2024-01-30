@@ -4,6 +4,8 @@
 
 #include <Core/GuGuUtf8Str.h>
 
+#include <Renderer/containers.h>
+
 #define NVRHI_ENUM_CLASS_FLAG_OPERATORS(T) \
     inline T operator | (T a, T b) { return T(uint32_t(a) | uint32_t(b)); } \
     inline T operator & (T a, T b) { return T(uint32_t(a) & uint32_t(b)); } /* NOLINT(bugprone-macro-parentheses) */ \
@@ -14,6 +16,7 @@
 
 namespace GuGu{
     namespace nvrhi{
+        static constexpr uint32_t c_MaxRenderTargets = 8;
         static constexpr uint32_t c_ConstantBufferOffsetSizeAlignment = 256; // Partially bound constant buffers must have offsets aligned to this and sizes multiple of this
 
         struct Color
@@ -26,6 +29,35 @@ namespace GuGu{
 
             bool operator ==(const Color& _b) const { return r == _b.r && g == _b.g && b == _b.b && a == _b.a; }
             bool operator !=(const Color& _b) const { return !(*this == _b); }
+        };
+
+        struct Viewport
+        {
+            float minX, maxX;
+            float minY, maxY;
+            float minZ, maxZ;
+
+            Viewport() : minX(0.f), maxX(0.f), minY(0.f), maxY(0.f), minZ(0.f), maxZ(1.f) { }
+
+            Viewport(float width, float height) : minX(0.f), maxX(width), minY(0.f), maxY(height), minZ(0.f), maxZ(1.f) { }
+
+            Viewport(float _minX, float _maxX, float _minY, float _maxY, float _minZ, float _maxZ)
+                    : minX(_minX), maxX(_maxX), minY(_minY), maxY(_maxY), minZ(_minZ), maxZ(_maxZ)
+            { }
+
+            bool operator ==(const Viewport& b) const
+            {
+                return minX == b.minX
+                       && minY == b.minY
+                       && minZ == b.minZ
+                       && maxX == b.maxX
+                       && maxY == b.maxY
+                       && maxZ == b.maxZ;
+            }
+            bool operator !=(const Viewport& b) const { return !(*this == b); }
+
+            [[nodiscard]] float width() const { return maxX - minX; }
+            [[nodiscard]] float height() const { return maxY - minY; }
         };
 
         enum class GraphicsAPI : uint8_t
@@ -361,6 +393,98 @@ namespace GuGu{
         };
         typedef RefCountPtr<ITexture> TextureHandle;
 
+        struct FramebufferAttachment
+        {
+            ITexture* texture = nullptr;
+            TextureSubresourceSet subresources = TextureSubresourceSet(0, 1, 0, 1);
+            Format format = Format::UNKNOWN;
+            bool isReadOnly = false;
+
+            constexpr FramebufferAttachment& setTexture(ITexture* t) { texture = t; return *this; }
+            constexpr FramebufferAttachment& setSubresources(TextureSubresourceSet value) { subresources = value; return *this; }
+            constexpr FramebufferAttachment& setArraySlice(ArraySlice index) { subresources.baseArraySlice = index; subresources.numArraySlices = 1; return *this; }
+            constexpr FramebufferAttachment& setArraySliceRange(ArraySlice index, ArraySlice count) { subresources.baseArraySlice = index; subresources.numArraySlices = count; return *this; }
+            constexpr FramebufferAttachment& setMipLevel(MipLevel level) { subresources.baseMipLevel = level; subresources.numMipLevels = 1; return *this; }
+            constexpr FramebufferAttachment& setFormat(Format f) { format = f; return *this; }
+            constexpr FramebufferAttachment& setReadOnly(bool ro) { isReadOnly = ro; return *this; }
+
+            [[nodiscard]] bool valid() const { return texture != nullptr; }
+        };
+
+        struct FramebufferDesc
+        {
+            static_vector<FramebufferAttachment, c_MaxRenderTargets> colorAttachments;
+            FramebufferAttachment depthAttachment;
+            FramebufferAttachment shadingRateAttachment;
+
+            FramebufferDesc& addColorAttachment(const FramebufferAttachment& a) { colorAttachments.push_back(a); return *this; }
+            FramebufferDesc& addColorAttachment(ITexture* texture) { colorAttachments.push_back(FramebufferAttachment().setTexture(texture)); return *this; }
+            FramebufferDesc& addColorAttachment(ITexture* texture, TextureSubresourceSet subresources) { colorAttachments.push_back(FramebufferAttachment().setTexture(texture).setSubresources(subresources)); return *this; }
+            FramebufferDesc& setDepthAttachment(const FramebufferAttachment& d) { depthAttachment = d; return *this; }
+            FramebufferDesc& setDepthAttachment(ITexture* texture) { depthAttachment = FramebufferAttachment().setTexture(texture); return *this; }
+            FramebufferDesc& setDepthAttachment(ITexture* texture, TextureSubresourceSet subresources) { depthAttachment = FramebufferAttachment().setTexture(texture).setSubresources(subresources); return *this; }
+            FramebufferDesc& setShadingRateAttachment(const FramebufferAttachment& d) { shadingRateAttachment = d; return *this; }
+            FramebufferDesc& setShadingRateAttachment(ITexture* texture) { shadingRateAttachment = FramebufferAttachment().setTexture(texture); return *this; }
+            FramebufferDesc& setShadingRateAttachment(ITexture* texture, TextureSubresourceSet subresources) { shadingRateAttachment = FramebufferAttachment().setTexture(texture).setSubresources(subresources); return *this; }
+        };
+
+        // Describes the parameters of a framebuffer that can be used to determine if a given framebuffer
+        // is compatible with a certain graphics or meshlet pipeline object. All fields of FramebufferInfo
+        // must match between the framebuffer and the pipeline for them to be compatible.
+        struct FramebufferInfo
+        {
+            static_vector<Format, c_MaxRenderTargets> colorFormats;
+            Format depthFormat = Format::UNKNOWN;
+            uint32_t sampleCount = 1;
+            uint32_t sampleQuality = 0;
+
+            FramebufferInfo() = default;
+            FramebufferInfo(const FramebufferDesc& desc);
+
+            bool operator==(const FramebufferInfo& other) const
+            {
+                return formatsEqual(colorFormats, other.colorFormats)
+                       && depthFormat == other.depthFormat
+                       && sampleCount == other.sampleCount
+                       && sampleQuality == other.sampleQuality;
+            }
+            bool operator!=(const FramebufferInfo& other) const { return !(*this == other); }
+
+        private:
+            static bool formatsEqual(const static_vector<Format, c_MaxRenderTargets>& a, const static_vector<Format, c_MaxRenderTargets>& b)
+            {
+                if (a.size() != b.size()) return false;
+                for (size_t i = 0; i < a.size(); i++) if (a[i] != b[i]) return false;
+                return true;
+            }
+        };
+
+        // An extended version of FramebufferInfo that also contains the 'width' and 'height' members.
+        // It is provided mostly for backward compatibility and convenience reasons, as previously these members
+        // were available in the regular FramebufferInfo structure.
+        struct FramebufferInfoEx : FramebufferInfo
+        {
+            uint32_t width = 0;
+            uint32_t height = 0;
+
+            FramebufferInfoEx() = default;
+            FramebufferInfoEx(const FramebufferDesc& desc);
+
+            [[nodiscard]] Viewport getViewport(float minZ = 0.f, float maxZ = 1.f) const
+            {
+                return Viewport(0.f, float(width), 0.f, float(height), minZ, maxZ);
+            }
+        };
+
+        class IFramebuffer : public IResource
+        {
+        public:
+            [[nodiscard]] virtual const FramebufferDesc& getDesc() const = 0;
+            [[nodiscard]] virtual const FramebufferInfoEx& getFramebufferInfo() const = 0;
+        };
+
+        typedef RefCountPtr<IFramebuffer> FramebufferHandle;
+
         // IMessageCallback should be implemented by the application.
         class IMessageCallback
         {
@@ -567,7 +691,7 @@ namespace GuGu{
            //// Returns the API kind that the RHI backend is running on top of.
            //virtual GraphicsAPI getGraphicsAPI() = 0;
 
-           //virtual FramebufferHandle createFramebuffer(const FramebufferDesc& desc) = 0;
+           virtual FramebufferHandle createFramebuffer(const FramebufferDesc& desc) = 0;
 
            //virtual GraphicsPipelineHandle createGraphicsPipeline(const GraphicsPipelineDesc& desc, IFramebuffer* fb) = 0;
 
@@ -623,6 +747,19 @@ namespace GuGu{
             seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         }
     }
+}
 
-
+namespace std{
+    template<> struct hash<GuGu::nvrhi::TextureSubresourceSet>
+    {
+        std::size_t operator()(GuGu::nvrhi::TextureSubresourceSet const& s) const noexcept
+        {
+            size_t hash = 0;
+            GuGu::nvrhi::hash_combine(hash, s.baseMipLevel);
+            GuGu::nvrhi::hash_combine(hash, s.numMipLevels);
+            GuGu::nvrhi::hash_combine(hash, s.baseArraySlice);
+            GuGu::nvrhi::hash_combine(hash, s.numArraySlices);
+            return hash;
+        }
+    };
 }

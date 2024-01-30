@@ -28,6 +28,13 @@ namespace GuGu {
             trackingSemaphore = VK_NULL_HANDLE;
         }
 
+        void Queue::addWaitSemaphore(VkSemaphore semaphore, uint64_t value) {
+            if(!semaphore)
+                return;
+
+            m_WaitSemahpores.push_back(semaphore);
+            m_WaitSemahporeValues.push_back(value);
+        }
 
 
     }

@@ -295,6 +295,14 @@ namespace GuGu{
             return CommandListHandle::Create(cmdList);
         }
 
+        void Device::queueWaitForSemaphore(CommandQueue waitQueueID, VkSemaphore semaphore,
+                                           uint64_t value) {
+            Queue& waitQueue = *m_Queues[uint32_t(waitQueueID)];
+
+            waitQueue.addWaitSemaphore(semaphore, value);
+        }
+
+
         void VulkanContext::nameVKObject(const void *handle, VkDebugReportObjectTypeEXT objtype,
                                          const char *name) const {
             if (extensions.EXT_debug_marker && name && *name && handle)

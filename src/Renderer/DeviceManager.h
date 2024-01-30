@@ -83,6 +83,7 @@ namespace GuGu{
         virtual void DestroyDeviceAndSwapChain() = 0;
         virtual bool CreateDevice() = 0;
         virtual bool CreateSwapChain() = 0;
+        virtual void BeginFrame() = 0;
     public:
         [[nodiscard]] virtual nvrhi::IDevice *GetDevice() const = 0;
         [[nodiscard]] uint32_t GetFrameIndex() const { return m_FrameIndex; }

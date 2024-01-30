@@ -316,6 +316,8 @@ namespace GuGu{
             }
         };
 
+        typedef RefCountPtr<IResource> ResourceHandle;
+
         //////////////////////////////////////////////////////////////////////////
         // RefCounter<T>
         // A class that implements reference counting in a way compatible with RefCountPtr.

@@ -20,6 +20,7 @@ namespace GuGu{
         void DestroyDeviceAndSwapChain() override;
         bool CreateDevice() override;
         bool CreateSwapChain() override;
+        void BeginFrame() override;
 #if 1
     public:
         VkInstance getInstance();

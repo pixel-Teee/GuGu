@@ -122,6 +122,7 @@ namespace GuGu{
             Queue(const VulkanContext& context, CommandQueue queueID, VkQueue queue, uint32_t queueFamilyIndex);
             ~Queue();
 
+            void addWaitSemaphore(VkSemaphore semaphore, uint64_t value);
         private:
             const VulkanContext& m_Context;
 
@@ -244,6 +245,31 @@ namespace GuGu{
             std::mutex m_Mutex;
         };
 
+        class Framebuffer : public RefCounter<IFramebuffer>
+        {
+        public:
+            FramebufferDesc desc;
+            FramebufferInfoEx framebufferInfo;
+
+            VkRenderPass renderPass = {};
+            VkFramebuffer framebuffer = {};
+
+            std::vector<ResourceHandle> resources;
+
+            bool managed = true;
+
+            explicit Framebuffer(const VulkanContext& context)
+                    : m_Context(context)
+            { }
+
+            ~Framebuffer() override;
+            const FramebufferDesc& getDesc() const override { return desc; }
+            const FramebufferInfoEx& getFramebufferInfo() const override { return framebufferInfo; }
+            Object getNativeObject(ObjectType objectType) override;
+
+        private:
+            const VulkanContext& m_Context;
+        };
 
         class Device : public nvrhi::RefCounter<nvrhi::vulkan::IDevice>
         {
@@ -306,7 +332,7 @@ namespace GuGu{
 //
             //GraphicsAPI getGraphicsAPI() override;
 //
-            //FramebufferHandle createFramebuffer(const FramebufferDesc& desc) override;
+            FramebufferHandle createFramebuffer(const FramebufferDesc& desc) override;
 //
             //GraphicsPipelineHandle createGraphicsPipeline(const GraphicsPipelineDesc& desc, IFramebuffer* fb) override;
 //
@@ -340,9 +366,9 @@ namespace GuGu{
             //Object getNativeQueue(ObjectType objectType, CommandQueue queue) override;
             //IMessageCallback* getMessageCallback() override { return m_Context.messageCallback; }
 //
-            //// vulkan::IDevice implementation
+            // vulkan::IDevice implementation
             //VkSemaphore getQueueSemaphore(CommandQueue queue) override;
-            //void queueWaitForSemaphore(CommandQueue waitQueue, VkSemaphore semaphore, uint64_t value) override;
+            void queueWaitForSemaphore(CommandQueue waitQueue, VkSemaphore semaphore, uint64_t value) override;
             //void queueSignalSemaphore(CommandQueue executionQueue, VkSemaphore semaphore, uint64_t value) override;
             //uint64_t queueGetCompletedInstance(CommandQueue queue) override;
             //FramebufferHandle createHandleForNativeFramebuffer(VkRenderPass renderPass, VkFramebuffer framebuffer,
