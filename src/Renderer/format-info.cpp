@@ -89,5 +89,6 @@ namespace GuGu{
             assert(info.format == format);
             return info;
         }
+
     }
 }
