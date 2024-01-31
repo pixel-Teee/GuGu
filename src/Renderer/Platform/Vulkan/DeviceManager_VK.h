@@ -21,6 +21,10 @@ namespace GuGu{
         bool CreateDevice() override;
         bool CreateSwapChain() override;
         void BeginFrame() override;
+
+        virtual nvrhi::ITexture* GetBackBuffer(uint32_t index) override;
+        virtual uint32_t GetCurrentBackBufferIndex() override;
+        virtual uint32_t GetBackBufferCount() override;
 #if 1
     public:
         VkInstance getInstance();

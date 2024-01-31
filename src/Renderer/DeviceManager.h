@@ -75,6 +75,11 @@ namespace GuGu{
 
         uint32_t m_FrameIndex = 0;
 
+        std::vector<nvrhi::FramebufferHandle> m_SwapChainFramebuffers;
+
+        void BackBufferResizing();
+        void BackBufferResized();
+
         void Render();
         void AnimateRenderPresent();
 
@@ -87,6 +92,10 @@ namespace GuGu{
     public:
         [[nodiscard]] virtual nvrhi::IDevice *GetDevice() const = 0;
         [[nodiscard]] uint32_t GetFrameIndex() const { return m_FrameIndex; }
+
+        virtual nvrhi::ITexture* GetBackBuffer(uint32_t index) = 0;
+        virtual uint32_t GetCurrentBackBufferIndex() = 0;
+        virtual uint32_t GetBackBufferCount() = 0;
 
         virtual void ShutDown();
         virtual ~DeviceManager() = default;
@@ -101,7 +110,7 @@ namespace GuGu{
         explicit IRenderPass(DeviceManager* deviceManager) : m_DeviceManager(deviceManager){}
         virtual ~IRenderPass() = default;
 
-        //virtual void Render(nvrhi::IFramebuffer* framebuffer) { }
+        virtual void Render(nvrhi::IFramebuffer* framebuffer) { }
         virtual void Animate(float fElapsedTimeSeconds) { }
         virtual void BackBufferResizing() { }
         virtual void BackBufferResized(const uint32_t width, const uint32_t height, const uint32_t sampleCount) { }

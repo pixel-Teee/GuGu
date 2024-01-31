@@ -1057,5 +1057,19 @@ namespace GuGu{
         m_NvrhiDevice->queueWaitForSemaphore(nvrhi::CommandQueue::Graphics, m_PresentSemaphore, 0);
     }
 
+    nvrhi::ITexture *DeviceManager_VK::GetBackBuffer(uint32_t index) {
+        if(index < m_SwapChainImages.size())
+            return m_SwapChainImages[index].rhiHandle;
+        return nullptr;
+    }
+
+    uint32_t DeviceManager_VK::GetCurrentBackBufferIndex() {
+        return m_SwapChainIndex;
+    }
+
+    uint32_t DeviceManager_VK::GetBackBufferCount() {
+        return uint32_t(m_SwapChainImages.size());
+    }
+
 
 }

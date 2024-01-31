@@ -176,6 +176,40 @@ namespace GuGu{
 
     void DeviceManager::Render() {
         //todo:add begin frame
+        BeginFrame();
+
+        nvrhi::IFramebuffer* framebuffer = m_SwapChainFramebuffers[GetCurrentBackBufferIndex()];
+
+        for(auto it : m_vRenderPasses)
+        {
+            it->Render(framebuffer);
+        }
+    }
+
+    void DeviceManager::BackBufferResizing() {
+        m_SwapChainFramebuffers.clear();
+
+        for(auto it : m_vRenderPasses)
+        {
+            it->BackBufferResizing();
+        }
+    }
+
+    void DeviceManager::BackBufferResized() {
+        for(auto it : m_vRenderPasses)
+        {
+            it->BackBufferResized(m_deviceParams.backBufferWidth,
+                                  m_deviceParams.backBufferHeight,
+                                  m_deviceParams.swapChainSampleCount);
+        }
+
+        uint32_t backBufferCount = GetBackBufferCount();
+        m_SwapChainFramebuffers.resize(backBufferCount);
+        for (uint32_t index = 0; index < backBufferCount; index++)
+        {
+            m_SwapChainFramebuffers[index] = GetDevice()->createFramebuffer(
+                    nvrhi::FramebufferDesc().addColorAttachment(GetBackBuffer(index)));
+        }
     }
 
     DefaultMessageCallback &DefaultMessageCallback::GetInstance() {

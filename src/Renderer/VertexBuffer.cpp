@@ -24,10 +24,10 @@ namespace GuGu{
 
         }
 
-        //void Render(nvrhi::IFramebuffer* framebuffer) override
-        //{
-//
-        //}
+        void Render(nvrhi::IFramebuffer* framebuffer) override
+        {
+
+        }
 
 
     };
