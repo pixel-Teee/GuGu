@@ -33,7 +33,8 @@ namespace GuGu{
             {},
             //device
             {
-                    VK_KHR_MAINTENANCE1_EXTENSION_NAME
+                    VK_KHR_MAINTENANCE1_EXTENSION_NAME,
+                    VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME
             }
     };
 
