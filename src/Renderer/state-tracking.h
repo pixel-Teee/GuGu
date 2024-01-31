@@ -6,6 +6,16 @@
 
 namespace GuGu{
     namespace nvrhi{
+        struct BufferStateExtension
+        {
+            const BufferDesc& descRef;
+            ResourceStates permanentState = ResourceStates::Unknown;
+
+            explicit BufferStateExtension(const BufferDesc& desc)
+                    : descRef(desc)
+            { }
+        };
+
         struct TextureStateExtension
         {
             const TextureDesc& descRef;

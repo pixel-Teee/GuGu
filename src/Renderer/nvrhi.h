@@ -242,6 +242,32 @@ namespace GuGu{
         typedef uint32_t MipLevel;
         typedef uint32_t ArraySlice;
 
+        enum class HeapType : uint8_t
+        {
+            DeviceLocal,
+            Upload,
+            Readback
+        };
+
+        struct HeapDesc
+        {
+            uint64_t capacity = 0;
+            HeapType type;
+            std::string debugName;
+
+            constexpr HeapDesc& setCapacity(uint64_t value) { capacity = value; return *this; }
+            constexpr HeapDesc& setType(HeapType value) { type = value; return *this; }
+            HeapDesc& setDebugName(const std::string& value) { debugName = value; return *this; }
+        };
+
+        class IHeap : public IResource
+        {
+        public:
+            virtual const HeapDesc& getDesc() = 0;
+        };
+
+        typedef RefCountPtr<IHeap> HeapHandle;
+
         enum class TextureDimension : uint8_t
         {
             Unknown,
@@ -254,6 +280,13 @@ namespace GuGu{
             Texture2DMS,
             Texture2DMSArray,
             Texture3D
+        };
+
+        enum class CpuAccessMode : uint8_t
+        {
+            None,
+            Read,
+            Write
         };
 
         struct TextureDesc
@@ -392,6 +425,93 @@ namespace GuGu{
             virtual Object getNativeView(ObjectType objectType, Format format = Format::UNKNOWN, TextureSubresourceSet subresources = AllSubresources, TextureDimension dimension = TextureDimension::Unknown, bool isReadOnlyDSV = false) = 0;
         };
         typedef RefCountPtr<ITexture> TextureHandle;
+
+        struct BufferDesc
+        {
+            uint64_t byteSize = 0;
+            uint32_t structStride = 0; // if non-zero it's structured
+            uint32_t maxVersions = 0; // only valid and required to be nonzero for volatile buffers on Vulkan
+            GuGuUtf8Str debugName;
+            Format format = Format::UNKNOWN; // for typed buffer views
+            bool canHaveUAVs = false;
+            bool canHaveTypedViews = false;
+            bool canHaveRawViews = false;
+            bool isVertexBuffer = false;
+            bool isIndexBuffer = false;
+            bool isConstantBuffer = false;
+            bool isDrawIndirectArgs = false;
+            bool isAccelStructBuildInput = false;
+            bool isAccelStructStorage = false;
+            bool isShaderBindingTable = false;
+
+            // A dynamic/upload buffer whose contents only live in the current command list
+            bool isVolatile = false;
+
+            // Indicates that the buffer is created with no backing memory,
+            // and memory is bound to the texture later using bindBufferMemory.
+            // On DX12, the buffer resource is created at the time of memory binding.
+            bool isVirtual = false;
+
+            ResourceStates initialState = ResourceStates::Common;
+
+            // see TextureDesc::keepInitialState
+            bool keepInitialState = false;
+
+            CpuAccessMode cpuAccess = CpuAccessMode::None;
+
+            SharedResourceFlags sharedResourceFlags = SharedResourceFlags::None;
+
+            constexpr BufferDesc& setByteSize(uint64_t value) { byteSize = value; return *this; }
+            constexpr BufferDesc& setStructStride(uint32_t value) { structStride = value; return *this; }
+            constexpr BufferDesc& setMaxVersions(uint32_t value) { maxVersions = value; return *this; }
+            BufferDesc& setDebugName(const std::string& value) { debugName = value; return *this; }
+            constexpr BufferDesc& setFormat(Format value) { format = value; return *this; }
+            constexpr BufferDesc& setCanHaveUAVs(bool value) { canHaveUAVs = value; return *this; }
+            constexpr BufferDesc& setCanHaveTypedViews(bool value) { canHaveTypedViews = value; return *this; }
+            constexpr BufferDesc& setCanHaveRawViews(bool value) { canHaveRawViews = value; return *this; }
+            constexpr BufferDesc& setIsVertexBuffer(bool value) { isVertexBuffer = value; return *this; }
+            constexpr BufferDesc& setIsIndexBuffer(bool value) { isIndexBuffer = value; return *this; }
+            constexpr BufferDesc& setIsConstantBuffer(bool value) { isConstantBuffer = value; return *this; }
+            constexpr BufferDesc& setIsDrawIndirectArgs(bool value) { isDrawIndirectArgs = value; return *this; }
+            constexpr BufferDesc& setIsAccelStructBuildInput(bool value) { isAccelStructBuildInput = value; return *this; }
+            constexpr BufferDesc& setIsAccelStructStorage(bool value) { isAccelStructStorage = value; return *this; }
+            constexpr BufferDesc& setIsShaderBindingTable(bool value) { isShaderBindingTable = value; return *this; }
+            constexpr BufferDesc& setIsVolatile(bool value) { isVolatile = value; return *this; }
+            constexpr BufferDesc& setIsVirtual(bool value) { isVirtual = value; return *this; }
+            constexpr BufferDesc& setInitialState(ResourceStates value) { initialState = value; return *this; }
+            constexpr BufferDesc& setKeepInitialState(bool value) { keepInitialState = value; return *this; }
+            constexpr BufferDesc& setCpuAccess(CpuAccessMode value) { cpuAccess = value; return *this; }
+        };
+
+        struct BufferRange
+        {
+            uint64_t byteOffset = 0;
+            uint64_t byteSize = 0;
+
+            BufferRange() = default;
+
+            BufferRange(uint64_t _byteOffset, uint64_t _byteSize)
+                    : byteOffset(_byteOffset)
+                    , byteSize(_byteSize)
+            { }
+
+            [[nodiscard]] BufferRange resolve(const BufferDesc& desc) const;
+            [[nodiscard]] constexpr bool isEntireBuffer(const BufferDesc& desc) const { return (byteOffset == 0) && (byteSize == ~0ull || byteSize == desc.byteSize); }
+            constexpr bool operator== (const BufferRange& other) const { return byteOffset == other.byteOffset && byteSize == other.byteSize; }
+
+            constexpr BufferRange& setByteOffset(uint64_t value) { byteOffset = value; return *this; }
+            constexpr BufferRange& setByteSize(uint64_t value) { byteSize = value; return *this; }
+        };
+
+        static const BufferRange EntireBuffer = BufferRange(0, ~0ull);
+
+        class IBuffer : public IResource
+        {
+        public:
+            [[nodiscard]] virtual const BufferDesc& getDesc() const = 0;
+        };
+
+        typedef RefCountPtr<IBuffer> BufferHandle;
 
         enum class ShaderType : uint16_t
         {
@@ -771,7 +891,7 @@ namespace GuGu{
            //virtual void *mapStagingTexture(IStagingTexture* tex, const TextureSlice& slice, CpuAccessMode cpuAccess, size_t *outRowPitch) = 0;
            //virtual void unmapStagingTexture(IStagingTexture* tex) = 0;
 
-           //virtual BufferHandle createBuffer(const BufferDesc& d) = 0;
+           virtual BufferHandle createBuffer(const BufferDesc& d) = 0;
            //virtual void *mapBuffer(IBuffer* buffer, CpuAccessMode cpuAccess) = 0;
            //virtual void unmapBuffer(IBuffer* buffer) = 0;
            //virtual MemoryRequirements getBufferMemoryRequirements(IBuffer* buffer) = 0;
