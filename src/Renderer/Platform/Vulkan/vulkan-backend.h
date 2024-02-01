@@ -18,8 +18,32 @@
 namespace GuGu{
     class GuGuUtf8Str;
     namespace nvrhi::vulkan{
-        VkShaderStageFlagBits convertShaderTypeToShaderStageFlagBits(ShaderType shaderType);
+        struct ResourceStateMapping
+        {
+            ResourceStates nvrhiState;
+            VkPipelineStageFlags stageFlags;
+            VkAccessFlags accessMask;
+            VkImageLayout imageLayout;
+            ResourceStateMapping(ResourceStates nvrhiState, VkPipelineStageFlags stageFlags, VkAccessFlags accessMask, VkImageLayout imageLayout):
+                    nvrhiState(nvrhiState), stageFlags(stageFlags), accessMask(accessMask), imageLayout(imageLayout) {}
+        };
 
+        struct ResourceStateMapping2 // for use with KHR_synchronization2
+        {
+            ResourceStates nvrhiState;
+            VkPipelineStageFlags2 stageFlags;
+            VkAccessFlags2 accessMask;
+            VkImageLayout imageLayout;
+            ResourceStateMapping2(ResourceStates nvrhiState, VkPipelineStageFlags2 stageFlags, VkAccessFlags2 accessMask, VkImageLayout imageLayout) :
+                    nvrhiState(nvrhiState), stageFlags(stageFlags), accessMask(accessMask), imageLayout(imageLayout) {}
+        };
+
+        VkShaderStageFlagBits convertShaderTypeToShaderStageFlagBits(ShaderType shaderType);
+        VkPolygonMode convertFillMode(RasterFillMode mode);
+        VkCullModeFlagBits convertCullMode(RasterCullMode mode);
+        VkPrimitiveTopology convertPrimitiveTopology(PrimitiveType topology);
+        VkCompareOp convertCompareOp(ComparisonFunc op);
+        ResourceStateMapping convertResourceState(ResourceStates state);
         struct VulkanContext{
             VulkanContext(
                     VkInstance instance,
@@ -140,6 +164,11 @@ namespace GuGu{
             TrackedCommandBufferPtr getOrCreateCommandBuffer();
 
             void addWaitSemaphore(VkSemaphore semaphore, uint64_t value);
+
+            // submits a command buffer to this queue, returns submissionID
+            uint64_t submit(ICommandList* const* ppCmd, size_t numCmd);
+
+            CommandQueue getQueueID() const { return m_QueueID; }
         private:
             const VulkanContext& m_Context;
 
@@ -148,8 +177,8 @@ namespace GuGu{
             uint32_t m_QueueFamilyIndex = uint32_t(-1);
 
             std::mutex m_Mutex;
-            std::vector<VkSemaphore> m_WaitSemahpores;
-            std::vector<uint64_t> m_WaitSemahporeValues;
+            std::vector<VkSemaphore> m_WaitSemaphores;
+            std::vector<uint64_t> m_WaitSemaphoreValues;
             std::vector<VkSemaphore> m_SignalSemaphores;
             std::vector<uint64_t> m_SignalSemaphoreValues;
 
@@ -428,6 +457,19 @@ namespace GuGu{
             const VulkanContext& m_Context;
         };
 
+        void countSpecializationConstants(
+                Shader* shader,
+                size_t& numShaders,
+                size_t& numShadersWithSpecializations,
+                size_t& numSpecializationConstants);
+
+        VkPipelineShaderStageCreateInfo makeShaderStageCreateInfo(
+                Shader* shader,
+                std::vector<VkSpecializationInfo>& specInfos,
+                std::vector<VkSpecializationMapEntry>& specMapEntries,
+                std::vector<uint32_t>& specData);
+
+
         class InputLayout : public RefCounter<IInputLayout>
         {
         public:
@@ -438,6 +480,34 @@ namespace GuGu{
 
             uint32_t getNumAttributes() const override;
             const VertexAttributeDesc* getAttributeDesc(uint32_t index) const override;
+        };
+
+        template <typename T>
+        using BindingVector = static_vector<T, c_MaxBindingLayouts>;
+
+        class GraphicsPipeline : public RefCounter<IGraphicsPipeline>
+        {
+        public:
+            GraphicsPipelineDesc desc;
+            FramebufferInfo framebufferInfo;
+            ShaderType shaderMask = ShaderType::None;
+            BindingVector<RefCountPtr<BindingLayout>> pipelineBindingLayouts;
+            VkPipelineLayout pipelineLayout;
+            VkPipeline pipeline;
+            VkShaderStageFlags pushConstantVisibility;
+            bool usesBlendConstants = false;
+
+            explicit GraphicsPipeline(const VulkanContext& context)
+                    : m_Context(context)
+            { }
+
+            ~GraphicsPipeline() override;
+            const GraphicsPipelineDesc& getDesc() const override { return desc; }
+            const FramebufferInfo& getFramebufferInfo() const override { return framebufferInfo; }
+            Object getNativeObject(ObjectType objectType) override;
+
+        private:
+            const VulkanContext& m_Context;
         };
 
 
@@ -504,7 +574,7 @@ namespace GuGu{
 //
             FramebufferHandle createFramebuffer(const FramebufferDesc& desc) override;
 //
-            //GraphicsPipelineHandle createGraphicsPipeline(const GraphicsPipelineDesc& desc, IFramebuffer* fb) override;
+            GraphicsPipelineHandle createGraphicsPipeline(const GraphicsPipelineDesc& desc, IFramebuffer* fb) override;
 //
             //ComputePipelineHandle createComputePipeline(const ComputePipelineDesc& desc) override;
 //
@@ -527,7 +597,7 @@ namespace GuGu{
             //bool bindAccelStructMemory(rt::IAccelStruct* as, IHeap* heap, uint64_t offset) override;
 //
             CommandListHandle createCommandList(const CommandListParameters& params = CommandListParameters()) override;
-            //uint64_t executeCommandLists(ICommandList* const* pCommandLists, size_t numCommandLists, CommandQueue executionQueue = CommandQueue::Graphics) override;
+            uint64_t executeCommandLists(ICommandList* const* pCommandLists, size_t numCommandLists, CommandQueue executionQueue = CommandQueue::Graphics) override;
             //void queueWaitForCommandList(CommandQueue waitQueue, CommandQueue executionQueue, uint64_t instance) override;
             //void waitForIdle() override;
             //void runGarbageCollection() override;
@@ -566,7 +636,7 @@ namespace GuGu{
 
             CommandList(Device* device, const VulkanContext& context, const CommandListParameters& parameters);
 
-            //void executed(Queue& queue, uint64_t submissionID);
+            void executed(Queue& queue, uint64_t submissionID);
 
             // IResource implementation
 
@@ -594,9 +664,9 @@ namespace GuGu{
 //
             //void setPushConstants(const void* data, size_t byteSize) override;
 //
-            //void setGraphicsState(const GraphicsState& state) override;
+            void setGraphicsState(const GraphicsState& state) override;
             //void draw(const DrawArguments& args) override;
-            //void drawIndexed(const DrawArguments& args) override;
+            void drawIndexed(const DrawArguments& args) override;
             //void drawIndirect(uint32_t offsetBytes, uint32_t drawCount) override;
             //void drawIndexedIndirect(uint32_t offsetBytes, uint32_t drawCount) override;
 //
@@ -639,7 +709,7 @@ namespace GuGu{
             //void setPermanentTextureState(ITexture* texture, ResourceStates stateBits) override;
             //void setPermanentBufferState(IBuffer* buffer, ResourceStates stateBits) override;
 //
-            //void commitBarriers() override;
+            void commitBarriers() override;
 //
             //ResourceStates getTextureSubresourceState(ITexture* texture, ArraySlice arraySlice, MipLevel mipLevel) override;
             //ResourceStates getBufferState(IBuffer* buffer) override;
@@ -647,7 +717,7 @@ namespace GuGu{
             //IDevice* getDevice() override { return m_Device; }
             //const CommandListParameters& getDesc() override { return m_CommandListParameters; }
 //
-            //TrackedCommandBufferPtr getCurrentCmdBuf() const { return m_CurrentCmdBuf; }
+            TrackedCommandBufferPtr getCurrentCmdBuf() const { return m_CurrentCmdBuf; }
 //
             private:
             Device* m_Device;
@@ -655,19 +725,19 @@ namespace GuGu{
 //
             CommandListParameters m_CommandListParameters;
 //
-            //CommandListResourceStateTracker m_StateTracker;
-            //bool m_EnableAutomaticBarriers = true;
+            CommandListResourceStateTracker m_StateTracker;
+            bool m_EnableAutomaticBarriers = true;
 //
             //// current internal command buffer
             TrackedCommandBufferPtr m_CurrentCmdBuf = nullptr;
 //
-            //vk::PipelineLayout m_CurrentPipelineLayout;
-            //vk::ShaderStageFlags m_CurrentPushConstantsVisibility;
-            //GraphicsState m_CurrentGraphicsState{};
+            VkPipelineLayout m_CurrentPipelineLayout;
+            VkShaderStageFlags m_CurrentPushConstantsVisibility;
+            GraphicsState m_CurrentGraphicsState{};
             //ComputeState m_CurrentComputeState{};
             //MeshletState m_CurrentMeshletState{};
             //rt::State m_CurrentRayTracingState;
-            //bool m_AnyVolatileBufferWrites = false;
+            bool m_AnyVolatileBufferWrites = false;
 //
             //struct ShaderTableState
             //{
@@ -687,7 +757,7 @@ namespace GuGu{
 //
             //void bindBindingSets(vk::PipelineBindPoint bindPoint, vk::PipelineLayout pipelineLayout, const BindingSetVector& bindings);
 //
-            //void endRenderPass();
+            void endRenderPass();
 //
             //void trackResourcesAndBarriers(const GraphicsState& state);
             //void trackResourcesAndBarriers(const MeshletState& state);
@@ -707,8 +777,8 @@ namespace GuGu{
 //
             //void buildTopLevelAccelStructInternal(AccelStruct* as, VkDeviceAddress instanceData, size_t numInstances, rt::AccelStructBuildFlags buildFlags, uint64_t currentVersion);
 //
-            //void commitBarriersInternal();
-            //void commitBarriersInternal_synchronization2();
+            void commitBarriersInternal();
+            void commitBarriersInternal_synchronization2();
         };
     }
 

@@ -4,6 +4,8 @@
 
 #include <Core/GuGuUtf8Str.h>
 
+#include <Renderer/misc.h>
+
 namespace GuGu {
     namespace nvrhi::vulkan {
         Queue::Queue(const VulkanContext &context, CommandQueue queueID, VkQueue queue,
@@ -32,8 +34,8 @@ namespace GuGu {
             if(!semaphore)
                 return;
 
-            m_WaitSemahpores.push_back(semaphore);
-            m_WaitSemahporeValues.push_back(value);
+            m_WaitSemaphores.push_back(semaphore);
+            m_WaitSemaphoreValues.push_back(value);
         }
 
         TrackedCommandBufferPtr Queue::getOrCreateCommandBuffer() {
@@ -83,6 +85,83 @@ namespace GuGu {
             VK_CHECK(res);
 
             return ret;
+        }
+
+        uint64_t Queue::submit(ICommandList *const *ppCmd, size_t numCmd) {
+            std::vector<VkPipelineStageFlags> waitStageArray(m_WaitSemaphores.size());
+            std::vector<VkCommandBuffer> commandBuffers(numCmd);
+
+            for (size_t i = 0; i < m_WaitSemaphores.size(); i++)
+            {
+                waitStageArray[i] = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+            }
+
+            m_LastSubmittedID++;
+
+            for (size_t i = 0; i < numCmd; i++)
+            {
+                CommandList* commandList = checked_cast<CommandList*>(ppCmd[i]);
+                TrackedCommandBufferPtr commandBuffer = commandList->getCurrentCmdBuf();
+
+                commandBuffers[i] = commandBuffer->cmdBuf;
+                m_CommandBuffersInFlight.push_back(commandBuffer);
+
+                for (const auto& buffer : commandBuffer->referencedStagingBuffers)
+                {
+                    buffer->lastUseQueue = m_QueueID;
+                    buffer->lastUseCommandListID = m_LastSubmittedID;
+                }
+            }
+
+            m_SignalSemaphores.push_back(trackingSemaphore);//timeline semaphore
+            m_SignalSemaphoreValues.push_back(m_LastSubmittedID);
+
+            VkTimelineSemaphoreSubmitInfo timelineSemaphoreInfo = {};
+            timelineSemaphoreInfo.sType = VK_STRUCTURE_TYPE_TIMELINE_SEMAPHORE_SUBMIT_INFO;
+            timelineSemaphoreInfo.signalSemaphoreValueCount = uint32_t(m_SignalSemaphoreValues.size());
+            timelineSemaphoreInfo.pSignalSemaphoreValues = m_SignalSemaphoreValues.data();
+
+            //auto timelineSemaphoreInfo = vk::TimelineSemaphoreSubmitInfo()
+            //        .setSignalSemaphoreValueCount(uint32_t(m_SignalSemaphoreValues.size()))
+            //        .setPSignalSemaphoreValues(m_SignalSemaphoreValues.data());
+
+            if (!m_WaitSemaphoreValues.empty())
+            {
+                timelineSemaphoreInfo.waitSemaphoreValueCount = uint32_t(m_WaitSemaphoreValues.size());
+                timelineSemaphoreInfo.pWaitSemaphoreValues = m_WaitSemaphoreValues.data();
+            }
+
+            VkSubmitInfo submitInfo = {};
+            submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+            submitInfo.pNext = &timelineSemaphoreInfo;
+            submitInfo.commandBufferCount = uint32_t(numCmd);
+            submitInfo.pCommandBuffers = commandBuffers.data();
+            submitInfo.waitSemaphoreCount = uint32_t(m_WaitSemaphores.size());
+            submitInfo.pWaitSemaphores = m_WaitSemaphores.data();
+            submitInfo.pWaitDstStageMask = waitStageArray.data();
+            submitInfo.signalSemaphoreCount = uint32_t(m_SignalSemaphores.size());
+            submitInfo.pSignalSemaphores = m_SignalSemaphores.data();
+
+            //auto submitInfo = vk::SubmitInfo()
+            //        .setPNext(&timelineSemaphoreInfo)
+            //        .setCommandBufferCount(uint32_t(numCmd))
+            //        .setPCommandBuffers(commandBuffers.data())
+            //        .setWaitSemaphoreCount(uint32_t(m_WaitSemaphores.size()))
+            //        .setPWaitSemaphores(m_WaitSemaphores.data())
+            //        .setPWaitDstStageMask(waitStageArray.data())
+            //        .setSignalSemaphoreCount(uint32_t(m_SignalSemaphores.size()))
+            //        .setPSignalSemaphores(m_SignalSemaphores.data());
+
+            vkQueueSubmit(m_Queue, 1, &submitInfo, VK_NULL_HANDLE);
+
+            //m_Queue.submit(submitInfo);
+
+            m_WaitSemaphores.clear();
+            m_WaitSemaphoreValues.clear();
+            m_SignalSemaphores.clear();
+            m_SignalSemaphoreValues.clear();
+
+            return m_LastSubmittedID;
         }
 
 

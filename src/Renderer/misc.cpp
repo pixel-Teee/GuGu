@@ -87,5 +87,43 @@ namespace GuGu{
                 height = std::max(textureDesc.height >> desc.colorAttachments[0].subresources.baseMipLevel, 1u);
             }
         }
+
+        bool BlendState::RenderTarget::usesConstantColor() const
+        {
+            return srcBlend == BlendFactor::ConstantColor || srcBlend == BlendFactor::OneMinusConstantColor ||
+                   destBlend == BlendFactor::ConstantColor || destBlend == BlendFactor::OneMinusConstantColor ||
+                   srcBlendAlpha == BlendFactor::ConstantColor || srcBlendAlpha == BlendFactor::OneMinusConstantColor ||
+                   destBlendAlpha == BlendFactor::ConstantColor || destBlendAlpha == BlendFactor::OneMinusConstantColor;
+        }
+
+
+        bool BlendState::usesConstantColor(uint32_t numTargets) const {
+            for (uint32_t rt = 0; rt < numTargets; rt++)
+            {
+                if (targets[rt].usesConstantColor())
+                    return true;
+            }
+
+            return false;
+        }
+
+        bool TextureSubresourceSet::isEntireTexture(const TextureDesc& desc) const
+        {
+            if (baseMipLevel > 0u || baseMipLevel + numMipLevels < desc.mipLevels)
+                return false;
+
+            switch (desc.dimension)  // NOLINT(clang-diagnostic-switch-enum)
+            {
+                case TextureDimension::Texture1DArray:
+                case TextureDimension::Texture2DArray:
+                case TextureDimension::TextureCube:
+                case TextureDimension::TextureCubeArray:
+                case TextureDimension::Texture2DMSArray:
+                    if (baseArraySlice > 0u || baseArraySlice + numArraySlices < desc.arraySize)
+                        return false;
+                default:
+                    return true;
+            }
+        }
     }
 }

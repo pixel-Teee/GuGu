@@ -57,6 +57,8 @@ namespace GuGu{
 
     class VertexBuffer : public IRenderPass{
     private:
+        nvrhi::ShaderHandle m_VertexShader;
+        nvrhi::ShaderHandle m_PixelShader;
         nvrhi::CommandListHandle m_CommandList;
         nvrhi::BufferHandle m_ConstantBuffer;
         nvrhi::InputLayoutHandle m_InputLayout;
@@ -64,7 +66,7 @@ namespace GuGu{
         nvrhi::BufferHandle m_IndexBuffer;
         nvrhi::BindingLayoutHandle m_BindingLayout;
         nvrhi::BindingSetHandle m_BindingSets[c_NumViews];
-        //nvrhi::GraphicsPipelineHandle m_Pipeline;
+        nvrhi::GraphicsPipelineHandle m_Pipeline;
     public:
         using IRenderPass::IRenderPass;
 
@@ -163,17 +165,17 @@ namespace GuGu{
         void Render(nvrhi::IFramebuffer* framebuffer) override
         {
             const nvrhi::FramebufferInfoEx& fbinfo = framebuffer->getFramebufferInfo();
-            //if (!m_Pipeline)
+            if (!m_Pipeline)
             {
-                //nvrhi::GraphicsPipelineDesc psoDesc;
-                //psoDesc.VS = m_VertexShader;
-                //psoDesc.PS = m_PixelShader;
-                //psoDesc.inputLayout = m_InputLayout;
-                //psoDesc.bindingLayouts = { m_BindingLayout };
-                //psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
-                //psoDesc.renderState.depthStencilState.depthTestEnable = false;
+                nvrhi::GraphicsPipelineDesc psoDesc;
+                psoDesc.VS = m_VertexShader;
+                psoDesc.PS = m_PixelShader;
+                psoDesc.inputLayout = m_InputLayout;
+                psoDesc.bindingLayouts = { m_BindingLayout };
+                psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+                psoDesc.renderState.depthStencilState.depthTestEnable = false;
 
-                //m_Pipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
+                m_Pipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
             }
 
             m_CommandList->open();
@@ -197,17 +199,17 @@ namespace GuGu{
 
             for (uint32_t viewIndex = 0; viewIndex < c_NumViews; ++viewIndex)
             {
-                //nvrhi::GraphicsState state;
+                nvrhi::GraphicsState state;
                 // Pick the right binding set for this view.
-                //state.bindings = { m_BindingSets[viewIndex] };
-                //state.indexBuffer = { m_IndexBuffer, nvrhi::Format::R32_UINT, 0 };
+                state.bindings = { m_BindingSets[viewIndex] };
+                state.indexBuffer = { m_IndexBuffer, nvrhi::Format::R32_UINT, 0 };
                 // Bind the vertex buffers in reverse order to test the NVRHI implementation of binding slots
-                //state.vertexBuffers = {
-                //        { m_VertexBuffer, 1, offsetof(Vertex, uv) },
-                //        { m_VertexBuffer, 0, offsetof(Vertex, position) }
-                //};
-                //state.pipeline = m_Pipeline;
-                //state.framebuffer = framebuffer;
+                state.vertexBuffers = {
+                        { m_VertexBuffer, 1, offsetof(Vertex, uv) },
+                        { m_VertexBuffer, 0, offsetof(Vertex, position) }
+                };
+                state.pipeline = m_Pipeline;
+                state.framebuffer = framebuffer;
 
                 // Construct the viewport so that all viewports form a grid.
                 const float width = float(fbinfo.width) * 0.5f;
@@ -215,20 +217,20 @@ namespace GuGu{
                 const float left = width * float(viewIndex % 2);
                 const float top = height * float(viewIndex / 2);
 
-                //const nvrhi::Viewport viewport = nvrhi::Viewport(left, left + width, top, top + height, 0.f, 1.f);
-                //state.viewport.addViewportAndScissorRect(viewport);
+                const nvrhi::Viewport viewport = nvrhi::Viewport(left, left + width, top, top + height, 0.f, 1.f);
+                state.viewport.addViewportAndScissorRect(viewport);
 
                 // Update the pipeline, bindings, and other state.
-                //m_CommandList->setGraphicsState(state);
+                m_CommandList->setGraphicsState(state);
 
                 // Draw the model.
-                //nvrhi::DrawArguments args;
-                //args.vertexCount = dim(g_Indices);
-                //m_CommandList->drawIndexed(args);
+                nvrhi::DrawArguments args;
+                args.vertexCount = dim(g_Indices);
+                m_CommandList->drawIndexed(args);
             }
 
             m_CommandList->close();
-            //GetDevice()->executeCommandList(m_CommandList);
+            GetDevice()->executeCommandList(m_CommandList);
         }
 
 

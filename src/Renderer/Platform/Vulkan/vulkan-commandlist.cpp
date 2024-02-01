@@ -8,7 +8,8 @@ namespace GuGu{
                                  const CommandListParameters &parameters)
         : m_Device(device)
         , m_Context(context)
-        , m_CommandListParameters(parameters){
+        , m_CommandListParameters(parameters)
+        , m_StateTracker(context.messageCallback){
             //todo:add state tracker and upload manager
 
         }
@@ -28,6 +29,11 @@ namespace GuGu{
 
         void CommandList::close() {
             //todo:add state tracker and commit barriers
+            endRenderPass();
+
+            m_StateTracker.keepBufferInitialStates();
+            m_StateTracker.keepTextureInitialStates();
+
 
             vkEndCommandBuffer(m_CurrentCmdBuf->cmdBuf);
 
@@ -38,6 +44,41 @@ namespace GuGu{
 
         void CommandList::clearState() {
             //todo:add logic
+            endRenderPass();
+
+            m_CurrentPipelineLayout = {};
+            m_CurrentPushConstantsVisibility = {};
+
+            m_CurrentGraphicsState = GraphicsState();
+
+            //todo:clear shader table state
+
+            m_AnyVolatileBufferWrites = false;
+        }
+
+        void CommandList::executed(Queue &queue, uint64_t submissionID) {
+            assert(m_CurrentCmdBuf);
+
+            m_CurrentCmdBuf->submissionId = submissionID;
+
+            const CommandQueue queueID = queue.getQueueID();
+            const uint64_t recordingID = m_CurrentCmdBuf->recordingId;
+
+            m_CurrentCmdBuf = nullptr;
+
+            //submitVolatileBuffers(recordingID, submissionID);
+
+            m_StateTracker.commandListSubmitted();
+
+            //m_UploadManager->submitChunks(
+            //        MakeVersion(recordingID, queueID, false),
+            //        MakeVersion(submissionID, queueID, true));
+//
+            //m_ScratchManager->submitChunks(
+            //        MakeVersion(recordingID, queueID, false),
+            //        MakeVersion(submissionID, queueID, true));
+
+            //m_VolatileBufferStates.clear();
         }
     }
 }

@@ -7,6 +7,8 @@
 #include <unordered_map>
 #include <Core/GuGuUtf8Str.h>
 
+#include <Renderer/misc.h>
+
 namespace GuGu{
     namespace nvrhi::vulkan {
         DeviceHandle createDevice(const DeviceDesc &desc) {
@@ -330,5 +332,20 @@ namespace GuGu{
             messageCallback->message(MessageSeverity::Warning, message.getStr());
         }
 
+
+        uint64_t
+        Device::executeCommandLists(ICommandList *const *pCommandLists, size_t numCommandLists,
+                                    CommandQueue executionQueue) {
+            Queue& queue = *m_Queues[uint32_t(executionQueue)];
+
+            uint64_t submissionID = queue.submit(pCommandLists, numCommandLists);
+
+            for (size_t i = 0; i < numCommandLists; i++)
+            {
+                checked_cast<CommandList*>(pCommandLists[i])->executed(queue, submissionID);
+            }
+
+            return submissionID;
+        }
     }
 }

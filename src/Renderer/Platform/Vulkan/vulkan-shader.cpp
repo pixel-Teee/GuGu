@@ -2,6 +2,8 @@
 
 #include "vulkan-backend.h"
 
+
+
 namespace GuGu{
     namespace nvrhi::vulkan{
         Shader::~Shader()
@@ -107,6 +109,8 @@ namespace GuGu{
 
             return InputLayoutHandle::Create(layout);
         }
+
+
 
         uint32_t InputLayout::getNumAttributes() const
         {

@@ -143,5 +143,180 @@ namespace GuGu{
 #endif
         }
 
+
+        struct ResourceStateMappingInternal
+        {
+            ResourceStates nvrhiState;
+            VkPipelineStageFlags2 stageFlags;
+            VkAccessFlags2 accessMask;
+            VkImageLayout imageLayout;
+
+            ResourceStateMapping AsResourceStateMapping() const
+            {
+                // It's safe to cast vk::AccessFlags2 -> vk::AccessFlags and vk::PipelineStageFlags2 -> vk::PipelineStageFlags (as long as the enum exist in both versions!),
+                // synchronization2 spec says: "The new flags are identical to the old values within the 32-bit range, with new stages and bits beyond that."
+                // The below stages are exclustive to synchronization2
+                assert((stageFlags & VK_PIPELINE_STAGE_2_MICROMAP_BUILD_BIT_EXT) != VK_PIPELINE_STAGE_2_MICROMAP_BUILD_BIT_EXT);
+                assert((accessMask & VK_ACCESS_2_MICROMAP_WRITE_BIT_EXT) != VK_ACCESS_2_MICROMAP_WRITE_BIT_EXT);
+                return
+                        ResourceStateMapping(nvrhiState,
+                                             reinterpret_cast<const VkPipelineStageFlags&>(stageFlags),
+                                             reinterpret_cast<const VkAccessFlags&>(accessMask),
+                                             imageLayout
+                        );
+            }
+
+            ResourceStateMapping2 AsResourceStateMapping2() const
+            {
+                return ResourceStateMapping2(nvrhiState, stageFlags, accessMask, imageLayout);
+            }
+        };
+
+        static const ResourceStateMappingInternal g_ResourceStateMap[] =
+                {
+                        { ResourceStates::Common,
+                                VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT,
+                                VkAccessFlagBits2(0),
+                                VK_IMAGE_LAYOUT_UNDEFINED },
+                        { ResourceStates::ConstantBuffer,
+                                VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT,
+                                VK_ACCESS_2_UNIFORM_READ_BIT,
+                                VK_IMAGE_LAYOUT_UNDEFINED },
+                        { ResourceStates::VertexBuffer,
+                                VK_PIPELINE_STAGE_2_VERTEX_INPUT_BIT,
+                                VK_ACCESS_2_VERTEX_ATTRIBUTE_READ_BIT,
+                                VK_IMAGE_LAYOUT_UNDEFINED },
+                        { ResourceStates::IndexBuffer,
+                                VK_PIPELINE_STAGE_2_VERTEX_INPUT_BIT,
+                                VK_ACCESS_2_INDEX_READ_BIT,
+                                VK_IMAGE_LAYOUT_UNDEFINED },
+                        { ResourceStates::IndirectArgument,
+                                VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT,
+                                VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT,
+                                VK_IMAGE_LAYOUT_UNDEFINED },
+                        { ResourceStates::ShaderResource,
+                                VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT,
+                                VK_ACCESS_2_SHADER_READ_BIT,
+                                VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL },
+                        { ResourceStates::UnorderedAccess,
+                                VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT,
+                                VK_ACCESS_2_SHADER_READ_BIT | VK_ACCESS_2_SHADER_WRITE_BIT,
+                                VK_IMAGE_LAYOUT_GENERAL },
+                        { ResourceStates::RenderTarget,
+                                VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT,
+                                VK_ACCESS_2_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT,
+                                VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL },
+                        { ResourceStates::DepthWrite,
+                                VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT,
+                                VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+                                VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL },
+                        { ResourceStates::DepthRead,
+                                VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT,
+                                VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT,
+                                VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL },
+                        { ResourceStates::StreamOut,
+                                VK_PIPELINE_STAGE_2_TRANSFORM_FEEDBACK_BIT_EXT,
+                                VK_ACCESS_2_TRANSFORM_FEEDBACK_WRITE_BIT_EXT,
+                                VK_IMAGE_LAYOUT_UNDEFINED },
+                        { ResourceStates::CopyDest,
+                                VK_PIPELINE_STAGE_2_TRANSFER_BIT,
+                                VK_ACCESS_2_TRANSFER_WRITE_BIT,
+                                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL },
+                        { ResourceStates::CopySource,
+                                VK_PIPELINE_STAGE_2_TRANSFER_BIT,
+                                VK_ACCESS_2_TRANSFER_READ_BIT,
+                                VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL },
+                        { ResourceStates::ResolveDest,
+                                VK_PIPELINE_STAGE_2_TRANSFER_BIT,
+                                VK_ACCESS_2_TRANSFER_WRITE_BIT,
+                                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL },
+                        { ResourceStates::ResolveSource,
+                                VK_PIPELINE_STAGE_2_TRANSFER_BIT,
+                                VK_ACCESS_2_TRANSFER_READ_BIT,
+                                VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL},
+                        { ResourceStates::Present,
+                                VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT,
+                                VK_ACCESS_2_MEMORY_READ_BIT,
+                                VK_IMAGE_LAYOUT_PRESENT_SRC_KHR },
+                        { ResourceStates::AccelStructRead,
+                                VK_PIPELINE_STAGE_2_RAY_TRACING_SHADER_BIT_KHR | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT,
+                                VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR,
+                                VK_IMAGE_LAYOUT_UNDEFINED },
+                        { ResourceStates::AccelStructWrite,
+                                VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
+                                VK_ACCESS_2_ACCELERATION_STRUCTURE_WRITE_BIT_KHR,
+                                VK_IMAGE_LAYOUT_UNDEFINED },
+                        { ResourceStates::AccelStructBuildInput,
+                                VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
+                                VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR,
+                                VK_IMAGE_LAYOUT_UNDEFINED },
+                        { ResourceStates::AccelStructBuildBlas,
+                                VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR,
+                                VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR,
+                                VK_IMAGE_LAYOUT_UNDEFINED },
+                        { ResourceStates::ShadingRateSurface,
+                                VK_PIPELINE_STAGE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR,
+                                VK_ACCESS_2_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR,
+                                VK_IMAGE_LAYOUT_FRAGMENT_SHADING_RATE_ATTACHMENT_OPTIMAL_KHR },
+                        { ResourceStates::OpacityMicromapWrite,
+                                VK_PIPELINE_STAGE_2_MICROMAP_BUILD_BIT_EXT,
+                                VK_ACCESS_2_MICROMAP_READ_BIT_EXT,
+                                VK_IMAGE_LAYOUT_UNDEFINED },
+                        { ResourceStates::OpacityMicromapBuildInput,
+                                VK_PIPELINE_STAGE_2_MICROMAP_BUILD_BIT_EXT,
+                                VK_ACCESS_2_SHADER_READ_BIT,
+                                VK_IMAGE_LAYOUT_UNDEFINED },
+                };
+
+
+        ResourceStateMappingInternal convertResourceStateInternal(ResourceStates state)
+        {
+            ResourceStateMappingInternal result = {};
+
+            constexpr uint32_t numStateBits = sizeof(g_ResourceStateMap) / sizeof(g_ResourceStateMap[0]);
+
+            uint32_t stateTmp = uint32_t(state);
+            uint32_t bitIndex = 0;
+
+            while (stateTmp != 0 && bitIndex < numStateBits)
+            {
+                uint32_t bit = (1 << bitIndex);
+
+                if (stateTmp & bit)
+                {
+                    const ResourceStateMappingInternal& mapping = g_ResourceStateMap[bitIndex];
+
+                    assert(uint32_t(mapping.nvrhiState) == bit);
+                    assert(result.imageLayout == VK_IMAGE_LAYOUT_UNDEFINED || mapping.imageLayout == VK_IMAGE_LAYOUT_UNDEFINED || result.imageLayout == mapping.imageLayout);
+
+                    result.nvrhiState = ResourceStates(result.nvrhiState | mapping.nvrhiState);
+                    result.accessMask |= mapping.accessMask;
+                    result.stageFlags |= mapping.stageFlags;
+                    if (mapping.imageLayout != VK_IMAGE_LAYOUT_UNDEFINED)
+                        result.imageLayout = mapping.imageLayout;
+
+                    stateTmp &= ~bit;
+                }
+
+                bitIndex++;
+            }
+
+            assert(result.nvrhiState == state);
+
+            return result;
+        }
+
+        ResourceStateMapping convertResourceState(ResourceStates state)
+        {
+            const ResourceStateMappingInternal mapping = convertResourceStateInternal(state);
+            return mapping.AsResourceStateMapping();
+        }
+
+        ResourceStateMapping2 convertResourceState2(ResourceStates state)
+        {
+            const ResourceStateMappingInternal mapping = convertResourceStateInternal(state);
+            return mapping.AsResourceStateMapping2();
+        }
+
     }
 }
