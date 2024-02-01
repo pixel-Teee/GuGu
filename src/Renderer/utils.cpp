@@ -65,5 +65,14 @@ namespace GuGu{
         {
             return debugName.len() == 0 ? "<UNNAMED>" : debugName.getStr();
         }
+
+        BufferDesc CreateStaticConstantBufferDesc(uint32_t byteSize, const char *debugName) {
+            BufferDesc constantBufferDesc;
+            constantBufferDesc.byteSize = byteSize;
+            constantBufferDesc.debugName = debugName;
+            constantBufferDesc.isConstantBuffer = true;
+            constantBufferDesc.isVolatile = false;
+            return constantBufferDesc;
+        }
     }
 }

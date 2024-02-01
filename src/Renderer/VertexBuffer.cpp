@@ -2,15 +2,30 @@
 
 #include <Renderer/DeviceManager.h>
 
+#include <Renderer/matrix.h>
+#include <Renderer/utils.h>
+
 namespace GuGu{
+    constexpr uint32_t c_NumViews = 4;
+
     class VertexBuffer : public IRenderPass{
     private:
         nvrhi::CommandListHandle m_CommandList;
+        nvrhi::BufferHandle m_ConstantBuffer;
     public:
         using IRenderPass::IRenderPass;
 
+        struct ConstantBufferEntry
+        {
+            dm::float4x4 viewProjMatrix;
+            float padding[16*3];
+        };
+
         bool Init()
         {
+            m_ConstantBuffer = GetDevice()->createBuffer(nvrhi::utils::CreateStaticConstantBufferDesc(sizeof(ConstantBufferEntry) * c_NumViews, "ConstantBuffer")
+                                                                 .setInitialState(nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(true));
+
             m_CommandList = GetDevice()->createCommandList();
         }
 

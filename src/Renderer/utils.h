@@ -1,9 +1,16 @@
 #pragma once
 #include <vector>
 #include <mutex>
+
+#include <Renderer/nvrhi.h>
+
 namespace GuGu{
     class GuGuUtf8Str;
     namespace nvrhi::utils{
+        BufferDesc CreateStaticConstantBufferDesc(
+                uint32_t byteSize,
+        const char* debugName);
+
         class BitSetAllocator{
         public:
             explicit BitSetAllocator(size_t capacity, bool multithreaded);

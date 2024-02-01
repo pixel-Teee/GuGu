@@ -76,13 +76,24 @@ namespace GuGu{
         };
 
         class Texture;
+        class Buffer;
         class VulkanAllocator{
         public:
             explicit VulkanAllocator(const VulkanContext& context)
             : m_Context(context)
             {}
+            void freeBufferMemory(Buffer* buffer) const;
             void freeTextureMemory(Texture* texture) const;
             void freeMemory(MemoryResource* res) const;
+            VkResult allocateBufferMemory(Buffer* buffer, bool enableBufferAddress = false) const;
+
+            VkResult allocateMemory(MemoryResource* res,
+                          VkMemoryRequirements memRequirements,
+                          VkMemoryPropertyFlags memPropertyFlags,
+                          bool enableDeviceAddress = false,
+                          bool enableExportMemory = false,
+                          VkImage dedicatedImage = VK_NULL_HANDLE,
+                          VkBuffer dedicateBuffer = VK_NULL_HANDLE) const;
         private:
             const VulkanContext& m_Context;
         };
