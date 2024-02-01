@@ -32,5 +32,93 @@ namespace GuGu{
                     return nullptr;
             }
         }
+
+
+        InputLayoutHandle
+        Device::createInputLayout(const VertexAttributeDesc* attributeDesc, uint32_t attributeCount, IShader* vertexShader) {
+            (void)vertexShader;
+
+            InputLayout *layout = new InputLayout();
+
+            int total_attribute_array_size = 0;
+
+            // collect all buffer bindings
+            std::unordered_map<uint32_t, VkVertexInputBindingDescription> bindingMap;
+            for (uint32_t i = 0; i < attributeCount; i++)
+            {
+                const VertexAttributeDesc& desc = attributeDesc[i];
+
+                assert(desc.arraySize > 0);
+
+                total_attribute_array_size += desc.arraySize;
+
+                if (bindingMap.find(desc.bufferIndex) == bindingMap.end())
+                {
+                    VkVertexInputBindingDescription vertexInputBindingDescription = {};
+                    vertexInputBindingDescription.binding = desc.bufferIndex;
+                    vertexInputBindingDescription.stride = desc.elementStride; //sizeof(Vertex)
+                    vertexInputBindingDescription.inputRate = desc.isInstanced ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX;
+
+                    bindingMap[desc.bufferIndex] = vertexInputBindingDescription;
+
+                    //bindingMap[desc.bufferIndex] = vk::VertexInputBindingDescription()
+                    //        .setBinding(desc.bufferIndex)
+                    //        .setStride(desc.elementStride)
+                    //        .setInputRate(desc.isInstanced ? vk::VertexInputRate::eInstance : vk::VertexInputRate::eVertex);
+                }
+                else {
+                    assert(bindingMap[desc.bufferIndex].stride == desc.elementStride);
+                    assert(bindingMap[desc.bufferIndex].inputRate == (desc.isInstanced ? VK_VERTEX_INPUT_RATE_INSTANCE : VK_VERTEX_INPUT_RATE_VERTEX));
+                }
+            }
+
+            for (const auto& b : bindingMap)
+            {
+                layout->bindingDesc.push_back(b.second);
+            }
+
+            // build attribute descriptions
+            layout->inputDesc.resize(attributeCount);
+            layout->attributeDesc.resize(total_attribute_array_size);
+
+            uint32_t attributeLocation = 0;
+            for (uint32_t i = 0; i < attributeCount; i++)
+            {
+                const VertexAttributeDesc& in = attributeDesc[i];
+                layout->inputDesc[i] = in;
+
+                uint32_t element_size_bytes = getFormatInfo(in.format).bytesPerBlock;
+
+                uint32_t bufferOffset = 0;
+
+                for (uint32_t slot = 0; slot < in.arraySize; ++slot)
+                {
+                    auto& outAttrib = layout->attributeDesc[attributeLocation];
+
+                    outAttrib.location = attributeLocation;
+                    outAttrib.binding = in.bufferIndex;
+                    outAttrib.format = vulkan::convertFormat(in.format);
+                    outAttrib.offset = bufferOffset + in.offset;
+                    bufferOffset += element_size_bytes;
+
+                    ++attributeLocation;
+                }
+            }
+
+            return InputLayoutHandle::Create(layout);
+        }
+
+        uint32_t InputLayout::getNumAttributes() const
+        {
+            return uint32_t(inputDesc.size());
+        }
+
+        const VertexAttributeDesc* InputLayout::getAttributeDesc(uint32_t index) const
+        {
+            if (index < uint32_t(inputDesc.size()))
+                return &inputDesc[index];
+            else
+                return nullptr;
+        }
     }
 }

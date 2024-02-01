@@ -14,11 +14,30 @@ namespace GuGu{
         }
 
         void CommandList::open() {
+            m_CurrentCmdBuf = m_Device->getQueue(m_CommandListParameters.queueType)->getOrCreateCommandBuffer();
 
+            VkCommandBufferBeginInfo commandBufferBeginInfo = {};
+            commandBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+            commandBufferBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+            vkBeginCommandBuffer(m_CurrentCmdBuf->cmdBuf, &commandBufferBeginInfo);
+            m_CurrentCmdBuf->referencedResources.push_back(this);//prevent deletion of e.g. UploadManager
+
+            clearState();
         }
 
         void CommandList::close() {
+            //todo:add state tracker and commit barriers
 
+            vkEndCommandBuffer(m_CurrentCmdBuf->cmdBuf);
+
+            clearState();
+
+            //todo:add flush volatile buffer writes
+        }
+
+        void CommandList::clearState() {
+            //todo:add logic
         }
     }
 }

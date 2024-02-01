@@ -1,6 +1,9 @@
 #include <pch.h>
 
 #include "vulkan-constants.h"
+#include "vk_types.h"
+#include "vulkan-backend.h"
+
 
 #include <array>
 
@@ -93,5 +96,52 @@ namespace GuGu{
         //    Device* device = new Device(desc);
         //    return DeviceHandle::Create(device); //attach
         //}
+
+        VkShaderStageFlagBits convertShaderTypeToShaderStageFlagBits(ShaderType shaderType)
+        {
+            if (shaderType == ShaderType::All)
+                return VK_SHADER_STAGE_ALL;
+
+            if (shaderType == ShaderType::AllGraphics)
+                return VK_SHADER_STAGE_ALL_GRAPHICS;
+
+#if ENABLE_SHORTCUT_CONVERSIONS
+        static_assert(uint32_t(ShaderType::Vertex)        == uint32_t(VK_SHADER_STAGE_VERTEX_BIT));
+        static_assert(uint32_t(ShaderType::Hull)          == uint32_t(VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT));
+        static_assert(uint32_t(ShaderType::Domain)        == uint32_t(VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT));
+        static_assert(uint32_t(ShaderType::Geometry)      == uint32_t(VK_SHADER_STAGE_GEOMETRY_BIT));
+        static_assert(uint32_t(ShaderType::Pixel)         == uint32_t(VK_SHADER_STAGE_FRAGMENT_BIT));
+        static_assert(uint32_t(ShaderType::Compute)       == uint32_t(VK_SHADER_STAGE_COMPUTE_BIT));
+        static_assert(uint32_t(ShaderType::Amplification) == uint32_t(VK_SHADER_STAGE_TASK_BIT_NV));
+        static_assert(uint32_t(ShaderType::Mesh)          == uint32_t(VK_SHADER_STAGE_MESH_BIT_NV));
+        static_assert(uint32_t(ShaderType::RayGeneration) == uint32_t(VK_SHADER_STAGE_RAYGEN_BIT_KHR));
+        static_assert(uint32_t(ShaderType::ClosestHit)    == uint32_t(VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR));
+        static_assert(uint32_t(ShaderType::AnyHit)        == uint32_t(VK_SHADER_STAGE_ANY_HIT_BIT_KHR));
+        static_assert(uint32_t(ShaderType::Miss)          == uint32_t(VK_SHADER_STAGE_MISS_BIT_KHR));
+        static_assert(uint32_t(ShaderType::Intersection)  == uint32_t(VK_SHADER_STAGE_INTERSECTION_BIT_KHR));
+        static_assert(uint32_t(ShaderType::Callable)      == uint32_t(VK_SHADER_STAGE_CALLABLE_BIT_KHR));
+
+        return vk::ShaderStageFlagBits(shaderType);
+#else
+            uint32_t result = 0;
+
+            if ((shaderType & ShaderType::Compute) != 0)        result |= uint32_t(VK_SHADER_STAGE_COMPUTE_BIT);
+            if ((shaderType & ShaderType::Vertex) != 0)         result |= uint32_t(VK_SHADER_STAGE_VERTEX_BIT);
+            if ((shaderType & ShaderType::Hull) != 0)           result |= uint32_t(VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT);
+            if ((shaderType & ShaderType::Domain) != 0)         result |= uint32_t(VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT);
+            if ((shaderType & ShaderType::Geometry) != 0)       result |= uint32_t(VK_SHADER_STAGE_GEOMETRY_BIT);
+            if ((shaderType & ShaderType::Pixel) != 0)          result |= uint32_t(VK_SHADER_STAGE_FRAGMENT_BIT);
+            if ((shaderType & ShaderType::Amplification) != 0)  result |= uint32_t(VK_SHADER_STAGE_TASK_BIT_NV);
+            if ((shaderType & ShaderType::Mesh) != 0)           result |= uint32_t(VK_SHADER_STAGE_MESH_BIT_NV);
+            if ((shaderType & ShaderType::RayGeneration) != 0)  result |= uint32_t(VK_SHADER_STAGE_RAYGEN_BIT_KHR); // or eRaygenNV, they have the same value
+            if ((shaderType & ShaderType::Miss) != 0)           result |= uint32_t(VK_SHADER_STAGE_MISS_BIT_KHR);   // same etc...
+            if ((shaderType & ShaderType::ClosestHit) != 0)     result |= uint32_t(VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
+            if ((shaderType & ShaderType::AnyHit) != 0)         result |= uint32_t(VK_SHADER_STAGE_ANY_HIT_BIT_KHR);
+            if ((shaderType & ShaderType::Intersection) != 0)   result |= uint32_t(VK_SHADER_STAGE_INTERSECTION_BIT_KHR);
+
+            return VkShaderStageFlagBits(result);
+#endif
+        }
+
     }
 }

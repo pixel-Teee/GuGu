@@ -25,6 +25,14 @@ namespace GuGu{
             std::mutex m_Mutex;
         };
 
+        bool CreateBindingSetAndLayout(
+                IDevice* device,
+                nvrhi::ShaderType visibility,
+                uint32_t registerSpace,
+                const BindingSetDesc& bindingSetDesc,
+                BindingLayoutHandle& bindingLayout,
+                BindingSetHandle& bindingSet);
+
         void InvalidEnum();
         const char* DebugNameToString(const GuGuUtf8Str& debugName);
     }

@@ -35,5 +35,7 @@ namespace GuGu{
             bool firstUavBarrierPlaced = false;
             bool permanentTransition = false;
         };
+
+        bool verifyPermanentResourceState(ResourceStates permanentState, ResourceStates requiredState, bool isTexture, const GuGuUtf8Str& debugName, IMessageCallback* messageCallback);
     }
 }

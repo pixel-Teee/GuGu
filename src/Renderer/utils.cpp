@@ -74,5 +74,47 @@ namespace GuGu{
             constantBufferDesc.isVolatile = false;
             return constantBufferDesc;
         }
+
+        bool CreateBindingSetAndLayout(IDevice *device, nvrhi::ShaderType visibility,
+                                       uint32_t registerSpace, const BindingSetDesc &bindingSetDesc,
+                                       BindingLayoutHandle &bindingLayout,
+                                       BindingSetHandle &bindingSet) {
+            //note:convert set to layout
+            auto convertSetToLayout = [](const BindingSetItemArray& setDesc, BindingLayoutItemArray& layoutDesc)
+            {
+                for (auto& item : setDesc)
+                {
+                    BindingLayoutItem layoutItem{};
+                    layoutItem.slot = item.slot;
+                    layoutItem.type = item.type;
+                    if (item.type == ResourceType::PushConstants)
+                        layoutItem.size = uint32_t(item.range.byteSize);
+                    layoutDesc.push_back(layoutItem);
+                }
+            };
+
+            if (!bindingLayout)
+            {
+                nvrhi::BindingLayoutDesc bindingLayoutDesc;
+                bindingLayoutDesc.visibility = visibility;
+                bindingLayoutDesc.registerSpace = registerSpace;
+                convertSetToLayout(bindingSetDesc.bindings, bindingLayoutDesc.bindings);
+
+                bindingLayout = device->createBindingLayout(bindingLayoutDesc);
+
+                if (!bindingLayout)
+                    return false;
+            }
+
+            if (!bindingSet)
+            {
+                bindingSet = device->createBindingSet(bindingSetDesc, bindingLayout);
+
+                if (!bindingSet)
+                    return false;
+            }
+
+            return true;
+        }
     }
 }

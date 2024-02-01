@@ -1,9 +1,7 @@
 #pragma once
 #include <cmath>
 #include <algorithm>
-//#include <vector>
-
-#include <Renderer/math.h> //todo:fix this, move to cpp file
+#include <vector>
 
 namespace GuGu{
 

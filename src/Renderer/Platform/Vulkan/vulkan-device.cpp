@@ -330,6 +330,5 @@ namespace GuGu{
             messageCallback->message(MessageSeverity::Warning, message.getStr());
         }
 
-
     }
 }
