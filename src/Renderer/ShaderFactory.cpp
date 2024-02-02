@@ -10,6 +10,7 @@
 
 namespace GuGu{
     static std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path){
+#ifdef ANDROID
         std::vector<uint8_t> file_content;
 
         GuGuUtf8Str filePath(file_path);
@@ -31,6 +32,9 @@ namespace GuGu{
         //AAsset_read(file, file_content.data(), file_length);
         //AAsset_close(file);
         file.CloseFile();
+        return file_content;
+#endif
+        std::vector<uint8_t> file_content;
         return file_content;
     }
 

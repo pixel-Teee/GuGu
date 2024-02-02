@@ -224,12 +224,13 @@ namespace GuGu{
         int width;
         int height;
         //glfwGetWindowSize(m_Window, &width, &height);
-
+#ifdef ANDROID
         std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
         std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
 
         height = ANativeWindow_getHeight(androidWindow->getNativeHandle());
         width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
+#endif
 
         if (width == 0 || height == 0)
         {

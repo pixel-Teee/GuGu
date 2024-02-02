@@ -47,7 +47,7 @@ namespace GuGu{
 
     std::vector <uint8_t> TextureCache::ReadTextureFile(const GuGuUtf8Str &path) const {
         std::vector<uint8_t> file_content;
-
+#ifdef ANDROID
         GuGuUtf8Str filePath(path);
         AndroidGuGuFile file;
         file.OpenFile(filePath, GuGuFile::FileMode::OnlyRead);
@@ -67,6 +67,8 @@ namespace GuGu{
         //AAsset_read(file, file_content.data(), file_length);
         //AAsset_close(file);
         file.CloseFile();
+        return file_content;
+#endif
         return file_content;
     }
 
@@ -161,10 +163,10 @@ namespace GuGu{
         return true;
     }
 
-    uint GetMipLevelsNum(uint width, uint height)
+    uint32_t GetMipLevelsNum(uint32_t width, uint32_t height)
     {
-        uint size = std::min(width, height);
-        uint levelsNum = (uint)(logf((float)size) / logf(2.0f)) + 1;
+        uint32_t size = std::min(width, height);
+        uint32_t levelsNum = (uint32_t)(logf((float)size) / logf(2.0f)) + 1;
 
         return levelsNum;
     }
@@ -175,8 +177,8 @@ namespace GuGu{
         //assert(texture->data);
         //assert(commandList);
 
-        uint originalWidth = texture->width;
-        uint originalHeight = texture->height;
+        uint32_t originalWidth = texture->width;
+        uint32_t originalHeight = texture->height;
 //
         bool isBlockCompressed =
                 (texture->format == nvrhi::Format::BC1_UNORM) ||
@@ -200,8 +202,8 @@ namespace GuGu{
             originalHeight = (originalHeight + 3) & ~3;
         }
 //
-        uint scaledWidth = originalWidth;
-        uint scaledHeight = originalHeight;
+        uint32_t scaledWidth = originalWidth;
+        uint32_t scaledHeight = originalHeight;
 //
         if (m_MaxTextureSize > 0 && int(std::max(originalWidth, originalHeight)) > m_MaxTextureSize && texture->isRenderTarget && texture->dimension == nvrhi::TextureDimension::Texture2D)
         {
