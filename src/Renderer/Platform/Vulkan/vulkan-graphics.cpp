@@ -252,6 +252,7 @@ namespace GuGu{
             }
         }
 
+
         VkStencilOp convertStencilOp(StencilOp op)
         {
             switch(op)
@@ -461,6 +462,19 @@ namespace GuGu{
                     assert(0);
                     return VK_BLEND_OP_ADD;
             }
+        }
+
+        static VkViewport VKViewportWithDXCoords(const Viewport& v)
+        {
+            // requires VK_KHR_maintenance1 which allows negative-height to indicate an inverted coord space to match DX
+            VkViewport viewport = {};
+            viewport.x = v.minX;
+            viewport.y = v.maxY;
+            viewport.width = v.maxX - v.minX;
+            viewport.height = -(v.maxY - v.minY);
+            viewport.minDepth = v.minZ;
+            viewport.maxDepth = v.maxZ;
+            return viewport;
         }
 
         VkColorComponentFlags convertColorMask(ColorMask mask)
@@ -1098,7 +1112,7 @@ namespace GuGu{
 
             if (m_EnableAutomaticBarriers)
             {
-                //trackResourcesAndBarriers(state);
+                trackResourcesAndBarriers(state);
             }
 
             //bool anyBarriers = this->anyBarriers();
@@ -1116,16 +1130,16 @@ namespace GuGu{
 
             if (m_CurrentGraphicsState.framebuffer != state.framebuffer || anyBarriers /* because barriers cannot be set inside a renderpass */)
             {
-                //endRenderPass();
+                endRenderPass();
             }
 
             auto desc = state.framebuffer->getDesc();
-            //if (desc.shadingRateAttachment.valid())
-            //{
-            //    setTextureState(desc.shadingRateAttachment.texture, nvrhi::TextureSubresourceSet(0, 1, 0, 1), nvrhi::ResourceStates::ShadingRateSurface);
-            //}
+            if (desc.shadingRateAttachment.valid())
+            {
+                setTextureState(desc.shadingRateAttachment.texture, nvrhi::TextureSubresourceSet(0, 1, 0, 1), nvrhi::ResourceStates::ShadingRateSurface);
+            }
 
-            //commitBarriers();
+            commitBarriers();
 //
             if(!m_CurrentGraphicsState.framebuffer)
             {
@@ -1160,27 +1174,37 @@ namespace GuGu{
             m_CurrentPushConstantsVisibility = pso->pushConstantVisibility;
 //
             //if (arraysAreDifferent(m_CurrentComputeState.bindings, state.bindings) || m_AnyVolatileBufferWrites)
-            //{
-            //    bindBindingSets(vk::PipelineBindPoint::eGraphics, pso->pipelineLayout, state.bindings);
-            //}
+            if(m_AnyVolatileBufferWrites)
+            {
+                bindBindingSets(VK_PIPELINE_BIND_POINT_GRAPHICS, pso->pipelineLayout, state.bindings);
+            }
 //
-            //if (!state.viewport.viewports.empty() && arraysAreDifferent(state.viewport.viewports, m_CurrentGraphicsState.viewport.viewports))
+            if (!state.viewport.viewports.empty() && arraysAreDifferent(state.viewport.viewports, m_CurrentGraphicsState.viewport.viewports))
             {
                 nvrhi::static_vector<VkViewport, c_MaxViewports> viewports;
                 for (const auto& vp : state.viewport.viewports)
                 {
-                    //viewports.push_back(VKViewportWithDXCoords(vp));
+                    viewports.push_back(VKViewportWithDXCoords(vp));
                 }
 //
                 vkCmdSetViewport(m_CurrentCmdBuf->cmdBuf, 0, uint32_t(viewports.size()), viewports.data());
                 //m_CurrentCmdBuf->cmdBuf.setViewport(0, uint32_t(viewports.size()), viewports.data());
             }
 //
-            //if (!state.viewport.scissorRects.empty() && arraysAreDifferent(state.viewport.scissorRects, m_CurrentGraphicsState.viewport.scissorRects))
+            if (!state.viewport.scissorRects.empty() && arraysAreDifferent(state.viewport.scissorRects, m_CurrentGraphicsState.viewport.scissorRects))
             {
                 nvrhi::static_vector<VkRect2D, c_MaxViewports> scissors;
                 for (const auto& sc : state.viewport.scissorRects)
                 {
+                    VkRect2D rect2D = {};
+                    rect2D.offset.x = sc.minX;
+                    rect2D.offset.y = sc.minY;
+
+                    rect2D.extent.width = std::abs(sc.maxX - sc.minX);
+                    rect2D.extent.height = std::abs(sc.maxY - sc.minY);
+
+                    scissors.push_back(rect2D);
+
                     //scissors.push_back(vk::Rect2D(vk::Offset2D(sc.minX, sc.minY),
                     //                              vk::Extent2D(std::abs(sc.maxX - sc.minX), std::abs(sc.maxY - sc.minY))));
                 }
@@ -1208,7 +1232,7 @@ namespace GuGu{
                 m_CurrentCmdBuf->referencedResources.push_back(state.indexBuffer.buffer);
             }
 //
-            //if (!state.vertexBuffers.empty() && arraysAreDifferent(state.vertexBuffers, m_CurrentGraphicsState.vertexBuffers))
+            if (!state.vertexBuffers.empty() && arraysAreDifferent(state.vertexBuffers, m_CurrentGraphicsState.vertexBuffers))
             {
                 VkBuffer vertexBuffers[c_MaxVertexAttributes];
                 VkDeviceSize vertexBufferOffsets[c_MaxVertexAttributes];
@@ -1247,7 +1271,7 @@ namespace GuGu{
             //m_CurrentComputeState = ComputeState();
             //m_CurrentMeshletState = MeshletState();
             //m_CurrentRayTracingState = rt::State();
-            //m_AnyVolatileBufferWrites = false;
+            m_AnyVolatileBufferWrites = false;
         }
 
         void CommandList::endRenderPass()

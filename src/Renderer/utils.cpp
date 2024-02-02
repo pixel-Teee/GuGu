@@ -61,6 +61,11 @@ namespace GuGu{
             assert(!"Invalid Enumeration Value");  // NOLINT(clang-diagnostic-string-conversion)
         }
 
+        void NotSupported()
+        {
+            assert(!"Not Supported");  // NOLINT(clang-diagnostic-string-conversion)
+        }
+
         const char* DebugNameToString(const GuGuUtf8Str& debugName)
         {
             return debugName.len() == 0 ? "<UNNAMED>" : debugName.getStr();
@@ -73,6 +78,15 @@ namespace GuGu{
             constantBufferDesc.isConstantBuffer = true;
             constantBufferDesc.isVolatile = false;
             return constantBufferDesc;
+        }
+
+        void ClearColorAttachment(ICommandList* commandList, IFramebuffer* framebuffer, uint32_t attachmentIndex, Color color)
+        {
+            const FramebufferAttachment& att = framebuffer->getDesc().colorAttachments[attachmentIndex];
+            if (att.texture)
+            {
+                commandList->clearTextureFloat(att.texture, att.subresources, color);
+            }
         }
 
         bool CreateBindingSetAndLayout(IDevice *device, nvrhi::ShaderType visibility,

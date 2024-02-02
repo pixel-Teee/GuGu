@@ -6,6 +6,8 @@
 
 #include <Core/GuGuUtf8Str.h>
 
+#include <Renderer/misc.h>
+
 namespace GuGu{
     namespace nvrhi::vulkan{
         static VkImageType textureDimensionToImageType(TextureDimension dimension)
@@ -434,5 +436,315 @@ namespace GuGu{
                     return nullptr;
             }
         }
+
+
+        void CommandList::clearTextureFloat(ITexture *texture, TextureSubresourceSet subresources,
+                                            const Color &clearColor) {
+            //auto clearValue = vk::ClearColorValue()
+            //        .setFloat32({ clearColor.r, clearColor.g, clearColor.b, clearColor.a });
+//
+            //clearTexture(texture, subresources, clearValue);
+
+            VkClearColorValue clearValue = {};
+            clearValue.float32[0] = clearColor.r;
+            clearValue.float32[1] = clearColor.g;
+            clearValue.float32[2] = clearColor.b;
+            clearValue.float32[3] = clearColor.a;
+
+            clearTexture(texture, subresources, clearValue);
+        }
+
+        void CommandList::clearTexture(ITexture *_texture, TextureSubresourceSet subresources,
+                                       const VkClearColorValue &clearValue) {
+            endRenderPass();
+
+            Texture* texture = checked_cast<Texture*>(_texture);
+            assert(texture);
+            assert(m_CurrentCmdBuf);
+
+            subresources = subresources.resolve(texture->desc, false);
+
+            if (m_EnableAutomaticBarriers)
+            {
+                requireTextureState(texture, subresources, ResourceStates::CopyDest);
+            }
+            commitBarriers();
+
+            VkImageSubresourceRange subresourceRange = {};
+            subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            subresourceRange.baseArrayLayer = subresources.baseArraySlice;
+            subresourceRange.layerCount = subresources.numArraySlices;
+            subresourceRange.baseMipLevel = subresources.baseMipLevel;
+            subresourceRange.levelCount = subresources.numMipLevels;
+
+            vkCmdClearColorImage(m_CurrentCmdBuf->cmdBuf,
+                                 texture->image,
+                                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+                                 &clearValue,
+                                 1,
+                                 &subresourceRange);
+
+            //vk::ImageSubresourceRange subresourceRange = vk::ImageSubresourceRange()
+            //        .setAspectMask(vk::ImageAspectFlagBits::eColor)
+            //        .setBaseArrayLayer(subresources.baseArraySlice)
+            //        .setLayerCount(subresources.numArraySlices)
+            //        .setBaseMipLevel(subresources.baseMipLevel)
+            //        .setLevelCount(subresources.numMipLevels);
+//
+            //m_CurrentCmdBuf->cmdBuf.clearColorImage(texture->image,
+            //                                        vk::ImageLayout::eTransferDstOptimal,
+            //                                        &clearValue,
+            //                                        1, &subresourceRange);
+        }
+
+    static VkBorderColor pickSamplerBorderColor(const SamplerDesc& d)
+    {
+        if (d.borderColor.r == 0.f && d.borderColor.g == 0.f && d.borderColor.b == 0.f)
+        {
+            if (d.borderColor.a == 0.f)
+            {
+                return VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK;
+            }
+
+            if (d.borderColor.a == 1.f)
+            {
+                return VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
+            }
+        }
+
+        if (d.borderColor.r == 1.f && d.borderColor.g == 1.f && d.borderColor.b == 1.f)
+        {
+            if (d.borderColor.a == 1.f)
+            {
+                return VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+            }
+        }
+
+        utils::NotSupported();
+        return VK_BORDER_COLOR_FLOAT_OPAQUE_BLACK;
+    }
+
+        SamplerHandle Device::createSampler(const SamplerDesc& desc)
+        {
+            Sampler *sampler = new Sampler(m_Context);
+
+            const bool anisotropyEnable = desc.maxAnisotropy > 1.0f;
+
+            sampler->desc = desc;
+
+            VkSamplerCreateInfo samplerCreateInfo = {};
+            samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+            samplerCreateInfo.magFilter = desc.magFilter ? VK_FILTER_LINEAR : VK_FILTER_NEAREST;
+            samplerCreateInfo.minFilter = desc.minFilter ? VK_FILTER_LINEAR : VK_FILTER_NEAREST;
+            samplerCreateInfo.mipmapMode = desc.mipFilter ? VK_SAMPLER_MIPMAP_MODE_LINEAR : VK_SAMPLER_MIPMAP_MODE_NEAREST;
+            samplerCreateInfo.addressModeU = convertSamplerAddressMode(desc.addressU);
+            samplerCreateInfo.addressModeV = convertSamplerAddressMode(desc.addressV);
+            samplerCreateInfo.addressModeW = convertSamplerAddressMode(desc.addressW);
+            samplerCreateInfo.mipLodBias = desc.mipBias;
+            samplerCreateInfo.anisotropyEnable = anisotropyEnable;
+            samplerCreateInfo.maxAnisotropy = anisotropyEnable ? desc.maxAnisotropy : 1.0f;
+            samplerCreateInfo.compareEnable = desc.reductionType == SamplerReductionType::Comparison;
+            samplerCreateInfo.compareOp = VK_COMPARE_OP_LESS;
+            samplerCreateInfo.minLod = 0.0f;
+            samplerCreateInfo.maxLod = std::numeric_limits<float>::max();
+            samplerCreateInfo.borderColor = pickSamplerBorderColor(desc);
+            sampler->samplerInfo = samplerCreateInfo;
+            //sampler->samplerInfo = vk::SamplerCreateInfo()
+            //        .setMagFilter(desc.magFilter ? vk::Filter::eLinear : vk::Filter::eNearest)
+            //        .setMinFilter(desc.minFilter ? vk::Filter::eLinear : vk::Filter::eNearest)
+            //        .setMipmapMode(desc.mipFilter ? vk::SamplerMipmapMode::eLinear : vk::SamplerMipmapMode::eNearest)
+            //        .setAddressModeU(convertSamplerAddressMode(desc.addressU))
+            //        .setAddressModeV(convertSamplerAddressMode(desc.addressV))
+            //        .setAddressModeW(convertSamplerAddressMode(desc.addressW))
+            //        .setMipLodBias(desc.mipBias)
+            //        .setAnisotropyEnable(anisotropyEnable)
+            //        .setMaxAnisotropy(anisotropyEnable ? desc.maxAnisotropy : 1.f)
+            //        .setCompareEnable(desc.reductionType == SamplerReductionType::Comparison)
+            //        .setCompareOp(vk::CompareOp::eLess)
+            //        .setMinLod(0.f)
+            //        .setMaxLod(std::numeric_limits<float>::max())
+            //        .setBorderColor(pickSamplerBorderColor(desc));
+    //
+            VkSamplerReductionModeCreateInfoEXT samplerReductionModeCreateInfoExt;
+            if (desc.reductionType == SamplerReductionType::Minimum || desc.reductionType == SamplerReductionType::Maximum)
+            {
+                VkSamplerReductionModeEXT reductionMode =
+                        desc.reductionType == SamplerReductionType::Maximum ? VK_SAMPLER_REDUCTION_MODE_MAX : VK_SAMPLER_REDUCTION_MODE_MIN;
+                samplerReductionModeCreateInfoExt.reductionMode = reductionMode;
+                sampler->samplerInfo.pNext = &samplerReductionModeCreateInfoExt;
+                //samplerReductionCreateInfo.setReductionMode(reductionMode);
+                //sampler->samplerInfo.setPNext(&samplerReductionCreateInfo);
+            }
+            //vk::SamplerReductionModeCreateInfoEXT samplerReductionCreateInfo;
+            //if (desc.reductionType == SamplerReductionType::Minimum || desc.reductionType == SamplerReductionType::Maximum)
+            //{
+            //    vk::SamplerReductionModeEXT reductionMode =
+            //            desc.reductionType == SamplerReductionType::Maximum ? vk::SamplerReductionModeEXT::eMax : vk::SamplerReductionModeEXT::eMin;
+            //    samplerReductionCreateInfo.setReductionMode(reductionMode);
+    //
+            //    sampler->samplerInfo.setPNext(&samplerReductionCreateInfo);
+            //}
+    //
+            VkResult res = vkCreateSampler(m_Context.device, &sampler->samplerInfo, m_Context.allocationCallbacks, &sampler->sampler);
+            //const vk::Result res = m_Context.device.createSampler(&sampler->samplerInfo, m_Context.allocationCallbacks, &sampler->sampler);
+            //CHECK_VK_FAIL(res)
+    //
+            return SamplerHandle::Create(sampler);
+        }
+
+        Object Sampler::getNativeObject(ObjectType objectType)
+        {
+            switch (objectType)
+            {
+                case ObjectTypes::VK_Sampler:
+                    return Object(sampler);
+                default:
+                    return nullptr;
+            }
+        }
+
+        Sampler::~Sampler()
+        {
+            vkDestroySampler(m_Context.device, sampler, m_Context.allocationCallbacks);
+            //m_Context.device.destroySampler(sampler);
+        }
+
+        TextureHandle Device::createTexture(const TextureDesc& desc)
+        {
+            Texture *texture = new Texture(m_Context, m_Allocator);
+            assert(texture);
+            fillTextureInfo(texture, desc);
+
+            VkResult res = vkCreateImage(m_Context.device, &texture->imageInfo, m_Context.allocationCallbacks, &texture->image);
+            //VkResult res = m_Context.device.createImage(&texture->imageInfo, m_Context.allocationCallbacks, &texture->image);
+            //ASSERT_VK_OK(res);
+            //CHECK_VK_FAIL(res)
+
+            VK_CHECK(res);
+
+            m_Context.nameVKObject((void*)texture->image, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT, desc.debugName.getStr());
+
+            if (!desc.isVirtual)
+            {
+                res = m_Allocator.allocateTextureMemory(texture);
+                //VK_CHECK(res);
+                //ASSERT_VK_OK(res);
+                //CHECK_VK_FAIL(res)
+
+                if((desc.sharedResourceFlags & SharedResourceFlags::Shared) != 0)
+                {
+#ifdef _WIN32
+                    texture->sharedHandle = m_Context.device.getMemoryWin32HandleKHR({ texture->memory, vk::ExternalMemoryHandleTypeFlagBits::eOpaqueWin32 });
+#else
+                    //texture->sharedHandle = (void*)(size_t)m_Context.device.getMemoryFdKHR({ texture->memory, vk::ExternalMemoryHandleTypeFlagBits::eOpaqueFd });
+#endif
+                }
+
+                m_Context.nameVKObject((void*)texture->memory, VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_MEMORY_EXT, desc.debugName.getStr());
+            }
+
+            return TextureHandle::Create(texture);
+        }
+
+    static void computeMipLevelInformation(const TextureDesc& desc, uint32_t mipLevel, uint32_t* widthOut, uint32_t* heightOut, uint32_t* depthOut)
+    {
+        uint32_t width = std::max(desc.width >> mipLevel, uint32_t(1));
+        uint32_t height = std::max(desc.height >> mipLevel, uint32_t(1));
+        uint32_t depth = std::max(desc.depth >> mipLevel, uint32_t(1));
+
+        if (widthOut)
+            *widthOut = width;
+        if (heightOut)
+            *heightOut = height;
+        if (depthOut)
+            *depthOut = depth;
+    }
+
+    void CommandList::writeTexture(ITexture* _dest, uint32_t arraySlice, uint32_t mipLevel, const void* data, size_t rowPitch, size_t depthPitch)
+    {
+        endRenderPass();
+
+        Texture* dest = checked_cast<Texture*>(_dest);
+
+        TextureDesc desc = dest->getDesc();
+
+        uint32_t mipWidth, mipHeight, mipDepth;
+        computeMipLevelInformation(desc, mipLevel, &mipWidth, &mipHeight, &mipDepth);
+
+        const FormatInfo& formatInfo = getFormatInfo(desc.format);
+        uint32_t deviceNumCols = (mipWidth + formatInfo.blockSize - 1) / formatInfo.blockSize;
+        uint32_t deviceNumRows = (mipHeight + formatInfo.blockSize - 1) / formatInfo.blockSize;
+        uint32_t deviceRowPitch = deviceNumCols * formatInfo.bytesPerBlock;
+        uint32_t deviceMemSize = deviceRowPitch * deviceNumRows * mipDepth;
+
+        Buffer* uploadBuffer;
+        uint64_t uploadOffset;
+        void* uploadCpuVA;
+        m_UploadManager->suballocateBuffer(
+                deviceMemSize,
+                &uploadBuffer,
+                &uploadOffset,
+                &uploadCpuVA,
+                MakeVersion(m_CurrentCmdBuf->recordingID, m_CommandListParameters.queueType, false));
+
+        size_t minRowPitch = std::min(size_t(deviceRowPitch), rowPitch);
+        uint8_t* mappedPtr = (uint8_t*)uploadCpuVA;
+        for (uint32_t slice = 0; slice < mipDepth; slice++)
+        {
+            const uint8_t* sourcePtr = (const uint8_t*)data + depthPitch * slice;
+            for (uint32_t row = 0; row < deviceNumRows; row++)
+            {
+                memcpy(mappedPtr, sourcePtr, minRowPitch);
+                mappedPtr += deviceRowPitch;
+                sourcePtr += rowPitch;
+            }
+        }
+
+        VkBufferImageCopy imageCopy = {};
+        imageCopy.bufferOffset = uploadOffset;
+        imageCopy.bufferRowLength = deviceNumCols * formatInfo.blockSize;
+        imageCopy.bufferImageHeight = deviceNumRows * formatInfo.blockSize;
+
+        VkImageSubresourceLayers subresourceLayers = {};
+        subresourceLayers.layerCount = 1;
+        subresourceLayers.baseArrayLayer = arraySlice;
+        subresourceLayers.mipLevel = mipLevel;
+        subresourceLayers.aspectMask = guessImageAspectFlags(dest->imageInfo.format);
+
+        imageCopy.imageSubresource = subresourceLayers;
+        VkExtent3D extent3D = {};
+        extent3D.width = mipWidth;
+        extent3D.height = mipHeight;
+        extent3D.depth = mipDepth;
+
+        imageCopy.imageExtent = extent3D;
+
+        //auto imageCopy = vk::BufferImageCopy()
+        //        .setBufferOffset(uploadOffset)
+        //        .setBufferRowLength(deviceNumCols * formatInfo.blockSize)
+        //        .setBufferImageHeight(deviceNumRows * formatInfo.blockSize)
+        //        .setImageSubresource(vk::ImageSubresourceLayers()
+        //                                     .setAspectMask(guessImageAspectFlags(dest->imageInfo.format))
+        //                                     .setMipLevel(mipLevel)
+        //                                     .setBaseArrayLayer(arraySlice)
+        //                                     .setLayerCount(1))
+        //        .setImageExtent(vk::Extent3D().setWidth(mipWidth).setHeight(mipHeight).setDepth(mipDepth));
+//
+        //assert(m_CurrentCmdBuf);
+//
+        if (m_EnableAutomaticBarriers)
+        {
+            requireTextureState(dest, TextureSubresourceSet(mipLevel, 1, arraySlice, 1), ResourceStates::CopyDest);
+        }
+        commitBarriers();
+//
+        m_CurrentCmdBuf->referencedResources.push_back(dest);
+//
+        vkCmdCopyBufferToImage(m_CurrentCmdBuf->cmdBuf, uploadBuffer->buffer, dest->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopy);
+
+        //m_CurrentCmdBuf->cmdBuf.copyBufferToImage(uploadBuffer->buffer,
+        //                                          dest->image, vk::ImageLayout::eTransferDstOptimal,
+          //                                        1, &imageCopy);
+    }
     }
 }

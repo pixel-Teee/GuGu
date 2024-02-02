@@ -25,6 +25,13 @@ namespace GuGu{
             std::mutex m_Mutex;
         };
 
+        void ClearColorAttachment(
+                ICommandList* commandList,
+                IFramebuffer* framebuffer,
+                uint32_t attachmentIndex,
+                Color color
+        );
+
         bool CreateBindingSetAndLayout(
                 IDevice* device,
                 nvrhi::ShaderType visibility,
@@ -34,6 +41,7 @@ namespace GuGu{
                 BindingSetHandle& bindingSet);
 
         void InvalidEnum();
+        void NotSupported();
         const char* DebugNameToString(const GuGuUtf8Str& debugName);
     }
 }

@@ -1,7 +1,7 @@
 #include <pch.h>
 
 #include "vulkan-backend.h"
-
+#include "vk_types.h"
 
 
 namespace GuGu{
@@ -33,6 +33,38 @@ namespace GuGu{
                 default:
                     return nullptr;
             }
+        }
+
+        ShaderHandle Device::createShader(const ShaderDesc& desc, const void *binary, const size_t binarySize)
+        {
+            Shader *shader = new Shader(m_Context);
+
+            shader->desc = desc;
+            shader->stageFlagBits = convertShaderTypeToShaderStageFlagBits(desc.shaderType);
+
+            VkShaderModuleCreateInfo shaderInfo = {};
+            shaderInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+            shaderInfo.codeSize = binarySize;
+            shaderInfo.pCode = (const uint32_t*)binary;
+
+            //auto shaderInfo = vk::ShaderModuleCreateInfo()
+            //        .setCodeSize(binarySize)
+            //        .setPCode((const uint32_t *)binary);
+
+            VkResult res = vkCreateShaderModule(m_Context.device, &shaderInfo, m_Context.allocationCallbacks, &shader->shaderModule);
+
+            VK_CHECK(res);
+            //const vk::Result res = m_Context.device.createShaderModule(&shaderInfo, m_Context.allocationCallbacks, &shader->shaderModule);
+            //CHECK_VK_FAIL(res)
+
+            GuGuUtf8Str debugName = desc.debugName;
+            debugName.append(":");
+            debugName.append(desc.entryName);
+            m_Context.nameVKObject((void*)VkShaderModule(shader->shaderModule), VK_DEBUG_REPORT_OBJECT_TYPE_SHADER_MODULE_EXT, debugName.getStr());
+            //const std::string debugName = desc.debugName + ":" + desc.entryName;
+            //m_Context.nameVKObject(VkShaderModule(shader->shaderModule), vk::DebugReportObjectTypeEXT::eShaderModule, debugName.c_str());
+//
+            return ShaderHandle::Create(shader);
         }
 
 

@@ -7,6 +7,8 @@
 
 #include <queue>
 
+#include <Renderer/VertexBuffer.h>
+
 namespace GuGu{
     class PipelineBuilder{
     public:

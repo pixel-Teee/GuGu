@@ -23,6 +23,7 @@ namespace GuGu{
         static constexpr uint32_t c_MaxBindingsPerLayout = 128;
         static constexpr uint32_t c_MaxVolatileConstantBuffersPerLayout = 6;
         static constexpr uint32_t c_MaxVertexAttributes = 16;
+        static constexpr uint32_t c_MaxVolatileConstantBuffers = 32;
 
         struct Color
         {
@@ -218,6 +219,11 @@ namespace GuGu{
             Count
         };
 
+        struct VariableRateShadingFeatureInfo
+        {
+            uint32_t shadingRateImageTileSize;
+        };
+
         // Flags for resources that need to be shared with other graphics APIs or other GPU devices.
         enum class SharedResourceFlags : uint32_t
         {
@@ -318,6 +324,27 @@ namespace GuGu{
             Read,
             Write
         };
+
+        enum class Feature : uint8_t
+        {
+            DeferredCommandLists,
+            SinglePassStereo,
+            RayTracingAccelStruct,
+            RayTracingPipeline,
+            RayTracingOpacityMicromap,
+            RayQuery,
+            ShaderExecutionReordering,
+            FastGeometryShader,
+            Meshlets,
+            ConservativeRasterization,
+            VariableRateShading,
+            ShaderSpecializations,
+            VirtualResources,
+            ComputeQueue,
+            CopyQueue,
+            ConstantBufferRanges
+        };
+
 
         struct TextureDesc
         {
@@ -978,6 +1005,68 @@ namespace GuGu{
             ViewportState& addViewportAndScissorRect(const Viewport& v) { return addViewport(v).addScissorRect(Rect(v)); }
         };
 
+
+        enum class SamplerAddressMode : uint8_t
+        {
+            // D3D names
+            Clamp,
+            Wrap,
+            Border,
+            Mirror,
+            MirrorOnce,
+
+            // Vulkan names
+            ClampToEdge = Clamp,
+            Repeat = Wrap,
+            ClampToBorder = Border,
+            MirroredRepeat = Mirror,
+            MirrorClampToEdge = MirrorOnce
+        };
+
+        enum class SamplerReductionType : uint8_t
+        {
+            Standard,
+            Comparison,
+            Minimum,
+            Maximum
+        };
+
+        struct SamplerDesc
+        {
+            Color borderColor = 1.f;
+            float maxAnisotropy = 1.f;
+            float mipBias = 0.f;
+
+            bool minFilter = true;
+            bool magFilter = true;
+            bool mipFilter = true;
+            SamplerAddressMode addressU = SamplerAddressMode::Clamp;
+            SamplerAddressMode addressV = SamplerAddressMode::Clamp;
+            SamplerAddressMode addressW = SamplerAddressMode::Clamp;
+            SamplerReductionType reductionType = SamplerReductionType::Standard;
+
+            SamplerDesc& setBorderColor(const Color& color) { borderColor = color; return *this; }
+            SamplerDesc& setMaxAnisotropy(float value) { maxAnisotropy = value; return *this; }
+            SamplerDesc& setMipBias(float value) { mipBias = value; return *this; }
+            SamplerDesc& setMinFilter(bool enable) { minFilter = enable; return *this; }
+            SamplerDesc& setMagFilter(bool enable) { magFilter = enable; return *this; }
+            SamplerDesc& setMipFilter(bool enable) { mipFilter = enable; return *this; }
+            SamplerDesc& setAllFilters (bool enable) { minFilter = magFilter = mipFilter = enable; return *this; }
+            SamplerDesc& setAddressU(SamplerAddressMode mode) { addressU = mode; return *this; }
+            SamplerDesc& setAddressV(SamplerAddressMode mode) { addressV = mode; return *this; }
+            SamplerDesc& setAddressW(SamplerAddressMode mode) { addressW = mode; return *this; }
+            SamplerDesc& setAllAddressModes(SamplerAddressMode mode) { addressU = addressV = addressW = mode; return *this; }
+            SamplerDesc& setReductionType(SamplerReductionType type) { reductionType = type; return *this; }
+        };
+
+        class ISampler : public IResource
+        {
+        public:
+            [[nodiscard]] virtual const SamplerDesc& getDesc() const = 0;
+        };
+
+        typedef RefCountPtr<ISampler> SamplerHandle;
+
         struct FramebufferAttachment
         {
             ITexture* texture = nullptr;
@@ -1328,19 +1417,19 @@ namespace GuGu{
                 return result;
             }
 
-            //static BindingSetItem Sampler(uint32_t slot, ISampler* sampler)
-            //{
-            //    BindingSetItem result;
-            //    result.slot = slot;
-            //    result.type = ResourceType::Sampler;
-            //    result.resourceHandle = sampler;
-            //    result.format = Format::UNKNOWN;
-            //    result.dimension = TextureDimension::Unknown;
-            //    result.rawData[0] = 0;
-            //    result.rawData[1] = 0;
-            //    result.unused = 0;
-            //    return result;
-            //}
+            static BindingSetItem Sampler(uint32_t slot, ISampler* sampler)
+            {
+                BindingSetItem result;
+                result.slot = slot;
+                result.type = ResourceType::Sampler;
+                result.resourceHandle = sampler;
+                result.format = Format::UNKNOWN;
+                result.dimension = TextureDimension::Unknown;
+                result.rawData[0] = 0;
+                result.rawData[1] = 0;
+                result.unused = 0;
+                return result;
+            }
 
             //static BindingSetItem RayTracingAccelStruct(uint32_t slot, rt::IAccelStruct* as)
             //{
@@ -1759,19 +1848,19 @@ namespace GuGu{
             // Clears the graphics state of the underlying command list object and resets the state cache.
             virtual void clearState() = 0;
 //
-            //virtual void clearTextureFloat(ITexture* t, TextureSubresourceSet subresources, const Color& clearColor) = 0;
+            virtual void clearTextureFloat(ITexture* t, TextureSubresourceSet subresources, const Color& clearColor) = 0;
             //virtual void clearDepthStencilTexture(ITexture* t, TextureSubresourceSet subresources, bool clearDepth, float depth, bool clearStencil, uint8_t stencil) = 0;
             //virtual void clearTextureUInt(ITexture* t, TextureSubresourceSet subresources, uint32_t clearColor) = 0;
 //
             //virtual void copyTexture(ITexture* dest, const TextureSlice& destSlice, ITexture* src, const TextureSlice& srcSlice) = 0;
             //virtual void copyTexture(IStagingTexture* dest, const TextureSlice& destSlice, ITexture* src, const TextureSlice& srcSlice) = 0;
             //virtual void copyTexture(ITexture* dest, const TextureSlice& destSlice, IStagingTexture* src, const TextureSlice& srcSlice) = 0;
-            //virtual void writeTexture(ITexture* dest, uint32_t arraySlice, uint32_t mipLevel, const void* data, size_t rowPitch, size_t depthPitch = 0) = 0;
+            virtual void writeTexture(ITexture* dest, uint32_t arraySlice, uint32_t mipLevel, const void* data, size_t rowPitch, size_t depthPitch = 0) = 0;
             //virtual void resolveTexture(ITexture* dest, const TextureSubresourceSet& dstSubresources, ITexture* src, const TextureSubresourceSet& srcSubresources) = 0;
 //
-            //virtual void writeBuffer(IBuffer* b, const void* data, size_t dataSize, uint64_t destOffsetBytes = 0) = 0;
+            virtual void writeBuffer(IBuffer* b, const void* data, size_t dataSize, uint64_t destOffsetBytes = 0) = 0;
             //virtual void clearBufferUInt(IBuffer* b, uint32_t clearValue) = 0;
-            //virtual void copyBuffer(IBuffer* dest, uint64_t destOffsetBytes, IBuffer* src, uint64_t srcOffsetBytes, uint64_t dataSizeBytes) = 0;
+            virtual void copyBuffer(IBuffer* dest, uint64_t destOffsetBytes, IBuffer* src, uint64_t srcOffsetBytes, uint64_t dataSizeBytes) = 0;
 //
             //// Sets the push constants block on the command list, aka "root constants" on DX12.
             //// Only valid after setGraphicsState or setComputeState etc.
@@ -1820,10 +1909,10 @@ namespace GuGu{
             //virtual void setEnableAutomaticBarriers(bool enable) = 0;
 //
             //// Sets the necessary resource states for all non-permanent resources used in the binding set.
-            //virtual void setResourceStatesForBindingSet(IBindingSet* bindingSet) = 0;
+            virtual void setResourceStatesForBindingSet(IBindingSet* bindingSet) = 0;
 //
             //// Sets the necessary resource states for all targets of the framebuffer.
-            //void setResourceStatesForFramebuffer(IFramebuffer* framebuffer);
+            void setResourceStatesForFramebuffer(IFramebuffer* framebuffer);
 //
             //// Tells the D3D12/VK backend whether UAV barriers should be used for the given texture or buffer between draw calls.
             //// A barrier should still be placed before the first draw call in the group and after the last one.
@@ -1831,18 +1920,18 @@ namespace GuGu{
             //virtual void setEnableUavBarriersForBuffer(IBuffer* buffer, bool enableBarriers) = 0;
 //
             //// Informs the command list of the state of a texture subresource or buffer prior to command list execution
-            //virtual void beginTrackingTextureState(ITexture* texture, TextureSubresourceSet subresources, ResourceStates stateBits) = 0;
-            //virtual void beginTrackingBufferState(IBuffer* buffer, ResourceStates stateBits) = 0;
+            virtual void beginTrackingTextureState(ITexture* texture, TextureSubresourceSet subresources, ResourceStates stateBits) = 0;
+            virtual void beginTrackingBufferState(IBuffer* buffer, ResourceStates stateBits) = 0;
 //
             //// Resource state transitions - these put barriers into the pending list. Call commitBarriers() after.
-            //virtual void setTextureState(ITexture* texture, TextureSubresourceSet subresources, ResourceStates stateBits) = 0;
+            virtual void setTextureState(ITexture* texture, TextureSubresourceSet subresources, ResourceStates stateBits) = 0;
             //virtual void setBufferState(IBuffer* buffer, ResourceStates stateBits) = 0;
             //virtual void setAccelStructState(rt::IAccelStruct* as, ResourceStates stateBits) = 0;
 //
             //// Permanent resource state transitions - these make resource usage cheaper by excluding it from state tracking in the future.
             //// Like setTexture/BufferState, these methods put barriers into the pending list. Call commitBarriers() after.
-            //virtual void setPermanentTextureState(ITexture* texture, ResourceStates stateBits) = 0;
-            //virtual void setPermanentBufferState(IBuffer* buffer, ResourceStates stateBits) = 0;
+            virtual void setPermanentTextureState(ITexture* texture, ResourceStates stateBits) = 0;
+            virtual void setPermanentBufferState(IBuffer* buffer, ResourceStates stateBits) = 0;
 //
             //// Flushes the barriers from the pending list into the GAPI command list.
             virtual void commitBarriers() = 0;
@@ -1864,7 +1953,7 @@ namespace GuGu{
         public:
            //virtual HeapHandle createHeap(const HeapDesc& d) = 0;
 
-           //virtual TextureHandle createTexture(const TextureDesc& d) = 0;
+           virtual TextureHandle createTexture(const TextureDesc& d) = 0;
            //virtual MemoryRequirements getTextureMemoryRequirements(ITexture* texture) = 0;
            //virtual bool bindTextureMemory(ITexture* texture, IHeap* heap, uint64_t offset) = 0;
 
@@ -1875,18 +1964,18 @@ namespace GuGu{
            //virtual void unmapStagingTexture(IStagingTexture* tex) = 0;
 
            virtual BufferHandle createBuffer(const BufferDesc& d) = 0;
-           //virtual void *mapBuffer(IBuffer* buffer, CpuAccessMode cpuAccess) = 0;
-           //virtual void unmapBuffer(IBuffer* buffer) = 0;
+           virtual void *mapBuffer(IBuffer* buffer, CpuAccessMode cpuAccess) = 0;
+           virtual void unmapBuffer(IBuffer* buffer) = 0;
            //virtual MemoryRequirements getBufferMemoryRequirements(IBuffer* buffer) = 0;
            //virtual bool bindBufferMemory(IBuffer* buffer, IHeap* heap, uint64_t offset) = 0;
 
            //virtual BufferHandle createHandleForNativeBuffer(ObjectType objectType, Object buffer, const BufferDesc& desc) = 0;
 
-           //virtual ShaderHandle createShader(const ShaderDesc& d, const void* binary, size_t binarySize) = 0;
+           virtual ShaderHandle createShader(const ShaderDesc& d, const void* binary, size_t binarySize) = 0;
            //virtual ShaderHandle createShaderSpecialization(IShader* baseShader, const ShaderSpecialization* constants, uint32_t numConstants) = 0;
            //virtual ShaderLibraryHandle createShaderLibrary(const void* binary, size_t binarySize) = 0;
 
-           //virtual SamplerHandle createSampler(const SamplerDesc& d) = 0;
+           virtual SamplerHandle createSampler(const SamplerDesc& d) = 0;
 
            // Note: vertexShader is only necessary on D3D11, otherwise it may be null
            virtual InputLayoutHandle createInputLayout(const VertexAttributeDesc* d, uint32_t attributeCount, IShader* vertexShader) = 0;
@@ -1941,7 +2030,7 @@ namespace GuGu{
            //// IMPORTANT: Call this method at least once per frame.
            //virtual void runGarbageCollection() = 0;
 
-           //virtual bool queryFeatureSupport(Feature feature, void* pInfo = nullptr, size_t infoSize = 0) = 0;
+           virtual bool queryFeatureSupport(Feature feature, void* pInfo = nullptr, size_t infoSize = 0) = 0;
 
            //virtual FormatSupport queryFormatSupport(Format format) = 0;
 
@@ -1956,6 +2045,7 @@ namespace GuGu{
            }
         };
 
+        typedef RefCountPtr<IDevice> DeviceHandle;
 
         template <class T>
         void hash_combine(size_t& seed, const T& v)

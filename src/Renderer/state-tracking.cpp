@@ -6,6 +6,8 @@
 
 #include <Renderer/utils.h>
 
+#include <Renderer/misc.h>
+
 namespace GuGu{
     namespace nvrhi{
         static uint32_t calcSubresource(MipLevel mipLevel, ArraySlice arraySlice, const TextureDesc& desc)
@@ -318,6 +320,77 @@ namespace GuGu{
 
             m_TextureStates.clear();
             m_BufferStates.clear();
+        }
+
+        void CommandListResourceStateTracker::beginTrackingTextureState(TextureStateExtension* texture, TextureSubresourceSet subresources, ResourceStates stateBits)
+        {
+            const TextureDesc& desc = texture->descRef;
+
+            TextureState* tracking = getTextureStateTracking(texture, true);
+
+            subresources = subresources.resolve(desc, false);
+
+            if (subresources.isEntireTexture(desc))
+            {
+                tracking->state = stateBits;
+                tracking->subresourceStates.clear();
+            }
+            else
+            {
+                tracking->subresourceStates.resize(desc.mipLevels * desc.arraySize, tracking->state);
+                tracking->state = ResourceStates::Unknown;
+
+                for (MipLevel mipLevel = subresources.baseMipLevel; mipLevel < subresources.baseMipLevel + subresources.numMipLevels; mipLevel++)
+                {
+                    for (ArraySlice arraySlice = subresources.baseArraySlice; arraySlice < subresources.baseArraySlice + subresources.numArraySlices; arraySlice++)
+                    {
+                        uint32_t subresource = calcSubresource(mipLevel, arraySlice, desc);
+                        tracking->subresourceStates[subresource] = stateBits;
+                    }
+                }
+            }
+        }
+
+        void CommandListResourceStateTracker::beginTrackingBufferState(BufferStateExtension* buffer, ResourceStates stateBits)
+        {
+            BufferState* tracking = getBufferStateTracking(buffer, true);
+
+            tracking->state = stateBits;
+        }
+
+        void CommandListResourceStateTracker::endTrackingBufferState(BufferStateExtension *buffer,
+                                                                     ResourceStates stateBits,
+                                                                     bool permanent) {
+            requireBufferState(buffer, stateBits);
+
+            if (permanent)
+            {
+                m_PermanentBufferStates.push_back(std::make_pair(buffer, stateBits));
+            }
+        }
+
+        void CommandListResourceStateTracker::endTrackingTextureState(TextureStateExtension* texture, TextureSubresourceSet subresources, ResourceStates stateBits, bool permanent)
+        {
+            const TextureDesc& desc = texture->descRef;
+
+            subresources = subresources.resolve(desc, false);
+
+            if (permanent && !subresources.isEntireTexture(desc))
+            {
+                std::stringstream ss;
+                ss << "Attempted to perform a permanent state transition on a subset of subresources of texture "
+                   << utils::DebugNameToString(desc.debugName);
+                m_MessageCallback->message(MessageSeverity::Error, ss.str().c_str());
+                permanent = false;
+            }
+
+            requireTextureState(texture, subresources, stateBits);
+
+            if (permanent)
+            {
+                m_PermanentTextureStates.push_back(std::make_pair(texture, stateBits));
+                getTextureStateTracking(texture, true)->permanentTransition = true;
+            }
         }
     }
 }

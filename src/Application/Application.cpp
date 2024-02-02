@@ -17,12 +17,12 @@ namespace GuGu{
             //todo:add update
             pumpMessage();
 
-            //m_renderer->onRender();
-
             m_renderer->onRender();
+
+            //m_renderer->onRender();
         }
 
-        m_renderer->onDestroy();
+        //m_renderer->onDestroy();
     }
     void Application::pumpMessage()
     {

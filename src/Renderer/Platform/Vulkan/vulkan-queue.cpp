@@ -54,7 +54,7 @@ namespace GuGu {
                 m_CommandBuffersPool.pop_front();
             }
 
-            cmdBuf->recordingId = recordingID;
+            cmdBuf->recordingID = recordingID;
             return cmdBuf;
         }
 
@@ -164,7 +164,75 @@ namespace GuGu {
             return m_LastSubmittedID;
         }
 
+        VkSemaphore Device::getQueueSemaphore(CommandQueue queueID)
+        {
+            Queue& queue = *m_Queues[uint32_t(queueID)];
 
+            return queue.trackingSemaphore;
+        }
+
+        uint64_t Device::queueGetCompletedInstance(CommandQueue queue)
+        {
+            uint64_t value = 0;
+            PFN_vkGetSemaphoreCounterValueKHR vkGetSemaphoreCounterValueKHR = (PFN_vkGetSemaphoreCounterValueKHR) vkGetInstanceProcAddr(m_Context.instance, "vkGetSemaphoreCounterValueKHR");
+            vkGetSemaphoreCounterValueKHR(m_Context.device, getQueueSemaphore(queue), &value);
+            return value;
+            //return m_Context.device.getSemaphoreCounterValue(getQueueSemaphore(queue));
+        }
+
+        bool Queue::pollCommandList(uint64_t commandListID)
+        {
+            if (commandListID > m_LastSubmittedID || commandListID == 0)
+            return false;
+
+            bool completed = getLastFinishedID() >= commandListID;
+            if (completed)
+            return true;
+
+            completed = updateLastFinishedID() >= commandListID;
+            return completed;
+        }
+
+        bool Queue::waitCommandList(uint64_t commandListID, uint64_t timeout)
+        {
+            if (commandListID > m_LastSubmittedID || commandListID == 0)
+            return false;
+
+            if (pollCommandList(commandListID))
+            return true;
+
+            std::array<const VkSemaphore, 1> semaphores = { trackingSemaphore };
+            std::array<uint64_t, 1> waitValues = { commandListID };
+
+            //auto waitInfo = vk::SemaphoreWaitInfo()
+            //        .setSemaphores(semaphores)
+            //        .setValues(waitValues);
+//
+            //vk::Result result = m_Context.device.waitSemaphores(waitInfo, timeout);
+
+            //return (result == vk::Result::eSuccess);
+
+            VkSemaphoreWaitInfo semaphoreWaitInfo = {};
+            semaphoreWaitInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO;
+            semaphoreWaitInfo.semaphoreCount = semaphores.size();
+            semaphoreWaitInfo.pSemaphores = semaphores.data();
+            semaphoreWaitInfo.pValues = waitValues.data();
+
+            PFN_vkWaitSemaphores vkWaitSemaphores = (PFN_vkWaitSemaphores) vkGetInstanceProcAddr(m_Context.instance, "vkWaitSemaphores");
+
+            VkResult result = vkWaitSemaphores(m_Context.device, &semaphoreWaitInfo, timeout);
+
+            return result == VK_SUCCESS;
+        }
+
+        uint64_t Queue::updateLastFinishedID()
+        {
+            PFN_vkGetSemaphoreCounterValueKHR vkGetSemaphoreCounterValueKHR = (PFN_vkGetSemaphoreCounterValueKHR) vkGetInstanceProcAddr(m_Context.instance, "vkGetSemaphoreCounterValueKHR");
+            vkGetSemaphoreCounterValueKHR(m_Context.device, trackingSemaphore, &m_LastFinishedID);
+            //m_LastFinishedID = m_Context.device.getSemaphoreCounterValue(trackingSemaphore);
+
+            return m_LastFinishedID;
+        }
     }
 
 }

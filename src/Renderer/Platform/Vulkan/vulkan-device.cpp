@@ -16,6 +16,65 @@ namespace GuGu{
             return DeviceHandle::Create(device);
         }
 
+        bool Device::queryFeatureSupport(Feature feature, void* pInfo, size_t infoSize)
+        {
+            switch (feature)  // NOLINT(clang-diagnostic-switch-enum)
+            {
+                case Feature::DeferredCommandLists:
+                    return true;
+                case Feature::RayTracingAccelStruct:
+                    return m_Context.extensions.KHR_acceleration_structure;
+                case Feature::RayTracingPipeline:
+                    return m_Context.extensions.KHR_ray_tracing_pipeline;
+                case Feature::RayTracingOpacityMicromap:
+#ifdef NVRHI_WITH_RTXMU
+                    return false; // RTXMU does not support OMMs
+#else
+                    return m_Context.extensions.EXT_opacity_micromap && m_Context.extensions.KHR_synchronization2;
+#endif
+                case Feature::RayQuery:
+                    return m_Context.extensions.KHR_ray_query;
+                case Feature::ShaderExecutionReordering:
+                {
+                    if (m_Context.extensions.NV_ray_tracing_invocation_reorder)
+                    {
+                        //return VK_RAY_TRACING_INVOCATION_REORDER_MODE_REORDER_NV == m_Context.nvRayTracingInvocationReorderProperties.rayTracingInvocationReorderReorderingHint;
+                        //return vk::RayTracingInvocationReorderModeNV::eReorder == m_Context.nvRayTracingInvocationReorderProperties.rayTracingInvocationReorderReorderingHint;
+                    }
+                    return false;
+                }
+                case Feature::ShaderSpecializations:
+                    return true;
+                case Feature::Meshlets:
+                    return m_Context.extensions.NV_mesh_shader;
+                case Feature::VariableRateShading:
+                    if (pInfo)
+                    {
+                        if (infoSize == sizeof(VariableRateShadingFeatureInfo))
+                        {
+                            auto* pVrsInfo = reinterpret_cast<VariableRateShadingFeatureInfo*>(pInfo);
+                            const auto& tileExtent = m_Context.shadingRateProperties.minFragmentShadingRateAttachmentTexelSize;
+                            pVrsInfo->shadingRateImageTileSize = std::max(tileExtent.width, tileExtent.height);
+                        }
+                        else
+                            utils::NotSupported();
+                    }
+                    return m_Context.extensions.KHR_fragment_shading_rate && m_Context.shadingRateFeatures.attachmentFragmentShadingRate;
+                case Feature::ConservativeRasterization:
+                    return m_Context.extensions.EXT_conservative_rasterization;
+                case Feature::VirtualResources:
+                    return true;
+                case Feature::ComputeQueue:
+                    return (m_Queues[uint32_t(CommandQueue::Compute)] != nullptr);
+                case Feature::CopyQueue:
+                    return (m_Queues[uint32_t(CommandQueue::Copy)] != nullptr);
+                case Feature::ConstantBufferRanges:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
         const char *resultToString(VkResult result) {
             switch(result)
             {

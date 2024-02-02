@@ -128,5 +128,29 @@ namespace GuGu{
         void VulkanAllocator::freeBufferMemory(Buffer* buffer) const {
             freeMemory(buffer);
         }
+
+        VkResult VulkanAllocator::allocateTextureMemory(Texture *texture) const
+        {
+            // grab the image memory requirements
+            VkMemoryRequirements memRequirements;
+            //vk::MemoryRequirements memRequirements;
+            vkGetImageMemoryRequirements(m_Context.device, texture->image, &memRequirements);
+            //m_Context.device.getImageMemoryRequirements(texture->image, &memRequirements);
+
+            // allocate memory
+            const VkMemoryPropertyFlags memProperties = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+            const bool enableDeviceAddress = false;
+            const bool enableMemoryExport = (texture->desc.sharedResourceFlags & SharedResourceFlags::Shared) != 0;
+            const VkResult res = allocateMemory(texture, memRequirements, memProperties, enableDeviceAddress, enableMemoryExport, texture->image, VK_NULL_HANDLE);
+            //CHECK_VK_RETURN(res)
+
+            VK_CHECK(res);
+
+            //m_Context.device.bindImageMemory(texture->image, texture->memory, 0);
+
+            vkBindImageMemory(m_Context.device, texture->image, texture->memory, 0);
+
+            return VK_SUCCESS;
+        }
     }
 }

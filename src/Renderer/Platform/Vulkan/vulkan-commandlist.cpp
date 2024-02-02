@@ -9,7 +9,9 @@ namespace GuGu{
         : m_Device(device)
         , m_Context(context)
         , m_CommandListParameters(parameters)
-        , m_StateTracker(context.messageCallback){
+        , m_StateTracker(context.messageCallback)
+        , m_UploadManager(std::make_unique<UploadManager>(device, parameters.uploadChunkSize, 0, false))
+        , m_ScratchManager(std::make_unique<UploadManager>(device, parameters.scratchChunkSize, parameters.scratchMaxMemory, true)){
             //todo:add state tracker and upload manager
 
         }
@@ -40,6 +42,7 @@ namespace GuGu{
             clearState();
 
             //todo:add flush volatile buffer writes
+            flushVolatileBufferWrites();
         }
 
         void CommandList::clearState() {
@@ -59,10 +62,10 @@ namespace GuGu{
         void CommandList::executed(Queue &queue, uint64_t submissionID) {
             assert(m_CurrentCmdBuf);
 
-            m_CurrentCmdBuf->submissionId = submissionID;
+            m_CurrentCmdBuf->submissionID = submissionID;
 
             const CommandQueue queueID = queue.getQueueID();
-            const uint64_t recordingID = m_CurrentCmdBuf->recordingId;
+            const uint64_t recordingID = m_CurrentCmdBuf->recordingID;
 
             m_CurrentCmdBuf = nullptr;
 

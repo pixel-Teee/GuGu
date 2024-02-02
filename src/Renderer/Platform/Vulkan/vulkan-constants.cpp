@@ -144,6 +144,31 @@ namespace GuGu{
         }
 
 
+        VkSamplerAddressMode convertSamplerAddressMode(SamplerAddressMode mode) {
+            switch(mode)
+            {
+                case SamplerAddressMode::ClampToEdge:
+                    return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
+
+                case SamplerAddressMode::Repeat:
+                    return VK_SAMPLER_ADDRESS_MODE_REPEAT;
+
+                case SamplerAddressMode::ClampToBorder:
+                    return VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+
+                case SamplerAddressMode::MirroredRepeat:
+                    return VK_SAMPLER_ADDRESS_MODE_MIRRORED_REPEAT;
+
+                case SamplerAddressMode::MirrorClampToEdge:
+                    return VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE;
+
+                default:
+                    utils::InvalidEnum();
+                    return VkSamplerAddressMode(0);
+            }
+        }
+
+
         struct ResourceStateMappingInternal
         {
             ResourceStates nvrhiState;
@@ -156,8 +181,8 @@ namespace GuGu{
                 // It's safe to cast vk::AccessFlags2 -> vk::AccessFlags and vk::PipelineStageFlags2 -> vk::PipelineStageFlags (as long as the enum exist in both versions!),
                 // synchronization2 spec says: "The new flags are identical to the old values within the 32-bit range, with new stages and bits beyond that."
                 // The below stages are exclustive to synchronization2
-                assert((stageFlags & VK_PIPELINE_STAGE_2_MICROMAP_BUILD_BIT_EXT) != VK_PIPELINE_STAGE_2_MICROMAP_BUILD_BIT_EXT);
-                assert((accessMask & VK_ACCESS_2_MICROMAP_WRITE_BIT_EXT) != VK_ACCESS_2_MICROMAP_WRITE_BIT_EXT);
+                //assert((stageFlags & VK_PIPELINE_STAGE_2_MICROMAP_BUILD_BIT_EXT) != VK_PIPELINE_STAGE_2_MICROMAP_BUILD_BIT_EXT);
+                //assert((accessMask & VK_ACCESS_2_MICROMAP_WRITE_BIT_EXT) != VK_ACCESS_2_MICROMAP_WRITE_BIT_EXT);
                 return
                         ResourceStateMapping(nvrhiState,
                                              reinterpret_cast<const VkPipelineStageFlags&>(stageFlags),
@@ -257,15 +282,15 @@ namespace GuGu{
                         { ResourceStates::ShadingRateSurface,
                                 VK_PIPELINE_STAGE_2_FRAGMENT_SHADING_RATE_ATTACHMENT_BIT_KHR,
                                 VK_ACCESS_2_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR,
-                                VK_IMAGE_LAYOUT_FRAGMENT_SHADING_RATE_ATTACHMENT_OPTIMAL_KHR },
-                        { ResourceStates::OpacityMicromapWrite,
-                                VK_PIPELINE_STAGE_2_MICROMAP_BUILD_BIT_EXT,
-                                VK_ACCESS_2_MICROMAP_READ_BIT_EXT,
-                                VK_IMAGE_LAYOUT_UNDEFINED },
-                        { ResourceStates::OpacityMicromapBuildInput,
-                                VK_PIPELINE_STAGE_2_MICROMAP_BUILD_BIT_EXT,
-                                VK_ACCESS_2_SHADER_READ_BIT,
-                                VK_IMAGE_LAYOUT_UNDEFINED },
+                                VK_IMAGE_LAYOUT_FRAGMENT_SHADING_RATE_ATTACHMENT_OPTIMAL_KHR }
+                        //{ ResourceStates::OpacityMicromapWrite,
+                        //        VK_PIPELINE_STAGE_2_MICROMAP_BUILD_BIT_EXT,
+                        //        VK_ACCESS_2_MICROMAP_READ_BIT_EXT,
+                        //        VK_IMAGE_LAYOUT_UNDEFINED },
+                        //{ ResourceStates::OpacityMicromapBuildInput,
+                        //        VK_PIPELINE_STAGE_2_MICROMAP_BUILD_BIT_EXT,
+                        //        VK_ACCESS_2_SHADER_READ_BIT,
+                        //        VK_IMAGE_LAYOUT_UNDEFINED },
                 };
 
 

@@ -70,6 +70,10 @@ namespace GuGu{
                     : m_MessageCallback(messageCallback)
             { }
 
+            void beginTrackingTextureState(TextureStateExtension* texture, TextureSubresourceSet subresources, ResourceStates stateBits);
+            void beginTrackingBufferState(BufferStateExtension* buffer, ResourceStates stateBits);
+            void endTrackingBufferState(BufferStateExtension* buffer, ResourceStates stateBits, bool permanent);
+            void endTrackingTextureState(TextureStateExtension* texture, TextureSubresourceSet subresources, ResourceStates stateBits, bool permanent);
             void requireBufferState(BufferStateExtension* buffer, ResourceStates state);
             void requireTextureState(TextureStateExtension* texture, TextureSubresourceSet subresources, ResourceStates state);
             void keepBufferInitialStates();

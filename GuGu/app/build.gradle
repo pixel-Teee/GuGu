@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace 'com.example.gugu'
-    android.ndkVersion '26.1.10909125'
+    android.ndkVersion '25.1.8937393'
     compileSdk 32
 
     defaultConfig {

@@ -12,6 +12,7 @@
 #include <list>
 #include <array>
 #include <Renderer/state-tracking.h>
+#include <Renderer/versioning.h>//todo:fix this
 
 #include <tuple>
 
@@ -44,6 +45,7 @@ namespace GuGu{
         VkPrimitiveTopology convertPrimitiveTopology(PrimitiveType topology);
         VkCompareOp convertCompareOp(ComparisonFunc op);
         ResourceStateMapping convertResourceState(ResourceStates state);
+        VkSamplerAddressMode convertSamplerAddressMode(SamplerAddressMode mode);
         struct VulkanContext{
             VulkanContext(
                     VkInstance instance,
@@ -110,6 +112,7 @@ namespace GuGu{
             void freeBufferMemory(Buffer* buffer) const;
             void freeTextureMemory(Texture* texture) const;
             void freeMemory(MemoryResource* res) const;
+            VkResult allocateTextureMemory(Texture* texture) const;
             VkResult allocateBufferMemory(Buffer* buffer, bool enableBufferAddress = false) const;
 
             VkResult allocateMemory(MemoryResource* res,
@@ -135,8 +138,8 @@ namespace GuGu{
             //todo:fix this
             std::vector<RefCountPtr<Buffer>> referencedStagingBuffers;//to allow synchronous mapBuffer
 
-            uint64_t recordingId = 0;
-            uint64_t submissionId = 0;
+            uint64_t recordingID = 0;
+            uint64_t submissionID = 0;
 
             explicit TrackedCommandBuffer(const VulkanContext& context)
             : m_Context(context)
@@ -168,7 +171,13 @@ namespace GuGu{
             // submits a command buffer to this queue, returns submissionID
             uint64_t submit(ICommandList* const* ppCmd, size_t numCmd);
 
+            uint64_t updateLastFinishedID();
             CommandQueue getQueueID() const { return m_QueueID; }
+            uint64_t getLastSubmittedID() const { return m_LastSubmittedID; }
+            uint64_t getLastFinishedID() const { return m_LastFinishedID; }
+
+            bool pollCommandList(uint64_t commandListID);
+            bool waitCommandList(uint64_t commandListID, uint64_t timeout);
         private:
             const VulkanContext& m_Context;
 
@@ -374,6 +383,14 @@ namespace GuGu{
             const VulkanContext& m_Context;
         };
 
+        struct VolatileBufferState
+        {
+            int latestVersion = 0;
+            int minVersion = 0;
+            int maxVersion = 0;
+            bool initialized = false;
+        };
+
         // A copyable version of std::atomic to be used in an std::vector
         class BufferVersionItem : public std::atomic<uint64_t>  // NOLINT(cppcoreguidelines-special-member-functions)
         {
@@ -428,6 +445,26 @@ namespace GuGu{
         private:
             const VulkanContext& m_Context;
             VulkanAllocator& m_Allocator;
+        };
+
+        class Sampler : public RefCounter<ISampler>
+        {
+        public:
+            SamplerDesc desc;
+
+            VkSamplerCreateInfo samplerInfo;
+            VkSampler sampler;
+
+            explicit Sampler(const VulkanContext& context)
+                    : m_Context(context)
+            { }
+
+            ~Sampler() override;
+            const SamplerDesc& getDesc() const override { return desc; }
+            Object getNativeObject(ObjectType objectType) override;
+
+        private:
+            const VulkanContext& m_Context;
         };
 
         class Shader : public RefCounter<IShader>
@@ -510,6 +547,44 @@ namespace GuGu{
             const VulkanContext& m_Context;
         };
 
+        struct BufferChunk
+        {
+            BufferHandle buffer;
+            uint64_t version = 0;
+            uint64_t bufferSize = 0;
+            uint64_t writePointer = 0;
+            void* mappedMemory = nullptr;
+
+            static constexpr uint64_t c_sizeAlignment = 4096; // GPU page size
+        };
+
+        class Device;
+        class UploadManager
+        {
+        public:
+            UploadManager(Device* pParent, uint64_t defaultChunkSize, uint64_t memoryLimit, bool isScratchBuffer)
+                    : m_Device(pParent)
+                    , m_DefaultChunkSize(defaultChunkSize)
+                    , m_MemoryLimit(memoryLimit)
+                    , m_IsScratchBuffer(isScratchBuffer)
+            { }
+
+            std::shared_ptr<BufferChunk> CreateChunk(uint64_t size);
+
+            bool suballocateBuffer(uint64_t size, Buffer** pBuffer, uint64_t* pOffset, void** pCpuVA, uint64_t currentVersion, uint32_t alignment = 256);
+            void submitChunks(uint64_t currentVersion, uint64_t submittedVersion);
+
+        private:
+            Device* m_Device;
+            uint64_t m_DefaultChunkSize = 0;
+            uint64_t m_MemoryLimit = 0;
+            uint64_t m_AllocatedMemory = 0;
+            bool m_IsScratchBuffer = false;
+
+            std::list<std::shared_ptr<BufferChunk>> m_ChunkPool;
+            std::shared_ptr<BufferChunk> m_CurrentChunk;
+        };
+
 
         class Device : public nvrhi::RefCounter<nvrhi::vulkan::IDevice>
         {
@@ -531,7 +606,7 @@ namespace GuGu{
 //
             //HeapHandle createHeap(const HeapDesc& d) override;
 //
-            //TextureHandle createTexture(const TextureDesc& d) override;
+            TextureHandle createTexture(const TextureDesc& d) override;
             //MemoryRequirements getTextureMemoryRequirements(ITexture* texture) override;
             //bool bindTextureMemory(ITexture* texture, IHeap* heap, uint64_t offset) override;
 //
@@ -542,18 +617,18 @@ namespace GuGu{
             //void unmapStagingTexture(IStagingTexture* tex) override;
 //
             BufferHandle createBuffer(const BufferDesc& d) override;
-            //void *mapBuffer(IBuffer* b, CpuAccessMode mapFlags) override;
-            //void unmapBuffer(IBuffer* b) override;
+            void *mapBuffer(IBuffer* b, CpuAccessMode mapFlags) override;
+            void unmapBuffer(IBuffer* b) override;
             //MemoryRequirements getBufferMemoryRequirements(IBuffer* buffer) override;
             //bool bindBufferMemory(IBuffer* buffer, IHeap* heap, uint64_t offset) override;
 //
             //BufferHandle createHandleForNativeBuffer(ObjectType objectType, Object buffer, const BufferDesc& desc) override;
 //
-            //ShaderHandle createShader(const ShaderDesc& d, const void* binary, size_t binarySize) override;
+            ShaderHandle createShader(const ShaderDesc& d, const void* binary, size_t binarySize) override;
             //ShaderHandle createShaderSpecialization(IShader* baseShader, const ShaderSpecialization* constants, uint32_t numConstants) override;
             //ShaderLibraryHandle createShaderLibrary(const void* binary, size_t binarySize) override;
 //
-            //SamplerHandle createSampler(const SamplerDesc& d) override;
+            SamplerHandle createSampler(const SamplerDesc& d) override;
 //
             InputLayoutHandle createInputLayout(const VertexAttributeDesc* d, uint32_t attributeCount, IShader* vertexShader) override;
 //
@@ -601,16 +676,16 @@ namespace GuGu{
             //void queueWaitForCommandList(CommandQueue waitQueue, CommandQueue executionQueue, uint64_t instance) override;
             //void waitForIdle() override;
             //void runGarbageCollection() override;
-            //bool queryFeatureSupport(Feature feature, void* pInfo = nullptr, size_t infoSize = 0) override;
+            bool queryFeatureSupport(Feature feature, void* pInfo = nullptr, size_t infoSize = 0) override;
             //FormatSupport queryFormatSupport(Format format) override;
             //Object getNativeQueue(ObjectType objectType, CommandQueue queue) override;
             //IMessageCallback* getMessageCallback() override { return m_Context.messageCallback; }
 //
             // vulkan::IDevice implementation
-            //VkSemaphore getQueueSemaphore(CommandQueue queue) override;
+            VkSemaphore getQueueSemaphore(CommandQueue queue) override;
             void queueWaitForSemaphore(CommandQueue waitQueue, VkSemaphore semaphore, uint64_t value) override;
             //void queueSignalSemaphore(CommandQueue executionQueue, VkSemaphore semaphore, uint64_t value) override;
-            //uint64_t queueGetCompletedInstance(CommandQueue queue) override;
+            uint64_t queueGetCompletedInstance(CommandQueue queue) override;
             //FramebufferHandle createHandleForNativeFramebuffer(VkRenderPass renderPass, VkFramebuffer framebuffer,
             //                                                  const FramebufferDesc& desc, bool transferOwnership) override;
 
@@ -626,7 +701,7 @@ namespace GuGu{
             //// array of submission queues
             std::array<std::unique_ptr<Queue>, uint32_t(CommandQueue::Count)> m_Queues;
 
-            //void *mapBuffer(IBuffer* b, CpuAccessMode flags, uint64_t offset, size_t size) const;
+            void *mapBuffer(IBuffer* b, CpuAccessMode flags, uint64_t offset, size_t size) const;
         };
 
         class CommandList : public RefCounter<ICommandList>
@@ -648,19 +723,19 @@ namespace GuGu{
             void close() override;
             void clearState() override;
 //
-            //void clearTextureFloat(ITexture* texture, TextureSubresourceSet subresources, const Color& clearColor) override;
+            void clearTextureFloat(ITexture* texture, TextureSubresourceSet subresources, const Color& clearColor) override;
             //void clearDepthStencilTexture(ITexture* texture, TextureSubresourceSet subresources, bool clearDepth, float depth, bool clearStencil, uint8_t stencil) override;
             //void clearTextureUInt(ITexture* texture, TextureSubresourceSet subresources, uint32_t clearColor) override;
 //
             //void copyTexture(ITexture* dest, const TextureSlice& destSlice, ITexture* src, const TextureSlice& srcSlice) override;
             //void copyTexture(IStagingTexture* dest, const TextureSlice& dstSlice, ITexture* src, const TextureSlice& srcSlice) override;
             //void copyTexture(ITexture* dest, const TextureSlice& dstSlice, IStagingTexture* src, const TextureSlice& srcSlice) override;
-            //void writeTexture(ITexture* dest, uint32_t arraySlice, uint32_t mipLevel, const void* data, size_t rowPitch, size_t depthPitch) override;
+            void writeTexture(ITexture* dest, uint32_t arraySlice, uint32_t mipLevel, const void* data, size_t rowPitch, size_t depthPitch) override;
             //void resolveTexture(ITexture* dest, const TextureSubresourceSet& dstSubresources, ITexture* src, const TextureSubresourceSet& srcSubresources) override;
 //
-            //void writeBuffer(IBuffer* b, const void* data, size_t dataSize, uint64_t destOffsetBytes = 0) override;
+            void writeBuffer(IBuffer* b, const void* data, size_t dataSize, uint64_t destOffsetBytes = 0) override;
             //void clearBufferUInt(IBuffer* b, uint32_t clearValue) override;
-            //void copyBuffer(IBuffer* dest, uint64_t destOffsetBytes, IBuffer* src, uint64_t srcOffsetBytes, uint64_t dataSizeBytes) override;
+            void copyBuffer(IBuffer* dest, uint64_t destOffsetBytes, IBuffer* src, uint64_t srcOffsetBytes, uint64_t dataSizeBytes) override;
 //
             //void setPushConstants(const void* data, size_t byteSize) override;
 //
@@ -694,20 +769,20 @@ namespace GuGu{
             //void endMarker() override;
 //
             //void setEnableAutomaticBarriers(bool enable) override;
-            //void setResourceStatesForBindingSet(IBindingSet* bindingSet) override;
+            void setResourceStatesForBindingSet(IBindingSet* bindingSet) override;
 //
             //void setEnableUavBarriersForTexture(ITexture* texture, bool enableBarriers) override;
             //void setEnableUavBarriersForBuffer(IBuffer* buffer, bool enableBarriers) override;
 //
-            //void beginTrackingTextureState(ITexture* texture, TextureSubresourceSet subresources, ResourceStates stateBits) override;
-            //void beginTrackingBufferState(IBuffer* buffer, ResourceStates stateBits) override;
+            void beginTrackingTextureState(ITexture* texture, TextureSubresourceSet subresources, ResourceStates stateBits) override;
+            void beginTrackingBufferState(IBuffer* buffer, ResourceStates stateBits) override;
 //
-            //void setTextureState(ITexture* texture, TextureSubresourceSet subresources, ResourceStates stateBits) override;
+            void setTextureState(ITexture* texture, TextureSubresourceSet subresources, ResourceStates stateBits) override;
             //void setBufferState(IBuffer* buffer, ResourceStates stateBits) override;
             //void setAccelStructState(rt::IAccelStruct* _as, ResourceStates stateBits) override;
 //
-            //void setPermanentTextureState(ITexture* texture, ResourceStates stateBits) override;
-            //void setPermanentBufferState(IBuffer* buffer, ResourceStates stateBits) override;
+            void setPermanentTextureState(ITexture* texture, ResourceStates stateBits) override;
+            void setPermanentBufferState(IBuffer* buffer, ResourceStates stateBits) override;
 //
             void commitBarriers() override;
 //
@@ -748,22 +823,22 @@ namespace GuGu{
             //    uint32_t version = 0;
             //} m_CurrentShaderTablePointers;
 //
-            //std::unordered_map<Buffer*, VolatileBufferState> m_VolatileBufferStates;
+            std::unordered_map<Buffer*, VolatileBufferState> m_VolatileBufferStates;
 //
-            //std::unique_ptr<UploadManager> m_UploadManager;
-            //std::unique_ptr<UploadManager> m_ScratchManager;
+            std::unique_ptr<UploadManager> m_UploadManager;
+            std::unique_ptr<UploadManager> m_ScratchManager;
 //
-            //void clearTexture(ITexture* texture, TextureSubresourceSet subresources, const vk::ClearColorValue& clearValue);
+            void clearTexture(ITexture* texture, TextureSubresourceSet subresources, const VkClearColorValue& clearValue);
 //
-            //void bindBindingSets(vk::PipelineBindPoint bindPoint, vk::PipelineLayout pipelineLayout, const BindingSetVector& bindings);
+            void bindBindingSets(VkPipelineBindPoint bindPoint, VkPipelineLayout pipelineLayout, const BindingSetVector& bindings);
 //
             void endRenderPass();
 //
-            //void trackResourcesAndBarriers(const GraphicsState& state);
+            void trackResourcesAndBarriers(const GraphicsState& state);
             //void trackResourcesAndBarriers(const MeshletState& state);
 //
-            //void writeVolatileBuffer(Buffer* buffer, const void* data, size_t dataSize);
-            //void flushVolatileBufferWrites();
+            void writeVolatileBuffer(Buffer* buffer, const void* data, size_t dataSize);
+            void flushVolatileBufferWrites();
             //void submitVolatileBuffers(uint64_t recordingID, uint64_t submittedID);
 //
             //void updateGraphicsVolatileBuffers();
@@ -771,8 +846,8 @@ namespace GuGu{
             //void updateMeshletVolatileBuffers();
             //void updateRayTracingVolatileBuffers();
 //
-            //void requireTextureState(ITexture* texture, TextureSubresourceSet subresources, ResourceStates state);
-            //void requireBufferState(IBuffer* buffer, ResourceStates state);
+            void requireTextureState(ITexture* texture, TextureSubresourceSet subresources, ResourceStates state);
+            void requireBufferState(IBuffer* buffer, ResourceStates state);
             //bool anyBarriers() const;
 //
             //void buildTopLevelAccelStructInternal(AccelStruct* as, VkDeviceAddress instanceData, size_t numInstances, rt::AccelStructBuildFlags buildFlags, uint64_t currentVersion);

@@ -3,6 +3,7 @@
 #include "vulkan-backend.h"
 #include "vk_types.h"
 #include <Renderer/misc.h>
+#include <sstream>
 
 namespace GuGu{
     namespace nvrhi::vulkan {
@@ -559,6 +560,60 @@ namespace GuGu{
             //m_Context.device.updateDescriptorSets(uint32_t(descriptorWriteInfo.size()), descriptorWriteInfo.data(), 0, nullptr);
 
             return BindingSetHandle::Create(ret);
+        }
+
+        void CommandList::bindBindingSets(VkPipelineBindPoint bindPoint, VkPipelineLayout pipelineLayout, const BindingSetVector& bindings)
+        {
+            BindingVector<VkDescriptorSet> descriptorSets;
+            static_vector<uint32_t, c_MaxVolatileConstantBuffers> dynamicOffsets;
+
+            for (const auto& bindingSetHandle : bindings)
+            {
+                const BindingSetDesc* desc = bindingSetHandle->getDesc();
+                if (desc)
+                {
+                    BindingSet* bindingSet = checked_cast<BindingSet*>(bindingSetHandle);
+                    descriptorSets.push_back(bindingSet->descriptorSet);
+
+                    for (Buffer* constnatBuffer : bindingSet->volatileConstantBuffers)
+                    {
+                        auto found = m_VolatileBufferStates.find(constnatBuffer);
+                        if (found == m_VolatileBufferStates.end())
+                        {
+                            std::stringstream ss;
+                            ss << "Binding volatile constant buffer " << utils::DebugNameToString(constnatBuffer->desc.debugName)
+                               << " before writing into it is invalid.";
+                            m_Context.error(ss.str());
+
+                            dynamicOffsets.push_back(0); // use zero offset just to use something
+                        }
+                        else
+                        {
+                            uint32_t version = found->second.latestVersion;
+                            uint64_t offset = version * constnatBuffer->desc.byteSize;
+                            assert(offset < std::numeric_limits<uint32_t>::max());
+                            dynamicOffsets.push_back(uint32_t(offset));
+                        }
+                    }
+
+                    if (desc->trackLiveness)
+                        m_CurrentCmdBuf->referencedResources.push_back(bindingSetHandle);
+                }
+                else
+                {
+                    //DescriptorTable* table = checked_cast<DescriptorTable*>(bindingSetHandle);
+                    //descriptorSets.push_back(table->descriptorSet);
+                }
+            }
+
+            if (!descriptorSets.empty())
+            {
+                vkCmdBindDescriptorSets(m_CurrentCmdBuf->cmdBuf, bindPoint, pipelineLayout, 0, uint32_t(descriptorSets.size()),
+                                        descriptorSets.data(), uint32_t(dynamicOffsets.size()), dynamicOffsets.data());
+                //m_CurrentCmdBuf->cmdBuf.bindDescriptorSets(bindPoint, pipelineLayout,
+                //        /* firstSet = */ 0, uint32_t(descriptorSets.size()), descriptorSets.data(),
+                //                                           uint32_t(dynamicOffsets.size()), dynamicOffsets.data());
+            }
         }
     }
 }

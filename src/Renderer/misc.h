@@ -5,6 +5,25 @@
 
 namespace GuGu {
     namespace nvrhi {
+        template<typename T> T align(T size, T alignment)
+        {
+            return (size + alignment - 1) & ~(alignment - 1);
+        }
+
+        template<typename T, typename U> [[nodiscard]] bool arraysAreDifferent(const T& a, const U& b)
+        {
+            if (a.size() != b.size())
+                return true;
+
+            for (uint32_t i = 0; i < uint32_t(a.size()); i++)
+            {
+                if (a[i] != b[i])
+                    return true;
+            }
+
+            return false;
+        }
+
         // A type cast that is safer than static_cast in debug builds, and is a simple static_cast in release builds.
         // Used for downcasting various ISomething* pointers to their implementation classes in the backends.
         template<typename T, typename U>

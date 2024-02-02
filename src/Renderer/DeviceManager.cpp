@@ -170,6 +170,7 @@ namespace GuGu{
 
     void DeviceManager::AnimateRenderPresent() {
 
+        Render();//todo:fix this
 
         ++m_FrameIndex;
     }
