@@ -77,9 +77,12 @@ namespace GuGu{
 
         std::vector<nvrhi::FramebufferHandle> m_SwapChainFramebuffers;
 
+        void UpdateWindowSize();
+
         void BackBufferResizing();
         void BackBufferResized();
 
+        void Animate(double elapsedTime);
         void Render();
         void AnimateRenderPresent();
 
@@ -89,6 +92,8 @@ namespace GuGu{
         virtual bool CreateDevice() = 0;
         virtual bool CreateSwapChain() = 0;
         virtual void BeginFrame() = 0;
+        virtual void Present() = 0;
+        virtual void ResizeSwapChain() = 0;
     public:
         [[nodiscard]] virtual nvrhi::IDevice *GetDevice() const = 0;
         [[nodiscard]] uint32_t GetFrameIndex() const { return m_FrameIndex; }

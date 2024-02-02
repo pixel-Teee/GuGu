@@ -233,6 +233,21 @@ namespace GuGu {
 
             return m_LastFinishedID;
         }
+
+        void Queue::addSignalSemaphore(VkSemaphore semaphore, uint64_t value) {
+            if (!semaphore)
+                return;
+
+            m_SignalSemaphores.push_back(semaphore);
+            m_SignalSemaphoreValues.push_back(value);
+        }
+
+        void Device::queueSignalSemaphore(CommandQueue executionQueueID, VkSemaphore semaphore,
+                                          uint64_t value) {
+            Queue& executionQueue = *m_Queues[uint32_t(executionQueueID)];
+
+            executionQueue.addSignalSemaphore(semaphore, value);
+        }
     }
 
 }

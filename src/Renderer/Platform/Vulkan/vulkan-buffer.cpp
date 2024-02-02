@@ -93,6 +93,7 @@ namespace GuGu{
             }
 
             VkBufferCreateInfo bufferInfo = {};
+            bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
             bufferInfo.size = size;
             bufferInfo.usage = usageFlags;
             bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
@@ -454,6 +455,8 @@ namespace GuGu{
             // buffer->barrier(cmd, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
         }
 
+
+
         void CommandList::copyBuffer(IBuffer* _dest, uint64_t destOffsetBytes,
                                      IBuffer* _src, uint64_t srcOffsetBytes,
                                      uint64_t dataSizeBytes)
@@ -495,6 +498,33 @@ namespace GuGu{
 
             vkCmdCopyBuffer(m_CurrentCmdBuf->cmdBuf, src->buffer, dest->buffer, 1, &copyRegion);
             //m_CurrentCmdBuf->cmdBuf.copyBuffer(src->buffer, dest->buffer, { copyRegion });
+        }
+
+
+        void CommandList::submitVolatileBuffers(uint64_t recordingID, uint64_t submittedID) {
+            // For each volatile CB that was written in this command list, and for every version thereof,
+            // we need to replace the tracking information from "pending" to "submitted".
+            // This is potentially slow as there might be hundreds of versions of a buffer,
+            // but at least the find-and-replace operation is constrained to the min/max version range.
+
+            uint64_t stateToFind = (uint64_t(m_CommandListParameters.queueType) << c_VersionQueueShift) | (recordingID & c_VersionIDMask);
+            uint64_t stateToReplace = (uint64_t(m_CommandListParameters.queueType) << c_VersionQueueShift) | (submittedID & c_VersionIDMask) | c_VersionSubmittedFlag;
+
+            for (auto& iter : m_VolatileBufferStates)
+            {
+                Buffer* buffer = iter.first;
+                VolatileBufferState& state = iter.second;
+
+                if (!state.initialized)
+                    continue;
+
+                for (int version = state.minVersion; version <= state.maxVersion; version++)
+                {
+                    // Use compare_exchange to conditionally replace the entries equal to stateToFind with stateToReplace.
+                    uint64_t expected = stateToFind;
+                    buffer->versionTracking[version].compare_exchange_strong(expected, stateToReplace);
+                }
+            }
         }
     }
 }

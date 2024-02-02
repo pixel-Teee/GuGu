@@ -337,36 +337,42 @@ namespace GuGu{
                     VkExtent2D extent2D = {};
                     extent2D.width = 1;
                     extent2D.height = 2;
+                    return extent2D;
                 }
                 case VariableShadingRate::e2x1:
                 {
                     VkExtent2D extent2D = {};
                     extent2D.width = 2;
                     extent2D.height = 1;
+                    return extent2D;
                 }
                 case VariableShadingRate::e2x2:
                 {
                     VkExtent2D extent2D = {};
                     extent2D.width = 2;
                     extent2D.height = 2;
+                    return extent2D;
                 }
                 case VariableShadingRate::e2x4:
                 {
                     VkExtent2D extent2D = {};
                     extent2D.width = 2;
                     extent2D.height = 4;
+                    return extent2D;
                 }
                 case VariableShadingRate::e4x2:
                 {
                     VkExtent2D extent2D = {};
                     extent2D.width = 4;
                     extent2D.height = 2;
+                    return extent2D;
                 }
                 case VariableShadingRate::e4x4:
                 {
                     VkExtent2D extent2D = {};
                     extent2D.width = 4;
                     extent2D.height = 4;
+                    return extent2D;
                 }
                 case VariableShadingRate::e1x1:
                 default:
@@ -374,6 +380,7 @@ namespace GuGu{
                     VkExtent2D extent2D = {};
                     extent2D.width = 1;
                     extent2D.height = 1;
+                    return extent2D;
                 }
             }
         }
@@ -504,6 +511,8 @@ namespace GuGu{
             pipelineColorBlendAttachmentState.dstAlphaBlendFactor = convertBlendValue(state.destBlendAlpha);
             pipelineColorBlendAttachmentState.alphaBlendOp = convertBlendOp(state.blendOpAlpha);
             pipelineColorBlendAttachmentState.colorWriteMask = convertColorMask(state.colorWriteMask);
+
+            return pipelineColorBlendAttachmentState;
         }
 
         FramebufferHandle Device::createFramebuffer(const FramebufferDesc &desc) {
@@ -688,8 +697,8 @@ namespace GuGu{
             renderPassCreateInfo2.pSubpasses = &subpassDescription2;//subpass
 
             //todo:fix this
-            PFN_vkCreateRenderPass2 vkCreateRenderPass2 = (PFN_vkCreateRenderPass2) vkGetInstanceProcAddr(m_Context.instance, "vkCreateRenderPass2");
-            VkResult result = vkCreateRenderPass2(m_Context.device, &renderPassCreateInfo2, m_Context.allocationCallbacks, &fb->renderPass);
+            PFN_vkCreateRenderPass2KHR vkCreateRenderPass2KHR = (PFN_vkCreateRenderPass2KHR) vkGetInstanceProcAddr(m_Context.instance, "vkCreateRenderPass2KHR");
+            VkResult result = vkCreateRenderPass2KHR(m_Context.device, &renderPassCreateInfo2, VK_NULL_HANDLE, &fb->renderPass);
 
             VK_CHECK(result);
 
@@ -872,6 +881,7 @@ namespace GuGu{
             //        .setScissorCount(1);
 //
             VkPipelineRasterizationStateCreateInfo rasterizer = {};
+            rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
             rasterizer.polygonMode = convertFillMode(rasterState.fillMode);
             rasterizer.cullMode = convertCullMode(rasterState.cullMode);
             //auto rasterizer = vk::PipelineRasterizationStateCreateInfo()
@@ -909,6 +919,7 @@ namespace GuGu{
             //}
 //
             VkPipelineMultisampleStateCreateInfo multisample = {};
+            multisample.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
             VkSampleCountFlagBits flagBits = (VkSampleCountFlagBits)fb->framebufferInfo.sampleCount;
             multisample.rasterizationSamples = flagBits;
             multisample.alphaToCoverageEnable = blendState.alphaToCoverageEnable;
@@ -976,6 +987,7 @@ namespace GuGu{
             pushConstantRange.stageFlags = pso->pushConstantVisibility;
 
             VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
+            pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
             pipelineLayoutInfo.setLayoutCount = descriptorSetLayouts.size();
             pipelineLayoutInfo.pSetLayouts = descriptorSetLayouts.data();
             pipelineLayoutInfo.pushConstantRangeCount = pushConstantSize ? 1 : 0;
@@ -1007,6 +1019,7 @@ namespace GuGu{
             }
 //
             VkPipelineColorBlendStateCreateInfo colorBlend = {};
+            colorBlend.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
             colorBlend.attachmentCount = uint32_t(colorBlendAttachments.size());
             colorBlend.pAttachments = colorBlendAttachments.data();
             //auto colorBlend = vk::PipelineColorBlendStateCreateInfo()
@@ -1025,11 +1038,13 @@ namespace GuGu{
             VkPipelineDynamicStateCreateInfo dynamicStateInfo = {};
             dynamicStateInfo.dynamicStateCount = pso->usesBlendConstants ? 3 : 2;
             dynamicStateInfo.pDynamicStates = dynamicStates;
+            dynamicStateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
             //auto dynamicStateInfo = vk::PipelineDynamicStateCreateInfo()
             //        .setDynamicStateCount(pso->usesBlendConstants ? 3 : 2)
             //        .setPDynamicStates(dynamicStates);
 //
             VkGraphicsPipelineCreateInfo pipelineInfo = {};
+            pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
             pipelineInfo.stageCount = uint32_t(shaderStages.size());
             pipelineInfo.pStages = shaderStages.data();
             pipelineInfo.pVertexInputState = &vertexInput;
@@ -1174,7 +1189,7 @@ namespace GuGu{
             m_CurrentPushConstantsVisibility = pso->pushConstantVisibility;
 //
             //if (arraysAreDifferent(m_CurrentComputeState.bindings, state.bindings) || m_AnyVolatileBufferWrites)
-            if(m_AnyVolatileBufferWrites)
+            if(true) //todo:fix this
             {
                 bindBindingSets(VK_PIPELINE_BIND_POINT_GRAPHICS, pso->pipelineLayout, state.bindings);
             }

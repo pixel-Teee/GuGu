@@ -115,7 +115,10 @@ namespace GuGu{
             return false;
 
         //todo:reset the back buffer size state to enforce a resize event
+        m_deviceParams.backBufferWidth = 0;
+        m_deviceParams.backBufferHeight = 0;
 
+        UpdateWindowSize();
 
         return true;
     }
@@ -170,7 +173,11 @@ namespace GuGu{
 
     void DeviceManager::AnimateRenderPresent() {
 
+        Animate(5.0f);
+
         Render();//todo:fix this
+
+        Present();
 
         ++m_FrameIndex;
     }
@@ -210,6 +217,52 @@ namespace GuGu{
         {
             m_SwapChainFramebuffers[index] = GetDevice()->createFramebuffer(
                     nvrhi::FramebufferDesc().addColorAttachment(GetBackBuffer(index)));
+        }
+    }
+
+    void DeviceManager::UpdateWindowSize() {
+        int width;
+        int height;
+        //glfwGetWindowSize(m_Window, &width, &height);
+
+        std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
+        std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
+
+        height = ANativeWindow_getHeight(androidWindow->getNativeHandle());
+        width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
+
+        if (width == 0 || height == 0)
+        {
+            // window is minimized
+            //m_windowVisible = false;
+            return;
+        }
+
+        //m_windowVisible = true;
+
+        if (int(m_deviceParams.backBufferWidth) != width ||
+            int(m_deviceParams.backBufferHeight) != height
+            ) //todo:fix this
+        {
+            // window is not minimized, and the size has changed
+
+            BackBufferResizing();
+
+            m_deviceParams.backBufferWidth = width;
+            m_deviceParams.backBufferHeight = height;
+            //m_deviceParams.vsyncEnabled = m_RequestedVSync;
+
+            ResizeSwapChain();
+            BackBufferResized();
+        }
+
+       // m_deviceParams.vsyncEnabled = m_RequestedVSync;
+    }
+
+    void DeviceManager::Animate(double elapsedTime) {
+        for(auto it : m_vRenderPasses)
+        {
+            it->Animate(float(elapsedTime));
         }
     }
 

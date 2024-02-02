@@ -49,6 +49,7 @@ namespace GuGu{
     class VulkanDevice;
     class VulkanSwapChain;
     class DeviceManager;//todo:remove this
+    class VertexBuffer;
     class VulkanRenderer : public Renderer
     {
     public:
@@ -122,5 +123,7 @@ namespace GuGu{
         std::shared_ptr<VulkanSwapChain> m_swapChainNew;
 
         DeviceManager* m_deviceManager;//todo:remove this
+
+        std::shared_ptr<VertexBuffer> m_vertexBuffer;
     };
 }

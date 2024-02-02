@@ -35,7 +35,7 @@ namespace GuGu{
 
             m_StateTracker.keepBufferInitialStates();
             m_StateTracker.keepTextureInitialStates();
-
+            commitBarriers();
 
             vkEndCommandBuffer(m_CurrentCmdBuf->cmdBuf);
 
@@ -69,19 +69,20 @@ namespace GuGu{
 
             m_CurrentCmdBuf = nullptr;
 
-            //submitVolatileBuffers(recordingID, submissionID);
+            //todo:implement this
+            submitVolatileBuffers(recordingID, submissionID);
 
             m_StateTracker.commandListSubmitted();
 
-            //m_UploadManager->submitChunks(
-            //        MakeVersion(recordingID, queueID, false),
-            //        MakeVersion(submissionID, queueID, true));
+            m_UploadManager->submitChunks(
+                    MakeVersion(recordingID, queueID, false),
+                    MakeVersion(submissionID, queueID, true));
 //
-            //m_ScratchManager->submitChunks(
-            //        MakeVersion(recordingID, queueID, false),
-            //        MakeVersion(submissionID, queueID, true));
+            m_ScratchManager->submitChunks(
+                    MakeVersion(recordingID, queueID, false),
+                    MakeVersion(submissionID, queueID, true));
 
-            //m_VolatileBufferStates.clear();
+            m_VolatileBufferStates.clear();
         }
     }
 }

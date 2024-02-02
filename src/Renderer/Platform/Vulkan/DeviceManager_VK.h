@@ -21,6 +21,16 @@ namespace GuGu{
         bool CreateDevice() override;
         bool CreateSwapChain() override;
         void BeginFrame() override;
+        void Present();
+
+        void ResizeSwapChain() override
+        {
+            if (m_VulkanDevice)
+            {
+                destroySwapChain();
+                createSwapChain();
+            }
+        }
 
         virtual nvrhi::ITexture* GetBackBuffer(uint32_t index) override;
         virtual uint32_t GetCurrentBackBufferIndex() override;

@@ -221,6 +221,7 @@ namespace GuGu{
             VkImageCreateFlags flags = pickImageFlags(desc);
 
             texture->imageInfo = {};
+            texture->imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
             texture->imageInfo.imageType = type;
             texture->imageInfo.extent = extent;
             texture->imageInfo.mipLevels = desc.mipLevels;
@@ -230,6 +231,7 @@ namespace GuGu{
             texture->imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
             texture->imageInfo.samples = sampleCount;
             texture->imageInfo.flags = flags;
+            texture->imageInfo.format = format;
             //texture->imageInfo = vk::ImageCreateInfo()
             //        .setImageType(type)
             //        .setExtent(extent)

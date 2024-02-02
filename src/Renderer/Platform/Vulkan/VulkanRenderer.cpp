@@ -128,139 +128,139 @@ std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path){
             return;
         }
 
-        //VertexBuffer example(m_deviceManager);
-        //if(example.Init())
-        //{
-        //    m_deviceManager->AddRenderPassToBack(&example);
+        m_vertexBuffer =  std::make_shared<VertexBuffer>(m_deviceManager);
+        if(m_vertexBuffer->Init())
+        {
+            m_deviceManager->AddRenderPassToBack(m_vertexBuffer.get());
 //
-        //    //deviceManager->RemoveRenderPass(&example);
-        //}
+            //deviceManager->RemoveRenderPass(&example);
+        }
 
         //m_logicDevice->init();
-        initVulkan();
+        //initVulkan();
         //vulkan_functions().init_instance_funcs(m_adapter->getInstance());
         //vulkan_functions().init_instance_funcs(m_adapter->getInstance());
-        initSwapchain();
-        initCommands();
-        initDefaultRenderPass();
-        initFrameBuffers();
-        initSyncStructures();
-        initPipelines();
+        //initSwapchain();
+        //initCommands();
+        //initDefaultRenderPass();
+        //initFrameBuffers();
+        //initSyncStructures();
+        //initPipelines();
         //AndroidApplication::getApplication()->setExit(true);
         //GuGuUtf8Str str(u8"你好呀，android studio!");
         //ALOGD("%s", str.getStr());
     }
 
     void VulkanRenderer::onRender() {
-        //m_deviceManager->RunMessageLoop();
+        m_deviceManager->RunMessageLoop();
         ////wait until the GPU has finished rendering the last frame. Timeout of 1 second
-        VK_CHECK(vkWaitForFences(m_device, 1, &m_renderFence, true, std::numeric_limits<uint64_t>::max()));
-        VK_CHECK(vkResetFences(m_device, 1, &m_renderFence));
-//
-        //request image from the swapchain, one second timeout
-        uint32_t swapChainImageIndex;
-        VK_CHECK(vkAcquireNextImageKHR(m_device, m_swapChain, std::numeric_limits<uint64_t>::max(), m_presentSemaphore, VK_NULL_HANDLE, &swapChainImageIndex));
-//
-        //now that we are sure that the commands finished executing, we can safely reset the command buffer to begin recording again.
-        VK_CHECK(vkResetCommandBuffer(m_mainCommandBuffer, 0));
-        //naming it cmd for shorter writing
-        VkCommandBuffer cmd = m_mainCommandBuffer;
-//
-        //begin the command buffer recording. We will use this command buffer exactly once, so we want to let Vulkan know that
-        VkCommandBufferBeginInfo cmdBeginInfo = {};
-        cmdBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        cmdBeginInfo.pNext = nullptr;
-//
-        cmdBeginInfo.pInheritanceInfo = nullptr;
-        cmdBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-//
-        VK_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
-//
-        //make a clear-color from frame number. This will flash with a 120*pi frame period.
-        VkClearValue clearValue;
-        float flash = abs(sin(m_frameNumber / 120.f));
-        clearValue.color = { { 0.0f, 0.0f, flash, 1.0f } };
-//
-        //start the main renderpass.
-        //We will use the clear color from above, and the framebuffer of the index the swapchain gave us
-        VkRenderPassBeginInfo rpInfo = {};
-        rpInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        rpInfo.pNext = nullptr;
-//
-        rpInfo.renderPass = m_renderPass;
-        rpInfo.renderArea.offset.x = 0;
-        rpInfo.renderArea.offset.y = 0;
-        //------width and height------
-        //std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
-        //std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
-        //vkb::SwapchainBuilder swapchainBuilder{m_chosenGPU, m_device, m_surface};
-        //int32_t height = ANativeWindow_getHeight(androidWindow->getNativeHandle());
-        //int32_t width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
-        //------width and height------
-        VkExtent2D  extent;
-        extent.width = m_width;
-        extent.height = m_height;
-        rpInfo.renderArea.extent = extent;
-        rpInfo.framebuffer = m_frameBuffers[swapChainImageIndex];
-//
-        //connect clear values
-        rpInfo.clearValueCount = 1;
-        rpInfo.pClearValues = &clearValue;
-//
-        vkCmdBeginRenderPass(cmd, &rpInfo, VK_SUBPASS_CONTENTS_INLINE);
-//
-        vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_trianglePipeline);
-        vkCmdDraw(cmd, 3, 1, 0, 0);
-//
-        //finalize the render pass
-        vkCmdEndRenderPass(cmd);
-        //finalize the command buffer (we can no longer add commands, but it can now be executed)
-        VK_CHECK(vkEndCommandBuffer(cmd));
-//
-        //prepare the submission to the queue.
-        //we want to wait on the _presentSemaphore, as that semaphore is signaled when the swapchain is ready
-        //we will signal the _renderSemaphore, to signal that rendering has finished
-//
-        VkSubmitInfo submit = {};
-        submit.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-        submit.pNext = nullptr;
-//
-        VkPipelineStageFlags waitStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-//
-        submit.pWaitDstStageMask = &waitStage;
-//
-        submit.waitSemaphoreCount = 1;
-        submit.pWaitSemaphores = &m_presentSemaphore;
-//
-        submit.signalSemaphoreCount = 1;
-        submit.pSignalSemaphores = &m_renderSemaphore;
-//
-        submit.commandBufferCount = 1;
-        submit.pCommandBuffers = &cmd;
-//
-        //submit command buffer to the queue and execute it.
-        // _renderFence will now block until the graphic commands finish execution
-        VK_CHECK(vkQueueSubmit(m_graphicsQueue, 1, &submit, m_renderFence));
-//
-        // this will put the image we just rendered into the visible window.
-        // we want to wait on the _renderSemaphore for that,
-        // as it's necessary that drawing commands have finished before the image is displayed to the user
-        VkPresentInfoKHR presentInfo = {};
-        presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
-        presentInfo.pNext = nullptr;
-//
-        presentInfo.pSwapchains = &m_swapChain;
-        presentInfo.swapchainCount = 1;
-//
-        presentInfo.pWaitSemaphores = &m_renderSemaphore;
-        presentInfo.waitSemaphoreCount = 1;
-//
-        presentInfo.pImageIndices = &swapChainImageIndex;
-//
-        VK_CHECK(vkQueuePresentKHR(m_graphicsQueue, &presentInfo));
-//
-        //increase the number of frames drawn
-        m_frameNumber++;
+        //VK_CHECK(vkWaitForFences(m_device, 1, &m_renderFence, true, std::numeric_limits<uint64_t>::max()));
+        //VK_CHECK(vkResetFences(m_device, 1, &m_renderFence));
+////
+        ////request image from the swapchain, one second timeout
+        //uint32_t swapChainImageIndex;
+        //VK_CHECK(vkAcquireNextImageKHR(m_device, m_swapChain, std::numeric_limits<uint64_t>::max(), m_presentSemaphore, VK_NULL_HANDLE, &swapChainImageIndex));
+////
+        ////now that we are sure that the commands finished executing, we can safely reset the command buffer to begin recording again.
+        //VK_CHECK(vkResetCommandBuffer(m_mainCommandBuffer, 0));
+        ////naming it cmd for shorter writing
+        //VkCommandBuffer cmd = m_mainCommandBuffer;
+////
+        ////begin the command buffer recording. We will use this command buffer exactly once, so we want to let Vulkan know that
+        //VkCommandBufferBeginInfo cmdBeginInfo = {};
+        //cmdBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+        //cmdBeginInfo.pNext = nullptr;
+////
+        //cmdBeginInfo.pInheritanceInfo = nullptr;
+        //cmdBeginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+////
+        //VK_CHECK(vkBeginCommandBuffer(cmd, &cmdBeginInfo));
+////
+        ////make a clear-color from frame number. This will flash with a 120*pi frame period.
+        //VkClearValue clearValue;
+        //float flash = abs(sin(m_frameNumber / 120.f));
+        //clearValue.color = { { 0.0f, 0.0f, flash, 1.0f } };
+////
+        ////start the main renderpass.
+        ////We will use the clear color from above, and the framebuffer of the index the swapchain gave us
+        //VkRenderPassBeginInfo rpInfo = {};
+        //rpInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+        //rpInfo.pNext = nullptr;
+////
+        //rpInfo.renderPass = m_renderPass;
+        //rpInfo.renderArea.offset.x = 0;
+        //rpInfo.renderArea.offset.y = 0;
+        ////------width and height------
+        ////std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
+        ////std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
+        ////vkb::SwapchainBuilder swapchainBuilder{m_chosenGPU, m_device, m_surface};
+        ////int32_t height = ANativeWindow_getHeight(androidWindow->getNativeHandle());
+        ////int32_t width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
+        ////------width and height------
+        //VkExtent2D  extent;
+        //extent.width = m_width;
+        //extent.height = m_height;
+        //rpInfo.renderArea.extent = extent;
+        //rpInfo.framebuffer = m_frameBuffers[swapChainImageIndex];
+////
+        ////connect clear values
+        //rpInfo.clearValueCount = 1;
+        //rpInfo.pClearValues = &clearValue;
+////
+        //vkCmdBeginRenderPass(cmd, &rpInfo, VK_SUBPASS_CONTENTS_INLINE);
+////
+        //vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, m_trianglePipeline);
+        //vkCmdDraw(cmd, 3, 1, 0, 0);
+////
+        ////finalize the render pass
+        //vkCmdEndRenderPass(cmd);
+        ////finalize the command buffer (we can no longer add commands, but it can now be executed)
+        //VK_CHECK(vkEndCommandBuffer(cmd));
+////
+        ////prepare the submission to the queue.
+        ////we want to wait on the _presentSemaphore, as that semaphore is signaled when the swapchain is ready
+        ////we will signal the _renderSemaphore, to signal that rendering has finished
+////
+        //VkSubmitInfo submit = {};
+        //submit.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        //submit.pNext = nullptr;
+////
+        //VkPipelineStageFlags waitStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+////
+        //submit.pWaitDstStageMask = &waitStage;
+////
+        //submit.waitSemaphoreCount = 1;
+        //submit.pWaitSemaphores = &m_presentSemaphore;
+////
+        //submit.signalSemaphoreCount = 1;
+        //submit.pSignalSemaphores = &m_renderSemaphore;
+////
+        //submit.commandBufferCount = 1;
+        //submit.pCommandBuffers = &cmd;
+////
+        ////submit command buffer to the queue and execute it.
+        //// _renderFence will now block until the graphic commands finish execution
+        //VK_CHECK(vkQueueSubmit(m_graphicsQueue, 1, &submit, m_renderFence));
+////
+        //// this will put the image we just rendered into the visible window.
+        //// we want to wait on the _renderSemaphore for that,
+        //// as it's necessary that drawing commands have finished before the image is displayed to the user
+        //VkPresentInfoKHR presentInfo = {};
+        //presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+        //presentInfo.pNext = nullptr;
+////
+        //presentInfo.pSwapchains = &m_swapChain;
+        //presentInfo.swapchainCount = 1;
+////
+        //presentInfo.pWaitSemaphores = &m_renderSemaphore;
+        //presentInfo.waitSemaphoreCount = 1;
+////
+        //presentInfo.pImageIndices = &swapChainImageIndex;
+////
+        //VK_CHECK(vkQueuePresentKHR(m_graphicsQueue, &presentInfo));
+////
+        ////increase the number of frames drawn
+        //m_frameNumber++;
 //
         ////ALOGD("%d", m_frameNumber);
     }

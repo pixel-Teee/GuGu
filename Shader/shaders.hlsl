@@ -1,52 +1,78 @@
-/*
-* Copyright (c) 2014-2021, NVIDIA CORPORATION. All rights reserved.
-*
-* Permission is hereby granted, free of charge, to any person obtaining a
-* copy of this software and associated documentation files (the "Software"),
-* to deal in the Software without restriction, including without limitation
-* the rights to use, copy, modify, merge, publish, distribute, sublicense,
-* and/or sell copies of the Software, and to permit persons to whom the
-* Software is furnished to do so, subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included in
-* all copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
-* THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-* DEALINGS IN THE SOFTWARE.
-*/
+/* Copyright (c) 2021, Sascha Willems
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 the "License";
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-#pragma pack_matrix(row_major)
-
-cbuffer CB : register(b0)
+struct VSInput
 {
-    float4x4 g_Transform;
+    [[vk::location(0)]] float3 Pos : POSITION0;
+    [[vk::location(1)]] float2 UV : TEXCOORD0;
+    [[vk::location(2)]] float3 Normal : NORMAL0;
 };
 
-void main_vs(
-	float3 i_pos : POSITION,
-    float2 i_uv : UV,
-	out float4 o_pos : SV_Position,
-	out float2 o_uv : UV
-)
+struct UBO
 {
-    o_pos = mul(float4(i_pos, 1), g_Transform);
-    o_uv = i_uv;
+    float4x4 projection;
+    float4x4 model;
+    float4 viewPos;
+};
+
+cbuffer ubo : register(b0) { UBO ubo; }
+
+struct VSOutput
+{
+    float4 Pos : SV_POSITION;
+    [[vk::location(0)]] float2 UV : TEXCOORD0;
+};
+
+VSOutput main_vs(VSInput input)
+{
+    VSOutput output = (VSOutput)0;
+    output.UV = input.UV;
+    output.Pos = mul(ubo.projection, mul(ubo.model, float4(input.Pos.xyz, 1.0)));
+    return output;
 }
 
+/* Copyright (c) 2021, Sascha Willems
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ *
+ * Licensed under the Apache License, Version 2.0 the "License";
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
-Texture2D t_Texture : register(t0);
-SamplerState s_Sampler : register(s0);
+Texture2D textureColor : register(t1, space0);
+SamplerState samplerColor : register(s1, space0);
 
-void main_ps(
-	in float4 i_pos : SV_Position,
-	in float2 i_uv : UV,
-	out float4 o_color : SV_Target0
-)
+//struct VSOutput
+//{
+//	float4 Pos : SV_POSITION;
+//[[vk::location(0)]] float2 UV : TEXCOORD0;
+//};
+
+float4 main_ps(VSOutput input) : SV_TARGET
 {
-    o_color = t_Texture.Sample(s_Sampler, i_uv);
+	float4 color = textureColor.Sample(samplerColor, input.UV);
+	return color;
 }

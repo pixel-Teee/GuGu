@@ -287,9 +287,9 @@ namespace GuGu{
             VK_CHECK(res);
 
             // collect all of the descriptor write data
-            static_vector<VkDescriptorImageInfo, c_MaxBindingsPerLayout> descriptorImageInfo;
-            static_vector<VkDescriptorBufferInfo, c_MaxBindingsPerLayout> descriptorBufferInfo;
-            static_vector<VkWriteDescriptorSet, c_MaxBindingsPerLayout> descriptorWriteInfo;
+            static_vector<VkDescriptorImageInfo, 3> descriptorImageInfo;
+            static_vector<VkDescriptorBufferInfo, 3> descriptorBufferInfo;
+            static_vector<VkWriteDescriptorSet, 3> descriptorWriteInfo;
             static_vector<VkWriteDescriptorSetAccelerationStructureKHR, c_MaxBindingsPerLayout> accelStructWriteInfo;
 
             auto generateWriteDescriptorData =
@@ -302,6 +302,7 @@ namespace GuGu{
                         const void* pNext = nullptr)
                     {
                         VkWriteDescriptorSet writeDescriptorSet = {};
+                        writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
                         writeDescriptorSet.dstSet = ret->descriptorSet;
                         writeDescriptorSet.dstBinding = bindingLocation;
                         writeDescriptorSet.dstArrayElement = 0;
@@ -317,7 +318,7 @@ namespace GuGu{
                         );
                     };
 
-            for (size_t bindingIndex = 0; bindingIndex < desc.bindings.size(); bindingIndex++)
+            for (size_t bindingIndex = 0; bindingIndex < 3; bindingIndex++)
             {
                 const BindingSetItem& binding = desc.bindings[bindingIndex];
                 const VkDescriptorSetLayoutBinding& layoutBinding = layout->vulkanLayoutBindings[bindingIndex];
@@ -343,6 +344,7 @@ namespace GuGu{
                         VkDescriptorImageInfo descriptorImageInfo = {};
                         descriptorImageInfo.imageView = view.view;
                         descriptorImageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                        imageInfo = descriptorImageInfo;
                         //imageInfo = vk::DescriptorImageInfo()
                         //        .setImageView(view.view)
                         //        .setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal);
@@ -475,6 +477,7 @@ namespace GuGu{
                         descriptorBufferInfo.buffer = buffer->buffer;
                         descriptorBufferInfo.offset = range.byteOffset;
                         descriptorBufferInfo.range = range.byteSize;
+                        bufferInfo = descriptorBufferInfo;
                         //bufferInfo = vk::DescriptorBufferInfo()
                         //        .setBuffer(buffer->buffer)
                         //        .setOffset(range.byteOffset)
@@ -515,15 +518,19 @@ namespace GuGu{
                     case ResourceType::Sampler:
                     {
                         //todo:implement this
-                        //const auto sampler = checked_cast<Sampler *>(binding.resourceHandle);
+                       const auto sampler = checked_cast<Sampler *>(binding.resourceHandle);
 //
-                        //auto& imageInfo = descriptorImageInfo.emplace_back();
-                        //imageInfo = vk::DescriptorImageInfo()
-                        //        .setSampler(sampler->sampler);
+                       auto& imageInfo = descriptorImageInfo.emplace_back();
+                       VkDescriptorImageInfo descriptorImageInfo = {};
+                       descriptorImageInfo.sampler = sampler->sampler;
+                       //imageInfo.sampler = sampler->sampler;
+                       imageInfo = descriptorImageInfo;
+                       //imageInfo = vk::DescriptorImageInfo()
+                       //        .setSampler(sampler->sampler);
 //
-                        //generateWriteDescriptorData(layoutBinding.binding,
-                        //                            layoutBinding.descriptorType,
-                        //                            &imageInfo, nullptr, nullptr);
+                        generateWriteDescriptorData(layoutBinding.binding,
+                                                    layoutBinding.descriptorType,
+                                                    &imageInfo, nullptr, nullptr);
                     }
 
                         break;

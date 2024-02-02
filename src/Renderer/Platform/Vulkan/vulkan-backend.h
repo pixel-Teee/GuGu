@@ -167,7 +167,7 @@ namespace GuGu{
             TrackedCommandBufferPtr getOrCreateCommandBuffer();
 
             void addWaitSemaphore(VkSemaphore semaphore, uint64_t value);
-
+            void addSignalSemaphore(VkSemaphore semaphore, uint64_t value);
             // submits a command buffer to this queue, returns submissionID
             uint64_t submit(ICommandList* const* ppCmd, size_t numCmd);
 
@@ -684,7 +684,7 @@ namespace GuGu{
             // vulkan::IDevice implementation
             VkSemaphore getQueueSemaphore(CommandQueue queue) override;
             void queueWaitForSemaphore(CommandQueue waitQueue, VkSemaphore semaphore, uint64_t value) override;
-            //void queueSignalSemaphore(CommandQueue executionQueue, VkSemaphore semaphore, uint64_t value) override;
+            void queueSignalSemaphore(CommandQueue executionQueue, VkSemaphore semaphore, uint64_t value) override;
             uint64_t queueGetCompletedInstance(CommandQueue queue) override;
             //FramebufferHandle createHandleForNativeFramebuffer(VkRenderPass renderPass, VkFramebuffer framebuffer,
             //                                                  const FramebufferDesc& desc, bool transferOwnership) override;
@@ -839,7 +839,7 @@ namespace GuGu{
 //
             void writeVolatileBuffer(Buffer* buffer, const void* data, size_t dataSize);
             void flushVolatileBufferWrites();
-            //void submitVolatileBuffers(uint64_t recordingID, uint64_t submittedID);
+            void submitVolatileBuffers(uint64_t recordingID, uint64_t submittedID);
 //
             //void updateGraphicsVolatileBuffers();
             //void updateComputeVolatileBuffers();

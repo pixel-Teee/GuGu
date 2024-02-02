@@ -25,7 +25,7 @@ namespace GuGu{
     std::shared_ptr<LoadedTexture> TextureCache::LoadTextureFromFile(const GuGuUtf8Str& path, bool sRGB,
                                       CommonRenderPasses *passes,
                                       nvrhi::ICommandList *commandList) {
-        std::shared_ptr<TextureData> texture;
+        std::shared_ptr<TextureData> texture = std::make_shared<TextureData>();
 
         //todo:find texture cache
 
@@ -36,7 +36,10 @@ namespace GuGu{
 
         if(!fileData.empty())
         {
-
+            if(FillTextureData(fileData, texture, path, ""))
+            {
+                FinalizeTexture(texture, passes, commandList);
+            }
         }
 
         return texture;

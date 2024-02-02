@@ -47,7 +47,7 @@ namespace GuGu{
             //allocate memory
             const bool enableMemoryExport = (buffer->desc.sharedResourceFlags & SharedResourceFlags::Shared) != 0;
             const VkResult res = allocateMemory(buffer, memRequirements, pickBufferMemoryProperties(buffer->desc), enableDeviceAddress, enableMemoryExport, VK_NULL_HANDLE, buffer->buffer);
-            assert(res);
+            VK_CHECK(res);
 
             vkBindBufferMemory(m_Context.device, buffer->buffer, buffer->memory, 0);
 

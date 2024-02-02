@@ -84,6 +84,7 @@ namespace GuGu{
                 imageMemoryBarrier.image = texture->image;
                 imageMemoryBarrier.subresourceRange = subresourceRange;
 //
+                imageBarriers.push_back(imageMemoryBarrier);
                 //imageBarriers.push_back(vk::ImageMemoryBarrier()
                 //                                .setSrcAccessMask(before.accessMask)
                 //                                .setDstAccessMask(after.accessMask)
@@ -406,5 +407,6 @@ namespace GuGu{
 
             m_StateTracker.endTrackingTextureState(texture, AllSubresources, stateBits, true);
         }
+
     }
 }

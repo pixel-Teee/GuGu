@@ -93,12 +93,12 @@ namespace GuGu {
             std::shared_ptr <ShaderFactory> shaderFactory = std::make_shared<ShaderFactory>(
                     GetDevice());
 
-            m_VertexShader = shaderFactory->CreateShader("shaders.vert", "main_vs", nullptr,
+            m_VertexShader = shaderFactory->CreateShader("shaders_main_vs.bin", "main_vs", nullptr,
                                                          nvrhi::ShaderType::Vertex);
-            m_PixelShader = shaderFactory->CreateShader("shaders.frag", "main_ps", nullptr,
+            m_PixelShader = shaderFactory->CreateShader("shaders_main_ps.bin", "main_ps", nullptr,
                                                         nvrhi::ShaderType::Pixel);
 
-            if (!m_VertexBuffer || !m_PixelShader) {
+            if (!m_VertexShader || !m_PixelShader) {
                 return false;
             }
 
@@ -161,7 +161,7 @@ namespace GuGu {
                                                    nvrhi::ResourceStates::IndexBuffer);
 
             //todo:load texture
-            GuGuUtf8Str textureFileName = u8"nvidia-logo.png";
+            GuGuUtf8Str textureFileName = u8"otto.png";
             std::shared_ptr <LoadedTexture> texture = textureCache.LoadTextureFromFile(
                     textureFileName, true, nullptr, m_CommandList);
             m_Texture = texture->texture;
@@ -197,8 +197,8 @@ namespace GuGu {
             return true;
         }
 
-        void Animate() {
-
+        void Animate(float seconds) override {
+            m_Rotation += 0.05f;
         }
 
         void BackBufferResizing() override {

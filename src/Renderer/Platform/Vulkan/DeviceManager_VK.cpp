@@ -34,7 +34,8 @@ namespace GuGu{
             //device
             {
                     VK_KHR_MAINTENANCE1_EXTENSION_NAME,
-                    VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME
+                    VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME,
+                    VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME
             }
     };
 
@@ -724,6 +725,10 @@ namespace GuGu{
         physicalDeviceFeatures.pNext = pNext;
         vkGetPhysicalDeviceFeatures2(m_VulkanPhysicalDevice, &physicalDeviceFeatures);
 
+        bufferDeviceAddressFeatures.bufferDeviceAddress = true;
+        bufferDeviceAddressFeatures.bufferDeviceAddressCaptureReplay = true;
+        bufferDeviceAddressFeatures.bufferDeviceAddressMultiDevice = true;
+
         std::unordered_set<int32_t> uniqueQueueFamilies = { m_GraphicsQueueFamily };
 
         if(!m_deviceParams.headlessDevice)
@@ -928,9 +933,15 @@ namespace GuGu{
         m_SwapChainFormat.colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
         //todo:add more logic
 
+        std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
+        std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
+
+        int32_t height = ANativeWindow_getHeight(androidWindow->getNativeHandle());
+        int32_t width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
+
         VkExtent2D extent{};
-        extent.width = m_deviceParams.backBufferWidth;
-        extent.height = m_deviceParams.backBufferHeight;
+        extent.width = width; //todo:fix this
+        extent.height = height;
 
         std::unordered_set<uint32_t> uniqueQueues = {
                 (uint32_t)(m_GraphicsQueueFamily),
@@ -1010,8 +1021,8 @@ namespace GuGu{
             std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
             std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
 
-            int32_t width = ANativeWindow_getHeight(androidWindow->getNativeHandle());
-            int32_t height = ANativeWindow_getWidth(androidWindow->getNativeHandle());
+            int32_t height = ANativeWindow_getHeight(androidWindow->getNativeHandle());
+            int32_t width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
 
             nvrhi::TextureDesc textureDesc;
             //textureDesc.width = m_deviceParams.backBufferWidth;
@@ -1069,6 +1080,77 @@ namespace GuGu{
 
     uint32_t DeviceManager_VK::GetBackBufferCount() {
         return uint32_t(m_SwapChainImages.size());
+    }
+
+    void DeviceManager_VK::Present() {
+        m_NvrhiDevice->queueSignalSemaphore(nvrhi::CommandQueue::Graphics, m_PresentSemaphore, 0);
+
+        m_BarrierCommandList->open(); // umm...
+        m_BarrierCommandList->close();
+        m_NvrhiDevice->executeCommandList(m_BarrierCommandList);
+
+        VkPresentInfoKHR info = {};
+        info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+        info.waitSemaphoreCount = 1;
+        info.pWaitSemaphores = &m_PresentSemaphore;
+        info.swapchainCount = 1;
+        info.pSwapchains = &m_SwapChain;
+        info.pImageIndices = &m_SwapChainIndex;
+
+        VkResult res = vkQueuePresentKHR(m_PresentQueue, &info);
+
+        //vk::PresentInfoKHR info = vk::PresentInfoKHR()
+        //        .setWaitSemaphoreCount(1)
+        //        .setPWaitSemaphores(&m_PresentSemaphore)
+        //        .setSwapchainCount(1)
+        //        .setPSwapchains(&m_SwapChain)
+        //        .setPImageIndices(&m_SwapChainIndex);
+//
+        //const vk::Result res = m_PresentQueue.presentKHR(&info);
+        //assert(res == vk::Result::eSuccess || res == vk::Result::eErrorOutOfDateKHR);
+
+        vkQueueWaitIdle(m_PresentQueue);
+
+//        if (m_DeviceParams.enableDebugRuntime)
+//        {
+//            // according to vulkan-tutorial.com, "the validation layer implementation expects
+//            // the application to explicitly synchronize with the GPU"
+//            m_PresentQueue.waitIdle();
+//        }
+//        else
+//        {
+//#ifndef _WIN32
+//            if (m_DeviceParams.vsyncEnabled)
+//            {
+//                m_PresentQueue.waitIdle();
+//            }
+//#endif
+//
+//            while (m_FramesInFlight.size() > m_DeviceParams.maxFramesInFlight)
+//            {
+//                auto query = m_FramesInFlight.front();
+//                m_FramesInFlight.pop();
+//
+//                m_NvrhiDevice->waitEventQuery(query);
+//
+//                m_QueryPool.push_back(query);
+//            }
+//
+//            nvrhi::EventQueryHandle query;
+//            if (!m_QueryPool.empty())
+//            {
+//                query = m_QueryPool.back();
+//                m_QueryPool.pop_back();
+//            }
+//            else
+//            {
+//                query = m_NvrhiDevice->createEventQuery();
+//            }
+//
+//            m_NvrhiDevice->resetEventQuery(query);
+//            m_NvrhiDevice->setEventQuery(query, nvrhi::CommandQueue::Graphics);
+//            m_FramesInFlight.push(query);
+//        }
     }
 
 
