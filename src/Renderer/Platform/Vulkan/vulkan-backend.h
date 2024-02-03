@@ -90,7 +90,7 @@ namespace GuGu{
             VkPhysicalDeviceFragmentShadingRateFeaturesKHR shadingRateFeatures;
             IMessageCallback* messageCallback = nullptr;
 
-            void nameVKObject(const void* handle, VkDebugReportObjectTypeEXT objtype, const char* name) const;
+            void nameVKObject(const void* handle, VkObjectType objtype, const char* name) const;
             void warning(const GuGuUtf8Str& message) const;
             void error(const GuGuUtf8Str& message) const;
         };

@@ -365,23 +365,27 @@ namespace GuGu{
         }
 
 
-        void VulkanContext::nameVKObject(const void *handle, VkDebugReportObjectTypeEXT objtype,
+        void VulkanContext::nameVKObject(const void *handle, VkObjectType objtype,
                                          const char *name) const {
-            if (extensions.EXT_debug_marker && name && *name && handle)
+            if (name && *name && handle) //todo:fix this
             {
-                VkDebugMarkerObjectNameInfoEXT info = {};
-                info.sType = VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_NAME_INFO_EXT;
+                VkDebugUtilsObjectNameInfoEXT info = {};
+                info.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
                 info.objectType = objtype;
-                info.object = reinterpret_cast<uint64_t>(handle);
+                info.objectHandle = reinterpret_cast<uint64_t>(handle);
                 info.pObjectName = name;
                 //auto info = vk::DebugMarkerObjectNameInfoEXT()
                 //        .setObjectType(objtype)
                 //        .setObject(reinterpret_cast<uint64_t>(handle))
                 //        .setPObjectName(name);
-                VkResult result = VK_SUCCESS;
-                PFN_vkDebugMarkerSetObjectNameEXT vkDebugMarkerSetObjectNameEXT = (PFN_vkDebugMarkerSetObjectNameEXT) vkGetInstanceProcAddr(instance, "vkDebugMarkerSetObjectNameEXT");
-                result = vkDebugMarkerSetObjectNameEXT(device, &info);
-                VK_CHECK(result);
+                //VkResult result = VK_SUCCESS;
+                //PFN_vkDebugMarkerSetObjectNameEXT vkDebugMarkerSetObjectNameEXT = (PFN_vkDebugMarkerSetObjectNameEXT) vkGetInstanceProcAddr(instance, "vkDebugMarkerSetObjectNameEXT");
+                //result = vkDebugMarkerSetObjectNameEXT(device, &info);
+                //VK_CHECK(result);
+#ifdef WIN32
+                PFN_vkSetDebugUtilsObjectNameEXT vkSetDebugUtilsObjectNameEXT = (PFN_vkSetDebugUtilsObjectNameEXT)vkGetInstanceProcAddr(instance, "vkSetDebugUtilsObjectNameEXT");
+                vkSetDebugUtilsObjectNameEXT(device, &info);
+#endif
             }
         }
 

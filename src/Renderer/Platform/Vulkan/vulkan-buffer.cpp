@@ -114,7 +114,7 @@ namespace GuGu{
 
             VK_CHECK(res);
 
-            m_Context.nameVKObject((void*)buffer->buffer, VK_DEBUG_REPORT_OBJECT_TYPE_BUFFER_EXT, desc.debugName.getStr());
+            m_Context.nameVKObject((void*)buffer->buffer, VK_OBJECT_TYPE_BUFFER, desc.debugName.getStr());
 
             if(!desc.isVirtual)
             {
@@ -122,7 +122,7 @@ namespace GuGu{
 
                 VK_CHECK(res);
 
-                m_Context.nameVKObject((void*)buffer->memory, VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_MEMORY_EXT, desc.debugName.getStr());
+                m_Context.nameVKObject((void*)buffer->memory, VK_OBJECT_TYPE_DEVICE_MEMORY, desc.debugName.getStr());
 
                 if(desc.isVolatile)
                 {

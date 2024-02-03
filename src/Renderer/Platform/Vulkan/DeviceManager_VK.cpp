@@ -60,7 +60,7 @@ namespace GuGu{
             },
             // device
             {
-                    VK_EXT_DEBUG_MARKER_EXTENSION_NAME,
+                    //VK_EXT_DEBUG_MARKER_EXTENSION_NAME,
                     VK_KHR_TIMELINE_SEMAPHORE_EXTENSION_NAME,//todo:maybe need to remove
                     VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
                     VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,

@@ -60,7 +60,7 @@ namespace GuGu{
             GuGuUtf8Str debugName = desc.debugName;
             debugName.append(":");
             debugName.append(desc.entryName);
-            m_Context.nameVKObject((void*)VkShaderModule(shader->shaderModule), VK_DEBUG_REPORT_OBJECT_TYPE_SHADER_MODULE_EXT, debugName.getStr());
+            m_Context.nameVKObject((void*)VkShaderModule(shader->shaderModule), VK_OBJECT_TYPE_SHADER_MODULE, debugName.getStr());
             //const std::string debugName = desc.debugName + ":" + desc.entryName;
             //m_Context.nameVKObject(VkShaderModule(shader->shaderModule), vk::DebugReportObjectTypeEXT::eShaderModule, debugName.c_str());
 //

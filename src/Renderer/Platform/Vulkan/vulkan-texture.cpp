@@ -360,7 +360,7 @@ namespace GuGu{
             GuGuUtf8Str debugName("ImageView for: ");
             debugName.append(GuGuUtf8Str(utils::DebugNameToString(desc.debugName)));
             //const GuGuUtf8Str debugName = GuGuUtf8Str("ImageView for: ").append(GuGuUtf8Str(utils::DebugNameToString(desc.debugName)));
-            m_Context.nameVKObject((void*)view.view, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_VIEW_EXT, debugName.getStr());
+            m_Context.nameVKObject((void*)view.view, VK_OBJECT_TYPE_IMAGE_VIEW, debugName.getStr());
 
             return view;
         }
@@ -624,7 +624,7 @@ namespace GuGu{
 
             VK_CHECK(res);
 
-            m_Context.nameVKObject((void*)texture->image, VK_DEBUG_REPORT_OBJECT_TYPE_IMAGE_EXT, desc.debugName.getStr());
+            m_Context.nameVKObject((void*)texture->image, VK_OBJECT_TYPE_IMAGE, desc.debugName.getStr());
 
             if (!desc.isVirtual)
             {
@@ -642,7 +642,7 @@ namespace GuGu{
 #endif
                 }
 
-                m_Context.nameVKObject((void*)texture->memory, VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_MEMORY_EXT, desc.debugName.getStr());
+                m_Context.nameVKObject((void*)texture->memory, VK_OBJECT_TYPE_DEVICE_MEMORY, desc.debugName.getStr());
             }
 
             return TextureHandle::Create(texture);
