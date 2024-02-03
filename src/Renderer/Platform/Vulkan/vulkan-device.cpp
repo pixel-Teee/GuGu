@@ -198,7 +198,7 @@ namespace GuGu{
                     { VK_EXT_DEBUG_REPORT_EXTENSION_NAME, &m_Context.extensions.EXT_debug_report },
                     { VK_EXT_DEBUG_MARKER_EXTENSION_NAME, &m_Context.extensions.EXT_debug_marker },
                     //{ VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME, &m_Context.extensions.KHR_acceleration_structure },
-                    { VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME, &m_Context.extensions.buffer_device_address },
+                    //{ VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME, &m_Context.extensions.buffer_device_address },
                     //{ VK_KHR_RAY_QUERY_EXTENSION_NAME,&m_Context.extensions.KHR_ray_query },
                     //{ VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME, &m_Context.extensions.KHR_ray_tracing_pipeline },
                     { VK_NV_MESH_SHADER_EXTENSION_NAME, &m_Context.extensions.NV_mesh_shader },
@@ -228,8 +228,9 @@ namespace GuGu{
             }
 
             // The Vulkan 1.2 way of enabling bufferDeviceAddress
-            if (desc.bufferDeviceAddressSupported)
-                m_Context.extensions.buffer_device_address = true;
+            //if (desc.bufferDeviceAddressSupported)
+            //    m_Context.extensions.buffer_device_address = true;
+            //todo:fix this
 
             void* pNext = nullptr;
             //VkPhysicalDeviceAccelerationStructurePropertiesKHR accelStructProperties;
@@ -369,6 +370,7 @@ namespace GuGu{
             if (extensions.EXT_debug_marker && name && *name && handle)
             {
                 VkDebugMarkerObjectNameInfoEXT info = {};
+                info.sType = VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_NAME_INFO_EXT;
                 info.objectType = objtype;
                 info.object = reinterpret_cast<uint64_t>(handle);
                 info.pObjectName = name;
@@ -376,14 +378,10 @@ namespace GuGu{
                 //        .setObjectType(objtype)
                 //        .setObject(reinterpret_cast<uint64_t>(handle))
                 //        .setPObjectName(name);
-#if ANDROID
-                //vkDebugMarkerSetObjectNameEXT(device, &info); //todo:fix this
-#else 
-#if WIN32
-
-#endif
-#endif
-                //(void)device.debugMarkerSetObjectNameEXT(&info);
+                VkResult result = VK_SUCCESS;
+                PFN_vkDebugMarkerSetObjectNameEXT vkDebugMarkerSetObjectNameEXT = (PFN_vkDebugMarkerSetObjectNameEXT) vkGetInstanceProcAddr(instance, "vkDebugMarkerSetObjectNameEXT");
+                result = vkDebugMarkerSetObjectNameEXT(device, &info);
+                VK_CHECK(result);
             }
         }
 

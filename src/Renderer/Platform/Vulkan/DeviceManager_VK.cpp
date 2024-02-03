@@ -43,7 +43,7 @@ namespace GuGu{
             {
                     VK_KHR_MAINTENANCE1_EXTENSION_NAME,
                     VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME,
-                    VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME
+                   // VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME
             }
     };
 
@@ -473,6 +473,7 @@ namespace GuGu{
 
             for(const auto& ext : deviceExtensions)
             {
+                //GuGu_LOGD("%s\n", ext.extensionName);
                 requiredExtensions.erase(GuGuUtf8Str(ext.extensionName));
             }
 
@@ -746,21 +747,21 @@ namespace GuGu{
         void* pNext = nullptr;
         VkPhysicalDeviceFeatures2 physicalDeviceFeatures = {};
         //determine support for buffer device address, the vulkan 1.2 way
-        VkPhysicalDeviceBufferDeviceAddressFeaturesEXT bufferDeviceAddressFeatures{};
-        bufferDeviceAddressFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_EXT;
+        //VkPhysicalDeviceBufferDeviceAddressFeaturesEXT bufferDeviceAddressFeatures{};
+        //bufferDeviceAddressFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES_EXT;
         //determine support for maintenance4
         //todo:fix this
         //VkPhysicalDeviceMaintenance4Features maintenance4Features = {};
 
-        APPEND_EXTENSION(true, bufferDeviceAddressFeatures);
+        //APPEND_EXTENSION(true, bufferDeviceAddressFeatures);
         //APPEND(maintenance4Supported, maintenance4Features);
         physicalDeviceFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
         physicalDeviceFeatures.pNext = pNext;
         vkGetPhysicalDeviceFeatures2(m_VulkanPhysicalDevice, &physicalDeviceFeatures);
 
-        bufferDeviceAddressFeatures.bufferDeviceAddress = true;
-        bufferDeviceAddressFeatures.bufferDeviceAddressCaptureReplay = true;
-        bufferDeviceAddressFeatures.bufferDeviceAddressMultiDevice = true;
+        //bufferDeviceAddressFeatures.bufferDeviceAddress = true;
+        //bufferDeviceAddressFeatures.bufferDeviceAddressCaptureReplay = true;
+        //bufferDeviceAddressFeatures.bufferDeviceAddressMultiDevice = true;
 
         std::unordered_set<int32_t> uniqueQueueFamilies = { m_GraphicsQueueFamily };
 
@@ -847,7 +848,8 @@ namespace GuGu{
         vulkan12Features.descriptorBindingVariableDescriptorCount = true;
         vulkan12Features.timelineSemaphore = true;
         vulkan12Features.shaderSampledImageArrayNonUniformIndexing = true;
-        vulkan12Features.bufferDeviceAddress = bufferDeviceAddressFeatures.bufferDeviceAddress;
+        //vulkan12Features.bufferDeviceAddress = bufferDeviceAddressFeatures.bufferDeviceAddress;
+        vulkan12Features.bufferDeviceAddress = false;
         vulkan12Features.pNext = pNext;
 
         auto layerVec = stringSetToVector(enabledExtensions.layers);

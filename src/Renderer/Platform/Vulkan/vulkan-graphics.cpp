@@ -892,6 +892,8 @@ namespace GuGu{
             rasterizer.depthBiasClamp = rasterState.depthBiasClamp;
             rasterizer.depthBiasSlopeFactor = rasterState.slopeScaledDepthBias;
             rasterizer.lineWidth = 1.0f;
+            rasterizer.rasterizerDiscardEnable = VK_FALSE;
+            rasterizer.depthClampEnable = VK_FALSE;
             //        // .setDepthClampEnable(??)
             //        // .setRasterizerDiscardEnable(??)
             //        .setPolygonMode(convertFillMode(rasterState.fillMode))
@@ -906,6 +908,7 @@ namespace GuGu{
 //
             //// Conservative raster state
             VkPipelineRasterizationConservativeStateCreateInfoEXT conservativeStateCreate = {};
+            conservativeStateCreate.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_CONSERVATIVE_STATE_CREATE_INFO_EXT;
             conservativeStateCreate.conservativeRasterizationMode = VK_CONSERVATIVE_RASTERIZATION_MODE_OVERESTIMATE_EXT;
             if(rasterState.conservativeRasterEnable)
             {
@@ -928,6 +931,7 @@ namespace GuGu{
             //        .setAlphaToCoverageEnable(blendState.alphaToCoverageEnable);
 //
             VkPipelineDepthStencilStateCreateInfo depthStencil = {};
+            depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
             depthStencil.depthTestEnable = depthStencilState.depthTestEnable;
             depthStencil.depthWriteEnable = depthStencilState.depthWriteEnable;
             depthStencil.depthCompareOp = convertCompareOp(depthStencilState.depthFunc);
@@ -1031,7 +1035,7 @@ namespace GuGu{
             VkDynamicState dynamicStates[4] = {
                     VK_DYNAMIC_STATE_VIEWPORT,
                     VK_DYNAMIC_STATE_SCISSOR,
-                    VK_DYNAMIC_STATE_BLEND_CONSTANTS,
+                    //VK_DYNAMIC_STATE_BLEND_CONSTANTS,
                     VK_DYNAMIC_STATE_FRAGMENT_SHADING_RATE_KHR
             };
 //
@@ -1061,7 +1065,7 @@ namespace GuGu{
             pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
             pipelineInfo.basePipelineIndex = -1;
             pipelineInfo.pTessellationState = VK_NULL_HANDLE;
-            pipelineInfo.pNext = &shadingRateState;
+            //pipelineInfo.pNext = &shadingRateState;
             //auto pipelineInfo = vk::GraphicsPipelineCreateInfo()
             //        .setStageCount(uint32_t(shaderStages.size()))
             //        .setPStages(shaderStages.data())
