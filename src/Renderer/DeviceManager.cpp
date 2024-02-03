@@ -6,6 +6,12 @@
 #include <Application/Platform/Android/AndroidApplication.h>
 #include <Window/Platform/Android/AndroidWindow.h>
 #include <game-activity/native_app_glue/android_native_app_glue.h>//native window
+#else
+#ifdef WIN32
+#include <Application/Platform/Windows/WindowsApplication.h>
+#include <Window/Platform/Windows/WindowsWindow.h>
+#include <Core/Platform/Windows/WindowsGuGuFile.h>
+#endif
 #endif
 
 namespace GuGu{
@@ -89,6 +95,11 @@ namespace GuGu{
                 ANativeWindow_setBuffersGeometry(androidWindow->getNativeHandle(), 0, 0, AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM);
                 foundFormat = true;
                 break;
+#else
+#if WIN32
+                foundFormat = true;
+                break;
+#endif
 #endif
             }
         }
@@ -221,8 +232,8 @@ namespace GuGu{
     }
 
     void DeviceManager::UpdateWindowSize() {
-        int width;
-        int height;
+        int width = 0;
+        int height = 0;
         //glfwGetWindowSize(m_Window, &width, &height);
 #ifdef ANDROID
         std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
@@ -230,6 +241,17 @@ namespace GuGu{
 
         height = ANativeWindow_getHeight(androidWindow->getNativeHandle());
         width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
+#else
+        std::shared_ptr<WindowsApplication> windowsApplication = WindowsApplication::getApplication();
+        std::shared_ptr<WindowsWindow> windowsWindow = windowsApplication->getPlatformWindows()[0]; //todo:fix this
+
+        RECT rect;
+        if (GetWindowRect(windowsWindow->getNativeWindowHandle(), &rect))
+        {
+            width = rect.right - rect.left;
+            height = rect.bottom - rect.top;
+        }
+
 #endif
 
         if (width == 0 || height == 0)

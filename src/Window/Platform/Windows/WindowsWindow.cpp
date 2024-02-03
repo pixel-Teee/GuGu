@@ -20,12 +20,27 @@ namespace GuGu {
 			L"GuGuWindow", //window title
 			WS_OVERLAPPEDWINDOW,
 
-			0, 0, 800, 600, //size and position
+			0, 0, 1280, 720, //size and position
 			nullptr,//parent window
 			nullptr,//menu
 			m_ownerApplicationHandle, //owner application handle
 			nullptr
 		);
+
+		RECT rcWindow;
+		RECT rcClient;
+		int32_t borderWidth, borderHeight;
+		GetWindowRect(m_windowHandle, &rcWindow);
+		GetClientRect(m_windowHandle, &rcClient);
+
+		borderWidth = (rcWindow.right - rcWindow.left)
+			- (rcClient.right - rcClient.left);
+		borderHeight = (rcWindow.bottom - rcWindow.top)
+			- (rcClient.bottom - rcClient.top);
+
+		SetWindowPos(m_windowHandle, 0, 0, 0, borderWidth + 1280,
+			borderHeight + 720, SWP_NOMOVE | SWP_NOZORDER);
+
 
 		if (m_windowHandle == nullptr) return; //todo:report create window error
 

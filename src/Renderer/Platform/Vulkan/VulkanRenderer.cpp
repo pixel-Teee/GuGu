@@ -6,6 +6,7 @@
 #include "vk_types.h"
 #include "vk_initializers.h"
 
+#ifdef ANDROID
 #include "VkBootstrap.h"
 
 #include <Application/Platform/Android/AndroidApplication.h>
@@ -13,10 +14,16 @@
 #include <game-activity/native_app_glue/android_native_app_glue.h>//native window
 #include <android/log.h>
 #include <android/asset_manager_jni.h>
+#include <Core/Platform/Android/AndroidGuGuFile.h>
+#else
+    #ifdef WIN32
+        #include <Application/Platform/Windows/WindowsApplication.h>
+        #include <Window/Platform/Windows/WindowsWindow.h>
+        #include <Core/Platform/Windows/WindowsGuGuFile.h>
+    #endif
+#endif
 
 #include <Core/GuGuUtf8Str.h>
-
-#include <Core/Platform/Android/AndroidGuGuFile.h>
 
 //#define LOG_TAG "AndroidLog"
 //#define ALOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
@@ -48,29 +55,30 @@ inline VKAPI_ATTR VkBool32 VKAPI_CALL default_debug_callback(VkDebugUtilsMessage
                                                              VkDebugUtilsMessageTypeFlagsEXT messageType,
                                                              const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
                                                              void*) {
-    auto ms = vkb::to_string_message_severity(messageSeverity);
-    auto mt = vkb::to_string_message_type(messageType);
-    GuGu_LOGD("[%s: %s]\n%s\n", ms, mt, pCallbackData->pMessage);
+    //auto ms = vkb::to_string_message_severity(messageSeverity);
+    //auto mt = vkb::to_string_message_type(messageType);
+    //GuGu_LOGD("[%s: %s]\n%s\n", ms, mt, pCallbackData->pMessage);
 
     return VK_FALSE; // Applications must return false here
 }
 
-std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path,
-                                            AAssetManager *assetManager) {
-    std::vector<uint8_t> file_content;
-    assert(assetManager);
-    AAsset *file =
-            AAssetManager_open(assetManager, file_path, AASSET_MODE_BUFFER);
-    size_t file_length = AAsset_getLength(file);
-
-    file_content.resize(file_length);
-
-    AAsset_read(file, file_content.data(), file_length);
-    AAsset_close(file);
-    return file_content;
-}
+//std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path,
+//                                            AAssetManager *assetManager) {
+//    std::vector<uint8_t> file_content;
+//    assert(assetManager);
+//    AAsset *file =
+//            AAssetManager_open(assetManager, file_path, AASSET_MODE_BUFFER);
+//    size_t file_length = AAsset_getLength(file);
+//
+//    file_content.resize(file_length);
+//
+//    AAsset_read(file, file_content.data(), file_length);
+//    AAsset_close(file);
+//    return file_content;
+//}
 
 std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path){
+#if ANDROID
     std::vector<uint8_t> file_content;
 
     GuGuUtf8Str filePath(file_path);
@@ -92,6 +100,29 @@ std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path){
     //AAsset_read(file, file_content.data(), file_length);
     //AAsset_close(file);
     file.CloseFile();
+#else
+    std::vector<uint8_t> file_content;
+
+    GuGuUtf8Str filePath(file_path);
+    WindowsGuGuFile file;
+    file.OpenFile(filePath, GuGuFile::FileMode::OnlyRead);
+
+    int32_t fileLength = file.getFileSize();
+    file_content.resize(fileLength);
+
+    int32_t haveReadedLength = 0;
+    file.ReadFile(file_content.data(), fileLength, haveReadedLength);
+    //assert(assetManager);
+    //AAsset *file =
+    //        AAssetManager_open(assetManager, file_path, AASSET_MODE_BUFFER);
+    //size_t file_length = AAsset_getLength(file);
+//
+    //file_content.resize(file_length);
+//
+    //AAsset_read(file, file_content.data(), file_length);
+    //AAsset_close(file);
+    file.CloseFile();
+#endif
     return file_content;
 }
 //#else
@@ -281,8 +312,13 @@ std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path){
     }
 
     void VulkanRenderer::initVulkan() {
+#if ANDROID
         std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
         std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
+#else WIN32
+        std::shared_ptr<WindowsApplication> windowsApplication = WindowsApplication::getApplication();
+        std::shared_ptr<WindowsWindow> windowsWindow = windowsApplication->getPlatformWindows()[0]; //todo:fix this
+#endif
         //vkb::InstanceBuilder builder;
 //
         ////make the vulkan instance, with basic debug features
@@ -352,11 +388,24 @@ std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path){
     }
 
     void VulkanRenderer::initSwapchain() {
+#if ANDROID
         std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
         std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
-        //vkb::SwapchainBuilder swapchainBuilder{m_chosenGPU, m_device, m_surface};
         m_height = ANativeWindow_getHeight(androidWindow->getNativeHandle());
         m_width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
+#else WIN32
+        std::shared_ptr<WindowsApplication> windowsApplication = WindowsApplication::getApplication();
+        std::shared_ptr<WindowsWindow> windowsWindow = windowsApplication->getPlatformWindows()[0]; //todo:fix this
+
+        RECT rect;
+        if (GetClientRect(windowsWindow->getNativeWindowHandle(), &rect))
+        {
+            m_width = rect.right - rect.left;
+            m_height = rect.bottom - rect.top;
+        }
+#endif
+        //vkb::SwapchainBuilder swapchainBuilder{m_chosenGPU, m_device, m_surface};
+
         //vkb::Swapchain vkbSwapchain = swapchainBuilder
         //        .use_default_format_selection()
         //        //use vsync present mode
@@ -487,11 +536,22 @@ std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path){
     }
 
     void VulkanRenderer::initFrameBuffers() {
+#if ANDROID
         std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
         std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
-        //vkb::SwapchainBuilder swapchainBuilder{m_chosenGPU, m_device, m_surface};
-        int32_t height = ANativeWindow_getHeight(androidWindow->getNativeHandle());
-        int32_t width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
+        m_height = ANativeWindow_getHeight(androidWindow->getNativeHandle());
+        m_width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
+#else WIN32
+        std::shared_ptr<WindowsApplication> windowsApplication = WindowsApplication::getApplication();
+        std::shared_ptr<WindowsWindow> windowsWindow = windowsApplication->getPlatformWindows()[0]; //todo:fix this
+
+        RECT rect;
+        if (GetWindowRect(windowsWindow->getNativeWindowHandle(), &rect))
+        {
+            m_width = rect.right - rect.left;
+            m_height = rect.bottom - rect.top;
+        }
+#endif
 
         //create the framebuffers for the swapchain images. This will connect the render-pass to the images for rendering
         VkFramebufferCreateInfo fb_info = {};
@@ -500,8 +560,8 @@ std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path){
 
         fb_info.renderPass = m_renderPass;
         fb_info.attachmentCount = 1;
-        fb_info.width = width;
-        fb_info.height = height;
+        fb_info.width = m_width;
+        fb_info.height = m_height;
         fb_info.layers = 1;
 
         //grab how many images we have in the swapchain
@@ -532,7 +592,7 @@ std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path){
     //}
 
     bool VulkanRenderer::loadShaderModule(const char *filePath, VkShaderModule *outShaderModule) {
-        std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
+        //std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
 
         //std::vector<uint8_t> buffer = LoadBinaryFileToVector(filePath, androidApplication->getAssetManager());
         std::vector<uint8_t> buffer = LoadBinaryFileToVector(filePath);

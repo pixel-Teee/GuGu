@@ -841,7 +841,7 @@ namespace GuGu{
             void flushVolatileBufferWrites();
             void submitVolatileBuffers(uint64_t recordingID, uint64_t submittedID);
 //
-            //void updateGraphicsVolatileBuffers();
+            void updateGraphicsVolatileBuffers();
             //void updateComputeVolatileBuffers();
             //void updateMeshletVolatileBuffers();
             //void updateRayTracingVolatileBuffers();

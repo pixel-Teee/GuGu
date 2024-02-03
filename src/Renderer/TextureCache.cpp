@@ -6,9 +6,18 @@
 
 #include <Core/GuGuUtf8Str.h>
 
-#include <Core/Platform/Android/AndroidGuGuFile.h>//todo:remove this
+
 
 #include <Renderer/stb_image.h>
+
+#ifdef ANDROID
+
+#include <Core/Platform/Android/AndroidGuGuFile.h>//todo:remove this
+#else
+#ifdef WIN32
+#include <Core/Platform/Windows/WindowsGuGuFile.h>
+#endif
+#endif
 
 namespace GuGu{
 
@@ -46,8 +55,8 @@ namespace GuGu{
     }
 
     std::vector <uint8_t> TextureCache::ReadTextureFile(const GuGuUtf8Str &path) const {
-        std::vector<uint8_t> file_content;
 #ifdef ANDROID
+        std::vector<uint8_t> file_content;
         GuGuUtf8Str filePath(path);
         AndroidGuGuFile file;
         file.OpenFile(filePath, GuGuFile::FileMode::OnlyRead);
@@ -68,8 +77,30 @@ namespace GuGu{
         //AAsset_close(file);
         file.CloseFile();
         return file_content;
-#endif
+#else
+        std::vector<uint8_t> file_content;
+
+        GuGuUtf8Str filePath(path);
+        WindowsGuGuFile file;
+        file.OpenFile(filePath, GuGuFile::FileMode::OnlyRead);
+
+        int32_t fileLength = file.getFileSize();
+        file_content.resize(fileLength);
+
+        int32_t haveReadedLength = 0;
+        file.ReadFile(file_content.data(), fileLength, haveReadedLength);
+        //assert(assetManager);
+        //AAsset *file =
+        //        AAssetManager_open(assetManager, file_path, AASSET_MODE_BUFFER);
+        //size_t file_length = AAsset_getLength(file);
+    //
+        //file_content.resize(file_length);
+    //
+        //AAsset_read(file, file_content.data(), file_length);
+        //AAsset_close(file);
+        file.CloseFile();
         return file_content;
+#endif
     }
 
     bool TextureCache::FillTextureData(const std::vector<uint8_t> &fileData,

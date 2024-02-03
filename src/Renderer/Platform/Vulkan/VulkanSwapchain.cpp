@@ -4,9 +4,20 @@
 
 #include "VulkanCommon.h"
 
+#include <algorithm>
+
+#if ANDROID
 #include <Application/Platform/Android/AndroidApplication.h>
 #include <Window/Platform/Android/AndroidWindow.h>
 #include <game-activity/native_app_glue/android_native_app_glue.h>//native window
+#else
+#if WIN32
+
+#include <Application/Platform/Windows/WindowsApplication.h>
+#include <Window/Platform/Windows/WindowsWindow.h>
+#include <vulkan/vulkan_win32.h>
+#endif
+#endif
 
 namespace GuGu{
 
@@ -60,14 +71,35 @@ namespace GuGu{
         if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
             return capabilities.currentExtent;
         } else {
-            int width, height;
+            //int width, height;
             //glfwGetFramebufferSize(window, &width, &height);
 
+#if ANDROID
             std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
             std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
-            //vkb::SwapchainBuilder swapchainBuilder{m_chosenGPU, m_device, m_surface};
+            int32_t width = 0;
+            int32_t height = 0;
             height = ANativeWindow_getHeight(androidWindow->getNativeHandle());
             width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
+#else WIN32
+            std::shared_ptr<WindowsApplication> windowsApplication = WindowsApplication::getApplication();
+            std::shared_ptr<WindowsWindow> windowsWindow = windowsApplication->getPlatformWindows()[0]; //todo:fix this
+
+            RECT rect;
+            int32_t width = 0;
+            int32_t height = 0;
+            if (GetClientRect(windowsWindow->getNativeWindowHandle(), &rect))
+            {
+                width = rect.right - rect.left;
+                height = rect.bottom - rect.top;
+            }
+#endif
+
+            //std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
+            //std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
+            ////vkb::SwapchainBuilder swapchainBuilder{m_chosenGPU, m_device, m_surface};
+            //height = ANativeWindow_getHeight(androidWindow->getNativeHandle());
+            //width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
 
             VkExtent2D actualExtent = {
                     static_cast<uint32_t>(width),

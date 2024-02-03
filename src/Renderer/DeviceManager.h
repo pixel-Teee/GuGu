@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <string>
+#include <functional>
 #include <Core/GuGuUtf8Str.h>
 #include <list>
 

@@ -2,6 +2,8 @@
 
 #include <Core/GuGuFile.h>
 
+#include <Windows.h>
+
 namespace GuGu {
 	class WindowsGuGuFile : public GuGuFile{
 	public:

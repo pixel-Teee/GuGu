@@ -16,10 +16,13 @@ namespace GuGu {
 		switch (fileMode)
 		{
 		case FileMode::OnlyRead:
-			m_fileHandle = CreateFile(path.getUtf16String().c_str(), GENERIC_READ, 0, nullptr, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
+		{
+			std::wstring filePath = path.getUtf16String();
+			m_fileHandle = CreateFile(path.getUtf16String().c_str(), GENERIC_READ, 0, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 			break;
+		}
 		case FileMode::OnlyWrite:
-			m_fileHandle = CreateFile(path.getUtf16String().c_str(), GENERIC_WRITE, 0, nullptr, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
+			m_fileHandle = CreateFile(path.getUtf16String().c_str(), GENERIC_WRITE, 0, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 			break;
 		}
 
@@ -36,16 +39,16 @@ namespace GuGu {
 	void WindowsGuGuFile::WriteFile(void* buffer, int32_t numberOfBytesToWrite)
 	{
 		int32_t numberOfBytesWereWritten = 0;
-		LPDWORD tmpValue = 0;
-		::WriteFile(m_fileHandle, buffer, numberOfBytesToWrite, tmpValue, nullptr);
-		numberOfBytesWereWritten = *tmpValue;
+		DWORD tmpValue = 0;
+		::WriteFile(m_fileHandle, buffer, numberOfBytesToWrite, &tmpValue, nullptr);
+		numberOfBytesWereWritten = tmpValue;
 	}
 	int32_t WindowsGuGuFile::ReadFile(void* buffer, int32_t numberOfBytesToRead, int32_t& numberOfBytesHaveReaded)
 	{
 		//int32_t numberOfBytesWereRead = 0;
-		LPDWORD tmpValue = 0;
-		bool retValue = ::ReadFile(m_fileHandle, buffer, numberOfBytesToRead, tmpValue, nullptr);
-		numberOfBytesHaveReaded = *tmpValue;
+		DWORD tmpValue = 0;
+		bool retValue = ::ReadFile(m_fileHandle, buffer, numberOfBytesToRead, &tmpValue, nullptr);
+		numberOfBytesHaveReaded = tmpValue;
 		return retValue;
 	}
 	int32_t WindowsGuGuFile::getFileSize()

@@ -6,6 +6,7 @@
 #include <vulkan/vulkan.h>
 
 #include <queue>
+#include <functional>
 
 #include <Renderer/VertexBuffer.h>
 

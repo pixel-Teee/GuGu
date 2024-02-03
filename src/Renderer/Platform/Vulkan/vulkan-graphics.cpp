@@ -1103,12 +1103,24 @@ namespace GuGu{
             return GraphicsPipelineHandle::Create(pso);
         }
 
+        void CommandList::updateGraphicsVolatileBuffers()
+        {
+            if (m_AnyVolatileBufferWrites && m_CurrentGraphicsState.pipeline)
+            {
+                GraphicsPipeline* pso = checked_cast<GraphicsPipeline*>(m_CurrentGraphicsState.pipeline);
+
+                bindBindingSets(VK_PIPELINE_BIND_POINT_GRAPHICS, pso->pipelineLayout, m_CurrentGraphicsState.bindings);
+
+                m_AnyVolatileBufferWrites = false;
+            }
+        }
+
         void CommandList::drawIndexed(const DrawArguments& args)
         {
             assert(m_CurrentCmdBuf);
 
             //todo:implement this function
-            //updateGraphicsVolatileBuffers();
+            updateGraphicsVolatileBuffers();
 
             vkCmdDrawIndexed(m_CurrentCmdBuf->cmdBuf, args.vertexCount,
                              args.instanceCount,

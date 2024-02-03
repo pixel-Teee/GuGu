@@ -287,9 +287,9 @@ namespace GuGu{
             VK_CHECK(res);
 
             // collect all of the descriptor write data
-            static_vector<VkDescriptorImageInfo, 3> descriptorImageInfo;
-            static_vector<VkDescriptorBufferInfo, 3> descriptorBufferInfo;
-            static_vector<VkWriteDescriptorSet, 3> descriptorWriteInfo;
+            static_vector<VkDescriptorImageInfo, c_MaxBindingsPerLayout> descriptorImageInfo;
+            static_vector<VkDescriptorBufferInfo, c_MaxBindingsPerLayout> descriptorBufferInfo;
+            static_vector<VkWriteDescriptorSet, c_MaxBindingsPerLayout> descriptorWriteInfo;
             static_vector<VkWriteDescriptorSetAccelerationStructureKHR, c_MaxBindingsPerLayout> accelStructWriteInfo;
 
             auto generateWriteDescriptorData =
@@ -318,7 +318,8 @@ namespace GuGu{
                         );
                     };
 
-            for (size_t bindingIndex = 0; bindingIndex < 3; bindingIndex++)
+            size_t bindingSize = desc.bindings.size();
+            for (size_t bindingIndex = 0; bindingIndex < bindingSize; bindingIndex++)
             {
                 const BindingSetItem& binding = desc.bindings[bindingIndex];
                 const VkDescriptorSetLayoutBinding& layoutBinding = layout->vulkanLayoutBindings[bindingIndex];

@@ -234,8 +234,8 @@ namespace GuGu{
             void* pNext = nullptr;
             //VkPhysicalDeviceAccelerationStructurePropertiesKHR accelStructProperties;
             //VkPhysicalDeviceRayTracingPipelinePropertiesKHR rayTracingPipelineProperties;
-            VkPhysicalDeviceConservativeRasterizationPropertiesEXT conservativeRasterizationProperties;
-            VkPhysicalDeviceFragmentShadingRatePropertiesKHR shadingRateProperties;
+            VkPhysicalDeviceConservativeRasterizationPropertiesEXT conservativeRasterizationProperties = {};
+            VkPhysicalDeviceFragmentShadingRatePropertiesKHR shadingRateProperties = {};
             //VkPhysicalDeviceOpacityMicromapPropertiesEXT opacityMicromapProperties;
             //VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV nvRayTracingInvocationReorderProperties;
 
@@ -376,8 +376,12 @@ namespace GuGu{
                 //        .setObjectType(objtype)
                 //        .setObject(reinterpret_cast<uint64_t>(handle))
                 //        .setPObjectName(name);
-#ifndef ANDROID
-                vkDebugMarkerSetObjectNameEXT(device, &info); //todo:fix this
+#if ANDROID
+                //vkDebugMarkerSetObjectNameEXT(device, &info); //todo:fix this
+#else 
+#if WIN32
+
+#endif
 #endif
                 //(void)device.debugMarkerSetObjectNameEXT(&info);
             }

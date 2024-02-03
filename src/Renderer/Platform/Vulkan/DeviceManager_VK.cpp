@@ -9,9 +9,17 @@
 #include <unordered_set>
 
 #if ANDROID
-#include <Application/Platform/Android/AndroidApplication.h>
-#include <Window/Platform/Android/AndroidWindow.h>
-#include <game-activity/native_app_glue/android_native_app_glue.h>//native window
+    #include <Application/Platform/Android/AndroidApplication.h>
+    #include <Window/Platform/Android/AndroidWindow.h>
+    #include <game-activity/native_app_glue/android_native_app_glue.h>//native window
+    #include <vulkan/vulkan_android.h>
+#else 
+    #if WIN32
+
+        #include <Application/Platform/Windows/WindowsApplication.h>
+        #include <Window/Platform/Windows/WindowsWindow.h>
+        #include <vulkan/vulkan_win32.h>
+    #endif
 #endif
 
 #include "vulkan-constants.h"
@@ -92,7 +100,7 @@ namespace GuGu{
             const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
             void* pUserData) {
 
-        GuGu_LOGE("validation layer:%s\n", pCallbackData->pMessage);
+        GuGu_LOGD("validation layer:%s\n", pCallbackData->pMessage);
         //std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
 
         return VK_FALSE;
@@ -139,7 +147,12 @@ namespace GuGu{
         if(!m_deviceParams.headlessDevice)
         {
             enabledExtensions.instance.insert("VK_KHR_surface");
+#if WIN32
+            enabledExtensions.instance.insert(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+#else ANDROID
             enabledExtensions.instance.insert(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);
+#endif
+            //enabledExtensions.instance.insert(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);
         }
 
         //add instance extensions requested by the user
@@ -323,10 +336,14 @@ namespace GuGu{
         if(!m_deviceParams.headlessDevice)
         {
             //need to adjust the swap chain format before creating the device because it affects physical device selection
-            //if(m_deviceParams.swapChainFormat == nvrhi::Format::SRGBA8_UNORM)
-            //    m_deviceParams.swapChainFormat = nvrhi::Format::SBGRA8_UNORM;
-            //else if(m_deviceParams.swapChainFormat == nvrhi::Format::RGBA8_UNORM)
-            //    m_deviceParams.swapChainFormat = nvrhi::Format::BGRA8_UNORM;
+#if WIN32
+            if(m_deviceParams.swapChainFormat == nvrhi::Format::SRGBA8_UNORM)
+                m_deviceParams.swapChainFormat = nvrhi::Format::SBGRA8_UNORM;
+            else if(m_deviceParams.swapChainFormat == nvrhi::Format::RGBA8_UNORM)
+                m_deviceParams.swapChainFormat = nvrhi::Format::BGRA8_UNORM;
+#else
+
+#endif
 
             createWindowSurface();
         }
@@ -378,6 +395,7 @@ namespace GuGu{
     }
 
     bool DeviceManager_VK::createWindowSurface() {
+#if ANDROID
         std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
         std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
 
@@ -389,6 +407,21 @@ namespace GuGu{
 
         VK_CHECK(vkCreateAndroidSurfaceKHR(m_VulkanInstance, &create_info,
                                            nullptr /* pAllocator */, &m_windowSurface));
+#else 
+        #if WIN32
+        std::shared_ptr<WindowsApplication> windowsApplication = WindowsApplication::getApplication();
+        std::shared_ptr<WindowsWindow> windowsWindow = windowsApplication->getPlatformWindows()[0]; //todo:fix this
+
+        VkWin32SurfaceCreateInfoKHR create_info = {};
+        create_info.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+        create_info.pNext = nullptr;
+        create_info.hwnd = windowsWindow->getNativeWindowHandle();
+        create_info.hinstance = GetModuleHandle(nullptr);
+        create_info.flags = 0;
+        VK_CHECK(vkCreateWin32SurfaceKHR(m_VulkanInstance, &create_info,
+            nullptr /* pAllocator */, &m_windowSurface));
+        #endif
+#endif
         return true;//todo:fix this
     }
 
@@ -933,11 +966,32 @@ namespace GuGu{
         m_SwapChainFormat.colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
         //todo:add more logic
 
+#if ANDROID
         std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
         std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
-
-        int32_t height = ANativeWindow_getHeight(androidWindow->getNativeHandle());
+        int32_t height  = ANativeWindow_getHeight(androidWindow->getNativeHandle());
         int32_t width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
+#else 
+    #if WIN32
+        std::shared_ptr<WindowsApplication> windowsApplication = WindowsApplication::getApplication();
+        std::shared_ptr<WindowsWindow> windowsWindow = windowsApplication->getPlatformWindows()[0]; //todo:fix this
+
+        int32_t width = 0;
+        int32_t height = 0;
+        RECT rect;
+        if (GetClientRect(windowsWindow->getNativeWindowHandle(), &rect))
+        {
+            width = rect.right - rect.left;
+            height = rect.bottom - rect.top;
+        }
+    #endif
+#endif
+
+        //std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
+        //std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
+        //
+        //int32_t height = ANativeWindow_getHeight(androidWindow->getNativeHandle());
+        //int32_t width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
 
         VkExtent2D extent{};
         extent.width = width; //todo:fix this
@@ -1018,11 +1072,26 @@ namespace GuGu{
             sci.image = image;
 
             //todo:remove these
+#if ANDROID
             std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
             std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
-
             int32_t height = ANativeWindow_getHeight(androidWindow->getNativeHandle());
             int32_t width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
+#else 
+            #if WIN32
+            std::shared_ptr<WindowsApplication> windowsApplication = WindowsApplication::getApplication();
+            std::shared_ptr<WindowsWindow> windowsWindow = windowsApplication->getPlatformWindows()[0]; //todo:fix this
+
+            int32_t width = 0;
+            int32_t height = 0;
+            RECT rect;
+            if (GetClientRect(windowsWindow->getNativeWindowHandle(), &rect))
+            {
+                width = rect.right - rect.left;
+                height = rect.bottom - rect.top;
+            }
+            #endif
+#endif
 
             nvrhi::TextureDesc textureDesc;
             //textureDesc.width = m_deviceParams.backBufferWidth;

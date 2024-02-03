@@ -6,11 +6,19 @@
 
 #include <Core/GuGuFile.h>
 
-#include <Core/Platform/Android/AndroidGuGuFile.h>//todo:remove this
+//todo:fix this
+#if ANDROID
+    #include <Core/Platform/Android/AndroidGuGuFile.h>
+#else
+    #ifdef WIN32
+
+        #include <Core/Platform/Windows/WindowsGuGuFile.h>
+    #endif
+#endif
 
 namespace GuGu{
     static std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path){
-#ifdef ANDROID
+#if ANDROID
         std::vector<uint8_t> file_content;
 
         GuGuUtf8Str filePath(file_path);
@@ -33,9 +41,33 @@ namespace GuGu{
         //AAsset_close(file);
         file.CloseFile();
         return file_content;
-#endif
+#else 
+#if WIN32
         std::vector<uint8_t> file_content;
+
+        GuGuUtf8Str filePath(file_path);
+        WindowsGuGuFile file;
+        file.OpenFile(filePath, GuGuFile::FileMode::OnlyRead);
+
+        int32_t fileLength = file.getFileSize();
+        file_content.resize(fileLength);
+
+        int32_t haveReadedLength = 0;
+        file.ReadFile(file_content.data(), fileLength, haveReadedLength);
+        //assert(assetManager);
+        //AAsset *file =
+        //        AAssetManager_open(assetManager, file_path, AASSET_MODE_BUFFER);
+        //size_t file_length = AAsset_getLength(file);
+    //
+        //file_content.resize(file_length);
+    //
+        //AAsset_read(file, file_content.data(), file_length);
+        //AAsset_close(file);
+        file.CloseFile();
+        
         return file_content;
+#endif
+#endif
     }
 
     ShaderFactory::ShaderFactory(nvrhi::DeviceHandle rendererInterface)

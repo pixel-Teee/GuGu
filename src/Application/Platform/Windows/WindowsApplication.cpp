@@ -2,8 +2,13 @@
 #include "WindowsApplication.h"
 #include <Window/Platform/Windows/WindowsWindow.h>
 
-#include <Renderer/Platform/D3D12/D3D12Renderer.h>
-
+#if USE_DX12
+		#include <Renderer/Platform/D3D12/D3D12Renderer.h>
+#else
+	#if USE_VK
+		#include <Renderer/Platform/Vulkan/VulkanRenderer.h>
+	#endif
+#endif
 namespace GuGu {
 	std::shared_ptr<WindowsApplication> globalApplication;
 	LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -48,8 +53,13 @@ namespace GuGu {
 	void WindowsApplication::init()
 	{
 		//create renderer
+#if USE_DX12
 		m_renderer = std::make_shared<D3D12Renderer>();
 		m_renderer->init();
+#else
+		m_renderer = std::make_shared<VulkanRenderer>();
+		m_renderer->init();
+#endif
 	}
 
 	std::vector<std::shared_ptr<WindowsWindow>> WindowsApplication::getPlatformWindows()

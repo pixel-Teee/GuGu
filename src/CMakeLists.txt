@@ -14,11 +14,34 @@ file(GLOB SourceFile "main.cpp"
 
 if(WIN32)
     message("[message]:this platform is windows!")
-    file(GLOB PlatformSourceFile "Window/Platform/Windows/*.h" "Window/Platform/Windows/*.cpp" "Application/Platform/Windows/*.h" "Application/Platform/Windows/*.cpp"
-    "Renderer/Platform/D3D12/*.h" "Renderer/Platform/D3D12/*.cpp" "Core/Platform/Windows/*.h" "Core/Platform/Windows/*.h" "Core/Platform/Windows/*.h" "Core/Platform/Windows/*.cpp")
-    list(APPEND SourceFile ${PlatformSourceFile})
-    add_executable(GuGu WIN32 ${SourceFile})
-    target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer" PRIVATE "Core")
+
+    set(USE_VK 1)
+    set(USE_DX12 0)
+
+    if(USE_DX12) 
+        file(GLOB PlatformSourceFile "Window/Platform/Windows/*.h" "Window/Platform/Windows/*.cpp" "Application/Platform/Windows/*.h" "Application/Platform/Windows/*.cpp"
+        "Renderer/Platform/D3D12/*.h" "Renderer/Platform/D3D12/*.cpp" "Core/Platform/Windows/*.h" "Core/Platform/Windows/*.cpp")
+        list(APPEND SourceFile ${PlatformSourceFile})
+        add_executable(GuGu WIN32 ${SourceFile})
+        target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer" PRIVATE "Core")
+        add_definitions(-DUSE_DX12)
+    elseif(USE_VK)
+         file(GLOB PlatformSourceFile "Window/Platform/Windows/*.h" "Window/Platform/Windows/*.cpp" "Application/Platform/Windows/*.h" "Application/Platform/Windows/*.cpp"
+        "Renderer/Platform/Vulkan/*.h" "Renderer/Platform/Vulkan/*.cpp" "Core/Platform/Windows/*.h" "Core/Platform/Windows/*.cpp")
+        #message(${PlatformSourceFile})
+        find_package(Vulkan REQUIRED)
+        list(APPEND SourceFile ${PlatformSourceFile})
+        add_executable(GuGu WIN32 ${SourceFile})
+        target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer" PRIVATE "Core")
+        target_link_libraries(GuGu Vulkan::Vulkan)
+        add_definitions(-DUSE_VK)
+    endif()
+
+    # file(GLOB PlatformSourceFile "Window/Platform/Windows/*.h" "Window/Platform/Windows/*.cpp" "Application/Platform/Windows/*.h" "Application/Platform/Windows/*.cpp"
+    # "Renderer/Platform/D3D12/*.h" "Renderer/Platform/D3D12/*.cpp" "Core/Platform/Windows/*.h" "Core/Platform/Windows/*.h" "Core/Platform/Windows/*.h" "Core/Platform/Windows/*.cpp")
+    # list(APPEND SourceFile ${PlatformSourceFile})
+    # add_executable(GuGu WIN32 ${SourceFile})
+    # target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer" PRIVATE "Core")
     add_definitions(-DUNICODE -D_UNICODE -DWIN32)
     #if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     #    message("[message]:set msvc utf8 successful!")
