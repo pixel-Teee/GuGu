@@ -4,6 +4,9 @@
 
 #include "vulkan-constants.h"
 
+#include <queue>
+#include <vector>
+
 namespace GuGu{
     class DeviceManager_VK : public DeviceManager{
     public:
@@ -49,9 +52,10 @@ namespace GuGu{
         std::vector<VkImageView> getSwapChainImageViews();
         VkFormat getSwapChainFormat();
 #endif
+        bool createWindowSurface();
     private:
         bool createInstance();
-        bool createWindowSurface();
+
         void installDebugCallback();
         bool pickPhysicalDevice();
         bool findQueueFamilies(VkPhysicalDevice physicalDevice);
@@ -96,6 +100,10 @@ namespace GuGu{
         nvrhi::vulkan::DeviceHandle m_NvrhiDevice;
 
         nvrhi::CommandListHandle m_BarrierCommandList;
+
+        std::queue<nvrhi::EventQueryHandle> m_FramesInFlight;
+        std::vector<nvrhi::EventQueryHandle> m_QueryPool;
+
         VkSemaphore m_PresentSemaphore;
     };
 

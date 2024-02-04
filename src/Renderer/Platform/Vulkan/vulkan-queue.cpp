@@ -196,10 +196,10 @@ namespace GuGu {
         bool Queue::waitCommandList(uint64_t commandListID, uint64_t timeout)
         {
             if (commandListID > m_LastSubmittedID || commandListID == 0)
-            return false;
+                return false;
 
             if (pollCommandList(commandListID))
-            return true;
+                return true;
 
             std::array<const VkSemaphore, 1> semaphores = { trackingSemaphore };
             std::array<uint64_t, 1> waitValues = { commandListID };

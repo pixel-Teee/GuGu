@@ -1,9 +1,8 @@
 #include <Window/Window.h>
-
 #include <Core/GuGuUtf8Str.h>
 
 #ifdef WIN32
-#include <Application/Platform/Windows/WindowsApplication.h>
+    #include <Application/Platform/Windows/WindowsApplication.h>
 #else 
 	#ifdef ANDROID
         #include <Application/Platform/Android/AndroidApplication.h>
@@ -99,6 +98,14 @@ void handle_cmd(android_app *pApp, int32_t cmd) {
             //androidApplication->setAssetManager(pApp->activity->assetManager);
             GuGu::AndroidGuGuFile::setAssetManager(pApp->activity->assetManager);
             break;
+        case APP_CMD_CONTENT_RECT_CHANGED:
+        {
+            // Get the new size
+            auto width  = pApp->contentRect.right - pApp->contentRect.left;
+            auto height = pApp->contentRect.bottom - pApp->contentRect.top;
+            //platform->resize(width, height);
+            break;
+        }
         case APP_CMD_TERM_WINDOW:
             // The window is being destroyed. Use this to clean up your userData to avoid leaking
             // resources.
@@ -111,6 +118,20 @@ void handle_cmd(android_app *pApp, int32_t cmd) {
             //    delete pRenderer;
             //}
             break;
+        case APP_CMD_GAINED_FOCUS:
+        {
+            GuGu_LOGD("get focus");
+            androidApplication->setFocused(true);
+            androidApplication->setNeedToRecreateSwapChain(true);
+            //androidApplication->setAndroidNativeWindow(pApp);
+            break;
+        }
+        case APP_CMD_LOST_FOCUS:
+        {
+            GuGu_LOGD("lost focus");
+            androidApplication->setFocused(false);
+            break;
+        }
         default:
             break;
     }
@@ -125,6 +146,39 @@ void handle_cmd(android_app *pApp, int32_t cmd) {
 //    return 1;
 //}
 
+bool key_event_filter(const GameActivityKeyEvent *event)
+{
+    if (event->source == AINPUT_SOURCE_KEYBOARD)
+    {
+        return true;
+    }
+    return false;
+}
+
+bool motion_event_filter(const GameActivityMotionEvent *event)
+{
+    if ((event->source == AINPUT_SOURCE_MOUSE) ||
+        (event->source == AINPUT_SOURCE_TOUCHSCREEN))
+    {
+        return true;
+    }
+    return false;
+}
+
+void on_content_rect_changed(GameActivity *activity, const ARect *rect)
+{
+    LOGI("ContentRectChanged: {:p}\n", static_cast<void *>(activity));
+    struct android_app *app = reinterpret_cast<struct android_app *>(activity->instance);
+    auto                cmd = APP_CMD_CONTENT_RECT_CHANGED;
+
+    app->contentRect = *rect;
+
+    if (write(app->msgwrite, &cmd, sizeof(cmd)) != sizeof(cmd))
+    {
+        LOGE("Failure writing android_app cmd: {}\n", strerror(errno));
+    }
+}
+
 void android_main(struct android_app *pApp) {
 	//ALOGD("Hello, JNI");
 
@@ -133,16 +187,20 @@ void android_main(struct android_app *pApp) {
     std::shared_ptr<GuGu::AndroidApplication> androidApplication = std::static_pointer_cast<GuGu::AndroidApplication>(application);
     androidApplication->setAndroidApp(pApp);
 
+    android_app_set_key_event_filter(pApp, key_event_filter);
+    android_app_set_motion_event_filter(pApp, motion_event_filter);
+
     pApp->onAppCmd = handle_cmd;
     //pApp->onInputEvent = on_input_event;
+    pApp->activity->callbacks->onContentRectChanged = on_content_rect_changed;
     pApp->userData = reinterpret_cast<void*>(&androidApplication);
 
     //------open hole, similar to setNativeApplicationHandleAndCmdShow------
-    ALOGD("waiting on window surface to be created ready!")
+    GuGu_LOGD("waiting on window surface to be created ready!");
     do{
         if(!GuGu::processAndroidEvents(pApp))
         {
-            ALOGD("android app has been destroyed by the os!");
+            GuGu_LOGD("android app has been destroyed by the os!");
         }
     }while(!androidApplication->getSurfaceReady());
 

@@ -54,7 +54,7 @@ if(WIN32)
 elseif(ANDROID)
     message("[message]:this platform is android!")
     # set(CMAKE_BUILD_TYPE Debug)
-    # find_package(Vulkan REQUIRED)
+    find_package(Vulkan REQUIRED)
     # message("hello")
     file(GLOB PlatformSourceFile "Window/Platform/Android/*.h" "Window/Platform/Android/*.cpp" "Application/Platform/Android/*.h" "Application/Platform/Android/*.cpp"
     "Renderer/Platform/Vulkan/*.h" "Renderer/Platform/Vulkan/*.cpp"
@@ -67,9 +67,9 @@ elseif(ANDROID)
     add_definitions(-DVK_USE_PLATFORM_ANDROID_KHR=TRUE) #fix this
     add_definitions(-DUSE_VK)
     add_definitions(-D_DEBUG=TRUE)
-    find_package(game-activity)
+    find_package(game-activity REQUIRED CONFIG)
     find_library(log-lib log) #ndk library
-    target_link_libraries(GuGu android game-activity::game-activity ${log-lib} vulkan)
+    target_link_libraries(GuGu android game-activity::game-activity_static ${log-lib} vulkan)
     target_compile_features(GuGu PRIVATE cxx_std_17)
 endif()
 

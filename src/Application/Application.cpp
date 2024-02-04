@@ -17,8 +17,11 @@ namespace GuGu{
             //todo:add update
             pumpMessage();
 
-            m_renderer->onRender();
 
+            if(m_focused)
+            {
+                m_renderer->onRender();
+            }
             //m_renderer->onRender();
         }
 
@@ -32,11 +35,23 @@ namespace GuGu{
     {
         m_alreadyExit = value;
     }
-    void Application::init()
+    void Application:: init()
     {
     }
 
     std::shared_ptr<Renderer> Application::getRenderer() {
         return m_renderer;
     }
+
+    void Application::setFocused(bool value) {
+        m_focused = value;
+    }
+
+    bool Application::getFocused() {
+        return m_focused;
+    }
+
+    //void Application::resize(int32_t width, int32_t height) {
+//
+    //}
 }

@@ -68,6 +68,8 @@ namespace GuGu{
 
         //void setAssetManager(AAssetManager*);
 
+        //virtual void onResize(int32_t width, int32_t height) override;
+
     private:
         void initVulkan();
 

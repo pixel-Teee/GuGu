@@ -148,6 +148,9 @@ std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path){
         GuGu::nvrhi::GraphicsAPI api = GuGu::nvrhi::GraphicsAPI::VULKAN;
         m_deviceManager = GuGu::DeviceManager::Create(api); //todo:delete this device manager
         GuGu::DeviceCreationParameters deviceParams;
+#ifdef ANDROID
+        deviceParams.vsyncEnabled = true;
+#endif
 #ifdef _DEBUG
         deviceParams.enableDebugRuntime = false;
         deviceParams.enableNvrhiValidationLayer = false;
@@ -701,6 +704,10 @@ std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path){
             vkDestroyPipelineLayout(m_device, m_trianglePipelineLayout, nullptr);
         });
     }
+
+    //void VulkanRenderer::onResize(int32_t width, int32_t height) {
+    //    //
+    //}
 
     VkPipeline PipelineBuilder::build_pipeline(VkDevice device, VkRenderPass pass) {
         //make viewport state from our stored viewport and scissor.

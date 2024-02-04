@@ -14,6 +14,7 @@ namespace GuGu{
     AndroidApplication::AndroidApplication()
     {
         m_surface_initialize_ready = false;
+        m_needToRecreateSwapChain = false;
     }
 
     AndroidApplication::~AndroidApplication() {
@@ -45,6 +46,11 @@ namespace GuGu{
         return globalApplication;
     }
 
+    std::shared_ptr<Application> Application::getApplication()
+    {
+        return globalApplication;
+    }
+
     void AndroidApplication::init() {
         //create renderer and init
         m_renderer = std::make_shared<VulkanRenderer>();
@@ -63,6 +69,18 @@ namespace GuGu{
     AAssetManager *AndroidApplication::getAssetManager() {
         return m_assetManager;
     }
+
+    void AndroidApplication::setNeedToRecreateSwapChain(bool value) {
+        m_needToRecreateSwapChain = value;
+    }
+
+    bool AndroidApplication::getNeedToRecreateSwapChainFlag() {
+        return m_needToRecreateSwapChain;
+    }
+
+    //void AndroidApplication::resize(int32_t width, int32_t height) {
+    //    m_renderer->onResize(width, height);
+    //}
 
 
     std::shared_ptr<Application> CreateApplicationFactory()

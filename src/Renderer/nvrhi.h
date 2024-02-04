@@ -1710,6 +1710,8 @@ namespace GuGu{
 
         typedef RefCountPtr<IGraphicsPipeline> GraphicsPipelineHandle;
 
+        class IEventQuery : public IResource { };
+        typedef RefCountPtr<IEventQuery> EventQueryHandle;
 
         struct VertexBufferBinding
         {
@@ -1981,11 +1983,11 @@ namespace GuGu{
            virtual InputLayoutHandle createInputLayout(const VertexAttributeDesc* d, uint32_t attributeCount, IShader* vertexShader) = 0;
 
            //// Event queries
-           //virtual EventQueryHandle createEventQuery() = 0;
-           //virtual void setEventQuery(IEventQuery* query, CommandQueue queue) = 0;
+           virtual EventQueryHandle createEventQuery() = 0;
+           virtual void setEventQuery(IEventQuery* query, CommandQueue queue) = 0;
            //virtual bool pollEventQuery(IEventQuery* query) = 0;
-           //virtual void waitEventQuery(IEventQuery* query) = 0;
-           //virtual void resetEventQuery(IEventQuery* query) = 0;
+           virtual void waitEventQuery(IEventQuery* query) = 0;
+           virtual void resetEventQuery(IEventQuery* query) = 0;
 
            //// Timer queries - see also begin/endTimerQuery in ICommandList
            //virtual TimerQueryHandle createTimerQuery() = 0;

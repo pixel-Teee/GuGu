@@ -38,6 +38,7 @@ namespace GuGu{
         bool enableRayTracingExtensions = false;//for vulkan
         nvrhi::Format swapChainFormat = nvrhi::Format::RGBA8_UNORM;
         uint32_t swapChainSampleCount = 1;
+        uint32_t maxFramesInFlight = 2;
         //index of the adapter(dx11, dx12) or physical device(vk) on which to initialize the device
         //negative values mean automatic detection
         //the order of indices matches that returned by DeviceManager::EnumerateAdapters

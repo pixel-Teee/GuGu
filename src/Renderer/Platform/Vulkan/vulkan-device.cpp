@@ -385,6 +385,12 @@ namespace GuGu{
 #ifdef WIN32
                 PFN_vkSetDebugUtilsObjectNameEXT vkSetDebugUtilsObjectNameEXT = (PFN_vkSetDebugUtilsObjectNameEXT)vkGetInstanceProcAddr(instance, "vkSetDebugUtilsObjectNameEXT");
                 vkSetDebugUtilsObjectNameEXT(device, &info);
+#else
+#if ANDROID
+                //PFN_vkSetDebugUtilsObjectNameEXT vkSetDebugUtilsObjectNameEXT = (PFN_vkSetDebugUtilsObjectNameEXT)vkGetInstanceProcAddr(instance, "vkSetDebugUtilsObjectNameEXT");
+                //VkResult result = vkSetDebugUtilsObjectNameEXT(device, &info);
+                //VK_CHECK(result);
+#endif
 #endif
             }
         }

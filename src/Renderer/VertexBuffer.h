@@ -202,7 +202,7 @@ namespace GuGu {
         }
 
         void BackBufferResizing() override {
-
+            m_Pipeline = nullptr;
         }
 
         void Render(nvrhi::IFramebuffer *framebuffer) override {

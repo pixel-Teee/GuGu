@@ -405,6 +405,11 @@ namespace GuGu{
                 .flags = 0,
                 .window = androidWindow->getNativeHandle()};
 
+        if(m_windowSurface != VK_NULL_HANDLE) {
+            vkDestroySurfaceKHR(m_VulkanInstance, m_windowSurface, nullptr);
+            m_windowSurface = VK_NULL_HANDLE;
+        }
+
         VK_CHECK(vkCreateAndroidSurfaceKHR(m_VulkanInstance, &create_info,
                                            nullptr /* pAllocator */, &m_windowSurface));
 #else 
@@ -971,6 +976,7 @@ namespace GuGu{
 #if ANDROID
         std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
         std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
+
         int32_t height  = ANativeWindow_getHeight(androidWindow->getNativeHandle());
         int32_t width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
 #else 
@@ -1131,8 +1137,8 @@ namespace GuGu{
 
     void DeviceManager_VK::BeginFrame() {
 
-        VK_CHECK(vkAcquireNextImageKHR(m_VulkanDevice, m_SwapChain, std::numeric_limits<uint64_t>::max(), m_PresentSemaphore,
-                              VK_NULL_HANDLE, &m_SwapChainIndex));
+        VkResult result = vkAcquireNextImageKHR(m_VulkanDevice, m_SwapChain, std::numeric_limits<uint64_t>::max(), m_PresentSemaphore,
+                              VK_NULL_HANDLE, &m_SwapChainIndex);
 
         //assert(res == VK_SUCCESS);
 
@@ -1180,48 +1186,48 @@ namespace GuGu{
         //const vk::Result res = m_PresentQueue.presentKHR(&info);
         //assert(res == vk::Result::eSuccess || res == vk::Result::eErrorOutOfDateKHR);
 
-        vkQueueWaitIdle(m_PresentQueue);
+         vkQueueWaitIdle(m_PresentQueue);
 
-//        if (m_DeviceParams.enableDebugRuntime)
-//        {
-//            // according to vulkan-tutorial.com, "the validation layer implementation expects
-//            // the application to explicitly synchronize with the GPU"
-//            m_PresentQueue.waitIdle();
-//        }
-//        else
-//        {
-//#ifndef _WIN32
-//            if (m_DeviceParams.vsyncEnabled)
-//            {
-//                m_PresentQueue.waitIdle();
-//            }
-//#endif
-//
-//            while (m_FramesInFlight.size() > m_DeviceParams.maxFramesInFlight)
-//            {
-//                auto query = m_FramesInFlight.front();
-//                m_FramesInFlight.pop();
-//
-//                m_NvrhiDevice->waitEventQuery(query);
-//
-//                m_QueryPool.push_back(query);
-//            }
-//
-//            nvrhi::EventQueryHandle query;
-//            if (!m_QueryPool.empty())
-//            {
-//                query = m_QueryPool.back();
-//                m_QueryPool.pop_back();
-//            }
-//            else
-//            {
-//                query = m_NvrhiDevice->createEventQuery();
-//            }
-//
-//            m_NvrhiDevice->resetEventQuery(query);
-//            m_NvrhiDevice->setEventQuery(query, nvrhi::CommandQueue::Graphics);
-//            m_FramesInFlight.push(query);
-//        }
+        if (m_deviceParams.enableDebugRuntime)
+        {
+            // according to vulkan-tutorial.com, "the validation layer implementation expects
+            // the application to explicitly synchronize with the GPU"
+            vkQueueWaitIdle(m_PresentQueue);
+        }
+        else
+        {
+#ifndef WIN32
+            if (m_deviceParams.vsyncEnabled)
+            {
+                vkQueueWaitIdle(m_PresentQueue);
+            }
+#endif
+
+            while (m_FramesInFlight.size() > m_deviceParams.maxFramesInFlight)
+            {
+                auto query = m_FramesInFlight.front();
+                m_FramesInFlight.pop();
+
+                m_NvrhiDevice->waitEventQuery(query);
+
+                m_QueryPool.push_back(query);
+            }
+
+            nvrhi::EventQueryHandle query;
+            if (!m_QueryPool.empty())
+            {
+                query = m_QueryPool.back();
+                m_QueryPool.pop_back();
+            }
+            else
+            {
+                query = m_NvrhiDevice->createEventQuery();
+            }
+
+            m_NvrhiDevice->resetEventQuery(query);
+            m_NvrhiDevice->setEventQuery(query, nvrhi::CommandQueue::Graphics);
+            m_FramesInFlight.push(query);
+        }
     }
 
 

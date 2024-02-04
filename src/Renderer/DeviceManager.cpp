@@ -6,6 +6,8 @@
 #include <Application/Platform/Android/AndroidApplication.h>
 #include <Window/Platform/Android/AndroidWindow.h>
 #include <game-activity/native_app_glue/android_native_app_glue.h>//native window
+#include <Renderer/Platform/Vulkan/DeviceManager_VK.h>
+
 #else
 #ifdef WIN32
 #include <Application/Platform/Windows/WindowsApplication.h>
@@ -178,17 +180,18 @@ namespace GuGu{
 
     void DeviceManager::RunMessageLoop() {
         //todo:record previous frame time stamp
-
+        UpdateWindowSize();
         AnimateRenderPresent();
     }
 
     void DeviceManager::AnimateRenderPresent() {
 
-        Animate(5.0f);
+         Animate(5.0f);
 
-        Render();//todo:fix this
+         Render();//todo:fix this
 
-        Present();
+         Present();
+
 
         ++m_FrameIndex;
     }
@@ -235,12 +238,15 @@ namespace GuGu{
         int width = 0;
         int height = 0;
         //glfwGetWindowSize(m_Window, &width, &height);
+        bool needToRecreateSwapChain = false;
 #ifdef ANDROID
         std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
         std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
 
         height = ANativeWindow_getHeight(androidWindow->getNativeHandle());
         width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
+
+        needToRecreateSwapChain = androidApplication->getNeedToRecreateSwapChainFlag();
 #else
         std::shared_ptr<WindowsApplication> windowsApplication = WindowsApplication::getApplication();
         std::shared_ptr<WindowsWindow> windowsWindow = windowsApplication->getPlatformWindows()[0]; //todo:fix this
@@ -254,19 +260,39 @@ namespace GuGu{
 
 #endif
 
-        if (width == 0 || height == 0)
+        if (width <= 0 || height <= 0)
         {
             // window is minimized
             //m_windowVisible = false;
+#ifdef ANDROID
+            androidApplication->setFocused(false);
+#else
+#if WIN32
+            windowsApplication->setFocused(false);
+#endif
+#endif
             return;
         }
 
         //m_windowVisible = true;
+        //androidApplication->setFocused(true);
+
+        //note::android platform with and height will be same, but need to recreate swap chain and surface
+        if(m_deviceParams.backBufferHeight == height && m_deviceParams.backBufferWidth == width && needToRecreateSwapChain) //note:android platform handle
+        {
+            //when android resume app, it will destroy surface view, we need to recreate vulkan surface
+#ifdef ANDROID
+            DeviceManager_VK* vkDevice = static_cast<DeviceManager_VK*>(this);
+            vkDevice->createWindowSurface();
+#endif
+        }
 
         if (int(m_deviceParams.backBufferWidth) != width ||
-            int(m_deviceParams.backBufferHeight) != height
-            ) //todo:fix this
+            int(m_deviceParams.backBufferHeight) != height || needToRecreateSwapChain) //todo:fix this
         {
+#ifdef ANDROID
+            androidApplication->setNeedToRecreateSwapChain(false);
+#endif
             // window is not minimized, and the size has changed
 
             BackBufferResizing();

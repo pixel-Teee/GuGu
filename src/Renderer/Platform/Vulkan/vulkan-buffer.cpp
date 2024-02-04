@@ -455,8 +455,6 @@ namespace GuGu{
             // buffer->barrier(cmd, vk::PipelineStageFlagBits::eTransfer, vk::AccessFlagBits::eTransferRead);
         }
 
-
-
         void CommandList::copyBuffer(IBuffer* _dest, uint64_t destOffsetBytes,
                                      IBuffer* _src, uint64_t srcOffsetBytes,
                                      uint64_t dataSizeBytes)

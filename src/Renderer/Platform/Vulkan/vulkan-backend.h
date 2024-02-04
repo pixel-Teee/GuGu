@@ -522,6 +522,13 @@ namespace GuGu{
         template <typename T>
         using BindingVector = static_vector<T, c_MaxBindingLayouts>;
 
+        class EventQuery : public RefCounter<IEventQuery>
+        {
+        public:
+            CommandQueue queue = CommandQueue::Graphics;
+            uint64_t commandListID = 0;
+        };
+
         class GraphicsPipeline : public RefCounter<IGraphicsPipeline>
         {
         public:
@@ -633,11 +640,11 @@ namespace GuGu{
             InputLayoutHandle createInputLayout(const VertexAttributeDesc* d, uint32_t attributeCount, IShader* vertexShader) override;
 //
             //// event queries
-            //EventQueryHandle createEventQuery() override;
-            //void setEventQuery(IEventQuery* query, CommandQueue queue) override;
+            EventQueryHandle createEventQuery() override;
+            void setEventQuery(IEventQuery* query, CommandQueue queue) override;
             //bool pollEventQuery(IEventQuery* query) override;
-            //void waitEventQuery(IEventQuery* query) override;
-            //void resetEventQuery(IEventQuery* query) override;
+            void waitEventQuery(IEventQuery* query) override;
+            void resetEventQuery(IEventQuery* query) override;
 //
             //// timer queries
             //TimerQueryHandle createTimerQuery() override;
