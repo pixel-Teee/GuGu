@@ -192,7 +192,7 @@ namespace GuGu{
 
          Present();
 
-
+        GetDevice()->runGarbageCollection();
         ++m_FrameIndex;
     }
 

@@ -364,6 +364,15 @@ namespace GuGu{
             waitQueue.addWaitSemaphore(semaphore, value);
         }
 
+        void Device::runGarbageCollection() {
+            for (auto& m_Queue : m_Queues)
+            {
+                if (m_Queue)
+                {
+                    m_Queue->retireCommandBuffers();
+                }
+            }
+        }
 
         void VulkanContext::nameVKObject(const void *handle, VkObjectType objtype,
                                          const char *name) const {

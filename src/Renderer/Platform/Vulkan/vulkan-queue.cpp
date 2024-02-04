@@ -242,6 +242,27 @@ namespace GuGu {
             m_SignalSemaphoreValues.push_back(value);
         }
 
+        void Queue::retireCommandBuffers() {
+            std::list<TrackedCommandBufferPtr> submissions = std::move(m_CommandBuffersInFlight);
+
+            uint64_t lastFinishedID = updateLastFinishedID();
+
+            for (const TrackedCommandBufferPtr& cmd : submissions)
+            {
+                if (cmd->submissionID <= lastFinishedID)
+                {
+                    cmd->referencedResources.clear();
+                    cmd->referencedStagingBuffers.clear();
+                    cmd->submissionID = 0;
+                    m_CommandBuffersPool.push_back(cmd);
+                }
+                else
+                {
+                    m_CommandBuffersInFlight.push_back(cmd);
+                }
+            }
+        }
+
         void Device::queueSignalSemaphore(CommandQueue executionQueueID, VkSemaphore semaphore,
                                           uint64_t value) {
             Queue& executionQueue = *m_Queues[uint32_t(executionQueueID)];

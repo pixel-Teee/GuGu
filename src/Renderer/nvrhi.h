@@ -2030,7 +2030,7 @@ namespace GuGu{
 
            //// Releases the resources that were referenced in the command lists that have finished executing.
            //// IMPORTANT: Call this method at least once per frame.
-           //virtual void runGarbageCollection() = 0;
+           virtual void runGarbageCollection() = 0;
 
            virtual bool queryFeatureSupport(Feature feature, void* pInfo = nullptr, size_t infoSize = 0) = 0;
 

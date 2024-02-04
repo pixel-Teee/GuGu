@@ -1205,8 +1205,9 @@ namespace GuGu{
             m_CurrentPushConstantsVisibility = pso->pushConstantVisibility;
 //
             //if (arraysAreDifferent(m_CurrentComputeState.bindings, state.bindings) || m_AnyVolatileBufferWrites)
-            if(true) //todo:fix this
+            if(arraysAreDifferent(m_CurrentGraphicsState.bindings, state.bindings) || m_AnyVolatileBufferWrites) //todo:fix this
             {
+                //GuGu_LOGD("volatile buffer write");
                 bindBindingSets(VK_PIPELINE_BIND_POINT_GRAPHICS, pso->pipelineLayout, state.bindings);
             }
 //

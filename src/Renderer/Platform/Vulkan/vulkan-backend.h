@@ -178,6 +178,9 @@ namespace GuGu{
 
             bool pollCommandList(uint64_t commandListID);
             bool waitCommandList(uint64_t commandListID, uint64_t timeout);
+
+            // retire any command buffers that have finished execution from the pending execution list
+            void retireCommandBuffers();
         private:
             const VulkanContext& m_Context;
 
@@ -682,7 +685,7 @@ namespace GuGu{
             uint64_t executeCommandLists(ICommandList* const* pCommandLists, size_t numCommandLists, CommandQueue executionQueue = CommandQueue::Graphics) override;
             //void queueWaitForCommandList(CommandQueue waitQueue, CommandQueue executionQueue, uint64_t instance) override;
             //void waitForIdle() override;
-            //void runGarbageCollection() override;
+            void runGarbageCollection() override;
             bool queryFeatureSupport(Feature feature, void* pInfo = nullptr, size_t infoSize = 0) override;
             //FormatSupport queryFormatSupport(Format format) override;
             //Object getNativeQueue(ObjectType objectType, CommandQueue queue) override;

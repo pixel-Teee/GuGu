@@ -149,7 +149,7 @@ std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path){
         m_deviceManager = GuGu::DeviceManager::Create(api); //todo:delete this device manager
         GuGu::DeviceCreationParameters deviceParams;
 #ifdef ANDROID
-        deviceParams.vsyncEnabled = true;
+        deviceParams.vsyncEnabled = false;
 #endif
 #ifdef _DEBUG
         deviceParams.enableDebugRuntime = false;
