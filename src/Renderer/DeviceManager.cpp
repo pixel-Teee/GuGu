@@ -277,16 +277,6 @@ namespace GuGu{
         //m_windowVisible = true;
         //androidApplication->setFocused(true);
 
-        //note::android platform with and height will be same, but need to recreate swap chain and surface
-        if(m_deviceParams.backBufferHeight == height && m_deviceParams.backBufferWidth == width && needToRecreateSwapChain) //note:android platform handle
-        {
-            //when android resume app, it will destroy surface view, we need to recreate vulkan surface
-#ifdef ANDROID
-            DeviceManager_VK* vkDevice = static_cast<DeviceManager_VK*>(this);
-            vkDevice->createWindowSurface();
-#endif
-        }
-
         if (int(m_deviceParams.backBufferWidth) != width ||
             int(m_deviceParams.backBufferHeight) != height || needToRecreateSwapChain) //todo:fix this
         {

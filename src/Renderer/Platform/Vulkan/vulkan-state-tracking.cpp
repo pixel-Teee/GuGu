@@ -394,6 +394,11 @@ namespace GuGu{
             //}
         }
 
+        bool CommandList::anyBarriers() const
+        {
+            return !m_StateTracker.getBufferBarriers().empty() || !m_StateTracker.getTextureBarriers().empty();
+        }
+
         void CommandList::setTextureState(ITexture* _texture, TextureSubresourceSet subresources, ResourceStates stateBits)
         {
             Texture* texture = checked_cast<Texture*>(_texture);

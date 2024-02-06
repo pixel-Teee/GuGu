@@ -543,7 +543,7 @@ namespace GuGu{
                 attachmentDescription2.sType = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2;
                 attachmentDescription2.format = attachmentFormat;
                 attachmentDescription2.samples = t->imageInfo.samples;
-                attachmentDescription2.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+                attachmentDescription2.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
                 attachmentDescription2.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
                 attachmentDescription2.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
                 attachmentDescription2.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
@@ -840,9 +840,9 @@ namespace GuGu{
 //
             //// set up vertex input state
             VkPipelineVertexInputStateCreateInfo vertexInput = {};
+            vertexInput.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
             if (inputLayout)
             {
-                vertexInput.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
                 vertexInput.vertexBindingDescriptionCount = uint32_t(inputLayout->bindingDesc.size());
                 vertexInput.pVertexBindingDescriptions = inputLayout->bindingDesc.data();
                 vertexInput.vertexAttributeDescriptionCount = uint32_t(inputLayout->attributeDesc.size());
@@ -1147,7 +1147,7 @@ namespace GuGu{
             }
 
             //bool anyBarriers = this->anyBarriers();
-            bool anyBarriers = false;//todo:fix this
+            bool anyBarriers = this->anyBarriers();
             bool updatePipeline = false;
 
             if (m_CurrentGraphicsState.pipeline != state.pipeline)
@@ -1185,7 +1185,10 @@ namespace GuGu{
                 rect2D.extent.width = fb->framebufferInfo.width;
                 rect2D.extent.height = fb->framebufferInfo.height;
                 renderPassBeginInfo.renderArea = rect2D;
-                renderPassBeginInfo.clearValueCount = 0;
+                VkClearValue clearValue = {};
+                clearValue.color = { { 0.0f, 0.0f, 0.6, 1.0f } };
+                renderPassBeginInfo.pClearValues = &clearValue;
+                renderPassBeginInfo.clearValueCount = 1;
                 vkCmdBeginRenderPass(m_CurrentCmdBuf->cmdBuf, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 
@@ -1316,6 +1319,23 @@ namespace GuGu{
                 m_CurrentGraphicsState.framebuffer = VK_NULL_HANDLE;
                 //m_CurrentMeshletState.framebuffer = nullptr;
             }
+        }
+
+        void CommandList::draw(const DrawArguments& args)
+        {
+            assert(m_CurrentCmdBuf);
+
+            updateGraphicsVolatileBuffers();
+
+            vkCmdDraw(m_CurrentCmdBuf->cmdBuf, args.vertexCount,
+                      args.instanceCount,
+                      args.startVertexLocation,
+                      args.startInstanceLocation);
+
+            //m_CurrentCmdBuf->cmdBuf.draw(args.vertexCount,
+            //                             args.instanceCount,
+            //                             args.startVertexLocation,
+            //                             args.startInstanceLocation);
         }
 
         //void CommandList::updateGraphicsVolatileBuffers()

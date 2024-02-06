@@ -149,11 +149,11 @@ std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path){
         m_deviceManager = GuGu::DeviceManager::Create(api); //todo:delete this device manager
         GuGu::DeviceCreationParameters deviceParams;
 #ifdef ANDROID
-        deviceParams.vsyncEnabled = false;
+        deviceParams.vsyncEnabled = true;
 #endif
 #ifdef _DEBUG
-        deviceParams.enableDebugRuntime = false;
-        deviceParams.enableNvrhiValidationLayer = false;
+        deviceParams.enableDebugRuntime = true;
+        deviceParams.enableNvrhiValidationLayer = true;
 #endif
         GuGuUtf8Str windowTitle = "VulkanApp";
         if(!m_deviceManager->CreateWindowDeviceAndSwapChain(deviceParams, windowTitle))

@@ -750,7 +750,7 @@ namespace GuGu{
             //void setPushConstants(const void* data, size_t byteSize) override;
 //
             void setGraphicsState(const GraphicsState& state) override;
-            //void draw(const DrawArguments& args) override;
+            void draw(const DrawArguments& args) override;
             void drawIndexed(const DrawArguments& args) override;
             //void drawIndirect(uint32_t offsetBytes, uint32_t drawCount) override;
             //void drawIndexedIndirect(uint32_t offsetBytes, uint32_t drawCount) override;
@@ -858,7 +858,7 @@ namespace GuGu{
 //
             void requireTextureState(ITexture* texture, TextureSubresourceSet subresources, ResourceStates state);
             void requireBufferState(IBuffer* buffer, ResourceStates state);
-            //bool anyBarriers() const;
+            bool anyBarriers() const;
 //
             //void buildTopLevelAccelStructInternal(AccelStruct* as, VkDeviceAddress instanceData, size_t numInstances, rt::AccelStructBuildFlags buildFlags, uint64_t currentVersion);
 //

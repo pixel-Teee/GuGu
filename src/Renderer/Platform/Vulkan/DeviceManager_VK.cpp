@@ -286,11 +286,17 @@ namespace GuGu{
     void DeviceManager_VK::DestroyDeviceAndSwapChain() {
         destroySwapChain();
 
-        if(m_PresentSemaphore)
+        for(size_t i = 0; i < m_PresentSemaphores.size(); ++i)
         {
-            vkDestroySemaphore(m_VulkanDevice, m_PresentSemaphore, nullptr);//todo:fix this
-            m_PresentSemaphore = VK_NULL_HANDLE;
+            if(m_PresentSemaphores[i])
+            {
+                vkDestroySemaphore(m_VulkanDevice, m_PresentSemaphores[i], nullptr);//todo:fix this
+                m_PresentSemaphores[i] = VK_NULL_HANDLE;
+                vkDestroySemaphore(m_VulkanDevice, m_RenderFinishedSemaphores[i], nullptr);//todo:fix this
+                m_RenderFinishedSemaphores[i] = VK_NULL_HANDLE;
+            }
         }
+
         m_BarrierCommandList = nullptr;
         m_NvrhiDevice = nullptr;
         m_rendererString.clear();
@@ -896,10 +902,18 @@ namespace GuGu{
         //todo:create command list
         m_BarrierCommandList = m_NvrhiDevice->createCommandList();
 
-        //todo:create present semaphore
+        m_PresentSemaphores.resize(m_deviceParams.maxFramesInFlight);
+        m_RenderFinishedSemaphores.resize(m_deviceParams.maxFramesInFlight);
         VkSemaphoreCreateInfo semaphoreCreateInfo{};
         semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-        vkCreateSemaphore(m_VulkanDevice, &semaphoreCreateInfo, nullptr, &m_PresentSemaphore);
+        for(size_t i = 0; i < m_PresentSemaphores.size(); ++i)
+        {
+            //todo:create present semaphore
+
+            vkCreateSemaphore(m_VulkanDevice, &semaphoreCreateInfo, nullptr, &m_PresentSemaphores[i]);
+            vkCreateSemaphore(m_VulkanDevice, &semaphoreCreateInfo, nullptr, &m_RenderFinishedSemaphores[i]);
+        }
+
         return true;
     };
 #if 1
@@ -967,7 +981,7 @@ namespace GuGu{
         return new DeviceManager_VK();
     }
     bool DeviceManager_VK::createSwapChain() {
-        destroySwapChain();
+        //destroySwapChain();
 
         m_SwapChainFormat.format = nvrhi::vulkan::convertFormat(m_deviceParams.swapChainFormat);
         m_SwapChainFormat.colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
@@ -1137,12 +1151,12 @@ namespace GuGu{
 
     void DeviceManager_VK::BeginFrame() {
 
-        VkResult result = vkAcquireNextImageKHR(m_VulkanDevice, m_SwapChain, std::numeric_limits<uint64_t>::max(), m_PresentSemaphore,
+        VkResult result = vkAcquireNextImageKHR(m_VulkanDevice, m_SwapChain, std::numeric_limits<uint64_t>::max(), m_PresentSemaphores[m_framesIndexInFlight],
                               VK_NULL_HANDLE, &m_SwapChainIndex);
 
         //assert(res == VK_SUCCESS);
 
-        m_NvrhiDevice->queueWaitForSemaphore(nvrhi::CommandQueue::Graphics, m_PresentSemaphore, 0);
+        m_NvrhiDevice->queueWaitForSemaphore(nvrhi::CommandQueue::Graphics, m_PresentSemaphores[m_framesIndexInFlight], 0);
     }
 
     nvrhi::ITexture *DeviceManager_VK::GetBackBuffer(uint32_t index) {
@@ -1160,7 +1174,7 @@ namespace GuGu{
     }
 
     void DeviceManager_VK::Present() {
-        m_NvrhiDevice->queueSignalSemaphore(nvrhi::CommandQueue::Graphics, m_PresentSemaphore, 0);
+        m_NvrhiDevice->queueSignalSemaphore(nvrhi::CommandQueue::Graphics, m_RenderFinishedSemaphores[m_framesIndexInFlight], 0);
 
         m_BarrierCommandList->open(); // umm...
         m_BarrierCommandList->close();
@@ -1169,7 +1183,7 @@ namespace GuGu{
         VkPresentInfoKHR info = {};
         info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
         info.waitSemaphoreCount = 1;
-        info.pWaitSemaphores = &m_PresentSemaphore;
+        info.pWaitSemaphores = &m_RenderFinishedSemaphores[m_framesIndexInFlight];
         info.swapchainCount = 1;
         info.pSwapchains = &m_SwapChain;
         info.pImageIndices = &m_SwapChainIndex;
@@ -1186,7 +1200,7 @@ namespace GuGu{
         //const vk::Result res = m_PresentQueue.presentKHR(&info);
         //assert(res == vk::Result::eSuccess || res == vk::Result::eErrorOutOfDateKHR);
 
-         vkQueueWaitIdle(m_PresentQueue);
+         //vkQueueWaitIdle(m_PresentQueue);
 
         if (m_deviceParams.enableDebugRuntime)
         {
@@ -1228,6 +1242,8 @@ namespace GuGu{
             m_NvrhiDevice->setEventQuery(query, nvrhi::CommandQueue::Graphics);
             m_FramesInFlight.push(query);
         }
+
+        m_framesIndexInFlight = (m_framesIndexInFlight + 1) % m_deviceParams.maxFramesInFlight;
     }
 
 

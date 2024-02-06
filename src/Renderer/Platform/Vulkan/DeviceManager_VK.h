@@ -31,6 +31,7 @@ namespace GuGu{
             if (m_VulkanDevice)
             {
                 destroySwapChain();
+                createWindowSurface();
                 createSwapChain();
             }
         }
@@ -104,7 +105,9 @@ namespace GuGu{
         std::queue<nvrhi::EventQueryHandle> m_FramesInFlight;
         std::vector<nvrhi::EventQueryHandle> m_QueryPool;
 
-        VkSemaphore m_PresentSemaphore;
+        std::vector<VkSemaphore> m_PresentSemaphores;
+        std::vector<VkSemaphore> m_RenderFinishedSemaphores;
+        uint64_t m_framesIndexInFlight = 0;
     };
 
 }
