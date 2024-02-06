@@ -1154,9 +1154,10 @@ namespace GuGu{
         VkResult result = vkAcquireNextImageKHR(m_VulkanDevice, m_SwapChain, std::numeric_limits<uint64_t>::max(), m_PresentSemaphores[m_framesIndexInFlight],
                               VK_NULL_HANDLE, &m_SwapChainIndex);
 
-        //assert(res == VK_SUCCESS);
+        assert(result == VK_SUCCESS);
 
         m_NvrhiDevice->queueWaitForSemaphore(nvrhi::CommandQueue::Graphics, m_PresentSemaphores[m_framesIndexInFlight], 0);
+        //m_NvrhiDevice->queueSignalSemaphore(nvrhi::CommandQueue::Graphics, m_RenderFinishedSemaphores[m_framesIndexInFlight], 0);
     }
 
     nvrhi::ITexture *DeviceManager_VK::GetBackBuffer(uint32_t index) {

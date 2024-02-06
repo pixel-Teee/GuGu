@@ -152,8 +152,8 @@ std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path){
         deviceParams.vsyncEnabled = true;
 #endif
 #ifdef _DEBUG
-        deviceParams.enableDebugRuntime = true;
-        deviceParams.enableNvrhiValidationLayer = true;
+        deviceParams.enableDebugRuntime = false;
+        deviceParams.enableNvrhiValidationLayer = false;
 #endif
         GuGuUtf8Str windowTitle = "VulkanApp";
         if(!m_deviceManager->CreateWindowDeviceAndSwapChain(deviceParams, windowTitle))

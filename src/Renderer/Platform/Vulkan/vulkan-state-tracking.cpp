@@ -136,6 +136,7 @@ namespace GuGu{
                bufferMemoryBarrier.offset = 0;
                bufferMemoryBarrier.size = buffer->desc.byteSize;
 
+               bufferBarriers.push_back(bufferMemoryBarrier);
                //bufferBarriers.push_back(vk::BufferMemoryBarrier()
                //                                 .setSrcAccessMask(before.accessMask)
                //                                 .setDstAccessMask(after.accessMask)

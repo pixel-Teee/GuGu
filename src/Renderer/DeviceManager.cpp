@@ -192,8 +192,8 @@ namespace GuGu{
 
          Present();
 
-        GetDevice()->runGarbageCollection();
-        ++m_FrameIndex;
+         GetDevice()->runGarbageCollection();
+         ++m_FrameIndex;
     }
 
     void DeviceManager::Render() {
