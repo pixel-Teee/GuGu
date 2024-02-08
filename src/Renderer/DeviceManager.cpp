@@ -182,7 +182,7 @@ namespace GuGu{
         //todo:record previous frame time stamp
 #ifndef ANDROID
         //note:android have bug
-        //UpdateWindowSize();
+        UpdateWindowSize();
 #endif
         AnimateRenderPresent();
     }
@@ -255,7 +255,7 @@ namespace GuGu{
         std::shared_ptr<WindowsWindow> windowsWindow = windowsApplication->getPlatformWindows()[0]; //todo:fix this
 
         RECT rect;
-        if (GetWindowRect(windowsWindow->getNativeWindowHandle(), &rect))
+        if (GetClientRect(windowsWindow->getNativeWindowHandle(), &rect))
         {
             width = rect.right - rect.left;
             height = rect.bottom - rect.top;
@@ -290,7 +290,6 @@ namespace GuGu{
 
             BackBufferResizing();
 
-            //android bug
 
             m_deviceParams.backBufferWidth = width;
             m_deviceParams.backBufferHeight = height;
