@@ -2,6 +2,7 @@
 
 namespace GuGu {
 	class Renderer;
+	class Timer;
 	class Application {
 	public:
 		Application();
@@ -23,8 +24,17 @@ namespace GuGu {
         static std::shared_ptr<Application> getApplication();
 
         bool getFocused();
+
+        std::shared_ptr<Timer> getTimer();
+
+		void calculateFrameStats();
 	protected:
 		std::shared_ptr<Renderer> m_renderer;
+
+		std::shared_ptr<Timer> m_timer;
+
+		float fps = 0;//one seconds's total frame
+		float mspf = 0;//one frame's time
 	private:
 		bool m_alreadyExit;
 

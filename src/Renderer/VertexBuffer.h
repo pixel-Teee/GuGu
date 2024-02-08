@@ -199,7 +199,8 @@ namespace GuGu {
         }
 
         void Animate(float seconds) override {
-            m_Rotation += 0.05f;
+            GuGu_LOGD("%f", seconds);
+            m_Rotation += seconds;
         }
 
         void BackBufferResizing() override {

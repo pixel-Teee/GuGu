@@ -16,6 +16,8 @@
 #endif
 #endif
 
+#include <Core/Timer.h>
+
 namespace GuGu{
 
     static const struct
@@ -189,7 +191,9 @@ namespace GuGu{
 
     void DeviceManager::AnimateRenderPresent() {
 
-         Animate(5.0f);
+         std::shared_ptr<Application> application = Application::getApplication();
+
+         Animate(application->getTimer()->GetDeltaTime());
 
          Render();//todo:fix this
 

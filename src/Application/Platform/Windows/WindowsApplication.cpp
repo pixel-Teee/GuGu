@@ -71,6 +71,11 @@ namespace GuGu {
 	{
 		return globalApplication;
 	}
+
+	std::shared_ptr<Application> Application::getApplication()
+	{
+		return globalApplication;
+	}
 	std::shared_ptr<Application> CreateApplicationFactory()
 	{
 		globalApplication = std::make_shared<WindowsApplication>();

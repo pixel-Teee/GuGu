@@ -4,10 +4,13 @@
 
 #include "Renderer/Renderer.h"
 
+#include <Core/Timer.h>
+
 namespace GuGu{
     Application::Application()
     {
         m_alreadyExit = false;
+        m_timer = CreateTimerFactory();
     }
     void Application::Run()
     {
@@ -17,6 +20,8 @@ namespace GuGu{
             //todo:add update
             pumpMessage();
 
+            m_timer->Tick();
+            calculateFrameStats();
 
             if(m_focused)
             {
@@ -49,6 +54,27 @@ namespace GuGu{
 
     bool Application::getFocused() {
         return m_focused;
+    }
+
+    std::shared_ptr<Timer> Application::getTimer() {
+        return m_timer;
+    }
+
+    void Application::calculateFrameStats()
+    {
+        static int32_t frameCnt = 0;
+        static float timeElapsed = 0.0f;
+
+        ++frameCnt;
+
+        if (m_timer->GetTotalTime() - timeElapsed >= 1.0f)
+        {
+            float fps = (float)frameCnt;
+            float mfps = 1000.0f / fps;
+
+            frameCnt = 0;
+            timeElapsed += 1.0f;
+        }
     }
 
     //void Application::resize(int32_t width, int32_t height) {
