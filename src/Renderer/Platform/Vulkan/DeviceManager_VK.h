@@ -31,7 +31,7 @@ namespace GuGu{
             if (m_VulkanDevice)
             {
                 destroySwapChain();
-                createWindowSurface();
+                //createWindowSurface();
                 createSwapChain();
             }
         }

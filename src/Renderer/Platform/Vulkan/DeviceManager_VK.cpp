@@ -987,27 +987,8 @@ namespace GuGu{
         m_SwapChainFormat.colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
         //todo:add more logic
 
-#if ANDROID
-        std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
-        std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
-
-        int32_t height  = ANativeWindow_getHeight(androidWindow->getNativeHandle());
-        int32_t width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
-#else 
-    #if WIN32
-        std::shared_ptr<WindowsApplication> windowsApplication = WindowsApplication::getApplication();
-        std::shared_ptr<WindowsWindow> windowsWindow = windowsApplication->getPlatformWindows()[0]; //todo:fix this
-
-        int32_t width = 0;
-        int32_t height = 0;
-        RECT rect;
-        if (GetClientRect(windowsWindow->getNativeWindowHandle(), &rect))
-        {
-            width = rect.right - rect.left;
-            height = rect.bottom - rect.top;
-        }
-    #endif
-#endif
+        int32_t height  = m_deviceParams.backBufferHeight;
+        int32_t width = m_deviceParams.backBufferWidth;
 
         //std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
         //std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
@@ -1094,26 +1075,6 @@ namespace GuGu{
             sci.image = image;
 
             //todo:remove these
-#if ANDROID
-            std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
-            std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
-            int32_t height = ANativeWindow_getHeight(androidWindow->getNativeHandle());
-            int32_t width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
-#else 
-            #if WIN32
-            std::shared_ptr<WindowsApplication> windowsApplication = WindowsApplication::getApplication();
-            std::shared_ptr<WindowsWindow> windowsWindow = windowsApplication->getPlatformWindows()[0]; //todo:fix this
-
-            int32_t width = 0;
-            int32_t height = 0;
-            RECT rect;
-            if (GetClientRect(windowsWindow->getNativeWindowHandle(), &rect))
-            {
-                width = rect.right - rect.left;
-                height = rect.bottom - rect.top;
-            }
-            #endif
-#endif
 
             nvrhi::TextureDesc textureDesc;
             //textureDesc.width = m_deviceParams.backBufferWidth;

@@ -180,7 +180,9 @@ namespace GuGu{
 
     void DeviceManager::RunMessageLoop() {
         //todo:record previous frame time stamp
-        UpdateWindowSize();
+#ifndef ANDROID
+        //UpdateWindowSize();
+#endif
         AnimateRenderPresent();
     }
 
@@ -287,8 +289,11 @@ namespace GuGu{
 
             BackBufferResizing();
 
+            //android bug
+
             m_deviceParams.backBufferWidth = width;
             m_deviceParams.backBufferHeight = height;
+
             //m_deviceParams.vsyncEnabled = m_RequestedVSync;
 
             ResizeSwapChain();

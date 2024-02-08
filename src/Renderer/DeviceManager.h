@@ -2,11 +2,11 @@
 
 #include "nvrhi.h"
 
-#include <vector>
 #include <string>
 #include <functional>
 #include <Core/GuGuUtf8Str.h>
 #include <list>
+#include <Renderer/MyMath.h>
 
 namespace GuGu{
     struct DefaultMessageCallback : public nvrhi::IMessageCallback
