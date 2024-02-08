@@ -33,7 +33,7 @@ if(WIN32)
         list(APPEND SourceFile ${PlatformSourceFile})
         add_executable(GuGu WIN32 ${SourceFile})
         target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer" PRIVATE "Core")
-        target_link_libraries(GuGu Vulkan::Vulkan)
+        target_link_libraries(GuGu Vulkan::Vulkan freetype)
         add_definitions(-DUSE_VK)
     endif()
 
@@ -69,7 +69,7 @@ elseif(ANDROID)
     add_definitions(-D_DEBUG=TRUE)
     find_package(game-activity REQUIRED CONFIG)
     find_library(log-lib log) #ndk library
-    target_link_libraries(GuGu android game-activity::game-activity_static ${log-lib} vulkan)
+    target_link_libraries(GuGu android game-activity::game-activity_static ${log-lib} vulkan freetype)
     target_compile_features(GuGu PRIVATE cxx_std_17)
 endif()
 
