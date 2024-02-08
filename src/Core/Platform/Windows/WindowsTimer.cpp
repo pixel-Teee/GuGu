@@ -18,7 +18,7 @@ namespace GuGu {
 	}
 	float WindowsTimer::GetTotalTime() const
 	{
-		return mCurrTime - mBaseTime;
+		return (mCurrTime - mBaseTime) * mSecondsPerCount;
 	}
 	float WindowsTimer::GetDeltaTime() const
 	{
