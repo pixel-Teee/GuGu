@@ -161,7 +161,7 @@ namespace GuGu {
                                                   nvrhi::ResourceStates::IndexBuffer);
 
            //todo:load texture
-           GuGuUtf8Str textureFileName = u8"otto.png";
+           GuGuUtf8Str textureFileName = u8"nvidia-logo.png";
            std::shared_ptr <LoadedTexture> texture = textureCache.LoadTextureFromFile(
                    textureFileName, true, nullptr, m_CommandList);
            m_Texture = texture->texture;
@@ -199,7 +199,7 @@ namespace GuGu {
         }
 
         void Animate(float seconds) override {
-            GuGu_LOGD("%f", seconds);
+            //GuGu_LOGD("%f", seconds);
             m_Rotation += seconds;
         }
 
