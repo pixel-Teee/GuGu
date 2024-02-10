@@ -104,7 +104,7 @@ namespace GuGu{
     }
 
     bool TextureCache::FillTextureData(const std::vector<uint8_t> &fileData,
-                                       const std::shared_ptr <TextureData> &texture,
+                                       const std::shared_ptr<TextureData> &texture,
                                        const GuGuUtf8Str &extension,
                                        const GuGuUtf8Str &mimeType) const {
         int width = 0, height = 0, originalChannels = 0, channels = 0;

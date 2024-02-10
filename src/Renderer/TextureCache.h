@@ -61,7 +61,7 @@ namespace GuGu{
         uint32_t m_MaxTextureSize = 0;
 
         bool m_GenerateMipmaps = true;
-
+    public:
         std::vector<uint8_t> ReadTextureFile(const GuGuUtf8Str& path) const;
         bool FillTextureData(const std::vector<uint8_t>& fileData, const std::shared_ptr<TextureData>& texture, const GuGuUtf8Str& extension, const GuGuUtf8Str& mimeType) const;
         void FinalizeTexture(std::shared_ptr<TextureData> texture, CommonRenderPasses* passes, nvrhi::ICommandList* commandList);

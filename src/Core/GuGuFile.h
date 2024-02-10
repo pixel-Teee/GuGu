@@ -25,4 +25,6 @@ namespace GuGu {
 
 		virtual int32_t getFileSize() = 0;
 	};
+
+	std::shared_ptr<GuGuFile> CreateFileFactory();
 }

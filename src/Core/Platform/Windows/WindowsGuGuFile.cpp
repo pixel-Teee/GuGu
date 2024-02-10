@@ -58,4 +58,9 @@ namespace GuGu {
 		GetFileSizeEx(m_fileHandle, &info);
 		return info.QuadPart;
 	}
+
+	std::shared_ptr<GuGuFile> CreateFileFactory()
+	{
+		return std::make_shared<WindowsGuGuFile>();
+	}
 }

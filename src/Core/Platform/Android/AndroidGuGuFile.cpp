@@ -117,4 +117,9 @@ namespace GuGu{
     AndroidGuGuFile::AndroidGuGuFile() {
         m_usingAssetManager = false;
     }
+
+    std::shared_ptr<GuGuFile> CreateFileFactory()
+    {
+        return std::make_shared<AndroidGuGuFile>();
+    }
 }
