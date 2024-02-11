@@ -15,7 +15,7 @@ namespace GuGu {
 
 		Element();
 
-		Element(ElementType elementType, WidgetGeometry geometry, uint32_t layer);
+		Element(ElementType elementType, WidgetGeometry geometry, uint32_t layer, bool tiling);
 
 		virtual ~Element();
 
@@ -27,5 +27,7 @@ namespace GuGu {
 		WidgetGeometry m_geometry;
 
 		uint32_t m_layer;
+
+		bool m_tiling;
 	};
 }

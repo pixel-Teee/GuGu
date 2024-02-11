@@ -6,12 +6,14 @@ namespace GuGu {
 	Element::Element()
 		: m_elementType(ElementType::Box)
 		, m_layer(0)
+		, m_tiling(false)
 	{
 	}
-	Element::Element(ElementType elementType, WidgetGeometry geometry, uint32_t layer)
+	Element::Element(ElementType elementType, WidgetGeometry geometry, uint32_t layer, bool tiling)
 		: m_elementType(elementType)
 		, m_geometry(geometry)
 		, m_layer(layer)
+		, m_tiling(tiling)
 	{
 	}
 	Element::~Element()

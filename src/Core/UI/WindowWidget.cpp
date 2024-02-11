@@ -24,9 +24,9 @@ namespace GuGu {
 	}
 	void WindowWidget::GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
-		//if (m_windowType != WindowType::NativeWindow)
+		if (m_windowType != WindowType::NativeWindow)
 		{
-			ElementList::addBoxElement(elementList, allocatedGeometry, math::float4(1.0f, 1.0f, 1.0f, 1.0f), m_defaultBrush, layer);
+			ElementList::addBoxElement(elementList, allocatedGeometry, math::float4(1.0f, 1.0f, 1.0f, 1.0f), m_defaultBrush, layer); //background
 		}
 		
 		uint32_t widgetNumbers = getSlotsNumber();

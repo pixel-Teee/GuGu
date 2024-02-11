@@ -17,6 +17,7 @@ namespace GuGu {
 		//	.setAllAddressModes(nvrhi::SamplerAddressMode::Repeat);
 		//m_repeatSeampler = m_device->createSampler(repeatSamplerDesc);
 		std::shared_ptr<Brush> checkerBoard = std::make_shared<Brush>();
+		checkerBoard->m_tiling = true;
 		checkerBoard->m_texturePath = u8"CheckerBoard.png";
 		m_styles.insert({ u8"CheckerBoard", checkerBoard });
 	}

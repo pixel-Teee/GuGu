@@ -20,7 +20,7 @@ namespace GuGu {
 	void ElementList::addBoxElement(ElementList& elementList, const WidgetGeometry& widgetGeometry, math::float4 color, std::shared_ptr<Brush> brush, uint32_t layer)
 	{
 		//generate a box element to element list
-		elementList.m_elements.push_back(std::make_shared<BoxElement>(Element::ElementType::Box, widgetGeometry, color, brush, layer));
+		elementList.m_elements.push_back(std::make_shared<BoxElement>(Element::ElementType::Box, widgetGeometry, color, brush, layer, brush->m_tiling));
 	}
 	void ElementList::generateBatches()
 	{
@@ -51,15 +51,16 @@ namespace GuGu {
 		std::shared_ptr<BoxElement> boxElement = std::static_pointer_cast<BoxElement>(element);
 		math::double2 absolutePosition = boxElement->m_geometry.getAbsolutePosition();
 		math::double2 localSize = boxElement->m_geometry.getLocalSize();
+		//math::double2 localSize = math::double2(200.0f, 200.0f);
 		math::float4 color = boxElement->m_color;
 		std::shared_ptr<Brush> brush = boxElement->m_brush;
-
-		//math::float2 tiling(localSize.x / brush->m_actualSize.x, localSize.y / brush->m_actualSize.x);
-
-		boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x, brush->m_startUV.y, 1.0f, 1.0f), math::float2(0.0f, 0.0f), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
-		boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x + brush->m_sizeUV.x, brush->m_startUV.y + brush->m_sizeUV.y, 1.0f, 1.0f), math::float2(localSize.x, localSize.y), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
-		boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x, brush->m_startUV.y + brush->m_sizeUV.y, 1.0f, 1.0f), math::float2(0.0f, localSize.y), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
-		boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x + brush->m_sizeUV.x, brush->m_startUV.y, 1.0f, 1.0f), math::float2(localSize.x, 0.0f), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		bool tiling = element->m_tiling;
+		math::float2 tile = tiling ?  math::float2(localSize.x / brush->m_actualSize.x, localSize.y / brush->m_actualSize.x) : math::float2(1.0f, 1.0f);
+		//math::float2 tile = tiling ? math::float2(4.0f, 4.0f) : math::float2(1.0f, 1.0f);
+		boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x, brush->m_startUV.y, tile.x, tile.y), math::float2(0.0f, 0.0f), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x + brush->m_sizeUV.x, brush->m_startUV.y + brush->m_sizeUV.y, tile.x, tile.y), math::float2(localSize.x, localSize.y), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x, brush->m_startUV.y + brush->m_sizeUV.y, tile.x, tile.y), math::float2(0.0f, localSize.y), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x + brush->m_sizeUV.x, brush->m_startUV.y, tile.x, tile.y), math::float2(localSize.x, 0.0f), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
 
 		boxBatch->m_indices.emplace_back(0);
 		boxBatch->m_indices.emplace_back(1);

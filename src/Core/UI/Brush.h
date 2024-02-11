@@ -17,5 +17,6 @@ namespace GuGu {
 		math::double2 m_startUV;
 		math::double2 m_sizeUV;
 		math::int2 m_actualSize;
+		bool m_tiling;
 	};
 }

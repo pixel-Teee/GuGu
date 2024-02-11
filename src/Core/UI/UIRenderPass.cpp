@@ -283,11 +283,38 @@ namespace GuGu {
 
 			std::vector<uint8_t> fileData = ReadTextureFile(texturePath);
 			m_textureCache->FillTextureData(fileData, texture, texturePath, "");
-			std::shared_ptr<AtlasedTextureSlot> slot = loadAtlasSlots(texture, brushs[i]);
+			
+			if (!brushs[i]->m_tiling)
+			{
+				std::shared_ptr<AtlasedTextureSlot> slot = loadAtlasSlots(texture, brushs[i]);
 
-			brushs[i]->m_startUV = math::double2((float)(slot->x + 1) / m_atlasSize, (float)(slot->y + 1) / m_atlasSize);
-			brushs[i]->m_sizeUV = math::double2((float)(slot->width - 2) / m_atlasSize, (float)(slot->height - 2) / m_atlasSize);
-			brushs[i]->m_actualSize = math::int2(texture->width, texture->height);
+				brushs[i]->m_startUV = math::double2((float)(slot->x + 1) / m_atlasSize, (float)(slot->y + 1) / m_atlasSize);
+				brushs[i]->m_sizeUV = math::double2((float)(slot->width - 2) / m_atlasSize, (float)(slot->height - 2) / m_atlasSize);
+				brushs[i]->m_actualSize = math::int2(texture->width, texture->height);
+			}
+			else
+			{
+				brushs[i]->m_startUV = math::double2(0.0f, 0.0f);
+				brushs[i]->m_sizeUV = math::double2(1.0f, 1.0f);
+				brushs[i]->m_actualSize = math::int2(texture->width, texture->height);
+
+				const char* dataPointer = reinterpret_cast<const char*>(static_cast<const uint8_t*>(texture->data.data()));
+				nvrhi::TextureDesc textureDesc;
+				textureDesc.format = nvrhi::Format::RGBA8_UNORM;//todo:fix this
+				textureDesc.width = brushs[i]->m_actualSize.x;
+				textureDesc.height = brushs[i]->m_actualSize.y;
+				textureDesc.depth = 1;
+				textureDesc.arraySize = 1;
+				textureDesc.dimension = nvrhi::TextureDimension::Texture2D;
+				textureDesc.mipLevels = 1;
+				textureDesc.debugName = brushs[i]->m_texturePath;//todo:fix this
+				textureDesc.isRenderTarget = true;
+				brushs[i]->m_texture = GetDevice()->createTexture(textureDesc);
+				m_CommandList->beginTrackingTextureState(brushs[i]->m_texture, nvrhi::AllSubresources, nvrhi::ResourceStates::Common);
+				m_CommandList->writeTexture(brushs[i]->m_texture, 0, 0, dataPointer, brushs[i]->m_actualSize.x * 4, 1);
+				m_CommandList->setPermanentTextureState(brushs[i]->m_texture, nvrhi::ResourceStates::ShaderResource);//todo:fix this
+				m_CommandList->commitBarriers();
+			}
 		}
 
 		const char* dataPointer = reinterpret_cast<const char*>(static_cast<const uint8_t*>(m_textureAtlasData.data()));//use this memory to update gpu texture
@@ -307,11 +334,6 @@ namespace GuGu {
 		m_CommandList->writeTexture(m_textureAtlas, 0, 0, dataPointer, m_atlasSize * 4, 1);
 		m_CommandList->setPermanentTextureState(m_textureAtlas, nvrhi::ResourceStates::ShaderResource);//todo:fix this
 		m_CommandList->commitBarriers();
-
-		for (size_t i = 0; i < brushs.size(); ++i)
-		{
-			brushs[i]->m_texture = m_textureAtlas;
-		}
 	}
 	void UIRenderPass::copyRow(const FCopyRowData& copyRowData)
 	{
