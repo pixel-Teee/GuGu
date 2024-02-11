@@ -1,6 +1,7 @@
 #include <pch.h>
 
 #include "Style.h"
+#include "Brush.h"
 
 namespace GuGu {
 	Style::Style()
@@ -15,6 +16,9 @@ namespace GuGu {
 		//	.setAllFilters(false)
 		//	.setAllAddressModes(nvrhi::SamplerAddressMode::Repeat);
 		//m_repeatSeampler = m_device->createSampler(repeatSamplerDesc);
+		std::shared_ptr<Brush> checkerBoard = std::make_shared<Brush>();
+		checkerBoard->m_texturePath = u8"CheckerBoard.png";
+		m_styles.insert({ u8"CheckerBoard", checkerBoard });
 	}
 	Style::~Style()
 	{
@@ -35,5 +39,10 @@ namespace GuGu {
 		{
 			brush.push_back(it.second);
 		}
+	}
+	std::shared_ptr<Style> Style::getStyle()
+	{
+		static std::shared_ptr<Style> styleInsance = std::make_shared<Style>();
+		return styleInsance;
 	}
 }

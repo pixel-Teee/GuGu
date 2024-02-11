@@ -223,7 +223,7 @@ namespace GuGu {
              
              m_CommandList->open();
              
-             //nvrhi::utils::ClearColorAttachment(m_CommandList, framebuffer, 0, nvrhi::Color(0.f));
+             nvrhi::utils::ClearColorAttachment(m_CommandList, framebuffer, 0, nvrhi::Color(0.f));
              
              // Fill out the constant buffer slices for multiple views of the model.
              ConstantBufferEntry modelConstants[c_NumViews];

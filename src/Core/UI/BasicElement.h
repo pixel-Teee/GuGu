@@ -28,5 +28,8 @@ namespace GuGu {
 		math::float2 position;
 		math::float4 color;
 		math::float4 secondaryColor;
+		UIVertex(math::float4 inTextureCoordinate, math::float2 inPosition, math::float4 inColor, math::float4 inSecondaryColor)
+			: textureCoordinate(inTextureCoordinate), position(inPosition), color(inColor), secondaryColor(inSecondaryColor)
+		{}
 	};
 }

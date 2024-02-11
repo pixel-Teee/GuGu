@@ -3,6 +3,7 @@
 namespace GuGu {
 	class Renderer;
 	class Timer;
+	class Window;
 	class Application {
 	public:
 		Application();
@@ -28,6 +29,8 @@ namespace GuGu {
         std::shared_ptr<Timer> getTimer();
 
 		void calculateFrameStats();
+
+		virtual std::shared_ptr<Window> getWindow(uint32_t index);
 	protected:
 		std::shared_ptr<Renderer> m_renderer;
 

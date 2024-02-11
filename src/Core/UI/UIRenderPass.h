@@ -6,6 +6,11 @@ namespace GuGu {
 	class Style;
 	class TextureCache;
 	struct TextureData;
+	class Brush;
+	class WindowWidget;
+	class Widget;
+	class ElementList;
+	class WidgetGeometry;
 	struct AtlasedTextureSlot
 	{
 		uint32_t x;
@@ -42,6 +47,7 @@ namespace GuGu {
 	{
 	public:
 		//UIRenderPass();
+		using IRenderPass::IRenderPass;
 
 		virtual ~UIRenderPass();
 
@@ -54,6 +60,7 @@ namespace GuGu {
 		virtual void BackBufferResizing();
 		
 		virtual void BackBufferResized(const uint32_t width, const uint32_t height, const uint32_t sampleCount);
+
 	private:
 		void initAtlasData();
 		nvrhi::CommandListHandle m_CommandList;
@@ -73,12 +80,12 @@ namespace GuGu {
 		std::list<std::shared_ptr<AtlasedTextureSlot>> m_textureAtlasUsedSlots;
 		std::vector<uint8_t> m_textureAtlasData;
 		std::shared_ptr<TextureCache> m_textureCache;
-		void finalizeTexture(std::shared_ptr<TextureData> texture, nvrhi::ICommandList* commandList);
+		std::shared_ptr<AtlasedTextureSlot> loadAtlasSlots(std::shared_ptr<TextureData> texture, std::shared_ptr<Brush> brush);
 
-		nvrhi::SamplerHandle m_linearWrapSampler;
+		nvrhi::SamplerHandle m_pointWrapSampler;
 		nvrhi::ShaderHandle m_vertexShader;
 		nvrhi::ShaderHandle m_pixelShader;
-		nvrhi::BufferHandle m_constantBuffer;
+
 		nvrhi::InputLayoutHandle m_inputLayout;
 		nvrhi::BindingLayoutHandle m_bindingLayout;
 		nvrhi::BindingSetHandle m_bindingSet;
@@ -87,5 +94,13 @@ namespace GuGu {
 			dm::float4x4 viewProjMatrix;
 			float padding[16 * 3];
 		};
+
+		std::shared_ptr<WindowWidget> m_uiRoot;
+		std::shared_ptr<ElementList> m_elementList;
+		std::vector<nvrhi::BufferHandle> m_VertexBuffers;
+		std::vector<nvrhi::BufferHandle> m_IndexBuffers;
+		std::vector<nvrhi::BufferHandle> m_constantBuffers;
+		void calculateWidgetsFixedSize(std::shared_ptr<Widget> widget);
+		void generateWidgetElement(WidgetGeometry& allocatedWidgetGeometry);
 	};
 }

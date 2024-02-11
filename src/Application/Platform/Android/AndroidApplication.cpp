@@ -81,7 +81,10 @@ namespace GuGu{
     //void AndroidApplication::resize(int32_t width, int32_t height) {
     //    m_renderer->onResize(width, height);
     //}
-
+    std::shared_ptr<Window> AndroidApplication::getWindow(uint32_t index)
+    {
+        return m_window;
+    }
 
     std::shared_ptr<Application> CreateApplicationFactory()
     {

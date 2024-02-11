@@ -13,7 +13,7 @@ namespace GuGu{
 
     }
 
-    void Widget::GenerateElement()
+    void Widget::GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
     {
     }
 
@@ -28,5 +28,17 @@ namespace GuGu{
     math::double2 Widget::getFixedSize()
     {
         return m_fixedSize;
+    }
+    void Widget::setFixedSize(math::double2 fixedSize)
+    {
+        m_fixedSize = fixedSize;
+    }
+    std::shared_ptr<Slot> Widget::getSlot(uint32_t index)
+    {
+        return nullptr;
+    }
+    uint32_t Widget::getSlotsNumber()
+    {
+        return 0;
     }
 }

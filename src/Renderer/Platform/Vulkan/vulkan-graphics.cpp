@@ -543,7 +543,7 @@ namespace GuGu{
                 attachmentDescription2.sType = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2;
                 attachmentDescription2.format = attachmentFormat;
                 attachmentDescription2.samples = t->imageInfo.samples;
-                attachmentDescription2.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+                attachmentDescription2.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
                 attachmentDescription2.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
                 attachmentDescription2.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
                 attachmentDescription2.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
@@ -1185,10 +1185,10 @@ namespace GuGu{
                 rect2D.extent.width = fb->framebufferInfo.width;
                 rect2D.extent.height = fb->framebufferInfo.height;
                 renderPassBeginInfo.renderArea = rect2D;
-                VkClearValue clearValue = {};
-                clearValue.color = { { 0.0f, 0.0f, 0.6, 1.0f } };
-                renderPassBeginInfo.pClearValues = &clearValue;
-                renderPassBeginInfo.clearValueCount = 1;
+                //VkClearValue clearValue = {};
+                //clearValue.color = { { 0.0f, 0.0f, 0.6, 1.0f } };
+                //renderPassBeginInfo.pClearValues = &clearValue;
+                renderPassBeginInfo.clearValueCount = 0;
                 vkCmdBeginRenderPass(m_CurrentCmdBuf->cmdBuf, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 

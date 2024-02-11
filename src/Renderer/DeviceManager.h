@@ -66,6 +66,8 @@ namespace GuGu{
         void RemoveRenderPass(IRenderPass* pController);
 
         void RunMessageLoop();
+
+        const DeviceCreationParameters& getDeviceCreationParameters() const;
     private:
         static DeviceManager* CreateVK();
 

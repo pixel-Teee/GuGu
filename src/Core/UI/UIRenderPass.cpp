@@ -9,8 +9,15 @@
 #include "Brush.h"
 #include "Style.h"
 #include "BasicElement.h"
+#include "ElementList.h"
 
 #include <Core/GuGuFile.h>
+
+#include "WindowWidget.h"
+
+#include <Application/Application.h>
+
+#include "Slot.h"
 
 namespace GuGu {
 
@@ -32,13 +39,16 @@ namespace GuGu {
 	bool UIRenderPass::Init()
 	{
 		m_CommandList = GetDevice()->createCommandList();
+		m_CommandList->open();
 		m_textureCache = std::make_shared<TextureCache>(GetDevice());
+		m_styles = Style::getStyle();
+		initAtlasData();
 		loadStyleTextures();
 
 		auto samplerDesc = nvrhi::SamplerDesc()
-			.setAllFilters(true)
+			.setAllFilters(false)
 			.setAllAddressModes(nvrhi::SamplerAddressMode::Wrap);
-		m_linearWrapSampler = GetDevice()->createSampler(samplerDesc);
+		m_pointWrapSampler = GetDevice()->createSampler(samplerDesc);
 
 		std::shared_ptr <ShaderFactory> shaderFactory = std::make_shared<ShaderFactory>(
 			GetDevice());
@@ -49,10 +59,6 @@ namespace GuGu {
 
 		if (!m_vertexShader || !m_pixelShader)
 			return false;
-
-		m_constantBuffer = GetDevice()->createBuffer(
-			nvrhi::utils::CreateStaticConstantBufferDesc(
-				sizeof(ConstantBufferEntry), "ConstantBuffer").setInitialState(nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(true));
 
 		nvrhi::VertexAttributeDesc attributes[] = {
 			nvrhi::VertexAttributeDesc()
@@ -65,19 +71,19 @@ namespace GuGu {
 			.setName("POSITION0")
 			.setFormat(nvrhi::Format::RG32_FLOAT)
 			.setOffset(0)
-			.setBufferIndex(0)
+			.setBufferIndex(1)
 			.setElementStride(sizeof(UIVertex)),
 			nvrhi::VertexAttributeDesc()
 			.setName("COLOR0")
 			.setFormat(nvrhi::Format::RGBA32_FLOAT)
 			.setOffset(0)
-			.setBufferIndex(0)
+			.setBufferIndex(2)
 			.setElementStride(sizeof(UIVertex)),
 			nvrhi::VertexAttributeDesc()
 			.setName("COLOR1")
 			.setFormat(nvrhi::Format::RGBA32_FLOAT)
 			.setOffset(0)
-			.setBufferIndex(0)
+			.setBufferIndex(3)
 			.setElementStride(sizeof(UIVertex))
 		};
 		m_inputLayout = GetDevice()->createInputLayout(attributes, uint32_t(std::size(attributes)), m_vertexShader);
@@ -91,7 +97,8 @@ namespace GuGu {
 		};
 
 		m_bindingLayout = GetDevice()->createBindingLayout(layoutDesc);
-
+		m_CommandList->close();
+		GetDevice()->executeCommandList(m_CommandList);
 		//nvrhi::BindingSetDesc bindingSetDesc;
 		//bindingSetDesc.bindings = {
 		//	// Note: using viewIndex to construct a buffer range.
@@ -99,7 +106,7 @@ namespace GuGu {
 		//										  nvrhi::BufferRange(
 		//												  sizeof(ConstantBufferEntry),
 		//												  sizeof(ConstantBufferEntry))),
-		//	// Texutre and sampler are the same for all model views.
+		//	// Texture and sampler are the same for all model views.
 		//	nvrhi::BindingSetItem::Texture_SRV(0, m_Texture),
 		//	nvrhi::BindingSetItem::Sampler(0, commonPasses.m_AnisotropicWrapSampler)
 		//};
@@ -110,18 +117,147 @@ namespace GuGu {
 		//	GuGu_LOGD("Couldn't create the binding set or layout");
 		//	return false;
 		//}
-
-		GetDevice()->executeCommandList(m_CommandList);
+		
+		//build ui tree
+		std::shared_ptr<Application> application = Application::getApplication();
+		std::shared_ptr<Window> window = application->getWindow(0);
+		m_uiRoot = std::make_shared<WindowWidget>();
+		m_uiRoot->assocateWithNativeWindow(window);//native window
+		m_elementList = std::make_shared<ElementList>();
 		return true;
 	}
 	void UIRenderPass::Render(nvrhi::IFramebuffer* framebuffer)
 	{
+		const nvrhi::FramebufferInfoEx& fbinfo = framebuffer->getFramebufferInfo();
+		if (!m_pipeline) {
+			nvrhi::GraphicsPipelineDesc psoDesc;
+			psoDesc.VS = m_vertexShader;
+			psoDesc.PS = m_pixelShader;
+			psoDesc.inputLayout = m_inputLayout;
+			psoDesc.bindingLayouts = { m_bindingLayout };
+			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+			psoDesc.renderState.depthStencilState.depthTestEnable = false;
+
+			m_pipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
+		}
+
+		m_CommandList->open();
+
+		//math::float3 cameraPos = math::float3(0.0f, 0.0f, 0.0f);
+		//math::float3 cameraDir = normalize(math::float3(0.0f, 0.0f, 1.0f));
+		//math::float3 cameraUp = math::float3(0.0f, 1.0f, 0.0f);
+		//math::float3 cameraRight = normalize(cross(cameraDir, cameraUp));
+		//cameraUp = normalize(cross(cameraRight, cameraDir));
+		//
+		//math::affine3 worldToView = math::affine3::from_cols(cameraRight, cameraUp, cameraDir, 0.0f);
+		//worldToView = translation(-cameraPos) * worldToView;
+
+		for (size_t i = 0; i < m_IndexBuffers.size(); ++i)
+		{
+			math::float4x4 projMatrix = math::orthoProjD3DStyle(0, fbinfo.width, fbinfo.height, 0, 0, 1);
+
+			//math::affineToHomogeneous(worldToView)
+			ConstantBufferEntry modelConstant;
+			modelConstant.viewProjMatrix = projMatrix;
+
+			m_CommandList->writeBuffer(m_constantBuffers[i], &modelConstant, sizeof(modelConstant));
+
+			nvrhi::BindingSetDesc desc;
+			desc.bindings = {
+				nvrhi::BindingSetItem::ConstantBuffer(0, m_constantBuffers[i]),
+				nvrhi::BindingSetItem::Texture_SRV(0, m_elementList->getBatches()[i]->m_brush->m_texture),
+				nvrhi::BindingSetItem::Sampler(0, m_pointWrapSampler)
+			};
+
+			nvrhi::BindingSetHandle bindingSet;
+			bindingSet = GetDevice()->createBindingSet(desc, m_bindingLayout);
+
+			nvrhi::GraphicsState state;
+			// Pick the right binding set for this view.
+			state.bindings = { bindingSet };
+			state.indexBuffer = { m_IndexBuffers[i], nvrhi::Format::R32_UINT, 0};
+			// Bind the vertex buffers in reverse order to test the NVRHI implementation of binding slots
+			state.vertexBuffers = {
+				{ m_VertexBuffers[i], 1, offsetof(UIVertex, position)},
+				{ m_VertexBuffers[i], 0, offsetof(UIVertex, textureCoordinate)},
+				{ m_VertexBuffers[i], 2, offsetof(UIVertex, color)},
+				{ m_VertexBuffers[i], 3, offsetof(UIVertex, secondaryColor)}
+			};
+			state.pipeline = m_pipeline;
+			state.framebuffer = framebuffer;
+
+			// Construct the viewport so that all viewports form a grid.
+			const float width = float(fbinfo.width);
+			const float height = float(fbinfo.height);
+
+			const nvrhi::Viewport viewport = nvrhi::Viewport(0, width, 0, height, 0.f, 1.f);
+			state.viewport.addViewportAndScissorRect(viewport);
+
+			// Update the pipeline, bindings, and other state.
+			m_CommandList->setGraphicsState(state);
+
+			// Draw the model.
+			nvrhi::DrawArguments args;
+			args.vertexCount = m_elementList->getBatches()[i]->m_indices.size();
+			m_CommandList->drawIndexed(args);
+		}
+		m_CommandList->close();
+		GetDevice()->executeCommandList(m_CommandList);
 	}
 	void UIRenderPass::Animate(float fElapsedTimeSeconds)
 	{
+		calculateWidgetsFixedSize(m_uiRoot);
+
+		m_elementList->clear();
+		
+		math::int2 windowWidthAndHeight = math::int2(GetDeviceManager()->getDeviceCreationParameters().backBufferWidth, GetDeviceManager()->getDeviceCreationParameters().backBufferHeight);
+		
+		WidgetGeometry geometry;
+		geometry.setLocalSize(math::double2(windowWidthAndHeight.x, windowWidthAndHeight.y));
+		generateWidgetElement(geometry);
+		m_elementList->generateBatches();
+		m_VertexBuffers.clear();
+		m_IndexBuffers.clear();
+		//generate vertex and index
+		m_CommandList->open();
+		std::vector<std::shared_ptr<BatchData>> batches = m_elementList->getBatches();
+		for (size_t i = 0; i < batches.size(); ++i)
+		{
+			nvrhi::BufferDesc vertexBufferDesc;
+			vertexBufferDesc.byteSize = sizeof(UIVertex) * batches[i]->m_vertices.size();
+			vertexBufferDesc.isVertexBuffer = true;
+			vertexBufferDesc.debugName = "UIVertexBuffer";
+			vertexBufferDesc.initialState = nvrhi::ResourceStates::CopyDest;
+			m_VertexBuffers.push_back(GetDevice()->createBuffer(vertexBufferDesc));
+
+			m_CommandList->beginTrackingBufferState(m_VertexBuffers[i],
+				nvrhi::ResourceStates::CopyDest);
+			m_CommandList->writeBuffer(m_VertexBuffers[i], batches[i]->m_vertices.data(), sizeof(UIVertex) * batches[i]->m_vertices.size());
+			m_CommandList->setPermanentBufferState(m_VertexBuffers[i],
+				nvrhi::ResourceStates::VertexBuffer);//note:will call end tracking buffer state
+
+			nvrhi::BufferDesc indexBufferDesc;
+			indexBufferDesc.byteSize = sizeof(uint32_t) * batches[i]->m_indices.size();
+			indexBufferDesc.isIndexBuffer = true;
+			indexBufferDesc.debugName = "IndexBuffer";
+			indexBufferDesc.initialState = nvrhi::ResourceStates::CopyDest;
+			m_IndexBuffers.push_back(GetDevice()->createBuffer(indexBufferDesc));
+
+			m_CommandList->beginTrackingBufferState(m_IndexBuffers[i], nvrhi::ResourceStates::CopyDest);
+			m_CommandList->writeBuffer(m_IndexBuffers[i], batches[i]->m_indices.data(), sizeof(uint32_t) * batches[i]->m_indices.size());
+			m_CommandList->setPermanentBufferState(m_IndexBuffers[i],
+				nvrhi::ResourceStates::IndexBuffer);
+
+			m_constantBuffers.push_back(GetDevice()->createBuffer(
+				nvrhi::utils::CreateStaticConstantBufferDesc(
+					sizeof(ConstantBufferEntry), "ConstantBuffer").setInitialState(nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(true)));
+		}
+		m_CommandList->close();
+		GetDevice()->executeCommandList(m_CommandList);
 	}
 	void UIRenderPass::BackBufferResizing()
 	{
+		m_pipeline = nullptr;
 	}
 	void UIRenderPass::BackBufferResized(const uint32_t width, const uint32_t height, const uint32_t sampleCount)
 	{
@@ -147,7 +283,11 @@ namespace GuGu {
 
 			std::vector<uint8_t> fileData = ReadTextureFile(texturePath);
 			m_textureCache->FillTextureData(fileData, texture, texturePath, "");
-			finalizeTexture(texture, m_CommandList.Get());
+			std::shared_ptr<AtlasedTextureSlot> slot = loadAtlasSlots(texture, brushs[i]);
+
+			brushs[i]->m_startUV = math::double2((float)(slot->x + 1) / m_atlasSize, (float)(slot->y + 1) / m_atlasSize);
+			brushs[i]->m_sizeUV = math::double2((float)(slot->width - 2) / m_atlasSize, (float)(slot->height - 2) / m_atlasSize);
+			brushs[i]->m_actualSize = math::int2(texture->width, texture->height);
 		}
 
 		const char* dataPointer = reinterpret_cast<const char*>(static_cast<const uint8_t*>(m_textureAtlasData.data()));//use this memory to update gpu texture
@@ -164,9 +304,14 @@ namespace GuGu {
 		textureDesc.isRenderTarget = true;
 		m_textureAtlas = GetDevice()->createTexture(textureDesc);
 		m_CommandList->beginTrackingTextureState(m_textureAtlas, nvrhi::AllSubresources, nvrhi::ResourceStates::Common);
-		m_CommandList->writeTexture(m_textureAtlas, 0, 0, dataPointer, m_atlasSize, 1);
+		m_CommandList->writeTexture(m_textureAtlas, 0, 0, dataPointer, m_atlasSize * 4, 1);
 		m_CommandList->setPermanentTextureState(m_textureAtlas, nvrhi::ResourceStates::ShaderResource);//todo:fix this
 		m_CommandList->commitBarriers();
+
+		for (size_t i = 0; i < brushs.size(); ++i)
+		{
+			brushs[i]->m_texture = m_textureAtlas;
+		}
 	}
 	void UIRenderPass::copyRow(const FCopyRowData& copyRowData)
 	{
@@ -186,7 +331,7 @@ namespace GuGu {
 		{
 			uint8_t* destPaddingPixelLeft = &start[destRow * destWidth * 4];
 			uint8_t* destPaddingPixelRight = destPaddingPixelLeft + ((copyRowData.rowWidth - 1) * 4);
-#if 1
+#if 0
 			const uint8_t* firstPixel = sourceDataAddr;
 			const uint8_t* lastPixel = sourceDataAddr + ((sourceWidth - 1) * 4);
 			memcpy(destPaddingPixelLeft, firstPixel, 4);
@@ -230,7 +375,7 @@ namespace GuGu {
 			//copy first color row into padding
 			copyRowData.srcRow = 0;
 			copyRowData.destRow = 0;
-#if 1
+#if 0
 			copyRow(copyRowData);
 #else
 			zeroRow(copyRowData);
@@ -251,14 +396,14 @@ namespace GuGu {
 			//copy last color row into padding row for bilinear filtering
 			copyRowData.srcRow = sourceHeight - 1;
 			copyRowData.destRow = slotToCopyTo->height - padding;
-#if 1
+#if 0
 			copyRow(copyRowData);
 #else
 			zeroRow(copyRowData);
 #endif
 		}
 	}
-	void UIRenderPass::finalizeTexture(std::shared_ptr<TextureData> texture, nvrhi::ICommandList* commandList)
+	std::shared_ptr<AtlasedTextureSlot> UIRenderPass::loadAtlasSlots(std::shared_ptr<TextureData> texture, std::shared_ptr<Brush> brush)
 	{
 		const uint32_t width = texture->width;
 		const uint32_t height = texture->height;
@@ -334,5 +479,28 @@ namespace GuGu {
 			//copy data into slot
 			copyDataIntoSlot(newSlot, texture->data);
 		}
+
+		return newSlot;
+	}
+	void UIRenderPass::calculateWidgetsFixedSize(std::shared_ptr<Widget> widget)
+	{
+		uint32_t widgetNumbers = widget->getSlotsNumber();
+		math::double2 size = math::double2(0.0, 0.0);
+		for (size_t i = 0; i < widgetNumbers; ++i)
+		{
+			std::shared_ptr<Slot> childSlot = widget->getSlot(i);
+			if (childSlot)
+			{
+				std::shared_ptr<Widget> childWidget = childSlot->getChildWidget();
+				calculateWidgetsFixedSize(childWidget);
+				size += childWidget->ComputeFixedSize();
+			}
+		}
+
+		widget->setFixedSize(size);
+	}
+	void UIRenderPass::generateWidgetElement(WidgetGeometry& allocatedWidgetGeometry)
+	{
+		m_uiRoot->GenerateElement(*m_elementList, allocatedWidgetGeometry, 0);
 	}
 }

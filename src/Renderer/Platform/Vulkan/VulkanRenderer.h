@@ -51,6 +51,7 @@ namespace GuGu{
     class VulkanSwapChain;
     class DeviceManager;//todo:remove this
     class VertexBuffer;
+    class UIRenderPass;
     class VulkanRenderer : public Renderer
     {
     public:
@@ -128,5 +129,6 @@ namespace GuGu{
         DeviceManager* m_deviceManager;//todo:remove this
 
         std::shared_ptr<VertexBuffer> m_vertexBuffer;
+        std::shared_ptr<UIRenderPass> m_UIRenderPass;
     };
 }

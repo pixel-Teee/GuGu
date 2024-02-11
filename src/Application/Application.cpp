@@ -6,6 +6,8 @@
 
 #include <Core/Timer.h>
 
+#include <Window/Window.h>
+
 namespace GuGu{
     Application::Application()
     {
@@ -75,6 +77,12 @@ namespace GuGu{
             frameCnt = 0;
             timeElapsed += 1.0f;
         }
+    }
+
+    std::shared_ptr<Window> Application::getWindow(uint32_t index)
+    {
+        //check index
+        return nullptr;
     }
 
     //void Application::resize(int32_t width, int32_t height) {

@@ -7,10 +7,11 @@ namespace GuGu {
 	class BoxElement : public Element
 	{
 	public:
-		BoxElement(ElementType elementType, WidgetGeometry geometry, math::float4 color, std::shared_ptr<Brush> brush);
+		BoxElement(ElementType elementType, WidgetGeometry geometry, math::float4 color, std::shared_ptr<Brush> brush, uint32_t layer);
 
 		virtual ~BoxElement();
 
+		friend class ElementList;
 	private:
 		math::float4 m_color;
 

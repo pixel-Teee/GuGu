@@ -35,6 +35,7 @@
 #include <Renderer/nvrhi.h>//todo:remove this
 #include <Renderer/DeviceManager.h>//todo:remove this
 #include "DeviceManager_VK.h"
+#include <Core/UI/UIRenderPass.h>
 
 namespace GuGu{
 
@@ -163,11 +164,17 @@ std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path){
         }
 
         m_vertexBuffer =  std::make_shared<VertexBuffer>(m_deviceManager);
+        m_UIRenderPass = std::make_shared<UIRenderPass>(m_deviceManager);
         if(m_vertexBuffer->Init())
         {
             m_deviceManager->AddRenderPassToBack(m_vertexBuffer.get());
 //
             //deviceManager->RemoveRenderPass(&example);
+        }
+
+        if (m_UIRenderPass->Init())
+        {
+            m_deviceManager->AddRenderPassToBack(m_UIRenderPass.get());
         }
 
         //m_logicDevice->init();

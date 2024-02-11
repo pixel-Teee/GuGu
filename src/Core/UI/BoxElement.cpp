@@ -6,8 +6,8 @@ namespace GuGu {
 	//BoxElement::BoxElement()
 	//{
 	//}
-	BoxElement::BoxElement(ElementType elementType, WidgetGeometry geometry, math::float4 color, std::shared_ptr<Brush> brush)
-		: Element(elementType, geometry)
+	BoxElement::BoxElement(ElementType elementType, WidgetGeometry geometry, math::float4 color, std::shared_ptr<Brush> brush, uint32_t layer)
+		: Element(elementType, geometry, layer)
 		, m_color(color)
 		, m_brush(brush)
 	{

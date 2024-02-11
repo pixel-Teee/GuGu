@@ -39,6 +39,8 @@ namespace GuGu{
         static std::shared_ptr<AndroidApplication> getApplication();
 
         std::shared_ptr<AndroidWindow> getPlatformWindow();
+
+        virtual std::shared_ptr<Window> getWindow(uint32_t index) override;
     private:
         android_app* m_android_app;
 

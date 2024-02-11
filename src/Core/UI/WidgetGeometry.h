@@ -10,6 +10,11 @@ namespace GuGu {
 
 		virtual ~WidgetGeometry();
 
+		void setLocalSize(math::double2 localSize);
+
+		math::double2 getAbsolutePosition() const;
+
+		math::double2 getLocalSize() const;
 	private:
 		math::double2 mLocalPosition;
 		math::double2 mLocalSize;

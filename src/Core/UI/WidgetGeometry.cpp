@@ -14,4 +14,16 @@ namespace GuGu {
 	WidgetGeometry::~WidgetGeometry()
 	{
 	}
+	void WidgetGeometry::setLocalSize(math::double2 localSize)
+	{
+		mLocalSize = localSize;
+	}
+	math::double2 WidgetGeometry::getAbsolutePosition() const
+	{
+		return mAbsolutePosition;
+	}
+	math::double2 WidgetGeometry::getLocalSize() const
+	{
+		return mLocalSize;
+	}
 }

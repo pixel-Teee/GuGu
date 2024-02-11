@@ -18,6 +18,8 @@ namespace GuGu {
 		std::shared_ptr<Brush> getBrush(const GuGuUtf8Str& str);
 
 		void getBrush(std::vector<std::shared_ptr<Brush>>& brush);//useful for load texture
+
+		static std::shared_ptr<Style> getStyle();
 	private:
 		//nvrhi::DeviceHandle m_device;
 

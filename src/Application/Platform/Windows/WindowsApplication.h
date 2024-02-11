@@ -23,6 +23,8 @@ namespace GuGu {
 		std::vector<std::shared_ptr<WindowsWindow>> getPlatformWindows();
 
 		static std::shared_ptr<WindowsApplication> getApplication();
+
+		virtual std::shared_ptr<Window> getWindow(uint32_t index) override;
 	private:
 		HINSTANCE m_applicationInstance;
 

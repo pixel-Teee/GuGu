@@ -72,6 +72,12 @@ namespace GuGu {
 		return globalApplication;
 	}
 
+	std::shared_ptr<Window> WindowsApplication::getWindow(uint32_t index)
+	{
+		//check index
+		return m_windows[index];
+	}
+
 	std::shared_ptr<Application> Application::getApplication()
 	{
 		return globalApplication;

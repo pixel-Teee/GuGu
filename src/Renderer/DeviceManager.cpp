@@ -189,6 +189,11 @@ namespace GuGu{
         AnimateRenderPresent();
     }
 
+    const DeviceCreationParameters& DeviceManager::getDeviceCreationParameters() const
+    {
+        return m_deviceParams;
+    }
+
     void DeviceManager::AnimateRenderPresent() {
 
          std::shared_ptr<Application> application = Application::getApplication();
