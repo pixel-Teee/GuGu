@@ -19,8 +19,17 @@ namespace GuGu {
 		Stretch
 	};
 
-	typedef math::double4 Margin;
-	typedef math::double4 Padding;
+	struct Padding
+	{
+		float left;
+		float top;
+		float right;
+		float bottom;
+		Padding(float inLeft, float inTop, float inRight, float inBottom)
+			: left(inLeft), top(inTop), right(inRight), bottom(inBottom)
+		{}
+	};
+	//typedef math::double4 Padding;
 
 	struct UIVertex
 	{

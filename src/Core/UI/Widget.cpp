@@ -22,7 +22,7 @@ namespace GuGu{
         return math::double2(0.0, 0.0);
     }
 
-    void Widget::AllocationChildActualSpace() {
+    void Widget::AllocationChildActualSpace(WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) {
         //noting to do
     }
     math::double2 Widget::getFixedSize()

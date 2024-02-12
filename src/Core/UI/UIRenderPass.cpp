@@ -14,6 +14,7 @@
 #include <Core/GuGuFile.h>
 
 #include "WindowWidget.h"
+#include "ImageWidget.h"
 
 #include <Application/Application.h>
 
@@ -124,6 +125,8 @@ namespace GuGu {
 		m_uiRoot = std::make_shared<WindowWidget>();
 		m_uiRoot->assocateWithNativeWindow(window);//native window
 		m_elementList = std::make_shared<ElementList>();
+		std::shared_ptr<ImageWidget> imageWidget = std::make_shared<ImageWidget>();
+		m_uiRoot->setChildWidget(imageWidget);
 		return true;
 	}
 	void UIRenderPass::Render(nvrhi::IFramebuffer* framebuffer)
@@ -334,6 +337,14 @@ namespace GuGu {
 		m_CommandList->writeTexture(m_textureAtlas, 0, 0, dataPointer, m_atlasSize * 4, 1);
 		m_CommandList->setPermanentTextureState(m_textureAtlas, nvrhi::ResourceStates::ShaderResource);//todo:fix this
 		m_CommandList->commitBarriers();
+
+		for (size_t i = 0; i < brushs.size(); ++i)
+		{
+			if (!brushs[i]->m_tiling)
+			{
+				brushs[i]->m_texture = m_textureAtlas;
+			}		
+		}
 	}
 	void UIRenderPass::copyRow(const FCopyRowData& copyRowData)
 	{
@@ -515,10 +526,10 @@ namespace GuGu {
 			{
 				std::shared_ptr<Widget> childWidget = childSlot->getChildWidget();
 				calculateWidgetsFixedSize(childWidget);
-				size += childWidget->ComputeFixedSize();
+				//size += childWidget->ComputeFixedSize();
 			}
 		}
-
+		size = widget->ComputeFixedSize();
 		widget->setFixedSize(size);
 	}
 	void UIRenderPass::generateWidgetElement(WidgetGeometry& allocatedWidgetGeometry)

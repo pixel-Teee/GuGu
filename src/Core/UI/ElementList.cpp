@@ -57,10 +57,10 @@ namespace GuGu {
 		bool tiling = element->m_tiling;
 		math::float2 tile = tiling ?  math::float2(localSize.x / brush->m_actualSize.x, localSize.y / brush->m_actualSize.x) : math::float2(1.0f, 1.0f);
 		//math::float2 tile = tiling ? math::float2(4.0f, 4.0f) : math::float2(1.0f, 1.0f);
-		boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x, brush->m_startUV.y, tile.x, tile.y), math::float2(0.0f, 0.0f), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
-		boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x + brush->m_sizeUV.x, brush->m_startUV.y + brush->m_sizeUV.y, tile.x, tile.y), math::float2(localSize.x, localSize.y), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
-		boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x, brush->m_startUV.y + brush->m_sizeUV.y, tile.x, tile.y), math::float2(0.0f, localSize.y), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
-		boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x + brush->m_sizeUV.x, brush->m_startUV.y, tile.x, tile.y), math::float2(localSize.x, 0.0f), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x, brush->m_startUV.y, tile.x, tile.y), math::float2(absolutePosition.x, absolutePosition.y), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x + brush->m_sizeUV.x, brush->m_startUV.y + brush->m_sizeUV.y, tile.x, tile.y), math::float2(absolutePosition.x + localSize.x, absolutePosition.y + localSize.y), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x, brush->m_startUV.y + brush->m_sizeUV.y, tile.x, tile.y), math::float2(absolutePosition.x, absolutePosition.y + localSize.y), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x + brush->m_sizeUV.x, brush->m_startUV.y, tile.x, tile.y), math::float2(absolutePosition.x + localSize.x, absolutePosition.y), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
 
 		boxBatch->m_indices.emplace_back(0);
 		boxBatch->m_indices.emplace_back(1);

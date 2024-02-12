@@ -5,6 +5,7 @@
 namespace GuGu{
     class Slot;
     class ElementList;
+    class ArrangedWidgetArray;
     class Widget{
     public:
         Widget();
@@ -15,7 +16,7 @@ namespace GuGu{
 
         virtual math::double2 ComputeFixedSize();
 
-        virtual void AllocationChildActualSpace();
+        virtual void AllocationChildActualSpace(WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray);
 
         virtual math::double2 getFixedSize();
 
