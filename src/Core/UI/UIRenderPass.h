@@ -11,6 +11,7 @@ namespace GuGu {
 	class Widget;
 	class ElementList;
 	class WidgetGeometry;
+	class FontCache;
 	struct AtlasedTextureSlot
 	{
 		uint32_t x;
@@ -43,6 +44,7 @@ namespace GuGu {
 		//the width of the dest texture
 		uint32_t destTextureWidth;
 	};
+	class TextBlockWidget;
 	class UIRenderPass : public IRenderPass
 	{
 	public:
@@ -63,6 +65,7 @@ namespace GuGu {
 
 	private:
 		void initAtlasData();
+		void updateTextAtlasTexture();
 		nvrhi::CommandListHandle m_CommandList;
 
 		nvrhi::TextureHandle m_fontAtlas;
@@ -102,5 +105,8 @@ namespace GuGu {
 		std::vector<nvrhi::BufferHandle> m_constantBuffers;
 		void calculateWidgetsFixedSize(std::shared_ptr<Widget> widget);
 		void generateWidgetElement(WidgetGeometry& allocatedWidgetGeometry);
+		std::shared_ptr<TextBlockWidget> m_textBlockWidget;
+
+		//std::shared_ptr<FontCache> m_fontCache;
 	};
 }

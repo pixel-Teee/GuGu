@@ -71,8 +71,8 @@ namespace GuGu{
 
         if (m_timer->GetTotalTime() - timeElapsed >= 1.0f)
         {
-            float fps = (float)frameCnt;
-            float mfps = 1000.0f / fps;
+			fps = (float)frameCnt;
+			mfps = 1000.0f / fps;
 
             frameCnt = 0;
             timeElapsed += 1.0f;
@@ -83,6 +83,11 @@ namespace GuGu{
     {
         //check index
         return nullptr;
+    }
+
+    float Application::getFps()
+    {
+        return fps;
     }
 
     //void Application::resize(int32_t width, int32_t height) {

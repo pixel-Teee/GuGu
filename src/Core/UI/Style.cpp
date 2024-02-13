@@ -30,6 +30,12 @@ namespace GuGu {
 		biscuit->m_tiling = false;
 		biscuit->m_texturePath = u8"biscuit.jpg";
 		m_styles.insert({ u8"biscuit", biscuit });
+
+		std::shared_ptr<TextInfo> textInfo = std::make_shared<TextInfo>();
+		textInfo->m_size = 32;//12pt
+		textInfo->m_textPath = u8"STKAITI.TTF";
+		textInfo->m_name = u8"STKAITI.TTF";
+		m_texts.insert({ u8"normalText", textInfo });
 	}
 	Style::~Style()
 	{
@@ -55,5 +61,15 @@ namespace GuGu {
 	{
 		static std::shared_ptr<Style> styleInsance = std::make_shared<Style>();
 		return styleInsance;
+	}
+	std::shared_ptr<TextInfo> Style::getTextInfo(const GuGuUtf8Str& str)
+	{
+		auto it = m_texts.find(str);
+		if (it != m_texts.end())
+			return it->second;
+
+		GuGu_LOGE("don't find brush!");
+
+		return nullptr;
 	}
 }

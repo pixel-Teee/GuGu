@@ -15,6 +15,8 @@
 
 #include "WindowWidget.h"
 #include "ImageWidget.h"
+#include "TextBlockWidget.h"
+#include "FontCache.h"
 
 #include <Application/Application.h>
 
@@ -126,7 +128,12 @@ namespace GuGu {
 		m_uiRoot->assocateWithNativeWindow(window);//native window
 		m_elementList = std::make_shared<ElementList>();
 		std::shared_ptr<ImageWidget> imageWidget = std::make_shared<ImageWidget>();
-		m_uiRoot->setChildWidget(imageWidget);
+		m_textBlockWidget = std::make_shared<TextBlockWidget>();
+		m_uiRoot->setChildWidget(m_textBlockWidget);
+		m_uiRoot->getSlot(0)->setHorizontalAlignment(HorizontalAlignment::Left);
+		m_uiRoot->getSlot(0)->setVerticalAlignment(VerticalAlignment::Top);
+		m_uiRoot->getSlot(0)->setPadding(Padding(100.0f, 0.0f, 0.0f, 100.0f));
+		//textBlockWidget->ComputeFixedSize();
 		return true;
 	}
 	void UIRenderPass::Render(nvrhi::IFramebuffer* framebuffer)
@@ -166,9 +173,15 @@ namespace GuGu {
 			m_CommandList->writeBuffer(m_constantBuffers[i], &modelConstant, sizeof(modelConstant));
 
 			nvrhi::BindingSetDesc desc;
+			//desc.bindings = {
+			//	nvrhi::BindingSetItem::ConstantBuffer(0, m_constantBuffers[i]),
+			//	nvrhi::BindingSetItem::Texture_SRV(0, m_elementList->getBatches()[i]->m_brush->m_texture),
+			//	nvrhi::BindingSetItem::Sampler(0, m_pointWrapSampler)
+			//};
+
 			desc.bindings = {
 				nvrhi::BindingSetItem::ConstantBuffer(0, m_constantBuffers[i]),
-				nvrhi::BindingSetItem::Texture_SRV(0, m_elementList->getBatches()[i]->m_brush->m_texture),
+				nvrhi::BindingSetItem::Texture_SRV(0, m_elementList->getBatches()[i]->m_texture),
 				nvrhi::BindingSetItem::Sampler(0, m_pointWrapSampler)
 			};
 
@@ -209,6 +222,10 @@ namespace GuGu {
 	}
 	void UIRenderPass::Animate(float fElapsedTimeSeconds)
 	{
+		int32_t fps = Application::getApplication()->getFps();
+		GuGuUtf8Str fpsStr = u8"帧率FPS:" + std::to_string(fps);
+		m_textBlockWidget->setText(fpsStr);
+
 		calculateWidgetsFixedSize(m_uiRoot);
 
 		m_elementList->clear();
@@ -255,6 +272,9 @@ namespace GuGu {
 				nvrhi::utils::CreateStaticConstantBufferDesc(
 					sizeof(ConstantBufferEntry), "ConstantBuffer").setInitialState(nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(true)));
 		}
+
+		updateTextAtlasTexture();
+
 		m_CommandList->close();
 		GetDevice()->executeCommandList(m_CommandList);
 	}
@@ -271,6 +291,32 @@ namespace GuGu {
 		//auto it = m_textureAtlasSlots.begin();
 		m_textureAtlasEmptySlots.push_front(rootSlot);
 		m_textureAtlasData.resize(m_atlasSize * m_atlasSize * 4, 0); //stride is 4
+	}
+	void UIRenderPass::updateTextAtlasTexture()
+	{
+		std::shared_ptr<FontCache> fontCache = FontCache::getFontCache();
+		nvrhi::TextureHandle texture = fontCache->getFontAtlasTexture();
+		if (texture == nullptr || fontCache->getDirtyFlag())
+		{
+			fontCache->setDirtyFlag(false);
+			const char* dataPointer = reinterpret_cast<const char*>(static_cast<const uint8_t*>(fontCache->getAtlasRawData().data()));
+			nvrhi::TextureDesc textureDesc;
+			textureDesc.format = nvrhi::Format::R8_UNORM;//todo:fix this
+			textureDesc.width = 1024;
+			textureDesc.height = 1024;
+			textureDesc.depth = 1;
+			textureDesc.arraySize = 1;
+			textureDesc.dimension = nvrhi::TextureDimension::Texture2D;
+			textureDesc.mipLevels = 1;
+			textureDesc.debugName = "font-atlas";//todo:fix this
+			textureDesc.isRenderTarget = true;
+			texture = GetDevice()->createTexture(textureDesc);
+			m_CommandList->beginTrackingTextureState(texture, nvrhi::AllSubresources, nvrhi::ResourceStates::Common);
+			m_CommandList->writeTexture(texture, 0, 0, dataPointer, 1024, 1);
+			m_CommandList->setPermanentTextureState(texture, nvrhi::ResourceStates::ShaderResource);//todo:fix this
+			m_CommandList->commitBarriers();
+			fontCache->setFontAtlasTexture(texture);
+		}
 	}
 	void UIRenderPass::loadStyleTextures()
 	{
@@ -387,7 +433,7 @@ namespace GuGu {
 	void UIRenderPass::copyDataIntoSlot(std::shared_ptr<AtlasedTextureSlot> slotToCopyTo, const std::vector<uint8_t>& data)
 	{
 		//copy pixel data to the texture
-		auto start = m_textureAtlasData.begin() + slotToCopyTo->y * m_atlasSize * 4 + slotToCopyTo->x * m_atlasSize * 4;
+		auto start = m_textureAtlasData.begin() + slotToCopyTo->y * m_atlasSize * 4 + slotToCopyTo->x * 4;
 
 		const uint32_t padding = 1;
 		const uint32_t allPadding = padding * 2;
@@ -474,7 +520,7 @@ namespace GuGu {
 				if (remainingHeight <= remainingWidth)
 				{
 					leftSlot = std::make_shared<AtlasedTextureSlot>(findSlot->x, findSlot->y + paddedHeight, paddedWidth, remainingHeight, padding);
-					rightSlot = std::make_shared<AtlasedTextureSlot>(findSlot->x + paddedWidth, findSlot->y, remainingWidth, findSlot->y, padding);
+					rightSlot = std::make_shared<AtlasedTextureSlot>(findSlot->x + paddedWidth, findSlot->y, remainingWidth, findSlot->height, padding);
 				}
 				else
 				{

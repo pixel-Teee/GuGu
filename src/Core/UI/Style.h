@@ -6,8 +6,11 @@
 
 #include <Renderer/nvrhi.h>
 
+#include "TextInfo.h"
+
 namespace GuGu {
 	class Brush;
+	class TextInfo;
 	class Style
 	{
 	public:
@@ -20,6 +23,8 @@ namespace GuGu {
 		void getBrush(std::vector<std::shared_ptr<Brush>>& brush);//useful for load texture
 
 		static std::shared_ptr<Style> getStyle();
+
+		std::shared_ptr<TextInfo> getTextInfo(const GuGuUtf8Str& str);
 	private:
 		//nvrhi::DeviceHandle m_device;
 
@@ -27,5 +32,6 @@ namespace GuGu {
 
 		//nvrhi::SamplerHandle m_repeatSeampler;
 		//nvrhi::SamplerHandle m_defaultSeampler;
+		std::unordered_map<GuGuUtf8Str, std::shared_ptr<TextInfo>> m_texts;
 	};
 }

@@ -48,9 +48,11 @@ namespace GuGu {
 
 		GuGuUtf8Str substr(size_t pos = 0, size_t len = -1) const;
 
-		GuGuUtf8Str operator[](size_t pos);
+		GuGuUtf8Str operator[](size_t pos) const;
 
 		std::wstring getUtf16String() const;//useful for win32 api
+
+		std::vector<uint32_t> getUnicode();
 
 		char* getStr();
 

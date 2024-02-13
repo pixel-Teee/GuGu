@@ -20,6 +20,8 @@ namespace GuGu {
 		virtual int32_t ReadFile(void* buffer, int32_t numberOfBytesToRead, int32_t& numberOfBytesHaveReaded) override;
 
 		virtual int32_t getFileSize() override;
+
+		virtual bool Seek(uint64_t newPosition) override;
 	private:
 
 		HANDLE m_fileHandle;

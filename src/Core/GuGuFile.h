@@ -24,6 +24,8 @@ namespace GuGu {
 		virtual int32_t ReadFile(void* buffer, int32_t numberOfBytesToRead, int32_t& numberOfBytesHaveReaded) = 0;
 
 		virtual int32_t getFileSize() = 0;
+
+		virtual bool Seek(uint64_t newPosition) = 0;
 	};
 
 	std::shared_ptr<GuGuFile> CreateFileFactory();

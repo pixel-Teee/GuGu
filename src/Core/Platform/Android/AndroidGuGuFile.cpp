@@ -118,6 +118,19 @@ namespace GuGu{
         m_usingAssetManager = false;
     }
 
+    bool AndroidGuGuFile::Seek(uint64_t newPosition) {
+        if(m_fileHandle != nullptr && !m_usingAssetManager)
+        {
+            fseek(m_fileHandle, newPosition, SEEK_SET);
+            return true;
+        }
+        else
+        {
+            AAsset_seek(m_asset, newPosition, SEEK_SET);
+        }
+        return true;//todo:fix this
+    }
+
     std::shared_ptr<GuGuFile> CreateFileFactory()
     {
         return std::make_shared<AndroidGuGuFile>();

@@ -31,13 +31,15 @@ namespace GuGu {
 		void calculateFrameStats();
 
 		virtual std::shared_ptr<Window> getWindow(uint32_t index);
+
+		float getFps();
 	protected:
 		std::shared_ptr<Renderer> m_renderer;
 
 		std::shared_ptr<Timer> m_timer;
 
 		float fps = 0;//one seconds's total frame
-		float mspf = 0;//one frame's time
+		float mfps = 0;//one frame's time
 	private:
 		bool m_alreadyExit;
 

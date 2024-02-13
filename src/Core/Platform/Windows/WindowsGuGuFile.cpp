@@ -59,6 +59,12 @@ namespace GuGu {
 		return info.QuadPart;
 	}
 
+	bool WindowsGuGuFile::Seek(uint64_t newPosition)
+	{
+		SetFilePointer(m_fileHandle, newPosition, NULL, FILE_BEGIN);
+		return true;
+	}
+
 	std::shared_ptr<GuGuFile> CreateFileFactory()
 	{
 		return std::make_shared<WindowsGuGuFile>();

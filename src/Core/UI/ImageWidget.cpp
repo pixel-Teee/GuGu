@@ -22,7 +22,7 @@ namespace GuGu {
 	}
 	math::double2 ImageWidget::ComputeFixedSize()
 	{
-		return math::double2(200.0f, 200.0f);
+		return math::double2(m_imageBursh->m_actualSize.x, m_imageBursh->m_actualSize.y);
 	}
 
 }

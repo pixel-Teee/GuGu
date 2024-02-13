@@ -28,6 +28,8 @@ namespace GuGu{
         static void setAssetManager(AAssetManager* assetManager);
 
         virtual int32_t getFileSize() override;
+
+        virtual bool Seek(uint64_t newPosition) override;
     private:
         static GuGuUtf8Str m_internalDataPath;
         static GuGuUtf8Str m_internalFilePath;
