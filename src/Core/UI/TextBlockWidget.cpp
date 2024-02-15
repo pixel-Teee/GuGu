@@ -12,7 +12,7 @@ namespace GuGu {
 	TextBlockWidget::TextBlockWidget()
 	{
 		m_text = std::make_shared<GuGuUtf8Str>();
-		m_text->append(u8"fps");
+		m_text->append(u8"abcdefghijklmnopqrstuvwxyz");
 		m_textInfo = Style::getStyle()->getTextInfo("normalText");
 	}
 	TextBlockWidget::~TextBlockWidget()
@@ -21,7 +21,7 @@ namespace GuGu {
 	void TextBlockWidget::GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
 		//todo:generate text element
-		ElementList::addTextElement(elementList, allocatedGeometry, math::float4(1.0f, 1.0f, 1.0f, 1.0f), m_textInfo, *m_text, layer);
+		ElementList::addTextElement(elementList, allocatedGeometry, math::float4(0.64f, 1.0f, 0.32f, 1.0f), m_textInfo, *m_text, layer);
 	}
 	math::double2 TextBlockWidget::ComputeFixedSize()
 	{

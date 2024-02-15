@@ -1,3 +1,5 @@
+#pragma pack_matrix(row_major)
+
 struct PSInput
 {
     float4 Position : SV_Position;
@@ -33,7 +35,7 @@ SamplerState s_Sampler : register(s0);
 float2 GetUV(PSInput VIn, uint UVIndex)
 {
     float4 UVVector = VIn.TextureCoordinate;
-    return 0 ? UVVector.xy : UVVector.zw;
+    return UVIndex ? UVVector.xy : UVVector.zw;
 }
 
 half4 getColor(PSInput VIn, float2 UV)
@@ -49,7 +51,7 @@ half4 getDefaultElementColor(PSInput VIn)
 float4 main_ps(PSInput VIn) : SV_Target0
 {
     half4 OutColor;
-    OutColor = getDefaultElementColor(VIn);
+    OutColor = getDefaultElementColor(VIn) * VIn.Color;
     
     return OutColor;
 }

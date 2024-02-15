@@ -32,7 +32,7 @@ namespace GuGu {
 		m_styles.insert({ u8"biscuit", biscuit });
 
 		std::shared_ptr<TextInfo> textInfo = std::make_shared<TextInfo>();
-		textInfo->m_size = 32;//12pt
+		textInfo->m_size = 128;//12pt
 		textInfo->m_textPath = u8"STKAITI.TTF";
 		textInfo->m_name = u8"STKAITI.TTF";
 		m_texts.insert({ u8"normalText", textInfo });

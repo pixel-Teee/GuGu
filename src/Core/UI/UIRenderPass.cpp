@@ -130,9 +130,9 @@ namespace GuGu {
 		std::shared_ptr<ImageWidget> imageWidget = std::make_shared<ImageWidget>();
 		m_textBlockWidget = std::make_shared<TextBlockWidget>();
 		m_uiRoot->setChildWidget(m_textBlockWidget);
-		m_uiRoot->getSlot(0)->setHorizontalAlignment(HorizontalAlignment::Left);
-		m_uiRoot->getSlot(0)->setVerticalAlignment(VerticalAlignment::Top);
-		m_uiRoot->getSlot(0)->setPadding(Padding(100.0f, 0.0f, 0.0f, 100.0f));
+		m_uiRoot->getSlot(0)->setHorizontalAlignment(HorizontalAlignment::Center);
+		m_uiRoot->getSlot(0)->setVerticalAlignment(VerticalAlignment::Center);
+		m_uiRoot->getSlot(0)->setPadding(Padding(0.0f, 0.0f, 0.0f, 0.0f));
 		//textBlockWidget->ComputeFixedSize();
 		return true;
 	}
