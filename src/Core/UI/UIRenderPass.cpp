@@ -130,9 +130,9 @@ namespace GuGu {
 		std::shared_ptr<ImageWidget> imageWidget = std::make_shared<ImageWidget>();
 		m_textBlockWidget = std::make_shared<TextBlockWidget>();
 		m_uiRoot->setChildWidget(m_textBlockWidget);
-		m_uiRoot->getSlot(0)->setHorizontalAlignment(HorizontalAlignment::Center);
-		m_uiRoot->getSlot(0)->setVerticalAlignment(VerticalAlignment::Center);
-		m_uiRoot->getSlot(0)->setPadding(Padding(0.0f, 0.0f, 0.0f, 0.0f));
+		m_uiRoot->getSlot(0)->setHorizontalAlignment(HorizontalAlignment::Left);
+		m_uiRoot->getSlot(0)->setVerticalAlignment(VerticalAlignment::Top);
+		m_uiRoot->getSlot(0)->setPadding(Padding(0.0f, 200.0f, 0.0f, 0.0f));
 		//textBlockWidget->ComputeFixedSize();
 		return true;
 	}
@@ -147,28 +147,29 @@ namespace GuGu {
 			psoDesc.bindingLayouts = { m_bindingLayout };
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
 			psoDesc.renderState.depthStencilState.depthTestEnable = false;
+			//psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;//todo:fix this
 
 			m_pipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
 		}
 
 		m_CommandList->open();
 
-		//math::float3 cameraPos = math::float3(0.0f, 0.0f, 0.0f);
-		//math::float3 cameraDir = normalize(math::float3(0.0f, 0.0f, 1.0f));
-		//math::float3 cameraUp = math::float3(0.0f, 1.0f, 0.0f);
-		//math::float3 cameraRight = normalize(cross(cameraDir, cameraUp));
-		//cameraUp = normalize(cross(cameraRight, cameraDir));
-		//
-		//math::affine3 worldToView = math::affine3::from_cols(cameraRight, cameraUp, cameraDir, 0.0f);
-		//worldToView = translation(-cameraPos) * worldToView;
+		math::float3 cameraPos = math::float3(0.0f, 0.0f, 0.0f);
+		math::float3 cameraDir = normalize(math::float3(0.0f, 0.0f, 1.0f));
+		math::float3 cameraUp = math::float3(0.0f, -1.0f, 0.0f);
+		math::float3 cameraRight = normalize(cross(cameraDir, cameraUp));
+		cameraUp = normalize(cross(cameraRight, cameraDir));
+		
+		math::affine3 worldToView = math::affine3::from_cols(cameraRight, cameraUp, cameraDir, 0.0f);
+		worldToView = translation(-cameraPos) * worldToView;
 
 		for (size_t i = 0; i < m_IndexBuffers.size(); ++i)
 		{
-			math::float4x4 projMatrix = math::orthoProjD3DStyle(0, fbinfo.width, fbinfo.height, 0, 0, 1);
+			math::float4x4 projMatrix = math::orthoProjD3DStyle(0, fbinfo.width, 0, fbinfo.height, 0, 1);
 
 			//math::affineToHomogeneous(worldToView)
 			ConstantBufferEntry modelConstant;
-			modelConstant.viewProjMatrix = projMatrix;
+			modelConstant.viewProjMatrix = projMatrix * math::affineToHomogeneous(worldToView);
 
 			m_CommandList->writeBuffer(m_constantBuffers[i], &modelConstant, sizeof(modelConstant));
 

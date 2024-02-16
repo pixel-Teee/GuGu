@@ -127,7 +127,7 @@ namespace GuGu {
 
 				if (verticalAlignment == VerticalAlignment::Top)
 				{
-					offsetVertical = marginPostVertical;
+					offsetVertical = marginPreVertical;
 					sizeVertical = childSize;
 				}
 				else if (verticalAlignment == VerticalAlignment::Center)
