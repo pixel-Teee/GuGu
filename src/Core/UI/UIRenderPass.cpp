@@ -129,10 +129,10 @@ namespace GuGu {
 		m_elementList = std::make_shared<ElementList>();
 		std::shared_ptr<ImageWidget> imageWidget = std::make_shared<ImageWidget>();
 		m_textBlockWidget = std::make_shared<TextBlockWidget>();
-		m_uiRoot->setChildWidget(m_textBlockWidget);
-		m_uiRoot->getSlot(0)->setHorizontalAlignment(HorizontalAlignment::Left);
-		m_uiRoot->getSlot(0)->setVerticalAlignment(VerticalAlignment::Top);
-		m_uiRoot->getSlot(0)->setPadding(Padding(0.0f, 200.0f, 0.0f, 0.0f));
+		m_uiRoot->setChildWidget(imageWidget);
+		m_uiRoot->getSlot(0)->setHorizontalAlignment(HorizontalAlignment::Center);
+		m_uiRoot->getSlot(0)->setVerticalAlignment(VerticalAlignment::Center);
+		m_uiRoot->getSlot(0)->setPadding(Padding(0.0f, 0.0f, 0.0f, 0.0f));
 		//textBlockWidget->ComputeFixedSize();
 		return true;
 	}
@@ -241,6 +241,7 @@ namespace GuGu {
 		m_IndexBuffers.clear();
 		//generate vertex and index
 		m_CommandList->open();
+		m_constantBuffers.clear();
 		std::vector<std::shared_ptr<BatchData>> batches = m_elementList->getBatches();
 		for (size_t i = 0; i < batches.size(); ++i)
 		{
