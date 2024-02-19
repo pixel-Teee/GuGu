@@ -1,7 +1,7 @@
 #pragma once
 
-#include <windows.h>
 #include <Window/Window.h>
+#include <windows.h>
 
 namespace GuGu {
 	class WindowsWindow : public Window {

@@ -2,8 +2,6 @@
 
 #include "WindowsWindow.h"
 
-#include <Windows.h>//windows platform
-
 namespace GuGu {
 	std::shared_ptr<Window> CreateWindowFactory()
 	{
@@ -15,15 +13,15 @@ namespace GuGu {
 		const wchar_t windowClassName[] = L"GuGuWindowClass";
 
 		m_windowHandle = CreateWindowEx(
-			0, //optional window style
-			windowClassName, //window class
-			L"GuGuWindow", //window title
+			0,//optional window style
+			windowClassName,//window class
+			L"GuGuWindow",//window title
 			WS_OVERLAPPEDWINDOW,
 
-			0, 0, 1280, 720, //size and position
+			0, 0, 1280, 720,//size and position
 			nullptr,//parent window
 			nullptr,//menu
-			m_ownerApplicationHandle, //owner application handle
+			m_ownerApplicationHandle,//owner application handle
 			nullptr
 		);
 
@@ -42,7 +40,7 @@ namespace GuGu {
 			borderHeight + 720, SWP_NOMOVE | SWP_NOZORDER);
 
 
-		if (m_windowHandle == nullptr) return; //todo:report create window error
+		GuGu_LOGE(u8"create window error!");
 
 		ShowWindow(m_windowHandle, m_startCmdShow);
 	}
