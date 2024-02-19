@@ -6,15 +6,13 @@
 namespace GuGu {
 	class GuGuUtf8Str {
 	public:
-		//GuGuUtf8Str();
-
 		GuGuUtf8Str(const char* str = "");
 
 		GuGuUtf8Str(const GuGuUtf8Str& rhs);
 
-		GuGuUtf8Str& operator=(const GuGuUtf8Str& rhs);
+		GuGuUtf8Str(const std::string& str);
 
-        GuGuUtf8Str(const std::string& str);
+		GuGuUtf8Str& operator=(const GuGuUtf8Str& rhs); 
 
 		~GuGuUtf8Str();
 
@@ -28,17 +26,15 @@ namespace GuGu {
 
 		void reserve(size_t capacity);
 
-		void pushBack(const char* ch); //push back one char
+		//------append and pushBack------
+		GuGuUtf8Str& pushBack(const char* ch); //push back one char
 
-		void append(const char* str);
+		GuGuUtf8Str& append(const char* str); //push str
 
-		void append(const GuGuUtf8Str& s);
+		GuGuUtf8Str& append(const GuGuUtf8Str& s);
 
-		void append(int32_t n, const char* ch);
-
-		//void resize(int32_t n, char* ch = '\0');
-
-		GuGuUtf8Str& operator+=(const char* str);//one character
+		GuGuUtf8Str& append(int32_t n, const char* ch);
+		//------append and pushBack------
 
 		GuGuUtf8Str& insert(size_t pos, const char* str);
 
@@ -48,27 +44,22 @@ namespace GuGu {
 
 		GuGuUtf8Str substr(size_t pos = 0, size_t len = -1) const;
 
+		GuGuUtf8Str& operator+=(const char* str);//multiple character
+
+		bool operator==(const GuGuUtf8Str& rhs) const;
+
 		GuGuUtf8Str operator[](size_t pos) const;
 
 		std::wstring getUtf16String() const;//useful for win32 api
 
-		std::vector<uint32_t> getUnicode();
-
-		char* getStr();
+		std::vector<uint32_t> getUnicode() const;
 
 		const char* getStr() const;
 
 		void clear();
 
 		friend std::ostream& operator<<(std::ostream& out, const GuGuUtf8Str& str);
-
-		//typedef GuGuUtf8Str iterator;
-		//typedef const GuGuUtf8Str const_iterator;
-
-		//iterator begin();
-		//iterator end();
-
-        bool operator==(const GuGuUtf8Str& rhs) const;
+    
 	private:
 		char* m_str;
 		int32_t m_capacity;

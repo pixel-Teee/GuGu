@@ -2,23 +2,6 @@
 #include "GuGuUtf8Str.h"
 
 namespace GuGu {
-	//GuGuUtf8Str::GuGuUtf8Str()
-	//	: m_str(new char[1]) //\0
-	//	, m_len(0)
-	//	, m_capacity(0)
-	//{
-	//	m_str[0] = '\0';
-	//	m_totalByteCount = 0;
-	//	m_characterByteCount.clear();
-	//}
-
-	GuGuUtf8Str::GuGuUtf8Str(const std::string &str) {
-		m_capacity = str.size();
-		m_str = new char[m_capacity + 1];
-		strcpy(m_str, str.c_str());
-		m_len = calculateCharacterByteCount();
-		m_totalByteCount = m_capacity;
-	}
 	GuGuUtf8Str::GuGuUtf8Str(const char* str) //this contains \0
 	{
 		m_capacity = strlen(str);
@@ -32,11 +15,16 @@ namespace GuGu {
 		, m_capacity(rhs.m_capacity)
 		, m_len(rhs.m_len)
 	{
-		//GuGuUtf8Str tmp(rhs.m_str);
-		//swap(tmp);
 		strcpy(m_str, rhs.m_str);
 		m_characterByteCount = rhs.m_characterByteCount;
 		m_totalByteCount = rhs.m_totalByteCount;
+	}
+	GuGuUtf8Str::GuGuUtf8Str(const std::string& str) {
+		m_capacity = str.size();
+		m_str = new char[m_capacity + 1];
+		strcpy(m_str, str.c_str());
+		m_len = calculateCharacterByteCount();
+		m_totalByteCount = m_capacity;
 	}
 	GuGuUtf8Str& GuGuUtf8Str::operator=(const GuGuUtf8Str& rhs)
 	{
@@ -114,13 +102,6 @@ namespace GuGu {
 		}
 		return totalLength;//don't record '\0'
 	}
-	//void GuGuUtf8Str::swap(GuGuUtf8Str& rhs)
-	//{
-	//	std::swap(m_str, rhs.m_str);
-	//	std::swap(m_len, rhs.m_len);
-	//	std::swap(m_capacity, rhs.m_capacity);
-	//	std::swap(m_characterByteCount, rhs.m_characterByteCount);
-	//}
 	void GuGuUtf8Str::reserve(size_t newCapacity)
 	{
 		if (m_capacity < newCapacity)
@@ -130,10 +111,11 @@ namespace GuGu {
 			delete[] m_str;
 			m_str = tmp;
 			m_capacity = newCapacity;
-			calculateCharacterByteCount();
+			m_len = calculateCharacterByteCount();
+			m_totalByteCount = m_capacity;
 		}
 	}
-	void GuGuUtf8Str::pushBack(const char* ch)
+	GuGuUtf8Str& GuGuUtf8Str::pushBack(const char* ch)
 	{
 		m_totalByteCount = 0;
 		//calculate ch len
@@ -205,8 +187,10 @@ namespace GuGu {
 			}
 			++tempIndex;
 		}
+
+		return *this;
 	}
-	void GuGuUtf8Str::append(const char* str)
+	GuGuUtf8Str& GuGuUtf8Str::append(const char* str)
 	{
 		m_totalByteCount = 0;
 		size_t tempIndex = 0;
@@ -279,13 +263,14 @@ namespace GuGu {
 			++tempIndex;
 		}
 
-		//std::cout << "xx" << std::endl;
+		return *this;
 	}
-	void GuGuUtf8Str::append(const GuGuUtf8Str& s)
+	GuGuUtf8Str& GuGuUtf8Str::append(const GuGuUtf8Str& s)
 	{
 		append(s.m_str);
+		return *this;
 	}
-	void GuGuUtf8Str::append(int32_t n, const char* ch)
+	GuGuUtf8Str& GuGuUtf8Str::append(int32_t n, const char* ch)
 	{
 		int32_t byteCount = strlen(ch);
 		reserve(m_totalByteCount + byteCount);
@@ -293,11 +278,6 @@ namespace GuGu {
 		{
 			pushBack(ch);
 		}
-	}
-
-	GuGuUtf8Str& GuGuUtf8Str::operator+=(const char* str)
-	{
-		append(str);
 		return *this;
 	}
 	GuGuUtf8Str& GuGuUtf8Str::insert(size_t pos, const char* str)
@@ -320,7 +300,6 @@ namespace GuGu {
 			m_str[end] = m_str[end - byteCount];
 			--end;
 		}
-
 		for (int32_t i = insertPosByteCount, j = 0; j < byteCount; ++i, ++j)
 		{
 			m_str[i] = str[j];
@@ -439,6 +418,20 @@ namespace GuGu {
 		}
 		return GuGuUtf8Str();
 	}
+	GuGuUtf8Str& GuGuUtf8Str::operator+=(const char* str)
+	{
+		append(str);
+		return *this;
+	}
+	bool GuGuUtf8Str::operator==(const GuGuUtf8Str& rhs) const {
+		//bool result = true;
+		if (m_len != rhs.m_len) return false;
+		for (int32_t i = 0; m_str[i] && rhs.m_str[i]; ++i)
+		{
+			if (m_str[i] != rhs.m_str[i]) return false;
+		}
+		return true;
+	}
 	GuGuUtf8Str GuGuUtf8Str::operator[](size_t pos) const
 	{
 		assert(pos < m_len);
@@ -475,7 +468,7 @@ namespace GuGu {
 
 		return res;
 	}
-	std::vector<uint32_t> GuGuUtf8Str::getUnicode()
+	std::vector<uint32_t> GuGuUtf8Str::getUnicode() const
 	{
 		std::vector<uint32_t> res;
 		uint32_t currentByteCount = 0;
@@ -506,46 +499,22 @@ namespace GuGu {
 
 		return res;
 	}
-	char* GuGuUtf8Str::getStr()
-	{
-		return m_str;
-	}
+    const char *GuGuUtf8Str::getStr() const {
+        return m_str;
+    }
 	void GuGuUtf8Str::clear()
 	{
-		//m_capacity = 0;
+		m_capacity = 0;
 		m_len = 0;
 		m_characterByteCount.clear();
 		m_totalByteCount = 0;
 		m_str[0] = '\0';
 	}
-	//GuGuUtf8Str::iterator GuGuUtf8Str::begin()
-	//{
-	//	GuGuUtf8Str str = substr()
-	//}
-	//GuGuUtf8Str::iterator GuGuUtf8Str::end()
-	//{
-	//	return iterator();
-	//}
 	std::ostream& operator<<(std::ostream& out, const GuGuUtf8Str& str)
 	{
 		for (size_t i = 0; i < str.m_totalByteCount; ++i)
 			out << str.m_str[i];
 		return out;
 	}
-
-    const char *GuGuUtf8Str::getStr() const {
-        return m_str;
-    }
-
-	bool GuGuUtf8Str::operator==(const GuGuUtf8Str &rhs) const {
-		//bool result = true;
-		if(m_len != rhs.m_len) return false;
-		for(int32_t i = 0; m_str[i] && rhs.m_str[i]; ++i)
-		{
-			if(m_str[i] != rhs.m_str[i]) return false;
-		}
-		return true;
-	}
-
 }
 

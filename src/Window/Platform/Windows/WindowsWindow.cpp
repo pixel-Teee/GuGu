@@ -40,7 +40,7 @@ namespace GuGu {
 			borderHeight + 720, SWP_NOMOVE | SWP_NOZORDER);
 
 
-		GuGu_LOGE(u8"create window error!");
+		//GuGu_LOGE(u8"create window error!");
 
 		ShowWindow(m_windowHandle, m_startCmdShow);
 	}
