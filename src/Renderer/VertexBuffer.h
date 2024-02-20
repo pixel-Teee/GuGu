@@ -3,7 +3,7 @@
 #include <Renderer/DeviceManager.h>
 
 #include <Renderer/utils.h>
-#include <Renderer/MyMath.h>
+#include <Core/Math/MyMath.h>
 
 #include <Renderer/ShaderFactory.h>
 

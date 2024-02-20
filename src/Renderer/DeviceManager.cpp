@@ -111,7 +111,7 @@ namespace GuGu{
         assert(foundFormat);
         //todo:add swap chain sample count and refresh rate handle
 
-        //todo:add fullscreen handle
+        //todo:add full screen handle
 #if ANDROID
         int32_t height = ANativeWindow_getHeight(androidWindow->getNativeHandle());
         int32_t width = ANativeWindow_getWidth(androidWindow->getNativeHandle());

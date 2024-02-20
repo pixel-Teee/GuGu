@@ -6,7 +6,7 @@
 #include <functional>
 #include <Core/GuGuUtf8Str.h>
 #include <list>
-#include <Renderer/MyMath.h>
+#include <Core/Math/MyMath.h>
 
 namespace GuGu{
     struct DefaultMessageCallback : public nvrhi::IMessageCallback

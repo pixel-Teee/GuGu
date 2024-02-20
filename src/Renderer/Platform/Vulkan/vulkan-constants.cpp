@@ -1,7 +1,6 @@
 #include <pch.h>
 
 #include "vulkan-constants.h"
-#include "vk_types.h"
 #include "vulkan-backend.h"
 
 

@@ -23,13 +23,13 @@ namespace GuGu{
 
         virtual int32_t ReadFile(void* buffer, int32_t numberOfBytesToRead, int32_t& numberOfBytesHaveReaded) override;
 
-        static void setInternalPath(const GuGuUtf8Str& internalDataPath, const GuGuUtf8Str& internalFilePath);
-
-        static void setAssetManager(AAssetManager* assetManager);
+        virtual bool Seek(uint64_t newPosition) override;
 
         virtual int32_t getFileSize() override;
 
-        virtual bool Seek(uint64_t newPosition) override;
+        static void setInternalPath(const GuGuUtf8Str& internalDataPath, const GuGuUtf8Str& internalFilePath);
+
+        static void setAssetManager(AAssetManager* assetManager);
     private:
         static GuGuUtf8Str m_internalDataPath;
         static GuGuUtf8Str m_internalFilePath;

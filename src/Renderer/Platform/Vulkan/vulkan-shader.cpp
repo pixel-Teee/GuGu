@@ -1,8 +1,6 @@
 #include <pch.h>
 
 #include "vulkan-backend.h"
-#include "vk_types.h"
-
 
 namespace GuGu{
     namespace nvrhi::vulkan{

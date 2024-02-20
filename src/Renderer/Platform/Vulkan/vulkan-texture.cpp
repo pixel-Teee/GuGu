@@ -1,7 +1,6 @@
 #include <pch.h>
 
 #include "vulkan-backend.h"
-#include "vk_types.h"
 #include "vulkan-constants.h"
 
 #include <Core/GuGuUtf8Str.h>

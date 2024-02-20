@@ -7,7 +7,6 @@
 #include <vulkan/vulkan.h>
 
 #include "utils.h"
-#include "vk_types.h"
 
 #include <list>
 #include <array>

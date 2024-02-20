@@ -2,7 +2,7 @@
 
 #include <Renderer/nvrhi.h>
 
-#include <Renderer/MyMath.h>
+#include <Core/Math/MyMath.h>
 
 namespace GuGu {
 	class Brush

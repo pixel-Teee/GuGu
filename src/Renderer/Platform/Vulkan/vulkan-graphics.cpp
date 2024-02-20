@@ -1,7 +1,6 @@
 #include <pch.h>
 
 #include "vulkan-backend.h"
-#include "vk_types.h"
 #include "VulkanRenderer.h"
 
 #include <Renderer/containers.h>

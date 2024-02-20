@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Renderer/MyMath.h>
+#include <Core/Math/MyMath.h>
 
 namespace GuGu {
 	enum class HorizontalAlignment

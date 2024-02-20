@@ -8,7 +8,7 @@
 #include FT_FREETYPE_H
 
 #include <Renderer/nvrhi.h>
-#include <Renderer/MyMath.h>
+#include <Core/Math/MyMath.h>
 #include <list>
 
 namespace GuGu {

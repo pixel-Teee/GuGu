@@ -7,7 +7,7 @@
 #include "FreeTypeFace.h"
 #include "FreeTypeUtils.h"
 
-#include <Renderer/MyMath.h>
+#include <Core/Math/MyMath.h>
 #include "UIRenderPass.h"//todo:fix this
 
 namespace GuGu {
