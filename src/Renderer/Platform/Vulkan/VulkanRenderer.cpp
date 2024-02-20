@@ -34,7 +34,7 @@ namespace GuGu{
     }
     void VulkanRenderer::init() {
         GuGu::nvrhi::GraphicsAPI api = GuGu::nvrhi::GraphicsAPI::VULKAN;
-        m_deviceManager = GuGu::DeviceManager::Create(api); //todo:delete this device manager
+        m_deviceManager = GuGu::DeviceManager::Create(api);
         GuGu::DeviceCreationParameters deviceParams;
 #ifdef ANDROID
         deviceParams.vsyncEnabled = true;
@@ -46,10 +46,9 @@ namespace GuGu{
         GuGuUtf8Str windowTitle = "VulkanApp";
         if(!m_deviceManager->CreateWindowDeviceAndSwapChain(deviceParams, windowTitle))
         {
-            GuGu_LOGE("Cannot initialize a graphics device with the requested parameters");
+            GuGu_LOGE("cannot initialize a graphics device with the requested parameters");
             return;
         }
-
         m_vertexBuffer =  new VertexBuffer(m_deviceManager);
         m_UIRenderPass = new UIRenderPass(m_deviceManager);
         if(m_vertexBuffer->Init())
