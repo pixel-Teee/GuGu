@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "WindowsApplication.h"
+
 #include <Window/Platform/Windows/WindowsWindow.h>
 
 #if USE_DX12
@@ -11,10 +12,54 @@
 #endif
 namespace GuGu {
 	std::shared_ptr<WindowsApplication> globalApplication;
+
 	LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
 	WindowsApplication::WindowsApplication()
 	{
 	
+	}
+	void WindowsApplication::init()
+	{
+		//create renderer
+#if USE_DX12
+		m_renderer = std::make_shared<D3D12Renderer>();
+		m_renderer->init();
+#else
+		m_renderer = std::make_shared<VulkanRenderer>();
+		m_renderer->init();
+#endif
+	}
+	void WindowsApplication::pumpMessage()
+	{
+		MSG msg = {};
+
+		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+		{
+
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+
+		if (msg.message == WM_QUIT)
+			setExit(true);
+	}
+	std::shared_ptr<Window> WindowsApplication::getWindow(uint32_t index)
+	{
+		//check index
+		return m_windows[index];
+	}
+	std::vector<std::shared_ptr<WindowsWindow>> WindowsApplication::getPlatformWindows()
+	{
+		return m_windows;
+	}
+	std::shared_ptr<WindowsApplication> WindowsApplication::getApplication()
+	{
+		return globalApplication;
+	}
+	std::shared_ptr<Application> Application::getApplication()
+	{
+		return globalApplication;
 	}
 	void WindowsApplication::setNativeApplicationHandleAndCmdShow(HINSTANCE applicationInstance, int32_t cmdShow)
 	{
@@ -27,60 +72,12 @@ namespace GuGu {
 		wc.hInstance = applicationInstance;
 		wc.lpszClassName = windowClassName;
 		RegisterClass(&wc);
-		
+
 		//test:create a window for test
 		std::shared_ptr<WindowsWindow> window = std::make_shared<WindowsWindow>();
 		window->setNativeApplicationHandleAndCmdShowToCreateWindow(m_applicationInstance, cmdShow);
 		window->ToGeneratePlatformWindow();
 		m_windows.push_back(window);
-	}
-
-	void WindowsApplication::pumpMessage()
-	{
-		MSG msg = {};
-		
-		while(PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
-		{
-
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-
-		if (msg.message == WM_QUIT)
-			setExit(true);
-	}
-
-	void WindowsApplication::init()
-	{
-		//create renderer
-#if USE_DX12
-		m_renderer = std::make_shared<D3D12Renderer>();
-		m_renderer->init();
-#else
-		m_renderer = std::make_shared<VulkanRenderer>();
-		m_renderer->init();
-#endif
-	}
-
-	std::vector<std::shared_ptr<WindowsWindow>> WindowsApplication::getPlatformWindows()
-	{
-		return m_windows;
-	}
-
-	std::shared_ptr<WindowsApplication> WindowsApplication::getApplication()
-	{
-		return globalApplication;
-	}
-
-	std::shared_ptr<Window> WindowsApplication::getWindow(uint32_t index)
-	{
-		//check index
-		return m_windows[index];
-	}
-
-	std::shared_ptr<Application> Application::getApplication()
-	{
-		return globalApplication;
 	}
 	std::shared_ptr<Application> CreateApplicationFactory()
 	{
@@ -91,16 +88,21 @@ namespace GuGu {
 	{
 		switch (uMsg)
 		{
-		case WM_DESTROY:
-			PostQuitMessage(0);
-		case WM_CLOSE:
-			std::vector<std::shared_ptr<WindowsWindow>> windows = globalApplication->getPlatformWindows();
-			for (int32_t i = 0; i < windows.size(); ++i)
+			case WM_DESTROY:
 			{
-				DestroyWindow(windows[i]->getNativeWindowHandle());
+				PostQuitMessage(0);
+				break;
 			}
-			globalApplication->setExit(true);
-			break;
+			case WM_CLOSE:
+			{
+				std::vector<std::shared_ptr<WindowsWindow>> windows = globalApplication->getPlatformWindows();
+				for (int32_t i = 0; i < windows.size(); ++i)
+				{
+					DestroyWindow(windows[i]->getNativeWindowHandle());
+				}
+				globalApplication->setExit(true);
+				break;
+			}
 		}
 		return DefWindowProc(hwnd, uMsg, wParam, lParam);
 	}

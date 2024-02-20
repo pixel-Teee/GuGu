@@ -2,11 +2,9 @@
 
 #include "Application.h"
 
-#include "Renderer/Renderer.h"
-
 #include <Core/Timer.h>
-
 #include <Window/Window.h>
+#include <Renderer/Renderer.h>
 
 namespace GuGu{
     Application::Application()
@@ -14,9 +12,11 @@ namespace GuGu{
         m_alreadyExit = false;
         m_timer = CreateTimerFactory();
     }
+	void Application::init()
+	{
+	}
     void Application::Run()
     {
-        //todo:add exit check
         while (!m_alreadyExit)
         {
             //todo:add update
@@ -29,7 +29,6 @@ namespace GuGu{
             {
                 m_renderer->onRender();
             }
-            //m_renderer->onRender();
         }
 
         //m_renderer->onDestroy();
@@ -42,26 +41,18 @@ namespace GuGu{
     {
         m_alreadyExit = value;
     }
-    void Application:: init()
-    {
-    }
-
+	void Application::setFocused(bool value) {
+		m_focused = value;
+	}
+	bool Application::getFocused() {
+		return m_focused;
+	}
     std::shared_ptr<Renderer> Application::getRenderer() {
         return m_renderer;
     }
-
-    void Application::setFocused(bool value) {
-        m_focused = value;
-    }
-
-    bool Application::getFocused() {
-        return m_focused;
-    }
-
     std::shared_ptr<Timer> Application::getTimer() {
         return m_timer;
     }
-
     void Application::calculateFrameStats()
     {
         static int32_t frameCnt = 0;
@@ -85,9 +76,14 @@ namespace GuGu{
         return nullptr;
     }
 
-    float Application::getFps()
+    float Application::getFps() const
     {
         return fps;
+    }
+
+    float Application::getmFps() const
+    {
+        return mfps;
     }
 
     //void Application::resize(int32_t width, int32_t height) {

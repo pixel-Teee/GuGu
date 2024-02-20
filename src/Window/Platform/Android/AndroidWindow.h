@@ -10,7 +10,7 @@ namespace GuGu{
 
         void setNativeWindow(ANativeWindow* nativeWindow);
 
-        ANativeWindow* getNativeHandle();
+        ANativeWindow* getNativeHandle() const;
     private:
         ANativeWindow* m_nativeWindow;
     };

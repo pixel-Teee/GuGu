@@ -1,19 +1,16 @@
 #include "pch.h"
 
 #include "AndroidApplication.h"
-
 #include "AndroidMisc.h"
+
 #include <Window/Platform/Android/AndroidWindow.h>
 #include <Renderer/Platform/Vulkan/VulkanRenderer.h>
-
-#include <Renderer/nvrhi.h>//todo:remove this
-#include <Renderer/DeviceManager.h>//todo:remove this
 
 namespace GuGu{
     std::shared_ptr<AndroidApplication> globalApplication;
     AndroidApplication::AndroidApplication()
     {
-        m_surface_initialize_ready = false;
+        m_surfaceInitializeReady = false;
         m_needToRecreateSwapChain = false;
     }
 
@@ -21,29 +18,47 @@ namespace GuGu{
 
     }
 
-    void AndroidApplication::setAndroidApp(android_app* app) {
-        m_android_app = app;
-    }
-
-    void AndroidApplication::setSurfaceReady(bool value) {
-        m_surface_initialize_ready = value;
-    }
-
-    bool AndroidApplication::getSurfaceReady() {
-        return m_surface_initialize_ready;
+    void AndroidApplication::init() {
+        //create renderer and init
+        m_renderer = std::make_shared<VulkanRenderer>();
+        m_renderer->init();
     }
 
     void AndroidApplication::pumpMessage() {
         processAndroidEvents(m_android_app);
     }
 
-    void AndroidApplication::setAndroidNativeWindow(android_app *pApp) {
-        m_window = std::make_shared<AndroidWindow>();//note:just one window
-        m_window->setNativeWindow(pApp->window);
+    std::shared_ptr<Window> AndroidApplication::getWindow(uint32_t index)
+    {
+        return m_window;
     }
 
     std::shared_ptr<AndroidApplication> AndroidApplication::getApplication() {
         return globalApplication;
+    }
+
+    std::shared_ptr <AndroidWindow> AndroidApplication::getPlatformWindow() {
+        return m_window;
+    }
+
+    void AndroidApplication::setAndroidApp(android_app* app) {
+        m_android_app = app;
+    }
+
+    void AndroidApplication::setSurfaceReady(bool value) {
+        m_surfaceInitializeReady = value;
+    }
+
+    bool AndroidApplication::getSurfaceReady() const{
+        return m_surfaceInitializeReady;
+    }
+
+    void AndroidApplication::setNeedToRecreateSwapChain(bool value) {
+        m_needToRecreateSwapChain = value;
+    }
+
+    bool AndroidApplication::getNeedToRecreateSwapChainFlag() const {
+        return m_needToRecreateSwapChain;
     }
 
     std::shared_ptr<Application> Application::getApplication()
@@ -51,40 +66,22 @@ namespace GuGu{
         return globalApplication;
     }
 
-    void AndroidApplication::init() {
-        //create renderer and init
-        m_renderer = std::make_shared<VulkanRenderer>();
-        m_renderer->init();
-
-    }
-
-    std::shared_ptr <AndroidWindow> AndroidApplication::getPlatformWindow() {
-        return m_window;
-    }
-
     void AndroidApplication::setAssetManager(AAssetManager* assetManager) {
         m_assetManager = assetManager;
     }
 
-    AAssetManager *AndroidApplication::getAssetManager() {
+    AAssetManager *AndroidApplication::getAssetManager() const {
         return m_assetManager;
     }
 
-    void AndroidApplication::setNeedToRecreateSwapChain(bool value) {
-        m_needToRecreateSwapChain = value;
-    }
-
-    bool AndroidApplication::getNeedToRecreateSwapChainFlag() {
-        return m_needToRecreateSwapChain;
+    void AndroidApplication::setAndroidNativeWindow(android_app *pApp) {
+        m_window = std::make_shared<AndroidWindow>();//note:just one window
+        m_window->setNativeWindow(pApp->window);
     }
 
     //void AndroidApplication::resize(int32_t width, int32_t height) {
     //    m_renderer->onResize(width, height);
     //}
-    std::shared_ptr<Window> AndroidApplication::getWindow(uint32_t index)
-    {
-        return m_window;
-    }
 
     std::shared_ptr<Application> CreateApplicationFactory()
     {

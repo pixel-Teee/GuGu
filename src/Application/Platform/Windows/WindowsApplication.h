@@ -1,35 +1,32 @@
 #pragma once
 
-#include <Application/Application.h>
+#include <vector>
 
 #include <windows.h>
 
-#include <vector>
+#include <Application/Application.h>
 
 namespace GuGu {
 	class WindowsWindow;
-	class D3D12Renderer;
 	class WindowsApplication : public Application
 	{
 	public:
 		WindowsApplication();
 
-		void setNativeApplicationHandleAndCmdShow(HINSTANCE applicationInstance, int32_t cmdShow);
+		virtual void init() override;
 
 		virtual void pumpMessage() override;
 
-		virtual void init() override;
+		virtual std::shared_ptr<Window> getWindow(uint32_t index) override;
 
 		std::vector<std::shared_ptr<WindowsWindow>> getPlatformWindows();
 
 		static std::shared_ptr<WindowsApplication> getApplication();
 
-		virtual std::shared_ptr<Window> getWindow(uint32_t index) override;
+		void setNativeApplicationHandleAndCmdShow(HINSTANCE applicationInstance, int32_t cmdShow);
 	private:
 		HINSTANCE m_applicationInstance;
 
 		std::vector<std::shared_ptr<WindowsWindow>> m_windows;
-
-		//std::shared_ptr<D3D12Renderer> m_renderer;
 	};
 }

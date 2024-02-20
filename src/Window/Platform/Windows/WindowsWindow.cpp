@@ -39,7 +39,6 @@ namespace GuGu {
 		SetWindowPos(m_windowHandle, 0, 0, 0, borderWidth + 1280,
 			borderHeight + 720, SWP_NOMOVE | SWP_NOZORDER);
 
-
 		//GuGu_LOGE(u8"create window error!");
 
 		ShowWindow(m_windowHandle, m_startCmdShow);

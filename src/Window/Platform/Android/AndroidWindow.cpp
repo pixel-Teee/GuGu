@@ -15,7 +15,7 @@ namespace GuGu{
         m_nativeWindow = nativeWindow;
     }
 
-    ANativeWindow *AndroidWindow::getNativeHandle() {
+    ANativeWindow *AndroidWindow::getNativeHandle() const {
         return m_nativeWindow;
     }
 }

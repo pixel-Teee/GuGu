@@ -2,7 +2,6 @@
 
 #include "AndroidMisc.h"
 #include "AndroidApplication.h"
-//#include <game-activity/native_app_glue/android_native_app_glue.h>
 
 namespace GuGu{
     bool processAndroidEvents(android_app *app) //return value is exit or already get event
