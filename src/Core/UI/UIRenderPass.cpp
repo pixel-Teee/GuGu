@@ -38,6 +38,7 @@ namespace GuGu {
 
 	UIRenderPass::~UIRenderPass()
 	{
+
 	}
 	bool UIRenderPass::Init()
 	{

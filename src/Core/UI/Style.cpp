@@ -72,4 +72,9 @@ namespace GuGu {
 
 		return nullptr;
 	}
+	void Style::clear()
+	{
+		m_styles.clear();
+		m_texts.clear();
+	}
 }

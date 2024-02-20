@@ -45,6 +45,8 @@ namespace GuGu {
 		bool getDirtyFlag();
 		void setDirtyFlag(bool value);
 
+		void clear();
+
 		friend class CharacterList;
 	private:
 		void copyDataIntoSlot(std::shared_ptr<AtlasedTextureSlot> slotToCopyTo, const std::vector<uint8_t>& data);

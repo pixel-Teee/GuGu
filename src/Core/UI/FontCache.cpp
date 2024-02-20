@@ -227,6 +227,11 @@ namespace GuGu {
 		m_fontAtlasDirty = value;
 	}
 
+	void FontCache::clear()
+	{
+		m_fontAtlasTexture = nullptr;
+	}
+
 	void FontCache::copyDataIntoSlot(std::shared_ptr<AtlasedTextureSlot> slotToCopyTo, const std::vector<uint8_t>& data)
 	{
 		//copy pixel data to the texture

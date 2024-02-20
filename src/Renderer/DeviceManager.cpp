@@ -149,6 +149,8 @@ namespace GuGu{
     }
 
     void DeviceManager::ShutDown() {
+        m_SwapChainFramebuffers.clear();
+
         DestroyDeviceAndSwapChain();
 
         m_instanceCreated = false;

@@ -25,6 +25,8 @@ namespace GuGu {
 		static std::shared_ptr<Style> getStyle();
 
 		std::shared_ptr<TextInfo> getTextInfo(const GuGuUtf8Str& str);
+
+		void clear();
 	private:
 		//nvrhi::DeviceHandle m_device;
 

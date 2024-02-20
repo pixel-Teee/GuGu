@@ -1099,7 +1099,7 @@ namespace GuGu{
     void DeviceManager_VK::destroySwapChain() {
         if(m_VulkanDevice)
         {
-            //todo:add wait idle
+            vkDeviceWaitIdle(m_VulkanDevice);
         }
 
         if(m_SwapChain)

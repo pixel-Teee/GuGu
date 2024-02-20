@@ -31,7 +31,7 @@ namespace GuGu{
             }
         }
 
-        //m_renderer->onDestroy();
+        m_renderer->onDestroy();
     }
     void Application::pumpMessage()
     {
