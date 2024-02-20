@@ -5,6 +5,9 @@ namespace GuGu {
 	{
 	public:
 		WindowsTimer();
+
+		virtual ~WindowsTimer();
+
 		virtual float GetTotalTime() const override;
 
 		virtual float GetDeltaTime() const override;

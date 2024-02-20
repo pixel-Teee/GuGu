@@ -16,6 +16,9 @@ namespace GuGu {
 		mPrevTime = currTime;
 		mCurrTime = currTime;
 	}
+	WindowsTimer::~WindowsTimer()
+	{
+	}
 	float WindowsTimer::GetTotalTime() const
 	{
 		return (mCurrTime - mBaseTime) * mSecondsPerCount;
@@ -34,7 +37,6 @@ namespace GuGu {
 
 		mPrevTime = mCurrTime;
 	}
-
 	std::shared_ptr<Timer> CreateTimerFactory()
 	{
 		std::shared_ptr<Timer> timer = std::make_shared<WindowsTimer>();

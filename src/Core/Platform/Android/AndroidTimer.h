@@ -10,6 +10,8 @@ namespace GuGu{
     public:
         AndroidTimer();
 
+        virtual ~AndroidTimer();
+
         virtual float GetTotalTime() const override;
         virtual float GetDeltaTime() const override;
 
