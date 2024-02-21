@@ -2011,7 +2011,7 @@ namespace GuGu{
         typedef RefCountPtr<ICommandList> CommandListHandle;
 
 		//--------------------------------------------
-        //-----------IDevice---------------------
+        //-----------IDevice--------------------------
         //--------------------------------------------
         class IDevice : public IResource
         {

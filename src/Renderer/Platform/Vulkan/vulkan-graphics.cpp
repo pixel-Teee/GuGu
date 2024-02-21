@@ -1,13 +1,10 @@
 #include <pch.h>
 
 #include "vulkan-backend.h"
-#include "VulkanRenderer.h"
-
-#include <Renderer/containers.h>
-
-#include <Renderer/misc.h>
 #include <nvrhi.h>
 
+#include <Renderer/misc.h>
+#include <Renderer/containers.h>
 
 namespace GuGu{
 
@@ -42,6 +39,210 @@ namespace GuGu{
 
             return dimension;
         }
+
+		FramebufferHandle Device::createFramebuffer(const FramebufferDesc& desc) {
+			Framebuffer* fb = new Framebuffer(m_Context);
+			fb->desc = desc;
+			fb->framebufferInfo = FramebufferInfoEx(desc);
+
+			attachment_vector<VkAttachmentDescription2> attachmentDescs(desc.colorAttachments.size());
+			attachment_vector<VkAttachmentReference2> colorAttachmentRefs(desc.colorAttachments.size());//note:use for render pass
+			VkAttachmentReference2 depthAttachmentRef;
+
+			static_vector<VkImageView, c_MaxRenderTargets + 1> attachmentViews;
+			attachmentViews.resize(desc.colorAttachments.size());
+
+			uint32_t numArraySlices = 0;
+			for (uint32_t i = 0; i < desc.colorAttachments.size(); ++i)
+			{
+				const auto& rt = desc.colorAttachments[i];
+				Texture* t = checked_cast<Texture*>(rt.texture);
+
+				assert(fb->framebufferInfo.width == std::max(t->desc.width >> rt.subresources.baseMipLevel, 1u));
+				assert(fb->framebufferInfo.height == std::max(t->desc.height >> rt.subresources.baseMipLevel, 1u));
+
+				const VkFormat attachmentFormat = (rt.format == Format::UNKNOWN ? t->imageInfo.format : convertFormat(rt.format));
+
+				attachmentDescs[i] = {};
+				VkAttachmentDescription2 attachmentDescription2{};
+				attachmentDescription2.sType = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2;
+				attachmentDescription2.format = attachmentFormat;
+				attachmentDescription2.samples = t->imageInfo.samples;
+				attachmentDescription2.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+				attachmentDescription2.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+				attachmentDescription2.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+				attachmentDescription2.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+				attachmentDescs[i] = attachmentDescription2;
+
+				colorAttachmentRefs[i] = {};
+				VkAttachmentReference2 attachmentReference2{};
+				attachmentReference2.sType = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2;
+				attachmentReference2.attachment = i;
+				attachmentReference2.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+				colorAttachmentRefs[i] = attachmentReference2;
+
+				TextureSubresourceSet subresources = rt.subresources.resolve(t->desc, true);
+
+				TextureDimension  dimension;
+				dimension = getDimensionForFramebuffer(t->desc.dimension, subresources.numArraySlices >> 1);//todo:fix this
+				const auto& view = t->getSubresourceView(subresources, dimension, rt.format);
+				attachmentViews[i] = view.view;
+
+				fb->resources.push_back(rt.texture);
+				if (numArraySlices)
+					assert(numArraySlices == subresources.numArraySlices);
+				else
+					numArraySlices = subresources.numArraySlices;
+			}
+
+			//add depth/stencil attachment if present
+			if (desc.depthAttachment.valid())
+			{
+				const auto& att = desc.depthAttachment;
+
+				Texture* texture = checked_cast<Texture*>(att.texture);
+				assert(fb->framebufferInfo.width == std::max(texture->desc.width >> att.subresources.baseMipLevel, 1u));
+				assert(fb->framebufferInfo.height == std::max(texture->desc.height >> att.subresources.baseMipLevel, 1u));
+
+				VkImageLayout depthLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+				if (desc.depthAttachment.isReadOnly)
+				{
+					depthLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+				}
+
+				VkAttachmentDescription2 attachmentDescription2 = {};
+				attachmentDescription2.sType = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2;
+				attachmentDescription2.format = texture->imageInfo.format;
+				attachmentDescription2.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+				attachmentDescription2.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+				attachmentDescription2.initialLayout = depthLayout;
+				attachmentDescription2.finalLayout = depthLayout;
+
+				VkAttachmentReference2 attachmentReference2{};
+				attachmentReference2.sType = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2;
+				attachmentReference2.attachment = uint32_t(attachmentDescs.size() - 1);
+				attachmentReference2.layout = depthLayout;
+
+				TextureSubresourceSet subresources = att.subresources.resolve(texture->desc, true);
+				TextureDimension dimension = getDimensionForFramebuffer(texture->desc.dimension, subresources.numArraySlices > 1);
+
+				const auto& view = texture->getSubresourceView(subresources, dimension, att.format);
+				attachmentViews.push_back(view.view);
+
+				fb->resources.push_back(att.texture);
+
+				if (numArraySlices)
+					assert(numArraySlices == subresources.numArraySlices);
+				else
+					numArraySlices = subresources.numArraySlices;
+			}
+
+			VkSubpassDescription2 subpassDescription2 = {};
+			subpassDescription2.sType = VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_2;
+			subpassDescription2.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+			subpassDescription2.colorAttachmentCount = uint32_t(desc.colorAttachments.size());
+			subpassDescription2.pColorAttachments = colorAttachmentRefs.data();
+			subpassDescription2.pDepthStencilAttachment = desc.depthAttachment.valid() ? &depthAttachmentRef : nullptr;
+
+			//add vrs attachment
+			//declare the structures here to avoid using pointers to out-of-scope objects in renderPassInfo further
+			VkAttachmentReference2 vrsAttachmentRef = {};
+			VkFragmentShadingRateAttachmentInfoKHR shadingRateAttachmentInfoKhr{};
+
+			if (desc.shadingRateAttachment.valid())
+			{
+				const auto& vrsAttachment = desc.shadingRateAttachment;
+				Texture* vrsTexture = checked_cast<Texture*>(vrsAttachment.texture);
+				assert(vrsTexture->imageInfo.format == VK_FORMAT_R8_UINT);
+				assert(vrsTexture->imageInfo.samples == VK_SAMPLE_COUNT_1_BIT);
+
+				VkAttachmentDescription2 vrsAttachmentDesc = {};
+				vrsAttachmentDesc.format = VK_FORMAT_R8_UINT;
+				vrsAttachmentDesc.samples = VK_SAMPLE_COUNT_1_BIT;
+				vrsAttachmentDesc.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+				vrsAttachmentDesc.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+				vrsAttachmentDesc.initialLayout = VK_IMAGE_LAYOUT_FRAGMENT_SHADING_RATE_ATTACHMENT_OPTIMAL_KHR;
+				vrsAttachmentDesc.finalLayout = VK_IMAGE_LAYOUT_FRAGMENT_SHADING_RATE_ATTACHMENT_OPTIMAL_KHR;
+
+				attachmentDescs.push_back(vrsAttachmentDesc);
+
+				TextureSubresourceSet subresources = vrsAttachment.subresources.resolve(vrsTexture->desc, true);
+				TextureDimension dimension = getDimensionForFramebuffer(vrsTexture->desc.dimension, subresources.numArraySlices > 1);
+
+				const auto& view = vrsTexture->getSubresourceView(subresources, dimension, vrsAttachment.format);
+				attachmentViews.push_back(view.view);
+
+				fb->resources.push_back(vrsAttachment.texture);
+
+				if (numArraySlices)
+					assert(numArraySlices == subresources.numArraySlices);
+				else
+					numArraySlices = subresources.numArraySlices;
+
+				VkPhysicalDeviceFragmentShadingRatePropertiesKHR vkPhysicalDeviceFragmentShadingRatePropertiesKhr{};
+				vkPhysicalDeviceFragmentShadingRatePropertiesKhr.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_PROPERTIES_KHR;
+
+				VkPhysicalDeviceProperties2 physicalDeviceProperties2 = {};
+				physicalDeviceProperties2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+				physicalDeviceProperties2.pNext = &vkPhysicalDeviceFragmentShadingRatePropertiesKhr;
+
+				vkGetPhysicalDeviceProperties2(m_Context.physicalDevice, &physicalDeviceProperties2);
+
+				//auto rateProps = vk::PhysicalDeviceFragmentShadingRatePropertiesKHR();
+				//auto props = vk::PhysicalDeviceProperties2();
+				//props.pNext = &rateProps;
+				//m_Context.physicalDevice.getProperties2(&props);
+
+				VkAttachmentReference2 attachmentReference2{};
+				attachmentReference2.sType = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2;
+				attachmentReference2.attachment = uint32_t(attachmentDescs.size()) - 1;
+				attachmentReference2.layout = VK_IMAGE_LAYOUT_FRAGMENT_SHADING_RATE_ATTACHMENT_OPTIMAL_KHR;
+
+				//vrsAttachmentRef = vk::AttachmentReference2()
+				//        .setAttachment(uint32_t(attachmentDescs.size()) - 1)
+				//        .setLayout(vk::ImageLayout::eFragmentShadingRateAttachmentOptimalKHR);
+
+				VkFragmentShadingRateAttachmentInfoKHR fragmentShadingRateAttachmentInfoKhr{};
+				fragmentShadingRateAttachmentInfoKhr.sType = VK_STRUCTURE_TYPE_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR;
+				fragmentShadingRateAttachmentInfoKhr.pFragmentShadingRateAttachment = &vrsAttachmentRef;
+				fragmentShadingRateAttachmentInfoKhr.shadingRateAttachmentTexelSize = vkPhysicalDeviceFragmentShadingRatePropertiesKhr.minFragmentShadingRateAttachmentTexelSize;
+
+				//shadingRateAttachmentInfo = vk::FragmentShadingRateAttachmentInfoKHR()
+				//        .setPFragmentShadingRateAttachment(&vrsAttachmentRef)
+				//        .setShadingRateAttachmentTexelSize(rateProps.minFragmentShadingRateAttachmentTexelSize);
+
+				subpassDescription2.pNext = &shadingRateAttachmentInfoKhr;
+			}
+
+			VkRenderPassCreateInfo2 renderPassCreateInfo2 = {};
+			renderPassCreateInfo2.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2;
+			renderPassCreateInfo2.attachmentCount = uint32_t(attachmentDescs.size());
+			renderPassCreateInfo2.pAttachments = attachmentDescs.data();
+			renderPassCreateInfo2.subpassCount = 1;
+			renderPassCreateInfo2.pSubpasses = &subpassDescription2;//subpass
+
+			//todo:fix this
+			PFN_vkCreateRenderPass2KHR vkCreateRenderPass2KHR = (PFN_vkCreateRenderPass2KHR)vkGetInstanceProcAddr(m_Context.instance, "vkCreateRenderPass2KHR");
+			VkResult result = vkCreateRenderPass2KHR(m_Context.device, &renderPassCreateInfo2, VK_NULL_HANDLE, &fb->renderPass);
+
+			VK_CHECK(result);
+
+			VkFramebufferCreateInfo vkFramebufferCreateInfo = {};
+			vkFramebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+			vkFramebufferCreateInfo.renderPass = fb->renderPass;
+			vkFramebufferCreateInfo.attachmentCount = uint32_t(attachmentViews.size());
+			vkFramebufferCreateInfo.pAttachments = attachmentViews.data();
+			vkFramebufferCreateInfo.width = fb->framebufferInfo.width;
+			vkFramebufferCreateInfo.height = fb->framebufferInfo.height;
+			vkFramebufferCreateInfo.layers = numArraySlices;
+
+
+			result = vkCreateFramebuffer(m_Context.device, &vkFramebufferCreateInfo, m_Context.allocationCallbacks, &fb->framebuffer);
+
+			VK_CHECK(result);
+
+			return FramebufferHandle::Create(fb);
+		}
 
         Framebuffer::~Framebuffer() {
             if (framebuffer && managed)
@@ -146,239 +347,7 @@ namespace GuGu{
             }
 
             return shaderStageCreateInfo;
-        }
-
-        FramebufferHandle Device::createFramebuffer(const FramebufferDesc &desc) {
-            Framebuffer* fb = new Framebuffer(m_Context);
-            fb->desc = desc;
-            fb->framebufferInfo = FramebufferInfoEx(desc);
-
-            attachment_vector<VkAttachmentDescription2> attachmentDescs(desc.colorAttachments.size());
-            attachment_vector<VkAttachmentReference2> colorAttachmentRefs(desc.colorAttachments.size());//note:use for render pass
-            VkAttachmentReference2 depthAttachmentRef;
-
-            static_vector<VkImageView, c_MaxRenderTargets + 1> attachmentViews;
-            attachmentViews.resize(desc.colorAttachments.size());
-
-            uint32_t numArraySlices = 0;
-            for(uint32_t i = 0; i < desc.colorAttachments.size(); ++i)
-            {
-                const auto& rt = desc.colorAttachments[i];
-                Texture* t = checked_cast<Texture*>(rt.texture);
-
-                assert(fb->framebufferInfo.width == std::max(t->desc.width >> rt.subresources.baseMipLevel, 1u));
-                assert(fb->framebufferInfo.height == std::max(t->desc.height >> rt.subresources.baseMipLevel, 1u));
-
-                const VkFormat attachmentFormat = (rt.format == Format::UNKNOWN ? t->imageInfo.format : convertFormat(rt.format));
-
-                attachmentDescs[i] = {};
-                VkAttachmentDescription2 attachmentDescription2{};
-                attachmentDescription2.sType = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2;
-                attachmentDescription2.format = attachmentFormat;
-                attachmentDescription2.samples = t->imageInfo.samples;
-                attachmentDescription2.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-                attachmentDescription2.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-                attachmentDescription2.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-                attachmentDescription2.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-                attachmentDescs[i] = attachmentDescription2;
-
-                colorAttachmentRefs[i] = {};
-                VkAttachmentReference2 attachmentReference2{};
-                attachmentReference2.sType = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2;
-                attachmentReference2.attachment = i;
-                attachmentReference2.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-                colorAttachmentRefs[i] = attachmentReference2;
-
-                TextureSubresourceSet subresources = rt.subresources.resolve(t->desc, true);
-
-                TextureDimension  dimension;
-                dimension = getDimensionForFramebuffer(t->desc.dimension, subresources.numArraySlices >> 1);//todo:fix this
-                const auto& view = t->getSubresourceView(subresources, dimension, rt.format);
-                attachmentViews[i] = view.view;
-
-                fb->resources.push_back(rt.texture);
-                if(numArraySlices)
-                    assert(numArraySlices == subresources.numArraySlices);
-                else
-                    numArraySlices = subresources.numArraySlices;
-            }
-
-            //add depth/stencil attachment if present
-            if(desc.depthAttachment.valid())
-            {
-                const auto& att = desc.depthAttachment;
-
-                Texture* texture = checked_cast<Texture*>(att.texture);
-                assert(fb->framebufferInfo.width == std::max(texture->desc.width >> att.subresources.baseMipLevel, 1u));
-                assert(fb->framebufferInfo.height == std::max(texture->desc.height >> att.subresources.baseMipLevel, 1u));
-
-                VkImageLayout depthLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-                if(desc.depthAttachment.isReadOnly)
-                {
-                    depthLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
-                }
-
-                VkAttachmentDescription2 attachmentDescription2 = {};
-                attachmentDescription2.sType = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2;
-                attachmentDescription2.format = texture->imageInfo.format;
-                attachmentDescription2.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-                attachmentDescription2.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-                attachmentDescription2.initialLayout = depthLayout;
-                attachmentDescription2.finalLayout = depthLayout;
-
-                VkAttachmentReference2 attachmentReference2{};
-                attachmentReference2.sType = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2;
-                attachmentReference2.attachment = uint32_t(attachmentDescs.size() - 1);
-                attachmentReference2.layout = depthLayout;
-
-                TextureSubresourceSet subresources = att.subresources.resolve(texture->desc, true);
-                TextureDimension dimension = getDimensionForFramebuffer(texture->desc.dimension, subresources.numArraySlices > 1);
-
-                const auto& view = texture->getSubresourceView(subresources, dimension, att.format);
-                attachmentViews.push_back(view.view);
-
-                fb->resources.push_back(att.texture);
-
-                if (numArraySlices)
-                    assert(numArraySlices == subresources.numArraySlices);
-                else
-                    numArraySlices = subresources.numArraySlices;
-            }
-
-            VkSubpassDescription2 subpassDescription2 = {};
-            subpassDescription2.sType = VK_STRUCTURE_TYPE_SUBPASS_DESCRIPTION_2;
-            subpassDescription2.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-            subpassDescription2.colorAttachmentCount = uint32_t(desc.colorAttachments.size());
-            subpassDescription2.pColorAttachments = colorAttachmentRefs.data();
-            subpassDescription2.pDepthStencilAttachment = desc.depthAttachment.valid() ? &depthAttachmentRef : nullptr;
-
-            //add vrs attachment
-            //declare the structures here to avoid using pointers to out-of-scope objects in renderPassInfo further
-            VkAttachmentReference2 vrsAttachmentRef = {};
-            VkFragmentShadingRateAttachmentInfoKHR shadingRateAttachmentInfoKhr{};
-
-            if(desc.shadingRateAttachment.valid())
-            {
-                const auto& vrsAttachment = desc.shadingRateAttachment;
-                Texture* vrsTexture = checked_cast<Texture*>(vrsAttachment.texture);
-                assert(vrsTexture->imageInfo.format == VK_FORMAT_R8_UINT);
-                assert(vrsTexture->imageInfo.samples == VK_SAMPLE_COUNT_1_BIT);
-
-                VkAttachmentDescription2 vrsAttachmentDesc = {};
-                vrsAttachmentDesc.format = VK_FORMAT_R8_UINT;
-                vrsAttachmentDesc.samples = VK_SAMPLE_COUNT_1_BIT;
-                vrsAttachmentDesc.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
-                vrsAttachmentDesc.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-                vrsAttachmentDesc.initialLayout = VK_IMAGE_LAYOUT_FRAGMENT_SHADING_RATE_ATTACHMENT_OPTIMAL_KHR;
-                vrsAttachmentDesc.finalLayout = VK_IMAGE_LAYOUT_FRAGMENT_SHADING_RATE_ATTACHMENT_OPTIMAL_KHR;
-
-                attachmentDescs.push_back(vrsAttachmentDesc);
-
-                TextureSubresourceSet subresources = vrsAttachment.subresources.resolve(vrsTexture->desc, true);
-                TextureDimension dimension = getDimensionForFramebuffer(vrsTexture->desc.dimension, subresources.numArraySlices > 1);
-
-                const auto& view = vrsTexture->getSubresourceView(subresources, dimension, vrsAttachment.format);
-                attachmentViews.push_back(view.view);
-
-                fb->resources.push_back(vrsAttachment.texture);
-
-                if (numArraySlices)
-                    assert(numArraySlices == subresources.numArraySlices);
-                else
-                    numArraySlices = subresources.numArraySlices;
-
-                VkPhysicalDeviceFragmentShadingRatePropertiesKHR vkPhysicalDeviceFragmentShadingRatePropertiesKhr{};
-                vkPhysicalDeviceFragmentShadingRatePropertiesKhr.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_PROPERTIES_KHR;
-
-                VkPhysicalDeviceProperties2 physicalDeviceProperties2 = {};
-                physicalDeviceProperties2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
-                physicalDeviceProperties2.pNext = &vkPhysicalDeviceFragmentShadingRatePropertiesKhr;
-
-                vkGetPhysicalDeviceProperties2(m_Context.physicalDevice, &physicalDeviceProperties2);
-
-                //auto rateProps = vk::PhysicalDeviceFragmentShadingRatePropertiesKHR();
-                //auto props = vk::PhysicalDeviceProperties2();
-                //props.pNext = &rateProps;
-                //m_Context.physicalDevice.getProperties2(&props);
-
-                VkAttachmentReference2 attachmentReference2{};
-                attachmentReference2.sType = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2;
-                attachmentReference2.attachment = uint32_t (attachmentDescs.size()) - 1;
-                attachmentReference2.layout = VK_IMAGE_LAYOUT_FRAGMENT_SHADING_RATE_ATTACHMENT_OPTIMAL_KHR;
-
-                //vrsAttachmentRef = vk::AttachmentReference2()
-                //        .setAttachment(uint32_t(attachmentDescs.size()) - 1)
-                //        .setLayout(vk::ImageLayout::eFragmentShadingRateAttachmentOptimalKHR);
-
-                VkFragmentShadingRateAttachmentInfoKHR fragmentShadingRateAttachmentInfoKhr{};
-                fragmentShadingRateAttachmentInfoKhr.sType = VK_STRUCTURE_TYPE_FRAGMENT_SHADING_RATE_ATTACHMENT_INFO_KHR;
-                fragmentShadingRateAttachmentInfoKhr.pFragmentShadingRateAttachment = &vrsAttachmentRef;
-                fragmentShadingRateAttachmentInfoKhr.shadingRateAttachmentTexelSize = vkPhysicalDeviceFragmentShadingRatePropertiesKhr.minFragmentShadingRateAttachmentTexelSize;
-
-                //shadingRateAttachmentInfo = vk::FragmentShadingRateAttachmentInfoKHR()
-                //        .setPFragmentShadingRateAttachment(&vrsAttachmentRef)
-                //        .setShadingRateAttachmentTexelSize(rateProps.minFragmentShadingRateAttachmentTexelSize);
-
-                subpassDescription2.pNext = &shadingRateAttachmentInfoKhr;
-            }
-
-            VkRenderPassCreateInfo2 renderPassCreateInfo2 = {};
-            renderPassCreateInfo2.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO_2;
-            renderPassCreateInfo2.attachmentCount = uint32_t(attachmentDescs.size());
-            renderPassCreateInfo2.pAttachments = attachmentDescs.data();
-            renderPassCreateInfo2.subpassCount = 1;
-            renderPassCreateInfo2.pSubpasses = &subpassDescription2;//subpass
-
-            //todo:fix this
-            PFN_vkCreateRenderPass2KHR vkCreateRenderPass2KHR = (PFN_vkCreateRenderPass2KHR) vkGetInstanceProcAddr(m_Context.instance, "vkCreateRenderPass2KHR");
-            VkResult result = vkCreateRenderPass2KHR(m_Context.device, &renderPassCreateInfo2, VK_NULL_HANDLE, &fb->renderPass);
-
-            VK_CHECK(result);
-
-            VkFramebufferCreateInfo vkFramebufferCreateInfo = {};
-            vkFramebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-            vkFramebufferCreateInfo.renderPass = fb->renderPass;
-            vkFramebufferCreateInfo.attachmentCount = uint32_t(attachmentViews.size());
-            vkFramebufferCreateInfo.pAttachments = attachmentViews.data();
-            vkFramebufferCreateInfo.width = fb->framebufferInfo.width;
-            vkFramebufferCreateInfo.height = fb->framebufferInfo.height;
-            vkFramebufferCreateInfo.layers = numArraySlices;
-
-
-            result = vkCreateFramebuffer(m_Context.device, &vkFramebufferCreateInfo, m_Context.allocationCallbacks, &fb->framebuffer);
-
-            VK_CHECK(result);
-
-            return FramebufferHandle::Create(fb);
-        }
-
-        GraphicsPipeline::~GraphicsPipeline()
-        {
-            if (pipeline)
-            {
-                vkDestroyPipeline(m_Context.device, pipeline, m_Context.allocationCallbacks);
-                //m_Context.device.destroyPipeline(pipeline, m_Context.allocationCallbacks);
-                pipeline = VK_NULL_HANDLE;
-            }
-
-            if (pipelineLayout)
-            {
-                vkDestroyPipelineLayout(m_Context.device, pipelineLayout, m_Context.allocationCallbacks);
-                //m_Context.device.destroyPipelineLayout(pipelineLayout, m_Context.allocationCallbacks);
-                pipelineLayout = VK_NULL_HANDLE;
-            }
-        }
-
-        Object GraphicsPipeline::getNativeObject(ObjectType objectType) {
-            switch (objectType) {
-                case ObjectTypes::VK_PipelineLayout:
-                    return Object(pipelineLayout);
-                case ObjectTypes::VK_Pipeline:
-                    return Object(pipeline);
-                default:
-                    return nullptr;
-            }
-        }
+        }              
 
         GraphicsPipelineHandle
         Device::createGraphicsPipeline(const GraphicsPipelineDesc &desc, IFramebuffer *_fb) {
@@ -740,32 +709,45 @@ namespace GuGu{
             return GraphicsPipelineHandle::Create(pso);
         }
 
-        void CommandList::updateGraphicsVolatileBuffers()
-        {
-            if (m_AnyVolatileBufferWrites && m_CurrentGraphicsState.pipeline)
-            {
-                GraphicsPipeline* pso = checked_cast<GraphicsPipeline*>(m_CurrentGraphicsState.pipeline);
+		GraphicsPipeline::~GraphicsPipeline()
+		{
+			if (pipeline)
+			{
+				vkDestroyPipeline(m_Context.device, pipeline, m_Context.allocationCallbacks);
+				//m_Context.device.destroyPipeline(pipeline, m_Context.allocationCallbacks);
+				pipeline = VK_NULL_HANDLE;
+			}
 
-                bindBindingSets(VK_PIPELINE_BIND_POINT_GRAPHICS, pso->pipelineLayout, m_CurrentGraphicsState.bindings);
+			if (pipelineLayout)
+			{
+				vkDestroyPipelineLayout(m_Context.device, pipelineLayout, m_Context.allocationCallbacks);
+				//m_Context.device.destroyPipelineLayout(pipelineLayout, m_Context.allocationCallbacks);
+				pipelineLayout = VK_NULL_HANDLE;
+			}
+		}
 
-                m_AnyVolatileBufferWrites = false;
-            }
-        }
+		Object GraphicsPipeline::getNativeObject(ObjectType objectType) {
+			switch (objectType) {
+			case ObjectTypes::VK_PipelineLayout:
+				return Object(pipelineLayout);
+			case ObjectTypes::VK_Pipeline:
+				return Object(pipeline);
+			default:
+				return nullptr;
+			}
+		}
 
-        void CommandList::drawIndexed(const DrawArguments& args)
-        {
-            assert(m_CurrentCmdBuf);
-
-            //todo:implement this function
-            updateGraphicsVolatileBuffers();
-
-            vkCmdDrawIndexed(m_CurrentCmdBuf->cmdBuf, args.vertexCount,
-                             args.instanceCount,
-                             args.startIndexLocation,
-                             args.startVertexLocation,
-                             args.startInstanceLocation);
-
-        }
+		void CommandList::endRenderPass()
+		{
+			//todo:add meshlet state frame buffer check
+			if (m_CurrentGraphicsState.framebuffer)
+			{
+				//m_CurrentCmdBuf->cmdBuf.endRenderPass();
+				vkCmdEndRenderPass(m_CurrentCmdBuf->cmdBuf);
+				m_CurrentGraphicsState.framebuffer = VK_NULL_HANDLE;
+				//m_CurrentMeshletState.framebuffer = nullptr;
+			}
+		}
 
 		static VkViewport VKViewportWithDXCoords(const Viewport& v)
 		{
@@ -780,220 +762,223 @@ namespace GuGu{
 			return viewport;
 		}
 
-        void CommandList::setGraphicsState(const GraphicsState& state)
+		void CommandList::setGraphicsState(const GraphicsState& state)
+		{
+			assert(m_CurrentCmdBuf);
+
+			GraphicsPipeline* pso = checked_cast<GraphicsPipeline*>(state.pipeline);
+			Framebuffer* fb = checked_cast<Framebuffer*>(state.framebuffer);
+
+			if (m_EnableAutomaticBarriers)
+			{
+				trackResourcesAndBarriers(state);
+			}
+
+			//bool anyBarriers = this->anyBarriers();
+			bool anyBarriers = this->anyBarriers();
+			bool updatePipeline = false;
+
+			if (m_CurrentGraphicsState.pipeline != state.pipeline)
+			{
+				vkCmdBindPipeline(m_CurrentCmdBuf->cmdBuf, VK_PIPELINE_BIND_POINT_GRAPHICS, pso->pipeline);
+				//m_CurrentCmdBuf->cmdBuf.bindPipeline(vk::PipelineBindPoint::eGraphics, pso->pipeline);
+
+				m_CurrentCmdBuf->referencedResources.push_back(state.pipeline);
+				updatePipeline = true;
+			}
+
+			if (m_CurrentGraphicsState.framebuffer != state.framebuffer || anyBarriers /* because barriers cannot be set inside a renderpass */)
+			{
+				endRenderPass();
+			}
+
+			auto desc = state.framebuffer->getDesc();
+			if (desc.shadingRateAttachment.valid())
+			{
+				setTextureState(desc.shadingRateAttachment.texture, nvrhi::TextureSubresourceSet(0, 1, 0, 1), nvrhi::ResourceStates::ShadingRateSurface);
+			}
+
+			commitBarriers();
+			//
+			if (!m_CurrentGraphicsState.framebuffer)
+			{
+				VkRenderPassBeginInfo renderPassBeginInfo = {};
+
+				renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+				renderPassBeginInfo.renderPass = fb->renderPass;
+				renderPassBeginInfo.framebuffer = fb->framebuffer;
+				VkRect2D rect2D = {};
+				rect2D.offset.x = 0;
+				rect2D.offset.y = 0;
+				rect2D.extent.width = fb->framebufferInfo.width;
+				rect2D.extent.height = fb->framebufferInfo.height;
+				renderPassBeginInfo.renderArea = rect2D;
+				//VkClearValue clearValue = {};
+				//clearValue.color = { { 0.0f, 0.0f, 0.6, 1.0f } };
+				//renderPassBeginInfo.pClearValues = &clearValue;
+				renderPassBeginInfo.clearValueCount = 0;
+				vkCmdBeginRenderPass(m_CurrentCmdBuf->cmdBuf, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+
+				//m_CurrentCmdBuf->cmdBuf.beginRenderPass(vk::RenderPassBeginInfo()
+				//                                                .setRenderPass(fb->renderPass)
+				//                                                .setFramebuffer(fb->framebuffer)
+				//                                                .setRenderArea(vk::Rect2D()
+				//                                                                       .setOffset(vk::Offset2D(0, 0))
+				//                                                                       .setExtent(vk::Extent2D(fb->framebufferInfo.width, fb->framebufferInfo.height)))
+				//                                                .setClearValueCount(0),
+				//                                        vk::SubpassContents::eInline);
+
+				m_CurrentCmdBuf->referencedResources.push_back(state.framebuffer);
+			}
+			//
+			m_CurrentPipelineLayout = pso->pipelineLayout;
+			m_CurrentPushConstantsVisibility = pso->pushConstantVisibility;
+			//
+						//if (arraysAreDifferent(m_CurrentComputeState.bindings, state.bindings) || m_AnyVolatileBufferWrites)
+			if (arraysAreDifferent(m_CurrentGraphicsState.bindings, state.bindings) || m_AnyVolatileBufferWrites) //todo:fix this
+			{
+				//GuGu_LOGD("volatile buffer write");
+				bindBindingSets(VK_PIPELINE_BIND_POINT_GRAPHICS, pso->pipelineLayout, state.bindings);
+			}
+			//
+			if (!state.viewport.viewports.empty() && arraysAreDifferent(state.viewport.viewports, m_CurrentGraphicsState.viewport.viewports))
+			{
+				nvrhi::static_vector<VkViewport, c_MaxViewports> viewports;
+				for (const auto& vp : state.viewport.viewports)
+				{
+					viewports.push_back(VKViewportWithDXCoords(vp));
+				}
+				//
+				vkCmdSetViewport(m_CurrentCmdBuf->cmdBuf, 0, uint32_t(viewports.size()), viewports.data());
+				//m_CurrentCmdBuf->cmdBuf.setViewport(0, uint32_t(viewports.size()), viewports.data());
+			}
+			//
+			if (!state.viewport.scissorRects.empty() && arraysAreDifferent(state.viewport.scissorRects, m_CurrentGraphicsState.viewport.scissorRects))
+			{
+				nvrhi::static_vector<VkRect2D, c_MaxViewports> scissors;
+				for (const auto& sc : state.viewport.scissorRects)
+				{
+					VkRect2D rect2D = {};
+					rect2D.offset.x = sc.minX;
+					rect2D.offset.y = sc.minY;
+
+					rect2D.extent.width = std::abs(sc.maxX - sc.minX);
+					rect2D.extent.height = std::abs(sc.maxY - sc.minY);
+
+					scissors.push_back(rect2D);
+
+					//scissors.push_back(vk::Rect2D(vk::Offset2D(sc.minX, sc.minY),
+					//                              vk::Extent2D(std::abs(sc.maxX - sc.minX), std::abs(sc.maxY - sc.minY))));
+				}
+				//
+				vkCmdSetScissor(m_CurrentCmdBuf->cmdBuf, 0, uint32_t(scissors.size()), scissors.data());
+				//m_CurrentCmdBuf->cmdBuf.setScissor(0, uint32_t(scissors.size()), scissors.data());
+			}
+			//
+			if (pso->usesBlendConstants && (updatePipeline || m_CurrentGraphicsState.blendConstantColor != state.blendConstantColor))
+			{
+				vkCmdSetBlendConstants(m_CurrentCmdBuf->cmdBuf, &state.blendConstantColor.r);
+				//m_CurrentCmdBuf->cmdBuf.setBlendConstants(&state.blendConstantColor.r);
+			}
+			//
+			if (state.indexBuffer.buffer && m_CurrentGraphicsState.indexBuffer != state.indexBuffer)
+			{
+				vkCmdBindIndexBuffer(m_CurrentCmdBuf->cmdBuf, checked_cast<Buffer*>(state.indexBuffer.buffer)->buffer, state.indexBuffer.offset,
+					state.indexBuffer.format == Format::R16_UINT ?
+					VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32);
+				//m_CurrentCmdBuf->cmdBuf.bindIndexBuffer(checked_cast<Buffer*>(state.indexBuffer.buffer)->buffer,
+				//                                        state.indexBuffer.offset,
+				//                                        state.indexBuffer.format == Format::R16_UINT ?
+				//                                        vk::IndexType::eUint16 : vk::IndexType::eUint32);
+//
+				m_CurrentCmdBuf->referencedResources.push_back(state.indexBuffer.buffer);
+			}
+			//
+			if (!state.vertexBuffers.empty() && arraysAreDifferent(state.vertexBuffers, m_CurrentGraphicsState.vertexBuffers))
+			{
+				VkBuffer vertexBuffers[c_MaxVertexAttributes];
+				VkDeviceSize vertexBufferOffsets[c_MaxVertexAttributes];
+				uint32_t maxVbIndex = 0;
+				//
+				for (const auto& binding : state.vertexBuffers)
+				{
+					// This is tested by the validation layer, skip invalid slots here if VL is not used.
+					if (binding.slot >= c_MaxVertexAttributes)
+						continue;
+					//
+					vertexBuffers[binding.slot] = checked_cast<Buffer*>(binding.buffer)->buffer;
+					vertexBufferOffsets[binding.slot] = VkDeviceSize(binding.offset);
+					maxVbIndex = std::max(maxVbIndex, binding.slot);
+					//
+					m_CurrentCmdBuf->referencedResources.push_back(binding.buffer);
+				}
+				//
+				vkCmdBindVertexBuffers(m_CurrentCmdBuf->cmdBuf, 0, maxVbIndex + 1, vertexBuffers, vertexBufferOffsets);
+				//m_CurrentCmdBuf->cmdBuf.bindVertexBuffers(0, maxVbIndex + 1, vertexBuffers, vertexBufferOffsets);
+			}
+			//
+			if (state.indirectParams)
+			{
+				m_CurrentCmdBuf->referencedResources.push_back(state.indirectParams);
+			}
+			//
+						//if (state.shadingRateState.enabled)
+						//{
+						//    vk::FragmentShadingRateCombinerOpKHR combiners[2] = { convertShadingRateCombiner(state.shadingRateState.pipelinePrimitiveCombiner), convertShadingRateCombiner(state.shadingRateState.imageCombiner) };
+						//    vk::Extent2D shadingRate = convertFragmentShadingRate(state.shadingRateState.shadingRate);
+						//    m_CurrentCmdBuf->cmdBuf.setFragmentShadingRateKHR(&shadingRate, combiners);
+						//}
+			//
+			m_CurrentGraphicsState = state;
+			//m_CurrentComputeState = ComputeState();
+			//m_CurrentMeshletState = MeshletState();
+			//m_CurrentRayTracingState = rt::State();
+			m_AnyVolatileBufferWrites = false;
+		}
+
+        void CommandList::updateGraphicsVolatileBuffers()
+        {
+            if (m_AnyVolatileBufferWrites && m_CurrentGraphicsState.pipeline)
+            {
+                GraphicsPipeline* pso = checked_cast<GraphicsPipeline*>(m_CurrentGraphicsState.pipeline);
+
+                bindBindingSets(VK_PIPELINE_BIND_POINT_GRAPHICS, pso->pipelineLayout, m_CurrentGraphicsState.bindings);
+
+                m_AnyVolatileBufferWrites = false;
+            }
+        }
+
+		void CommandList::draw(const DrawArguments& args)
+		{
+			assert(m_CurrentCmdBuf);
+
+			updateGraphicsVolatileBuffers();
+
+			vkCmdDraw(m_CurrentCmdBuf->cmdBuf, args.vertexCount,
+				args.instanceCount,
+				args.startVertexLocation,
+				args.startInstanceLocation);
+
+			//m_CurrentCmdBuf->cmdBuf.draw(args.vertexCount,
+			//                             args.instanceCount,
+			//                             args.startVertexLocation,
+			//                             args.startInstanceLocation);
+		}
+
+        void CommandList::drawIndexed(const DrawArguments& args)
         {
             assert(m_CurrentCmdBuf);
 
-            GraphicsPipeline* pso = checked_cast<GraphicsPipeline*>(state.pipeline);
-            Framebuffer* fb = checked_cast<Framebuffer*>(state.framebuffer);
-
-            if (m_EnableAutomaticBarriers)
-            {
-                trackResourcesAndBarriers(state);
-            }
-
-            //bool anyBarriers = this->anyBarriers();
-            bool anyBarriers = this->anyBarriers();
-            bool updatePipeline = false;
-
-            if (m_CurrentGraphicsState.pipeline != state.pipeline)
-            {
-                vkCmdBindPipeline(m_CurrentCmdBuf->cmdBuf, VK_PIPELINE_BIND_POINT_GRAPHICS, pso->pipeline);
-                //m_CurrentCmdBuf->cmdBuf.bindPipeline(vk::PipelineBindPoint::eGraphics, pso->pipeline);
-
-                m_CurrentCmdBuf->referencedResources.push_back(state.pipeline);
-                updatePipeline = true;
-            }
-
-            if (m_CurrentGraphicsState.framebuffer != state.framebuffer || anyBarriers /* because barriers cannot be set inside a renderpass */)
-            {
-                endRenderPass();
-            }
-
-            auto desc = state.framebuffer->getDesc();
-            if (desc.shadingRateAttachment.valid())
-            {
-                setTextureState(desc.shadingRateAttachment.texture, nvrhi::TextureSubresourceSet(0, 1, 0, 1), nvrhi::ResourceStates::ShadingRateSurface);
-            }
-
-            commitBarriers();
-//
-            if(!m_CurrentGraphicsState.framebuffer)
-            {
-                VkRenderPassBeginInfo renderPassBeginInfo = {};
-
-                renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-                renderPassBeginInfo.renderPass = fb->renderPass;
-                renderPassBeginInfo.framebuffer = fb->framebuffer;
-                VkRect2D rect2D = {};
-                rect2D.offset.x = 0;
-                rect2D.offset.y = 0;
-                rect2D.extent.width = fb->framebufferInfo.width;
-                rect2D.extent.height = fb->framebufferInfo.height;
-                renderPassBeginInfo.renderArea = rect2D;
-                //VkClearValue clearValue = {};
-                //clearValue.color = { { 0.0f, 0.0f, 0.6, 1.0f } };
-                //renderPassBeginInfo.pClearValues = &clearValue;
-                renderPassBeginInfo.clearValueCount = 0;
-                vkCmdBeginRenderPass(m_CurrentCmdBuf->cmdBuf, &renderPassBeginInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-
-                //m_CurrentCmdBuf->cmdBuf.beginRenderPass(vk::RenderPassBeginInfo()
-                //                                                .setRenderPass(fb->renderPass)
-                //                                                .setFramebuffer(fb->framebuffer)
-                //                                                .setRenderArea(vk::Rect2D()
-                //                                                                       .setOffset(vk::Offset2D(0, 0))
-                //                                                                       .setExtent(vk::Extent2D(fb->framebufferInfo.width, fb->framebufferInfo.height)))
-                //                                                .setClearValueCount(0),
-                //                                        vk::SubpassContents::eInline);
-
-                m_CurrentCmdBuf->referencedResources.push_back(state.framebuffer);
-            }
-//
-            m_CurrentPipelineLayout = pso->pipelineLayout;
-            m_CurrentPushConstantsVisibility = pso->pushConstantVisibility;
-//
-            //if (arraysAreDifferent(m_CurrentComputeState.bindings, state.bindings) || m_AnyVolatileBufferWrites)
-            if(arraysAreDifferent(m_CurrentGraphicsState.bindings, state.bindings) || m_AnyVolatileBufferWrites) //todo:fix this
-            {
-                //GuGu_LOGD("volatile buffer write");
-                bindBindingSets(VK_PIPELINE_BIND_POINT_GRAPHICS, pso->pipelineLayout, state.bindings);
-            }
-//
-            if (!state.viewport.viewports.empty() && arraysAreDifferent(state.viewport.viewports, m_CurrentGraphicsState.viewport.viewports))
-            {
-                nvrhi::static_vector<VkViewport, c_MaxViewports> viewports;
-                for (const auto& vp : state.viewport.viewports)
-                {
-                    viewports.push_back(VKViewportWithDXCoords(vp));
-                }
-//
-                vkCmdSetViewport(m_CurrentCmdBuf->cmdBuf, 0, uint32_t(viewports.size()), viewports.data());
-                //m_CurrentCmdBuf->cmdBuf.setViewport(0, uint32_t(viewports.size()), viewports.data());
-            }
-//
-            if (!state.viewport.scissorRects.empty() && arraysAreDifferent(state.viewport.scissorRects, m_CurrentGraphicsState.viewport.scissorRects))
-            {
-                nvrhi::static_vector<VkRect2D, c_MaxViewports> scissors;
-                for (const auto& sc : state.viewport.scissorRects)
-                {
-                    VkRect2D rect2D = {};
-                    rect2D.offset.x = sc.minX;
-                    rect2D.offset.y = sc.minY;
-
-                    rect2D.extent.width = std::abs(sc.maxX - sc.minX);
-                    rect2D.extent.height = std::abs(sc.maxY - sc.minY);
-
-                    scissors.push_back(rect2D);
-
-                    //scissors.push_back(vk::Rect2D(vk::Offset2D(sc.minX, sc.minY),
-                    //                              vk::Extent2D(std::abs(sc.maxX - sc.minX), std::abs(sc.maxY - sc.minY))));
-                }
-//
-                vkCmdSetScissor(m_CurrentCmdBuf->cmdBuf, 0, uint32_t(scissors.size()), scissors.data());
-                //m_CurrentCmdBuf->cmdBuf.setScissor(0, uint32_t(scissors.size()), scissors.data());
-            }
-//
-            if (pso->usesBlendConstants && (updatePipeline || m_CurrentGraphicsState.blendConstantColor != state.blendConstantColor))
-            {
-                vkCmdSetBlendConstants(m_CurrentCmdBuf->cmdBuf, &state.blendConstantColor.r);
-                //m_CurrentCmdBuf->cmdBuf.setBlendConstants(&state.blendConstantColor.r);
-            }
-//
-            if (state.indexBuffer.buffer && m_CurrentGraphicsState.indexBuffer != state.indexBuffer)
-            {
-                vkCmdBindIndexBuffer(m_CurrentCmdBuf->cmdBuf, checked_cast<Buffer*>(state.indexBuffer.buffer)->buffer, state.indexBuffer.offset,
-                                     state.indexBuffer.format == Format::R16_UINT ?
-                                     VK_INDEX_TYPE_UINT16 : VK_INDEX_TYPE_UINT32);
-                //m_CurrentCmdBuf->cmdBuf.bindIndexBuffer(checked_cast<Buffer*>(state.indexBuffer.buffer)->buffer,
-                //                                        state.indexBuffer.offset,
-                //                                        state.indexBuffer.format == Format::R16_UINT ?
-                //                                        vk::IndexType::eUint16 : vk::IndexType::eUint32);
-//
-                m_CurrentCmdBuf->referencedResources.push_back(state.indexBuffer.buffer);
-            }
-//
-            if (!state.vertexBuffers.empty() && arraysAreDifferent(state.vertexBuffers, m_CurrentGraphicsState.vertexBuffers))
-            {
-                VkBuffer vertexBuffers[c_MaxVertexAttributes];
-                VkDeviceSize vertexBufferOffsets[c_MaxVertexAttributes];
-                uint32_t maxVbIndex = 0;
-//
-                for (const auto& binding : state.vertexBuffers)
-                {
-                    // This is tested by the validation layer, skip invalid slots here if VL is not used.
-                    if (binding.slot >= c_MaxVertexAttributes)
-                        continue;
-//
-                    vertexBuffers[binding.slot] = checked_cast<Buffer*>(binding.buffer)->buffer;
-                    vertexBufferOffsets[binding.slot] = VkDeviceSize(binding.offset);
-                    maxVbIndex = std::max(maxVbIndex, binding.slot);
-//
-                    m_CurrentCmdBuf->referencedResources.push_back(binding.buffer);
-                }
-//
-                vkCmdBindVertexBuffers(m_CurrentCmdBuf->cmdBuf, 0, maxVbIndex + 1, vertexBuffers, vertexBufferOffsets);
-                //m_CurrentCmdBuf->cmdBuf.bindVertexBuffers(0, maxVbIndex + 1, vertexBuffers, vertexBufferOffsets);
-            }
-//
-            if (state.indirectParams)
-            {
-                m_CurrentCmdBuf->referencedResources.push_back(state.indirectParams);
-            }
-//
-            //if (state.shadingRateState.enabled)
-            //{
-            //    vk::FragmentShadingRateCombinerOpKHR combiners[2] = { convertShadingRateCombiner(state.shadingRateState.pipelinePrimitiveCombiner), convertShadingRateCombiner(state.shadingRateState.imageCombiner) };
-            //    vk::Extent2D shadingRate = convertFragmentShadingRate(state.shadingRateState.shadingRate);
-            //    m_CurrentCmdBuf->cmdBuf.setFragmentShadingRateKHR(&shadingRate, combiners);
-            //}
-//
-            m_CurrentGraphicsState = state;
-            //m_CurrentComputeState = ComputeState();
-            //m_CurrentMeshletState = MeshletState();
-            //m_CurrentRayTracingState = rt::State();
-            m_AnyVolatileBufferWrites = false;
-        }
-
-        void CommandList::endRenderPass()
-        {
-            //todo:add meshlet state frame buffer check
-            if (m_CurrentGraphicsState.framebuffer)
-            {
-                //m_CurrentCmdBuf->cmdBuf.endRenderPass();
-                vkCmdEndRenderPass(m_CurrentCmdBuf->cmdBuf);
-                m_CurrentGraphicsState.framebuffer = VK_NULL_HANDLE;
-                //m_CurrentMeshletState.framebuffer = nullptr;
-            }
-        }
-
-        void CommandList::draw(const DrawArguments& args)
-        {
-            assert(m_CurrentCmdBuf);
-
+            //todo:implement this function
             updateGraphicsVolatileBuffers();
 
-            vkCmdDraw(m_CurrentCmdBuf->cmdBuf, args.vertexCount,
-                      args.instanceCount,
-                      args.startVertexLocation,
-                      args.startInstanceLocation);
+            vkCmdDrawIndexed(m_CurrentCmdBuf->cmdBuf, args.vertexCount,
+                             args.instanceCount,
+                             args.startIndexLocation,
+                             args.startVertexLocation,
+                             args.startInstanceLocation);
 
-            //m_CurrentCmdBuf->cmdBuf.draw(args.vertexCount,
-            //                             args.instanceCount,
-            //                             args.startVertexLocation,
-            //                             args.startInstanceLocation);
-        }
-
-        //void CommandList::updateGraphicsVolatileBuffers()
-        //{
-        //    if (m_AnyVolatileBufferWrites && m_CurrentGraphicsState.pipeline)
-        //    {
-        //        GraphicsPipeline* pso = checked_cast<GraphicsPipeline*>(m_CurrentGraphicsState.pipeline);
-//
-        //        bindBindingSets(vk::PipelineBindPoint::eGraphics, pso->pipelineLayout, m_CurrentGraphicsState.bindings);
-//
-        //        m_AnyVolatileBufferWrites = false;
-        //    }
-        //}
+        }                    
     }
 }

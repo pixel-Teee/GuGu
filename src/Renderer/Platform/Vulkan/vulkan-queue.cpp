@@ -263,6 +263,13 @@ namespace GuGu {
             }
         }
 
+		void Device::queueWaitForSemaphore(CommandQueue waitQueueID, VkSemaphore semaphore,
+			uint64_t value) {
+			Queue& waitQueue = *m_Queues[uint32_t(waitQueueID)];
+
+			waitQueue.addWaitSemaphore(semaphore, value);
+		}
+
         void Device::queueSignalSemaphore(CommandQueue executionQueueID, VkSemaphore semaphore,
                                           uint64_t value) {
             Queue& executionQueue = *m_Queues[uint32_t(executionQueueID)];

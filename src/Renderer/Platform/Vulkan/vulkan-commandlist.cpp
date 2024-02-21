@@ -12,8 +12,6 @@ namespace GuGu{
         , m_StateTracker(context.messageCallback)
         , m_UploadManager(std::make_unique<UploadManager>(device, parameters.uploadChunkSize, 0, false))
         , m_ScratchManager(std::make_unique<UploadManager>(device, parameters.scratchChunkSize, parameters.scratchMaxMemory, true)){
-            //todo:add state tracker and upload manager
-
         }
 
         void CommandList::open() {

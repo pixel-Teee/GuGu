@@ -1,13 +1,12 @@
 #include <pch.h>
 
-#include "vulkan-constants.h"
-
 #include "vulkan-backend.h"
 
-#include <unordered_map>
+#include <Renderer/misc.h>
+
 #include <Core/GuGuUtf8Str.h>
 
-#include <Renderer/misc.h>
+#include <unordered_map>
 
 namespace GuGu{
     namespace nvrhi::vulkan {
@@ -15,6 +14,199 @@ namespace GuGu{
             Device* device = new Device(desc);
             return DeviceHandle::Create(device);
         }
+
+		Device::Device(const nvrhi::vulkan::DeviceDesc& desc)
+			: m_Context(desc.instance, desc.physicalDevice, desc.device, reinterpret_cast<VkAllocationCallbacks*>(desc.allocationCallbacks))
+			, m_Allocator(m_Context)
+			, m_TimerQueryAllocator(desc.maxTimerQueries, true) //256
+		{
+			//todo:fix these
+			if (desc.graphicsQueue)
+			{
+				m_Queues[uint32_t(CommandQueue::Graphics)] = std::make_unique<Queue>(m_Context,
+					CommandQueue::Graphics, desc.graphicsQueue,
+					desc.graphicsQueueIndex);
+			}
+
+			if (desc.computeQueue)
+			{
+				m_Queues[uint32_t(CommandQueue::Compute)] = std::make_unique<Queue>(m_Context,
+					CommandQueue::Compute, desc.computeQueue, desc.computeQueueIndex);
+			}
+
+			if (desc.transferQueue)
+			{
+				m_Queues[uint32_t(CommandQueue::Copy)] = std::make_unique<Queue>(m_Context,
+					CommandQueue::Copy, desc.transferQueue, desc.transferQueueIndex);
+			}
+
+			//todo:add feature checking
+
+			//maps vulkan extensions strings into the corresponding boolean flags in device
+			const std::unordered_map<GuGuUtf8Str, bool*> extensionStringMap = {
+				//{ VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME, &m_Context.extensions.KHR_synchronization2 },
+				{ VK_KHR_MAINTENANCE1_EXTENSION_NAME, &m_Context.extensions.KHR_maintenance1 },
+				{ VK_EXT_DEBUG_REPORT_EXTENSION_NAME, &m_Context.extensions.EXT_debug_report },
+				{ VK_EXT_DEBUG_MARKER_EXTENSION_NAME, &m_Context.extensions.EXT_debug_marker },
+				//{ VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME, &m_Context.extensions.KHR_acceleration_structure },
+				//{ VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME, &m_Context.extensions.buffer_device_address },
+				//{ VK_KHR_RAY_QUERY_EXTENSION_NAME,&m_Context.extensions.KHR_ray_query },
+				//{ VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME, &m_Context.extensions.KHR_ray_tracing_pipeline },
+				{ VK_NV_MESH_SHADER_EXTENSION_NAME, &m_Context.extensions.NV_mesh_shader },
+				{ VK_EXT_CONSERVATIVE_RASTERIZATION_EXTENSION_NAME, &m_Context.extensions.EXT_conservative_rasterization},
+				{ VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME, &m_Context.extensions.KHR_fragment_shading_rate },
+				//{ VK_EXT_OPACITY_MICROMAP_EXTENSION_NAME, &m_Context.extensions.EXT_opacity_micromap },
+				//{ VK_NV_RAY_TRACING_INVOCATION_REORDER_EXTENSION_NAME, &m_Context.extensions.NV_ray_tracing_invocation_reorder },
+			};
+
+			//parse the extensions/layer lists and figure out which extensions are enabled
+			for (size_t i = 0; i < desc.numInstanceExtensions; i++)
+			{
+				auto ext = extensionStringMap.find(desc.instanceExtensions[i]);
+				if (ext != extensionStringMap.end())
+				{
+					*(ext->second) = true;
+				}
+			}
+
+			for (size_t i = 0; i < desc.numDeviceExtensions; i++)
+			{
+				auto ext = extensionStringMap.find(desc.deviceExtensions[i]);
+				if (ext != extensionStringMap.end())
+				{
+					*(ext->second) = true;
+				}
+			}
+
+			// The Vulkan 1.2 way of enabling bufferDeviceAddress
+			//if (desc.bufferDeviceAddressSupported)
+			//    m_Context.extensions.buffer_device_address = true;
+			//todo:fix this
+
+			void* pNext = nullptr;
+			//VkPhysicalDeviceAccelerationStructurePropertiesKHR accelStructProperties;
+			//VkPhysicalDeviceRayTracingPipelinePropertiesKHR rayTracingPipelineProperties;
+			VkPhysicalDeviceConservativeRasterizationPropertiesEXT conservativeRasterizationProperties = {};
+			VkPhysicalDeviceFragmentShadingRatePropertiesKHR shadingRateProperties = {};
+			//VkPhysicalDeviceOpacityMicromapPropertiesEXT opacityMicromapProperties;
+			//VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV nvRayTracingInvocationReorderProperties;
+
+			//VkPhysicalDeviceProperties2 deviceProperties2;
+			//deviceProperties2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
+
+			//if (m_Context.extensions.KHR_acceleration_structure)
+			//{
+			//    accelStructProperties.pNext = pNext;
+			//    pNext = &accelStructProperties;
+			//}
+
+			//if (m_Context.extensions.KHR_ray_tracing_pipeline)
+			//{
+			//    rayTracingPipelineProperties.pNext = pNext;
+			//    pNext = &rayTracingPipelineProperties;
+			//}
+
+			if (m_Context.extensions.KHR_fragment_shading_rate)
+			{
+				shadingRateProperties.pNext = pNext;
+				pNext = &shadingRateProperties;
+			}
+
+			if (m_Context.extensions.EXT_conservative_rasterization)
+			{
+				conservativeRasterizationProperties.pNext = pNext;
+				pNext = &conservativeRasterizationProperties;
+			}
+
+			//if (m_Context.extensions.EXT_opacity_micromap)
+			//{
+			//    opacityMicromapProperties.pNext = pNext;
+			//    pNext = &opacityMicromapProperties;
+			//}
+
+			//if (m_Context.extensions.NV_ray_tracing_invocation_reorder)
+			//{
+			//    nvRayTracingInvocationReorderProperties.pNext = pNext;
+			//    pNext = &nvRayTracingInvocationReorderProperties;
+			//}
+
+			//deviceProperties2.pNext = pNext;
+
+			//vkGetPhysicalDeviceProperties2(m_Context.physicalDevice, &deviceProperties2);
+			//m_Context.physicalDevice.getProperties2(&deviceProperties2);
+
+			//m_Context.physicalDeviceProperties = deviceProperties2.properties;
+			//m_Context.accelStructProperties = accelStructProperties;
+			//.rayTracingPipelineProperties = rayTracingPipelineProperties;
+			m_Context.conservativeRasterizationProperties = conservativeRasterizationProperties;
+			m_Context.shadingRateProperties = shadingRateProperties;
+			//m_Context.opacityMicromapProperties = opacityMicromapProperties;
+			//m_Context.nvRayTracingInvocationReorderProperties = nvRayTracingInvocationReorderProperties;
+			m_Context.messageCallback = desc.errorCB;
+
+			if (m_Context.extensions.EXT_opacity_micromap && !m_Context.extensions.KHR_synchronization2)
+			{
+				m_Context.warning(
+					"EXT_opacity_micromap is used without KHR_synchronization2 which is nessesary for OMM Array state transitions. Feature::RayTracingOpacityMicromap will be disabled.");
+			}
+
+			if (m_Context.extensions.KHR_fragment_shading_rate)
+			{
+				VkPhysicalDeviceFeatures2 deviceFeatures2;
+				VkPhysicalDeviceFragmentShadingRateFeaturesKHR shadingRateFeatures;
+				deviceFeatures2.pNext = &shadingRateFeatures;
+				//m_Context.physicalDevice.getFeatures2(&deviceFeatures2);
+				vkGetPhysicalDeviceFeatures2(m_Context.physicalDevice, &deviceFeatures2);
+				m_Context.shadingRateFeatures = shadingRateFeatures;
+			}
+
+			//auto pipelineInfo = VkPipelineCacheCreateInfo();
+
+			VkPipelineCacheCreateInfo pipelineInfo{};
+			pipelineInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
+
+			VkResult res = vkCreatePipelineCache(m_Context.device, &pipelineInfo, m_Context.allocationCallbacks,
+				&m_Context.pipelineCache);
+			//vk::Result res = m_Context.device.createPipelineCache(&pipelineInfo,
+			 //                                                     m_Context.allocationCallbacks,
+																 // &m_Context.pipelineCache);
+
+			if (res != VK_SUCCESS)
+			{
+				m_Context.error("Failed to create the pipeline cache");
+			}
+
+			//vkDebugMarkerSetObjectTagEXT = PFN_vkDebugMarkerSetObjectTagEXT( vkGetDeviceProcAddr( m_Context.device, "vkDebugMarkerSetObjectTagEXT" ) );
+			//vkDebugMarkerSetObjectNameEXT = PFN_vkDebugMarkerSetObjectNameEXT( vkGetDeviceProcAddr( m_Context.device, "vkDebugMarkerSetObjectNameEXT" ) );
+			//vkCmdDebugMarkerBeginEXT = PFN_vkCmdDebugMarkerBeginEXT( vkGetDeviceProcAddr( m_Context.device, "vkCmdDebugMarkerBeginEXT" ) );
+			//vkCmdDebugMarkerEndEXT = PFN_vkCmdDebugMarkerEndEXT( vkGetDeviceProcAddr( m_Context.device, "vkCmdDebugMarkerEndEXT" ) );
+			//vkCmdDebugMarkerInsertEXT = PFN_vkCmdDebugMarkerInsertEXT( vkGetDeviceProcAddr( m_Context.device, "vkCmdDebugMarkerInsertEXT" ) );
+		}
+
+		Device::~Device() {
+			//if (m_TimerQueryPool)
+			//{
+			//    m_Context.device.destroyQueryPool(m_TimerQueryPool);
+			//    m_TimerQueryPool = vk::QueryPool();
+			//}
+
+			if (m_Context.pipelineCache)
+			{
+				vkDestroyPipelineCache(m_Context.device, m_Context.pipelineCache, m_Context.allocationCallbacks);
+				//m_Context.device.destroyPipelineCache(m_Context.pipelineCache);
+				m_Context.pipelineCache = VK_NULL_HANDLE;
+			}
+		}
+
+		void Device::runGarbageCollection() {
+			for (auto& m_Queue : m_Queues)
+			{
+				if (m_Queue)
+				{
+					m_Queue->retireCommandBuffers();
+				}
+			}
+		}
 
         bool Device::queryFeatureSupport(Feature feature, void* pInfo, size_t infoSize)
         {
@@ -164,190 +356,6 @@ namespace GuGu{
             }
         }
 
-        Device::Device(const nvrhi::vulkan::DeviceDesc &desc)
-        : m_Context(desc.instance, desc.physicalDevice, desc.device, reinterpret_cast<VkAllocationCallbacks*>(desc.allocationCallbacks))
-        , m_Allocator(m_Context)
-        , m_TimerQueryAllocator(desc.maxTimerQueries, true) //256
-        {
-            //todo:fix these
-            if(desc.graphicsQueue)
-            {
-                m_Queues[uint32_t(CommandQueue::Graphics)] = std::make_unique<Queue>(m_Context,
-                                                                                     CommandQueue::Graphics, desc.graphicsQueue,
-                                                                                     desc.graphicsQueueIndex);
-            }
-
-            if (desc.computeQueue)
-            {
-                m_Queues[uint32_t(CommandQueue::Compute)] = std::make_unique<Queue>(m_Context,
-                                                                                    CommandQueue::Compute, desc.computeQueue, desc.computeQueueIndex);
-            }
-
-            if (desc.transferQueue)
-            {
-                m_Queues[uint32_t(CommandQueue::Copy)] = std::make_unique<Queue>(m_Context,
-                                                                                 CommandQueue::Copy, desc.transferQueue, desc.transferQueueIndex);
-            }
-
-            //todo:add feature checking
-
-            //maps vulkan extensions strings into the corresponding boolean flags in device
-            const std::unordered_map<GuGuUtf8Str, bool*> extensionStringMap = {
-                    //{ VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME, &m_Context.extensions.KHR_synchronization2 },
-                    { VK_KHR_MAINTENANCE1_EXTENSION_NAME, &m_Context.extensions.KHR_maintenance1 },
-                    { VK_EXT_DEBUG_REPORT_EXTENSION_NAME, &m_Context.extensions.EXT_debug_report },
-                    { VK_EXT_DEBUG_MARKER_EXTENSION_NAME, &m_Context.extensions.EXT_debug_marker },
-                    //{ VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME, &m_Context.extensions.KHR_acceleration_structure },
-                    //{ VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME, &m_Context.extensions.buffer_device_address },
-                    //{ VK_KHR_RAY_QUERY_EXTENSION_NAME,&m_Context.extensions.KHR_ray_query },
-                    //{ VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME, &m_Context.extensions.KHR_ray_tracing_pipeline },
-                    { VK_NV_MESH_SHADER_EXTENSION_NAME, &m_Context.extensions.NV_mesh_shader },
-                    { VK_EXT_CONSERVATIVE_RASTERIZATION_EXTENSION_NAME, &m_Context.extensions.EXT_conservative_rasterization},
-                    { VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME, &m_Context.extensions.KHR_fragment_shading_rate },
-                    //{ VK_EXT_OPACITY_MICROMAP_EXTENSION_NAME, &m_Context.extensions.EXT_opacity_micromap },
-                    //{ VK_NV_RAY_TRACING_INVOCATION_REORDER_EXTENSION_NAME, &m_Context.extensions.NV_ray_tracing_invocation_reorder },
-            };
-
-            //parse the extensions/layer lists and figure out which extensions are enabled
-            for(size_t i = 0; i < desc.numInstanceExtensions; i++)
-            {
-                auto ext = extensionStringMap.find(desc.instanceExtensions[i]);
-                if (ext != extensionStringMap.end())
-                {
-                    *(ext->second) = true;
-                }
-            }
-
-            for(size_t i = 0; i < desc.numDeviceExtensions; i++)
-            {
-                auto ext = extensionStringMap.find(desc.deviceExtensions[i]);
-                if (ext != extensionStringMap.end())
-                {
-                    *(ext->second) = true;
-                }
-            }
-
-            // The Vulkan 1.2 way of enabling bufferDeviceAddress
-            //if (desc.bufferDeviceAddressSupported)
-            //    m_Context.extensions.buffer_device_address = true;
-            //todo:fix this
-
-            void* pNext = nullptr;
-            //VkPhysicalDeviceAccelerationStructurePropertiesKHR accelStructProperties;
-            //VkPhysicalDeviceRayTracingPipelinePropertiesKHR rayTracingPipelineProperties;
-            VkPhysicalDeviceConservativeRasterizationPropertiesEXT conservativeRasterizationProperties = {};
-            VkPhysicalDeviceFragmentShadingRatePropertiesKHR shadingRateProperties = {};
-            //VkPhysicalDeviceOpacityMicromapPropertiesEXT opacityMicromapProperties;
-            //VkPhysicalDeviceRayTracingInvocationReorderPropertiesNV nvRayTracingInvocationReorderProperties;
-
-            //VkPhysicalDeviceProperties2 deviceProperties2;
-            //deviceProperties2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
-
-            //if (m_Context.extensions.KHR_acceleration_structure)
-            //{
-            //    accelStructProperties.pNext = pNext;
-            //    pNext = &accelStructProperties;
-            //}
-
-            //if (m_Context.extensions.KHR_ray_tracing_pipeline)
-            //{
-            //    rayTracingPipelineProperties.pNext = pNext;
-            //    pNext = &rayTracingPipelineProperties;
-            //}
-
-            if (m_Context.extensions.KHR_fragment_shading_rate)
-            {
-                shadingRateProperties.pNext = pNext;
-                pNext = &shadingRateProperties;
-            }
-
-            if (m_Context.extensions.EXT_conservative_rasterization)
-            {
-                conservativeRasterizationProperties.pNext = pNext;
-                pNext = &conservativeRasterizationProperties;
-            }
-
-            //if (m_Context.extensions.EXT_opacity_micromap)
-            //{
-            //    opacityMicromapProperties.pNext = pNext;
-            //    pNext = &opacityMicromapProperties;
-            //}
-
-            //if (m_Context.extensions.NV_ray_tracing_invocation_reorder)
-            //{
-            //    nvRayTracingInvocationReorderProperties.pNext = pNext;
-            //    pNext = &nvRayTracingInvocationReorderProperties;
-            //}
-
-            //deviceProperties2.pNext = pNext;
-
-            //vkGetPhysicalDeviceProperties2(m_Context.physicalDevice, &deviceProperties2);
-            //m_Context.physicalDevice.getProperties2(&deviceProperties2);
-
-            //m_Context.physicalDeviceProperties = deviceProperties2.properties;
-            //m_Context.accelStructProperties = accelStructProperties;
-            //.rayTracingPipelineProperties = rayTracingPipelineProperties;
-            m_Context.conservativeRasterizationProperties = conservativeRasterizationProperties;
-            m_Context.shadingRateProperties = shadingRateProperties;
-            //m_Context.opacityMicromapProperties = opacityMicromapProperties;
-            //m_Context.nvRayTracingInvocationReorderProperties = nvRayTracingInvocationReorderProperties;
-            m_Context.messageCallback = desc.errorCB;
-
-            if (m_Context.extensions.EXT_opacity_micromap && !m_Context.extensions.KHR_synchronization2)
-            {
-                m_Context.warning(
-                        "EXT_opacity_micromap is used without KHR_synchronization2 which is nessesary for OMM Array state transitions. Feature::RayTracingOpacityMicromap will be disabled.");
-            }
-
-            if (m_Context.extensions.KHR_fragment_shading_rate)
-            {
-                VkPhysicalDeviceFeatures2 deviceFeatures2;
-                VkPhysicalDeviceFragmentShadingRateFeaturesKHR shadingRateFeatures;
-                deviceFeatures2.pNext = &shadingRateFeatures;
-                //m_Context.physicalDevice.getFeatures2(&deviceFeatures2);
-                vkGetPhysicalDeviceFeatures2(m_Context.physicalDevice, &deviceFeatures2);
-                m_Context.shadingRateFeatures = shadingRateFeatures;
-            }
-
-            //auto pipelineInfo = VkPipelineCacheCreateInfo();
-
-            VkPipelineCacheCreateInfo pipelineInfo{};
-            pipelineInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
-
-            VkResult res = vkCreatePipelineCache(m_Context.device, &pipelineInfo, m_Context.allocationCallbacks,
-                                  &m_Context.pipelineCache);
-            //vk::Result res = m_Context.device.createPipelineCache(&pipelineInfo,
-             //                                                     m_Context.allocationCallbacks,
-                                                                 // &m_Context.pipelineCache);
-
-            if (res != VK_SUCCESS)
-            {
-                m_Context.error("Failed to create the pipeline cache");
-            }
-
-            //vkDebugMarkerSetObjectTagEXT = PFN_vkDebugMarkerSetObjectTagEXT( vkGetDeviceProcAddr( m_Context.device, "vkDebugMarkerSetObjectTagEXT" ) );
-            //vkDebugMarkerSetObjectNameEXT = PFN_vkDebugMarkerSetObjectNameEXT( vkGetDeviceProcAddr( m_Context.device, "vkDebugMarkerSetObjectNameEXT" ) );
-            //vkCmdDebugMarkerBeginEXT = PFN_vkCmdDebugMarkerBeginEXT( vkGetDeviceProcAddr( m_Context.device, "vkCmdDebugMarkerBeginEXT" ) );
-            //vkCmdDebugMarkerEndEXT = PFN_vkCmdDebugMarkerEndEXT( vkGetDeviceProcAddr( m_Context.device, "vkCmdDebugMarkerEndEXT" ) );
-            //vkCmdDebugMarkerInsertEXT = PFN_vkCmdDebugMarkerInsertEXT( vkGetDeviceProcAddr( m_Context.device, "vkCmdDebugMarkerInsertEXT" ) );
-        }
-
-        Device::~Device() {
-            //if (m_TimerQueryPool)
-            //{
-            //    m_Context.device.destroyQueryPool(m_TimerQueryPool);
-            //    m_TimerQueryPool = vk::QueryPool();
-            //}
-
-            if (m_Context.pipelineCache)
-            {
-                vkDestroyPipelineCache(m_Context.device, m_Context.pipelineCache, m_Context.allocationCallbacks);
-                //m_Context.device.destroyPipelineCache(m_Context.pipelineCache);
-                m_Context.pipelineCache = VK_NULL_HANDLE;
-            }
-        }
-
-
         CommandListHandle Device::createCommandList(const CommandListParameters &params) {
             if(!m_Queues[uint32_t(params.queueType)])
                 return nullptr;
@@ -357,22 +365,20 @@ namespace GuGu{
             return CommandListHandle::Create(cmdList);
         }
 
-        void Device::queueWaitForSemaphore(CommandQueue waitQueueID, VkSemaphore semaphore,
-                                           uint64_t value) {
-            Queue& waitQueue = *m_Queues[uint32_t(waitQueueID)];
+		uint64_t
+		Device::executeCommandLists(ICommandList* const* pCommandLists, size_t numCommandLists,
+				CommandQueue executionQueue) {
+			Queue& queue = *m_Queues[uint32_t(executionQueue)];
 
-            waitQueue.addWaitSemaphore(semaphore, value);
-        }
+			uint64_t submissionID = queue.submit(pCommandLists, numCommandLists);
 
-        void Device::runGarbageCollection() {
-            for (auto& m_Queue : m_Queues)
-            {
-                if (m_Queue)
-                {
-                    m_Queue->retireCommandBuffers();
-                }
-            }
-        }
+			for (size_t i = 0; i < numCommandLists; i++)
+			{
+				checked_cast<CommandList*>(pCommandLists[i])->executed(queue, submissionID);
+			}
+
+			return submissionID;
+		}  
 
         void VulkanContext::nameVKObject(const void *handle, VkObjectType objtype,
                                          const char *name) const {
@@ -402,30 +408,14 @@ namespace GuGu{
 #endif
 #endif
             }
-        }
-
-        void VulkanContext::warning(const GuGuUtf8Str &message) const {
-            messageCallback->message(MessageSeverity::Warning, message.getStr());
-        }
+        }     
 
         void VulkanContext::error(const GuGuUtf8Str &message) const {
             messageCallback->message(MessageSeverity::Warning, message.getStr());
         }
 
-
-        uint64_t
-        Device::executeCommandLists(ICommandList *const *pCommandLists, size_t numCommandLists,
-                                    CommandQueue executionQueue) {
-            Queue& queue = *m_Queues[uint32_t(executionQueue)];
-
-            uint64_t submissionID = queue.submit(pCommandLists, numCommandLists);
-
-            for (size_t i = 0; i < numCommandLists; i++)
-            {
-                checked_cast<CommandList*>(pCommandLists[i])->executed(queue, submissionID);
-            }
-
-            return submissionID;
-        }
+		void VulkanContext::warning(const GuGuUtf8Str& message) const {
+			messageCallback->message(MessageSeverity::Warning, message.getStr());
+		}    
     }
 }

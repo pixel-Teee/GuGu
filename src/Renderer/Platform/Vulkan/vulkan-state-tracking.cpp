@@ -6,22 +6,101 @@
 
 namespace GuGu{
     namespace nvrhi::vulkan{
-        void CommandList::commitBarriers()
-        {
-            if (m_StateTracker.getBufferBarriers().empty() && m_StateTracker.getTextureBarriers().empty())
-                return;
+		void CommandList::setResourceStatesForBindingSet(IBindingSet* _bindingSet)
+		{
+			if (_bindingSet->getDesc() == nullptr)
+				return; // is bindless
 
-            endRenderPass();
+			BindingSet* bindingSet = checked_cast<BindingSet*>(_bindingSet);
 
-            if (m_Context.extensions.KHR_synchronization2)
-            {
-                commitBarriersInternal_synchronization2();
-            }
-            else
-            {
-                commitBarriersInternal();
-            }
-        }
+			for (auto bindingIndex : bindingSet->bindingsThatNeedTransitions)
+			{
+				const BindingSetItem& binding = bindingSet->desc.bindings[bindingIndex];
+
+				switch (binding.type)  // NOLINT(clang-diagnostic-switch-enum)
+				{
+				case ResourceType::Texture_SRV:
+					requireTextureState(checked_cast<ITexture*>(binding.resourceHandle), binding.subresources, ResourceStates::ShaderResource);
+					break;
+
+				case ResourceType::Texture_UAV:
+					requireTextureState(checked_cast<ITexture*>(binding.resourceHandle), binding.subresources, ResourceStates::UnorderedAccess);
+					break;
+
+				case ResourceType::TypedBuffer_SRV:
+				case ResourceType::StructuredBuffer_SRV:
+				case ResourceType::RawBuffer_SRV:
+					requireBufferState(checked_cast<IBuffer*>(binding.resourceHandle), ResourceStates::ShaderResource);
+					break;
+
+				case ResourceType::TypedBuffer_UAV:
+				case ResourceType::StructuredBuffer_UAV:
+				case ResourceType::RawBuffer_UAV:
+					requireBufferState(checked_cast<IBuffer*>(binding.resourceHandle), ResourceStates::UnorderedAccess);
+					break;
+
+				case ResourceType::ConstantBuffer:
+					requireBufferState(checked_cast<IBuffer*>(binding.resourceHandle), ResourceStates::ConstantBuffer);
+					break;
+
+					//case ResourceType::RayTracingAccelStruct:
+					//    requireBufferState(checked_cast<AccelStruct*>(binding.resourceHandle)->dataBuffer, ResourceStates::AccelStructRead);
+
+				default:
+					// do nothing
+					break;
+				}
+			}
+		}
+
+		void CommandList::trackResourcesAndBarriers(const GraphicsState& state) {
+			assert(m_EnableAutomaticBarriers);
+
+			if (arraysAreDifferent(state.bindings, m_CurrentGraphicsState.bindings))
+			{
+				for (size_t i = 0; i < state.bindings.size(); i++)
+				{
+					setResourceStatesForBindingSet(state.bindings[i]);
+				}
+			}
+
+			if (state.indexBuffer.buffer && state.indexBuffer.buffer != m_CurrentGraphicsState.indexBuffer.buffer)
+			{
+				requireBufferState(state.indexBuffer.buffer, ResourceStates::IndexBuffer);
+			}
+			//
+			if (arraysAreDifferent(state.vertexBuffers, m_CurrentGraphicsState.vertexBuffers))
+			{
+				for (const auto& vb : state.vertexBuffers)
+				{
+					requireBufferState(vb.buffer, ResourceStates::VertexBuffer);
+				}
+			}
+			//
+			if (m_CurrentGraphicsState.framebuffer != state.framebuffer)
+			{
+				setResourceStatesForFramebuffer(state.framebuffer);
+			}
+			//
+						//if (state.indirectParams && state.indirectParams != m_CurrentGraphicsState.indirectParams)
+						//{
+						//    requireBufferState(state.indirectParams, ResourceStates::IndirectArgument);
+						//}
+		}
+
+		void CommandList::requireTextureState(ITexture* _texture, TextureSubresourceSet subresources, ResourceStates state)
+		{
+			Texture* texture = checked_cast<Texture*>(_texture);
+
+			m_StateTracker.requireTextureState(texture, subresources, state);
+		}
+
+		void CommandList::requireBufferState(IBuffer* _buffer, ResourceStates state)
+		{
+			Buffer* buffer = checked_cast<Buffer*>(_buffer);
+
+			m_StateTracker.requireBufferState(buffer, state);
+		}		
 
         void CommandList::commitBarriersInternal()
         {
@@ -240,6 +319,28 @@ namespace GuGu{
             //m_StateTracker.clearBarriers();
         }
 
+		void CommandList::commitBarriers()
+		{
+			if (m_StateTracker.getBufferBarriers().empty() && m_StateTracker.getTextureBarriers().empty())
+				return;
+
+			endRenderPass();
+
+			if (m_Context.extensions.KHR_synchronization2)
+			{
+				commitBarriersInternal_synchronization2();
+			}
+			else
+			{
+				commitBarriersInternal();
+			}
+		}
+
+		bool CommandList::anyBarriers() const
+		{
+			return !m_StateTracker.getBufferBarriers().empty() || !m_StateTracker.getTextureBarriers().empty();
+		}
+
         void CommandList::beginTrackingTextureState(ITexture* _texture, TextureSubresourceSet subresources, ResourceStates stateBits)
         {
             Texture* texture = checked_cast<Texture*>(_texture);
@@ -253,152 +354,13 @@ namespace GuGu{
 
             m_StateTracker.beginTrackingBufferState(buffer, stateBits);
         }
-
-        void CommandList::requireTextureState(ITexture* _texture, TextureSubresourceSet subresources, ResourceStates state)
-        {
-            Texture* texture = checked_cast<Texture*>(_texture);
-
-            m_StateTracker.requireTextureState(texture, subresources, state);
-        }
-
-        void CommandList::requireBufferState(IBuffer* _buffer, ResourceStates state)
-        {
-            Buffer* buffer = checked_cast<Buffer*>(_buffer);
-
-            m_StateTracker.requireBufferState(buffer, state);
-        }
-
+       
         void CommandList::setPermanentBufferState(IBuffer* _buffer, ResourceStates stateBits)
         {
             Buffer* buffer = checked_cast<Buffer*>(_buffer);
 
             m_StateTracker.endTrackingBufferState(buffer, stateBits, true);
-        }
-
-        void CommandList::flushVolatileBufferWrites() {
-        // The volatile CBs are permanently mapped with the eHostVisible flag, but not eHostCoherent,
-        // so before using the data on the GPU, we need to make sure it's available there.
-        // Go over all the volatile CBs that were used in this CL and flush their written versions.
-
-            std::vector<VkMappedMemoryRange> ranges;
-
-            for (auto& iter : m_VolatileBufferStates)
-            {
-                Buffer* buffer = iter.first;
-                VolatileBufferState& state = iter.second;
-
-                if (state.maxVersion < state.minVersion || !state.initialized)
-                    continue;
-
-                // Flush all the versions between min and max - that might be too conservative,
-                // but that should be fine - better than using potentially hundreds of ranges.
-                int numVersions = state.maxVersion - state.minVersion + 1;
-
-                //auto range = vk::MappedMemoryRange()
-                //        .setMemory(buffer->memory)
-                //        .setOffset(state.minVersion * buffer->desc.byteSize)
-                //        .setSize(numVersions * buffer->desc.byteSize);
-//
-                VkMappedMemoryRange mappedMemoryRange = {};
-                mappedMemoryRange.size = numVersions * buffer->desc.byteSize;
-                mappedMemoryRange.offset = state.minVersion * buffer->desc.byteSize;
-                mappedMemoryRange.memory = buffer->memory;
-                ranges.push_back(mappedMemoryRange);
-            }
-
-            if (!ranges.empty())
-            {
-                vkFlushMappedMemoryRanges(m_Context.device, ranges.size(), ranges.data());
-                //m_Context.device.flushMappedMemoryRanges(ranges);
-            }
-        }
-
-        void CommandList::setResourceStatesForBindingSet(IBindingSet* _bindingSet)
-        {
-            if (_bindingSet->getDesc() == nullptr)
-                return; // is bindless
-
-            BindingSet* bindingSet = checked_cast<BindingSet*>(_bindingSet);
-
-            for (auto bindingIndex : bindingSet->bindingsThatNeedTransitions)
-            {
-                const BindingSetItem& binding = bindingSet->desc.bindings[bindingIndex];
-
-                switch(binding.type)  // NOLINT(clang-diagnostic-switch-enum)
-                {
-                    case ResourceType::Texture_SRV:
-                        requireTextureState(checked_cast<ITexture*>(binding.resourceHandle), binding.subresources, ResourceStates::ShaderResource);
-                        break;
-
-                    case ResourceType::Texture_UAV:
-                        requireTextureState(checked_cast<ITexture*>(binding.resourceHandle), binding.subresources, ResourceStates::UnorderedAccess);
-                        break;
-
-                    case ResourceType::TypedBuffer_SRV:
-                    case ResourceType::StructuredBuffer_SRV:
-                    case ResourceType::RawBuffer_SRV:
-                        requireBufferState(checked_cast<IBuffer*>(binding.resourceHandle), ResourceStates::ShaderResource);
-                        break;
-
-                    case ResourceType::TypedBuffer_UAV:
-                    case ResourceType::StructuredBuffer_UAV:
-                    case ResourceType::RawBuffer_UAV:
-                        requireBufferState(checked_cast<IBuffer*>(binding.resourceHandle), ResourceStates::UnorderedAccess);
-                        break;
-
-                    case ResourceType::ConstantBuffer:
-                        requireBufferState(checked_cast<IBuffer*>(binding.resourceHandle), ResourceStates::ConstantBuffer);
-                        break;
-
-                    //case ResourceType::RayTracingAccelStruct:
-                    //    requireBufferState(checked_cast<AccelStruct*>(binding.resourceHandle)->dataBuffer, ResourceStates::AccelStructRead);
-
-                    default:
-                        // do nothing
-                        break;
-                }
-            }
-        }
-
-        void CommandList::trackResourcesAndBarriers(const GraphicsState &state) {
-            assert(m_EnableAutomaticBarriers);
-
-            if (arraysAreDifferent(state.bindings, m_CurrentGraphicsState.bindings))
-            {
-                for (size_t i = 0; i < state.bindings.size(); i++)
-                {
-                    setResourceStatesForBindingSet(state.bindings[i]);
-                }
-            }
-
-            if (state.indexBuffer.buffer && state.indexBuffer.buffer != m_CurrentGraphicsState.indexBuffer.buffer)
-            {
-                requireBufferState(state.indexBuffer.buffer, ResourceStates::IndexBuffer);
-            }
-//
-            if (arraysAreDifferent(state.vertexBuffers, m_CurrentGraphicsState.vertexBuffers))
-            {
-                for (const auto& vb : state.vertexBuffers)
-                {
-                    requireBufferState(vb.buffer, ResourceStates::VertexBuffer);
-                }
-            }
-//
-            if (m_CurrentGraphicsState.framebuffer != state.framebuffer)
-            {
-                setResourceStatesForFramebuffer(state.framebuffer);
-            }
-//
-            //if (state.indirectParams && state.indirectParams != m_CurrentGraphicsState.indirectParams)
-            //{
-            //    requireBufferState(state.indirectParams, ResourceStates::IndirectArgument);
-            //}
-        }
-
-        bool CommandList::anyBarriers() const
-        {
-            return !m_StateTracker.getBufferBarriers().empty() || !m_StateTracker.getTextureBarriers().empty();
-        }
+        }  
 
         void CommandList::setTextureState(ITexture* _texture, TextureSubresourceSet subresources, ResourceStates stateBits)
         {
@@ -413,6 +375,5 @@ namespace GuGu{
 
             m_StateTracker.endTrackingTextureState(texture, AllSubresources, stateBits, true);
         }
-
     }
 }

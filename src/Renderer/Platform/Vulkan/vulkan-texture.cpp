@@ -1,14 +1,16 @@
 #include <pch.h>
 
 #include "vulkan-backend.h"
-#include "vulkan-constants.h"
-
-#include <Core/GuGuUtf8Str.h>
 
 #include <Renderer/misc.h>
 
+#include <Core/GuGuUtf8Str.h>
+
 namespace GuGu{
     namespace nvrhi::vulkan{
+		//--------------------------------------------
+		//-----------Texture--------------------------
+		//--------------------------------------------
         static VkImageType textureDimensionToImageType(TextureDimension dimension)
         {
             switch (dimension)
@@ -34,6 +36,40 @@ namespace GuGu{
                     return VK_IMAGE_TYPE_2D;
             }
         }
+
+		static VkImageViewType textureDimensionToImageViewType(TextureDimension dimension)
+		{
+			switch (dimension)
+			{
+			case TextureDimension::Texture1D:
+				//return vk::ImageViewType::e1D;
+				return VK_IMAGE_VIEW_TYPE_1D;
+			case TextureDimension::Texture1DArray:
+				//return vk::ImageViewType::e1DArray;
+				return VK_IMAGE_VIEW_TYPE_1D_ARRAY;
+			case TextureDimension::Texture2D:
+			case TextureDimension::Texture2DMS:
+				return VK_IMAGE_VIEW_TYPE_2D;
+
+			case TextureDimension::Texture2DArray:
+			case TextureDimension::Texture2DMSArray:
+				return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+
+			case TextureDimension::TextureCube:
+				return VK_IMAGE_VIEW_TYPE_CUBE;
+
+			case TextureDimension::TextureCubeArray:
+				return VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
+
+			case TextureDimension::Texture3D:
+				return VK_IMAGE_VIEW_TYPE_3D;
+
+			case TextureDimension::Unknown:
+			default:
+				utils::InvalidEnum();
+				return VK_IMAGE_VIEW_TYPE_2D;
+			}
+		}
 
         static VkExtent3D pickImageExtent(const TextureDesc& d)
         {
@@ -78,6 +114,37 @@ namespace GuGu{
 
             return ret;
         }
+
+		static VkSampleCountFlagBits pickImageSampleCount(const TextureDesc& d)
+		{
+			switch (d.sampleCount)
+			{
+			case 1:
+				return VK_SAMPLE_COUNT_1_BIT;
+
+			case 2:
+				return VK_SAMPLE_COUNT_2_BIT;
+
+			case 4:
+				return VK_SAMPLE_COUNT_4_BIT;
+
+			case 8:
+				return VK_SAMPLE_COUNT_8_BIT;
+
+			case 16:
+				return VK_SAMPLE_COUNT_16_BIT;
+
+			case 32:
+				return VK_SAMPLE_COUNT_32_BIT;
+
+			case 64:
+				return VK_SAMPLE_COUNT_64_BIT;
+
+			default:
+				utils::InvalidEnum();
+				return VK_SAMPLE_COUNT_1_BIT;
+			}
+		}
 
         // infer aspect flags for a given image format
         VkImageAspectFlags guessImageAspectFlags(VkFormat format)
@@ -125,72 +192,7 @@ namespace GuGu{
                 }
             }
             return flags;
-        }
-
-        static VkImageViewType textureDimensionToImageViewType(TextureDimension dimension)
-        {
-            switch (dimension)
-            {
-                case TextureDimension::Texture1D:
-                    //return vk::ImageViewType::e1D;
-                    return VK_IMAGE_VIEW_TYPE_1D;
-                case TextureDimension::Texture1DArray:
-                    //return vk::ImageViewType::e1DArray;
-                    return VK_IMAGE_VIEW_TYPE_1D_ARRAY;
-                case TextureDimension::Texture2D:
-                case TextureDimension::Texture2DMS:
-                    return VK_IMAGE_VIEW_TYPE_2D;
-
-                case TextureDimension::Texture2DArray:
-                case TextureDimension::Texture2DMSArray:
-                    return VK_IMAGE_VIEW_TYPE_2D_ARRAY;
-
-                case TextureDimension::TextureCube:
-                    return VK_IMAGE_VIEW_TYPE_CUBE;
-
-                case TextureDimension::TextureCubeArray:
-                    return VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
-
-                case TextureDimension::Texture3D:
-                    return VK_IMAGE_VIEW_TYPE_3D;
-
-                case TextureDimension::Unknown:
-                default:
-                    utils::InvalidEnum();
-                    return VK_IMAGE_VIEW_TYPE_2D;
-            }
-        }
-
-        static VkSampleCountFlagBits pickImageSampleCount(const TextureDesc& d)
-        {
-            switch(d.sampleCount)
-            {
-                case 1:
-                    return VK_SAMPLE_COUNT_1_BIT;
-
-                case 2:
-                    return VK_SAMPLE_COUNT_2_BIT;
-
-                case 4:
-                    return VK_SAMPLE_COUNT_4_BIT;
-
-                case 8:
-                    return VK_SAMPLE_COUNT_8_BIT;
-
-                case 16:
-                    return VK_SAMPLE_COUNT_16_BIT;
-
-                case 32:
-                    return VK_SAMPLE_COUNT_32_BIT;
-
-                case 64:
-                    return VK_SAMPLE_COUNT_64_BIT;
-
-                default:
-                    utils::InvalidEnum();
-                    return VK_SAMPLE_COUNT_1_BIT;
-            }
-        }
+        }       
 
         VkImageCreateFlags pickImageFlags(const TextureDesc& d) //todo:may be error
         {
@@ -260,30 +262,6 @@ namespace GuGu{
                 texture->imageInfo.pNext = &texture->externalMemoryImageInfo;
                 //texture->imageInfo.setPNext(&texture->externalMemoryImageInfo);
         }
-
-
-
-        TextureHandle Device::createHandleForNativeTexture(ObjectType objectType, Object _texture, const TextureDesc& desc) {
-            if (_texture.integer == 0)
-                return nullptr;
-
-            if (objectType != ObjectTypes::VK_Image)
-                return nullptr;
-
-            VkImage image{};
-            image = (VkImage)_texture.integer;
-
-            //todo:implement texture
-            Texture *texture = new Texture(m_Context, m_Allocator);
-            fillTextureInfo(texture, desc);
-
-            texture->image = image;
-            texture->managed = false;
-
-            return TextureHandle::Create(texture);
-            //return nullptr;
-        }
-
 
         TextureSubresourceView& Texture::getSubresourceView(const TextureSubresourceSet& subresource, TextureDimension dimension,
                                                             Format format, TextureSubresourceViewType viewtype)
@@ -364,6 +342,205 @@ namespace GuGu{
             return view;
         }
 
+		TextureHandle Device::createTexture(const TextureDesc& desc)
+		{
+			Texture* texture = new Texture(m_Context, m_Allocator);
+			assert(texture);
+			fillTextureInfo(texture, desc);
+
+			VkResult res = vkCreateImage(m_Context.device, &texture->imageInfo, m_Context.allocationCallbacks, &texture->image);
+			//VkResult res = m_Context.device.createImage(&texture->imageInfo, m_Context.allocationCallbacks, &texture->image);
+			//ASSERT_VK_OK(res);
+			//CHECK_VK_FAIL(res)
+
+			VK_CHECK(res);
+
+			m_Context.nameVKObject((void*)texture->image, VK_OBJECT_TYPE_IMAGE, desc.debugName.getStr());
+
+			if (!desc.isVirtual)
+			{
+				res = m_Allocator.allocateTextureMemory(texture);
+				//VK_CHECK(res);
+				//ASSERT_VK_OK(res);
+				//CHECK_VK_FAIL(res)
+
+				if ((desc.sharedResourceFlags & SharedResourceFlags::Shared) != 0)
+				{
+#ifdef _WIN32
+					//texture->sharedHandle = m_Context.device.getMemoryWin32HandleKHR({ texture->memory, vk::ExternalMemoryHandleTypeFlagBits::eOpaqueWin32 });
+#else
+					//texture->sharedHandle = (void*)(size_t)m_Context.device.getMemoryFdKHR({ texture->memory, vk::ExternalMemoryHandleTypeFlagBits::eOpaqueFd });
+#endif
+				}
+
+				m_Context.nameVKObject((void*)texture->memory, VK_OBJECT_TYPE_DEVICE_MEMORY, desc.debugName.getStr());
+			}
+
+			return TextureHandle::Create(texture);
+		}
+
+		static void computeMipLevelInformation(const TextureDesc& desc, uint32_t mipLevel, uint32_t* widthOut, uint32_t* heightOut, uint32_t* depthOut)
+		{
+			uint32_t width = std::max(desc.width >> mipLevel, uint32_t(1));
+			uint32_t height = std::max(desc.height >> mipLevel, uint32_t(1));
+			uint32_t depth = std::max(desc.depth >> mipLevel, uint32_t(1));
+
+			if (widthOut)
+				*widthOut = width;
+			if (heightOut)
+				*heightOut = height;
+			if (depthOut)
+				*depthOut = depth;
+		}
+
+		void CommandList::writeTexture(ITexture* _dest, uint32_t arraySlice, uint32_t mipLevel, const void* data, size_t rowPitch, size_t depthPitch)
+		{
+			endRenderPass();
+
+			Texture* dest = checked_cast<Texture*>(_dest);
+
+			TextureDesc desc = dest->getDesc();
+
+			uint32_t mipWidth, mipHeight, mipDepth;
+			computeMipLevelInformation(desc, mipLevel, &mipWidth, &mipHeight, &mipDepth);
+
+			const FormatInfo& formatInfo = getFormatInfo(desc.format);
+			uint32_t deviceNumCols = (mipWidth + formatInfo.blockSize - 1) / formatInfo.blockSize;
+			uint32_t deviceNumRows = (mipHeight + formatInfo.blockSize - 1) / formatInfo.blockSize;
+			uint32_t deviceRowPitch = deviceNumCols * formatInfo.bytesPerBlock;
+			uint32_t deviceMemSize = deviceRowPitch * deviceNumRows * mipDepth;
+
+			Buffer* uploadBuffer;
+			uint64_t uploadOffset;
+			void* uploadCpuVA;
+			m_UploadManager->suballocateBuffer(
+				deviceMemSize,
+				&uploadBuffer,
+				&uploadOffset,
+				&uploadCpuVA,
+				MakeVersion(m_CurrentCmdBuf->recordingID, m_CommandListParameters.queueType, false));
+
+			size_t minRowPitch = std::min(size_t(deviceRowPitch), rowPitch);
+			uint8_t* mappedPtr = (uint8_t*)uploadCpuVA;
+			for (uint32_t slice = 0; slice < mipDepth; slice++)
+			{
+				const uint8_t* sourcePtr = (const uint8_t*)data + depthPitch * slice;
+				for (uint32_t row = 0; row < deviceNumRows; row++)
+				{
+					memcpy(mappedPtr, sourcePtr, minRowPitch);
+					mappedPtr += deviceRowPitch;
+					sourcePtr += rowPitch;
+				}
+			}
+
+			VkBufferImageCopy imageCopy = {};
+			imageCopy.bufferOffset = uploadOffset;
+			imageCopy.bufferRowLength = deviceNumCols * formatInfo.blockSize;
+			imageCopy.bufferImageHeight = deviceNumRows * formatInfo.blockSize;
+
+			VkImageSubresourceLayers subresourceLayers = {};
+			subresourceLayers.layerCount = 1;
+			subresourceLayers.baseArrayLayer = arraySlice;
+			subresourceLayers.mipLevel = mipLevel;
+			subresourceLayers.aspectMask = guessImageAspectFlags(dest->imageInfo.format);
+
+			imageCopy.imageSubresource = subresourceLayers;
+			VkExtent3D extent3D = {};
+			extent3D.width = mipWidth;
+			extent3D.height = mipHeight;
+			extent3D.depth = mipDepth;
+
+			imageCopy.imageExtent = extent3D;
+
+			//auto imageCopy = vk::BufferImageCopy()
+			//        .setBufferOffset(uploadOffset)
+			//        .setBufferRowLength(deviceNumCols * formatInfo.blockSize)
+			//        .setBufferImageHeight(deviceNumRows * formatInfo.blockSize)
+			//        .setImageSubresource(vk::ImageSubresourceLayers()
+			//                                     .setAspectMask(guessImageAspectFlags(dest->imageInfo.format))
+			//                                     .setMipLevel(mipLevel)
+			//                                     .setBaseArrayLayer(arraySlice)
+			//                                     .setLayerCount(1))
+			//        .setImageExtent(vk::Extent3D().setWidth(mipWidth).setHeight(mipHeight).setDepth(mipDepth));
+	//
+			//assert(m_CurrentCmdBuf);
+	//
+			if (m_EnableAutomaticBarriers)
+			{
+				requireTextureState(dest, TextureSubresourceSet(mipLevel, 1, arraySlice, 1), ResourceStates::CopyDest);
+			}
+			commitBarriers();
+			//
+			m_CurrentCmdBuf->referencedResources.push_back(dest);
+			//
+			vkCmdCopyBufferToImage(m_CurrentCmdBuf->cmdBuf, uploadBuffer->buffer, dest->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopy);
+
+			//m_CurrentCmdBuf->cmdBuf.copyBufferToImage(uploadBuffer->buffer,
+			//                                          dest->image, vk::ImageLayout::eTransferDstOptimal,
+			  //                                        1, &imageCopy);
+		}
+
+		void CommandList::clearTexture(ITexture* _texture, TextureSubresourceSet subresources,
+			const VkClearColorValue& clearValue) {
+			endRenderPass();
+
+			Texture* texture = checked_cast<Texture*>(_texture);
+			assert(texture);
+			assert(m_CurrentCmdBuf);
+
+			subresources = subresources.resolve(texture->desc, false);
+
+			if (m_EnableAutomaticBarriers)
+			{
+				requireTextureState(texture, subresources, ResourceStates::CopyDest);
+			}
+			commitBarriers();
+
+			VkImageSubresourceRange subresourceRange = {};
+			subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			subresourceRange.baseArrayLayer = subresources.baseArraySlice;
+			subresourceRange.layerCount = subresources.numArraySlices;
+			subresourceRange.baseMipLevel = subresources.baseMipLevel;
+			subresourceRange.levelCount = subresources.numMipLevels;
+
+			vkCmdClearColorImage(m_CurrentCmdBuf->cmdBuf,
+				texture->image,
+				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+				&clearValue,
+				1,
+				&subresourceRange);
+
+			//vk::ImageSubresourceRange subresourceRange = vk::ImageSubresourceRange()
+			//        .setAspectMask(vk::ImageAspectFlagBits::eColor)
+			//        .setBaseArrayLayer(subresources.baseArraySlice)
+			//        .setLayerCount(subresources.numArraySlices)
+			//        .setBaseMipLevel(subresources.baseMipLevel)
+			//        .setLevelCount(subresources.numMipLevels);
+//
+			//m_CurrentCmdBuf->cmdBuf.clearColorImage(texture->image,
+			//                                        vk::ImageLayout::eTransferDstOptimal,
+			//                                        &clearValue,
+			//                                        1, &subresourceRange);
+		}
+
+		void CommandList::clearTextureFloat(ITexture* texture, TextureSubresourceSet subresources,
+			const Color& clearColor) {
+			//auto clearValue = vk::ClearColorValue()
+			//        .setFloat32({ clearColor.r, clearColor.g, clearColor.b, clearColor.a });
+//
+			//clearTexture(texture, subresources, clearValue);
+
+			VkClearColorValue clearValue = {};
+			clearValue.float32[0] = clearColor.r;
+			clearValue.float32[1] = clearColor.g;
+			clearValue.float32[2] = clearColor.b;
+			clearValue.float32[3] = clearColor.a;
+
+			clearTexture(texture, subresources, clearValue);
+		}
+
+		
+
         uint32_t Texture::getNumSubresources() const {
             return desc.mipLevels * desc.arraySize;
         }
@@ -371,6 +548,45 @@ namespace GuGu{
         uint32_t Texture::getSubresourceIndex(uint32_t mipLevel, uint32_t arrayLayer) const {
             return mipLevel * desc.arraySize + arrayLayer;
         }
+
+		Object Texture::getNativeObject(ObjectType objectType) {
+			switch (objectType)
+			{
+			case ObjectTypes::VK_Image:
+				return Object(image);
+			case ObjectTypes::VK_DeviceMemory:
+				return Object(memory);
+			case ObjectTypes::SharedHandle:
+				return Object(sharedHandle);
+			default:
+				return nullptr;
+			}
+		}
+
+		Object Texture::getNativeView(ObjectType objectType, Format format,
+			TextureSubresourceSet subresources,
+			TextureDimension dimension, bool isReadOnlyDSV) {
+			switch (objectType)
+			{
+			case ObjectTypes::VK_ImageView:
+			{
+				if (format == Format::UNKNOWN)
+					format = desc.format;
+
+				const FormatInfo& formatInfo = getFormatInfo(format);
+
+				TextureSubresourceViewType viewType = TextureSubresourceViewType::AllAspects;
+				if (formatInfo.hasDepth && !formatInfo.hasStencil)
+					viewType = TextureSubresourceViewType::DepthOnly;
+				else if (!formatInfo.hasDepth && formatInfo.hasStencil)
+					viewType = TextureSubresourceViewType::StencilOnly;
+
+				return Object(getSubresourceView(subresources, dimension, format, viewType).view);
+			}
+			default:
+				return nullptr;
+			}
+		}
 
         Texture::~Texture() {
             for (auto& viewIter : subresourceViews)
@@ -397,108 +613,34 @@ namespace GuGu{
                     memory = VK_NULL_HANDLE;
                 }
             }
-        }
+        }      
 
-        Object Texture::getNativeObject(ObjectType objectType) {
-            switch (objectType)
-            {
-                case ObjectTypes::VK_Image:
-                    return Object(image);
-                case ObjectTypes::VK_DeviceMemory:
-                    return Object(memory);
-                case ObjectTypes::SharedHandle:
-                    return Object(sharedHandle);
-                default:
-                    return nullptr;
-            }
-        }
+		TextureHandle Device::createHandleForNativeTexture(ObjectType objectType, Object _texture, const TextureDesc& desc) {
+			if (_texture.integer == 0)
+				return nullptr;
 
-        Object Texture::getNativeView(ObjectType objectType, Format format,
-                                      TextureSubresourceSet subresources,
-                                      TextureDimension dimension, bool isReadOnlyDSV) {
-            switch (objectType)
-            {
-                case ObjectTypes::VK_ImageView:
-                {
-                    if (format == Format::UNKNOWN)
-                        format = desc.format;
+			if (objectType != ObjectTypes::VK_Image)
+				return nullptr;
 
-                    const FormatInfo& formatInfo = getFormatInfo(format);
+			VkImage image{};
+			image = (VkImage)_texture.integer;
 
-                    TextureSubresourceViewType viewType = TextureSubresourceViewType::AllAspects;
-                    if (formatInfo.hasDepth && !formatInfo.hasStencil)
-                        viewType = TextureSubresourceViewType::DepthOnly;
-                    else if(!formatInfo.hasDepth && formatInfo.hasStencil)
-                        viewType = TextureSubresourceViewType::StencilOnly;
+			//todo:implement texture
+			Texture* texture = new Texture(m_Context, m_Allocator);
+			fillTextureInfo(texture, desc);
 
-                    return Object(getSubresourceView(subresources, dimension, format, viewType).view);
-                }
-                default:
-                    return nullptr;
-            }
-        }
+			texture->image = image;
+			texture->managed = false;
 
+			return TextureHandle::Create(texture);
+			//return nullptr;
+		}
 
-        void CommandList::clearTextureFloat(ITexture *texture, TextureSubresourceSet subresources,
-                                            const Color &clearColor) {
-            //auto clearValue = vk::ClearColorValue()
-            //        .setFloat32({ clearColor.r, clearColor.g, clearColor.b, clearColor.a });
-//
-            //clearTexture(texture, subresources, clearValue);
+		//--------------------------------------------
+		//-----------Sampler--------------------------
+		//--------------------------------------------
 
-            VkClearColorValue clearValue = {};
-            clearValue.float32[0] = clearColor.r;
-            clearValue.float32[1] = clearColor.g;
-            clearValue.float32[2] = clearColor.b;
-            clearValue.float32[3] = clearColor.a;
-
-            clearTexture(texture, subresources, clearValue);
-        }
-
-        void CommandList::clearTexture(ITexture *_texture, TextureSubresourceSet subresources,
-                                       const VkClearColorValue &clearValue) {
-            endRenderPass();
-
-            Texture* texture = checked_cast<Texture*>(_texture);
-            assert(texture);
-            assert(m_CurrentCmdBuf);
-
-            subresources = subresources.resolve(texture->desc, false);
-
-            if (m_EnableAutomaticBarriers)
-            {
-                requireTextureState(texture, subresources, ResourceStates::CopyDest);
-            }
-            commitBarriers();
-
-            VkImageSubresourceRange subresourceRange = {};
-            subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            subresourceRange.baseArrayLayer = subresources.baseArraySlice;
-            subresourceRange.layerCount = subresources.numArraySlices;
-            subresourceRange.baseMipLevel = subresources.baseMipLevel;
-            subresourceRange.levelCount = subresources.numMipLevels;
-
-            vkCmdClearColorImage(m_CurrentCmdBuf->cmdBuf,
-                                 texture->image,
-                                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                                 &clearValue,
-                                 1,
-                                 &subresourceRange);
-
-            //vk::ImageSubresourceRange subresourceRange = vk::ImageSubresourceRange()
-            //        .setAspectMask(vk::ImageAspectFlagBits::eColor)
-            //        .setBaseArrayLayer(subresources.baseArraySlice)
-            //        .setLayerCount(subresources.numArraySlices)
-            //        .setBaseMipLevel(subresources.baseMipLevel)
-            //        .setLevelCount(subresources.numMipLevels);
-//
-            //m_CurrentCmdBuf->cmdBuf.clearColorImage(texture->image,
-            //                                        vk::ImageLayout::eTransferDstOptimal,
-            //                                        &clearValue,
-            //                                        1, &subresourceRange);
-        }
-
-    static VkBorderColor pickSamplerBorderColor(const SamplerDesc& d)
+        static VkBorderColor pickSamplerBorderColor(const SamplerDesc& d)
     {
         if (d.borderColor.r == 0.f && d.borderColor.g == 0.f && d.borderColor.b == 0.f)
         {
@@ -609,143 +751,5 @@ namespace GuGu{
             vkDestroySampler(m_Context.device, sampler, m_Context.allocationCallbacks);
             //m_Context.device.destroySampler(sampler);
         }
-
-        TextureHandle Device::createTexture(const TextureDesc& desc)
-        {
-            Texture *texture = new Texture(m_Context, m_Allocator);
-            assert(texture);
-            fillTextureInfo(texture, desc);
-
-            VkResult res = vkCreateImage(m_Context.device, &texture->imageInfo, m_Context.allocationCallbacks, &texture->image);
-            //VkResult res = m_Context.device.createImage(&texture->imageInfo, m_Context.allocationCallbacks, &texture->image);
-            //ASSERT_VK_OK(res);
-            //CHECK_VK_FAIL(res)
-
-            VK_CHECK(res);
-
-            m_Context.nameVKObject((void*)texture->image, VK_OBJECT_TYPE_IMAGE, desc.debugName.getStr());
-
-            if (!desc.isVirtual)
-            {
-                res = m_Allocator.allocateTextureMemory(texture);
-                //VK_CHECK(res);
-                //ASSERT_VK_OK(res);
-                //CHECK_VK_FAIL(res)
-
-                if((desc.sharedResourceFlags & SharedResourceFlags::Shared) != 0)
-                {
-#ifdef _WIN32
-                    //texture->sharedHandle = m_Context.device.getMemoryWin32HandleKHR({ texture->memory, vk::ExternalMemoryHandleTypeFlagBits::eOpaqueWin32 });
-#else
-                    //texture->sharedHandle = (void*)(size_t)m_Context.device.getMemoryFdKHR({ texture->memory, vk::ExternalMemoryHandleTypeFlagBits::eOpaqueFd });
-#endif
-                }
-
-                m_Context.nameVKObject((void*)texture->memory, VK_OBJECT_TYPE_DEVICE_MEMORY, desc.debugName.getStr());
-            }
-
-            return TextureHandle::Create(texture);
-        }
-
-    static void computeMipLevelInformation(const TextureDesc& desc, uint32_t mipLevel, uint32_t* widthOut, uint32_t* heightOut, uint32_t* depthOut)
-    {
-        uint32_t width = std::max(desc.width >> mipLevel, uint32_t(1));
-        uint32_t height = std::max(desc.height >> mipLevel, uint32_t(1));
-        uint32_t depth = std::max(desc.depth >> mipLevel, uint32_t(1));
-
-        if (widthOut)
-            *widthOut = width;
-        if (heightOut)
-            *heightOut = height;
-        if (depthOut)
-            *depthOut = depth;
-    }
-
-    void CommandList::writeTexture(ITexture* _dest, uint32_t arraySlice, uint32_t mipLevel, const void* data, size_t rowPitch, size_t depthPitch)
-    {
-        endRenderPass();
-
-        Texture* dest = checked_cast<Texture*>(_dest);
-
-        TextureDesc desc = dest->getDesc();
-
-        uint32_t mipWidth, mipHeight, mipDepth;
-        computeMipLevelInformation(desc, mipLevel, &mipWidth, &mipHeight, &mipDepth);
-
-        const FormatInfo& formatInfo = getFormatInfo(desc.format);
-        uint32_t deviceNumCols = (mipWidth + formatInfo.blockSize - 1) / formatInfo.blockSize;
-        uint32_t deviceNumRows = (mipHeight + formatInfo.blockSize - 1) / formatInfo.blockSize;
-        uint32_t deviceRowPitch = deviceNumCols * formatInfo.bytesPerBlock;
-        uint32_t deviceMemSize = deviceRowPitch * deviceNumRows * mipDepth;
-
-        Buffer* uploadBuffer;
-        uint64_t uploadOffset;
-        void* uploadCpuVA;
-        m_UploadManager->suballocateBuffer(
-                deviceMemSize,
-                &uploadBuffer,
-                &uploadOffset,
-                &uploadCpuVA,
-                MakeVersion(m_CurrentCmdBuf->recordingID, m_CommandListParameters.queueType, false));
-
-        size_t minRowPitch = std::min(size_t(deviceRowPitch), rowPitch);
-        uint8_t* mappedPtr = (uint8_t*)uploadCpuVA;
-        for (uint32_t slice = 0; slice < mipDepth; slice++)
-        {
-            const uint8_t* sourcePtr = (const uint8_t*)data + depthPitch * slice;
-            for (uint32_t row = 0; row < deviceNumRows; row++)
-            {
-                memcpy(mappedPtr, sourcePtr, minRowPitch);
-                mappedPtr += deviceRowPitch;
-                sourcePtr += rowPitch;
-            }
-        }
-
-        VkBufferImageCopy imageCopy = {};
-        imageCopy.bufferOffset = uploadOffset;
-        imageCopy.bufferRowLength = deviceNumCols * formatInfo.blockSize;
-        imageCopy.bufferImageHeight = deviceNumRows * formatInfo.blockSize;
-
-        VkImageSubresourceLayers subresourceLayers = {};
-        subresourceLayers.layerCount = 1;
-        subresourceLayers.baseArrayLayer = arraySlice;
-        subresourceLayers.mipLevel = mipLevel;
-        subresourceLayers.aspectMask = guessImageAspectFlags(dest->imageInfo.format);
-
-        imageCopy.imageSubresource = subresourceLayers;
-        VkExtent3D extent3D = {};
-        extent3D.width = mipWidth;
-        extent3D.height = mipHeight;
-        extent3D.depth = mipDepth;
-
-        imageCopy.imageExtent = extent3D;
-
-        //auto imageCopy = vk::BufferImageCopy()
-        //        .setBufferOffset(uploadOffset)
-        //        .setBufferRowLength(deviceNumCols * formatInfo.blockSize)
-        //        .setBufferImageHeight(deviceNumRows * formatInfo.blockSize)
-        //        .setImageSubresource(vk::ImageSubresourceLayers()
-        //                                     .setAspectMask(guessImageAspectFlags(dest->imageInfo.format))
-        //                                     .setMipLevel(mipLevel)
-        //                                     .setBaseArrayLayer(arraySlice)
-        //                                     .setLayerCount(1))
-        //        .setImageExtent(vk::Extent3D().setWidth(mipWidth).setHeight(mipHeight).setDepth(mipDepth));
-//
-        //assert(m_CurrentCmdBuf);
-//
-        if (m_EnableAutomaticBarriers)
-        {
-            requireTextureState(dest, TextureSubresourceSet(mipLevel, 1, arraySlice, 1), ResourceStates::CopyDest);
-        }
-        commitBarriers();
-//
-        m_CurrentCmdBuf->referencedResources.push_back(dest);
-//
-        vkCmdCopyBufferToImage(m_CurrentCmdBuf->cmdBuf, uploadBuffer->buffer, dest->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopy);
-
-        //m_CurrentCmdBuf->cmdBuf.copyBufferToImage(uploadBuffer->buffer,
-        //                                          dest->image, vk::ImageLayout::eTransferDstOptimal,
-          //                                        1, &imageCopy);
-    }
     }
 }

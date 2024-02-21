@@ -2,23 +2,19 @@
 
 #include "vulkan-backend.h"
 #include <Renderer/misc.h>
+
 #include <sstream>
 
 namespace GuGu{
     namespace nvrhi::vulkan {
-        static Texture::TextureSubresourceViewType getTextureViewType(Format bindingFormat, Format textureFormat)
-        {
-            Format format = (bindingFormat == Format::UNKNOWN) ? textureFormat : bindingFormat;
+        
+		BindingLayoutHandle Device::createBindingLayout(const BindingLayoutDesc& desc) {
+			BindingLayout* ret = new BindingLayout(m_Context, desc);
 
-            const FormatInfo& formatInfo = getFormatInfo(format);
+			ret->bake();
 
-            if (formatInfo.hasDepth)
-                return Texture::TextureSubresourceViewType::DepthOnly;
-            else if (formatInfo.hasStencil)
-                return Texture::TextureSubresourceViewType::StencilOnly;
-            else
-                return Texture::TextureSubresourceViewType::AllAspects;
-        }
+			return BindingLayoutHandle::Create(ret);
+		}
 
         BindingLayout::BindingLayout(const VulkanContext &context, const BindingLayoutDesc &_desc)
                 : desc(_desc), isBindless(false), m_Context(context) {
@@ -211,8 +207,21 @@ namespace GuGu{
             return VK_SUCCESS;
         }
 
+		static Texture::TextureSubresourceViewType getTextureViewType(Format bindingFormat, Format textureFormat)
+		{
+			Format format = (bindingFormat == Format::UNKNOWN) ? textureFormat : bindingFormat;
 
-        vulkan::BindingSet::~BindingSet() {
+			const FormatInfo& formatInfo = getFormatInfo(format);
+
+			if (formatInfo.hasDepth)
+				return Texture::TextureSubresourceViewType::DepthOnly;
+			else if (formatInfo.hasStencil)
+				return Texture::TextureSubresourceViewType::StencilOnly;
+			else
+				return Texture::TextureSubresourceViewType::AllAspects;
+		}
+
+        BindingSet::~BindingSet() {
             if(descriptorPool)
             {
                 vkDestroyDescriptorPool(m_Context.device, descriptorPool, m_Context.allocationCallbacks);
@@ -231,15 +240,7 @@ namespace GuGu{
                 default:
                     return nullptr;
             }
-        }
-
-        BindingLayoutHandle Device::createBindingLayout(const BindingLayoutDesc &desc) {
-            BindingLayout* ret = new BindingLayout(m_Context, desc);
-
-            ret->bake();
-
-            return BindingLayoutHandle::Create(ret);
-        }
+        }   
 
         BindingSetHandle
         Device::createBindingSet(const BindingSetDesc &desc, IBindingLayout *_layout) {
