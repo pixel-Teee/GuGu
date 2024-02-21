@@ -1,10 +1,9 @@
 #pragma once
 
-#include "resource.h"
-
 #include <Core/GuGuUtf8Str.h>
 
 #include <Renderer/containers.h>
+#include <Renderer/resource.h>
 
 #define NVRHI_ENUM_CLASS_FLAG_OPERATORS(T) \
     inline T operator | (T a, T b) { return T(uint32_t(a) | uint32_t(b)); } \
@@ -18,12 +17,12 @@ namespace GuGu{
     namespace nvrhi{
         static constexpr uint32_t c_MaxRenderTargets = 8;
         static constexpr uint32_t c_MaxViewports = 16;
+        static constexpr uint32_t c_MaxVertexAttributes = 16;
         static constexpr uint32_t c_MaxBindingLayouts = 5;
-        static constexpr uint32_t c_ConstantBufferOffsetSizeAlignment = 256; // Partially bound constant buffers must have offsets aligned to this and sizes multiple of this
         static constexpr uint32_t c_MaxBindingsPerLayout = 128;
         static constexpr uint32_t c_MaxVolatileConstantBuffersPerLayout = 6;
-        static constexpr uint32_t c_MaxVertexAttributes = 16;
         static constexpr uint32_t c_MaxVolatileConstantBuffers = 32;
+        static constexpr uint32_t c_ConstantBufferOffsetSizeAlignment = 256; // Partially bound constant buffers must have offsets aligned to this and sizes multiple of this      
 
         struct Color
         {
@@ -202,645 +201,646 @@ namespace GuGu{
 
         const FormatInfo& getFormatInfo(Format format);
 
-        enum class MessageSeverity : uint8_t
-        {
-            Info,
-            Warning,
-            Error,
-            Fatal
-        };
-
-        enum class CommandQueue : uint8_t
-        {
-            Graphics = 0,
-            Compute,
-            Copy,
-
-            Count
-        };
-
-        struct VariableRateShadingFeatureInfo
-        {
-            uint32_t shadingRateImageTileSize;
-        };
-
-        // Flags for resources that need to be shared with other graphics APIs or other GPU devices.
-        enum class SharedResourceFlags : uint32_t
-        {
-            None                = 0,
-
-            // D3D11: adds D3D11_RESOURCE_MISC_SHARED
-            // D3D12: adds D3D12_HEAP_FLAG_SHARED
-            // Vulkan: adds vk::ExternalMemoryImageCreateInfo and vk::ExportMemoryAllocateInfo/vk::ExternalMemoryBufferCreateInfo
-            Shared              = 0x01,
-
-            // D3D11: adds (D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX | D3D11_RESOURCE_MISC_SHARED_NTHANDLE)
-            // D3D12, Vulkan: ignored
-            Shared_NTHandle     = 0x02,
-
-            // D3D12: adds D3D12_RESOURCE_FLAG_ALLOW_CROSS_ADAPTER and D3D12_HEAP_FLAG_SHARED_CROSS_ADAPTER
-            // D3D11, Vulkan: ignored
-            Shared_CrossAdapter = 0x04,
-        };
-
-        NVRHI_ENUM_CLASS_FLAG_OPERATORS(SharedResourceFlags)
-
-        enum class ResourceStates : uint32_t
-        {
-            Unknown                     = 0,
-            Common                      = 0x00000001,
-            ConstantBuffer              = 0x00000002,
-            VertexBuffer                = 0x00000004,
-            IndexBuffer                 = 0x00000008,
-            IndirectArgument            = 0x00000010,
-            ShaderResource              = 0x00000020,
-            UnorderedAccess             = 0x00000040,
-            RenderTarget                = 0x00000080,
-            DepthWrite                  = 0x00000100,
-            DepthRead                   = 0x00000200,
-            StreamOut                   = 0x00000400,
-            CopyDest                    = 0x00000800,
-            CopySource                  = 0x00001000,
-            ResolveDest                 = 0x00002000,
-            ResolveSource               = 0x00004000,
-            Present                     = 0x00008000,
-            AccelStructRead             = 0x00010000,
-            AccelStructWrite            = 0x00020000,
-            AccelStructBuildInput       = 0x00040000,
-            AccelStructBuildBlas        = 0x00080000,
-            ShadingRateSurface          = 0x00100000,
-            OpacityMicromapWrite        = 0x00200000,
-            OpacityMicromapBuildInput   = 0x00400000,
-        };
-
-        NVRHI_ENUM_CLASS_FLAG_OPERATORS(ResourceStates)
-
-        typedef uint32_t MipLevel;
-        typedef uint32_t ArraySlice;
-
-        enum class HeapType : uint8_t
-        {
-            DeviceLocal,
-            Upload,
-            Readback
-        };
-
-        struct HeapDesc
-        {
-            uint64_t capacity = 0;
-            HeapType type;
-            std::string debugName;
-
-            constexpr HeapDesc& setCapacity(uint64_t value) { capacity = value; return *this; }
-            constexpr HeapDesc& setType(HeapType value) { type = value; return *this; }
-            HeapDesc& setDebugName(const std::string& value) { debugName = value; return *this; }
-        };
-
-        class IHeap : public IResource
-        {
-        public:
-            virtual const HeapDesc& getDesc() = 0;
-        };
-
-        typedef RefCountPtr<IHeap> HeapHandle;
-
-        enum class TextureDimension : uint8_t
-        {
-            Unknown,
-            Texture1D,
-            Texture1DArray,
-            Texture2D,
-            Texture2DArray,
-            TextureCube,
-            TextureCubeArray,
-            Texture2DMS,
-            Texture2DMSArray,
-            Texture3D
-        };
-
-        enum class CpuAccessMode : uint8_t
-        {
-            None,
-            Read,
-            Write
-        };
-
-        enum class Feature : uint8_t
-        {
-            DeferredCommandLists,
-            SinglePassStereo,
-            RayTracingAccelStruct,
-            RayTracingPipeline,
-            RayTracingOpacityMicromap,
-            RayQuery,
-            ShaderExecutionReordering,
-            FastGeometryShader,
-            Meshlets,
-            ConservativeRasterization,
-            VariableRateShading,
-            ShaderSpecializations,
-            VirtualResources,
-            ComputeQueue,
-            CopyQueue,
-            ConstantBufferRanges
-        };
-
-
-        struct TextureDesc
-        {
-            uint32_t width = 1;
-            uint32_t height = 1;
-            uint32_t depth = 1;
-            uint32_t arraySize = 1;
-            uint32_t mipLevels = 1;
-            uint32_t sampleCount = 1;
-            uint32_t sampleQuality = 0;
-            Format format = Format::UNKNOWN;
-            TextureDimension dimension = TextureDimension::Texture2D;
-            GuGuUtf8Str debugName;
-
-            bool isShaderResource = true; // Note: isShaderResource is initialized to 'true' for backward compatibility
-            bool isRenderTarget = false;
-            bool isUAV = false;
-            bool isTypeless = false;
-            bool isShadingRateSurface = false;
-
-            SharedResourceFlags sharedResourceFlags = SharedResourceFlags::None;
-
-            // Indicates that the texture is created with no backing memory,
-            // and memory is bound to the texture later using bindTextureMemory.
-            // On DX12, the texture resource is created at the time of memory binding.
-            bool isVirtual = false;
-
-            Color clearValue;
-            bool useClearValue = false;
-
-            ResourceStates initialState = ResourceStates::Unknown;
-
-            // If keepInitialState is true, command lists that use the texture will automatically
-            // begin tracking the texture from the initial state and transition it to the initial state
-            // on command list close.
-            bool keepInitialState = false;
-
-            constexpr TextureDesc& setWidth(uint32_t value) { width = value; return *this; }
-            constexpr TextureDesc& setHeight(uint32_t value) { height = value; return *this; }
-            constexpr TextureDesc& setDepth(uint32_t value) { depth = value; return *this; }
-            constexpr TextureDesc& setArraySize(uint32_t value) { arraySize = value; return *this; }
-            constexpr TextureDesc& setMipLevels(uint32_t value) { mipLevels = value; return *this; }
-            constexpr TextureDesc& setSampleCount(uint32_t value) { sampleCount = value; return *this; }
-            constexpr TextureDesc& setSampleQuality(uint32_t value) { sampleQuality = value; return *this; }
-            constexpr TextureDesc& setFormat(Format value) { format = value; return *this; }
-            constexpr TextureDesc& setDimension(TextureDimension value) { dimension = value; return *this; }
-            TextureDesc& setDebugName(const std::string& value) { debugName = value; return *this; }
-            constexpr TextureDesc& setIsRenderTarget(bool value) { isRenderTarget = value; return *this; }
-            constexpr TextureDesc& setIsUAV(bool value) { isUAV = value; return *this; }
-            constexpr TextureDesc& setIsTypeless(bool value) { isTypeless = value; return *this; }
-            constexpr TextureDesc& setIsVirtual(bool value) { isVirtual = value; return *this; }
-            constexpr TextureDesc& setClearValue(const Color& value) { clearValue = value; useClearValue = true; return *this; }
-            constexpr TextureDesc& setUseClearValue(bool value) { useClearValue = value; return *this; }
-            constexpr TextureDesc& setInitialState(ResourceStates value) { initialState = value; return *this; }
-            constexpr TextureDesc& setKeepInitialState(bool value) { keepInitialState = value; return *this; }
-        };
-
-        // describes a 2D section of a single mip level + single slice of a texture
-        struct TextureSlice
-        {
-            uint32_t x = 0;
-            uint32_t y = 0;
-            uint32_t z = 0;
-            // -1 means the entire dimension is part of the region
-            // resolve() below will translate these values into actual dimensions
-            uint32_t width = uint32_t(-1);
-            uint32_t height = uint32_t(-1);
-            uint32_t depth = uint32_t(-1);
-
-            MipLevel mipLevel = 0;
-            ArraySlice arraySlice = 0;
-
-            [[nodiscard]] TextureSlice resolve(const TextureDesc& desc) const;
-
-            constexpr TextureSlice& setOrigin(uint32_t vx = 0, uint32_t vy = 0, uint32_t vz = 0) { x = vx; y = vy; z = vz; return *this; }
-            constexpr TextureSlice& setWidth(uint32_t value) { width = value; return *this; }
-            constexpr TextureSlice& setHeight(uint32_t value) { height = value; return *this; }
-            constexpr TextureSlice& setDepth(uint32_t value) { depth = value; return *this; }
-            constexpr TextureSlice& setSize(uint32_t vx = uint32_t(-1), uint32_t vy = uint32_t(-1), uint32_t vz = uint32_t(-1)) { width = vx; height = vy; depth = vz; return *this; }
-            constexpr TextureSlice& setMipLevel(MipLevel level) { mipLevel = level; return *this; }
-            constexpr TextureSlice& setArraySlice(ArraySlice slice) { arraySlice = slice; return *this; }
-        };
-
-        struct TextureSubresourceSet
-        {
-            static constexpr MipLevel AllMipLevels = MipLevel(-1);
-            static constexpr ArraySlice AllArraySlices = ArraySlice(-1);
-
-            MipLevel baseMipLevel = 0;
-            MipLevel numMipLevels = 1;
-            ArraySlice baseArraySlice = 0;
-            ArraySlice numArraySlices = 1;
-
-            TextureSubresourceSet() = default;
-
-            TextureSubresourceSet(MipLevel _baseMipLevel, MipLevel _numMipLevels, ArraySlice _baseArraySlice, ArraySlice _numArraySlices)
-                    : baseMipLevel(_baseMipLevel)
-                    , numMipLevels(_numMipLevels)
-                    , baseArraySlice(_baseArraySlice)
-                    , numArraySlices(_numArraySlices)
-            {
-            }
-
-            [[nodiscard]] TextureSubresourceSet resolve(const TextureDesc& desc, bool singleMipLevel) const;
-            [[nodiscard]] bool isEntireTexture(const TextureDesc& desc) const;
-
-            bool operator ==(const TextureSubresourceSet& other) const
-            {
-                return baseMipLevel == other.baseMipLevel &&
-                       numMipLevels == other.numMipLevels &&
-                       baseArraySlice == other.baseArraySlice &&
-                       numArraySlices == other.numArraySlices;
-            }
-            bool operator !=(const TextureSubresourceSet& other) const { return !(*this == other); }
-
-            constexpr TextureSubresourceSet& setBaseMipLevel(MipLevel value) { baseMipLevel = value; return *this; }
-            constexpr TextureSubresourceSet& setNumMipLevels(MipLevel value) { numMipLevels = value; return *this; }
-            constexpr TextureSubresourceSet& setMipLevels(MipLevel base, MipLevel num) { baseMipLevel = base; numMipLevels = num; return *this; }
-            constexpr TextureSubresourceSet& setBaseArraySlice(ArraySlice value) { baseArraySlice = value; return *this; }
-            constexpr TextureSubresourceSet& setNumArraySlices(ArraySlice value) { numArraySlices = value; return *this; }
-            constexpr TextureSubresourceSet& setArraySlices(ArraySlice base, ArraySlice num) { baseArraySlice = base; numArraySlices = num; return *this; }
-
-            // see the bottom of this file for a specialization of std::hash<TextureSubresourceSet>
-        };
-
-        static const TextureSubresourceSet AllSubresources = TextureSubresourceSet(0, TextureSubresourceSet::AllMipLevels, 0, TextureSubresourceSet::AllArraySlices);
-
-        class ITexture : public IResource
-        {
-        public:
-            [[nodiscard]] virtual const TextureDesc& getDesc() const = 0;
-
-            // Similar to getNativeObject, returns a native view for a specified set of subresources. Returns nullptr if unavailable.
-            // TODO: on D3D12, the views might become invalid later if the view heap is grown/reallocated, we should do something about that.
-            virtual Object getNativeView(ObjectType objectType, Format format = Format::UNKNOWN, TextureSubresourceSet subresources = AllSubresources, TextureDimension dimension = TextureDimension::Unknown, bool isReadOnlyDSV = false) = 0;
-        };
-        typedef RefCountPtr<ITexture> TextureHandle;
-
-        struct VertexAttributeDesc
-        {
-            std::string name;
-            Format format = Format::UNKNOWN;
-            uint32_t arraySize = 1;
-            uint32_t bufferIndex = 0;
-            uint32_t offset = 0;
-            // note: for most APIs, all strides for a given bufferIndex must be identical
-            uint32_t elementStride = 0;
-            bool isInstanced = false;
-
-            VertexAttributeDesc& setName(const std::string& value) { name = value; return *this; }
-            constexpr VertexAttributeDesc& setFormat(Format value) { format = value; return *this; }
-            constexpr VertexAttributeDesc& setArraySize(uint32_t value) { arraySize = value; return *this; }
-            constexpr VertexAttributeDesc& setBufferIndex(uint32_t value) { bufferIndex = value; return *this; }
-            constexpr VertexAttributeDesc& setOffset(uint32_t value) { offset = value; return *this; }
-            constexpr VertexAttributeDesc& setElementStride(uint32_t value) { elementStride = value; return *this; }
-            constexpr VertexAttributeDesc& setIsInstanced(bool value) { isInstanced = value; return *this; }
-        };
-
-        class IInputLayout : public IResource
-        {
-        public:
-            [[nodiscard]] virtual uint32_t getNumAttributes() const = 0;
-            [[nodiscard]] virtual const VertexAttributeDesc* getAttributeDesc(uint32_t index) const = 0;
-        };
-
-        typedef RefCountPtr<IInputLayout> InputLayoutHandle;
-
-        struct BufferDesc
-        {
-            uint64_t byteSize = 0;
-            uint32_t structStride = 0; // if non-zero it's structured
-            uint32_t maxVersions = 0; // only valid and required to be nonzero for volatile buffers on Vulkan
-            GuGuUtf8Str debugName;
-            Format format = Format::UNKNOWN; // for typed buffer views
-            bool canHaveUAVs = false;
-            bool canHaveTypedViews = false;
-            bool canHaveRawViews = false;
-            bool isVertexBuffer = false;
-            bool isIndexBuffer = false;
-            bool isConstantBuffer = false;
-            bool isDrawIndirectArgs = false;
-            bool isAccelStructBuildInput = false;
-            bool isAccelStructStorage = false;
-            bool isShaderBindingTable = false;
-
-            // A dynamic/upload buffer whose contents only live in the current command list
-            bool isVolatile = false;
-
-            // Indicates that the buffer is created with no backing memory,
-            // and memory is bound to the texture later using bindBufferMemory.
-            // On DX12, the buffer resource is created at the time of memory binding.
-            bool isVirtual = false;
-
-            ResourceStates initialState = ResourceStates::Common;
-
-            // see TextureDesc::keepInitialState
-            bool keepInitialState = false;
-
-            CpuAccessMode cpuAccess = CpuAccessMode::None;
-
-            SharedResourceFlags sharedResourceFlags = SharedResourceFlags::None;
-
-            constexpr BufferDesc& setByteSize(uint64_t value) { byteSize = value; return *this; }
-            constexpr BufferDesc& setStructStride(uint32_t value) { structStride = value; return *this; }
-            constexpr BufferDesc& setMaxVersions(uint32_t value) { maxVersions = value; return *this; }
-            BufferDesc& setDebugName(const std::string& value) { debugName = value; return *this; }
-            constexpr BufferDesc& setFormat(Format value) { format = value; return *this; }
-            constexpr BufferDesc& setCanHaveUAVs(bool value) { canHaveUAVs = value; return *this; }
-            constexpr BufferDesc& setCanHaveTypedViews(bool value) { canHaveTypedViews = value; return *this; }
-            constexpr BufferDesc& setCanHaveRawViews(bool value) { canHaveRawViews = value; return *this; }
-            constexpr BufferDesc& setIsVertexBuffer(bool value) { isVertexBuffer = value; return *this; }
-            constexpr BufferDesc& setIsIndexBuffer(bool value) { isIndexBuffer = value; return *this; }
-            constexpr BufferDesc& setIsConstantBuffer(bool value) { isConstantBuffer = value; return *this; }
-            constexpr BufferDesc& setIsDrawIndirectArgs(bool value) { isDrawIndirectArgs = value; return *this; }
-            constexpr BufferDesc& setIsAccelStructBuildInput(bool value) { isAccelStructBuildInput = value; return *this; }
-            constexpr BufferDesc& setIsAccelStructStorage(bool value) { isAccelStructStorage = value; return *this; }
-            constexpr BufferDesc& setIsShaderBindingTable(bool value) { isShaderBindingTable = value; return *this; }
-            constexpr BufferDesc& setIsVolatile(bool value) { isVolatile = value; return *this; }
-            constexpr BufferDesc& setIsVirtual(bool value) { isVirtual = value; return *this; }
-            constexpr BufferDesc& setInitialState(ResourceStates value) { initialState = value; return *this; }
-            constexpr BufferDesc& setKeepInitialState(bool value) { keepInitialState = value; return *this; }
-            constexpr BufferDesc& setCpuAccess(CpuAccessMode value) { cpuAccess = value; return *this; }
-        };
-
-        struct BufferRange
-        {
-            uint64_t byteOffset = 0;
-            uint64_t byteSize = 0;
-
-            BufferRange() = default;
-
-            BufferRange(uint64_t _byteOffset, uint64_t _byteSize)
-                    : byteOffset(_byteOffset)
-                    , byteSize(_byteSize)
-            { }
-
-            [[nodiscard]] BufferRange resolve(const BufferDesc& desc) const;
-            [[nodiscard]] constexpr bool isEntireBuffer(const BufferDesc& desc) const { return (byteOffset == 0) && (byteSize == ~0ull || byteSize == desc.byteSize); }
-            constexpr bool operator== (const BufferRange& other) const { return byteOffset == other.byteOffset && byteSize == other.byteSize; }
-
-            constexpr BufferRange& setByteOffset(uint64_t value) { byteOffset = value; return *this; }
-            constexpr BufferRange& setByteSize(uint64_t value) { byteSize = value; return *this; }
-        };
-
-        static const BufferRange EntireBuffer = BufferRange(0, ~0ull);
-
-        class IBuffer : public IResource
-        {
-        public:
-            [[nodiscard]] virtual const BufferDesc& getDesc() const = 0;
-        };
-
-        typedef RefCountPtr<IBuffer> BufferHandle;
-
-        enum class ShaderType : uint16_t
-        {
-            None            = 0x0000,
-
-            Compute         = 0x0020,
-
-            Vertex          = 0x0001,
-            Hull            = 0x0002,
-            Domain          = 0x0004,
-            Geometry        = 0x0008,
-            Pixel           = 0x0010,
-            Amplification   = 0x0040,
-            Mesh            = 0x0080,
-            AllGraphics     = 0x00FE,
-
-            RayGeneration   = 0x0100,
-            AnyHit          = 0x0200,
-            ClosestHit      = 0x0400,
-            Miss            = 0x0800,
-            Intersection    = 0x1000,
-            Callable        = 0x2000,
-            AllRayTracing   = 0x3F00,
-
-            All             = 0x3FFF,
-        };
-
-        NVRHI_ENUM_CLASS_FLAG_OPERATORS(ShaderType)
-
-        enum class FastGeometryShaderFlags : uint8_t
-        {
-            ForceFastGS                      = 0x01,
-            UseViewportMask                  = 0x02,
-            OffsetTargetIndexByViewportIndex = 0x04,
-            StrictApiOrder                   = 0x08
-        };
-
-        NVRHI_ENUM_CLASS_FLAG_OPERATORS(FastGeometryShaderFlags)
-
-        struct CustomSemantic
-        {
-            enum Type
-            {
-                Undefined = 0,
-                XRight = 1,
-                ViewportMask = 2
-            };
-
-            Type type;
-            std::string name;
-        };
-
-        struct ShaderDesc
-        {
-            ShaderType shaderType = ShaderType::None;
-            GuGuUtf8Str debugName;
-            GuGuUtf8Str entryName = "main";
-
-            int hlslExtensionsUAV = -1;
-
-            bool useSpecificShaderExt = false;
-            uint32_t numCustomSemantics = 0;
-            CustomSemantic* pCustomSemantics = nullptr;
-
-            FastGeometryShaderFlags fastGSFlags = FastGeometryShaderFlags(0);
-            uint32_t* pCoordinateSwizzling = nullptr;
-
-            ShaderDesc() = default;
-
-            ShaderDesc(ShaderType type)
-                    : shaderType(type)
-            { }
-        };
-
-        struct ShaderSpecialization
-        {
-            uint32_t constantID = 0;
-            union
-            {
-                uint32_t u = 0;
-                int32_t i;
-                float f;
-            } value;
-
-            static ShaderSpecialization UInt32(uint32_t constantID, uint32_t u) {
-                ShaderSpecialization s;
-                s.constantID = constantID;
-                s.value.u = u;
-                return s;
-            }
-
-            static ShaderSpecialization Int32(uint32_t constantID, int32_t i) {
-                ShaderSpecialization s;
-                s.constantID = constantID;
-                s.value.i = i;
-                return s;
-            }
-
-            static ShaderSpecialization Float(uint32_t constantID, float f) {
-                ShaderSpecialization s;
-                s.constantID = constantID;
-                s.value.f = f;
-                return s;
-            }
-        };
-
-        class IShader : public IResource
-        {
-        public:
-            [[nodiscard]] virtual const ShaderDesc& getDesc() const = 0;
-            virtual void getBytecode(const void** ppBytecode, size_t* pSize) const = 0;
-        };
-
-        typedef RefCountPtr<IShader> ShaderHandle;
-
-        enum class BlendFactor : uint8_t
-        {
-            Zero = 1,
-            One = 2,
-            SrcColor = 3,
-            InvSrcColor = 4,
-            SrcAlpha = 5,
-            InvSrcAlpha = 6,
-            DstAlpha  = 7,
-            InvDstAlpha = 8,
-            DstColor = 9,
-            InvDstColor = 10,
-            SrcAlphaSaturate = 11,
-            ConstantColor = 14,
-            InvConstantColor = 15,
-            Src1Color = 16,
-            InvSrc1Color = 17,
-            Src1Alpha = 18,
-            InvSrc1Alpha = 19,
-
-            // Vulkan names
-            OneMinusSrcColor = InvSrcColor,
-            OneMinusSrcAlpha = InvSrcAlpha,
-            OneMinusDstAlpha = InvDstAlpha,
-            OneMinusDstColor = InvDstColor,
-            OneMinusConstantColor = InvConstantColor,
-            OneMinusSrc1Color = InvSrc1Color,
-            OneMinusSrc1Alpha = InvSrc1Alpha,
-        };
-
-        enum class BlendOp : uint8_t
-        {
-            Add = 1,
-            Subrtact = 2,
-            ReverseSubtract = 3,
-            Min = 4,
-            Max = 5
-        };
-
-        enum class ColorMask : uint8_t
-        {
-            // These values are equal to their counterparts in DX11, DX12, and Vulkan.
-            Red = 1,
-            Green = 2,
-            Blue = 4,
-            Alpha = 8,
-            All = 0xF
-        };
-
-        NVRHI_ENUM_CLASS_FLAG_OPERATORS(ColorMask)
-
-        struct BlendState
-        {
-            struct RenderTarget
-            {
-                bool        blendEnable = false;
-                BlendFactor srcBlend = BlendFactor::One;
-                BlendFactor destBlend = BlendFactor::Zero;
-                BlendOp     blendOp = BlendOp::Add;
-                BlendFactor srcBlendAlpha = BlendFactor::One;
-                BlendFactor destBlendAlpha = BlendFactor::Zero;
-                BlendOp     blendOpAlpha = BlendOp::Add;
-                ColorMask   colorWriteMask = ColorMask::All;
-
-                constexpr RenderTarget& setBlendEnable(bool enable) { blendEnable = enable; return *this; }
-                constexpr RenderTarget& enableBlend() { blendEnable = true; return *this; }
-                constexpr RenderTarget& disableBlend() { blendEnable = false; return *this; }
-                constexpr RenderTarget& setSrcBlend(BlendFactor value) { srcBlend = value; return *this; }
-                constexpr RenderTarget& setDestBlend(BlendFactor value) { destBlend = value; return *this; }
-                constexpr RenderTarget& setBlendOp(BlendOp value) { blendOp = value; return *this; }
-                constexpr RenderTarget& setSrcBlendAlpha(BlendFactor value) { srcBlendAlpha = value; return *this; }
-                constexpr RenderTarget& setDestBlendAlpha(BlendFactor value) { destBlendAlpha = value; return *this; }
-                constexpr RenderTarget& setBlendOpAlpha(BlendOp value) { blendOpAlpha = value; return *this; }
-                constexpr RenderTarget& setColorWriteMask(ColorMask value) { colorWriteMask = value; return *this; }
-
-                [[nodiscard]] bool usesConstantColor() const;
-
-                constexpr bool operator ==(const RenderTarget& other) const
-                {
-                    return blendEnable == other.blendEnable
-                           && srcBlend == other.srcBlend
-                           && destBlend == other.destBlend
-                           && blendOp == other.blendOp
-                           && srcBlendAlpha == other.srcBlendAlpha
-                           && destBlendAlpha == other.destBlendAlpha
-                           && blendOpAlpha == other.blendOpAlpha
-                           && colorWriteMask == other.colorWriteMask;
-                }
-
-                constexpr bool operator !=(const RenderTarget& other) const
-                {
-                    return !(*this == other);
-                }
-            };
-
-            RenderTarget targets[c_MaxRenderTargets];
-            bool alphaToCoverageEnable = false;
-
-            constexpr BlendState& setRenderTarget(uint32_t index, const RenderTarget& target) { targets[index] = target; return *this; }
-            constexpr BlendState& setAlphaToCoverageEnable(bool enable) { alphaToCoverageEnable = enable; return *this; }
-            constexpr BlendState& enableAlphaToCoverage() { alphaToCoverageEnable = true; return *this; }
-            constexpr BlendState& disableAlphaToCoverage() { alphaToCoverageEnable = false; return *this; }
-
-            [[nodiscard]] bool usesConstantColor(uint32_t numTargets) const;
-
-            constexpr bool operator ==(const BlendState& other) const
-            {
-                if (alphaToCoverageEnable != other.alphaToCoverageEnable)
-                    return false;
-
-                for (uint32_t i = 0; i < c_MaxRenderTargets; ++i)
-                {
-                    if (targets[i] != other.targets[i])
-                        return false;
-                }
-
-                return true;
-            }
-
-            constexpr bool operator !=(const BlendState& other) const
-            {
-                return !(*this == other);
-            }
-        };
-
-        //////////////////////////////////////////////////////////////////////////
-        // Raster State
-        //////////////////////////////////////////////////////////////////////////
+		enum class FormatSupport : uint32_t
+		{
+			None = 0,
+
+			Buffer = 0x00000001,
+			IndexBuffer = 0x00000002,
+			VertexBuffer = 0x00000004,
+
+			Texture = 0x00000008,
+			DepthStencil = 0x00000010,
+			RenderTarget = 0x00000020,
+			Blendable = 0x00000040,
+
+			ShaderLoad = 0x00000080,
+			ShaderSample = 0x00000100,
+			ShaderUavLoad = 0x00000200,
+			ShaderUavStore = 0x00000400,
+			ShaderAtomic = 0x00000800,
+		};
+
+		NVRHI_ENUM_CLASS_FLAG_OPERATORS(FormatSupport)
+
+        //--------------------------------------------
+        //-----------Heap-----------------------------
+        //--------------------------------------------
+		enum class HeapType : uint8_t
+		{
+			DeviceLocal,
+			Upload,
+			Readback
+		};
+
+		struct HeapDesc
+		{
+			uint64_t capacity = 0;
+			HeapType type;
+			std::string debugName;
+
+			constexpr HeapDesc& setCapacity(uint64_t value) { capacity = value; return *this; }
+			constexpr HeapDesc& setType(HeapType value) { type = value; return *this; }
+			HeapDesc& setDebugName(const std::string& value) { debugName = value; return *this; }
+		};
+
+		class IHeap : public IResource
+		{
+		public:
+			virtual const HeapDesc& getDesc() = 0;
+		};
+
+		typedef RefCountPtr<IHeap> HeapHandle;
+
+		struct MemoryRequirements
+		{
+			uint64_t size = 0;
+			uint64_t alignment = 0;
+		};
+
+		//--------------------------------------------
+		//-----------Texture--------------------------
+		//--------------------------------------------
+		enum class TextureDimension : uint8_t
+		{
+			Unknown,
+			Texture1D,
+			Texture1DArray,
+			Texture2D,
+			Texture2DArray,
+			TextureCube,
+			TextureCubeArray,
+			Texture2DMS,
+			Texture2DMSArray,
+			Texture3D
+		};
+
+		enum class CpuAccessMode : uint8_t
+		{
+			None,
+			Read,
+			Write
+		};
+
+		enum class ResourceStates : uint32_t
+		{
+			Unknown = 0,
+			Common = 0x00000001,
+			ConstantBuffer = 0x00000002,
+			VertexBuffer = 0x00000004,
+			IndexBuffer = 0x00000008,
+			IndirectArgument = 0x00000010,
+			ShaderResource = 0x00000020,
+			UnorderedAccess = 0x00000040,
+			RenderTarget = 0x00000080,
+			DepthWrite = 0x00000100,
+			DepthRead = 0x00000200,
+			StreamOut = 0x00000400,
+			CopyDest = 0x00000800,
+			CopySource = 0x00001000,
+			ResolveDest = 0x00002000,
+			ResolveSource = 0x00004000,
+			Present = 0x00008000,
+			AccelStructRead = 0x00010000,
+			AccelStructWrite = 0x00020000,
+			AccelStructBuildInput = 0x00040000,
+			AccelStructBuildBlas = 0x00080000,
+			ShadingRateSurface = 0x00100000,
+			OpacityMicromapWrite = 0x00200000,
+			OpacityMicromapBuildInput = 0x00400000,
+		};
+
+		NVRHI_ENUM_CLASS_FLAG_OPERATORS(ResourceStates)
+
+		typedef uint32_t MipLevel;
+		typedef uint32_t ArraySlice;
+
+		// Flags for resources that need to be shared with other graphics APIs or other GPU devices.
+		enum class SharedResourceFlags : uint32_t
+		{
+			None = 0,
+
+			// D3D11: adds D3D11_RESOURCE_MISC_SHARED
+			// D3D12: adds D3D12_HEAP_FLAG_SHARED
+			// Vulkan: adds vk::ExternalMemoryImageCreateInfo and vk::ExportMemoryAllocateInfo/vk::ExternalMemoryBufferCreateInfo
+			Shared = 0x01,
+
+			// D3D11: adds (D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX | D3D11_RESOURCE_MISC_SHARED_NTHANDLE)
+			// D3D12, Vulkan: ignored
+			Shared_NTHandle = 0x02,
+
+			// D3D12: adds D3D12_RESOURCE_FLAG_ALLOW_CROSS_ADAPTER and D3D12_HEAP_FLAG_SHARED_CROSS_ADAPTER
+			// D3D11, Vulkan: ignored
+			Shared_CrossAdapter = 0x04,
+		};
+
+		NVRHI_ENUM_CLASS_FLAG_OPERATORS(SharedResourceFlags)
+
+		struct TextureDesc
+		{
+			uint32_t width = 1;
+			uint32_t height = 1;
+			uint32_t depth = 1;
+			uint32_t arraySize = 1;
+			uint32_t mipLevels = 1;
+			uint32_t sampleCount = 1;
+			uint32_t sampleQuality = 0;
+			Format format = Format::UNKNOWN;
+			TextureDimension dimension = TextureDimension::Texture2D;
+			GuGuUtf8Str debugName;
+
+			bool isShaderResource = true; // Note: isShaderResource is initialized to 'true' for backward compatibility
+			bool isRenderTarget = false;
+			bool isUAV = false;
+			bool isTypeless = false;
+			bool isShadingRateSurface = false;
+
+			SharedResourceFlags sharedResourceFlags = SharedResourceFlags::None;
+
+			// Indicates that the texture is created with no backing memory,
+			// and memory is bound to the texture later using bindTextureMemory.
+			// On DX12, the texture resource is created at the time of memory binding.
+			bool isVirtual = false;
+
+			Color clearValue;
+			bool useClearValue = false;
+
+			ResourceStates initialState = ResourceStates::Unknown;
+
+			// If keepInitialState is true, command lists that use the texture will automatically
+			// begin tracking the texture from the initial state and transition it to the initial state
+			// on command list close.
+			bool keepInitialState = false;
+
+			constexpr TextureDesc& setWidth(uint32_t value) { width = value; return *this; }
+			constexpr TextureDesc& setHeight(uint32_t value) { height = value; return *this; }
+			constexpr TextureDesc& setDepth(uint32_t value) { depth = value; return *this; }
+			constexpr TextureDesc& setArraySize(uint32_t value) { arraySize = value; return *this; }
+			constexpr TextureDesc& setMipLevels(uint32_t value) { mipLevels = value; return *this; }
+			constexpr TextureDesc& setSampleCount(uint32_t value) { sampleCount = value; return *this; }
+			constexpr TextureDesc& setSampleQuality(uint32_t value) { sampleQuality = value; return *this; }
+			constexpr TextureDesc& setFormat(Format value) { format = value; return *this; }
+			constexpr TextureDesc& setDimension(TextureDimension value) { dimension = value; return *this; }
+			TextureDesc& setDebugName(const std::string& value) { debugName = value; return *this; }
+			constexpr TextureDesc& setIsRenderTarget(bool value) { isRenderTarget = value; return *this; }
+			constexpr TextureDesc& setIsUAV(bool value) { isUAV = value; return *this; }
+			constexpr TextureDesc& setIsTypeless(bool value) { isTypeless = value; return *this; }
+			constexpr TextureDesc& setIsVirtual(bool value) { isVirtual = value; return *this; }
+			constexpr TextureDesc& setClearValue(const Color& value) { clearValue = value; useClearValue = true; return *this; }
+			constexpr TextureDesc& setUseClearValue(bool value) { useClearValue = value; return *this; }
+			constexpr TextureDesc& setInitialState(ResourceStates value) { initialState = value; return *this; }
+			constexpr TextureDesc& setKeepInitialState(bool value) { keepInitialState = value; return *this; }
+		};
+
+		// describes a 2D section of a single mip level + single slice of a texture
+		struct TextureSlice
+		{
+			uint32_t x = 0;
+			uint32_t y = 0;
+			uint32_t z = 0;
+			// -1 means the entire dimension is part of the region
+			// resolve() below will translate these values into actual dimensions
+			uint32_t width = uint32_t(-1);
+			uint32_t height = uint32_t(-1);
+			uint32_t depth = uint32_t(-1);
+
+			MipLevel mipLevel = 0;
+			ArraySlice arraySlice = 0;
+
+			[[nodiscard]] TextureSlice resolve(const TextureDesc& desc) const;
+
+			constexpr TextureSlice& setOrigin(uint32_t vx = 0, uint32_t vy = 0, uint32_t vz = 0) { x = vx; y = vy; z = vz; return *this; }
+			constexpr TextureSlice& setWidth(uint32_t value) { width = value; return *this; }
+			constexpr TextureSlice& setHeight(uint32_t value) { height = value; return *this; }
+			constexpr TextureSlice& setDepth(uint32_t value) { depth = value; return *this; }
+			constexpr TextureSlice& setSize(uint32_t vx = uint32_t(-1), uint32_t vy = uint32_t(-1), uint32_t vz = uint32_t(-1)) { width = vx; height = vy; depth = vz; return *this; }
+			constexpr TextureSlice& setMipLevel(MipLevel level) { mipLevel = level; return *this; }
+			constexpr TextureSlice& setArraySlice(ArraySlice slice) { arraySlice = slice; return *this; }
+		};
+
+		struct TextureSubresourceSet
+		{
+			static constexpr MipLevel AllMipLevels = MipLevel(-1);
+			static constexpr ArraySlice AllArraySlices = ArraySlice(-1);
+
+			MipLevel baseMipLevel = 0;
+			MipLevel numMipLevels = 1;
+			ArraySlice baseArraySlice = 0;
+			ArraySlice numArraySlices = 1;
+
+			TextureSubresourceSet() = default;
+
+			TextureSubresourceSet(MipLevel _baseMipLevel, MipLevel _numMipLevels, ArraySlice _baseArraySlice, ArraySlice _numArraySlices)
+				: baseMipLevel(_baseMipLevel)
+				, numMipLevels(_numMipLevels)
+				, baseArraySlice(_baseArraySlice)
+				, numArraySlices(_numArraySlices)
+			{
+			}
+
+			[[nodiscard]] TextureSubresourceSet resolve(const TextureDesc& desc, bool singleMipLevel) const;
+			[[nodiscard]] bool isEntireTexture(const TextureDesc& desc) const;
+
+			bool operator ==(const TextureSubresourceSet& other) const
+			{
+				return baseMipLevel == other.baseMipLevel &&
+					numMipLevels == other.numMipLevels &&
+					baseArraySlice == other.baseArraySlice &&
+					numArraySlices == other.numArraySlices;
+			}
+			bool operator !=(const TextureSubresourceSet& other) const { return !(*this == other); }
+
+			constexpr TextureSubresourceSet& setBaseMipLevel(MipLevel value) { baseMipLevel = value; return *this; }
+			constexpr TextureSubresourceSet& setNumMipLevels(MipLevel value) { numMipLevels = value; return *this; }
+			constexpr TextureSubresourceSet& setMipLevels(MipLevel base, MipLevel num) { baseMipLevel = base; numMipLevels = num; return *this; }
+			constexpr TextureSubresourceSet& setBaseArraySlice(ArraySlice value) { baseArraySlice = value; return *this; }
+			constexpr TextureSubresourceSet& setNumArraySlices(ArraySlice value) { numArraySlices = value; return *this; }
+			constexpr TextureSubresourceSet& setArraySlices(ArraySlice base, ArraySlice num) { baseArraySlice = base; numArraySlices = num; return *this; }
+
+			// see the bottom of this file for a specialization of std::hash<TextureSubresourceSet>
+		};
+
+		static const TextureSubresourceSet AllSubresources = TextureSubresourceSet(0, TextureSubresourceSet::AllMipLevels, 0, TextureSubresourceSet::AllArraySlices);
+
+		class ITexture : public IResource
+		{
+		public:
+			[[nodiscard]] virtual const TextureDesc& getDesc() const = 0;
+
+			// Similar to getNativeObject, returns a native view for a specified set of subresources. Returns nullptr if unavailable.
+			// TODO: on D3D12, the views might become invalid later if the view heap is grown/reallocated, we should do something about that.
+			virtual Object getNativeView(ObjectType objectType, Format format = Format::UNKNOWN, TextureSubresourceSet subresources = AllSubresources, TextureDimension dimension = TextureDimension::Unknown, bool isReadOnlyDSV = false) = 0;
+		};
+		typedef RefCountPtr<ITexture> TextureHandle;
+
+		//--------------------------------------------
+		//-----------Input Layout---------------------
+		//--------------------------------------------
+		struct VertexAttributeDesc
+		{
+			std::string name;
+			Format format = Format::UNKNOWN;
+			uint32_t arraySize = 1;
+			uint32_t bufferIndex = 0;
+			uint32_t offset = 0;
+			// note: for most APIs, all strides for a given bufferIndex must be identical
+			uint32_t elementStride = 0;
+			bool isInstanced = false;
+
+			VertexAttributeDesc& setName(const std::string& value) { name = value; return *this; }
+			constexpr VertexAttributeDesc& setFormat(Format value) { format = value; return *this; }
+			constexpr VertexAttributeDesc& setArraySize(uint32_t value) { arraySize = value; return *this; }
+			constexpr VertexAttributeDesc& setBufferIndex(uint32_t value) { bufferIndex = value; return *this; }
+			constexpr VertexAttributeDesc& setOffset(uint32_t value) { offset = value; return *this; }
+			constexpr VertexAttributeDesc& setElementStride(uint32_t value) { elementStride = value; return *this; }
+			constexpr VertexAttributeDesc& setIsInstanced(bool value) { isInstanced = value; return *this; }
+		};
+
+		class IInputLayout : public IResource
+		{
+		public:
+			[[nodiscard]] virtual uint32_t getNumAttributes() const = 0;
+			[[nodiscard]] virtual const VertexAttributeDesc* getAttributeDesc(uint32_t index) const = 0;
+		};
+
+		typedef RefCountPtr<IInputLayout> InputLayoutHandle;
+
+		//--------------------------------------------
+		//-----------Buffer---------------------------
+		//--------------------------------------------
+		struct BufferDesc
+		{
+			uint64_t byteSize = 0;
+			uint32_t structStride = 0; // if non-zero it's structured
+			uint32_t maxVersions = 0; // only valid and required to be nonzero for volatile buffers on Vulkan
+			GuGuUtf8Str debugName;
+			Format format = Format::UNKNOWN; // for typed buffer views
+			bool canHaveUAVs = false;
+			bool canHaveTypedViews = false;
+			bool canHaveRawViews = false;
+			bool isVertexBuffer = false;
+			bool isIndexBuffer = false;
+			bool isConstantBuffer = false;
+			bool isDrawIndirectArgs = false;
+			bool isAccelStructBuildInput = false;
+			bool isAccelStructStorage = false;
+			bool isShaderBindingTable = false;
+
+			// A dynamic/upload buffer whose contents only live in the current command list
+			bool isVolatile = false;
+
+			// Indicates that the buffer is created with no backing memory,
+			// and memory is bound to the texture later using bindBufferMemory.
+			// On DX12, the buffer resource is created at the time of memory binding.
+			bool isVirtual = false;
+
+			ResourceStates initialState = ResourceStates::Common;
+
+			// see TextureDesc::keepInitialState
+			bool keepInitialState = false;
+
+			CpuAccessMode cpuAccess = CpuAccessMode::None;
+
+			SharedResourceFlags sharedResourceFlags = SharedResourceFlags::None;
+
+			constexpr BufferDesc& setByteSize(uint64_t value) { byteSize = value; return *this; }
+			constexpr BufferDesc& setStructStride(uint32_t value) { structStride = value; return *this; }
+			constexpr BufferDesc& setMaxVersions(uint32_t value) { maxVersions = value; return *this; }
+			BufferDesc& setDebugName(const std::string& value) { debugName = value; return *this; }
+			constexpr BufferDesc& setFormat(Format value) { format = value; return *this; }
+			constexpr BufferDesc& setCanHaveUAVs(bool value) { canHaveUAVs = value; return *this; }
+			constexpr BufferDesc& setCanHaveTypedViews(bool value) { canHaveTypedViews = value; return *this; }
+			constexpr BufferDesc& setCanHaveRawViews(bool value) { canHaveRawViews = value; return *this; }
+			constexpr BufferDesc& setIsVertexBuffer(bool value) { isVertexBuffer = value; return *this; }
+			constexpr BufferDesc& setIsIndexBuffer(bool value) { isIndexBuffer = value; return *this; }
+			constexpr BufferDesc& setIsConstantBuffer(bool value) { isConstantBuffer = value; return *this; }
+			constexpr BufferDesc& setIsDrawIndirectArgs(bool value) { isDrawIndirectArgs = value; return *this; }
+			constexpr BufferDesc& setIsAccelStructBuildInput(bool value) { isAccelStructBuildInput = value; return *this; }
+			constexpr BufferDesc& setIsAccelStructStorage(bool value) { isAccelStructStorage = value; return *this; }
+			constexpr BufferDesc& setIsShaderBindingTable(bool value) { isShaderBindingTable = value; return *this; }
+			constexpr BufferDesc& setIsVolatile(bool value) { isVolatile = value; return *this; }
+			constexpr BufferDesc& setIsVirtual(bool value) { isVirtual = value; return *this; }
+			constexpr BufferDesc& setInitialState(ResourceStates value) { initialState = value; return *this; }
+			constexpr BufferDesc& setKeepInitialState(bool value) { keepInitialState = value; return *this; }
+			constexpr BufferDesc& setCpuAccess(CpuAccessMode value) { cpuAccess = value; return *this; }
+		};
+
+		struct BufferRange
+		{
+			uint64_t byteOffset = 0;
+			uint64_t byteSize = 0;
+
+			BufferRange() = default;
+
+			BufferRange(uint64_t _byteOffset, uint64_t _byteSize)
+				: byteOffset(_byteOffset)
+				, byteSize(_byteSize)
+			{ }
+
+			[[nodiscard]] BufferRange resolve(const BufferDesc& desc) const;
+			[[nodiscard]] constexpr bool isEntireBuffer(const BufferDesc& desc) const { return (byteOffset == 0) && (byteSize == ~0ull || byteSize == desc.byteSize); }
+			constexpr bool operator== (const BufferRange& other) const { return byteOffset == other.byteOffset && byteSize == other.byteSize; }
+
+			constexpr BufferRange& setByteOffset(uint64_t value) { byteOffset = value; return *this; }
+			constexpr BufferRange& setByteSize(uint64_t value) { byteSize = value; return *this; }
+		};
+
+		static const BufferRange EntireBuffer = BufferRange(0, ~0ull);
+
+		class IBuffer : public IResource
+		{
+		public:
+			[[nodiscard]] virtual const BufferDesc& getDesc() const = 0;
+		};
+
+		typedef RefCountPtr<IBuffer> BufferHandle;
+
+		//--------------------------------------------
+		//-----------Shader---------------------------
+		//--------------------------------------------
+		enum class ShaderType : uint16_t
+		{
+			None = 0x0000,
+
+			Compute = 0x0020,
+
+			Vertex = 0x0001,
+			Hull = 0x0002,
+			Domain = 0x0004,
+			Geometry = 0x0008,
+			Pixel = 0x0010,
+			Amplification = 0x0040,
+			Mesh = 0x0080,
+			AllGraphics = 0x00FE,
+
+			RayGeneration = 0x0100,
+			AnyHit = 0x0200,
+			ClosestHit = 0x0400,
+			Miss = 0x0800,
+			Intersection = 0x1000,
+			Callable = 0x2000,
+			AllRayTracing = 0x3F00,
+
+			All = 0x3FFF,
+		};
+
+		NVRHI_ENUM_CLASS_FLAG_OPERATORS(ShaderType)
+
+		enum class FastGeometryShaderFlags : uint8_t
+		{
+			ForceFastGS = 0x01,
+			UseViewportMask = 0x02,
+			OffsetTargetIndexByViewportIndex = 0x04,
+			StrictApiOrder = 0x08
+		};
+
+		NVRHI_ENUM_CLASS_FLAG_OPERATORS(FastGeometryShaderFlags)
+
+		struct CustomSemantic
+		{
+			enum Type
+			{
+				Undefined = 0,
+				XRight = 1,
+				ViewportMask = 2
+			};
+
+			Type type;
+			std::string name;
+		};
+
+		struct ShaderDesc
+		{
+			ShaderType shaderType = ShaderType::None;
+			GuGuUtf8Str debugName;
+			GuGuUtf8Str entryName = "main";
+
+			int hlslExtensionsUAV = -1;
+
+			bool useSpecificShaderExt = false;
+			uint32_t numCustomSemantics = 0;
+			CustomSemantic* pCustomSemantics = nullptr;
+
+			FastGeometryShaderFlags fastGSFlags = FastGeometryShaderFlags(0);
+			uint32_t* pCoordinateSwizzling = nullptr;
+
+			ShaderDesc() = default;
+
+			ShaderDesc(ShaderType type)
+				: shaderType(type)
+			{ }
+		};
+
+		struct ShaderSpecialization
+		{
+			uint32_t constantID = 0;
+			union
+			{
+				uint32_t u = 0;
+				int32_t i;
+				float f;
+			} value;
+
+			static ShaderSpecialization UInt32(uint32_t constantID, uint32_t u) {
+				ShaderSpecialization s;
+				s.constantID = constantID;
+				s.value.u = u;
+				return s;
+			}
+
+			static ShaderSpecialization Int32(uint32_t constantID, int32_t i) {
+				ShaderSpecialization s;
+				s.constantID = constantID;
+				s.value.i = i;
+				return s;
+			}
+
+			static ShaderSpecialization Float(uint32_t constantID, float f) {
+				ShaderSpecialization s;
+				s.constantID = constantID;
+				s.value.f = f;
+				return s;
+			}
+		};
+
+		class IShader : public IResource
+		{
+		public:
+			[[nodiscard]] virtual const ShaderDesc& getDesc() const = 0;
+			virtual void getBytecode(const void** ppBytecode, size_t* pSize) const = 0;
+		};
+
+		typedef RefCountPtr<IShader> ShaderHandle;
+		//--------------------------------------------
+		//-----------Blend State----------------------
+		//--------------------------------------------
+		enum class BlendFactor : uint8_t
+		{
+			Zero = 1,
+			One = 2,
+			SrcColor = 3,
+			InvSrcColor = 4,
+			SrcAlpha = 5,
+			InvSrcAlpha = 6,
+			DstAlpha = 7,
+			InvDstAlpha = 8,
+			DstColor = 9,
+			InvDstColor = 10,
+			SrcAlphaSaturate = 11,
+			ConstantColor = 14,
+			InvConstantColor = 15,
+			Src1Color = 16,
+			InvSrc1Color = 17,
+			Src1Alpha = 18,
+			InvSrc1Alpha = 19,
+
+			// Vulkan names
+			OneMinusSrcColor = InvSrcColor,
+			OneMinusSrcAlpha = InvSrcAlpha,
+			OneMinusDstAlpha = InvDstAlpha,
+			OneMinusDstColor = InvDstColor,
+			OneMinusConstantColor = InvConstantColor,
+			OneMinusSrc1Color = InvSrc1Color,
+			OneMinusSrc1Alpha = InvSrc1Alpha,
+		};
+
+		enum class BlendOp : uint8_t
+		{
+			Add = 1,
+			Subrtact = 2,
+			ReverseSubtract = 3,
+			Min = 4,
+			Max = 5
+		};
+
+		enum class ColorMask : uint8_t
+		{
+			// These values are equal to their counterparts in DX11, DX12, and Vulkan.
+			Red = 1,
+			Green = 2,
+			Blue = 4,
+			Alpha = 8,
+			All = 0xF
+		};
+
+		NVRHI_ENUM_CLASS_FLAG_OPERATORS(ColorMask)
+
+		struct BlendState
+		{
+			struct RenderTarget
+			{
+				bool        blendEnable = false;
+				BlendFactor srcBlend = BlendFactor::One;
+				BlendFactor destBlend = BlendFactor::Zero;
+				BlendOp     blendOp = BlendOp::Add;
+				BlendFactor srcBlendAlpha = BlendFactor::One;
+				BlendFactor destBlendAlpha = BlendFactor::Zero;
+				BlendOp     blendOpAlpha = BlendOp::Add;
+				ColorMask   colorWriteMask = ColorMask::All;
+
+				constexpr RenderTarget& setBlendEnable(bool enable) { blendEnable = enable; return *this; }
+				constexpr RenderTarget& enableBlend() { blendEnable = true; return *this; }
+				constexpr RenderTarget& disableBlend() { blendEnable = false; return *this; }
+				constexpr RenderTarget& setSrcBlend(BlendFactor value) { srcBlend = value; return *this; }
+				constexpr RenderTarget& setDestBlend(BlendFactor value) { destBlend = value; return *this; }
+				constexpr RenderTarget& setBlendOp(BlendOp value) { blendOp = value; return *this; }
+				constexpr RenderTarget& setSrcBlendAlpha(BlendFactor value) { srcBlendAlpha = value; return *this; }
+				constexpr RenderTarget& setDestBlendAlpha(BlendFactor value) { destBlendAlpha = value; return *this; }
+				constexpr RenderTarget& setBlendOpAlpha(BlendOp value) { blendOpAlpha = value; return *this; }
+				constexpr RenderTarget& setColorWriteMask(ColorMask value) { colorWriteMask = value; return *this; }
+
+				[[nodiscard]] bool usesConstantColor() const;
+
+				constexpr bool operator ==(const RenderTarget& other) const
+				{
+					return blendEnable == other.blendEnable
+						&& srcBlend == other.srcBlend
+						&& destBlend == other.destBlend
+						&& blendOp == other.blendOp
+						&& srcBlendAlpha == other.srcBlendAlpha
+						&& destBlendAlpha == other.destBlendAlpha
+						&& blendOpAlpha == other.blendOpAlpha
+						&& colorWriteMask == other.colorWriteMask;
+				}
+
+				constexpr bool operator !=(const RenderTarget& other) const
+				{
+					return !(*this == other);
+				}
+			};
+
+			RenderTarget targets[c_MaxRenderTargets];
+			bool alphaToCoverageEnable = false;
+
+			constexpr BlendState& setRenderTarget(uint32_t index, const RenderTarget& target) { targets[index] = target; return *this; }
+			constexpr BlendState& setAlphaToCoverageEnable(bool enable) { alphaToCoverageEnable = enable; return *this; }
+			constexpr BlendState& enableAlphaToCoverage() { alphaToCoverageEnable = true; return *this; }
+			constexpr BlendState& disableAlphaToCoverage() { alphaToCoverageEnable = false; return *this; }
+
+			[[nodiscard]] bool usesConstantColor(uint32_t numTargets) const;
+
+			constexpr bool operator ==(const BlendState& other) const
+			{
+				if (alphaToCoverageEnable != other.alphaToCoverageEnable)
+					return false;
+
+				for (uint32_t i = 0; i < c_MaxRenderTargets; ++i)
+				{
+					if (targets[i] != other.targets[i])
+						return false;
+				}
+
+				return true;
+			}
+
+			constexpr bool operator !=(const BlendState& other) const
+			{
+				return !(*this == other);
+			}
+		};
+        //--------------------------------------------
+        //-----------Raster State----------------------
+        //--------------------------------------------
 
         enum class RasterFillMode : uint8_t
         {
@@ -917,9 +917,9 @@ namespace GuGu{
             constexpr RasterState& setSamplePositions(const char* x, const char* y, int count) { for (int i = 0; i < count; i++) { samplePositionsX[i] = x[i]; samplePositionsY[i] = y[i]; } return *this; }
         };
 
-        //////////////////////////////////////////////////////////////////////////
-        // Depth Stencil State
-        //////////////////////////////////////////////////////////////////////////
+        //--------------------------------------------
+		//-----------Depth Stencil State--------------
+		//--------------------------------------------
 
         enum class StencilOp : uint8_t
         {
@@ -1004,7 +1004,9 @@ namespace GuGu{
             ViewportState& addScissorRect(const Rect& r) { scissorRects.push_back(r); return *this; }
             ViewportState& addViewportAndScissorRect(const Viewport& v) { return addViewport(v).addScissorRect(Rect(v)); }
         };
-
+		//--------------------------------------------
+		//-----------Sampler--------------------------
+		//--------------------------------------------
 
         enum class SamplerAddressMode : uint8_t
         {
@@ -1066,6 +1068,10 @@ namespace GuGu{
         };
 
         typedef RefCountPtr<ISampler> SamplerHandle;
+
+		//--------------------------------------------
+		//-----------Framebuffer----------------------
+		//--------------------------------------------
 
         struct FramebufferAttachment
         {
@@ -1158,6 +1164,10 @@ namespace GuGu{
         };
 
         typedef RefCountPtr<IFramebuffer> FramebufferHandle;
+
+		//--------------------------------------------
+		//-----------Binding Layouts------------------
+		//--------------------------------------------
 
         // identifies the underlying resource type in a binding
         enum class ResourceType : uint8_t
@@ -1598,6 +1608,21 @@ namespace GuGu{
             constexpr SinglePassStereoState& setRenderTargetIndexOffset(uint16_t value) { renderTargetIndexOffset = value; return *this; }
         };
 
+		//--------------------------------------------
+		//-----------Draw State-----------------------
+		//--------------------------------------------
+		enum class PrimitiveType : uint8_t
+		{
+			PointList,
+			LineList,
+			TriangleList,
+			TriangleStrip,
+			TriangleFan,
+			TriangleListWithAdjacency,
+			TriangleStripWithAdjacency,
+			PatchList
+		};
+
         struct RenderState
         {
             BlendState blendState;
@@ -1609,18 +1634,6 @@ namespace GuGu{
             constexpr RenderState& setDepthStencilState(const DepthStencilState& value) { depthStencilState = value; return *this; }
             constexpr RenderState& setRasterState(const RasterState& value) { rasterState = value; return *this; }
             constexpr RenderState& setSinglePassStereoState(const SinglePassStereoState& value) { singlePassStereo = value; return *this; }
-        };
-
-        enum class PrimitiveType : uint8_t
-        {
-            PointList,
-            LineList,
-            TriangleList,
-            TriangleStrip,
-            TriangleFan,
-            TriangleListWithAdjacency,
-            TriangleStripWithAdjacency,
-            PatchList
         };
 
         enum class VariableShadingRate : uint8_t
@@ -1667,7 +1680,6 @@ namespace GuGu{
 
         typedef static_vector<BindingLayoutHandle, c_MaxBindingLayouts> BindingLayoutVector;
 
-
         struct GraphicsPipelineDesc
         {
             PrimitiveType primType = PrimitiveType::TriangleList;
@@ -1709,6 +1721,10 @@ namespace GuGu{
         };
 
         typedef RefCountPtr<IGraphicsPipeline> GraphicsPipelineHandle;
+
+		//--------------------------------------------
+		//-----------Draw and Dispatch----------------
+		//--------------------------------------------
 
         class IEventQuery : public IResource { };
         typedef RefCountPtr<IEventQuery> EventQueryHandle;
@@ -1793,6 +1809,51 @@ namespace GuGu{
             constexpr DrawArguments& setStartInstanceLocation(uint32_t value) { startInstanceLocation = value; return *this; }
         };
 
+		//--------------------------------------------
+		//-----------Misc-----------------------------
+		//--------------------------------------------
+		enum class Feature : uint8_t
+		{
+			DeferredCommandLists,
+			SinglePassStereo,
+			RayTracingAccelStruct,
+			RayTracingPipeline,
+			RayTracingOpacityMicromap,
+			RayQuery,
+			ShaderExecutionReordering,
+			FastGeometryShader,
+			Meshlets,
+			ConservativeRasterization,
+			VariableRateShading,
+			ShaderSpecializations,
+			VirtualResources,
+			ComputeQueue,
+			CopyQueue,
+			ConstantBufferRanges
+		};
+
+		enum class MessageSeverity : uint8_t
+		{
+			Info,
+			Warning,
+			Error,
+			Fatal
+		};
+
+		enum class CommandQueue : uint8_t
+		{
+			Graphics = 0,
+			Compute,
+			Copy,
+
+			Count
+		};
+
+		struct VariableRateShadingFeatureInfo
+		{
+			uint32_t shadingRateImageTileSize;
+		};
+
         // IMessageCallback should be implemented by the application.
         class IMessageCallback
         {
@@ -1837,9 +1898,9 @@ namespace GuGu{
             CommandListParameters& setQueueType(CommandQueue value) { queueType = value; return *this; }
         };
 
-        //////////////////////////////////////////////////////////////////////////
-        // ICommandList
-        //////////////////////////////////////////////////////////////////////////
+		//--------------------------------------------
+        //-----------ICommandList---------------------
+        //--------------------------------------------
 
         class ICommandList : public IResource
         {
@@ -1949,7 +2010,9 @@ namespace GuGu{
 
         typedef RefCountPtr<ICommandList> CommandListHandle;
 
-        //IDevice
+		//--------------------------------------------
+        //-----------IDevice---------------------
+        //--------------------------------------------
         class IDevice : public IResource
         {
         public:
@@ -2057,6 +2120,8 @@ namespace GuGu{
         }
     }
 }
+
+#undef NVRHI_ENUM_CLASS_FLAG_OPERATORS
 
 namespace std{
     template<> struct hash<GuGu::nvrhi::TextureSubresourceSet>
