@@ -23,6 +23,7 @@ namespace GuGu {
 	}
 	FontCache::~FontCache()
 	{
+		m_faces.clear();//note:this will call FT_Done_Face before FT_Done_FreeType
 		FT_Done_FreeType(m_library);
 	}
 	std::shared_ptr<FontCache> FontCache::getFontCache()
@@ -165,7 +166,7 @@ namespace GuGu {
 				else
 				{
 					leftSlot = std::make_shared<AtlasedTextureSlot>(findSlot->x + paddedWidth, findSlot->y, remainingWidth, paddedHeight, padding);
-					rightSlot = std::make_shared<AtlasedTextureSlot>(findSlot->x, findSlot->y + paddedHeight, findSlot->width, remainingHeight, paddedHeight);
+					rightSlot = std::make_shared<AtlasedTextureSlot>(findSlot->x, findSlot->y + paddedHeight, findSlot->width, remainingHeight, padding);
 				}
 
 				//replace the old slot within atlas empty slots, with the new left and right slot, then add the old slot to atlas used slots

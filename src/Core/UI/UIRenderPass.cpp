@@ -2,10 +2,11 @@
 
 #include "UIRenderPass.h"
 
+#include <Renderer/utils.h>
 #include <Renderer/TextureCache.h>
 #include <Renderer/ShaderFactory.h>
-#include <Renderer/utils.h>
 
+#include "Slot.h"
 #include "Brush.h"
 #include "Style.h"
 #include "BasicElement.h"
@@ -13,14 +14,12 @@
 
 #include <Core/GuGuFile.h>
 
-#include "WindowWidget.h"
 #include "ImageWidget.h"
+#include "WindowWidget.h"
 #include "TextBlockWidget.h"
 #include "FontCache.h"
 
 #include <Application/Application.h>
-
-#include "Slot.h"
 
 namespace GuGu {
 
@@ -130,7 +129,7 @@ namespace GuGu {
 		m_elementList = std::make_shared<ElementList>();
 		std::shared_ptr<ImageWidget> imageWidget = std::make_shared<ImageWidget>();
 		m_textBlockWidget = std::make_shared<TextBlockWidget>();
-		m_uiRoot->setChildWidget(imageWidget);
+		m_uiRoot->setChildWidget(m_textBlockWidget);
 		m_uiRoot->getSlot(0)->setHorizontalAlignment(HorizontalAlignment::Center);
 		m_uiRoot->getSlot(0)->setVerticalAlignment(VerticalAlignment::Center);
 		m_uiRoot->getSlot(0)->setPadding(Padding(0.0f, 0.0f, 0.0f, 0.0f));
@@ -224,9 +223,10 @@ namespace GuGu {
 	}
 	void UIRenderPass::Animate(float fElapsedTimeSeconds)
 	{
-		int32_t fps = Application::getApplication()->getFps();
-		GuGuUtf8Str fpsStr = u8"帧率FPS:" + std::to_string(fps);
-		m_textBlockWidget->setText(fpsStr);
+		float mfps = Application::getApplication()->getmFps();
+		GuGuUtf8Str mfpsStr = u8"mfps:%.3f";
+		mfpsStr = strFormat(mfpsStr, mfps);
+		m_textBlockWidget->setText(mfpsStr);
 
 		calculateWidgetsFixedSize(m_uiRoot);
 
@@ -528,7 +528,7 @@ namespace GuGu {
 				else
 				{
 					leftSlot = std::make_shared<AtlasedTextureSlot>(findSlot->x + paddedWidth, findSlot->y, remainingWidth, paddedHeight, padding);
-					rightSlot = std::make_shared<AtlasedTextureSlot>(findSlot->x, findSlot->y + paddedHeight, findSlot->width, remainingHeight, paddedHeight);
+					rightSlot = std::make_shared<AtlasedTextureSlot>(findSlot->x, findSlot->y + paddedHeight, findSlot->width, remainingHeight, padding);
 				}
 
 				//replace the old slot within atlas empty slots, with the new left and right slot, then add the old slot to atlas used slots

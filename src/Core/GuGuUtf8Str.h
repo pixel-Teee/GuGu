@@ -67,6 +67,20 @@ namespace GuGu {
 		int32_t m_totalByteCount;
 		std::vector<uint32_t> m_characterByteCount;//every character byte count
 	};
+
+
+	template<typename... Args>
+	static GuGuUtf8Str strFormat(const GuGuUtf8Str& format, Args... args)
+	{
+		auto sizeBuf = std::snprintf(nullptr, 0, format.getStr(), args...) + 1;
+		std::unique_ptr<char[]> buf(new(std::nothrow) char[sizeBuf]);
+
+		if (!buf)
+			return GuGuUtf8Str("");
+
+		std::snprintf(buf.get(), sizeBuf, format.getStr(), args...) + 1;
+		return GuGuUtf8Str(buf.get());
+	}
 }
 
 namespace std
