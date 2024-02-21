@@ -2,22 +2,26 @@
 
 #include <Renderer/nvrhi.h>
 #include <Renderer/resource.h>
-#include "vulkan-constants.h"
-
-#include <vulkan/vulkan.h>
 
 #include "utils.h"
+#include "vulkan-constants.h"
 
 #include <list>
 #include <array>
-#include <Renderer/state-tracking.h>
-#include <Renderer/versioning.h>//todo:fix this
-
 #include <tuple>
+
+#include <Renderer/versioning.h>//todo:fix this
+#include <Renderer/state-tracking.h>
+
+#include <vulkan/vulkan.h>
 
 namespace GuGu{
     class GuGuUtf8Str;
     namespace nvrhi::vulkan{
+        class Buffer;
+		class Texture;
+        class Device;
+		
         struct ResourceStateMapping
         {
             ResourceStates nvrhiState;
@@ -38,13 +42,18 @@ namespace GuGu{
                     nvrhiState(nvrhiState), stageFlags(stageFlags), accessMask(accessMask), imageLayout(imageLayout) {}
         };
 
-        VkShaderStageFlagBits convertShaderTypeToShaderStageFlagBits(ShaderType shaderType);
-        VkPolygonMode convertFillMode(RasterFillMode mode);
-        VkCullModeFlagBits convertCullMode(RasterCullMode mode);
-        VkPrimitiveTopology convertPrimitiveTopology(PrimitiveType topology);
-        VkCompareOp convertCompareOp(ComparisonFunc op);
-        ResourceStateMapping convertResourceState(ResourceStates state);
         VkSamplerAddressMode convertSamplerAddressMode(SamplerAddressMode mode);
+        VkShaderStageFlagBits convertShaderTypeToShaderStageFlagBits(ShaderType shaderType);
+        VkPrimitiveTopology convertPrimitiveTopology(PrimitiveType topology);
+        VkPolygonMode convertFillMode(RasterFillMode mode);
+        VkCullModeFlagBits convertCullMode(RasterCullMode mode);  
+        VkCompareOp convertCompareOp(ComparisonFunc op);
+        VkStencilOpState convertStencilState(const DepthStencilState& depthStencilState, const DepthStencilState::StencilOpDesc& desc);
+        ResourceStateMapping convertResourceState(ResourceStates state);
+        VkPipelineColorBlendAttachmentState convertBlendState(const BlendState::RenderTarget& state);
+		VkExtent2D convertFragmentShadingRate(VariableShadingRate shadingRate);
+		VkFragmentShadingRateCombinerOpKHR convertShadingRateCombiner(ShadingRateCombiner combiner);
+
         struct VulkanContext{
             VulkanContext(
                     VkInstance instance,
@@ -94,15 +103,90 @@ namespace GuGu{
             void error(const GuGuUtf8Str& message) const;
         };
 
-        class MemoryResource
-        {
-        public:
-            bool managed = true;
-            VkDeviceMemory memory;
-        };
+		//command buffer with resource tracking
+		class TrackedCommandBuffer
+		{
+		public:
+			//the command buffer itself
+			VkCommandBuffer cmdBuf = {};
+			VkCommandPool cmdPool = {};
 
-        class Texture;
-        class Buffer;
+			std::vector<RefCountPtr<IResource>> referencedResources;//to keep them alive
+			//todo:fix this
+			std::vector<RefCountPtr<Buffer>> referencedStagingBuffers;//to allow synchronous mapBuffer
+
+			uint64_t recordingID = 0;
+			uint64_t submissionID = 0;
+
+			explicit TrackedCommandBuffer(const VulkanContext& context)
+				: m_Context(context)
+			{}
+
+			~TrackedCommandBuffer() {}
+		private:
+			const VulkanContext& m_Context;
+		};
+
+		typedef std::shared_ptr<TrackedCommandBuffer> TrackedCommandBufferPtr;
+
+		//represents a hardware queue
+		class Queue {
+		public:
+			VkSemaphore trackingSemaphore;
+
+			//todo:add definition
+			Queue(const VulkanContext& context, CommandQueue queueID, VkQueue queue, uint32_t queueFamilyIndex);
+			~Queue();
+
+			// creates a command buffer and its synchronization resources
+			TrackedCommandBufferPtr createCommandBuffer();
+
+			TrackedCommandBufferPtr getOrCreateCommandBuffer();
+
+			void addWaitSemaphore(VkSemaphore semaphore, uint64_t value);
+			void addSignalSemaphore(VkSemaphore semaphore, uint64_t value);
+			// submits a command buffer to this queue, returns submissionID
+			uint64_t submit(ICommandList* const* ppCmd, size_t numCmd);
+
+			uint64_t updateLastFinishedID();
+			CommandQueue getQueueID() const { return m_QueueID; }
+			uint64_t getLastSubmittedID() const { return m_LastSubmittedID; }
+			uint64_t getLastFinishedID() const { return m_LastFinishedID; }
+
+			bool pollCommandList(uint64_t commandListID);
+			bool waitCommandList(uint64_t commandListID, uint64_t timeout);
+
+			// retire any command buffers that have finished execution from the pending execution list
+			void retireCommandBuffers();
+		private:
+			const VulkanContext& m_Context;
+
+			VkQueue m_Queue;
+			CommandQueue m_QueueID;
+			uint32_t m_QueueFamilyIndex = uint32_t(-1);
+
+			std::mutex m_Mutex;
+			std::vector<VkSemaphore> m_WaitSemaphores;
+			std::vector<uint64_t> m_WaitSemaphoreValues;
+			std::vector<VkSemaphore> m_SignalSemaphores;
+			std::vector<uint64_t> m_SignalSemaphoreValues;
+
+			uint64_t m_LastRecordingID = 0;
+			uint64_t m_LastSubmittedID = 0;
+			uint64_t m_LastFinishedID = 0;
+
+			//tracks the list of command buffers in flight on this queue
+			std::list<TrackedCommandBufferPtr> m_CommandBuffersInFlight;
+			std::list<TrackedCommandBufferPtr> m_CommandBuffersPool;
+		};
+
+		class MemoryResource
+		{
+		public:
+			bool managed = true;
+			VkDeviceMemory memory;
+		};
+
         class VulkanAllocator{
         public:
             explicit VulkanAllocator(const VulkanContext& context)
@@ -125,84 +209,6 @@ namespace GuGu{
             const VulkanContext& m_Context;
         };
 
-        //command buffer with resource tracking
-        class TrackedCommandBuffer
-        {
-        public:
-            //the command buffer itself
-            VkCommandBuffer cmdBuf = {};
-            VkCommandPool cmdPool = {};
-
-            std::vector<RefCountPtr<IResource>> referencedResources;//to keep them alive
-            //todo:fix this
-            std::vector<RefCountPtr<Buffer>> referencedStagingBuffers;//to allow synchronous mapBuffer
-
-            uint64_t recordingID = 0;
-            uint64_t submissionID = 0;
-
-            explicit TrackedCommandBuffer(const VulkanContext& context)
-            : m_Context(context)
-            {}
-
-            ~TrackedCommandBuffer(){}
-        private:
-            const VulkanContext& m_Context;
-        };
-
-        typedef std::shared_ptr<TrackedCommandBuffer> TrackedCommandBufferPtr;
-
-        //represents a hardware queue
-        class Queue{
-        public:
-            VkSemaphore trackingSemaphore;
-
-            //todo:add definition
-            Queue(const VulkanContext& context, CommandQueue queueID, VkQueue queue, uint32_t queueFamilyIndex);
-            ~Queue();
-
-            // creates a command buffer and its synchronization resources
-            TrackedCommandBufferPtr createCommandBuffer();
-
-            TrackedCommandBufferPtr getOrCreateCommandBuffer();
-
-            void addWaitSemaphore(VkSemaphore semaphore, uint64_t value);
-            void addSignalSemaphore(VkSemaphore semaphore, uint64_t value);
-            // submits a command buffer to this queue, returns submissionID
-            uint64_t submit(ICommandList* const* ppCmd, size_t numCmd);
-
-            uint64_t updateLastFinishedID();
-            CommandQueue getQueueID() const { return m_QueueID; }
-            uint64_t getLastSubmittedID() const { return m_LastSubmittedID; }
-            uint64_t getLastFinishedID() const { return m_LastFinishedID; }
-
-            bool pollCommandList(uint64_t commandListID);
-            bool waitCommandList(uint64_t commandListID, uint64_t timeout);
-
-            // retire any command buffers that have finished execution from the pending execution list
-            void retireCommandBuffers();
-        private:
-            const VulkanContext& m_Context;
-
-            VkQueue m_Queue;
-            CommandQueue m_QueueID;
-            uint32_t m_QueueFamilyIndex = uint32_t(-1);
-
-            std::mutex m_Mutex;
-            std::vector<VkSemaphore> m_WaitSemaphores;
-            std::vector<uint64_t> m_WaitSemaphoreValues;
-            std::vector<VkSemaphore> m_SignalSemaphores;
-            std::vector<uint64_t> m_SignalSemaphoreValues;
-
-            uint64_t m_LastRecordingID = 0;
-            uint64_t m_LastSubmittedID = 0;
-            uint64_t m_LastFinishedID = 0;
-
-            //tracks the list of command buffers in flight on this queue
-            std::list<TrackedCommandBufferPtr> m_CommandBuffersInFlight;
-            std::list<TrackedCommandBufferPtr> m_CommandBuffersPool;
-        };
-
-        class Texture;
         struct TextureSubresourceView
         {
             Texture& texture;
@@ -300,89 +306,6 @@ namespace GuGu{
             const VulkanContext& m_Context;
             VulkanAllocator& m_Allocator;
             std::mutex m_Mutex;
-        };
-
-        class Framebuffer : public RefCounter<IFramebuffer>
-        {
-        public:
-            FramebufferDesc desc;
-            FramebufferInfoEx framebufferInfo;
-
-            VkRenderPass renderPass = {};
-            VkFramebuffer framebuffer = {};
-
-            std::vector<ResourceHandle> resources;
-
-            bool managed = true;
-
-            explicit Framebuffer(const VulkanContext& context)
-                    : m_Context(context)
-            { }
-
-            ~Framebuffer() override;
-            const FramebufferDesc& getDesc() const override { return desc; }
-            const FramebufferInfoEx& getFramebufferInfo() const override { return framebufferInfo; }
-            Object getNativeObject(ObjectType objectType) override;
-
-        private:
-            const VulkanContext& m_Context;
-        };
-
-        class BindingLayout : public RefCounter<IBindingLayout>
-        {
-        public:
-            BindingLayoutDesc desc;
-            BindlessLayoutDesc bindlessDesc;
-            bool isBindless;
-
-            std::vector<VkDescriptorSetLayoutBinding> vulkanLayoutBindings;
-
-            VkDescriptorSetLayout descriptorSetLayout;
-
-            // descriptor pool size information per binding set
-            std::vector<VkDescriptorPoolSize> descriptorPoolSizeInfo;
-
-            BindingLayout(const VulkanContext& context, const BindingLayoutDesc& desc);
-            BindingLayout(const VulkanContext& context, const BindlessLayoutDesc& desc);
-            ~BindingLayout() override;
-            const BindingLayoutDesc* getDesc() const override { return isBindless ? nullptr : &desc; }
-            const BindlessLayoutDesc* getBindlessDesc() const override { return isBindless ? &bindlessDesc : nullptr; }
-            Object getNativeObject(ObjectType objectType) override;
-
-            // generate the descriptor set layout
-            VkResult bake();
-
-        private:
-            const VulkanContext& m_Context;
-        };
-
-        // contains a vk::DescriptorSet
-        class BindingSet : public RefCounter<IBindingSet>
-        {
-        public:
-            BindingSetDesc desc;
-            BindingLayoutHandle layout;
-
-            // TODO: move pool to the context instead
-            VkDescriptorPool descriptorPool;
-            VkDescriptorSet descriptorSet;
-
-            std::vector<ResourceHandle> resources;
-            static_vector<Buffer*, c_MaxVolatileConstantBuffersPerLayout> volatileConstantBuffers;
-
-            std::vector<uint16_t> bindingsThatNeedTransitions;
-
-            explicit BindingSet(const VulkanContext& context)
-                    : m_Context(context)
-            { }
-
-            ~BindingSet() override;
-            const BindingSetDesc* getDesc() const override { return &desc; }
-            IBindingLayout* getLayout() const override { return layout; }
-            Object getNativeObject(ObjectType objectType) override;
-
-        private:
-            const VulkanContext& m_Context;
         };
 
         struct VolatileBufferState
@@ -521,15 +444,98 @@ namespace GuGu{
             const VertexAttributeDesc* getAttributeDesc(uint32_t index) const override;
         };
 
-        template <typename T>
-        using BindingVector = static_vector<T, c_MaxBindingLayouts>;
-
         class EventQuery : public RefCounter<IEventQuery>
         {
         public:
             CommandQueue queue = CommandQueue::Graphics;
             uint64_t commandListID = 0;
         };
+
+		class Framebuffer : public RefCounter<IFramebuffer>
+		{
+		public:
+			FramebufferDesc desc;
+			FramebufferInfoEx framebufferInfo;
+
+			VkRenderPass renderPass = {};
+			VkFramebuffer framebuffer = {};
+
+			std::vector<ResourceHandle> resources;
+
+			bool managed = true;
+
+			explicit Framebuffer(const VulkanContext& context)
+				: m_Context(context)
+			{ }
+
+			~Framebuffer() override;
+			const FramebufferDesc& getDesc() const override { return desc; }
+			const FramebufferInfoEx& getFramebufferInfo() const override { return framebufferInfo; }
+			Object getNativeObject(ObjectType objectType) override;
+
+		private:
+			const VulkanContext& m_Context;
+		};
+
+		class BindingLayout : public RefCounter<IBindingLayout>
+		{
+		public:
+			BindingLayoutDesc desc;
+			BindlessLayoutDesc bindlessDesc;
+			bool isBindless;
+
+			std::vector<VkDescriptorSetLayoutBinding> vulkanLayoutBindings;
+
+			VkDescriptorSetLayout descriptorSetLayout;
+
+			// descriptor pool size information per binding set
+			std::vector<VkDescriptorPoolSize> descriptorPoolSizeInfo;
+
+			BindingLayout(const VulkanContext& context, const BindingLayoutDesc& desc);
+			BindingLayout(const VulkanContext& context, const BindlessLayoutDesc& desc);
+			~BindingLayout() override;
+			const BindingLayoutDesc* getDesc() const override { return isBindless ? nullptr : &desc; }
+			const BindlessLayoutDesc* getBindlessDesc() const override { return isBindless ? &bindlessDesc : nullptr; }
+			Object getNativeObject(ObjectType objectType) override;
+
+			// generate the descriptor set layout
+			VkResult bake();
+
+		private:
+			const VulkanContext& m_Context;
+		};
+
+		// contains a vk::DescriptorSet
+		class BindingSet : public RefCounter<IBindingSet>
+		{
+		public:
+			BindingSetDesc desc;
+			BindingLayoutHandle layout;
+
+			// TODO: move pool to the context instead
+			VkDescriptorPool descriptorPool;
+			VkDescriptorSet descriptorSet;
+
+			std::vector<ResourceHandle> resources;
+			static_vector<Buffer*, c_MaxVolatileConstantBuffersPerLayout> volatileConstantBuffers;
+
+			std::vector<uint16_t> bindingsThatNeedTransitions;
+
+			explicit BindingSet(const VulkanContext& context)
+				: m_Context(context)
+			{ }
+
+			~BindingSet() override;
+			const BindingSetDesc* getDesc() const override { return &desc; }
+			IBindingLayout* getLayout() const override { return layout; }
+			Object getNativeObject(ObjectType objectType) override;
+
+		private:
+			const VulkanContext& m_Context;
+		};
+
+		template <typename T>
+		using BindingVector = static_vector<T, c_MaxBindingLayouts>;
 
         class GraphicsPipeline : public RefCounter<IGraphicsPipeline>
         {
@@ -567,7 +573,6 @@ namespace GuGu{
             static constexpr uint64_t c_sizeAlignment = 4096; // GPU page size
         };
 
-        class Device;
         class UploadManager
         {
         public:

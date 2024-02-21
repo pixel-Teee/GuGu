@@ -25,7 +25,7 @@ namespace GuGu {
 
 		virtual void GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer) override;
 
-		virtual math::double2 ComputeFixedSize();
+		virtual math::double2 ComputeFixedSize() override;
 
 		virtual void AllocationChildActualSpace(WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) override;
 

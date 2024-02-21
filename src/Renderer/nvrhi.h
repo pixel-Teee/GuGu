@@ -2045,21 +2045,21 @@ namespace GuGu{
            // Note: vertexShader is only necessary on D3D11, otherwise it may be null
            virtual InputLayoutHandle createInputLayout(const VertexAttributeDesc* d, uint32_t attributeCount, IShader* vertexShader) = 0;
 
-           //// Event queries
+           // Event queries
            virtual EventQueryHandle createEventQuery() = 0;
            virtual void setEventQuery(IEventQuery* query, CommandQueue queue) = 0;
            //virtual bool pollEventQuery(IEventQuery* query) = 0;
            virtual void waitEventQuery(IEventQuery* query) = 0;
            virtual void resetEventQuery(IEventQuery* query) = 0;
 
-           //// Timer queries - see also begin/endTimerQuery in ICommandList
+           // Timer queries - see also begin/endTimerQuery in ICommandList
            //virtual TimerQueryHandle createTimerQuery() = 0;
            //virtual bool pollTimerQuery(ITimerQuery* query) = 0;
-           //// returns time in seconds
+           // returns time in seconds
            //virtual float getTimerQueryTime(ITimerQuery* query) = 0;
            //virtual void resetTimerQuery(ITimerQuery* query) = 0;
 
-           //// Returns the API kind that the RHI backend is running on top of.
+           // Returns the API kind that the RHI backend is running on top of.
            //virtual GraphicsAPI getGraphicsAPI() = 0;
 
            virtual FramebufferHandle createFramebuffer(const FramebufferDesc& desc) = 0;
@@ -2091,8 +2091,8 @@ namespace GuGu{
            //virtual void queueWaitForCommandList(CommandQueue waitQueue, CommandQueue executionQueue, uint64_t instance) = 0;
            //virtual void waitForIdle() = 0;
 
-           //// Releases the resources that were referenced in the command lists that have finished executing.
-           //// IMPORTANT: Call this method at least once per frame.
+           // Releases the resources that were referenced in the command lists that have finished executing.
+           // IMPORTANT: Call this method at least once per frame.
            virtual void runGarbageCollection() = 0;
 
            virtual bool queryFeatureSupport(Feature feature, void* pInfo = nullptr, size_t infoSize = 0) = 0;
@@ -2103,7 +2103,7 @@ namespace GuGu{
 
            //virtual IMessageCallback* getMessageCallback() = 0;
 
-           //// Front-end for executeCommandLists(..., 1) for compatibility and convenience
+           // Front-end for executeCommandLists(..., 1) for compatibility and convenience
            uint64_t executeCommandList(ICommandList* commandList, CommandQueue executionQueue = CommandQueue::Graphics)
            {
                return executeCommandLists(&commandList, 1, executionQueue);
