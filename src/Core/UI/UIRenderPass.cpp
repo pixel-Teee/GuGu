@@ -130,9 +130,9 @@ namespace GuGu {
 		std::shared_ptr<ImageWidget> imageWidget = std::make_shared<ImageWidget>();
 		m_textBlockWidget = std::make_shared<TextBlockWidget>();
 		m_uiRoot->setChildWidget(m_textBlockWidget);
-		m_uiRoot->getSlot(0)->setHorizontalAlignment(HorizontalAlignment::Center);
-		m_uiRoot->getSlot(0)->setVerticalAlignment(VerticalAlignment::Center);
-		m_uiRoot->getSlot(0)->setPadding(Padding(0.0f, 0.0f, 0.0f, 0.0f));
+		m_uiRoot->getSlot(0)->setHorizontalAlignment(HorizontalAlignment::Left);
+		m_uiRoot->getSlot(0)->setVerticalAlignment(VerticalAlignment::Top);
+		m_uiRoot->getSlot(0)->setPadding(Padding(0.0f, 120.0f, 0.0f, 0.0f));
 		//textBlockWidget->ComputeFixedSize();
 		return true;
 	}
@@ -224,8 +224,9 @@ namespace GuGu {
 	void UIRenderPass::Animate(float fElapsedTimeSeconds)
 	{
 		float mfps = Application::getApplication()->getmFps();
-		GuGuUtf8Str mfpsStr = u8"mfps:%.3f";
-		mfpsStr = strFormat(mfpsStr, mfps);
+		uint32_t fps = Application::getApplication()->getFps();
+		GuGuUtf8Str mfpsStr = u8"帧率的倒数\n一帧耗费时长:%.3f毫秒\n帧率:%dfps";
+		mfpsStr = strFormat(mfpsStr, mfps, fps);
 		m_textBlockWidget->setText(mfpsStr);
 
 		calculateWidgetsFixedSize(m_uiRoot);

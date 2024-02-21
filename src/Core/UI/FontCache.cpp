@@ -112,7 +112,7 @@ namespace GuGu {
 		//uint32_t glyphIndex = FT_Get_Char_Index(freeTypeFace->getFontFace(), Char.getUnicode().at(0));//todo:fix this
 		FreeTypeUtils::ApplySizeAndScale(freeTypeFace->getFontFace(), textInfo.getSize(), 1.0);
 
-		FT_Pos maxHeight = freeTypeFace->getFontFace()->height;
+		FT_Pos maxHeight = FT_MulFix(freeTypeFace->getFontFace()->height, freeTypeFace->getFontFace()->size->metrics.y_scale);
 
 		return ((maxHeight + (1 << 5)) >> 6);
 	}
