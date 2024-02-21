@@ -101,6 +101,7 @@ namespace GuGu{
     public:
         [[nodiscard]] virtual nvrhi::IDevice *GetDevice() const = 0;
         [[nodiscard]] uint32_t GetFrameIndex() const { return m_FrameIndex; }
+        [[nodiscard]] virtual nvrhi::GraphicsAPI GetGraphicsAPI() const = 0;
 
         virtual nvrhi::ITexture* GetBackBuffer(uint32_t index) = 0;
         virtual uint32_t GetCurrentBackBufferIndex() = 0;

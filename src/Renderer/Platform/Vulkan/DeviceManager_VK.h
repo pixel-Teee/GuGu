@@ -18,13 +18,17 @@ namespace GuGu{
             return m_NvrhiDevice;
         }
 
+        [[nodiscard]] nvrhi::GraphicsAPI GetGraphicsAPI() const override
+        {
+            return nvrhi::GraphicsAPI::VULKAN;
+        }
+
     protected:
         bool CreateInstanceInternal() override;
-        void DestroyDeviceAndSwapChain() override;
         bool CreateDevice() override;
         bool CreateSwapChain() override;
-        void BeginFrame() override;
-        void Present();
+
+        void DestroyDeviceAndSwapChain() override;
 
         void ResizeSwapChain() override
         {
@@ -36,27 +40,17 @@ namespace GuGu{
             }
         }
 
+		void BeginFrame() override;
+		void Present();
+
         virtual nvrhi::ITexture* GetBackBuffer(uint32_t index) override;
         virtual uint32_t GetCurrentBackBufferIndex() override;
         virtual uint32_t GetBackBufferCount() override;
-#if 1
-    public:
-        VkInstance getInstance();
-        VkDebugUtilsMessengerEXT getDebugMessenger();
-        VkDevice getDevice();
-        VkPhysicalDevice getPhysicalDevice();
-        VkQueue getQueue();
-        int32_t getQueueFamilyIndex();
-        VkSurfaceKHR getSurface();
-        VkSwapchainKHR getSwapChain();
-        std::vector<VkImage>  getSwapChainImage();
-        std::vector<VkImageView> getSwapChainImageViews();
-        VkFormat getSwapChainFormat();
-#endif
-        bool createWindowSurface();
+
+        
     private:
         bool createInstance();
-
+        bool createWindowSurface();
         void installDebugCallback();
         bool pickPhysicalDevice();
         bool findQueueFamilies(VkPhysicalDevice physicalDevice);
@@ -64,13 +58,13 @@ namespace GuGu{
         bool createSwapChain();
         void destroySwapChain();
 
-        GuGuUtf8Str m_rendererString;
+        GuGuUtf8Str m_rendererString;//device name
 
         VkInstance m_VulkanInstance;
         //VkDebugReportCallbackEXT m_debugReportCallback;
         VkDebugUtilsMessengerEXT m_debugMessenger;//debug messenger
-        VkSurfaceKHR m_windowSurface;
 
+        VkSurfaceKHR m_windowSurface;
         VkSurfaceFormatKHR m_SwapChainFormat;
         VkSwapchainKHR m_SwapChain;
         bool m_SwapChainMutableFormatSupported = false;

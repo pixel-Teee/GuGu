@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Renderer/nvrhi.h>
-
 #include <Renderer/resource.h>
 
 namespace GuGu{
@@ -14,7 +13,6 @@ namespace GuGu{
         //typedef RefCountPtr<IDevice> DeviceHandle;
 
         struct DeviceDesc{
-            //todo:add message call back
             IMessageCallback* errorCB = nullptr;
             VkInstance instance;
             VkPhysicalDevice physicalDevice;
