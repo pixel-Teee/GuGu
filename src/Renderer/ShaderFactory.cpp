@@ -5,6 +5,7 @@
 #include "ShaderBlob.h"
 
 #include <Core/GuGuFile.h>
+#include <Core/Archiver.h>
 
 namespace GuGu{
     static std::vector<uint8_t> LoadBinaryFileToVector(const char* filePath, const char* entryName){
@@ -23,7 +24,7 @@ namespace GuGu{
         }
 
         GuGuUtf8Str shaderFilePath = adjustedName + GuGuUtf8Str(".bin");
-
+#if 0
         std::vector<uint8_t> fileContent;
         std::shared_ptr<GuGuFile> file = CreateFileFactory();
         file->OpenFile(shaderFilePath, GuGuFile::FileMode::OnlyRead);
@@ -32,6 +33,11 @@ namespace GuGu{
         int32_t haveReadedLength = 0;
         file->ReadFile(fileContent.data(), fileLength, haveReadedLength);
         file->CloseFile();       
+
+#else
+		std::vector<uint8_t> fileContent;
+		ReadArchive(shaderFilePath, fileContent);
+#endif
         return fileContent;
     }
 

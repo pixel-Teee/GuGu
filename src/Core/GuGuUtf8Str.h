@@ -58,6 +58,8 @@ namespace GuGu {
 
 		std::vector<uint32_t> getUnicode() const;
 
+		int32_t getTotalByteCount() const;
+
 		const char* getStr() const;
 
 		void clear();

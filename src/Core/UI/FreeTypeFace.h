@@ -27,6 +27,7 @@ namespace GuGu {
 			static unsigned long ReadData(FT_Stream inStream, unsigned long inOffset, unsigned char* inBuffer, unsigned long inCount);
 			std::shared_ptr<GuGuFile> m_fileHandler;
 			uint64_t m_fileSize;
+			GuGuUtf8Str m_filePath;
 		};
 
 		GuGuUtf8Str m_filePath;

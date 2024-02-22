@@ -17,7 +17,6 @@ namespace GuGu {
 		{
 		case FileMode::OnlyRead:
 		{
-			std::wstring filePath = path.getUtf16String();
 			m_fileHandle = CreateFile(path.getUtf16String().c_str(), GENERIC_READ, 0, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 			break;
 		}
@@ -51,6 +50,18 @@ namespace GuGu {
 		numberOfBytesHaveReaded = tmpValue;
 		return retValue;
 	}
+
+	bool WindowsGuGuFile::Seek(uint64_t offset, SeekDir seekDir)
+	{
+		if(seekDir == SeekDir::Begin)
+			SetFilePointer(m_fileHandle, offset, NULL, FILE_BEGIN);
+		else if(seekDir == SeekDir::Current)
+			SetFilePointer(m_fileHandle, offset, NULL, FILE_CURRENT);
+		else if(seekDir == SeekDir::End)
+			SetFilePointer(m_fileHandle, offset, NULL, FILE_END);
+		return true;
+	}
+
 	int32_t WindowsGuGuFile::getFileSize()
 	{
 		LARGE_INTEGER info;
@@ -59,10 +70,17 @@ namespace GuGu {
 		return info.QuadPart;
 	}
 
-	bool WindowsGuGuFile::Seek(uint64_t newPosition)
+	int32_t WindowsGuGuFile::getCurrentFilePointerPos()
 	{
-		SetFilePointer(m_fileHandle, newPosition, NULL, FILE_BEGIN);
-		return true;
+		LARGE_INTEGER moveDistance;
+		moveDistance.QuadPart = 0;
+
+		LARGE_INTEGER currentPosition;
+		currentPosition.QuadPart = 0;
+
+		SetFilePointerEx(m_fileHandle, moveDistance, &currentPosition, FILE_CURRENT);
+
+		return currentPosition.QuadPart;
 	}
 
 	std::shared_ptr<GuGuFile> CreateFileFactory()

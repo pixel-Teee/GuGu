@@ -510,6 +510,10 @@ namespace GuGu {
 
 		return res;
 	}
+	int32_t GuGuUtf8Str::getTotalByteCount() const
+	{
+		return m_totalByteCount;
+	}
     const char *GuGuUtf8Str::getStr() const {
         return m_str;
     }

@@ -86,15 +86,25 @@ namespace GuGu{
             return true;
         }
     }
-    bool AndroidGuGuFile::Seek(uint64_t newPosition) {
+    bool AndroidGuGuFile::Seek(uint64_t offset, SeekDir seekDir) {
         if(m_fileHandle != nullptr && !m_usingAssetManager)
         {
-            fseek(m_fileHandle, newPosition, SEEK_SET);
+            if(seekDir == SeekDir::Begin)
+                fseek(m_fileHandle, offset, SEEK_SET);
+            else if(seekDir == SeekDir::End)
+                fseek(m_fileHandle, offset, SEEK_END);
+            else if(seekDir == SeekDir::Current)
+                fseek(m_fileHandle, offset, SEEK_CUR);
             return true;
         }
         else
         {
-            AAsset_seek(m_asset, newPosition, SEEK_SET);
+            if(seekDir == SeekDir::Begin)
+                AAsset_seek(m_asset, offset, SEEK_SET);
+            else if(seekDir == SeekDir::End)
+                AAsset_seek(m_asset, offset, SEEK_END);
+            else if(seekDir == SeekDir::Current)
+                AAsset_seek(m_asset, offset, SEEK_CUR);
         }
         return true;//todo:fix this
     }
@@ -122,6 +132,19 @@ namespace GuGu{
         GuGu_LOGD("internal storage data path : %s", m_internalDataPath.getStr());
         GuGu_LOGD("internal storage file path : %s", m_internalFilePath.getStr());
     }
+
+    int32_t AndroidGuGuFile::getCurrentFilePointerPos() {
+        if(m_fileHandle != nullptr && !m_usingAssetManager)
+        {
+            int32_t pos = ftell(m_fileHandle);
+            return pos;
+        }
+        else
+        {
+            return AAsset_seek(m_asset, 0, SEEK_CUR);
+        }
+    }
+
     std::shared_ptr<GuGuFile> CreateFileFactory()
     {
         return std::make_shared<AndroidGuGuFile>();

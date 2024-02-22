@@ -33,7 +33,7 @@ namespace GuGu {
 		m_characters.insert({ Char, newEntry });
 
 		std::shared_ptr<FreeTypeFace> freeTypeFace = FontCache::getFontCache()->getFreeTypeFace(m_textInfo);
-		GuGu_LOGD("%s:unicode:%d", Char.getStr(), Char.getUnicode().at(0));
+		//GuGu_LOGD("%s:unicode:%d", Char.getStr(), Char.getUnicode().at(0));
 		const uint32_t glyphIndex = FT_Get_Char_Index(freeTypeFace->getFontFace(), Char.getUnicode().at(0));
 
 		//------get advance------

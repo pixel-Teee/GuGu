@@ -10,6 +10,7 @@ namespace GuGu{
     Application::Application()
     {
         m_alreadyExit = false;
+        m_focused = true;
         m_timer = CreateTimerFactory();
     }
 	void Application::init()

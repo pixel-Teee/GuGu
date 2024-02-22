@@ -5,8 +5,7 @@
 #include <Renderer/CommonRenderPasses.h>
 
 #include <Core/GuGuUtf8Str.h>
-
-
+#include <Core/Archiver.h>
 
 #include <Renderer/stb_image.h>
 
@@ -55,52 +54,20 @@ namespace GuGu{
     }
 
     std::vector <uint8_t> TextureCache::ReadTextureFile(const GuGuUtf8Str &path) const {
-#ifdef ANDROID
-        std::vector<uint8_t> file_content;
-        GuGuUtf8Str filePath(path);
-        AndroidGuGuFile file;
-        file.OpenFile(filePath, GuGuFile::FileMode::OnlyRead);
-
-        int32_t fileLength = file.getFileSize();
-        file_content.resize(fileLength);
-
-        int32_t haveReadedLength = 0;
-        file.ReadFile(file_content.data(), fileLength, haveReadedLength);
-        //assert(assetManager);
-        //AAsset *file =
-        //        AAssetManager_open(assetManager, file_path, AASSET_MODE_BUFFER);
-        //size_t file_length = AAsset_getLength(file);
-//
-        //file_content.resize(file_length);
-//
-        //AAsset_read(file, file_content.data(), file_length);
-        //AAsset_close(file);
-        file.CloseFile();
-        return file_content;
+#if 0
+		std::vector<uint8_t> fileContent;
+		std::shared_ptr<GuGuFile> file = CreateFileFactory();
+		file->OpenFile(path, GuGuFile::FileMode::OnlyRead);
+		int32_t fileLength = file->getFileSize();
+		fileContent.resize(fileLength);
+		int32_t haveReadedLength = 0;
+		file->ReadFile(fileContent.data(), fileLength, haveReadedLength);
+		file->CloseFile();
 #else
-        std::vector<uint8_t> file_content;
-
-        GuGuUtf8Str filePath(path);
-        WindowsGuGuFile file;
-        file.OpenFile(filePath, GuGuFile::FileMode::OnlyRead);
-
-        int32_t fileLength = file.getFileSize();
-        file_content.resize(fileLength);
-
-        int32_t haveReadedLength = 0;
-        file.ReadFile(file_content.data(), fileLength, haveReadedLength);
-        //assert(assetManager);
-        //AAsset *file =
-        //        AAssetManager_open(assetManager, file_path, AASSET_MODE_BUFFER);
-        //size_t file_length = AAsset_getLength(file);
-    //
-        //file_content.resize(file_length);
-    //
-        //AAsset_read(file, file_content.data(), file_length);
-        //AAsset_close(file);
-        file.CloseFile();
-        return file_content;
+        std::vector<uint8_t> fileContent;
+        ReadArchive(path, fileContent);
 #endif
+		return fileContent;
     }
 
     bool TextureCache::FillTextureData(const std::vector<uint8_t> &fileData,

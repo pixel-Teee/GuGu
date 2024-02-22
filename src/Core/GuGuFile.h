@@ -15,6 +15,13 @@ namespace GuGu {
 			AppendWrite
         };
 
+		enum SeekDir
+		{
+			Begin,
+			End,
+			Current
+		};
+
         virtual void OpenFile(const GuGuUtf8Str& path, FileMode fileMode) = 0;
 
 		virtual void CloseFile() = 0;
@@ -23,9 +30,11 @@ namespace GuGu {
 
 		virtual int32_t ReadFile(void* buffer, int32_t numberOfBytesToRead, int32_t& numberOfBytesHaveReaded) = 0;
 
-		virtual bool Seek(uint64_t newPosition) = 0;
+		virtual bool Seek(uint64_t offset, SeekDir seekDir = Begin) = 0;
 
 		virtual int32_t getFileSize() = 0;
+
+		virtual int32_t getCurrentFilePointerPos() = 0;
 	};
 
 	std::shared_ptr<GuGuFile> CreateFileFactory();

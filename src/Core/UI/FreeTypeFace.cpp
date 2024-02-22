@@ -3,6 +3,7 @@
 #include "FreeTypeFace.h"
 
 #include <Core/GuGuFile.h>
+#include <Core/Archiver.h>
 
 namespace GuGu {
 	FreeTypeFace::FreeTypeFace(FT_Library* library, GuGuUtf8Str& filePath)
@@ -50,8 +51,14 @@ namespace GuGu {
 	FreeTypeFace::FFTStreamHandler::FFTStreamHandler(const GuGuUtf8Str& inFileName)
 	{
 		m_fileHandler = CreateFileFactory();
+#if 0
 		m_fileHandler->OpenFile(inFileName, GuGuFile::FileMode::OnlyRead);
 		m_fileSize = m_fileHandler->getFileSize();
+#else 
+		m_fileHandler->OpenFile("archiver.bin", GuGuFile::FileMode::OnlyRead);
+		m_fileSize = getFileSize(inFileName);
+		m_filePath = inFileName;
+#endif	
 	}
 	FreeTypeFace::FFTStreamHandler::~FFTStreamHandler()
 	{
@@ -69,22 +76,37 @@ namespace GuGu {
 		FFTStreamHandler* myStreamHandler = (FFTStreamHandler*)inStream->descriptor.pointer;
 		if (myStreamHandler->m_fileHandler)
 		{
+#if 0
 			if (!myStreamHandler->m_fileHandler->Seek(inOffset))
 			{
 				return 0;
 			}
+#else
+			if (!GuGu::Seek(myStreamHandler->m_fileHandler, myStreamHandler->m_filePath, inOffset, GuGuFile::SeekDir::Begin))
+			{
+				GuGu_LOGD("%d\n", inOffset);
+				return 0;
+			}
+#endif
 		}
 
 		if (inCount > 0)
 		{
 			if (myStreamHandler->m_fileHandler)
 			{
+#if 0
 				int32_t bytesHaveReaded = 0;
 				if (!myStreamHandler->m_fileHandler->ReadFile(inBuffer, inCount, bytesHaveReaded))
 				{
 					return 0;
 				}
-				//GuGu_LOGD("已经读取的%d %d", inCount, bytesHaveReaded);
+#else
+				int32_t bytesHaveReaded = 0;
+				if (!ReadArchive(myStreamHandler->m_fileHandler, myStreamHandler->m_filePath, inBuffer, inCount))
+				{
+					return 0;
+				}
+#endif
 			}
 			else
 			{

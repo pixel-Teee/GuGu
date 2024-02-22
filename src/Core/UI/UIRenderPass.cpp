@@ -13,6 +13,7 @@
 #include "ElementList.h"
 
 #include <Core/GuGuFile.h>
+#include <Core/Archiver.h>
 
 #include "ImageWidget.h"
 #include "WindowWidget.h"
@@ -24,6 +25,7 @@
 namespace GuGu {
 
 	static std::vector <uint8_t> ReadTextureFile(const GuGuUtf8Str& path){
+#if 0
 		std::vector<uint8_t> fileContent;
 		std::shared_ptr<GuGuFile> file = CreateFileFactory();
 		file->OpenFile(path, GuGuFile::FileMode::OnlyRead);
@@ -32,6 +34,10 @@ namespace GuGu {
 		int32_t haveReadedLength = 0;
 		file->ReadFile(fileContent.data(), fileLength, haveReadedLength);
 		file->CloseFile();
+#else
+		std::vector<uint8_t> fileContent;
+		ReadArchive(path, fileContent);
+#endif
 		return fileContent;
 	}
 
