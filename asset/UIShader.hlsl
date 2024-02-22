@@ -40,7 +40,7 @@ float2 GetUV(PSInput VIn, uint UVIndex)
 
 float4 getColor(PSInput VIn, float2 UV)
 {
-    return t_Texture.Sample(s_Sampler, UV);
+    return t_Texture.Sample(s_Sampler, UV) * VIn.Color;
 }
 
 float4 getDefaultElementColor(PSInput VIn)
@@ -48,10 +48,23 @@ float4 getDefaultElementColor(PSInput VIn)
     return getColor(VIn, GetUV(VIn, 0) * GetUV(VIn, 1));
 }
 
+float4 getFontColor(PSInput VIn)
+{
+    float4 color = VIn.Color;
+    color.a *= t_Texture.Sample(s_Sampler, GetUV(VIn, 0) * GetUV(VIn, 1));
+    return color;
+}
+
 float4 main_ps(PSInput VIn) : SV_Target0
 {
     float4 OutColor;
-    OutColor = getDefaultElementColor(VIn) * VIn.Color;
+#ifdef UI_Default
+    OutColor = getDefaultElementColor(VIn);
+#endif
+
+#ifdef UI_Font
+    OutColor = getFontColor(VIn);
+#endif
     
     return OutColor;
 }
