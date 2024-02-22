@@ -9,13 +9,21 @@
 #include <Renderer/nvrhi.h>
 
 namespace GuGu {
+	class GuGuUtf8Str;
+	class Brush;
 	class Element;
 	class TextInfo;
 	class WidgetGeometry;
-	class Brush;
-	class GuGuUtf8Str;
+	
+	enum class UIShaderType
+	{
+		Default,
+		Font
+	};
+
 	struct BatchData
 	{
+		UIShaderType shaderType = UIShaderType::Default;
 		std::vector<UIVertex> m_vertices;
 		std::vector<uint32_t> m_indices;
 		//std::shared_ptr<Brush> m_brush;
@@ -44,6 +52,6 @@ namespace GuGu {
 
 		void generateBoxBatch(std::shared_ptr<BatchData> boxBatch, std::shared_ptr<Element> element);
 
-		void generateTextBatch(std::shared_ptr<Element> element, std::vector<std::shared_ptr<BatchData>>& batches);
+		void generateTextBatch(std::shared_ptr<Element> element);
 	};
 }

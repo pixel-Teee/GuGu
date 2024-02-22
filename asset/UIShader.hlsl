@@ -3,8 +3,8 @@
 struct PSInput
 {
     float4 Position : SV_Position;
-    half4 Color : COLOR0;
-    half4 SecondaryColor : COLOR1;
+    float4 Color : COLOR0;
+    float4 SecondaryColor : COLOR1;
     float4 TextureCoordinate : TEXCOORD0;
 };
 
@@ -14,7 +14,7 @@ cbuffer CB : register(b0)
 };
 
 PSInput main_vs(float4 InTextureCoordinate : TEXCOORD0, float2 InPosition : POSITIONT0,
-half4 InColor : COLOR0, half4 InSecondaryColor : COLOR1)
+float4 InColor : COLOR0, float4 InSecondaryColor : COLOR1)
 {
     PSInput VOut = (PSInput)0;
     
@@ -38,19 +38,19 @@ float2 GetUV(PSInput VIn, uint UVIndex)
     return UVIndex ? UVVector.xy : UVVector.zw;
 }
 
-half4 getColor(PSInput VIn, float2 UV)
+float4 getColor(PSInput VIn, float2 UV)
 {
     return t_Texture.Sample(s_Sampler, UV);
 }
 
-half4 getDefaultElementColor(PSInput VIn)
+float4 getDefaultElementColor(PSInput VIn)
 {
     return getColor(VIn, GetUV(VIn, 0) * GetUV(VIn, 1));
 }
 
 float4 main_ps(PSInput VIn) : SV_Target0
 {
-    half4 OutColor;
+    float4 OutColor;
     OutColor = getDefaultElementColor(VIn) * VIn.Color;
     
     return OutColor;

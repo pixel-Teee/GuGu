@@ -2,72 +2,37 @@
 
 #include "ShaderFactory.h"
 
-//#include <vector>
+#include "ShaderBlob.h"
 
 #include <Core/GuGuFile.h>
 
-//todo:fix this
-#if ANDROID
-    #include <Core/Platform/Android/AndroidGuGuFile.h>
-#else
-    #ifdef WIN32
-
-        #include <Core/Platform/Windows/WindowsGuGuFile.h>
-    #endif
-#endif
-
 namespace GuGu{
-    static std::vector<uint8_t> LoadBinaryFileToVector(const char *file_path){
-#if ANDROID
-        std::vector<uint8_t> file_content;
+    static std::vector<uint8_t> LoadBinaryFileToVector(const char* filePath, const char* entryName){
+        if (!entryName)
+            entryName = "main";
 
-        GuGuUtf8Str filePath(file_path);
-        AndroidGuGuFile file;
-        file.OpenFile(filePath, GuGuFile::FileMode::OnlyRead);
+        GuGuUtf8Str adjustedName = filePath;
+        {
+            size_t pos = adjustedName.find(".hlsl");
+            if (pos != -1)
+                adjustedName.erase(pos, 5);
+            if (entryName && strcmp(entryName, "main"))
+            {
+                adjustedName += GuGuUtf8Str("_") + GuGuUtf8Str(entryName);
+            }
+        }
 
-        int32_t fileLength = file.getFileSize();
-        file_content.resize(fileLength);
+        GuGuUtf8Str shaderFilePath = adjustedName + GuGuUtf8Str(".bin");
 
+        std::vector<uint8_t> fileContent;
+        std::shared_ptr<GuGuFile> file = CreateFileFactory();
+        file->OpenFile(shaderFilePath, GuGuFile::FileMode::OnlyRead);
+        int32_t fileLength = file->getFileSize();
+        fileContent.resize(fileLength);
         int32_t haveReadedLength = 0;
-        file.ReadFile(file_content.data(), fileLength, haveReadedLength);
-        //assert(assetManager);
-        //AAsset *file =
-        //        AAssetManager_open(assetManager, file_path, AASSET_MODE_BUFFER);
-        //size_t file_length = AAsset_getLength(file);
-//
-        //file_content.resize(file_length);
-//
-        //AAsset_read(file, file_content.data(), file_length);
-        //AAsset_close(file);
-        file.CloseFile();
-        return file_content;
-#else 
-#if WIN32
-        std::vector<uint8_t> file_content;
-
-        GuGuUtf8Str filePath(file_path);
-        WindowsGuGuFile file;
-        file.OpenFile(filePath, GuGuFile::FileMode::OnlyRead);
-
-        int32_t fileLength = file.getFileSize();
-        file_content.resize(fileLength);
-
-        int32_t haveReadedLength = 0;
-        file.ReadFile(file_content.data(), fileLength, haveReadedLength);
-        //assert(assetManager);
-        //AAsset *file =
-        //        AAssetManager_open(assetManager, file_path, AASSET_MODE_BUFFER);
-        //size_t file_length = AAsset_getLength(file);
-    //
-        //file_content.resize(file_length);
-    //
-        //AAsset_read(file, file_content.data(), file_length);
-        //AAsset_close(file);
-        file.CloseFile();
-        
-        return file_content;
-#endif
-#endif
+        file->ReadFile(fileContent.data(), fileLength, haveReadedLength);
+        file->CloseFile();       
+        return fileContent;
     }
 
     ShaderFactory::ShaderFactory(nvrhi::DeviceHandle rendererInterface)
@@ -84,38 +49,32 @@ namespace GuGu{
 
     nvrhi::ShaderHandle ShaderFactory::CreateShader(const char* fileName, const char* entryName, const std::vector<ShaderMacro>* pDefines, const nvrhi::ShaderDesc& desc)
     {
-        std::vector<uint8_t> buffer = LoadBinaryFileToVector(fileName);
+        std::vector<uint8_t> buffer = LoadBinaryFileToVector(fileName, entryName);
 
-        //std::shared_ptr<IBlob> byteCode = GetBytecode(fileName, entryName);
-//
-        //if(!byteCode)
-        //    return nullptr;
-//
-        //vector<ShaderMake::ShaderConstant> constants;
-        //if (pDefines)
-        //{
-        //    for (const ShaderMacro& define : *pDefines)
-        //        constants.push_back(ShaderMake::ShaderConstant{ define.name.c_str(), define.definition.c_str() });
-        //}
-//
-        //nvrhi::ShaderDesc descCopy = desc;
-        //descCopy.entryName = entryName;
-//
-        //const void* permutationBytecode = nullptr;
-        //size_t permutationSize = 0;
-        //if (!ShaderMake::FindPermutationInBlob(byteCode->data(), byteCode->size(), constants.data(), uint32_t(constants.size()), &permutationBytecode, &permutationSize))
-        //{
-        //    const std::string message = ShaderMake::FormatShaderNotFoundMessage(byteCode->data(), byteCode->size(), constants.data(), uint32_t(constants.size()));
-        //    log::error("%s", message.c_str());
-//
-        //    return nullptr;
-        //}
-//
-        //todo:fix this function
-        nvrhi::ShaderDesc descCopy = desc;
-        descCopy.entryName = entryName;
+        if (buffer.empty())
+            return nullptr;
 
-        return m_Device->createShader(descCopy, buffer.data(), buffer.size());
-        //return m_Device->createShader(descCopy, permutationBytecode, permutationSize);
+        std::vector<ShaderMake::ShaderConstant> constants;
+		if (pDefines)
+		{
+			for (const ShaderMacro& define : *pDefines)
+				constants.push_back(ShaderMake::ShaderConstant{ define.name.getStr(), define.definition.getStr() });
+		}
+
+		nvrhi::ShaderDesc descCopy = desc;
+		descCopy.entryName = entryName;
+            
+		const void* permutationBytecode = nullptr;
+		size_t permutationSize = 0;
+		if (!ShaderMake::FindPermutationInBlob(buffer.data(), buffer.size(), constants.data(), uint32_t(constants.size()), &permutationBytecode, &permutationSize))
+		{
+			const std::string message = ShaderMake::FormatShaderNotFoundMessage(buffer.data(), buffer.size(), constants.data(), uint32_t(constants.size()));
+			//log::error("%s", message.c_str());
+            GuGu_LOGD("%s", message.c_str());
+
+			return nullptr;
+		}
+
+		return m_Device->createShader(descCopy, permutationBytecode, permutationSize);
     }
 }

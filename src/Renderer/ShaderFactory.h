@@ -32,7 +32,7 @@ namespace GuGu{
                 //std::shared_ptr<vfs::IFileSystem> fs,
                 //const std::filesystem::path& basePath);
 
-        void ClearCache();
+        //void ClearCache();
 
         nvrhi::ShaderHandle CreateShader(const char* fileName, const char* entryName, const std::vector<ShaderMacro>* pDefines, nvrhi::ShaderType shaderType);
         nvrhi::ShaderHandle CreateShader(const char* fileName, const char* entryName, const std::vector<ShaderMacro>* pDefines, const nvrhi::ShaderDesc& desc);

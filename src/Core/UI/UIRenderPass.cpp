@@ -55,12 +55,23 @@ namespace GuGu {
 
 		std::shared_ptr <ShaderFactory> shaderFactory = std::make_shared<ShaderFactory>(
 			GetDevice());
-		m_vertexShader = shaderFactory->CreateShader("UIShader_main_vs.bin", "main_vs", nullptr,
+
+		std::vector<ShaderMacro> macros;
+		macros.push_back(ShaderMacro("UI_Default", "1"));
+		//macros.push_back(ShaderMacro("UI_Font", "1"));
+
+		m_vertexShader = shaderFactory->CreateShader("UIShader.hlsl", "main_vs", nullptr,
 			nvrhi::ShaderType::Vertex);
-		m_pixelShader = shaderFactory->CreateShader("UIShader_main_ps.bin", "main_ps", nullptr,
+		m_pixelShader = shaderFactory->CreateShader("UIShader.hlsl", "main_ps", &macros,
 			nvrhi::ShaderType::Pixel);
 
-		if (!m_vertexShader || !m_pixelShader)
+		macros.clear();
+		macros.push_back(ShaderMacro("UI_Font", "1"));
+
+		m_pixelFontShader = shaderFactory->CreateShader("UIShader.hlsl", "main_ps", &macros,
+			nvrhi::ShaderType::Pixel);
+
+		if (!m_vertexShader || !m_pixelShader || !m_pixelFontShader)
 			return false;
 
 		nvrhi::VertexAttributeDesc attributes[] = {
@@ -152,6 +163,22 @@ namespace GuGu {
 			m_pipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
 		}
 
+		if (!m_FontPipeline) {
+			nvrhi::GraphicsPipelineDesc psoDesc;
+			psoDesc.VS = m_vertexShader;
+			psoDesc.PS = m_pixelFontShader;
+			psoDesc.inputLayout = m_inputLayout;
+			psoDesc.bindingLayouts = { m_bindingLayout };
+			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+			psoDesc.renderState.blendState.targets[0].setBlendEnable(true);
+			psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
+			psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
+			psoDesc.renderState.depthStencilState.depthTestEnable = false;
+			//psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;//todo:fix this
+
+			m_FontPipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
+		}
+
 		m_CommandList->open();
 
 		math::float3 cameraPos = math::float3(0.0f, 0.0f, 0.0f);
@@ -200,7 +227,10 @@ namespace GuGu {
 				{ m_VertexBuffers[i], 2, offsetof(UIVertex, color)},
 				{ m_VertexBuffers[i], 3, offsetof(UIVertex, secondaryColor)}
 			};
-			state.pipeline = m_pipeline;
+			if(m_elementList->getBatches()[i]->shaderType == UIShaderType::Default)
+				state.pipeline = m_pipeline;
+			else if(m_elementList->getBatches()[i]->shaderType == UIShaderType::Font)
+				state.pipeline = m_FontPipeline;
 			state.framebuffer = framebuffer;
 
 			// Construct the viewport so that all viewports form a grid.
@@ -284,7 +314,7 @@ namespace GuGu {
 	}
 	void UIRenderPass::BackBufferResizing()
 	{
-		m_pipeline = nullptr;
+		m_pipeline = m_FontPipeline = nullptr;
 	}
 	void UIRenderPass::BackBufferResized(const uint32_t width, const uint32_t height, const uint32_t sampleCount)
 	{

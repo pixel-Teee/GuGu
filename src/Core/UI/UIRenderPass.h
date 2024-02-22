@@ -68,7 +68,6 @@ namespace GuGu {
 		void updateTextAtlasTexture();
 		nvrhi::CommandListHandle m_CommandList;
 
-		nvrhi::TextureHandle m_fontAtlas;
 		nvrhi::TextureHandle m_textureAtlas;
 
 		uint32_t m_atlasSize = 1024;
@@ -88,11 +87,13 @@ namespace GuGu {
 		nvrhi::SamplerHandle m_pointWrapSampler;
 		nvrhi::ShaderHandle m_vertexShader;
 		nvrhi::ShaderHandle m_pixelShader;
+		nvrhi::ShaderHandle m_pixelFontShader;
 
 		nvrhi::InputLayoutHandle m_inputLayout;
 		nvrhi::BindingLayoutHandle m_bindingLayout;
 		nvrhi::BindingSetHandle m_bindingSet;
 		nvrhi::GraphicsPipelineHandle m_pipeline;
+		nvrhi::GraphicsPipelineHandle m_FontPipeline;
 		struct ConstantBufferEntry {
 			dm::float4x4 viewProjMatrix;
 			float padding[16 * 3];

@@ -418,11 +418,22 @@ namespace GuGu {
 		}
 		return GuGuUtf8Str();
 	}
+	GuGuUtf8Str& GuGuUtf8Str::operator+=(const GuGuUtf8Str& rhs)
+	{
+		append(rhs);
+		return *this;
+	}
 	GuGuUtf8Str& GuGuUtf8Str::operator+=(const char* str)
 	{
 		append(str);
 		return *this;
 	}
+    GuGuUtf8Str operator+(const GuGuUtf8Str &lhs, const GuGuUtf8Str &rhs) {
+        GuGuUtf8Str res;
+        res.append(lhs);
+        res.append(rhs);
+        return res;
+    }
 	bool GuGuUtf8Str::operator==(const GuGuUtf8Str& rhs) const {
 		//bool result = true;
 		if (m_len != rhs.m_len) return false;

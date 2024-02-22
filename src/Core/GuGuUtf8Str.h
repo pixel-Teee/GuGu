@@ -44,7 +44,11 @@ namespace GuGu {
 
 		GuGuUtf8Str substr(size_t pos = 0, size_t len = -1) const;
 
+		GuGuUtf8Str& operator+=(const GuGuUtf8Str& rhs);
+
 		GuGuUtf8Str& operator+=(const char* str);//multiple character
+
+		friend GuGuUtf8Str operator+(const GuGuUtf8Str& lhs, const GuGuUtf8Str& rhs);
 
 		bool operator==(const GuGuUtf8Str& rhs) const;
 

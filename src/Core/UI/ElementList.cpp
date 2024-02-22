@@ -42,6 +42,7 @@ namespace GuGu {
 				case Element::ElementType::Box:
 				{
 					std::shared_ptr<BatchData> boxBatch = std::make_shared<BatchData>();
+					boxBatch->shaderType = UIShaderType::Default;
 					generateBoxBatch(boxBatch, m_elements[i]);
 					m_batches.push_back(boxBatch);
 					break;
@@ -51,7 +52,7 @@ namespace GuGu {
 					//std::shared_ptr<BatchData> textBatch = std::make_shared<BatchData>();
 					//generateTextBatch(textBatch, m_elements[i]);
 					//m_batches.push_back(textBatch);
-					generateTextBatch(m_elements[i], m_batches);
+					generateTextBatch(m_elements[i]);
 					break;
 				}
 			}
@@ -86,7 +87,7 @@ namespace GuGu {
 
 		boxBatch->m_texture = brush->m_texture;
 	}
-	void ElementList::generateTextBatch(std::shared_ptr<Element> element, std::vector<std::shared_ptr<BatchData>>& batches)
+	void ElementList::generateTextBatch(std::shared_ptr<Element> element)
 	{
 		std::shared_ptr<TextElement> textElement = std::static_pointer_cast<TextElement>(element);
 		CharacterList& characterList = *FontCache::getFontCache()->getCharacterList(*(textElement->m_textInfo));
@@ -153,7 +154,7 @@ namespace GuGu {
 					batchData->m_indices.emplace_back(1);
 
 					batchData->m_texture = FontCache::getFontCache()->getFontAtlasTexture();
-
+					batchData->shaderType = UIShaderType::Font;
 					m_batches.push_back(batchData);
 				}
 
