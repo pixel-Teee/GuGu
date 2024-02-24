@@ -12,8 +12,12 @@ namespace GuGu {
 
 	void NativeFileSystem::OpenFile(const GuGuUtf8Str& path, GuGuFile::FileMode fileMode)
 	{
-		GuGuUtf8Str nativePath = m_nativePath + path;
-		m_file->OpenFile(path, fileMode);
+		GuGuUtf8Str nativePath;
+		if(m_nativePath == "")
+			nativePath = path;
+		else
+			nativePath = m_nativePath + "/" + path;
+		m_file->OpenFile(nativePath, fileMode);
 	}
 
 	void NativeFileSystem::CloseFile()
@@ -280,7 +284,7 @@ namespace GuGu {
 
 		for (int32_t i = 0; i < fileVirtualPaths.size(); ++i)
 		{
-			assetRootFileSystem->OpenFile(fileVirtualPaths[i], GuGuFile::OnlyRead);
+			assetRootFileSystem->OpenFile("/asset/" + fileVirtualPaths[i], GuGuFile::OnlyRead);
 			fileSizes[i] = assetRootFileSystem->getFileSize();
 			char* data = new char[fileSizes[i]];
 			int32_t numberOfBytesHaveReaded = 0;

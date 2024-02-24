@@ -14,8 +14,25 @@ namespace GuGu {
 	bool VertexBuffer::Init()
 	{
 		GuGuUtf8Str assetPath = Application::GetDirectoryWithExecutable();
-
-#if 1
+		std::shared_ptr<NativeFileSystem> archiveNativeFileSystem = std::make_shared<NativeFileSystem>(assetPath);
+		std::shared_ptr<NativeFileSystem> archiveNativeFileSystem2 = std::make_shared<NativeFileSystem>(assetPath);
+		std::shared_ptr<RootFileSystem> rootFileSystem = std::make_shared<RootFileSystem>();
+		rootFileSystem->mount("/asset", archiveNativeFileSystem);
+		std::shared_ptr<RootFileSystem> rootFileSystem2 = std::make_shared<RootFileSystem>();
+		rootFileSystem2->mount("/asset", archiveNativeFileSystem2);
+		std::vector<GuGuUtf8Str> filePaths = {
+			"biscuit.jpg",
+			"CheckerBoard.png",
+			"fun.jpg",
+			"nvidia-logo.png",
+			"shaders_main_vs.bin",
+			"shaders_main_ps.bin",
+			"STKAITI.TTF",
+			"UIShader_main_vs.bin",
+			"UIShader_main_ps.bin"
+		};
+		CreateArchiveFiles(rootFileSystem, rootFileSystem2, filePaths, "/asset/archiver.bin");
+#if 0
 		std::shared_ptr<NativeFileSystem> nativeFileSystem = std::make_shared<NativeFileSystem>(assetPath);
 		m_rootFileSystem = std::make_shared<RootFileSystem>();
 		m_rootFileSystem->mount("/asset", nativeFileSystem);

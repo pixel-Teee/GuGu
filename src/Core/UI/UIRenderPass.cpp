@@ -46,7 +46,7 @@ namespace GuGu {
 		m_CommandList = GetDevice()->createCommandList();
 		m_CommandList->open();
 		GuGuUtf8Str assetPath = Application::GetDirectoryWithExecutable();
-#if 1
+#if 0
 		std::shared_ptr<NativeFileSystem> nativeFileSystem = std::make_shared<NativeFileSystem>(assetPath);
 		m_rootFileSystem = std::make_shared<RootFileSystem>();
 		m_rootFileSystem->mount("/asset", nativeFileSystem);
@@ -59,6 +59,7 @@ namespace GuGu {
 		m_rootFileSystem = std::make_shared<RootFileSystem>();
 		m_rootFileSystem->mount("/asset", archiverFileSystem);
 #endif	
+		
 
 		m_textureCache = std::make_shared<TextureCache>(GetDevice(), m_rootFileSystem);
 		m_styles = Style::getStyle();
