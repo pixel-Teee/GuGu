@@ -53,6 +53,7 @@ namespace GuGu{
 
     class CommonRenderPasses;
     class GuGuUtf8Str;
+    class FileSystem;
     class TextureCache
     {
     protected:
@@ -61,12 +62,14 @@ namespace GuGu{
         uint32_t m_MaxTextureSize = 0;
 
         bool m_GenerateMipmaps = true;
+
+        std::shared_ptr<FileSystem> m_fileSystem;
     public:
         std::vector<uint8_t> ReadTextureFile(const GuGuUtf8Str& path) const;
         bool FillTextureData(const std::vector<uint8_t>& fileData, const std::shared_ptr<TextureData>& texture, const GuGuUtf8Str& extension, const GuGuUtf8Str& mimeType) const;
         void FinalizeTexture(std::shared_ptr<TextureData> texture, CommonRenderPasses* passes, nvrhi::ICommandList* commandList);
     public:
-        TextureCache(nvrhi::IDevice* device);
+        TextureCache(nvrhi::IDevice* device, std::shared_ptr<FileSystem> fileSysem);
         virtual ~TextureCache();
 
         std::shared_ptr<LoadedTexture> LoadTextureFromFile(const GuGuUtf8Str& path, bool sRGB, CommonRenderPasses* passes, nvrhi::ICommandList* commandList);

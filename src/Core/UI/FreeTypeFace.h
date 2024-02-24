@@ -8,9 +8,10 @@
 namespace GuGu {
 	class GuGuUtf8Str;
 	class GuGuFile;
+	class FileSystem;
 	class FreeTypeFace {
 	public:
-		FreeTypeFace(FT_Library* library, GuGuUtf8Str& filePath);
+		FreeTypeFace(FT_Library* library, GuGuUtf8Str& filePath, std::shared_ptr<FileSystem> fileSystem);
 
         //FreeTypeFace();
 
@@ -21,11 +22,11 @@ namespace GuGu {
 		struct FFTStreamHandler
 		{
 			FFTStreamHandler();
-			FFTStreamHandler(const GuGuUtf8Str& inFileName);
+			FFTStreamHandler(const GuGuUtf8Str& inFileName, std::shared_ptr<FileSystem> fileSystem);
 			~FFTStreamHandler();
 			static void CloseFile(FT_Stream inStream);
 			static unsigned long ReadData(FT_Stream inStream, unsigned long inOffset, unsigned char* inBuffer, unsigned long inCount);
-			std::shared_ptr<GuGuFile> m_fileHandler;
+			std::shared_ptr<FileSystem> m_fileSystem;
 			uint64_t m_fileSize;
 			GuGuUtf8Str m_filePath;
 		};

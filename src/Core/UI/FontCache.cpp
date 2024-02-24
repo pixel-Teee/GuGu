@@ -31,6 +31,10 @@ namespace GuGu {
 		static std::shared_ptr<FontCache> fontCache = std::make_shared<FontCache>();
 		return fontCache;
 	}
+	void FontCache::Init(std::shared_ptr<FileSystem> fileSystem)
+	{
+		m_fileSystem = fileSystem;
+	}
 	math::double2 FontCache::measureText(const GuGuUtf8Str& str, const TextInfo& textInfo)
 	{
 		std::shared_ptr<CharacterList> characterList = getCharacterList(textInfo);
@@ -104,7 +108,7 @@ namespace GuGu {
 		else
 		{
 			GuGuUtf8Str filePath = textInfo.getFilePath();
-			freeTypeFace = std::make_shared<FreeTypeFace>(&m_library, filePath);
+			freeTypeFace = std::make_shared<FreeTypeFace>(&m_library, filePath, m_fileSystem);
 			m_faces.insert({ textInfo, freeTypeFace });
 		}    
 

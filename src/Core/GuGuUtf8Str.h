@@ -42,6 +42,8 @@ namespace GuGu {
 
 		size_t find(const char* str, size_t pos = 0) const;
 
+		size_t findLastOf(const char* str, size_t pos = -1) const;
+
 		GuGuUtf8Str substr(size_t pos = 0, size_t len = -1) const;
 
 		GuGuUtf8Str& operator+=(const GuGuUtf8Str& rhs);

@@ -18,22 +18,22 @@ namespace GuGu {
 		//m_repeatSeampler = m_device->createSampler(repeatSamplerDesc);
 		std::shared_ptr<Brush> checkerBoard = std::make_shared<Brush>();
 		checkerBoard->m_tiling = true;
-		checkerBoard->m_texturePath = u8"CheckerBoard.png";
+		checkerBoard->m_texturePath = u8"/asset/CheckerBoard.png";
 		m_styles.insert({ u8"CheckerBoard", checkerBoard });
 
 		std::shared_ptr<Brush> fun = std::make_shared<Brush>();
 		fun->m_tiling = false;
-		fun->m_texturePath = u8"fun.jpg";
+		fun->m_texturePath = u8"/asset/fun.jpg";
 		m_styles.insert({ u8"fun", fun });
 
 		std::shared_ptr<Brush> biscuit = std::make_shared<Brush>();
 		biscuit->m_tiling = false;
-		biscuit->m_texturePath = u8"biscuit.jpg";
+		biscuit->m_texturePath = u8"/asset/biscuit.jpg";
 		m_styles.insert({ u8"biscuit", biscuit });
 
 		std::shared_ptr<TextInfo> textInfo = std::make_shared<TextInfo>();
 		textInfo->m_size = 64;//12pt
-		textInfo->m_textPath = u8"STKAITI.TTF";
+		textInfo->m_textPath = u8"/asset/STKAITI.TTF";
 		textInfo->m_name = u8"STKAITI.TTF";
 		m_texts.insert({ u8"normalText", textInfo });
 	}

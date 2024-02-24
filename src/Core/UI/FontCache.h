@@ -18,6 +18,7 @@ namespace GuGu {
 	class FreeTypeFace;
 	struct AtlasedTextureSlot;
 	struct FCopyRowData;
+	class FileSystem;
 	class FontCache {
 	public:
 		FontCache();
@@ -25,6 +26,8 @@ namespace GuGu {
 		virtual ~FontCache();
 
 		static std::shared_ptr<FontCache> getFontCache();
+
+		void Init(std::shared_ptr<FileSystem> fileSystem);
 
 		math::double2 measureText(const GuGuUtf8Str& str, const TextInfo& textInfo);//todo:add font scale
 
@@ -67,5 +70,7 @@ namespace GuGu {
 		uint32_t m_atlasSize;
 
 		bool m_fontAtlasDirty;
+
+		std::shared_ptr<FileSystem> m_fileSystem;
 	};
 }

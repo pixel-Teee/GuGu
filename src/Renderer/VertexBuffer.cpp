@@ -7,15 +7,34 @@
 #include <Renderer/ShaderFactory.h>
 #include <Renderer/TextureCache.h>
 
+#include <Core/FileSystem/FileSystem.h>
+#include <Application/Application.h>
+
 namespace GuGu {
 	bool VertexBuffer::Init()
 	{
-		std::shared_ptr <ShaderFactory> shaderFactory = std::make_shared<ShaderFactory>(
-			GetDevice());
+		GuGuUtf8Str assetPath = Application::GetDirectoryWithExecutable();
 
-		m_VertexShader = shaderFactory->CreateShader("shaders.hlsl", "main_vs", nullptr,
+#if 1
+		std::shared_ptr<NativeFileSystem> nativeFileSystem = std::make_shared<NativeFileSystem>(assetPath);
+		m_rootFileSystem = std::make_shared<RootFileSystem>();
+		m_rootFileSystem->mount("/asset", nativeFileSystem);
+#else
+        std::shared_ptr<ArchiverFileSystem> archiverFileSystem;
+        if(assetPath == "")
+            archiverFileSystem = std::make_shared<ArchiverFileSystem>("archiver.bin");//this is root file
+        else
+            archiverFileSystem = std::make_shared<ArchiverFileSystem>(assetPath + "/archiver.bin");
+        m_rootFileSystem = std::make_shared<RootFileSystem>();
+        m_rootFileSystem->mount("/asset", archiverFileSystem);
+#endif	
+
+		std::shared_ptr <ShaderFactory> shaderFactory = std::make_shared<ShaderFactory>(
+			GetDevice(), m_rootFileSystem);
+
+		m_VertexShader = shaderFactory->CreateShader("/asset/shaders.hlsl", "main_vs", nullptr,
 			nvrhi::ShaderType::Vertex);
-		m_PixelShader = shaderFactory->CreateShader("shaders.hlsl", "main_ps", nullptr,
+		m_PixelShader = shaderFactory->CreateShader("/asset/shaders.hlsl", "main_ps", nullptr,
 			nvrhi::ShaderType::Pixel);
 
 		if (!m_VertexShader || !m_PixelShader) {
@@ -50,7 +69,7 @@ namespace GuGu {
 			m_VertexShader);
 
 		CommonRenderPasses commonPasses(GetDevice(), shaderFactory);
-		TextureCache textureCache(GetDevice());
+		TextureCache textureCache(GetDevice(), m_rootFileSystem);
 
 		m_CommandList = GetDevice()->createCommandList();
 		m_CommandList->open();
@@ -81,7 +100,7 @@ namespace GuGu {
 			nvrhi::ResourceStates::IndexBuffer);
 
 		//todo:load texture
-		GuGuUtf8Str textureFileName = u8"nvidia-logo.png";
+		GuGuUtf8Str textureFileName = u8"/asset/nvidia-logo.png";
 		std::shared_ptr <LoadedTexture> texture = textureCache.LoadTextureFromFile(
 			textureFileName, true, nullptr, m_CommandList);
 		m_Texture = texture->texture;

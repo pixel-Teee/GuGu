@@ -79,6 +79,10 @@ namespace GuGu{
         m_window->setNativeWindow(pApp->window);
     }
 
+    GuGuUtf8Str Application::GetDirectoryWithExecutable() {
+        return GuGuUtf8Str();//nothing to do
+    }
+
     //void AndroidApplication::resize(int32_t width, int32_t height) {
     //    m_renderer->onResize(width, height);
     //}

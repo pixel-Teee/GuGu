@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Core/GuGuUtf8Str.h>
+
 namespace GuGu {
 	class Timer;
 	class Window;
@@ -35,6 +37,8 @@ namespace GuGu {
 		float getFps() const;
 
 		float getmFps() const;
+
+		static GuGuUtf8Str GetDirectoryWithExecutable();
 	protected:
 		std::shared_ptr<Renderer> m_renderer;
 

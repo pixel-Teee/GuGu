@@ -8,7 +8,6 @@ namespace GuGu {
 		m_str = new char[m_capacity + 1];
 		strcpy(m_str, str);
 		m_len = calculateCharacterByteCount();
-		m_totalByteCount = m_capacity;
 	}
 	GuGuUtf8Str::GuGuUtf8Str(const GuGuUtf8Str& rhs)
 		: m_str(new char[rhs.m_capacity + 1])
@@ -24,7 +23,6 @@ namespace GuGu {
 		m_str = new char[m_capacity + 1];
 		strcpy(m_str, str.c_str());
 		m_len = calculateCharacterByteCount();
-		m_totalByteCount = m_capacity;
 	}
 	GuGuUtf8Str& GuGuUtf8Str::operator=(const GuGuUtf8Str& rhs)
 	{
@@ -39,6 +37,7 @@ namespace GuGu {
 		m_len = rhs.m_len;
 		m_capacity = rhs.m_capacity;
 		m_characterByteCount = rhs.m_characterByteCount;
+		m_totalByteCount = rhs.m_totalByteCount;
 		return *this;
 	}
 	GuGuUtf8Str::~GuGuUtf8Str()
@@ -112,12 +111,10 @@ namespace GuGu {
 			m_str = tmp;
 			m_capacity = newCapacity;
 			m_len = calculateCharacterByteCount();
-			m_totalByteCount = m_capacity;
 		}
 	}
 	GuGuUtf8Str& GuGuUtf8Str::pushBack(const char* ch)
 	{
-		m_totalByteCount = 0;
 		//calculate ch len
 		size_t tempIndex = 0;
 		uint32_t flag = 1;
@@ -192,7 +189,6 @@ namespace GuGu {
 	}
 	GuGuUtf8Str& GuGuUtf8Str::append(const char* str)
 	{
-		m_totalByteCount = 0;
 		size_t tempIndex = 0;
 		uint32_t flag = 1;
 		uint32_t len = 0;
@@ -374,6 +370,26 @@ namespace GuGu {
 				if (tmpByteCount == i)
 					return k;
 				return -1;
+			}
+		}
+		return -1;
+	}
+	size_t GuGuUtf8Str::findLastOf(const char* str, size_t pos) const
+	{
+		if (pos == -1) pos = m_len - 1;
+
+		int32_t substrByteCount = strlen(str);
+
+		int32_t endPos = 0;
+		for (int32_t i = 0; i < pos; ++i)
+			endPos += m_characterByteCount[i];
+
+		for (int32_t i = endPos; i >= 0; --i)
+		{
+			for (int32_t j = 0; j < substrByteCount; ++j)
+			{
+				if (m_str[i] == str[j])
+					return i;
 			}
 		}
 		return -1;

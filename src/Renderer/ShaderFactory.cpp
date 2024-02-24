@@ -5,10 +5,10 @@
 #include "ShaderBlob.h"
 
 #include <Core/GuGuFile.h>
-#include <Core/Archiver.h>
+#include <Core/FileSystem/FileSystem.h>
 
 namespace GuGu{
-    static std::vector<uint8_t> LoadBinaryFileToVector(const char* filePath, const char* entryName){
+    static std::vector<uint8_t> LoadBinaryFileToVector(const char* filePath, const char* entryName, std::shared_ptr<FileSystem> fileSystem){
         if (!entryName)
             entryName = "main";
 
@@ -24,25 +24,21 @@ namespace GuGu{
         }
 
         GuGuUtf8Str shaderFilePath = adjustedName + GuGuUtf8Str(".bin");
-#if 0
+
         std::vector<uint8_t> fileContent;
-        std::shared_ptr<GuGuFile> file = CreateFileFactory();
-        file->OpenFile(shaderFilePath, GuGuFile::FileMode::OnlyRead);
-        int32_t fileLength = file->getFileSize();
+        fileSystem->OpenFile(shaderFilePath, GuGuFile::FileMode::OnlyRead);
+        int32_t fileLength = fileSystem->getFileSize();
         fileContent.resize(fileLength);
         int32_t haveReadedLength = 0;
-        file->ReadFile(fileContent.data(), fileLength, haveReadedLength);
-        file->CloseFile();       
+        fileSystem->ReadFile(fileContent.data(), fileLength, haveReadedLength);
+        fileSystem->CloseFile();       
 
-#else
-		std::vector<uint8_t> fileContent;
-		ReadArchive(shaderFilePath, fileContent);
-#endif
         return fileContent;
     }
 
-    ShaderFactory::ShaderFactory(nvrhi::DeviceHandle rendererInterface)
-    : m_Device(rendererInterface){
+    ShaderFactory::ShaderFactory(nvrhi::DeviceHandle rendererInterface, std::shared_ptr<FileSystem> fs)
+    : m_Device(rendererInterface)
+    , m_fs(fs){
 
     }
 
@@ -55,7 +51,7 @@ namespace GuGu{
 
     nvrhi::ShaderHandle ShaderFactory::CreateShader(const char* fileName, const char* entryName, const std::vector<ShaderMacro>* pDefines, const nvrhi::ShaderDesc& desc)
     {
-        std::vector<uint8_t> buffer = LoadBinaryFileToVector(fileName, entryName);
+        std::vector<uint8_t> buffer = LoadBinaryFileToVector(fileName, entryName, m_fs);
 
         if (buffer.empty())
             return nullptr;

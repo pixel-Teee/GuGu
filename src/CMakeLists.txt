@@ -14,6 +14,8 @@ file(GLOB SourceFile "main.cpp"
 "Core/UI/*.cpp"
 "Core/Math/*.h"
 "Core/Math/*.cpp"
+"Core/FileSystem/*.h"
+"Core/FileSystem/*.cpp"
 "pch.h")
 
 if(WIN32)

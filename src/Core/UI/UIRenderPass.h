@@ -12,6 +12,7 @@ namespace GuGu {
 	class ElementList;
 	class WidgetGeometry;
 	class FontCache;
+	class RootFileSystem;
 	struct AtlasedTextureSlot
 	{
 		uint32_t x;
@@ -108,6 +109,7 @@ namespace GuGu {
 		void generateWidgetElement(WidgetGeometry& allocatedWidgetGeometry);
 		std::shared_ptr<TextBlockWidget> m_textBlockWidget;
 
+		std::shared_ptr<RootFileSystem> m_rootFileSystem;
 		//std::shared_ptr<FontCache> m_fontCache;
 	};
 }

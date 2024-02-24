@@ -5,23 +5,16 @@
 #include <Renderer/CommonRenderPasses.h>
 
 #include <Core/GuGuUtf8Str.h>
-#include <Core/Archiver.h>
 
 #include <Renderer/stb_image.h>
 
-#ifdef ANDROID
-
-#include <Core/Platform/Android/AndroidGuGuFile.h>//todo:remove this
-#else
-#ifdef WIN32
-#include <Core/Platform/Windows/WindowsGuGuFile.h>
-#endif
-#endif
+#include <Core/FileSystem/FileSystem.h>
 
 namespace GuGu{
 
-    TextureCache::TextureCache(nvrhi::IDevice *device)
-    : m_Device(device){
+    TextureCache::TextureCache(nvrhi::IDevice *device, std::shared_ptr<FileSystem> fileSysem)
+    : m_Device(device)
+    , m_fileSystem(fileSysem){
 
     }
 
@@ -54,19 +47,13 @@ namespace GuGu{
     }
 
     std::vector <uint8_t> TextureCache::ReadTextureFile(const GuGuUtf8Str &path) const {
-#if 0
 		std::vector<uint8_t> fileContent;
-		std::shared_ptr<GuGuFile> file = CreateFileFactory();
-		file->OpenFile(path, GuGuFile::FileMode::OnlyRead);
-		int32_t fileLength = file->getFileSize();
+		m_fileSystem->OpenFile(path, GuGuFile::FileMode::OnlyRead);
+		int32_t fileLength = m_fileSystem->getFileSize();
 		fileContent.resize(fileLength);
 		int32_t haveReadedLength = 0;
-		file->ReadFile(fileContent.data(), fileLength, haveReadedLength);
-		file->CloseFile();
-#else
-        std::vector<uint8_t> fileContent;
-        ReadArchive(path, fileContent);
-#endif
+		m_fileSystem->ReadFile(fileContent.data(), fileLength, haveReadedLength);
+		m_fileSystem->CloseFile();
 		return fileContent;
     }
 

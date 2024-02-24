@@ -60,6 +60,7 @@ namespace GuGu {
             math::float3(1.f, 1.f, 1.f),
     };
 
+    class RootFileSystem;
     class VertexBuffer : public IRenderPass {
     private:
         nvrhi::ShaderHandle m_VertexShader;
@@ -74,6 +75,7 @@ namespace GuGu {
         nvrhi::GraphicsPipelineHandle m_Pipeline;
         nvrhi::TextureHandle m_Texture;
         float m_Rotation = 0.f;
+        std::shared_ptr<RootFileSystem> m_rootFileSystem;
     public:
         using IRenderPass::IRenderPass;
 

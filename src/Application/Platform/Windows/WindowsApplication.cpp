@@ -79,6 +79,30 @@ namespace GuGu {
 		window->ToGeneratePlatformWindow();
 		m_windows.push_back(window);
 	}
+
+	GuGuUtf8Str Application::GetDirectoryWithExecutable()
+	{
+		char path[260] = { 0 };
+		if (GetModuleFileNameA(nullptr, path, sizeof(path)) == 0)
+			return "";
+
+		GuGuUtf8Str tmpPath = path;
+		GuGuUtf8Str parentPath;
+		for (size_t i = 0; i < tmpPath.len(); ++i)
+		{
+			if (tmpPath[i] == "\\")
+			{
+				parentPath += "/";
+				//i += 2;
+				continue;
+			}
+			parentPath += tmpPath[i];
+		}
+		
+		if (parentPath.findLastOf("/") != -1)
+			return parentPath.substr(0, parentPath.findLastOf("/"));
+		return "";
+	}
 	std::shared_ptr<Application> CreateApplicationFactory()
 	{
 		globalApplication = std::make_shared<WindowsApplication>();

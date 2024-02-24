@@ -51,7 +51,7 @@ namespace GuGu {
 		return retValue;
 	}
 
-	bool WindowsGuGuFile::Seek(uint64_t offset, SeekDir seekDir)
+	bool WindowsGuGuFile::Seek(int64_t offset, SeekDir seekDir)
 	{
 		if(seekDir == SeekDir::Begin)
 			SetFilePointer(m_fileHandle, offset, NULL, FILE_BEGIN);

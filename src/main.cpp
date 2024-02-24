@@ -1,5 +1,4 @@
 #include <Core/GuGuUtf8Str.h>//test utf8 str
-#include <Core/Archiver.h> //test archiver.h
 #include <Window/Window.h>
 
 #ifdef WIN32
@@ -30,24 +29,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
 
     system("chcp 65001");//change code page to utf8
 	GuGu_LOGD("%s", str.getStr());
-#if 0
-    std::vector<GuGu::GuGuUtf8Str> filePaths = {
-        "biscuit.jpg",
-        "CheckerBoard.png",
-        "fun.jpg",
-        "nvidia-logo.png",
-        "shaders_main_vs.bin",
-        "shaders_main_ps.bin",
-        "STKAITI.TTF",
-        "UIShader_main_vs.bin",
-        "UIShader_main_ps.bin"
-    };
-    GuGu::CreateArchive(filePaths, "archiver.bin");
-#else 
-
-    GuGu::InitArchive();
-
-#endif
 
 	std::shared_ptr<GuGu::Application> application = GuGu::CreateApplicationFactory();
 	std::shared_ptr<GuGu::WindowsApplication> windowsApplication = std::static_pointer_cast<GuGu::WindowsApplication>(application);
@@ -174,7 +155,7 @@ void android_main(struct android_app *pApp) {
     }while(!androidApplication->getSurfaceReady());
     //------similar to setNativeApplicationHandleAndCmdShow------
 
-    GuGu::InitArchive();
+    //GuGu::InitArchive();
 
     androidApplication->init();
 

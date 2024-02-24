@@ -7,6 +7,7 @@
 #include <vector>
 
 namespace GuGu{
+    class FileSystem;
     struct ShaderMacro
     {
         GuGuUtf8Str name;
@@ -25,10 +26,11 @@ namespace GuGu{
         //std::unordered_map<std::string, std::shared_ptr<vfs::IBlob>> m_BytecodeCache;
         //std::shared_ptr<vfs::IFileSystem> m_fs;
         //std::filesystem::path m_basePath;
+        std::shared_ptr<FileSystem> m_fs;
 
     public:
         ShaderFactory(
-                nvrhi::DeviceHandle rendererInterface);
+                nvrhi::DeviceHandle rendererInterface, std::shared_ptr<FileSystem> fs);
                 //std::shared_ptr<vfs::IFileSystem> fs,
                 //const std::filesystem::path& basePath);
 

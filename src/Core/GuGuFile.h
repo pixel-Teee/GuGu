@@ -30,7 +30,7 @@ namespace GuGu {
 
 		virtual int32_t ReadFile(void* buffer, int32_t numberOfBytesToRead, int32_t& numberOfBytesHaveReaded) = 0;
 
-		virtual bool Seek(uint64_t offset, SeekDir seekDir = Begin) = 0;
+		virtual bool Seek(int64_t offset, SeekDir seekDir = Begin) = 0;
 
 		virtual int32_t getFileSize() = 0;
 

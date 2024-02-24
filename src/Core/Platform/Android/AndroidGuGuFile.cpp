@@ -86,7 +86,7 @@ namespace GuGu{
             return true;
         }
     }
-    bool AndroidGuGuFile::Seek(uint64_t offset, SeekDir seekDir) {
+    bool AndroidGuGuFile::Seek(int64_t offset, SeekDir seekDir) {
         if(m_fileHandle != nullptr && !m_usingAssetManager)
         {
             if(seekDir == SeekDir::Begin)

@@ -13,7 +13,6 @@
 #include "ElementList.h"
 
 #include <Core/GuGuFile.h>
-#include <Core/Archiver.h>
 
 #include "ImageWidget.h"
 #include "WindowWidget.h"
@@ -22,22 +21,19 @@
 
 #include <Application/Application.h>
 
+#include <Core/FileSystem/FileSystem.h>
+
 namespace GuGu {
 
-	static std::vector <uint8_t> ReadTextureFile(const GuGuUtf8Str& path){
-#if 0
+	static std::vector <uint8_t> ReadTextureFile(const GuGuUtf8Str& path, std::shared_ptr<RootFileSystem> rootFileSystem){
+
 		std::vector<uint8_t> fileContent;
-		std::shared_ptr<GuGuFile> file = CreateFileFactory();
-		file->OpenFile(path, GuGuFile::FileMode::OnlyRead);
-		int32_t fileLength = file->getFileSize();
+		rootFileSystem->OpenFile(path, GuGuFile::FileMode::OnlyRead);
+		int32_t fileLength = rootFileSystem->getFileSize();
 		fileContent.resize(fileLength);
 		int32_t haveReadedLength = 0;
-		file->ReadFile(fileContent.data(), fileLength, haveReadedLength);
-		file->CloseFile();
-#else
-		std::vector<uint8_t> fileContent;
-		ReadArchive(path, fileContent);
-#endif
+		rootFileSystem->ReadFile(fileContent.data(), fileLength, haveReadedLength);
+		rootFileSystem->CloseFile();
 		return fileContent;
 	}
 
@@ -49,10 +45,28 @@ namespace GuGu {
 	{
 		m_CommandList = GetDevice()->createCommandList();
 		m_CommandList->open();
-		m_textureCache = std::make_shared<TextureCache>(GetDevice());
+		GuGuUtf8Str assetPath = Application::GetDirectoryWithExecutable();
+#if 1
+		std::shared_ptr<NativeFileSystem> nativeFileSystem = std::make_shared<NativeFileSystem>(assetPath);
+		m_rootFileSystem = std::make_shared<RootFileSystem>();
+		m_rootFileSystem->mount("/asset", nativeFileSystem);
+#else
+        std::shared_ptr<ArchiverFileSystem> archiverFileSystem;
+        if(assetPath == "")
+            archiverFileSystem = std::make_shared<ArchiverFileSystem>("archiver.bin");//this is root file
+		else
+            archiverFileSystem = std::make_shared<ArchiverFileSystem>(assetPath + "/archiver.bin");
+		m_rootFileSystem = std::make_shared<RootFileSystem>();
+		m_rootFileSystem->mount("/asset", archiverFileSystem);
+#endif	
+
+		m_textureCache = std::make_shared<TextureCache>(GetDevice(), m_rootFileSystem);
 		m_styles = Style::getStyle();
 		initAtlasData();
 		loadStyleTextures();
+
+		std::shared_ptr<FontCache> fontCache = FontCache::getFontCache();
+		fontCache->Init(m_rootFileSystem);
 
 		auto samplerDesc = nvrhi::SamplerDesc()
 			.setAllFilters(false)
@@ -60,21 +74,21 @@ namespace GuGu {
 		m_pointWrapSampler = GetDevice()->createSampler(samplerDesc);
 
 		std::shared_ptr <ShaderFactory> shaderFactory = std::make_shared<ShaderFactory>(
-			GetDevice());
+			GetDevice(), m_rootFileSystem);
 
 		std::vector<ShaderMacro> macros;
 		macros.push_back(ShaderMacro("UI_Default", "1"));
 		//macros.push_back(ShaderMacro("UI_Font", "1"));
 
-		m_vertexShader = shaderFactory->CreateShader("UIShader.hlsl", "main_vs", nullptr,
+		m_vertexShader = shaderFactory->CreateShader("/asset/UIShader.hlsl", "main_vs", nullptr,
 			nvrhi::ShaderType::Vertex);
-		m_pixelShader = shaderFactory->CreateShader("UIShader.hlsl", "main_ps", &macros,
+		m_pixelShader = shaderFactory->CreateShader("/asset/UIShader.hlsl", "main_ps", &macros,
 			nvrhi::ShaderType::Pixel);
 
 		macros.clear();
 		macros.push_back(ShaderMacro("UI_Font", "1"));
 
-		m_pixelFontShader = shaderFactory->CreateShader("UIShader.hlsl", "main_ps", &macros,
+		m_pixelFontShader = shaderFactory->CreateShader("/asset/UIShader.hlsl", "main_ps", &macros,
 			nvrhi::ShaderType::Pixel);
 
 		if (!m_vertexShader || !m_pixelShader || !m_pixelFontShader)
@@ -370,7 +384,7 @@ namespace GuGu {
 			std::shared_ptr<TextureData> texture = std::make_shared<TextureData>();
 			texture->path = texturePath;
 
-			std::vector<uint8_t> fileData = ReadTextureFile(texturePath);
+			std::vector<uint8_t> fileData = ReadTextureFile(texturePath, m_rootFileSystem);
 			m_textureCache->FillTextureData(fileData, texture, texturePath, "");
 			
 			if (!brushs[i]->m_tiling)
