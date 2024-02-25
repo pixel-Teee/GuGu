@@ -92,6 +92,7 @@ namespace GuGu {
 			m_underlyingFileSystem->ReadFile(assetPath, assetPathTotalByteCount, haveReadedNumber);
 			assetPath[assetPathTotalByteCount] = '\0';
 			m_entries.insert(std::make_pair(assetPath, entry));
+			GuGu_LOGD("%s %d %d\n", assetPath, entry.mPosition, entry.mSize);
 			delete[]assetPath;
 		}
 		m_underlyingFileSystem->CloseFile();

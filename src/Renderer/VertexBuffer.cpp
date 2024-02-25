@@ -33,7 +33,7 @@ namespace GuGu {
 		//};
 		//GuGuUtf8Str mountPoint = "/asset";
 		//CreateArchiveFiles(rootFileSystem, rootFileSystem2, filePaths, mountPoint + u8"/archiver.bin", mountPoint);
-#if 0
+#if 1
 		std::shared_ptr<NativeFileSystem> nativeFileSystem = std::make_shared<NativeFileSystem>(assetPath);
 		m_rootFileSystem = std::make_shared<RootFileSystem>();
 		m_rootFileSystem->mount("asset", nativeFileSystem);
