@@ -277,14 +277,14 @@ namespace GuGu {
 		return false;
 	}
 
-	void CreateArchiveFiles(std::shared_ptr<RootFileSystem> rootFileSystem, std::shared_ptr<RootFileSystem> assetRootFileSystem, const std::vector<GuGuUtf8Str>& fileVirtualPaths, const GuGuUtf8Str& archiveVirtualPaths)
+	void CreateArchiveFiles(std::shared_ptr<RootFileSystem> rootFileSystem, std::shared_ptr<RootFileSystem> assetRootFileSystem, const std::vector<GuGuUtf8Str>& fileVirtualPaths, const GuGuUtf8Str& archiveVirtualPaths, const GuGuUtf8Str& mountPoint)
 	{
 		rootFileSystem->OpenFile(archiveVirtualPaths, GuGuFile::OnlyWrite);
 		int32_t* fileSizes = new int32_t[fileVirtualPaths.size()];
 
 		for (int32_t i = 0; i < fileVirtualPaths.size(); ++i)
 		{
-			assetRootFileSystem->OpenFile("/asset/" + fileVirtualPaths[i], GuGuFile::OnlyRead);
+			assetRootFileSystem->OpenFile(mountPoint + "/" + fileVirtualPaths[i], GuGuFile::OnlyRead);
 			fileSizes[i] = assetRootFileSystem->getFileSize();
 			char* data = new char[fileSizes[i]];
 			int32_t numberOfBytesHaveReaded = 0;

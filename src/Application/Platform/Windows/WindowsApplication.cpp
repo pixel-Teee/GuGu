@@ -80,8 +80,16 @@ namespace GuGu {
 		m_windows.push_back(window);
 	}
 
+	static bool FolderExists(const GuGuUtf8Str& folderPath)
+	{
+		DWORD dwAttrib = GetFileAttributesA(folderPath.getStr());
+		return (dwAttrib != INVALID_FILE_ATTRIBUTES && (dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+	}
+
 	GuGuUtf8Str Application::GetDirectoryWithExecutable()
 	{
+		//first:to find content folder, otherwise use executable folder
+
 		char path[260] = { 0 };
 		if (GetModuleFileNameA(nullptr, path, sizeof(path)) == 0)
 			return "";
@@ -98,10 +106,24 @@ namespace GuGu {
 			}
 			parentPath += tmpPath[i];
 		}
-		
+#if WIN32
+		GuGuUtf8Str executablePath = parentPath.findLastOf("/") != -1 ? parentPath.substr(0, parentPath.findLastOf("/")) : "";
+		GuGuUtf8Str contentPath = executablePath + "/../../../asset";
+		if (FolderExists(contentPath))
+			return contentPath;
+		else
+		{
+			if (parentPath.findLastOf("/") != -1)
+				return parentPath.substr(0, parentPath.findLastOf("/"));
+			return "";
+		}
+#else
+	#ifdef ANDROID
 		if (parentPath.findLastOf("/") != -1)
 			return parentPath.substr(0, parentPath.findLastOf("/"));
 		return "";
+	#endif
+#endif
 	}
 	std::shared_ptr<Application> CreateApplicationFactory()
 	{

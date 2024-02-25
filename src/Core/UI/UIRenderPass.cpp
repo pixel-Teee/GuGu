@@ -46,10 +46,10 @@ namespace GuGu {
 		m_CommandList = GetDevice()->createCommandList();
 		m_CommandList->open();
 		GuGuUtf8Str assetPath = Application::GetDirectoryWithExecutable();
-#if 0
+#if 1
 		std::shared_ptr<NativeFileSystem> nativeFileSystem = std::make_shared<NativeFileSystem>(assetPath);
 		m_rootFileSystem = std::make_shared<RootFileSystem>();
-		m_rootFileSystem->mount("/asset", nativeFileSystem);
+		m_rootFileSystem->mount("asset", nativeFileSystem);
 #else
         std::shared_ptr<ArchiverFileSystem> archiverFileSystem;
         if(assetPath == "")
@@ -57,7 +57,7 @@ namespace GuGu {
 		else
             archiverFileSystem = std::make_shared<ArchiverFileSystem>(assetPath + "/archiver.bin");
 		m_rootFileSystem = std::make_shared<RootFileSystem>();
-		m_rootFileSystem->mount("/asset", archiverFileSystem);
+		m_rootFileSystem->mount("asset", archiverFileSystem);
 #endif	
 		
 
@@ -81,15 +81,15 @@ namespace GuGu {
 		macros.push_back(ShaderMacro("UI_Default", "1"));
 		//macros.push_back(ShaderMacro("UI_Font", "1"));
 
-		m_vertexShader = shaderFactory->CreateShader("/asset/UIShader.hlsl", "main_vs", nullptr,
+		m_vertexShader = shaderFactory->CreateShader("asset/UIShader.hlsl", "main_vs", nullptr,
 			nvrhi::ShaderType::Vertex);
-		m_pixelShader = shaderFactory->CreateShader("/asset/UIShader.hlsl", "main_ps", &macros,
+		m_pixelShader = shaderFactory->CreateShader("asset/UIShader.hlsl", "main_ps", &macros,
 			nvrhi::ShaderType::Pixel);
 
 		macros.clear();
 		macros.push_back(ShaderMacro("UI_Font", "1"));
 
-		m_pixelFontShader = shaderFactory->CreateShader("/asset/UIShader.hlsl", "main_ps", &macros,
+		m_pixelFontShader = shaderFactory->CreateShader("asset/UIShader.hlsl", "main_ps", &macros,
 			nvrhi::ShaderType::Pixel);
 
 		if (!m_vertexShader || !m_pixelShader || !m_pixelFontShader)

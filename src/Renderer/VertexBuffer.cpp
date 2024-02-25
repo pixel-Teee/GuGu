@@ -14,28 +14,29 @@ namespace GuGu {
 	bool VertexBuffer::Init()
 	{
 		GuGuUtf8Str assetPath = Application::GetDirectoryWithExecutable();
-		std::shared_ptr<NativeFileSystem> archiveNativeFileSystem = std::make_shared<NativeFileSystem>(assetPath);
-		std::shared_ptr<NativeFileSystem> archiveNativeFileSystem2 = std::make_shared<NativeFileSystem>(assetPath);
-		std::shared_ptr<RootFileSystem> rootFileSystem = std::make_shared<RootFileSystem>();
-		rootFileSystem->mount("/asset", archiveNativeFileSystem);
-		std::shared_ptr<RootFileSystem> rootFileSystem2 = std::make_shared<RootFileSystem>();
-		rootFileSystem2->mount("/asset", archiveNativeFileSystem2);
-		std::vector<GuGuUtf8Str> filePaths = {
-			"biscuit.jpg",
-			"CheckerBoard.png",
-			"fun.jpg",
-			"nvidia-logo.png",
-			"shaders_main_vs.bin",
-			"shaders_main_ps.bin",
-			"STKAITI.TTF",
-			"UIShader_main_vs.bin",
-			"UIShader_main_ps.bin"
-		};
-		CreateArchiveFiles(rootFileSystem, rootFileSystem2, filePaths, "/asset/archiver.bin");
+		//std::shared_ptr<NativeFileSystem> archiveNativeFileSystem = std::make_shared<NativeFileSystem>(assetPath);
+		//std::shared_ptr<NativeFileSystem> archiveNativeFileSystem2 = std::make_shared<NativeFileSystem>(assetPath);
+		//std::shared_ptr<RootFileSystem> rootFileSystem = std::make_shared<RootFileSystem>();
+		//rootFileSystem->mount("/asset", archiveNativeFileSystem);
+		//std::shared_ptr<RootFileSystem> rootFileSystem2 = std::make_shared<RootFileSystem>();
+		//rootFileSystem2->mount("/asset", archiveNativeFileSystem2);
+		//std::vector<GuGuUtf8Str> filePaths = {
+		//	u8"biscuit.jpg",
+		//	u8"CheckerBoard.png",
+		//	u8"fun.jpg",
+		//	u8"nvidia-logo.png",
+		//	u8"shaders_main_vs.bin",
+		//	u8"shaders_main_ps.bin",
+		//	u8"STKAITI.TTF",
+		//	u8"UIShader_main_vs.bin",
+		//	u8"UIShader_main_ps.bin"
+		//};
+		//GuGuUtf8Str mountPoint = "/asset";
+		//CreateArchiveFiles(rootFileSystem, rootFileSystem2, filePaths, mountPoint + u8"/archiver.bin", mountPoint);
 #if 0
 		std::shared_ptr<NativeFileSystem> nativeFileSystem = std::make_shared<NativeFileSystem>(assetPath);
 		m_rootFileSystem = std::make_shared<RootFileSystem>();
-		m_rootFileSystem->mount("/asset", nativeFileSystem);
+		m_rootFileSystem->mount("asset", nativeFileSystem);
 #else
         std::shared_ptr<ArchiverFileSystem> archiverFileSystem;
         if(assetPath == "")
@@ -43,15 +44,15 @@ namespace GuGu {
         else
             archiverFileSystem = std::make_shared<ArchiverFileSystem>(assetPath + "/archiver.bin");
         m_rootFileSystem = std::make_shared<RootFileSystem>();
-        m_rootFileSystem->mount("/asset", archiverFileSystem);
+        m_rootFileSystem->mount("asset", archiverFileSystem);
 #endif	
 
 		std::shared_ptr <ShaderFactory> shaderFactory = std::make_shared<ShaderFactory>(
 			GetDevice(), m_rootFileSystem);
 
-		m_VertexShader = shaderFactory->CreateShader("/asset/shaders.hlsl", "main_vs", nullptr,
+		m_VertexShader = shaderFactory->CreateShader("asset/shaders.hlsl", "main_vs", nullptr,
 			nvrhi::ShaderType::Vertex);
-		m_PixelShader = shaderFactory->CreateShader("/asset/shaders.hlsl", "main_ps", nullptr,
+		m_PixelShader = shaderFactory->CreateShader("asset/shaders.hlsl", "main_ps", nullptr,
 			nvrhi::ShaderType::Pixel);
 
 		if (!m_VertexShader || !m_PixelShader) {
@@ -117,7 +118,7 @@ namespace GuGu {
 			nvrhi::ResourceStates::IndexBuffer);
 
 		//todo:load texture
-		GuGuUtf8Str textureFileName = u8"/asset/nvidia-logo.png";
+		GuGuUtf8Str textureFileName = u8"asset/nvidia-logo.png";
 		std::shared_ptr <LoadedTexture> texture = textureCache.LoadTextureFromFile(
 			textureFileName, true, nullptr, m_CommandList);
 		m_Texture = texture->texture;
