@@ -28,6 +28,7 @@ namespace GuGu {
 		std::vector<uint32_t> m_indices;
 		//std::shared_ptr<Brush> m_brush;
 		nvrhi::TextureHandle m_texture;
+		uint32_t m_layer;//note:useful for batch
 	};
 	class ElementList
 	{

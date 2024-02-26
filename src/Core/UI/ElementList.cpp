@@ -43,6 +43,7 @@ namespace GuGu {
 				{
 					std::shared_ptr<BatchData> boxBatch = std::make_shared<BatchData>();
 					boxBatch->shaderType = UIShaderType::Default;
+					boxBatch->m_layer = m_elements[i]->m_layer;
 					generateBoxBatch(boxBatch, m_elements[i]);
 					m_batches.push_back(boxBatch);
 					break;
@@ -57,6 +58,32 @@ namespace GuGu {
 				}
 			}
 		}
+
+		std::vector<std::shared_ptr<BatchData>> batches;
+		uint32_t lastBatch = 0;
+		//merge batches
+		for (size_t i = 1; i < m_batches.size(); ++i)
+		{
+			if (m_batches[i]->shaderType == m_batches[lastBatch]->shaderType
+				&& m_batches[i]->m_texture == m_batches[lastBatch]->m_texture
+				&& m_batches[i]->m_layer == m_batches[lastBatch]->m_layer)
+			{
+				int32_t indexOffset = m_batches[lastBatch]->m_vertices.size();
+				m_batches[lastBatch]->m_vertices.insert(m_batches[lastBatch]->m_vertices.end(), m_batches[i]->m_vertices.begin(), m_batches[i]->m_vertices.end());
+				//m_batches[lastBatch]->m_indices.insert(m_batches[lastBatch]->m_indices.end(), m_batches[i]->m_indices.begin(), m_batches[i]->m_indices.end());			
+				for (size_t j = 0; j < m_batches[i]->m_indices.size(); ++j)
+				{
+					m_batches[lastBatch]->m_indices.push_back(m_batches[i]->m_indices[j] + indexOffset);
+				}
+			}
+			else
+			{
+				batches.push_back(m_batches[lastBatch]);
+				lastBatch = i;
+			}
+		}
+		batches.push_back(m_batches[lastBatch]);
+		m_batches = batches;
 	}
 	const std::vector<std::shared_ptr<BatchData>>& ElementList::getBatches() const
 	{
@@ -157,6 +184,7 @@ namespace GuGu {
 
 					batchData->m_texture = FontCache::getFontCache()->getFontAtlasTexture();
 					batchData->shaderType = UIShaderType::Font;
+					batchData->m_layer = element->m_layer;
 					m_batches.push_back(batchData);
 				}
 
