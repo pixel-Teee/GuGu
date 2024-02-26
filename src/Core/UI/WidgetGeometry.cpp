@@ -46,6 +46,13 @@ namespace GuGu {
 		childGeometry.mAbsoluteScale = childGeometry.mAccumulateTransform.m_linear[0][0];//fix:get scale factor
 		return childGeometry;
 	}
+	WidgetGeometry WidgetGeometry::getOffsetGeometry(math::double2 inTranslation)
+	{
+		WidgetGeometry offsetGeometry = *this;
+		offsetGeometry.mAccumulateTransform.m_translation += inTranslation;
+		offsetGeometry.mAbsolutePosition = offsetGeometry.mAccumulateTransform.m_translation;
+		return offsetGeometry;
+	}
 	math::daffine2 WidgetGeometry::getAccumulateTransform()
 	{
 		return mAccumulateTransform;

@@ -8,7 +8,7 @@
 
 #include "Slot.h"
 #include "Brush.h"
-#include "Style.h"
+#include "StyleSet.h"
 #include "BasicElement.h"
 #include "ElementList.h"
 
@@ -62,7 +62,7 @@ namespace GuGu {
 		
 
 		m_textureCache = std::make_shared<TextureCache>(GetDevice(), m_rootFileSystem);
-		m_styles = Style::getStyle();
+		m_styles = StyleSet::getStyle();
 		initAtlasData();
 		loadStyleTextures();
 

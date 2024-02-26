@@ -1,39 +1,27 @@
 #pragma once
 
-#include <unordered_map>
-
-#include <Core/GuGuUtf8Str.h>
-
-#include <Renderer/nvrhi.h>
-
+#include <Core/Math/MyMath.h>
 #include "TextInfo.h"
 
 namespace GuGu {
-	class Brush;
-	class TextInfo;
 	class Style
 	{
 	public:
 		Style();
 
 		virtual ~Style();
+	};
+	
+	class TextBlockStyle : public Style
+	{
+	public:
+		TextBlockStyle(std::shared_ptr<TextInfo> textInfo, math::float4 textColor = math::float4(1.0f, 1.0f, 1.0f, 1.0f), math::float2 shadowOffset = math::float2(0.0f, 0.0f), math::float4 shadowColor = math::float4(1.0f, 1.0f, 1.0f, 1.0f));
 
-		std::shared_ptr<Brush> getBrush(const GuGuUtf8Str& str);
+		virtual ~TextBlockStyle();
 
-		void getBrush(std::vector<std::shared_ptr<Brush>>& brush);//useful for load texture
-
-		static std::shared_ptr<Style> getStyle();
-
-		std::shared_ptr<TextInfo> getTextInfo(const GuGuUtf8Str& str);
-
-		void clear();
-	private:
-		//nvrhi::DeviceHandle m_device;
-
-		std::unordered_map<GuGuUtf8Str, std::shared_ptr<Brush>> m_styles;
-
-		//nvrhi::SamplerHandle m_repeatSeampler;
-		//nvrhi::SamplerHandle m_defaultSeampler;
-		std::unordered_map<GuGuUtf8Str, std::shared_ptr<TextInfo>> m_texts;
+		std::shared_ptr<TextInfo> m_textInfo;
+		math::float4 m_textColor;
+		math::float2 m_shadowOffset;
+		math::float4 m_shadowColor;
 	};
 }

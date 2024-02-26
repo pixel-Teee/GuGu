@@ -62,7 +62,7 @@ if(WIN32)
 elseif(ANDROID)
     message("[message]:this platform is android!")
     # set(CMAKE_BUILD_TYPE Debug)
-    # find_package(Vulkan REQUIRED)
+    find_package(Vulkan REQUIRED)
     # message("hello")
     file(GLOB PlatformSourceFile "Window/Platform/Android/*.h" "Window/Platform/Android/*.cpp" "Application/Platform/Android/*.h" "Application/Platform/Android/*.cpp"
     "Renderer/Platform/Vulkan/*.h" "Renderer/Platform/Vulkan/*.cpp"

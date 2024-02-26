@@ -6,14 +6,14 @@
 
 #include "ElementList.h"
 
-#include "Style.h"
+#include "StyleSet.h"
 
 #include "ArrangedWidgetArray.h"
 #include "ArrangedWidget.h"
 
 namespace GuGu {
 	WindowWidget::WindowWidget()
-		: m_defaultBrush(Style::getStyle()->getBrush("CheckerBoard"))
+		: m_defaultBrush(StyleSet::getStyle()->getBrush("CheckerBoard"))
 	{
 		m_windowType = WindowType::VirtualWindow;
 	}

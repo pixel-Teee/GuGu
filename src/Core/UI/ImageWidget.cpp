@@ -6,11 +6,11 @@
 
 #include "ElementList.h"
 
-#include "Style.h"
+#include "StyleSet.h"
 
 namespace GuGu {
 	ImageWidget::ImageWidget()
-		: m_imageBursh(Style::getStyle()->getBrush("fun"))
+		: m_imageBursh(StyleSet::getStyle()->getBrush("fun"))
 	{
 	}
 	ImageWidget::~ImageWidget()

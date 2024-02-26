@@ -22,6 +22,8 @@ namespace GuGu {
 
 		WidgetGeometry getChildGeometry(math::double2 inLocalSize, math::double2 inTranslation, math::daffine2 parentAccumulateTransform);
 
+		WidgetGeometry getOffsetGeometry(math::double2 inTranslation);
+
 		math::daffine2 getAccumulateTransform();
 	private:
 		math::double2 mLocalPosition;

@@ -14,7 +14,7 @@
     #endif
 #endif
 
-#include <Core/UI/Style.h>
+#include <Core/UI/StyleSet.h>
 #include <Core/UI/FontCache.h>
 #include <Core/UI/UIRenderPass.h>
 #include <Renderer/DeviceManager.h>
@@ -65,7 +65,7 @@ namespace GuGu{
     }
     void VulkanRenderer::onDestroy() {
         //static object need to destroy on this place
-        Style::getStyle()->clear();
+        StyleSet::getStyle()->clear();
         FontCache::getFontCache()->clear();
     }
 }

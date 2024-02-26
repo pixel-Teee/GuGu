@@ -3,7 +3,7 @@
 #include <Renderer/DeviceManager.h>//IRenderPass
 
 namespace GuGu {
-	class Style;
+	class StyleSet;
 	class TextureCache;
 	struct TextureData;
 	class Brush;
@@ -73,7 +73,7 @@ namespace GuGu {
 
 		uint32_t m_atlasSize = 1024;
 
-		std::shared_ptr<Style> m_styles;
+		std::shared_ptr<StyleSet> m_styles;
 
 		void loadStyleTextures();
 		void copyRow(const FCopyRowData& copyRowData);

@@ -1,80 +1,22 @@
 #include <pch.h>
 
 #include "Style.h"
-#include "Brush.h"
 
 namespace GuGu {
 	Style::Style()
 	{
-		//repeat sampler
-		//auto defaultSamplerDesc = nvrhi::SamplerDesc()
-		//	.setAllFilters(false)
-		//	.setAllAddressModes(nvrhi::SamplerAddressMode::Clamp);
-		//m_defaultSeampler = m_device->createSampler(defaultSamplerDesc);
-		//
-		//auto repeatSamplerDesc = nvrhi::SamplerDesc()
-		//	.setAllFilters(false)
-		//	.setAllAddressModes(nvrhi::SamplerAddressMode::Repeat);
-		//m_repeatSeampler = m_device->createSampler(repeatSamplerDesc);
-		std::shared_ptr<Brush> checkerBoard = std::make_shared<Brush>();
-		checkerBoard->m_tiling = true;
-		checkerBoard->m_texturePath = u8"asset/CheckerBoard.png";
-		m_styles.insert({ u8"CheckerBoard", checkerBoard });
-
-		std::shared_ptr<Brush> fun = std::make_shared<Brush>();
-		fun->m_tiling = false;
-		fun->m_texturePath = u8"asset/fun.jpg";
-		m_styles.insert({ u8"fun", fun });
-
-		std::shared_ptr<Brush> biscuit = std::make_shared<Brush>();
-		biscuit->m_tiling = false;
-		biscuit->m_texturePath = u8"asset/biscuit.jpg";
-		m_styles.insert({ u8"biscuit", biscuit });
-
-		std::shared_ptr<TextInfo> textInfo = std::make_shared<TextInfo>();
-		textInfo->m_size = 12;//12pt
-		textInfo->m_textPath = u8"asset/NotoSansSC-Regular.ttf";
-		textInfo->m_name = u8"NotoSansSC-Regular.ttf";
-		m_texts.insert({ u8"normalText", textInfo });
 	}
 	Style::~Style()
 	{
 	}
-	std::shared_ptr<Brush> Style::getBrush(const GuGuUtf8Str& str)
+	TextBlockStyle::TextBlockStyle(std::shared_ptr<TextInfo> textInfo, math::float4 textColor, math::float2 shadowOffset, math::float4 shadowColor)
+		: m_textInfo(textInfo)
+		, m_textColor(textColor)
+		, m_shadowOffset(shadowOffset)
+		, m_shadowColor(shadowColor)
 	{
-		auto it = m_styles.find(str);
-		if (it != m_styles.end())
-			return it->second;
-
-		GuGu_LOGE("don't find brush!");
-
-		return nullptr;
 	}
-	void Style::getBrush(std::vector<std::shared_ptr<Brush>>& brush)
+	TextBlockStyle::~TextBlockStyle()
 	{
-		for (auto& it : m_styles)
-		{
-			brush.push_back(it.second);
-		}
-	}
-	std::shared_ptr<Style> Style::getStyle()
-	{
-		static std::shared_ptr<Style> styleInsance = std::make_shared<Style>();
-		return styleInsance;
-	}
-	std::shared_ptr<TextInfo> Style::getTextInfo(const GuGuUtf8Str& str)
-	{
-		auto it = m_texts.find(str);
-		if (it != m_texts.end())
-			return it->second;
-
-		GuGu_LOGE("don't find brush!");
-
-		return nullptr;
-	}
-	void Style::clear()
-	{
-		m_styles.clear();
-		m_texts.clear();
 	}
 }

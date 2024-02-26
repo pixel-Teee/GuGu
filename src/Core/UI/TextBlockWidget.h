@@ -5,6 +5,7 @@
 namespace GuGu {
 	class GuGuUtf8Str;
 	class TextInfo;
+	class TextBlockStyle;
 	class TextBlockWidget : public Widget
 	{
 	public:
@@ -18,7 +19,7 @@ namespace GuGu {
 
 		void setText(GuGuUtf8Str& newText);
 	private:
-		std::shared_ptr<TextInfo> m_textInfo;
+		std::shared_ptr<TextBlockStyle> m_textStyle;
 
 		std::shared_ptr<GuGuUtf8Str> m_text;
 
