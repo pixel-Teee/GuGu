@@ -4,6 +4,8 @@
 
 #include <Core/GuGuUtf8Str.h>
 
+#include "TextInfo.h"
+
 namespace GuGu {
 	struct GlyphFontAtlasData
 	{
@@ -42,11 +44,11 @@ namespace GuGu {
 
 		GlyphFontAtlasData m_glyphFontAtlasData;
 	};
-	class TextInfo;
+	//struct FontKey;
 	class CharacterList
 	{
 	public:
-		CharacterList(const TextInfo& textInfo);
+		CharacterList(const FontKey& fontKey);
 
 		virtual ~CharacterList();
 
@@ -54,7 +56,7 @@ namespace GuGu {
 
 		std::shared_ptr<GlyphEntry> getCharacter(GuGuUtf8Str Char);
 	private:
-		const TextInfo& m_textInfo;//key
+		FontKey m_fontKey;//key
 
 		std::unordered_map<GuGuUtf8Str, std::shared_ptr<GlyphEntry>> m_characters;
 

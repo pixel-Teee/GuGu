@@ -23,9 +23,9 @@ namespace GuGu {
 		//todo:generate text element
 		ElementList::addTextElement(elementList, allocatedGeometry, math::float4(0.64f, 1.0f, 0.32f, 1.0f), m_textInfo, *m_text, layer);
 	}
-	math::double2 TextBlockWidget::ComputeFixedSize()
+	math::double2 TextBlockWidget::ComputeFixedSize(float inLayoutScaleMultiplier)
 	{
-		return FontCache::getFontCache()->measureText(*m_text, *m_textInfo);
+		return FontCache::getFontCache()->measureText(*m_text, *m_textInfo, inLayoutScaleMultiplier);
 	}
 	void TextBlockWidget::setText(GuGuUtf8Str& newText)
 	{

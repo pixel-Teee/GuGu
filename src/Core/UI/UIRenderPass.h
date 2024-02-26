@@ -105,7 +105,7 @@ namespace GuGu {
 		std::vector<nvrhi::BufferHandle> m_VertexBuffers;
 		std::vector<nvrhi::BufferHandle> m_IndexBuffers;
 		std::vector<nvrhi::BufferHandle> m_constantBuffers;
-		void calculateWidgetsFixedSize(std::shared_ptr<Widget> widget);
+		void calculateWidgetsFixedSize(std::shared_ptr<WindowWidget> widget);
 		void generateWidgetElement(WidgetGeometry& allocatedWidgetGeometry);
 		std::shared_ptr<TextBlockWidget> m_textBlockWidget;
 

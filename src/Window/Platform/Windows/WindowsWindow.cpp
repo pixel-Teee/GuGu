@@ -8,6 +8,15 @@ namespace GuGu {
 		return std::make_shared<WindowsWindow>();
 	}
 
+	WindowsWindow::WindowsWindow()
+		: m_dpiFactor(1.0f)
+	{
+	}
+
+	WindowsWindow::~WindowsWindow()
+	{
+	}
+
 	void WindowsWindow::ToGeneratePlatformWindow()
 	{
 		const wchar_t windowClassName[] = L"GuGuWindowClass";
@@ -42,6 +51,17 @@ namespace GuGu {
 		//GuGu_LOGE(u8"create window error!");
 
 		ShowWindow(m_windowHandle, m_startCmdShow);
+
+		//------get dpi scale------
+		HDC Context = GetDC(nullptr);
+		int32_t dpi = GetDeviceCaps(Context, LOGPIXELSX);
+		m_dpiFactor = (float)dpi / 72.0f;
+		ReleaseDC(nullptr, Context);
+	}
+
+	float WindowsWindow::getDpiFactor()
+	{
+		return m_dpiFactor;
 	}
 
 	void WindowsWindow::setNativeApplicationHandleAndCmdShowToCreateWindow(HINSTANCE applicationHandle, int32_t cmdShow)

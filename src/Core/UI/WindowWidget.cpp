@@ -48,7 +48,7 @@ namespace GuGu {
 			}
 		}
 	}
-	math::double2 WindowWidget::ComputeFixedSize()
+	math::double2 WindowWidget::ComputeFixedSize(float inLayoutScaleMultiplier)
 	{
 		return m_childWidget->getChildWidget()->getFixedSize();
 	}
@@ -178,5 +178,10 @@ namespace GuGu {
 		//slot->setHorizontalAlignment(HorizontalAlignment::Stretch);
 		//slot->setVerticalAlignment(VerticalAlignment::Stretch);
 		m_childWidget = slot;
+	}
+	std::shared_ptr<Window> WindowWidget::getNativeWindow()
+	{
+		std::shared_ptr<Window> nativeWindow = m_nativeWindow.lock();
+		return nativeWindow;
 	}
 }

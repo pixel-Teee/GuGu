@@ -25,7 +25,7 @@ namespace GuGu {
 
 		virtual void GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer) override;
 
-		virtual math::double2 ComputeFixedSize() override;
+		virtual math::double2 ComputeFixedSize(float inLayoutScaleMultiplier) override;
 
 		virtual void AllocationChildActualSpace(WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) override;
 
@@ -36,6 +36,8 @@ namespace GuGu {
 		math::int2 getViewportSize();
 
 		void setChildWidget(std::shared_ptr<Widget> widget);
+
+		std::shared_ptr<Window> getNativeWindow();
 	private:
 		std::weak_ptr<Window> m_nativeWindow;
 		std::shared_ptr<Slot> m_childWidget;

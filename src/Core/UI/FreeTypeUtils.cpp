@@ -8,8 +8,9 @@ namespace GuGu {
 		void ApplySizeAndScale(FT_Face inFace, const int32_t inFontSize, const float inFontScale)
 		{
 			const FT_F26Dot6 fixedFontSize = inFontSize << 6;
+			const FT_Long fixedFontScale = inFontScale * 65536;
 			FT_F26Dot6 requiredFixedFontPixelSize = 0;
-			requiredFixedFontPixelSize = fixedFontSize;
+			requiredFixedFontPixelSize = FT_MulFix(fixedFontSize, fixedFontScale);
 
 			//convert the 26.6 scaled pixel size back into pixel space
 			const uint32_t requiredFontPixelSize = ((requiredFixedFontPixelSize + (1 << 5)) >> 6);

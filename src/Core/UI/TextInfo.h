@@ -3,6 +3,13 @@
 #include <Core/GuGuUtf8Str.h>
 
 namespace GuGu {
+	template <class T>
+	void hash_combine(size_t& seed, const T& v)
+	{
+		std::hash<T> hasher;
+		seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+	}
+
 	class TextInfo
 	{
 	public:
@@ -24,6 +31,23 @@ namespace GuGu {
 		GuGuUtf8Str m_name;
 		float m_size;
 	};
+
+	struct FontKey
+	{
+	public:
+		FontKey(const TextInfo& textInfo, float inScale)
+			: m_fontInfo(textInfo), m_scale(inScale)
+		{}
+
+		const TextInfo& getTextInfo() const { return m_fontInfo; }
+
+		float getScale() const { return m_scale; }
+
+		bool operator==(const FontKey& rhs) const;
+	private:
+		TextInfo m_fontInfo;
+		float m_scale;
+	};
 }
 
 namespace std
@@ -43,6 +67,18 @@ namespace std
 			//hash_combine(val, textInfo.getScale());
 			val ^= (size_t)textInfo.getSize();//todo:fix this
 			return val;
+		}
+	};
+
+	template<>
+	struct hash<GuGu::FontKey>
+	{
+		size_t operator()(const GuGu::FontKey& fontKey) const
+		{
+			auto textInfoHash = std::hash<GuGu::TextInfo>();
+			size_t seed = textInfoHash(fontKey.getTextInfo());
+			GuGu::hash_combine(seed, fontKey.getScale());
+			return seed;
 		}
 	};
 }

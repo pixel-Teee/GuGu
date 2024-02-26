@@ -35,9 +35,9 @@ namespace GuGu {
 	{
 		m_fileSystem = fileSystem;
 	}
-	math::double2 FontCache::measureText(const GuGuUtf8Str& str, const TextInfo& textInfo)
+	math::double2 FontCache::measureText(const GuGuUtf8Str& str, const TextInfo& textInfo, float inScale)
 	{
-		std::shared_ptr<CharacterList> characterList = getCharacterList(textInfo);
+		std::shared_ptr<CharacterList> characterList = getCharacterList(textInfo, inScale);
 
 		const uint16_t maxHeight = characterList->getMaxHeight();
 
@@ -89,16 +89,17 @@ namespace GuGu {
 
 		return size;
 	}
-	std::shared_ptr<CharacterList> FontCache::getCharacterList(const TextInfo& textInfo)
+	std::shared_ptr<CharacterList> FontCache::getCharacterList(const TextInfo& textInfo, float inScale)
 	{
-		if (m_characterLists.find(textInfo) != m_characterLists.end())
-			return m_characterLists[textInfo];
-		std::shared_ptr<CharacterList> characterList = std::make_shared<CharacterList>(textInfo);
-		m_characterLists.insert({ textInfo, characterList });
+		FontKey fontKey(textInfo, inScale);
+		if (m_characterLists.find(fontKey) != m_characterLists.end())
+			return m_characterLists[fontKey];
+		std::shared_ptr<CharacterList> characterList = std::make_shared<CharacterList>(fontKey);
+		m_characterLists.insert({ fontKey, characterList });
 		return characterList;
 	}
 
-	uint16_t FontCache::getMaxCharacterHeight(const TextInfo& textInfo)
+	uint16_t FontCache::getMaxCharacterHeight(const TextInfo& textInfo, float scale)
 	{
 		GuGuUtf8Str Char(u8"0");
 
@@ -114,7 +115,7 @@ namespace GuGu {
 
 		FT_Error error = FT_Get_Char_Index(freeTypeFace->getFontFace(), Char.getUnicode().at(0));
 		//uint32_t glyphIndex = FT_Get_Char_Index(freeTypeFace->getFontFace(), Char.getUnicode().at(0));//todo:fix this
-		FreeTypeUtils::ApplySizeAndScale(freeTypeFace->getFontFace(), textInfo.getSize(), 1.0);
+		FreeTypeUtils::ApplySizeAndScale(freeTypeFace->getFontFace(), textInfo.getSize(), scale);
 
 		FT_Pos maxHeight = FT_MulFix(freeTypeFace->getFontFace()->height, freeTypeFace->getFontFace()->size->metrics.y_scale);
 

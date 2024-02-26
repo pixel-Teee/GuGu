@@ -31,4 +31,8 @@ namespace GuGu {
 	{
 		return (m_size == rhs.m_size) && (m_name == rhs.m_name);
 	}
+	bool FontKey::operator==(const FontKey& rhs) const
+	{
+		return (m_fontInfo == rhs.m_fontInfo) && (m_scale == rhs.m_scale);
+	}
 }

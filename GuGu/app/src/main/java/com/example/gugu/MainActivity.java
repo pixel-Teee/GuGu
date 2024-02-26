@@ -28,6 +28,7 @@ public class MainActivity extends GameActivity {
         String dataDirStr = androidContext.getDataDir().getAbsolutePath();
         String fileDirStr = androidContext.getFilesDir().getAbsolutePath();
         passInternalStorageDataPathAndFilePath(dataDirStr, fileDirStr);
+        setDpiScale(androidContext.getResources().getDisplayMetrics().densityDpi / 72.0f);
     }
 
     private void hideSystemUi() {
@@ -43,4 +44,6 @@ public class MainActivity extends GameActivity {
     }
 
     private native void passInternalStorageDataPathAndFilePath(String dataPath, String filePath);
+
+    private native void setDpiScale(float dpiScale);
 }

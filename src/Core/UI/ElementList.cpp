@@ -90,11 +90,13 @@ namespace GuGu {
 	void ElementList::generateTextBatch(std::shared_ptr<Element> element)
 	{
 		std::shared_ptr<TextElement> textElement = std::static_pointer_cast<TextElement>(element);
-		CharacterList& characterList = *FontCache::getFontCache()->getCharacterList(*(textElement->m_textInfo));
+		float scale = textElement->m_geometry.getAbsoluteScale();
 		math::double2 absolutePosition = textElement->m_geometry.getAbsolutePosition();
 		//math::double2 localSize = textElement->m_geometry.getLocalSize();
 		//math::double2 localSize = math::double2(200.0f, 200.0f);
 		math::float4 color = textElement->m_color;
+
+		CharacterList& characterList = *FontCache::getFontCache()->getCharacterList(*(textElement->m_textInfo), scale);
 
 		float invTextureSizeX = 1 / 1024.0f;
 		float invTextureSizeY = 1 / 1024.0f;

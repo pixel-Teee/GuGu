@@ -20,7 +20,7 @@ namespace GuGu {
 	{
 		ElementList::addBoxElement(elementList, allocatedGeometry, math::float4(1.0f, 1.0f, 1.0f, 1.0f), m_imageBursh, layer);
 	}
-	math::double2 ImageWidget::ComputeFixedSize()
+	math::double2 ImageWidget::ComputeFixedSize(float inLayoutScaleMultiplier)
 	{
 		return math::double2(m_imageBursh->m_actualSize.x, m_imageBursh->m_actualSize.y);
 	}

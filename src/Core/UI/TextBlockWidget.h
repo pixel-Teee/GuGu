@@ -14,7 +14,7 @@ namespace GuGu {
 
 		virtual void GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer);
 
-		virtual math::double2 ComputeFixedSize();
+		virtual math::double2 ComputeFixedSize(float inLayoutScaleMultiplier) override;
 
 		void setText(GuGuUtf8Str& newText);
 	private:

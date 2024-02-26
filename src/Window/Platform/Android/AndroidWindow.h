@@ -8,6 +8,8 @@ namespace GuGu{
     public:
         virtual void ToGeneratePlatformWindow() override;
 
+        virtual float getDpiFactor() override;
+
         void setNativeWindow(ANativeWindow* nativeWindow);
 
         ANativeWindow* getNativeHandle() const;

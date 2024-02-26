@@ -1,6 +1,7 @@
 #include <pch.h>
 
 #include "Widget.h"
+#include "Slot.h"
 
 namespace GuGu{
 
@@ -17,7 +18,7 @@ namespace GuGu{
     {
     }
 
-    math::double2 Widget::ComputeFixedSize() {
+    math::double2 Widget::ComputeFixedSize(float inLayoutScaleMultiplier) {
         //noting to do
         return math::double2(0.0, 0.0);
     }
@@ -40,5 +41,21 @@ namespace GuGu{
     uint32_t Widget::getSlotsNumber()
     {
         return 0;
+    }
+    void Widget::prepass(float inLayoutScaleMultiplier)
+    {
+		uint32_t widgetNumbers = getSlotsNumber();
+		math::double2 size = math::double2(0.0, 0.0);
+		for (size_t i = 0; i < widgetNumbers; ++i)
+		{
+			std::shared_ptr<Slot> childSlot = getSlot(i);
+			if (childSlot)
+			{
+				std::shared_ptr<Widget> childWidget = childSlot->getChildWidget();
+                childWidget->prepass(inLayoutScaleMultiplier);
+			}
+		}
+		size = ComputeFixedSize(inLayoutScaleMultiplier);
+		setFixedSize(size);
     }
 }

@@ -8,8 +8,8 @@
 #include "UIRenderPass.h"//todo:fix this
 
 namespace GuGu {
-	CharacterList::CharacterList(const TextInfo& textInfo)
-		: m_textInfo(textInfo)
+	CharacterList::CharacterList(const FontKey& fontKey)
+		: m_fontKey(fontKey)
 		, m_MaxHeight(0)
 	{
 	}
@@ -20,7 +20,7 @@ namespace GuGu {
 	{
 		if (m_MaxHeight == 0)
 		{
-			m_MaxHeight = FontCache::getFontCache()->getMaxCharacterHeight(m_textInfo);
+			m_MaxHeight = FontCache::getFontCache()->getMaxCharacterHeight(m_fontKey.getTextInfo(), m_fontKey.getScale());
 		}
 		return m_MaxHeight;
 	}
@@ -32,7 +32,7 @@ namespace GuGu {
 		std::shared_ptr<GlyphEntry> newEntry = std::make_shared<GlyphEntry>();
 		m_characters.insert({ Char, newEntry });
 
-		std::shared_ptr<FreeTypeFace> freeTypeFace = FontCache::getFontCache()->getFreeTypeFace(m_textInfo);
+		std::shared_ptr<FreeTypeFace> freeTypeFace = FontCache::getFontCache()->getFreeTypeFace(m_fontKey.getTextInfo());
 		//GuGu_LOGD("%s:unicode:%d", Char.getStr(), Char.getUnicode().at(0));
 		const uint32_t glyphIndex = FT_Get_Char_Index(freeTypeFace->getFontFace(), Char.getUnicode().at(0));
 

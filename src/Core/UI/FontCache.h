@@ -29,11 +29,11 @@ namespace GuGu {
 
 		void Init(std::shared_ptr<FileSystem> fileSystem);
 
-		math::double2 measureText(const GuGuUtf8Str& str, const TextInfo& textInfo);//todo:add font scale
+		math::double2 measureText(const GuGuUtf8Str& str, const TextInfo& textInfo, float inScale);//todo:add font scale
 
-		std::shared_ptr<CharacterList> getCharacterList(const TextInfo& textInfo);
+		std::shared_ptr<CharacterList> getCharacterList(const TextInfo& textInfo, float inScale);
 
-		uint16_t getMaxCharacterHeight(const TextInfo& textInfo);
+		uint16_t getMaxCharacterHeight(const TextInfo& textInfo, float scale);
 
 		std::shared_ptr<FreeTypeFace> getFreeTypeFace(const TextInfo& textInfo);
 
@@ -55,7 +55,7 @@ namespace GuGu {
 		void copyDataIntoSlot(std::shared_ptr<AtlasedTextureSlot> slotToCopyTo, const std::vector<uint8_t>& data);
 		void copyRow(const FCopyRowData& copyRowData);
 		void zeroRow(const FCopyRowData& copyRowData);
-		std::unordered_map<TextInfo, std::shared_ptr<CharacterList>> m_characterLists;
+		std::unordered_map<FontKey, std::shared_ptr<CharacterList>> m_characterLists;
 
 		std::unordered_map<TextInfo, std::shared_ptr<FreeTypeFace>> m_faces;
 

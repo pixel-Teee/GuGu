@@ -1,6 +1,16 @@
 #include <pch.h>
 #include "AndroidWindow.h"
 
+#include <jni.h>
+
+float dpiFactor = 1.0f;
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_gugu_MainActivity_setDpiScale(JNIEnv *env, jobject thiz, jfloat dpi_scale) {
+    dpiFactor = dpi_scale;
+}
+
 namespace GuGu{
     std::shared_ptr<Window> CreateWindowFactory()
     {
@@ -9,6 +19,10 @@ namespace GuGu{
 
     void AndroidWindow::ToGeneratePlatformWindow() {
         //android nothing to do
+    }
+
+    float AndroidWindow::getDpiFactor() {
+        return dpiFactor;
     }
 
     void AndroidWindow::setNativeWindow(ANativeWindow *nativeWindow) {

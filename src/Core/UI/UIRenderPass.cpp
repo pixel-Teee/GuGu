@@ -19,8 +19,8 @@
 #include "TextBlockWidget.h"
 #include "FontCache.h"
 
+#include <Window/Window.h>
 #include <Application/Application.h>
-
 #include <Core/FileSystem/FileSystem.h>
 
 namespace GuGu {
@@ -287,6 +287,7 @@ namespace GuGu {
 		math::int2 windowWidthAndHeight = math::int2(GetDeviceManager()->getDeviceCreationParameters().backBufferWidth, GetDeviceManager()->getDeviceCreationParameters().backBufferHeight);
 		
 		WidgetGeometry geometry;
+		geometry.setAbsoluteScale(m_uiRoot->getNativeWindow()->getDpiFactor());
 		geometry.setLocalSize(math::double2(windowWidthAndHeight.x, windowWidthAndHeight.y));
 		generateWidgetElement(geometry);
 		m_elementList->generateBatches();
@@ -616,22 +617,9 @@ namespace GuGu {
 
 		return newSlot;
 	}
-	void UIRenderPass::calculateWidgetsFixedSize(std::shared_ptr<Widget> widget)
+	void UIRenderPass::calculateWidgetsFixedSize(std::shared_ptr<WindowWidget> windowWidget)
 	{
-		uint32_t widgetNumbers = widget->getSlotsNumber();
-		math::double2 size = math::double2(0.0, 0.0);
-		for (size_t i = 0; i < widgetNumbers; ++i)
-		{
-			std::shared_ptr<Slot> childSlot = widget->getSlot(i);
-			if (childSlot)
-			{
-				std::shared_ptr<Widget> childWidget = childSlot->getChildWidget();
-				calculateWidgetsFixedSize(childWidget);
-				//size += childWidget->ComputeFixedSize();
-			}
-		}
-		size = widget->ComputeFixedSize();
-		widget->setFixedSize(size);
+		windowWidget->prepass(windowWidget->getNativeWindow()->getDpiFactor());
 	}
 	void UIRenderPass::generateWidgetElement(WidgetGeometry& allocatedWidgetGeometry)
 	{

@@ -6,7 +6,13 @@
 namespace GuGu {
 	class WindowsWindow : public Window {
 	public:
+		WindowsWindow();
+
+		virtual ~WindowsWindow();
+
 		virtual void ToGeneratePlatformWindow() override;
+
+		virtual float getDpiFactor() override;
 
 		void setNativeApplicationHandleAndCmdShowToCreateWindow(HINSTANCE applicationHandle, int32_t cmdShow);
 
@@ -15,5 +21,6 @@ namespace GuGu {
 		HWND m_windowHandle;
 		HINSTANCE m_ownerApplicationHandle;
 		int32_t m_startCmdShow;
+		float m_dpiFactor;
 	};
 }
