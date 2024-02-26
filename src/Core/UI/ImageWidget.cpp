@@ -16,9 +16,11 @@ namespace GuGu {
 	ImageWidget::~ImageWidget()
 	{
 	}
-	void ImageWidget::GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
+	uint32_t ImageWidget::GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
 		ElementList::addBoxElement(elementList, allocatedGeometry, math::float4(1.0f, 1.0f, 1.0f, 1.0f), m_imageBursh, layer);
+
+		return layer;
 	}
 	math::double2 ImageWidget::ComputeFixedSize(float inLayoutScaleMultiplier)
 	{

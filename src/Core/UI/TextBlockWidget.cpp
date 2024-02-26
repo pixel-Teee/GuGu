@@ -20,7 +20,7 @@ namespace GuGu {
 	TextBlockWidget::~TextBlockWidget()
 	{
 	}
-	void TextBlockWidget::GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
+	uint32_t TextBlockWidget::GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
 		math::float2 shadowOffset = m_textStyle->m_shadowOffset;
 		math::float4 shadowColor = m_textStyle->m_shadowColor;
@@ -34,6 +34,8 @@ namespace GuGu {
 
 		//todo:generate text element
 		ElementList::addTextElement(elementList, allocatedGeometry, m_textStyle->m_textColor, m_textStyle->m_textInfo, *m_text, layer);
+
+		return layer;
 	}
 	math::double2 TextBlockWidget::ComputeFixedSize(float inLayoutScaleMultiplier)
 	{

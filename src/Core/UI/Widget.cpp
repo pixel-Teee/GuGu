@@ -14,8 +14,9 @@ namespace GuGu{
 
     }
 
-    void Widget::GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
+    uint32_t Widget::GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
     {
+        return layer;
     }
 
     math::double2 Widget::ComputeFixedSize(float inLayoutScaleMultiplier) {

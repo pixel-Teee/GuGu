@@ -23,7 +23,7 @@ namespace GuGu {
 
 		void assocateWithNativeWindow(std::shared_ptr<Window> nativeWindow);
 
-		virtual void GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer) override;
+		virtual uint32_t GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer) override;
 
 		virtual math::double2 ComputeFixedSize(float inLayoutScaleMultiplier) override;
 

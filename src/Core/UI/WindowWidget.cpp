@@ -25,7 +25,7 @@ namespace GuGu {
 		m_nativeWindow = nativeWindow;
 		m_windowType = WindowType::NativeWindow;
 	}
-	void WindowWidget::GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
+	uint32_t WindowWidget::GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
 		ArrangedWidgetArray arrangedWidgetArray;
 		AllocationChildActualSpace(allocatedGeometry, arrangedWidgetArray);
@@ -37,6 +37,7 @@ namespace GuGu {
 		
 		uint32_t widgetNumbers = arrangedWidgetArray.getArrangedWidgetsNumber();//note:just one
 		//math::double2 size = math::double2(0.0, 0.0);
+		uint32_t maxLayer = 0;
 		for (size_t i = 0; i < widgetNumbers; ++i)
 		{
 			std::shared_ptr<ArrangedWidget> childWidget = arrangedWidgetArray.getArrangedWidget(i);
@@ -44,9 +45,11 @@ namespace GuGu {
 			{
 				std::shared_ptr<Widget> widget = childWidget->getWidget();
 				
-				widget->GenerateElement(elementList, childWidget->getWidgetGeometry(), layer + 1);
+				maxLayer = std::max(maxLayer, widget->GenerateElement(elementList, childWidget->getWidgetGeometry(), layer + 1));
 			}
 		}
+
+		return maxLayer;
 	}
 	math::double2 WindowWidget::ComputeFixedSize(float inLayoutScaleMultiplier)
 	{

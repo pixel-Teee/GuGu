@@ -13,7 +13,7 @@ namespace GuGu {
 
 		virtual ~TextBlockWidget();
 
-		virtual void GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer);
+		virtual uint32_t GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer);
 
 		virtual math::double2 ComputeFixedSize(float inLayoutScaleMultiplier) override;
 
