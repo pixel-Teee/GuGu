@@ -16,6 +16,8 @@ file(GLOB SourceFile "main.cpp"
 "Core/Math/*.cpp"
 "Core/FileSystem/*.h"
 "Core/FileSystem/*.cpp"
+"gltf/*.h"
+"gltf/*.cpp"
 "pch.h")
 
 if(WIN32)
@@ -33,7 +35,7 @@ if(WIN32)
         target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer" PRIVATE "Core")
         add_definitions(-DUSE_DX12)
     elseif(USE_VK)
-         file(GLOB PlatformSourceFile "Window/Platform/Windows/*.h" "Window/Platform/Windows/*.cpp" "Application/Platform/Windows/*.h" "Application/Platform/Windows/*.cpp"
+        file(GLOB PlatformSourceFile "Window/Platform/Windows/*.h" "Window/Platform/Windows/*.cpp" "Application/Platform/Windows/*.h" "Application/Platform/Windows/*.cpp"
         "Renderer/Platform/Vulkan/*.h" "Renderer/Platform/Vulkan/*.cpp" "Core/Platform/Windows/*.h" "Core/Platform/Windows/*.cpp")
         #message(${PlatformSourceFile})
         find_package(Vulkan REQUIRED)
@@ -66,12 +68,11 @@ elseif(ANDROID)
     # message("hello")
     file(GLOB PlatformSourceFile "Window/Platform/Android/*.h" "Window/Platform/Android/*.cpp" "Application/Platform/Android/*.h" "Application/Platform/Android/*.cpp"
     "Renderer/Platform/Vulkan/*.h" "Renderer/Platform/Vulkan/*.cpp"
-    "../thirdParty/vkbootstrap/*.h" "../thirdParty/vkbootstrap/*.cpp"
     "Core/Platform/Android/*.h" "Core/Platform/Android/*.cpp")
     #message(${PlatformSourceFile})
     list(APPEND SourceFile ${PlatformSourceFile})
     add_library(GuGu SHARED ${SourceFile})
-    target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer" PRIVATE "../thirdParty/vkbootstrap" PRIVATE "Core")
+    target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer" PRIVATE "Core")
     add_definitions(-DVK_USE_PLATFORM_ANDROID_KHR=TRUE) #fix this
     add_definitions(-DUSE_VK)
     add_definitions(-D_DEBUG=TRUE)
