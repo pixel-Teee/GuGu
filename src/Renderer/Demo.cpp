@@ -79,7 +79,11 @@ namespace GuGu {
 			
 		Load("asset/Robot.gltf", node, m_rootFileSystem);
 
+		auto node2 = std::make_shared<SceneGraphNode>();
+		Load("asset/gyroscope.gltf", node2, m_rootFileSystem);
+
 		m_sceneGraph->SetRootNode(node);
+		m_sceneGraph->Attach(node, node2);
 
 		//refresh scene graph
 		for (const auto& mesh : m_sceneGraph->GetMeshes())
@@ -227,7 +231,7 @@ namespace GuGu {
 				const auto& prototypeBuffers = skinnedInstance->GetPrototypeMesh()->buffers;
 				const auto& skinnedBuffers = skinnedMesh->buffers;
 
-				size_t skinnedVertexBufferSize = 0;
+				uint64_t skinnedVertexBufferSize = 0;
 				assert(prototypeBuffers->hasAttribute(VertexAttribute::Position));
 
 				AppendBufferRange(skinnedBuffers->getVertexBufferRange(VertexAttribute::Position),
@@ -533,7 +537,7 @@ namespace GuGu {
 
 		math::float3 cameraPos = math::float3(0.0f, 0.0f, -4);
 		math::float3 cameraDir = normalize(math::float3(0.0f, 0.0f, 1.0f));
-		math::float3 cameraUp = math::float3(0.0f, -1.0f, 0.0f);
+		math::float3 cameraUp = math::float3(0.0f, 1.0f, 0.0f);
 		math::float3 cameraRight = normalize(cross(cameraDir, cameraUp));
 		cameraUp = normalize(cross(cameraRight, cameraDir));
 
