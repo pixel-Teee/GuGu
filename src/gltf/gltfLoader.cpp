@@ -461,7 +461,8 @@ namespace GuGu {
 				geometry->vertexOffsetInMesh = minfo->totalVertices;
 				geometry->numIndices = (uint32_t)indexCount;
 				geometry->numVertices = (uint32_t)positions->count;
-				
+				minfo->totalIndices += geometry->numIndices;
+				minfo->totalVertices += geometry->numVertices;
 				minfo->geometries.push_back(geometry);
 
 				totalIndices += geometry->numIndices;

@@ -77,7 +77,7 @@ namespace GuGu {
 		m_sceneGraph = std::make_shared<SceneGraph>();
 		auto node = std::make_shared<SceneGraphNode>();
 			
-		Load("asset/CubeAndCone.gltf", node, m_rootFileSystem);
+		Load("asset/Robot.gltf", node, m_rootFileSystem);
 
 		m_sceneGraph->SetRootNode(node);
 
@@ -531,7 +531,7 @@ namespace GuGu {
 
 		nvrhi::utils::ClearColorAttachment(m_CommandList, framebuffer, 0, nvrhi::Color(0.2f));
 
-		math::float3 cameraPos = math::float3(0.0f, 0.0f, -20);
+		math::float3 cameraPos = math::float3(0.0f, 0.0f, -4);
 		math::float3 cameraDir = normalize(math::float3(0.0f, 0.0f, 1.0f));
 		math::float3 cameraUp = math::float3(0.0f, -1.0f, 0.0f);
 		math::float3 cameraRight = normalize(cross(cameraDir, cameraUp));
