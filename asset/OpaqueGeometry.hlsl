@@ -39,8 +39,8 @@ void main_vs(
 }
 
 
-Texture2D t_Texture : register(t0);
-SamplerState s_Sampler : register(s0);
+//Texture2D t_Texture : register(t0);
+//SamplerState s_Sampler : register(s0);
 
 void main_ps(
 	in float4 i_pos : SV_Position,
@@ -48,6 +48,6 @@ void main_ps(
 	out float4 o_color : SV_Target0
 )
 {
-    o_color = t_Texture.Sample(s_Sampler, i_uv);
+    o_color = float4(0.8f, 1.0f, 1.0f, 1.0f);
     //o_color = float4(0.8f, 0.3f, 0.2f, 1.0f);
 }

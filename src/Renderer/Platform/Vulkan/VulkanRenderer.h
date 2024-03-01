@@ -6,6 +6,7 @@ namespace GuGu{
     class DeviceManager;
     class VertexBuffer;
     class UIRenderPass;
+    class Demo;
     class VulkanRenderer : public Renderer
     {
     public:
@@ -24,5 +25,7 @@ namespace GuGu{
 		VertexBuffer* m_vertexBuffer;
                     
 		UIRenderPass* m_UIRenderPass;
+
+        Demo* m_demo;
     };
 }
