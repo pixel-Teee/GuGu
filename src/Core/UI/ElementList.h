@@ -3,18 +3,17 @@
 #include <vector>
 
 #include <Core/Math/MyMath.h>
+#include <Renderer/nvrhi.h>
 
 #include "BasicElement.h"
 
-#include <Renderer/nvrhi.h>
-
 namespace GuGu {
-	class GuGuUtf8Str;
 	class Brush;
 	class Element;
 	class TextInfo;
 	class WidgetGeometry;
-	
+	class GuGuUtf8Str;
+
 	enum class UIShaderType
 	{
 		Default,

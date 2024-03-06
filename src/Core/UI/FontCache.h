@@ -4,22 +4,27 @@
 
 #include "TextInfo.h"
 
+#include <Core/Math/MyMath.h>
+#include <Renderer/nvrhi.h>
+
+#include <list>
+
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-#include <Renderer/nvrhi.h>
-#include <Core/Math/MyMath.h>
-#include <list>
-
 namespace GuGu {
 	//class TextInfo;
-	class CharacterList;
 	class GuGuUtf8Str;
+
+	class CharacterList;
 	class FreeTypeFace;
-	struct AtlasedTextureSlot;
+
 	struct FCopyRowData;
-	class FileSystem;
 	class AtlasTexture;
+	struct AtlasedTextureSlot;
+
+	class FileSystem;
+	
 	class FontCache {
 	public:
 		FontCache();
@@ -32,21 +37,22 @@ namespace GuGu {
 
 		math::double2 measureText(const GuGuUtf8Str& str, const TextInfo& textInfo, float inScale);//todo:add font scale
 
+		std::shared_ptr<AtlasedTextureSlot> addCharacter(uint16_t inSizeX, uint16_t inSizeY, std::vector<uint8_t>& rawPixels);
+
 		std::shared_ptr<CharacterList> getCharacterList(const TextInfo& textInfo, float inScale);
 
 		uint16_t getMaxCharacterHeight(const TextInfo& textInfo, float scale);
 
-		std::shared_ptr<FreeTypeFace> getFreeTypeFace(const TextInfo& textInfo);
+		std::shared_ptr<FreeTypeFace> getFreeTypeFace(const TextInfo& textInfo);		
 
-		std::shared_ptr<AtlasedTextureSlot> addCharacter(uint16_t inSizeX, uint16_t inSizeY, std::vector<uint8_t>& rawPixels);
+		void setFontAtlasTexture(nvrhi::TextureHandle newTexture);
 
 		nvrhi::TextureHandle getFontAtlasTexture();
 
 		std::vector<uint8_t>& getAtlasRawData();
 
-		void setFontAtlasTexture(nvrhi::TextureHandle newTexture);
-
 		bool getDirtyFlag();
+
 		void setDirtyFlag(bool value);
 
 		void clear();

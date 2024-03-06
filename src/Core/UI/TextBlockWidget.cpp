@@ -3,12 +3,9 @@
 #include "TextBlockWidget.h"
 
 #include "FontCache.h"
-
-#include "StyleSet.h"
-
-#include "ElementList.h"
-
 #include "Style.h"
+#include "StyleSet.h"
+#include "ElementList.h"
 
 namespace GuGu {
 	TextBlockWidget::TextBlockWidget()

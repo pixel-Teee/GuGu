@@ -180,7 +180,7 @@ namespace GuGu {
 
 		m_CommandList->open();
 
-		nvrhi::utils::ClearColorAttachment(m_CommandList, framebuffer, 0, nvrhi::Color(0.2f));
+		nvrhi::utils::ClearColorAttachment(m_CommandList, framebuffer, 0, Color(0.2f));
 
 		// Fill out the constant buffer slices for multiple views of the model.
 		ConstantBufferEntry modelConstants[c_NumViews];

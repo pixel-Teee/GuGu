@@ -2,14 +2,14 @@
 
 #include "FontCache.h"
 
-#include "CharacterList.h"
 #include "TextInfo.h"
+#include "CharacterList.h"
 #include "FreeTypeFace.h"
 #include "FreeTypeUtils.h"
 
-#include <Core/Math/MyMath.h>
-#include "UIRenderPass.h"//todo:fix this
 #include "AtlasTexture.h"
+
+#include <Core/Math/MyMath.h>
 
 namespace GuGu {
 	FontCache::FontCache()
@@ -87,6 +87,10 @@ namespace GuGu {
 
 		return size;
 	}
+	std::shared_ptr<AtlasedTextureSlot> FontCache::addCharacter(uint16_t inSizeX, uint16_t inSizeY, std::vector<uint8_t>& rawPixels)
+	{
+		return m_atlasTexture->loadAtlasSlots(inSizeX, inSizeY, rawPixels);
+	}
 	std::shared_ptr<CharacterList> FontCache::getCharacterList(const TextInfo& textInfo, float inScale)
 	{
 		FontKey fontKey(textInfo, inScale);
@@ -96,7 +100,6 @@ namespace GuGu {
 		m_characterLists.insert({ fontKey, characterList });
 		return characterList;
 	}
-
 	uint16_t FontCache::getMaxCharacterHeight(const TextInfo& textInfo, float scale)
 	{
 		GuGuUtf8Str Char(u8"0");
@@ -119,45 +122,32 @@ namespace GuGu {
 
 		return ((maxHeight + (1 << 5)) >> 6);
 	}
-
 	std::shared_ptr<FreeTypeFace> FontCache::getFreeTypeFace(const TextInfo& textInfo)
 	{
 		return m_faces[textInfo];
 	}
-
-	std::shared_ptr<AtlasedTextureSlot> FontCache::addCharacter(uint16_t inSizeX, uint16_t inSizeY, std::vector<uint8_t>& rawPixels)
-	{
-		return m_atlasTexture->loadAtlasSlots(inSizeX, inSizeY, rawPixels);
-	}
-
-	nvrhi::TextureHandle FontCache::getFontAtlasTexture()
-	{
-		return m_atlasTexture->getTextureAtlas();
-	}
-
-	std::vector<uint8_t>& FontCache::getAtlasRawData()
-	{
-		return m_atlasTexture->getAtlasData();
-	}
-
 	void FontCache::setFontAtlasTexture(nvrhi::TextureHandle newTexture)
 	{
 		m_atlasTexture->setTextureAtlas(newTexture);
 	}
-
+	nvrhi::TextureHandle FontCache::getFontAtlasTexture()
+	{
+		return m_atlasTexture->getTextureAtlas();
+	}
+	std::vector<uint8_t>& FontCache::getAtlasRawData()
+	{
+		return m_atlasTexture->getAtlasData();
+	}
 	bool FontCache::getDirtyFlag()
 	{
 		return m_fontAtlasDirty;
 	}
-
 	void FontCache::setDirtyFlag(bool value)
 	{
 		m_fontAtlasDirty = value;
 	}
-
 	void FontCache::clear()
 	{
 		m_atlasTexture->setTextureAtlas(nullptr);
 	}
-
 }

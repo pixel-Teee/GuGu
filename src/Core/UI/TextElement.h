@@ -13,7 +13,6 @@ namespace GuGu {
 		TextElement(ElementType elementType, WidgetGeometry geometry, math::float4 color, std::shared_ptr<TextInfo> textInfo, GuGuUtf8Str& text,uint32_t layer);
 
 		virtual ~TextElement();
-
 	
 		math::float4 m_color;
 

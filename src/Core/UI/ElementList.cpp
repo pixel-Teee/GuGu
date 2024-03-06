@@ -3,10 +3,10 @@
 #include "ElementList.h"
 #include "Element.h"
 #include "BoxElement.h"
-#include "Brush.h"
 #include "TextElement.h"
-#include "CharacterList.h"
+#include "Brush.h"
 #include "FontCache.h"
+#include "CharacterList.h"
 
 namespace GuGu {
 	ElementList::ElementList()

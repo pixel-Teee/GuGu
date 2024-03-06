@@ -6,8 +6,8 @@
 #include <Core/GuGuUtf8Str.h>
 
 namespace GuGu {
-	class GuGuUtf8Str;
 	class GuGuFile;
+	class GuGuUtf8Str;
 	class FileSystem;
 	class FreeTypeFace {
 	public:

@@ -1,7 +1,7 @@
 #include <pch.h>
 
-#include "StyleSet.h"
 #include "Brush.h"
+#include "StyleSet.h"
 
 namespace GuGu {
 	StyleSet::StyleSet()

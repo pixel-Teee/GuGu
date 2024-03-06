@@ -71,14 +71,12 @@ namespace GuGu {
 		FFTStreamHandler* myStreamHandler = (FFTStreamHandler*)inStream->descriptor.pointer;
 		if (myStreamHandler->m_fileSystem)
 		{
-
 			if (!myStreamHandler->m_fileSystem->Seek(inOffset))
 			{
 				return 0;
 			}
 
 		}
-
 		if (inCount > 0)
 		{
 			if (myStreamHandler->m_fileSystem)
@@ -94,7 +92,6 @@ namespace GuGu {
 				return 0;
 			}
 		}
-
 		return inCount;
 	}
 }

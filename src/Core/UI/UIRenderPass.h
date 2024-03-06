@@ -42,17 +42,17 @@ namespace GuGu {
 
 	private:
 		void loadStyleTextures();
-		void updateTextAtlasTexture();		
-		nvrhi::CommandListHandle m_CommandList;
+
+		void updateTextAtlasTexture();	
 
 		uint32_t m_atlasSize = 1024;
+
+		nvrhi::CommandListHandle m_CommandList;
 
 		std::shared_ptr<StyleSet> m_styles;
 
 		std::shared_ptr<AtlasTexture> m_atlasTexture;
 
-		std::list<std::shared_ptr<AtlasedTextureSlot>> m_textureAtlasEmptySlots;
-		std::list<std::shared_ptr<AtlasedTextureSlot>> m_textureAtlasUsedSlots;
 		//std::vector<uint8_t> m_textureAtlasData;
 		std::shared_ptr<TextureCache> m_textureCache;
 
@@ -76,8 +76,11 @@ namespace GuGu {
 		std::vector<nvrhi::BufferHandle> m_VertexBuffers;
 		std::vector<nvrhi::BufferHandle> m_IndexBuffers;
 		std::vector<nvrhi::BufferHandle> m_constantBuffers;
+
 		void calculateWidgetsFixedSize(std::shared_ptr<WindowWidget> widget);
+
 		void generateWidgetElement(WidgetGeometry& allocatedWidgetGeometry);
+
 		std::shared_ptr<TextBlockWidget> m_textBlockWidget;
 
 		std::shared_ptr<RootFileSystem> m_rootFileSystem;

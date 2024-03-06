@@ -3,9 +3,9 @@
 #include <vector>
 
 namespace GuGu {
-	class ArrangedWidget;
-	class WidgetGeometry;
 	class Widget;
+	class WidgetGeometry;
+	class ArrangedWidget;
 	class ArrangedWidgetArray
 	{
 	public:

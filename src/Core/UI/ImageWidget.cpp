@@ -3,10 +3,8 @@
 #include "ImageWidget.h"
 
 #include "Brush.h"
-
-#include "ElementList.h"
-
 #include "StyleSet.h"
+#include "ElementList.h"
 
 namespace GuGu {
 	ImageWidget::ImageWidget()

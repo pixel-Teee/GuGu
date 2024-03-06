@@ -3,7 +3,6 @@
 #include <unordered_map>
 
 #include <Core/GuGuUtf8Str.h>
-
 #include <Renderer/nvrhi.h>
 
 #include "Style.h"
