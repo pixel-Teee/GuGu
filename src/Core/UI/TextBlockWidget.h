@@ -1,6 +1,10 @@
 #pragma once
 
+#include <Core/GuGuUtf8Str.h>
+
 #include "Widget.h"
+#include "Attribute.h"
+#include "UIMacros.h"
 
 #include <functional>
 
@@ -15,6 +19,17 @@ namespace GuGu {
 
 		virtual ~TextBlockWidget();
 
+		struct BuilderArguments
+		{
+			BuilderArguments() = default;
+
+			~BuilderArguments() = default;
+
+			ARGUMENT_ATTRIBUTE(GuGuUtf8Str, text)
+		};
+
+		void init(const BuilderArguments& arguments);
+
 		virtual uint32_t GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer);
 
 		virtual math::double2 ComputeFixedSize(float inLayoutScaleMultiplier) override;
@@ -23,6 +38,6 @@ namespace GuGu {
 	private:
 		std::shared_ptr<TextBlockStyle> m_textStyle;
 
-		std::shared_ptr<GuGuUtf8Str> m_text;
+		Attribute<GuGuUtf8Str> m_text;
 	};
 }

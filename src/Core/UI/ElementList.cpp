@@ -25,7 +25,7 @@ namespace GuGu {
 		//generate a box element to element list
 		elementList.m_elements.push_back(std::make_shared<BoxElement>(Element::ElementType::Box, widgetGeometry, color, brush, layer, brush->m_tiling));
 	}
-	void ElementList::addTextElement(ElementList& elementList, const WidgetGeometry& widgetGeometry, math::float4 color, std::shared_ptr<TextInfo> textInfo, GuGuUtf8Str& text, uint32_t layer)
+	void ElementList::addTextElement(ElementList& elementList, const WidgetGeometry& widgetGeometry, math::float4 color, std::shared_ptr<TextInfo> textInfo, const GuGuUtf8Str& text, uint32_t layer)
 	{
 		elementList.m_elements.push_back(std::make_shared<TextElement>(Element::ElementType::Text, widgetGeometry, color, textInfo, text, layer));
 	}
@@ -82,7 +82,8 @@ namespace GuGu {
 				lastBatch = i;
 			}
 		}
-		batches.push_back(m_batches[lastBatch]);
+		if(m_batches.size()) //last batch
+			batches.push_back(m_batches[lastBatch]);
 		m_batches = batches;
 	}
 	const std::vector<std::shared_ptr<BatchData>>& ElementList::getBatches() const

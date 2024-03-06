@@ -10,7 +10,7 @@ namespace GuGu {
 	class TextElement : public Element
 	{
 	public:
-		TextElement(ElementType elementType, WidgetGeometry geometry, math::float4 color, std::shared_ptr<TextInfo> textInfo, GuGuUtf8Str& text,uint32_t layer);
+		TextElement(ElementType elementType, WidgetGeometry geometry, math::float4 color, std::shared_ptr<TextInfo> textInfo, const GuGuUtf8Str& text,uint32_t layer);
 
 		virtual ~TextElement();
 	

@@ -9,7 +9,7 @@ namespace GuGu {
 	{
 		WidgetConstruct() { m_widget = std::make_shared<WidgetType>(); }
 		~WidgetConstruct() = default;
-		std::shared_ptr<WidgetType> operator<<(typename WidgetType::BuilderArguments& arguments)
+		std::shared_ptr<WidgetType> operator<<(const typename WidgetType::BuilderArguments& arguments)
 		{
 			m_widget->init(arguments);
 			return m_widget;
@@ -37,6 +37,19 @@ namespace GuGu {
 		return *this;\
 	}\
 	std::shared_ptr<Type> m##Name = std::make_shared<Type>();
+#define ARGUMENT_ATTRIBUTE(Type, Name)\
+	Attribute<Type> m##Name;\
+	template<class Class>\
+	BuilderArguments& Name(std::shared_ptr<Class> inObject, Type(Class::*inConstMethodPtr)()const) \
+	{\
+		m##Name = Attribute<Type>::CreateSP(inObject.get(), inConstMethodPtr);\
+		return *this;\
+	}\
+	BuilderArguments& Name##Lambda(std::function<Type(void)>&& inFunctor) \
+	{\
+		m##Name = Attribute<Type>::CreateLambda(inFunctor); \
+		return *this; \
+	}
 #define SLOT_CONTENT(SlotType, Name) \
 	std::shared_ptr<SlotType> m##Name;
 
@@ -45,6 +58,4 @@ namespace GuGu {
 
 #define WIDGET_ASSIGN_NEW(WidgetType, OutValue) \
 	OutValue = WidgetConstruct<WidgetType>() << WidgetType::BuilderArguments()
-
-
 }

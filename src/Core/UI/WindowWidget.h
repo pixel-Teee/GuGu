@@ -28,6 +28,7 @@ namespace GuGu {
 		struct BuilderArguments
 		{
 			BuilderArguments() = default;
+
 			~BuilderArguments() = default;
 
 			ARGUMENT_VALUE(WindowType, Type)

@@ -18,6 +18,7 @@
 #include "AtlasTexture.h"
 #include "FontCache.h"
 #include "UIMacros.h"
+#include "Attribute.h"
 
 #include <Core/GuGuFile.h>
 #include <Window/Window.h>
@@ -122,27 +123,31 @@ namespace GuGu {
 		m_CommandList->close();
 		GetDevice()->executeCommandList(m_CommandList);
 
-		std::shared_ptr<Widget> testWidget;
-		std::shared_ptr<Widget> test2Widget;
-		WIDGET_ASSIGN_NEW(WindowWidget, testWidget)
+		//build ui tree
+		std::shared_ptr<Application> application = Application::getApplication();
+		WIDGET_ASSIGN_NEW(WindowWidget, m_uiRoot)
 			.Type(WindowWidget::VirtualWindow)
 			.Content
 			(
-				WIDGET_NEW(WindowWidget, test2Widget)
+				WIDGET_NEW(TextBlockWidget)
+				.textLambda([&] {
+					float mfps = Application::getApplication()->getmFps();
+					uint32_t fps = Application::getApplication()->getFps();
+					GuGuUtf8Str fpsStr = u8"帧率的倒数\n一帧耗费时长:%.3f毫秒\n帧率:%dfps";
+					fpsStr = strFormat(fpsStr, mfps, fps);
+					return fpsStr;
+				})
 			);
-
-		//build ui tree
-		std::shared_ptr<Application> application = Application::getApplication();
 		std::shared_ptr<Window> window = application->getWindow(0);
-		m_uiRoot = std::make_shared<WindowWidget>();
+		//m_uiRoot = std::make_shared<WindowWidget>();
 		m_uiRoot->assocateWithNativeWindow(window);//native window
 		m_elementList = std::make_shared<ElementList>();
-		std::shared_ptr<ImageWidget> imageWidget = std::make_shared<ImageWidget>();
-		m_textBlockWidget = std::make_shared<TextBlockWidget>();
-		m_uiRoot->setChildWidget(m_textBlockWidget);
-		m_uiRoot->getSlot(0)->setHorizontalAlignment(HorizontalAlignment::Left);
-		m_uiRoot->getSlot(0)->setVerticalAlignment(VerticalAlignment::Top);
-		m_uiRoot->getSlot(0)->setPadding(Padding(0.0f, 120.0f, 0.0f, 0.0f));
+		//std::shared_ptr<ImageWidget> imageWidget = std::make_shared<ImageWidget>();
+		//m_textBlockWidget = std::make_shared<TextBlockWidget>();
+		//m_uiRoot->setChildWidget(m_textBlockWidget);
+		//m_uiRoot->getSlot(0)->setHorizontalAlignment(HorizontalAlignment::Left);
+		//m_uiRoot->getSlot(0)->setVerticalAlignment(VerticalAlignment::Top);
+		//m_uiRoot->getSlot(0)->setPadding(Padding(0.0f, 120.0f, 0.0f, 0.0f));
 		//textBlockWidget->ComputeFixedSize();
 		return true;
 	}
@@ -244,11 +249,11 @@ namespace GuGu {
 	}
 	void UIRenderPass::Update(float fElapsedTimeSeconds)
 	{
-		float mfps = Application::getApplication()->getmFps();
-		uint32_t fps = Application::getApplication()->getFps();
-		GuGuUtf8Str mfpsStr = u8"帧率的倒数\n一帧耗费时长:%.3f毫秒\n帧率:%dfps";
-		mfpsStr = strFormat(mfpsStr, mfps, fps);
-		m_textBlockWidget->setText(mfpsStr);
+		//float mfps = Application::getApplication()->getmFps();
+		//uint32_t fps = Application::getApplication()->getFps();
+		//GuGuUtf8Str mfpsStr = u8"帧率的倒数\n一帧耗费时长:%.3f毫秒\n帧率:%dfps";
+		//mfpsStr = strFormat(mfpsStr, mfps, fps);
+		//m_textBlockWidget->setText(mfpsStr);
 
 		calculateWidgetsFixedSize(m_uiRoot);
 
