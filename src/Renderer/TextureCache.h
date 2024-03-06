@@ -33,8 +33,6 @@ namespace GuGu{
     struct TextureData : public LoadedTexture
     {
         //std::shared_ptr<vfs::IBlob> data;
-
-
         std::vector<uint8_t> data;//todo:remove this
 
         nvrhi::Format format = nvrhi::Format::UNKNOWN;
@@ -65,7 +63,6 @@ namespace GuGu{
 
         std::shared_ptr<FileSystem> m_fileSystem;
     public:
-        std::vector<uint8_t> ReadTextureFile(const GuGuUtf8Str& path) const;
         bool FillTextureData(const std::vector<uint8_t>& fileData, const std::shared_ptr<TextureData>& texture, const GuGuUtf8Str& extension, const GuGuUtf8Str& mimeType) const;
         void FinalizeTexture(std::shared_ptr<TextureData> texture, CommonRenderPasses* passes, nvrhi::ICommandList* commandList);
     public:

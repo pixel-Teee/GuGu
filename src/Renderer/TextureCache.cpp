@@ -33,7 +33,7 @@ namespace GuGu{
         texture->forceSRGB = sRGB;
         texture->path = path;
 
-        auto fileData = ReadTextureFile(path);
+        auto fileData = ReadFile(path, std::static_pointer_cast<RootFileSystem>(m_fileSystem));
 
         if(!fileData.empty())
         {
@@ -44,17 +44,6 @@ namespace GuGu{
         }
 
         return texture;
-    }
-
-    std::vector <uint8_t> TextureCache::ReadTextureFile(const GuGuUtf8Str &path) const {
-		std::vector<uint8_t> fileContent;
-		m_fileSystem->OpenFile(path, GuGuFile::FileMode::OnlyRead);
-		int32_t fileLength = m_fileSystem->getFileSize();
-		fileContent.resize(fileLength);
-		int32_t haveReadedLength = 0;
-		m_fileSystem->ReadFile(fileContent.data(), fileLength, haveReadedLength);
-		m_fileSystem->CloseFile();
-		return fileContent;
     }
 
     bool TextureCache::FillTextureData(const std::vector<uint8_t> &fileData,

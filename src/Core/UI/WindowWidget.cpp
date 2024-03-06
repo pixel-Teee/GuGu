@@ -3,13 +3,10 @@
 #include "WindowWidget.h"
 
 #include "Slot.h"
-
 #include "ElementList.h"
-
 #include "StyleSet.h"
-
-#include "ArrangedWidgetArray.h"
 #include "ArrangedWidget.h"
+#include "ArrangedWidgetArray.h"
 
 namespace GuGu {
 	WindowWidget::WindowWidget()
@@ -20,11 +17,6 @@ namespace GuGu {
 	WindowWidget::~WindowWidget()
 	{
 	}
-	void WindowWidget::assocateWithNativeWindow(std::shared_ptr<Window> nativeWindow)
-	{
-		m_nativeWindow = nativeWindow;
-		m_windowType = WindowType::NativeWindow;
-	}
 	uint32_t WindowWidget::GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
 		ArrangedWidgetArray arrangedWidgetArray;
@@ -34,7 +26,7 @@ namespace GuGu {
 		{
 			ElementList::addBoxElement(elementList, allocatedGeometry, math::float4(1.0f, 1.0f, 1.0f, 1.0f), m_defaultBrush, layer); //background
 		}
-		
+
 		uint32_t widgetNumbers = arrangedWidgetArray.getArrangedWidgetsNumber();//note:just one
 		//math::double2 size = math::double2(0.0, 0.0);
 		uint32_t maxLayer = 0;
@@ -44,7 +36,7 @@ namespace GuGu {
 			if (childWidget)
 			{
 				std::shared_ptr<Widget> widget = childWidget->getWidget();
-				
+
 				maxLayer = std::max(maxLayer, widget->GenerateElement(elementList, childWidget->getWidgetGeometry(), layer + 1));
 			}
 		}
@@ -55,7 +47,6 @@ namespace GuGu {
 	{
 		return m_childWidget->getChildWidget()->getFixedSize();
 	}
-
 	void WindowWidget::AllocationChildActualSpace(WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray)
 	{
 		//arrange single children
@@ -149,8 +140,8 @@ namespace GuGu {
 
 			arrangedWidgetArray.pushWidget(childGeometry, getSlot(0)->getChildWidget());
 		}
-		
-	}
+
+	}	
 	std::shared_ptr<Slot> WindowWidget::getSlot(uint32_t index)
 	{
 		return m_childWidget;
@@ -182,6 +173,11 @@ namespace GuGu {
 		//slot->setVerticalAlignment(VerticalAlignment::Stretch);
 		m_childWidget = slot;
 	}
+	void WindowWidget::assocateWithNativeWindow(std::shared_ptr<Window> nativeWindow)
+	{
+		m_nativeWindow = nativeWindow;
+		m_windowType = WindowType::NativeWindow;
+	}	
 	std::shared_ptr<Window> WindowWidget::getNativeWindow()
 	{
 		std::shared_ptr<Window> nativeWindow = m_nativeWindow.lock();

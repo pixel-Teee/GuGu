@@ -27,6 +27,14 @@ namespace GuGu{
     void Widget::AllocationChildActualSpace(WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) {
         //noting to do
     }
+	std::shared_ptr<Slot> Widget::getSlot(uint32_t index)
+	{
+		return nullptr;
+	}
+	uint32_t Widget::getSlotsNumber()
+	{
+		return 0;
+	}
     math::double2 Widget::getFixedSize()
     {
         return m_fixedSize;
@@ -34,14 +42,6 @@ namespace GuGu{
     void Widget::setFixedSize(math::double2 fixedSize)
     {
         m_fixedSize = fixedSize;
-    }
-    std::shared_ptr<Slot> Widget::getSlot(uint32_t index)
-    {
-        return nullptr;
-    }
-    uint32_t Widget::getSlotsNumber()
-    {
-        return 0;
     }
     void Widget::prepass(float inLayoutScaleMultiplier)
     {

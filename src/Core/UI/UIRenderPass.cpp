@@ -12,30 +12,18 @@
 #include "BasicElement.h"
 #include "ElementList.h"
 
-#include <Core/GuGuFile.h>
-
 #include "ImageWidget.h"
 #include "WindowWidget.h"
 #include "TextBlockWidget.h"
+#include "AtlasTexture.h"
 #include "FontCache.h"
 
+#include <Core/GuGuFile.h>
 #include <Window/Window.h>
 #include <Application/Application.h>
 #include <Core/FileSystem/FileSystem.h>
 
 namespace GuGu {
-
-	static std::vector <uint8_t> ReadTextureFile(const GuGuUtf8Str& path, std::shared_ptr<RootFileSystem> rootFileSystem){
-
-		std::vector<uint8_t> fileContent;
-		rootFileSystem->OpenFile(path, GuGuFile::FileMode::OnlyRead);
-		int32_t fileLength = rootFileSystem->getFileSize();
-		fileContent.resize(fileLength);
-		int32_t haveReadedLength = 0;
-		rootFileSystem->ReadFile(fileContent.data(), fileLength, haveReadedLength);
-		rootFileSystem->CloseFile();
-		return fileContent;
-	}
 
 	UIRenderPass::~UIRenderPass()
 	{
@@ -59,11 +47,10 @@ namespace GuGu {
 		m_rootFileSystem = std::make_shared<RootFileSystem>();
 		m_rootFileSystem->mount("asset", archiverFileSystem);
 #endif	
-		
-
 		m_textureCache = std::make_shared<TextureCache>(GetDevice(), m_rootFileSystem);
 		m_styles = StyleSet::getStyle();
-		initAtlasData();
+
+		m_atlasTexture = std::make_shared<AtlasTexture>(m_atlasSize, 4);
 		loadStyleTextures();
 
 		std::shared_ptr<FontCache> fontCache = FontCache::getFontCache();
@@ -88,7 +75,6 @@ namespace GuGu {
 
 		macros.clear();
 		macros.push_back(ShaderMacro("UI_Font", "1"));
-
 		m_pixelFontShader = shaderFactory->CreateShader("asset/UIShader.hlsl", "main_ps", &macros,
 			nvrhi::ShaderType::Pixel);
 
@@ -134,25 +120,7 @@ namespace GuGu {
 		m_bindingLayout = GetDevice()->createBindingLayout(layoutDesc);
 		m_CommandList->close();
 		GetDevice()->executeCommandList(m_CommandList);
-		//nvrhi::BindingSetDesc bindingSetDesc;
-		//bindingSetDesc.bindings = {
-		//	// Note: using viewIndex to construct a buffer range.
-		//	nvrhi::BindingSetItem::ConstantBuffer(0, m_constantBuffer,
-		//										  nvrhi::BufferRange(
-		//												  sizeof(ConstantBufferEntry),
-		//												  sizeof(ConstantBufferEntry))),
-		//	// Texture and sampler are the same for all model views.
-		//	nvrhi::BindingSetItem::Texture_SRV(0, m_Texture),
-		//	nvrhi::BindingSetItem::Sampler(0, commonPasses.m_AnisotropicWrapSampler)
-		//};
-		//
-		//if (!nvrhi::utils::CreateBindingSetAndLayout(GetDevice(), nvrhi::ShaderType::All, 0,
-		//	bindingSetDesc, m_bindingLayout,
-		//	m_bindingSet)) {
-		//	GuGu_LOGD("Couldn't create the binding set or layout");
-		//	return false;
-		//}
-		
+
 		//build ui tree
 		std::shared_ptr<Application> application = Application::getApplication();
 		std::shared_ptr<Window> window = application->getWindow(0);
@@ -195,7 +163,6 @@ namespace GuGu {
 			psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
 			psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
 			psoDesc.renderState.depthStencilState.depthTestEnable = false;
-			//psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;//todo:fix this
 
 			m_FontPipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
 		}
@@ -215,19 +182,12 @@ namespace GuGu {
 		{
 			math::float4x4 projMatrix = math::orthoProjD3DStyle(0, fbinfo.width, 0, fbinfo.height, 0, 1);
 
-			//math::affineToHomogeneous(worldToView)
 			ConstantBufferEntry modelConstant;
 			modelConstant.viewProjMatrix = projMatrix * math::affineToHomogeneous(worldToView);
 
 			m_CommandList->writeBuffer(m_constantBuffers[i], &modelConstant, sizeof(modelConstant));
 
 			nvrhi::BindingSetDesc desc;
-			//desc.bindings = {
-			//	nvrhi::BindingSetItem::ConstantBuffer(0, m_constantBuffers[i]),
-			//	nvrhi::BindingSetItem::Texture_SRV(0, m_elementList->getBatches()[i]->m_brush->m_texture),
-			//	nvrhi::BindingSetItem::Sampler(0, m_pointWrapSampler)
-			//};
-
 			desc.bindings = {
 				nvrhi::BindingSetItem::ConstantBuffer(0, m_constantBuffers[i]),
 				nvrhi::BindingSetItem::Texture_SRV(0, m_elementList->getBatches()[i]->m_texture),
@@ -341,13 +301,7 @@ namespace GuGu {
 	void UIRenderPass::BackBufferResized(const uint32_t width, const uint32_t height, const uint32_t sampleCount)
 	{
 	}
-	void UIRenderPass::initAtlasData()
-	{
-		std::shared_ptr<AtlasedTextureSlot> rootSlot = std::make_shared<AtlasedTextureSlot>(0, 0, m_atlasSize, m_atlasSize, 1);
-		//auto it = m_textureAtlasSlots.begin();
-		m_textureAtlasEmptySlots.push_front(rootSlot);
-		m_textureAtlasData.resize(m_atlasSize * m_atlasSize * 4, 0); //stride is 4
-	}
+
 	void UIRenderPass::updateTextAtlasTexture()
 	{
 		std::shared_ptr<FontCache> fontCache = FontCache::getFontCache();
@@ -386,12 +340,12 @@ namespace GuGu {
 			std::shared_ptr<TextureData> texture = std::make_shared<TextureData>();
 			texture->path = texturePath;
 
-			std::vector<uint8_t> fileData = ReadTextureFile(texturePath, m_rootFileSystem);
+			std::vector<uint8_t> fileData = ReadFile(texturePath, m_rootFileSystem);
 			m_textureCache->FillTextureData(fileData, texture, texturePath, "");
 			
 			if (!brushs[i]->m_tiling)
 			{
-				std::shared_ptr<AtlasedTextureSlot> slot = loadAtlasSlots(texture, brushs[i]);
+				std::shared_ptr<AtlasedTextureSlot> slot = m_atlasTexture->loadAtlasSlots(texture->width, texture->height, texture->data);	
 
 				brushs[i]->m_startUV = math::double2((float)(slot->x + 1) / m_atlasSize, (float)(slot->y + 1) / m_atlasSize);
 				brushs[i]->m_sizeUV = math::double2((float)(slot->width - 2) / m_atlasSize, (float)(slot->height - 2) / m_atlasSize);
@@ -405,7 +359,7 @@ namespace GuGu {
 
 				const char* dataPointer = reinterpret_cast<const char*>(static_cast<const uint8_t*>(texture->data.data()));
 				nvrhi::TextureDesc textureDesc;
-				textureDesc.format = nvrhi::Format::RGBA8_UNORM;//todo:fix this
+				textureDesc.format = texture->format;
 				textureDesc.width = brushs[i]->m_actualSize.x;
 				textureDesc.height = brushs[i]->m_actualSize.y;
 				textureDesc.depth = 1;
@@ -422,7 +376,7 @@ namespace GuGu {
 			}
 		}
 
-		const char* dataPointer = reinterpret_cast<const char*>(static_cast<const uint8_t*>(m_textureAtlasData.data()));//use this memory to update gpu texture
+		const char* dataPointer = reinterpret_cast<const char*>(static_cast<const uint8_t*>(m_atlasTexture->getAtlasData().data()));//use this memory to update gpu texture
 
 		nvrhi::TextureDesc textureDesc;
 		textureDesc.format = nvrhi::Format::RGBA8_UNORM;//todo:fix this
@@ -434,188 +388,20 @@ namespace GuGu {
 		textureDesc.mipLevels = 1;
 		textureDesc.debugName = "UITextureAtlas";
 		textureDesc.isRenderTarget = true;
-		m_textureAtlas = GetDevice()->createTexture(textureDesc);
-		m_CommandList->beginTrackingTextureState(m_textureAtlas, nvrhi::AllSubresources, nvrhi::ResourceStates::Common);
-		m_CommandList->writeTexture(m_textureAtlas, 0, 0, dataPointer, m_atlasSize * 4, 1);
-		m_CommandList->setPermanentTextureState(m_textureAtlas, nvrhi::ResourceStates::ShaderResource);//todo:fix this
+		nvrhi::TextureHandle textureAtlas = GetDevice()->createTexture(textureDesc);
+		m_CommandList->beginTrackingTextureState(textureAtlas, nvrhi::AllSubresources, nvrhi::ResourceStates::Common);
+		m_CommandList->writeTexture(textureAtlas, 0, 0, dataPointer, m_atlasSize * m_atlasTexture->getStride(), 1);
+		m_CommandList->setPermanentTextureState(textureAtlas, nvrhi::ResourceStates::ShaderResource);//todo:fix this
 		m_CommandList->commitBarriers();
 
 		for (size_t i = 0; i < brushs.size(); ++i)
 		{
 			if (!brushs[i]->m_tiling)
 			{
-				brushs[i]->m_texture = m_textureAtlas;
+				brushs[i]->m_texture = textureAtlas;
 			}		
 		}
-	}
-	void UIRenderPass::copyRow(const FCopyRowData& copyRowData)
-	{
-		const uint8_t* data = copyRowData.srcData;
-		uint8_t* start = copyRowData.destData;
-		const uint32_t sourceWidth = copyRowData.srcTextureWidth;
-		const uint32_t destWidth = copyRowData.destTextureWidth;
-		const uint32_t srcRow = copyRowData.srcRow;
-		const uint32_t destRow = copyRowData.destRow;
-		
-		const uint32_t padding = 1;
-		const uint8_t* sourceDataAddr = &data[srcRow * sourceWidth * 4];
-		uint8_t* destDataAddr = &start[(destRow * destWidth + padding) * 4];
-		memcpy(destDataAddr, sourceDataAddr, sourceWidth * 4);
-
-		if (padding > 0)
-		{
-			uint8_t* destPaddingPixelLeft = &start[destRow * destWidth * 4];
-			uint8_t* destPaddingPixelRight = destPaddingPixelLeft + ((copyRowData.rowWidth - 1) * 4);
-#if 0
-			const uint8_t* firstPixel = sourceDataAddr;
-			const uint8_t* lastPixel = sourceDataAddr + ((sourceWidth - 1) * 4);
-			memcpy(destPaddingPixelLeft, firstPixel, 4);
-			memcpy(destPaddingPixelRight, lastPixel, 4);
-#else
-			memset(destPaddingPixelLeft, 0, 4);
-			memset(destPaddingPixelRight, 0, 4);
-#endif		
-		}
-	}
-	void UIRenderPass::zeroRow(const FCopyRowData& copyRowData)
-	{
-		const uint32_t sourceWidth = copyRowData.srcTextureWidth;
-		const uint32_t destWidth = copyRowData.destTextureWidth;
-		const uint32_t destRow = copyRowData.destRow;
-
-		uint8_t* destDataAddr = &copyRowData.destData[destRow * destWidth * 4];
-		memset(destDataAddr, 0, copyRowData.rowWidth * 4);
-	}
-	void UIRenderPass::copyDataIntoSlot(std::shared_ptr<AtlasedTextureSlot> slotToCopyTo, const std::vector<uint8_t>& data)
-	{
-		//copy pixel data to the texture
-		auto start = m_textureAtlasData.begin() + slotToCopyTo->y * m_atlasSize * 4 + slotToCopyTo->x * 4;
-
-		const uint32_t padding = 1;
-		const uint32_t allPadding = padding * 2;
-
-		//the width of the source texture without padding(actual width)
-		const uint32_t sourceWidth = slotToCopyTo->width - allPadding;
-		const uint32_t sourceHeight = slotToCopyTo->height - allPadding;
-
-		FCopyRowData copyRowData;
-		copyRowData.destData = &(*start);
-		copyRowData.srcData = data.data();
-		copyRowData.destTextureWidth = m_atlasSize;
-		copyRowData.srcTextureWidth = sourceWidth;
-		copyRowData.rowWidth = slotToCopyTo->width;
-
-		if (padding > 0)
-		{
-			//copy first color row into padding
-			copyRowData.srcRow = 0;
-			copyRowData.destRow = 0;
-#if 0
-			copyRow(copyRowData);
-#else
-			zeroRow(copyRowData);
-#endif
-		}
-
-		//copy each row of the texture
-		for (uint32_t row = padding; row < slotToCopyTo->height - padding; ++row)
-		{
-			copyRowData.srcRow = row - padding;
-			copyRowData.destRow = row;
-
-			copyRow(copyRowData);
-		}
-
-		if (padding > 0)
-		{
-			//copy last color row into padding row for bilinear filtering
-			copyRowData.srcRow = sourceHeight - 1;
-			copyRowData.destRow = slotToCopyTo->height - padding;
-#if 0
-			copyRow(copyRowData);
-#else
-			zeroRow(copyRowData);
-#endif
-		}
-	}
-	std::shared_ptr<AtlasedTextureSlot> UIRenderPass::loadAtlasSlots(std::shared_ptr<TextureData> texture, std::shared_ptr<Brush> brush)
-	{
-		const uint32_t width = texture->width;
-		const uint32_t height = texture->height;
-		
-		//account for padding on both sides
-		const uint8_t padding = 1;
-		const uint32_t totalPadding = padding * 2;
-		const uint32_t paddedWidth = width + totalPadding;
-		const uint32_t paddedHeight = height + totalPadding;
-	
-		std::shared_ptr<AtlasedTextureSlot> findSlot = nullptr;
-		for (auto it : m_textureAtlasEmptySlots)
-		{
-			if (paddedWidth <= it->width && paddedHeight <= it->height)
-			{
-				findSlot = it;
-				break;
-			}
-		}
-
-		if (findSlot != nullptr)
-		{
-			//the width and height of the new child node
-			const uint32_t remainingWidth = std::max(0u, findSlot->width - paddedWidth);
-			const uint32_t remainingHeight = std::max(0u, findSlot->height - paddedHeight);
-
-			const uint32_t minSlotDim = 2;
-
-			//split the remaining area around this slot into two children
-			if (remainingWidth >= minSlotDim || remainingHeight >= minSlotDim)
-			{
-				std::shared_ptr<AtlasedTextureSlot> leftSlot;
-				std::shared_ptr<AtlasedTextureSlot> rightSlot;
-
-				if (remainingHeight <= remainingWidth)
-				{
-					leftSlot = std::make_shared<AtlasedTextureSlot>(findSlot->x, findSlot->y + paddedHeight, paddedWidth, remainingHeight, padding);
-					rightSlot = std::make_shared<AtlasedTextureSlot>(findSlot->x + paddedWidth, findSlot->y, remainingWidth, findSlot->height, padding);
-				}
-				else
-				{
-					leftSlot = std::make_shared<AtlasedTextureSlot>(findSlot->x + paddedWidth, findSlot->y, remainingWidth, paddedHeight, padding);
-					rightSlot = std::make_shared<AtlasedTextureSlot>(findSlot->x, findSlot->y + paddedHeight, findSlot->width, remainingHeight, padding);
-				}
-
-				//replace the old slot within atlas empty slots, with the new left and right slot, then add the old slot to atlas used slots
-				auto slotIt = std::find(m_textureAtlasEmptySlots.begin(), m_textureAtlasEmptySlots.end(), findSlot);
-				m_textureAtlasEmptySlots.erase(slotIt);
-				auto slotIt2 = m_textureAtlasEmptySlots.insert(m_textureAtlasEmptySlots.begin(), leftSlot);
-				++slotIt2;
-				m_textureAtlasEmptySlots.insert(slotIt2, rightSlot);//insert left and right, delete find slot
-
-				m_textureAtlasUsedSlots.push_back(findSlot);
-			}
-			else
-			{
-				auto slotIt = std::find(m_textureAtlasEmptySlots.begin(), m_textureAtlasEmptySlots.end(), findSlot);
-				m_textureAtlasEmptySlots.erase(slotIt);
-
-				m_textureAtlasUsedSlots.push_back(findSlot);
-			}
-
-			//shrink the slot the remaining area
-			findSlot->width = paddedWidth;
-			findSlot->height = paddedHeight;
-		}
-		
-
-		const std::shared_ptr<AtlasedTextureSlot> newSlot = findSlot;
-
-		if (newSlot && width > 0 && height > 0)
-		{
-			//copy data into slot
-			copyDataIntoSlot(newSlot, texture->data);
-		}
-
-		return newSlot;
+		m_atlasTexture->setTextureAtlas(textureAtlas);
 	}
 	void UIRenderPass::calculateWidgetsFixedSize(std::shared_ptr<WindowWidget> windowWidget)
 	{

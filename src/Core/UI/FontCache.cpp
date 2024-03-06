@@ -9,15 +9,13 @@
 
 #include <Core/Math/MyMath.h>
 #include "UIRenderPass.h"//todo:fix this
+#include "AtlasTexture.h"
 
 namespace GuGu {
 	FontCache::FontCache()
 	{
 		m_atlasSize = 1024;
-		std::shared_ptr<AtlasedTextureSlot> rootSlot = std::make_shared<AtlasedTextureSlot>(0, 0, m_atlasSize, m_atlasSize, 1);
-		//auto it = m_textureAtlasSlots.begin();
-		m_fontAtlasTextureEmptySlots.push_front(rootSlot);
-		m_atlasData.resize(m_atlasSize * m_atlasSize * 1, 0);
+		m_atlasTexture = std::make_shared<AtlasTexture>(m_atlasSize, 1);
 		m_fontAtlasDirty = false;
 		FT_Init_FreeType(&m_library);
 	}
@@ -129,98 +127,22 @@ namespace GuGu {
 
 	std::shared_ptr<AtlasedTextureSlot> FontCache::addCharacter(uint16_t inSizeX, uint16_t inSizeY, std::vector<uint8_t>& rawPixels)
 	{
-		//copy data into slot
-		const uint32_t width = inSizeX;
-		const uint32_t height = inSizeY;
-
-		//account for padding on both sides
-		const uint8_t padding = 1;
-		const uint32_t totalPadding = padding * 2;
-		const uint32_t paddedWidth = width + totalPadding;
-		const uint32_t paddedHeight = height + totalPadding;
-
-		std::shared_ptr<AtlasedTextureSlot> findSlot = nullptr;
-		for (auto it : m_fontAtlasTextureEmptySlots)
-		{
-			if (paddedWidth <= it->width && paddedHeight <= it->height)
-			{
-				findSlot = it;
-				break;
-			}
-		}
-
-		if (findSlot != nullptr)
-		{
-			//the width and height of the new child node
-			const uint32_t remainingWidth = std::max(0u, findSlot->width - paddedWidth);
-			const uint32_t remainingHeight = std::max(0u, findSlot->height - paddedHeight);
-
-			const uint32_t minSlotDim = 2;
-
-			//split the remaining area around this slot into two children
-			if (remainingWidth >= minSlotDim || remainingHeight >= minSlotDim)
-			{
-				std::shared_ptr<AtlasedTextureSlot> leftSlot;
-				std::shared_ptr<AtlasedTextureSlot> rightSlot;
-
-				if (remainingHeight <= remainingWidth)
-				{
-					leftSlot = std::make_shared<AtlasedTextureSlot>(findSlot->x, findSlot->y + paddedHeight, paddedWidth, remainingHeight, padding);
-					rightSlot = std::make_shared<AtlasedTextureSlot>(findSlot->x + paddedWidth, findSlot->y, remainingWidth, findSlot->height, padding);
-				}
-				else
-				{
-					leftSlot = std::make_shared<AtlasedTextureSlot>(findSlot->x + paddedWidth, findSlot->y, remainingWidth, paddedHeight, padding);
-					rightSlot = std::make_shared<AtlasedTextureSlot>(findSlot->x, findSlot->y + paddedHeight, findSlot->width, remainingHeight, padding);
-				}
-
-				//replace the old slot within atlas empty slots, with the new left and right slot, then add the old slot to atlas used slots
-				auto slotIt = std::find(m_fontAtlasTextureEmptySlots.begin(), m_fontAtlasTextureEmptySlots.end(), findSlot);
-				m_fontAtlasTextureEmptySlots.erase(slotIt);
-				auto slotIt2 = m_fontAtlasTextureEmptySlots.insert(m_fontAtlasTextureEmptySlots.begin(), leftSlot);
-				++slotIt2;
-				m_fontAtlasTextureEmptySlots.insert(slotIt2, rightSlot);//insert left and right, delete find slot
-
-				m_fontAtlasTextureUsedSlots.push_back(findSlot);
-			}
-			else
-			{
-				auto slotIt = std::find(m_fontAtlasTextureEmptySlots.begin(), m_fontAtlasTextureEmptySlots.end(), findSlot);
-				m_fontAtlasTextureEmptySlots.erase(slotIt);
-
-				m_fontAtlasTextureUsedSlots.push_back(findSlot);
-			}
-
-			//shrink the slot the remaining area
-			findSlot->width = paddedWidth;
-			findSlot->height = paddedHeight;
-		}
-
-
-		const std::shared_ptr<AtlasedTextureSlot> newSlot = findSlot;
-
-		if (newSlot && width > 0 && height > 0)
-		{
-			//copy data into slot
-			copyDataIntoSlot(newSlot, rawPixels);
-		}
-
-		return newSlot;
+		return m_atlasTexture->loadAtlasSlots(inSizeX, inSizeY, rawPixels);
 	}
 
 	nvrhi::TextureHandle FontCache::getFontAtlasTexture()
 	{
-		return m_fontAtlasTexture;
+		return m_atlasTexture->getTextureAtlas();
 	}
 
 	std::vector<uint8_t>& FontCache::getAtlasRawData()
 	{
-		return m_atlasData;
+		return m_atlasTexture->getAtlasData();
 	}
 
 	void FontCache::setFontAtlasTexture(nvrhi::TextureHandle newTexture)
 	{
-		m_fontAtlasTexture = newTexture;
+		m_atlasTexture->setTextureAtlas(newTexture);
 	}
 
 	bool FontCache::getDirtyFlag()
@@ -235,100 +157,7 @@ namespace GuGu {
 
 	void FontCache::clear()
 	{
-		m_fontAtlasTexture = nullptr;
-	}
-
-	void FontCache::copyDataIntoSlot(std::shared_ptr<AtlasedTextureSlot> slotToCopyTo, const std::vector<uint8_t>& data)
-	{
-		//copy pixel data to the texture
-		auto start = m_atlasData.begin() + slotToCopyTo->y * m_atlasSize * 1 + slotToCopyTo->x * 1;
-
-		const uint32_t padding = 1;
-		const uint32_t allPadding = padding * 2;
-
-		//the width of the source texture without padding(actual width)
-		const uint32_t sourceWidth = slotToCopyTo->width - allPadding;
-		const uint32_t sourceHeight = slotToCopyTo->height - allPadding;
-
-		FCopyRowData copyRowData;
-		copyRowData.destData = &(*start);
-		copyRowData.srcData = data.data();
-		copyRowData.destTextureWidth = m_atlasSize;
-		copyRowData.srcTextureWidth = sourceWidth;
-		copyRowData.rowWidth = slotToCopyTo->width;
-
-		if (padding > 0)
-		{
-			//copy first color row into padding
-			copyRowData.srcRow = 0;
-			copyRowData.destRow = 0;
-#if 0
-			copyRow(copyRowData);
-#else
-			zeroRow(copyRowData);
-#endif
-		}
-
-		//copy each row of the texture
-		for (uint32_t row = padding; row < slotToCopyTo->height - padding; ++row)
-		{
-			copyRowData.srcRow = row - padding;
-			copyRowData.destRow = row;
-
-			copyRow(copyRowData);
-		}
-
-		if (padding > 0)
-		{
-			//copy last color row into padding row for bilinear filtering
-			copyRowData.srcRow = sourceHeight - 1;
-			copyRowData.destRow = slotToCopyTo->height - padding;
-#if 0
-			copyRow(copyRowData);
-#else
-			zeroRow(copyRowData);
-#endif
-		}
-	}
-
-	void FontCache::copyRow(const FCopyRowData& copyRowData)
-	{
-		const uint8_t* data = copyRowData.srcData;
-		uint8_t* start = copyRowData.destData;
-		const uint32_t sourceWidth = copyRowData.srcTextureWidth;
-		const uint32_t destWidth = copyRowData.destTextureWidth;
-		const uint32_t srcRow = copyRowData.srcRow;
-		const uint32_t destRow = copyRowData.destRow;
-
-		const uint32_t padding = 1;
-		const uint8_t* sourceDataAddr = &data[srcRow * sourceWidth * 1];
-		uint8_t* destDataAddr = &start[(destRow * destWidth + padding) * 1];
-		memcpy(destDataAddr, sourceDataAddr, sourceWidth * 1);
-
-		if (padding > 0)
-		{
-			uint8_t* destPaddingPixelLeft = &start[destRow * destWidth * 1];
-			uint8_t* destPaddingPixelRight = destPaddingPixelLeft + ((copyRowData.rowWidth - 1) * 1);
-#if 0
-			const uint8_t* firstPixel = sourceDataAddr;
-			const uint8_t* lastPixel = sourceDataAddr + ((sourceWidth - 1) * 1);
-			memcpy(destPaddingPixelLeft, firstPixel, 1);
-			memcpy(destPaddingPixelRight, lastPixel, 1);
-#else
-			memset(destPaddingPixelLeft, 0, 1);
-			memset(destPaddingPixelRight, 0, 1);
-#endif		
-		}
-	}
-
-	void FontCache::zeroRow(const FCopyRowData& copyRowData)
-	{
-		const uint32_t sourceWidth = copyRowData.srcTextureWidth;
-		const uint32_t destWidth = copyRowData.destTextureWidth;
-		const uint32_t destRow = copyRowData.destRow;
-
-		uint8_t* destDataAddr = &copyRowData.destData[destRow * destWidth * 1];
-		memset(destDataAddr, 0, copyRowData.rowWidth * 1);
+		m_atlasTexture->setTextureAtlas(nullptr);
 	}
 
 }

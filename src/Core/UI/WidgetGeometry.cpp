@@ -18,14 +18,14 @@ namespace GuGu {
 	{
 		mLocalSize = localSize;
 	}
-	math::double2 WidgetGeometry::getAbsolutePosition() const
-	{
-		return mAbsolutePosition;
-	}
 	math::double2 WidgetGeometry::getLocalSize() const
 	{
 		return mLocalSize;
 	}
+	math::double2 WidgetGeometry::getAbsolutePosition() const
+	{
+		return mAbsolutePosition;
+	}	
 	void WidgetGeometry::setAbsoluteScale(float scale)
 	{
 		mAbsoluteScale = scale;
@@ -35,6 +35,10 @@ namespace GuGu {
 	{
 		return mAbsoluteScale;
 	}
+	math::daffine2 WidgetGeometry::getAccumulateTransform()
+	{
+		return mAccumulateTransform;
+	}
 	WidgetGeometry WidgetGeometry::getChildGeometry(math::double2 inLocalSize, math::double2 inTranslation, math::daffine2 parentAccumulateTransform)
 	{
 		math::daffine2 localLayoutTransform(math::double2x2::identity(), inTranslation);
@@ -43,7 +47,7 @@ namespace GuGu {
 		childGeometry.mAbsolutePosition = childGeometry.mAccumulateTransform.m_translation;
 		childGeometry.mLocalPosition = localLayoutTransform.m_translation;
 		childGeometry.mLocalSize = inLocalSize;
-		childGeometry.mAbsoluteScale = childGeometry.mAccumulateTransform.m_linear[0][0];//fix:get scale factor
+		childGeometry.mAbsoluteScale = childGeometry.mAccumulateTransform.m_linear[0][0];//fix:to get scale factor
 		return childGeometry;
 	}
 	WidgetGeometry WidgetGeometry::getOffsetGeometry(math::double2 inTranslation)
@@ -52,9 +56,5 @@ namespace GuGu {
 		offsetGeometry.mAccumulateTransform.m_translation += inTranslation;
 		offsetGeometry.mAbsolutePosition = offsetGeometry.mAccumulateTransform.m_translation;
 		return offsetGeometry;
-	}
-	math::daffine2 WidgetGeometry::getAccumulateTransform()
-	{
-		return mAccumulateTransform;
 	}
 }

@@ -315,4 +315,15 @@ namespace GuGu {
 		fileSizes = nullptr;
 	}
 
+	std::vector <uint8_t> ReadFile(const GuGuUtf8Str& path, std::shared_ptr<RootFileSystem> rootFileSystem) {
+
+		std::vector<uint8_t> fileContent;
+		rootFileSystem->OpenFile(path, GuGuFile::FileMode::OnlyRead);
+		int32_t fileLength = rootFileSystem->getFileSize();
+		fileContent.resize(fileLength);
+		int32_t haveReadedLength = 0;
+		rootFileSystem->ReadFile(fileContent.data(), fileLength, haveReadedLength);
+		rootFileSystem->CloseFile();
+		return fileContent;
+	}
 }

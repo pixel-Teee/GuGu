@@ -18,13 +18,13 @@ namespace GuGu{
 
         virtual void AllocationChildActualSpace(WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray);
 
+		virtual std::shared_ptr<Slot> getSlot(uint32_t index);
+
+		virtual uint32_t getSlotsNumber();
+
         virtual math::double2 getFixedSize();
 
         void setFixedSize(math::double2 fixedSize);
-
-        virtual std::shared_ptr<Slot> getSlot(uint32_t index);
-
-        virtual uint32_t getSlotsNumber();
 
         void prepass(float inLayoutScaleMultiplier);
     private:

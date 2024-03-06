@@ -19,6 +19,7 @@ namespace GuGu {
 	struct AtlasedTextureSlot;
 	struct FCopyRowData;
 	class FileSystem;
+	class AtlasTexture;
 	class FontCache {
 	public:
 		FontCache();
@@ -52,18 +53,14 @@ namespace GuGu {
 
 		friend class CharacterList;
 	private:
-		void copyDataIntoSlot(std::shared_ptr<AtlasedTextureSlot> slotToCopyTo, const std::vector<uint8_t>& data);
-		void copyRow(const FCopyRowData& copyRowData);
-		void zeroRow(const FCopyRowData& copyRowData);
+		//void copyDataIntoSlot(std::shared_ptr<AtlasedTextureSlot> slotToCopyTo, const std::vector<uint8_t>& data);
+		//void copyRow(const FCopyRowData& copyRowData);
+		//void zeroRow(const FCopyRowData& copyRowData);
 		std::unordered_map<FontKey, std::shared_ptr<CharacterList>> m_characterLists;
 
 		std::unordered_map<TextInfo, std::shared_ptr<FreeTypeFace>> m_faces;
 
-		nvrhi::TextureHandle m_fontAtlasTexture;
-
-		std::list<std::shared_ptr<AtlasedTextureSlot>> m_fontAtlasTextureEmptySlots;
-		std::list<std::shared_ptr<AtlasedTextureSlot>> m_fontAtlasTextureUsedSlots;
-		std::vector<uint8_t> m_atlasData;
+		std::shared_ptr<AtlasTexture> m_atlasTexture;
 
 		FT_Library m_library;
 

@@ -2,50 +2,26 @@
 
 #include <Renderer/DeviceManager.h>//IRenderPass
 
+#include "AtlasTexture.h"
+
 namespace GuGu {
-	class StyleSet;
-	class TextureCache;
-	struct TextureData;
 	class Brush;
-	class WindowWidget;
+	class StyleSet;
+
+	struct TextureData;
+	class AtlasTexture;
+	class TextureCache;
+	
 	class Widget;
+	class WindowWidget;
+	class TextBlockWidget;
+
 	class ElementList;
 	class WidgetGeometry;
+
 	class FontCache;
+
 	class RootFileSystem;
-	struct AtlasedTextureSlot
-	{
-		uint32_t x;
-		uint32_t y;
-		uint32_t width;
-		uint32_t height;
-		uint32_t padding;
-		AtlasedTextureSlot(uint32_t inX, uint32_t inY, uint32_t inWidth, uint32_t inHeight, uint32_t inPadding)
-			: x(inX)
-			, y(inY)
-			, width(inWidth)
-			, height(inHeight)
-			, padding(inPadding)
-		{}
-	};
-	struct FCopyRowData
-	{
-		//source data to copy
-		const uint8_t* srcData;
-		//place to copy data to
-		uint8_t* destData;
-		//the row number to copy
-		uint32_t srcRow;
-		//the row number to copy to
-		uint32_t destRow;
-		//the width of a source row
-		uint32_t rowWidth;
-		//the width of the source texture
-		uint32_t srcTextureWidth;
-		//the width of the dest texture
-		uint32_t destTextureWidth;
-	};
-	class TextBlockWidget;
 	class UIRenderPass : public IRenderPass
 	{
 	public:
@@ -65,25 +41,20 @@ namespace GuGu {
 		virtual void BackBufferResized(const uint32_t width, const uint32_t height, const uint32_t sampleCount);
 
 	private:
-		void initAtlasData();
-		void updateTextAtlasTexture();
+		void loadStyleTextures();
+		void updateTextAtlasTexture();		
 		nvrhi::CommandListHandle m_CommandList;
-
-		nvrhi::TextureHandle m_textureAtlas;
 
 		uint32_t m_atlasSize = 1024;
 
 		std::shared_ptr<StyleSet> m_styles;
 
-		void loadStyleTextures();
-		void copyRow(const FCopyRowData& copyRowData);
-		void zeroRow(const FCopyRowData& copyRowData);
-		void copyDataIntoSlot(std::shared_ptr<AtlasedTextureSlot> slot, const std::vector<uint8_t>& data);
+		std::shared_ptr<AtlasTexture> m_atlasTexture;
+
 		std::list<std::shared_ptr<AtlasedTextureSlot>> m_textureAtlasEmptySlots;
 		std::list<std::shared_ptr<AtlasedTextureSlot>> m_textureAtlasUsedSlots;
-		std::vector<uint8_t> m_textureAtlasData;
+		//std::vector<uint8_t> m_textureAtlasData;
 		std::shared_ptr<TextureCache> m_textureCache;
-		std::shared_ptr<AtlasedTextureSlot> loadAtlasSlots(std::shared_ptr<TextureData> texture, std::shared_ptr<Brush> brush);
 
 		nvrhi::SamplerHandle m_pointWrapSampler;
 		nvrhi::ShaderHandle m_vertexShader;

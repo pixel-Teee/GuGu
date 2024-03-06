@@ -4,11 +4,13 @@
 
 namespace GuGu {
 	class Slot;
-	class Window;
+	class Brush;
 	class ElementList;
 	class WidgetGeometry;
-	class Brush;
 	class ArrangedWidgetArray;
+
+	class Window;
+	
 	class WindowWidget : public Widget
 	{
 	public:
@@ -20,8 +22,6 @@ namespace GuGu {
 		WindowWidget();
 
 		virtual ~WindowWidget();
-
-		void assocateWithNativeWindow(std::shared_ptr<Window> nativeWindow);
 
 		virtual uint32_t GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer) override;
 
@@ -37,11 +37,13 @@ namespace GuGu {
 
 		void setChildWidget(std::shared_ptr<Widget> widget);
 
+		void assocateWithNativeWindow(std::shared_ptr<Window> nativeWindow);
+
 		std::shared_ptr<Window> getNativeWindow();
 	private:
 		std::weak_ptr<Window> m_nativeWindow;
 		std::shared_ptr<Slot> m_childWidget;
 		WindowType m_windowType;
-		std::shared_ptr<Brush> m_defaultBrush;
+		std::shared_ptr<Brush> m_defaultBrush;//for window background
 	};
 }

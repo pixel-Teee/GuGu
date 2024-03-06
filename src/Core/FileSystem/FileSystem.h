@@ -126,4 +126,6 @@ namespace GuGu
 	void CreateArchiveFiles(std::shared_ptr<RootFileSystem> archiveRootFileSystem, 
 		std::shared_ptr<RootFileSystem> assetRootFileSystem,
 		const std::vector<GuGuUtf8Str>& fileVirtualPaths, const GuGuUtf8Str& archiveVirtualPaths, const GuGuUtf8Str& mountPoint);
+
+	std::vector <uint8_t> ReadFile(const GuGuUtf8Str& path, std::shared_ptr<RootFileSystem> rootFileSystem);
 }
