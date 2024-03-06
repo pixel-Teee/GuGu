@@ -1,9 +1,11 @@
 #pragma once
 
+#include "Slot.h"
 #include "Widget.h"
+#include "UIMacros.h"
 
 namespace GuGu {
-	class Slot;
+	//class Slot;
 	class Brush;
 	class ElementList;
 	class WidgetGeometry;
@@ -22,6 +24,18 @@ namespace GuGu {
 		WindowWidget();
 
 		virtual ~WindowWidget();
+
+		struct BuilderArguments
+		{
+			BuilderArguments() = default;
+			~BuilderArguments() = default;
+
+			ARGUMENT_VALUE(WindowType, Type)
+
+			ARGUMENT_SLOT(Slot, Content)
+		};
+
+		void init(const BuilderArguments& arguments);
 
 		virtual uint32_t GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer) override;
 

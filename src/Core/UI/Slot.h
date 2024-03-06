@@ -26,6 +26,7 @@ namespace GuGu {
 		void setVerticalAlignment(VerticalAlignment verticalAlignment);
 
 		void setPadding(Padding newPadding);
+
 	private:
 		HorizontalAlignment m_horizontalAlignment;
 		VerticalAlignment m_verticalAlignment;

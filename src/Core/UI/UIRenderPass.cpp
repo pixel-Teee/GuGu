@@ -17,6 +17,7 @@
 #include "TextBlockWidget.h"
 #include "AtlasTexture.h"
 #include "FontCache.h"
+#include "UIMacros.h"
 
 #include <Core/GuGuFile.h>
 #include <Window/Window.h>
@@ -120,6 +121,15 @@ namespace GuGu {
 		m_bindingLayout = GetDevice()->createBindingLayout(layoutDesc);
 		m_CommandList->close();
 		GetDevice()->executeCommandList(m_CommandList);
+
+		std::shared_ptr<Widget> testWidget;
+		std::shared_ptr<Widget> test2Widget;
+		WIDGET_ASSIGN_NEW(WindowWidget, testWidget)
+			.Type(WindowWidget::VirtualWindow)
+			.Content
+			(
+				WIDGET_NEW(WindowWidget, test2Widget)
+			);
 
 		//build ui tree
 		std::shared_ptr<Application> application = Application::getApplication();

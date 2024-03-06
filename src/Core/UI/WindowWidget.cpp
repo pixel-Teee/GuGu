@@ -17,6 +17,11 @@ namespace GuGu {
 	WindowWidget::~WindowWidget()
 	{
 	}
+	void WindowWidget::init(const BuilderArguments& arguments)
+	{
+		m_windowType = arguments.mType;
+		m_childWidget = arguments.mContent;
+	}
 	uint32_t WindowWidget::GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
 		ArrangedWidgetArray arrangedWidgetArray;

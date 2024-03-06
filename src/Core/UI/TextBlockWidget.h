@@ -2,6 +2,8 @@
 
 #include "Widget.h"
 
+#include <functional>
+
 namespace GuGu {
 	class GuGuUtf8Str;
 	class TextInfo;
@@ -22,6 +24,5 @@ namespace GuGu {
 		std::shared_ptr<TextBlockStyle> m_textStyle;
 
 		std::shared_ptr<GuGuUtf8Str> m_text;
-
 	};
 }
