@@ -34,7 +34,7 @@ namespace GuGu {
 
 		virtual void Render(nvrhi::IFramebuffer* framebuffer);
 
-		virtual void Animate(float fElapsedTimeSeconds);
+		virtual void Update(float fElapsedTimeSeconds);
 		
 		virtual void BackBufferResizing();
 		

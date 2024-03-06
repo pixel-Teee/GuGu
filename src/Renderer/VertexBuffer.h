@@ -86,7 +86,7 @@ namespace GuGu {
 
         bool Init();
 
-        void Animate(float seconds) override;
+        void Update(float fElapsedTimeSeconds) override;
 
         void BackBufferResizing() override;
 

@@ -26,7 +26,7 @@ namespace GuGu {
 
 		bool Init();
 
-		virtual void Animate(float fElapsedTimeSeconds) override;
+		virtual void Update(float fElapsedTimeSeconds) override;
 
 		void BackBufferResizing() override;
 

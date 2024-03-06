@@ -232,7 +232,7 @@ namespace GuGu {
 		m_CommandList->close();
 		GetDevice()->executeCommandList(m_CommandList);
 	}
-	void UIRenderPass::Animate(float fElapsedTimeSeconds)
+	void UIRenderPass::Update(float fElapsedTimeSeconds)
 	{
 		float mfps = Application::getApplication()->getmFps();
 		uint32_t fps = Application::getApplication()->getFps();

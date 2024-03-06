@@ -155,9 +155,9 @@ namespace GuGu {
 		return true;
 	}
 
-	void VertexBuffer::Animate(float seconds){
+	void VertexBuffer::Update(float fElapsedTimeSeconds){
 		//GuGu_LOGD("%f", seconds);
-		m_Rotation += seconds;
+		m_Rotation += fElapsedTimeSeconds;
 	}
 
 	void VertexBuffer::BackBufferResizing(){

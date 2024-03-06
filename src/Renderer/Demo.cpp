@@ -444,7 +444,7 @@ namespace GuGu {
 
 		return true;
 	}
-	void Demo::Animate(float fElapsedTimeSeconds)
+	void Demo::Update(float fElapsedTimeSeconds)
 	{
 		m_wallClockTime += fElapsedTimeSeconds;
 		for (const auto& anim : m_sceneGraph->GetAnimations())

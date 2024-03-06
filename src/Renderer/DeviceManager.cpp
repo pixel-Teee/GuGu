@@ -317,7 +317,7 @@ namespace GuGu{
     void DeviceManager::Animate(double elapsedTime) {
         for(auto it : m_vRenderPasses)
         {
-            it->Animate(float(elapsedTime));
+            it->Update(float(elapsedTime));
         }
     }
 

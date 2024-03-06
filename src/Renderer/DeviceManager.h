@@ -121,7 +121,7 @@ namespace GuGu{
         virtual ~IRenderPass() = default;
 
         virtual void Render(nvrhi::IFramebuffer* framebuffer) { }
-        virtual void Animate(float fElapsedTimeSeconds) { }
+        virtual void Update(float fElapsedTimeSeconds) { }
         virtual void BackBufferResizing() { }
         virtual void BackBufferResized(const uint32_t width, const uint32_t height, const uint32_t sampleCount) { }
 
