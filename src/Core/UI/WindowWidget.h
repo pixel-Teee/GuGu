@@ -33,7 +33,7 @@ namespace GuGu {
 
 			ARGUMENT_VALUE(WindowType, Type)
 
-			ARGUMENT_SLOT(Slot, Content)
+			ARGUMENT_NAMED_SLOT(Slot, Content)
 		};
 
 		void init(const BuilderArguments& arguments);
@@ -55,6 +55,8 @@ namespace GuGu {
 		void assocateWithNativeWindow(std::shared_ptr<Window> nativeWindow);
 
 		std::shared_ptr<Window> getNativeWindow();
+
+		//static Slot::SlotBuilderArguments SingleSlot() { return Slot::SlotBuilderArguments(std::make_shared<Slot>()); };
 	private:
 		std::weak_ptr<Window> m_nativeWindow;
 		std::shared_ptr<Slot> m_childWidget;

@@ -30,13 +30,25 @@ namespace GuGu {
 		return *this;\
 	}\
 	Type m##Name;
-#define ARGUMENT_SLOT(Type, Name)\
+#define ARGUMENT_NAMED_SLOT(Type, Name)\
 	BuilderArguments& Name(std::shared_ptr<Widget> inValue) \
  	{\
 		m##Name->setChildWidget(inValue);\
 		return *this;\
 	}\
 	std::shared_ptr<Type> m##Name = std::make_shared<Type>();
+#define ARGUMENT_SLOT(Type, Name)\
+	std::vector<typename Type::SlotBuilderArguments> m##Name;\
+	BuilderArguments& operator+(typename Type::SlotBuilderArguments& inValue) \
+ 	{\
+		m##Name.push_back(inValue);\
+		return *this;\
+	}\
+	BuilderArguments& operator+(typename Type::SlotBuilderArguments&& inValue) \
+ 	{\
+		m##Name.push_back(std::move(inValue));\
+		return *this;\
+	}
 #define ARGUMENT_ATTRIBUTE(Type, Name)\
 	Attribute<Type> m##Name;\
 	template<class Class>\

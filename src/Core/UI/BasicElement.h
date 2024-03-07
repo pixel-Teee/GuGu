@@ -2,6 +2,8 @@
 
 #include <Core/Math/MyMath.h>
 
+#include "Attribute.h"
+
 namespace GuGu {
 	enum class HorizontalAlignment
 	{
@@ -39,6 +41,47 @@ namespace GuGu {
 		math::float4 secondaryColor;
 		UIVertex(math::float4 inTextureCoordinate, math::float2 inPosition, math::float4 inColor, math::float4 inSecondaryColor)
 			: textureCoordinate(inTextureCoordinate), position(inPosition), color(inColor), secondaryColor(inSecondaryColor)
+		{}
+	};
+
+	enum class Orientation
+	{
+		Horizontal,
+		Vertical
+	};
+
+	struct SizeParam
+	{
+		enum SizeRule
+		{
+			Fixed,
+			Stretch
+		};
+
+		SizeRule m_sizeRule;
+
+		Attribute<float> m_value;
+
+	public:
+		SizeParam(SizeRule inTypeOfSize, const Attribute<float>& inValue)
+			: m_sizeRule(inTypeOfSize)
+			, m_value(inValue)
+		{}
+	};
+
+	struct Stretch : public SizeParam
+	{
+		Stretch(const Attribute<float>& stretchAmount)
+			: SizeParam(SizeParam::Stretch, stretchAmount)
+		{}
+
+		Stretch() : SizeParam(SizeParam::Stretch, 1.0f)
+		{}
+	};
+
+	struct Fixed : public SizeParam
+	{
+		Fixed() : SizeParam(SizeParam::Fixed, 0.0f)
 		{}
 	};
 }

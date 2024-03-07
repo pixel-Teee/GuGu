@@ -126,7 +126,7 @@ namespace GuGu {
 		//build ui tree
 		std::shared_ptr<Application> application = Application::getApplication();
 		WIDGET_ASSIGN_NEW(WindowWidget, m_uiRoot)
-			.Type(WindowWidget::VirtualWindow)
+			.Type(WindowWidget::NativeWindow)
 			.Content
 			(
 				WIDGET_NEW(TextBlockWidget)

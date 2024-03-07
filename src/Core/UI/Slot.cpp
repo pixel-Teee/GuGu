@@ -10,6 +10,13 @@ namespace GuGu {
 		, m_padding(Padding(0.0, 0.0, 0.0, 0.0))
 	{
 	}
+	Slot::Slot(HorizontalAlignment inHorizontalAlignment, VerticalAlignment inVerticalAlignment)
+		: m_childWidget(nullptr)
+		, m_horizontalAlignment(inHorizontalAlignment)
+		, m_verticalAlignment(inVerticalAlignment)
+		, m_padding(Padding(0.0, 0.0, 0.0, 0.0))
+	{
+	}
 	Slot::~Slot()
 	{
 	}

@@ -9,7 +9,41 @@ namespace GuGu {
 	public:
 		Slot();
 
+		Slot(HorizontalAlignment inHorizontalAlignment, VerticalAlignment inVerticalAlignment);
+
 		virtual ~Slot();
+
+		struct SlotBuilderArguments
+		{
+			SlotBuilderArguments(std::shared_ptr<Slot> inSlot)
+				: m_slot(inSlot) {}
+			~SlotBuilderArguments() = default;
+
+			SlotBuilderArguments& operator()(std::shared_ptr<Widget> childWidget)
+			{
+				m_slot->setChildWidget(childWidget);
+				return *this;
+			}
+
+			SlotBuilderArguments& Padding(Padding inPadding)
+			{
+				m_slot->setPadding(inPadding);
+				return *this;
+			}
+
+			SlotBuilderArguments& HorizontalAlignment(HorizontalAlignment horizontalAlignment)
+			{
+				m_slot->setHorizontalAlignment(horizontalAlignment);
+				return *this;
+			}
+
+			SlotBuilderArguments& VerticalAlignment(VerticalAlignment verticalAlignment)
+			{
+				m_slot->setVerticalAlignment(verticalAlignment);
+				return *this;
+			}
+			std::shared_ptr<Slot> m_slot;
+		};
 		
 		virtual std::shared_ptr<Widget> getChildWidget();
 
@@ -27,7 +61,7 @@ namespace GuGu {
 
 		void setPadding(Padding newPadding);
 
-	private:
+	protected:
 		HorizontalAlignment m_horizontalAlignment;
 		VerticalAlignment m_verticalAlignment;
 		Padding m_padding;
