@@ -12,6 +12,7 @@
 #include "BasicElement.h"
 #include "ElementList.h"
 
+#include "BoxPanel.h"
 #include "ImageWidget.h"
 #include "WindowWidget.h"
 #include "TextBlockWidget.h"
@@ -129,15 +130,32 @@ namespace GuGu {
 			.Type(WindowWidget::NativeWindow)
 			.Content
 			(
-				WIDGET_NEW(TextBlockWidget)
-				.textLambda([&] {
-					float mfps = Application::getApplication()->getmFps();
-					uint32_t fps = Application::getApplication()->getFps();
-					GuGuUtf8Str fpsStr = u8"帧率的倒数\n一帧耗费时长:%.3f毫秒\n帧率:%dfps";
-					fpsStr = strFormat(fpsStr, mfps, fps);
-					return fpsStr;
-				})
+				WidgetConstruct<HorizontalBox>() << HorizontalBox::BuilderArguments()
+				+ HorizontalBox::Slot()
+				.FixedWidth()
+				(
+					WIDGET_NEW(TextBlockWidget)
+					.textLambda([&] {
+						float mfps = Application::getApplication()->getmFps();
+						uint32_t fps = Application::getApplication()->getFps();
+						GuGuUtf8Str fpsStr = u8"帧率的倒数\n一帧耗费时长:%.3f毫秒\n帧率:%dfps";
+						fpsStr = strFormat(fpsStr, mfps, fps);
+						return fpsStr;
+					})
+				)
+				+ HorizontalBox::Slot()
+				.StretchWidth(Attribute<float>(0.8))
+				(
+					WIDGET_NEW(ImageWidget)
+				)
+				+ HorizontalBox::Slot()
+				.StretchWidth(Attribute<float>(0.3))
+				(
+					WIDGET_NEW(ImageWidget)
+					.brush(m_styles->getBrush("biscuit"))
+				)
 			);
+
 		std::shared_ptr<Window> window = application->getWindow(0);
 		//m_uiRoot = std::make_shared<WindowWidget>();
 		m_uiRoot->assocateWithNativeWindow(window);//native window
@@ -145,10 +163,12 @@ namespace GuGu {
 		//std::shared_ptr<ImageWidget> imageWidget = std::make_shared<ImageWidget>();
 		//m_textBlockWidget = std::make_shared<TextBlockWidget>();
 		//m_uiRoot->setChildWidget(m_textBlockWidget);
-		//m_uiRoot->getSlot(0)->setHorizontalAlignment(HorizontalAlignment::Left);
-		//m_uiRoot->getSlot(0)->setVerticalAlignment(VerticalAlignment::Top);
-		//m_uiRoot->getSlot(0)->setPadding(Padding(0.0f, 120.0f, 0.0f, 0.0f));
-		//textBlockWidget->ComputeFixedSize();
+		//m_uiRoot->getSlot(0)->setHorizontalAlignment(HorizontalAlignment::Center);
+		//m_uiRoot->getSlot(0)->setVerticalAlignment(VerticalAlignment::Center);
+		//m_uiRoot->getSlot(0)->setPadding(Padding(0.0f, 0.0f, 0.0f, 0.0f));
+		////m_textBlockWidget->ComputeFixedSize();
+		//GuGuUtf8Str text = u8"愉悦送走";
+		//m_textBlockWidget->setText(text);
 		return true;
 	}
 	void UIRenderPass::Render(nvrhi::IFramebuffer* framebuffer)

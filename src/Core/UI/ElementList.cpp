@@ -32,7 +32,7 @@ namespace GuGu {
 	void ElementList::generateBatches()
 	{
 		std::stable_sort(m_elements.begin(), m_elements.end(), [=](const std::shared_ptr<Element>& lhs, const std::shared_ptr<Element>& rhs) {
-				return lhs->m_layer <= rhs->m_layer;
+				return lhs->m_layer < rhs->m_layer;
 			});
 
 		for (size_t i = 0; i < m_elements.size(); ++i)

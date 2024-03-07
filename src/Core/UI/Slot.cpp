@@ -3,53 +3,48 @@
 #include "Slot.h"
 
 namespace GuGu {
-	Slot::Slot()
-		: m_childWidget(nullptr)
-		, m_horizontalAlignment(HorizontalAlignment::Center)
-		, m_verticalAlignment(VerticalAlignment::Center)
-		, m_padding(Padding(0.0, 0.0, 0.0, 0.0))
-	{
-	}
-	Slot::Slot(HorizontalAlignment inHorizontalAlignment, VerticalAlignment inVerticalAlignment)
+
+	SlotBase::SlotBase(HorizontalAlignment inHorizontalAlignment, VerticalAlignment inVerticalAlignment)
 		: m_childWidget(nullptr)
 		, m_horizontalAlignment(inHorizontalAlignment)
 		, m_verticalAlignment(inVerticalAlignment)
 		, m_padding(Padding(0.0, 0.0, 0.0, 0.0))
 	{
 	}
-	Slot::~Slot()
+	SlotBase::~SlotBase()
 	{
 	}
-	std::shared_ptr<Widget> Slot::getChildWidget()
+	std::shared_ptr<Widget> SlotBase::getChildWidget() const
 	{
 		return m_childWidget;
 	}
-	void Slot::setChildWidget(std::shared_ptr<Widget> widget)
+	void SlotBase::setChildWidget(std::shared_ptr<Widget> widget)
 	{
 		m_childWidget = widget;
 	}
-	Padding Slot::getPadding()
+	Padding SlotBase::getPadding() const
 	{
 		return m_padding;
 	}
-	HorizontalAlignment Slot::getHorizontalAlignment()
+	HorizontalAlignment SlotBase::getHorizontalAlignment() const
 	{
 		return m_horizontalAlignment;
 	}
-	VerticalAlignment Slot::getVerticalAlignment()
+	VerticalAlignment SlotBase::getVerticalAlignment() const
 	{
 		return m_verticalAlignment;
 	}
-	void Slot::setHorizontalAlignment(HorizontalAlignment horizontalAlignment)
+	void SlotBase::setHorizontalAlignment(HorizontalAlignment horizontalAlignment)
 	{
 		m_horizontalAlignment = horizontalAlignment;
 	}
-	void Slot::setVerticalAlignment(VerticalAlignment verticalAlignment)
+	void SlotBase::setVerticalAlignment(VerticalAlignment verticalAlignment)
 	{
 		m_verticalAlignment = verticalAlignment;
 	}
-	void Slot::setPadding(Padding newPadding)
+	void SlotBase::setPadding(Padding newPadding)
 	{
 		m_padding = newPadding;
 	}
+
 }

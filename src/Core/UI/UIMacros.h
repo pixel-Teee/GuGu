@@ -51,6 +51,11 @@ namespace GuGu {
 	}
 #define ARGUMENT_ATTRIBUTE(Type, Name)\
 	Attribute<Type> m##Name;\
+	BuilderArguments& Name(Type inValue)\
+	{\
+		m##Name = inValue;\
+		return *this; \
+	}\
 	template<class Class>\
 	BuilderArguments& Name(std::shared_ptr<Class> inObject, Type(Class::*inConstMethodPtr)()const) \
 	{\

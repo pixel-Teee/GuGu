@@ -3,8 +3,9 @@
 #include "WindowWidget.h"
 
 #include "Slot.h"
-#include "ElementList.h"
 #include "StyleSet.h"
+#include "ElementList.h"
+#include "LayoutUtils.h"
 #include "ArrangedWidget.h"
 #include "ArrangedWidgetArray.h"
 
@@ -61,95 +62,98 @@ namespace GuGu {
 
 		if (slotNumber)
 		{
-			Padding slotPadding = getSlot(0)->getPadding();
+			//Padding slotPadding = getSlot(0)->getPadding();
+			//
+			////horizontal
+			//float totalMarginHorizontal = slotPadding.left + slotPadding.right;
+			//float marginPreHorizontal = slotPadding.left;
+			//float marginPostHorizontal = slotPadding.right;
+			//
+			//HorizontalAlignment alignment = getSlot(0)->getHorizontalAlignment();
+			//
+			//float offsetHorizontal = 0;
+			//float sizeHorizontal = 0;
+			//
+			//if (alignment == HorizontalAlignment::Stretch)
+			//{
+			//	offsetHorizontal = marginPreHorizontal;
+			//	sizeHorizontal = std::max((allocatedGeometry.getLocalSize().x - totalMarginHorizontal) * 1.0, 0.0);//todo:multiple scale
+			//}
+			//else
+			//{
+			//	float childFixedSize = getSlot(0)->getChildWidget()->getFixedSize().x;
+			//
+			//	//child actual size
+			//	const float childSize = std::max(std::min(childFixedSize, (float)allocatedGeometry.getLocalSize().x - totalMarginHorizontal), 0.0f);
+			//
+			//	if (alignment == HorizontalAlignment::Left)
+			//	{
+			//		offsetHorizontal = marginPreHorizontal;
+			//		sizeHorizontal = childSize;
+			//	}
+			//	else if (alignment == HorizontalAlignment::Center)
+			//	{
+			//		offsetHorizontal = (allocatedGeometry.getLocalSize().x - childSize) / 2.0f + marginPreHorizontal - marginPostHorizontal;
+			//		sizeHorizontal = childSize;
+			//	}
+			//	else if (alignment == HorizontalAlignment::Right)
+			//	{
+			//		offsetHorizontal = allocatedGeometry.getLocalSize().x - childSize - marginPostHorizontal;
+			//		sizeHorizontal = childSize;
+			//	}
+			//}
+			//
+			////vertical
+			//float totalMarginVertical = slotPadding.top + slotPadding.bottom;
+			//float marginPreVertical = slotPadding.top;
+			//float marginPostVertical = slotPadding.bottom;
+			//
+			//VerticalAlignment verticalAlignment = getSlot(0)->getVerticalAlignment();
+			//
+			//float offsetVertical = 0;
+			//float sizeVertical = 0;
+			//
+			//if (verticalAlignment == VerticalAlignment::Stretch)
+			//{
+			//	offsetVertical = marginPreVertical;
+			//	sizeVertical = std::max((allocatedGeometry.getLocalSize().y - totalMarginVertical) * 1.0, 0.0);
+			//}
+			//else
+			//{
+			//	float childFixedSize = getSlot(0)->getChildWidget()->getFixedSize().y;
+			//
+			//	//child actual size
+			//	const float childSize = std::max(std::min(childFixedSize, (float)allocatedGeometry.getLocalSize().y - totalMarginVertical), 0.0f);
+			//
+			//	if (verticalAlignment == VerticalAlignment::Top)
+			//	{
+			//		offsetVertical = marginPreVertical;
+			//		sizeVertical = childSize;
+			//	}
+			//	else if (verticalAlignment == VerticalAlignment::Center)
+			//	{
+			//		offsetVertical = (allocatedGeometry.getLocalSize().y - childSize) / 2.0f + marginPreVertical - marginPostVertical;
+			//		sizeVertical = childSize;
+			//	}
+			//	else if (verticalAlignment == VerticalAlignment::Bottom)
+			//	{
+			//		offsetVertical = allocatedGeometry.getLocalSize().y - childSize - marginPostVertical;
+			//		sizeVertical = childSize;
+			//	}
+			//}
 
-			//horizontal
-			float totalMarginHorizontal = slotPadding.left + slotPadding.right;
-			float marginPreHorizontal = slotPadding.left;
-			float marginPostHorizontal = slotPadding.right;
+			AlignmentArrangeResult xalignmentResult = AlignChild<Orientation::Horizontal>(*getSlot(0), allocatedGeometry.getLocalSize().x);
+			AlignmentArrangeResult yAlignmentResult = AlignChild<Orientation::Vertical>(*getSlot(0), allocatedGeometry.getLocalSize().y);
 
-			HorizontalAlignment alignment = getSlot(0)->getHorizontalAlignment();
-
-			float offsetHorizontal = 0;
-			float sizeHorizontal = 0;
-
-			if (alignment == HorizontalAlignment::Stretch)
-			{
-				offsetHorizontal = marginPreHorizontal;
-				sizeHorizontal = std::max((allocatedGeometry.getLocalSize().x - totalMarginHorizontal) * 1.0, 0.0);//todo:multiple scale
-			}
-			else
-			{
-				float childFixedSize = getSlot(0)->getChildWidget()->getFixedSize().x;
-
-				//child actual size
-				const float childSize = std::max(std::min(childFixedSize, (float)allocatedGeometry.getLocalSize().x - totalMarginHorizontal), 0.0f);
-
-				if (alignment == HorizontalAlignment::Left)
-				{
-					offsetHorizontal = marginPreHorizontal;
-					sizeHorizontal = childSize;
-				}
-				else if (alignment == HorizontalAlignment::Center)
-				{
-					offsetHorizontal = (allocatedGeometry.getLocalSize().x - childSize) / 2.0f + marginPreHorizontal - marginPostHorizontal;
-					sizeHorizontal = childSize;
-				}
-				else if (alignment == HorizontalAlignment::Right)
-				{
-					offsetHorizontal = allocatedGeometry.getLocalSize().x - childSize - marginPostHorizontal;
-					sizeHorizontal = childSize;
-				}
-			}
-
-			//vertical
-			float totalMarginVertical = slotPadding.top + slotPadding.bottom;
-			float marginPreVertical = slotPadding.top;
-			float marginPostVertical = slotPadding.bottom;
-
-			VerticalAlignment verticalAlignment = getSlot(0)->getVerticalAlignment();
-
-			float offsetVertical = 0;
-			float sizeVertical = 0;
-
-			if (verticalAlignment == VerticalAlignment::Stretch)
-			{
-				offsetVertical = marginPreVertical;
-				sizeVertical = std::max((allocatedGeometry.getLocalSize().y - totalMarginVertical) * 1.0, 0.0);
-			}
-			else
-			{
-				float childFixedSize = getSlot(0)->getChildWidget()->getFixedSize().y;
-
-				//child actual size
-				const float childSize = std::max(std::min(childFixedSize, (float)allocatedGeometry.getLocalSize().y - totalMarginVertical), 0.0f);
-
-				if (verticalAlignment == VerticalAlignment::Top)
-				{
-					offsetVertical = marginPreVertical;
-					sizeVertical = childSize;
-				}
-				else if (verticalAlignment == VerticalAlignment::Center)
-				{
-					offsetVertical = (allocatedGeometry.getLocalSize().y - childSize) / 2.0f + marginPreVertical - marginPostVertical;
-					sizeVertical = childSize;
-				}
-				else if (verticalAlignment == VerticalAlignment::Bottom)
-				{
-					offsetVertical = allocatedGeometry.getLocalSize().y - childSize - marginPostVertical;
-					sizeVertical = childSize;
-				}
-			}
-
-			WidgetGeometry childGeometry = allocatedGeometry.getChildGeometry(math::double2(sizeHorizontal, sizeVertical), math::double2(offsetHorizontal, offsetVertical), allocatedGeometry.getAccumulateTransform());
+			WidgetGeometry childGeometry = allocatedGeometry.getChildGeometry(math::double2(xalignmentResult.m_size, yAlignmentResult.m_size), math::double2(xalignmentResult.m_offset, yAlignmentResult.m_offset), allocatedGeometry.getAccumulateTransform());
 
 			arrangedWidgetArray.pushWidget(childGeometry, getSlot(0)->getChildWidget());
 		}
 
 	}	
-	std::shared_ptr<Slot> WindowWidget::getSlot(uint32_t index)
+	SlotBase* WindowWidget::getSlot(uint32_t index)
 	{
-		return m_childWidget;
+		return m_childWidget.get();
 	}
 	uint32_t WindowWidget::getSlotsNumber()
 	{
@@ -172,7 +176,7 @@ namespace GuGu {
 	}
 	void WindowWidget::setChildWidget(std::shared_ptr<Widget> widget)
 	{
-		std::shared_ptr<Slot> slot = std::make_shared<Slot>();
+		std::shared_ptr<SingleChildSlot> slot = std::make_shared<SingleChildSlot>();
 		slot->setChildWidget(widget);
 		//slot->setHorizontalAlignment(HorizontalAlignment::Stretch);
 		//slot->setVerticalAlignment(VerticalAlignment::Stretch);

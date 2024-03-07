@@ -3,6 +3,7 @@
 #include "Widget.h"
 
 #include "Slot.h"
+#include "UIMacros.h"
 #include "BasicElement.h"
 
 namespace GuGu {
@@ -10,6 +11,8 @@ namespace GuGu {
 	{
 	public:
 		BoxPanel();
+
+		BoxPanel(Orientation orientation);
 
 		virtual ~BoxPanel();
 
@@ -22,8 +25,21 @@ namespace GuGu {
 			//ARGUMENT_ATTRIBUTE(GuGuUtf8Str, text)
 		};
 
-		class BoxSlot : public Slot
+		template<typename SlotType>
+		class BoxSlot : public Slot<SlotType>
 		{
+		public:
+
+			struct SlotBuilderArguments : public Slot<SlotType>::SlotBuilderArguments
+			{
+				SlotBuilderArguments(std::shared_ptr<Slot> inSlot)
+					: Slot<SlotType>::SlotBuilderArguments(inSlot) {}
+				virtual ~SlotBuilderArguments() {};
+
+				//ARGUMENT_ATTRIBUTE(std::optional<SizeParam>, sizeParam)
+				std::optional<SizeParam> m_sizeParam;
+				Attribute<float> MaxSize;
+			};
 		public:
 			BoxSlot()
 				: Slot(HorizontalAlignment::Stretch, VerticalAlignment::Stretch)
@@ -33,9 +49,29 @@ namespace GuGu {
 
 			virtual ~BoxSlot() = default;
 
+			SizeParam::SizeRule getSizeRule() const
+			{
+				return m_sizeParam.m_sizeRule;
+			}
+
+			float getSizeValue() const
+			{
+				return m_sizeParam.m_value.Get();
+			}
+
+			float getMaxSize() const
+			{
+				return m_maxSize;
+			}
+
 			SizeParam m_sizeParam;
 
-			float m_maxSize;
+			float m_maxSize;//0.0 is not specified
+		};
+
+		class BoxPanelSlot : public BoxSlot<BoxPanelSlot>
+		{
+
 		};
 
 		void init(const BuilderArguments& arguments);
@@ -46,8 +82,75 @@ namespace GuGu {
 
 		virtual void AllocationChildActualSpace(WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) override;
 
-	private:
+		virtual SlotBase* getSlot(uint32_t index) override;
+
+		virtual uint32_t getSlotsNumber() override;
+
+	protected:
 
 		const Orientation m_orientation;
+
+		std::vector<std::shared_ptr<BoxPanelSlot>> m_childrens;
+	};
+
+	class HorizontalBox : public BoxPanel
+	{
+	public:
+		HorizontalBox();
+
+		virtual ~HorizontalBox();
+
+		class HorizontalBoxSlot : public BoxPanel::BoxSlot<HorizontalBoxSlot>
+		{
+		public:
+			HorizontalBoxSlot() {}
+
+			virtual ~HorizontalBoxSlot() {}
+
+			void init(const SlotBuilderArguments& builderArguments)
+			{
+				m_maxSize = builderArguments.MaxSize.Get();
+				m_sizeParam = builderArguments.m_sizeParam.value();
+			}
+
+			struct SlotBuilderArguments : public BoxPanel::BoxSlot<HorizontalBoxSlot>::SlotBuilderArguments
+			{
+				//using BoxPanel::BoxSlot::SlotBuilderArguments;
+				SlotBuilderArguments(std::shared_ptr<Slot> inSlot)
+					: BoxPanel::BoxSlot<HorizontalBoxSlot>::SlotBuilderArguments(inSlot)
+				{}
+
+				virtual ~SlotBuilderArguments() {}
+
+				SlotBuilderArguments& FixedWidth()
+				{
+					m_sizeParam = Fixed();
+					return Me();
+				}
+
+				SlotBuilderArguments& StretchWidth(Attribute<float> inStretchCoefficient)
+				{
+					m_sizeParam = Stretch(inStretchCoefficient);
+					return Me();
+				}
+			};	
+		private:
+		};
+
+		static HorizontalBoxSlot::SlotBuilderArguments Slot()
+		{
+			return HorizontalBoxSlot::SlotBuilderArguments(std::make_shared<HorizontalBoxSlot>());
+		}
+
+		struct BuilderArguments
+		{
+			BuilderArguments() = default;
+
+			~BuilderArguments() = default;
+
+			ARGUMENT_SLOT(HorizontalBoxSlot, Slots)
+		};
+
+		void init(const BuilderArguments& arguments);	
 	};
 }

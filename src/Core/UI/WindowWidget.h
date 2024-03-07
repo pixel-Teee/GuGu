@@ -33,7 +33,7 @@ namespace GuGu {
 
 			ARGUMENT_VALUE(WindowType, Type)
 
-			ARGUMENT_NAMED_SLOT(Slot, Content)
+			ARGUMENT_NAMED_SLOT(SingleChildSlot, Content)
 		};
 
 		void init(const BuilderArguments& arguments);
@@ -44,7 +44,7 @@ namespace GuGu {
 
 		virtual void AllocationChildActualSpace(WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) override;
 
-		virtual std::shared_ptr<Slot> getSlot(uint32_t index) override;
+		virtual SlotBase* getSlot(uint32_t index) override;
 
 		virtual uint32_t getSlotsNumber() override;
 
@@ -59,7 +59,7 @@ namespace GuGu {
 		//static Slot::SlotBuilderArguments SingleSlot() { return Slot::SlotBuilderArguments(std::make_shared<Slot>()); };
 	private:
 		std::weak_ptr<Window> m_nativeWindow;
-		std::shared_ptr<Slot> m_childWidget;
+		std::shared_ptr<SingleChildSlot> m_childWidget;
 		WindowType m_windowType;
 		std::shared_ptr<Brush> m_defaultBrush;//for window background
 	};

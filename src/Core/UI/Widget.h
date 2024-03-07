@@ -3,7 +3,7 @@
 #include "WidgetGeometry.h"
 
 namespace GuGu{
-    class Slot;
+    class SlotBase;
     class ElementList;
     class ArrangedWidgetArray;
     class Widget{
@@ -18,11 +18,11 @@ namespace GuGu{
 
         virtual void AllocationChildActualSpace(WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray);
 
-		virtual std::shared_ptr<Slot> getSlot(uint32_t index);
+		virtual SlotBase* getSlot(uint32_t index);
 
 		virtual uint32_t getSlotsNumber();
 
-        virtual math::double2 getFixedSize();
+        virtual math::double2 getFixedSize() const;
 
         void setFixedSize(math::double2 fixedSize);
 

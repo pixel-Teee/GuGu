@@ -21,16 +21,34 @@ namespace GuGu {
 		Stretch
 	};
 
+	enum class Orientation
+	{
+		Horizontal,
+		Vertical
+	};
+
 	struct Padding
 	{
 		float left;
 		float top;
 		float right;
 		float bottom;
+		Padding() { left = top = right = bottom = 0.0f; }
 		Padding(float inLeft, float inTop, float inRight, float inBottom)
 			: left(inLeft), top(inTop), right(inRight), bottom(inBottom)
 		{}
+
+		template<Orientation orientation>
+		float getTotalSpaceAlong() const
+		{
+			return 0.0f;
+		}
 	};
+	template<>
+	inline float Padding::getTotalSpaceAlong<Orientation::Horizontal>() const { return left + right; }
+
+	template<>
+	inline float Padding::getTotalSpaceAlong<Orientation::Vertical>() const { return top + bottom; }
 	//typedef math::double4 Padding;
 
 	struct UIVertex
@@ -42,12 +60,6 @@ namespace GuGu {
 		UIVertex(math::float4 inTextureCoordinate, math::float2 inPosition, math::float4 inColor, math::float4 inSecondaryColor)
 			: textureCoordinate(inTextureCoordinate), position(inPosition), color(inColor), secondaryColor(inSecondaryColor)
 		{}
-	};
-
-	enum class Orientation
-	{
-		Horizontal,
-		Vertical
 	};
 
 	struct SizeParam
