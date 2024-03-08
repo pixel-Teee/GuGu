@@ -12,6 +12,7 @@
 #include "BasicElement.h"
 #include "ElementList.h"
 
+#include "Border.h"
 #include "BoxPanel.h"
 #include "ImageWidget.h"
 #include "WindowWidget.h"
@@ -126,35 +127,53 @@ namespace GuGu {
 
 		//build ui tree
 		std::shared_ptr<Application> application = Application::getApplication();
-		WIDGET_ASSIGN_NEW(WindowWidget, m_uiRoot)
-			.Type(WindowWidget::NativeWindow)
-			.Content
-			(
-				WidgetConstruct<HorizontalBox>() << HorizontalBox::BuilderArguments()
-				+ HorizontalBox::Slot()
-				.FixedWidth()
-				(
-					WIDGET_NEW(TextBlockWidget)
-					.textLambda([&] {
-						float mfps = Application::getApplication()->getmFps();
-						uint32_t fps = Application::getApplication()->getFps();
-						GuGuUtf8Str fpsStr = u8"帧率的倒数\n一帧耗费时长:%.3f毫秒\n帧率:%dfps";
-						fpsStr = strFormat(fpsStr, mfps, fps);
-						return fpsStr;
-					})
-				)
-				+ HorizontalBox::Slot()
-				.StretchWidth(Attribute<float>(0.8))
-				(
-					WIDGET_NEW(ImageWidget)
-				)
-				+ HorizontalBox::Slot()
-				.StretchWidth(Attribute<float>(0.3))
-				(
-					WIDGET_NEW(ImageWidget)
-					.brush(m_styles->getBrush("biscuit"))
-				)
-			);
+		//WIDGET_ASSIGN_NEW(WindowWidget, m_uiRoot)
+		//	.Type(WindowWidget::NativeWindow)
+		//	.Content
+		//	(
+		//        WIDGET_NEW(HorizontalBox)
+		//		+ HorizontalBox::Slot()
+		//		.FixedWidth()
+		//		(
+		//			WIDGET_NEW(TextBlockWidget)
+		//			.textLambda([&] {
+		//				float mfps = Application::getApplication()->getmFps();
+		//				uint32_t fps = Application::getApplication()->getFps();
+		//				GuGuUtf8Str fpsStr = u8"帧率的倒数\n一帧耗费时长:%.3f毫秒\n帧率:%dfps";
+		//				fpsStr = strFormat(fpsStr, mfps, fps);
+		//				return fpsStr;
+		//			})
+		//		)
+		//		+ HorizontalBox::Slot()
+		//		.FixedWidth()
+		//		(
+		//			WIDGET_NEW(ImageWidget)
+		//		)
+		//		+ HorizontalBox::Slot()
+		//		.StretchWidth(Attribute<float>(0.3))
+		//		(
+		//			WIDGET_NEW(ImageWidget)
+		//			.brush(m_styles->getBrush("biscuit"))
+		//		)
+		//		+ HorizontalBox::Slot()
+		//		.StretchWidth(Attribute<float>(0.6))
+		//		(
+		//			WIDGET_NEW(VerticalBox)
+		//			+ VerticalBox::Slot()
+		//			.StretchHeight(0.7)
+		//			(
+		//				WIDGET_NEW(ImageWidget)
+		//			)
+		//			+ VerticalBox::Slot()
+		//			.StretchHeight(0.4)
+		//			(
+		//				WIDGET_NEW(ImageWidget)
+		//				.brush(m_styles->getBrush("biscuit"))
+		//			)
+		//		)
+		//	);
+
+		createTestWindow();
 
 		std::shared_ptr<Window> window = application->getWindow(0);
 		//m_uiRoot = std::make_shared<WindowWidget>();
@@ -445,5 +464,52 @@ namespace GuGu {
 	void UIRenderPass::generateWidgetElement(WidgetGeometry& allocatedWidgetGeometry)
 	{
 		m_uiRoot->GenerateElement(*m_elementList, allocatedWidgetGeometry, 0);
+	}
+	std::shared_ptr<WindowWidget> UIRenderPass::createTestWindow()
+	{
+		return WIDGET_ASSIGN_NEW(WindowWidget, m_uiRoot)
+			.Type(WindowWidget::NativeWindow)
+			.Content
+			(
+				WIDGET_NEW(HorizontalBox)
+				+ HorizontalBox::Slot()
+				.FixedWidth()
+				(
+					WIDGET_NEW(VerticalBox)
+					+ VerticalBox::Slot()
+					.FixedHeight()
+					(
+						WIDGET_NEW(Border)
+						.verticalAlignment(VerticalAlignment::Center)
+						.horizontalAlignment(HorizontalAlignment::Right)
+						.padding(Padding(0.0f, 0.0f, 10.0f, 0.0f))
+						.brush(m_styles->getBrush("headerBackground"))
+						.Content
+						(
+							WIDGET_NEW(ImageWidget)
+							.brush(m_styles->getBrush("CloseButton"))
+						)				
+					)
+					+ VerticalBox::Slot()
+					.FixedHeight()
+					(
+						WIDGET_NEW(Border)
+						.verticalAlignment(VerticalAlignment::Center)
+						.horizontalAlignment(HorizontalAlignment::Center)
+						.brush(m_styles->getBrush("background"))
+						.Content
+						(
+							WIDGET_NEW(TextBlockWidget)
+							.textLambda([&] {
+								float mfps = Application::getApplication()->getmFps();
+								uint32_t fps = Application::getApplication()->getFps();
+								GuGuUtf8Str fpsStr = u8"帧率的倒数\n一帧耗费时长:%.3f毫秒\n帧率:%dfps";
+								fpsStr = strFormat(fpsStr, mfps, fps);
+								return fpsStr;
+							})
+						)
+					)
+				)
+			);
 	}
 }

@@ -1,11 +1,13 @@
 #pragma once
 
+#include <Core/Math/MyMath.h>
 #include <Core/GuGuUtf8Str.h>
 
 namespace GuGu {
 	class Timer;
 	class Window;
 	class Renderer;
+	struct PointerEvent;
 	class Application {
 	public:
 		Application();
@@ -39,6 +41,10 @@ namespace GuGu {
 		float getmFps() const;
 
 		static GuGuUtf8Str GetDirectoryWithExecutable();
+
+		//------input------
+		virtual bool onMouseDown(const std::shared_ptr<Window>& window, math::float2 cursorPos);
+		//------input------
 	protected:
 		std::shared_ptr<Renderer> m_renderer;
 
@@ -47,9 +53,13 @@ namespace GuGu {
 		float fps = 0;//one seconds total frame
 		float mfps = 0;//one frame's time
 	private:
+		bool processMouseButtonDownEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent);
+
 		bool m_alreadyExit;
 
         bool m_focused;
+
+		math::float2 m_lastCursorPos;
 	};
 	std::shared_ptr<Application> CreateApplicationFactory();
 }

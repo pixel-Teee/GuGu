@@ -219,7 +219,27 @@ namespace GuGu {
 			std::shared_ptr<HorizontalBox::HorizontalBoxSlot> boxSlot = std::static_pointer_cast<HorizontalBox::HorizontalBoxSlot>(arguments.mSlots[i].m_slot);
 			HorizontalBoxSlot::SlotBuilderArguments builderArguments = arguments.mSlots[i];
 			boxSlot->init(builderArguments);
-			m_childrens[i] = std::reinterpret_pointer_cast<BoxPanelSlot>(boxSlot);
+			//m_childrens[i] = std::reinterpret_pointer_cast<BoxPanelSlot>(boxSlot);
+            m_childrens[i] = std::static_pointer_cast<BoxPanelSlot>(std::static_pointer_cast<SlotBase>(boxSlot));
+		}
+	}
+	VerticalBox::VerticalBox()
+		: BoxPanel(Orientation::Vertical)
+	{
+	}
+	VerticalBox::~VerticalBox()
+	{
+	}
+	void VerticalBox::init(const BuilderArguments& arguments)
+	{
+		m_childrens.resize(arguments.mSlots.size());
+		for (size_t i = 0; i < arguments.mSlots.size(); ++i)
+		{
+			std::shared_ptr<VerticalBox::VerticalBoxSlot> boxSlot = std::static_pointer_cast<VerticalBox::VerticalBoxSlot>(arguments.mSlots[i].m_slot);
+			VerticalBoxSlot::SlotBuilderArguments builderArguments = arguments.mSlots[i];
+			boxSlot->init(builderArguments);
+			//m_childrens[i] = std::reinterpret_pointer_cast<BoxPanelSlot>(boxSlot);
+			m_childrens[i] = std::static_pointer_cast<BoxPanelSlot>(std::static_pointer_cast<SlotBase>(boxSlot));
 		}
 	}
 }

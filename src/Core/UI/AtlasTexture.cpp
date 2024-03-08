@@ -23,7 +23,7 @@ namespace GuGu {
 		{
 			uint8_t* destPaddingPixelLeft = &start[destRow * destWidth * stride];
 			uint8_t* destPaddingPixelRight = destPaddingPixelLeft + ((copyRowData.rowWidth - 1) * stride);
-#if 0
+#if 1
 			const uint8_t* firstPixel = sourceDataAddr;
 			const uint8_t* lastPixel = sourceDataAddr + ((sourceWidth - 1) * stride);
 			memcpy(destPaddingPixelLeft, firstPixel, stride);
@@ -164,7 +164,7 @@ namespace GuGu {
 			//copy first color row into padding
 			copyRowData.srcRow = 0;
 			copyRowData.destRow = 0;
-#if 0
+#if 1
 			copyRow(copyRowData, m_stride);
 #else
 			zeroRow(copyRowData, m_stride);
@@ -185,7 +185,7 @@ namespace GuGu {
 			//copy last color row into padding row for bilinear filtering
 			copyRowData.srcRow = sourceHeight - 1;
 			copyRowData.destRow = slotToCopyTo->height - padding;
-#if 0
+#if 1
 			copyRow(copyRowData, m_stride);
 #else
 			zeroRow(copyRowData, m_stride);

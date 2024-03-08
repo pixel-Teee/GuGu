@@ -9,7 +9,7 @@ namespace GuGu {
 	public:
 		SlotBase() {}
 
-		SlotBase(HorizontalAlignment inHorizontalAlignment, VerticalAlignment inVerticalAlignment);
+		SlotBase(HorizontalAlignment inHorizontalAlignment, VerticalAlignment inVerticalAlignment, Padding inPadding);
 
 		virtual ~SlotBase();
 
@@ -41,7 +41,7 @@ namespace GuGu {
 	public:
 		Slot() {}
 
-		Slot(HorizontalAlignment inHorizontalAlignment, VerticalAlignment inVerticalAlignment) : SlotBase(inHorizontalAlignment, inVerticalAlignment) {}
+		Slot(HorizontalAlignment inHorizontalAlignment, VerticalAlignment inVerticalAlignment, Padding inPadding) : SlotBase(inHorizontalAlignment, inVerticalAlignment, inPadding) {}
 
 		virtual ~Slot() = default;
 
@@ -87,10 +87,10 @@ namespace GuGu {
 	class SingleChildSlot : public Slot<SingleChildSlot>
 	{
 	public:
-		SingleChildSlot() : Slot(HorizontalAlignment::Center, VerticalAlignment::Center) {}
+		SingleChildSlot() : Slot(HorizontalAlignment::Center, VerticalAlignment::Center, Padding(0.0f, 0.0f, 0.0f, 0.0f)) {}
 
-		SingleChildSlot(HorizontalAlignment inHorizontalAlignment, VerticalAlignment inVerticalAlignment)
-			: Slot(inHorizontalAlignment, inVerticalAlignment)
+		SingleChildSlot(HorizontalAlignment inHorizontalAlignment, VerticalAlignment inVerticalAlignment, Padding inPadding)
+			: Slot(inHorizontalAlignment, inVerticalAlignment, inPadding)
 		{}
 		virtual ~SingleChildSlot() {}
 	};

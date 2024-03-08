@@ -38,6 +38,21 @@ namespace GuGu {
 		std::shared_ptr<TextBlockStyle> textBlockStyle = std::make_shared<TextBlockStyle>(textInfo, math::float4(0.59f, 0.98f, 0.59f, 1.0f), math::float2(1.0f, 0.0f), math::float4(0.0f, 1.0f, 0.0f, 0.4f));
 		m_styles.insert({ "normalText", textBlockStyle });
 
+		//minimum window
+		std::shared_ptr<Brush> closeButton = std::make_shared<Brush>();
+		closeButton->m_tiling = false;
+		closeButton->m_texturePath = u8"asset/MinimumWindow/CloseButton.png";
+		m_brushes.insert({ u8"CloseButton", closeButton });
+
+		std::shared_ptr<Brush> background = std::make_shared<Brush>();
+		background->m_tiling = false;
+		background->m_texturePath = u8"asset/MinimumWindow/background.png";
+		m_brushes.insert({ u8"background", background });
+
+		std::shared_ptr<Brush> headerBackground = std::make_shared<Brush>();
+		headerBackground->m_tiling = false;
+		headerBackground->m_texturePath = u8"asset/MinimumWindow/headerBackground.png";
+		m_brushes.insert({ u8"headerBackground", headerBackground });
 	}
 	StyleSet::~StyleSet()
 	{

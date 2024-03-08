@@ -3,6 +3,7 @@
 #include "Application.h"
 
 #include <Core/Timer.h>
+#include <Core/UI/Events.h>
 #include <Window/Window.h>
 #include <Renderer/Renderer.h>
 
@@ -12,6 +13,7 @@ namespace GuGu{
         m_alreadyExit = false;
         m_focused = true;
         m_timer = CreateTimerFactory();
+        m_lastCursorPos = math::float2(0.0f, 0.0f);
     }
 	void Application::init()
 	{
@@ -85,6 +87,27 @@ namespace GuGu{
     float Application::getmFps() const
     {
         return mfps;
+    }
+
+	bool Application::onMouseDown(const std::shared_ptr<Window>& window, math::float2 cursorPos)
+	{
+		//process mouse button down
+
+        PointerEvent mouseEvent(
+            cursorPos,
+            m_lastCursorPos
+        );
+        m_lastCursorPos = cursorPos;
+
+        return processMouseButtonDownEvent(window, mouseEvent);
+	}
+
+    bool Application::processMouseButtonDownEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
+    {
+        //locate window under mouse
+
+
+        return false;
     }
 
     //void Application::resize(int32_t width, int32_t height) {

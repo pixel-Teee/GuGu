@@ -27,6 +27,10 @@ namespace GuGu{
     void Widget::AllocationChildActualSpace(WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) {
         //noting to do
     }
+    Reply Widget::OnMouseButtonDown(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
+    {
+        return Reply::Unhandled();
+    }
     SlotBase* Widget::getSlot(uint32_t index)
 	{
 		return nullptr;

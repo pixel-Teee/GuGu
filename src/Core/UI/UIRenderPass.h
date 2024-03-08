@@ -45,7 +45,7 @@ namespace GuGu {
 
 		void updateTextAtlasTexture();	
 
-		uint32_t m_atlasSize = 1024;
+		uint32_t m_atlasSize = 2048;
 
 		nvrhi::CommandListHandle m_CommandList;
 
@@ -85,5 +85,9 @@ namespace GuGu {
 
 		std::shared_ptr<RootFileSystem> m_rootFileSystem;
 		//std::shared_ptr<FontCache> m_fontCache;
+
+		//------test widget functionality------
+		std::shared_ptr<WindowWidget> createTestWindow();
+		//------test widget functionality------
 	};
 }

@@ -19,4 +19,7 @@ namespace GuGu {
 	TextBlockStyle::~TextBlockStyle()
 	{
 	}
+	ButtonStyle::~ButtonStyle()
+	{
+	}
 }

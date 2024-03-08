@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Reply.h"
+#include "Events.h"
 #include "WidgetGeometry.h"
 
 namespace GuGu{
@@ -17,6 +19,8 @@ namespace GuGu{
         virtual math::double2 ComputeFixedSize(float inLayoutScaleMultiplier);
 
         virtual void AllocationChildActualSpace(WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray);
+
+        virtual Reply OnMouseButtonDown(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent);
 
 		virtual SlotBase* getSlot(uint32_t index);
 

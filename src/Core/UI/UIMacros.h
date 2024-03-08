@@ -67,6 +67,8 @@ namespace GuGu {
 		m##Name = Attribute<Type>::CreateLambda(inFunctor); \
 		return *this; \
 	}
+#define UI_EVENT(Type, EventName)\
+	Type m##EventName;
 #define SLOT_CONTENT(SlotType, Name) \
 	std::shared_ptr<SlotType> m##Name;
 

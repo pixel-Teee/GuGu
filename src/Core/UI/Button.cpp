@@ -1,0 +1,50 @@
+#include <pch.h>
+
+#include "Button.h"
+
+#include "ElementList.h"
+#include "ArrangedWidget.h"
+#include "ArrangedWidgetArray.h"
+
+namespace GuGu {
+	Button::Button()
+	{
+	}
+	Button::~Button()
+	{
+	}
+	void Button::init(const BuilderArguments& arguments)
+	{
+		m_buttonStyle = arguments.mbuttonSyle;
+		m_clicked = arguments.mClicked;
+		m_contentPadding = arguments.mpadding;
+	}
+	uint32_t Button::GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
+	{
+		ArrangedWidgetArray arrangedWidgetArray;
+		Border::AllocationChildActualSpace(allocatedGeometry, arrangedWidgetArray);
+
+		ElementList::addBoxElement(elementList, allocatedGeometry, math::float4(1.0f, 1.0f, 1.0f, 1.0f), m_imageBursh.Get(), layer); //background
+
+		uint32_t widgetNumbers = arrangedWidgetArray.getArrangedWidgetsNumber();//note:just one
+		//math::double2 size = math::double2(0.0, 0.0);
+		uint32_t maxLayer = 0;
+		for (size_t i = 0; i < widgetNumbers; ++i)
+		{
+			std::shared_ptr<ArrangedWidget> childWidget = arrangedWidgetArray.getArrangedWidget(i);
+			if (childWidget)
+			{
+				std::shared_ptr<Widget> widget = childWidget->getWidget();
+
+				maxLayer = std::max(maxLayer, widget->GenerateElement(elementList, childWidget->getWidgetGeometry(), layer + 1));
+			}
+		}
+
+		return maxLayer;
+	}
+	math::double2 Button::ComputeFixedSize(float inLayoutScaleMultiplier)
+	{
+		return math::double2(m_imageBursh.Get()->m_actualSize.x, m_imageBursh.Get()->m_actualSize.y);
+	}
+
+}

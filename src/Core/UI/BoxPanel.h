@@ -32,7 +32,7 @@ namespace GuGu {
 
 			struct SlotBuilderArguments : public Slot<SlotType>::SlotBuilderArguments
 			{
-				SlotBuilderArguments(std::shared_ptr<Slot> inSlot)
+				SlotBuilderArguments(std::shared_ptr<SlotType> inSlot)
 					: Slot<SlotType>::SlotBuilderArguments(inSlot) {}
 				virtual ~SlotBuilderArguments() {};
 
@@ -42,7 +42,7 @@ namespace GuGu {
 			};
 		public:
 			BoxSlot()
-				: Slot(HorizontalAlignment::Stretch, VerticalAlignment::Stretch)
+				: Slot<SlotType>(HorizontalAlignment::Stretch, VerticalAlignment::Stretch, Padding(0.0f, 0.0f, 0.0f, 0.0f))
 				, m_sizeParam(SizeParam::Stretch, 1.0f)
 				, m_maxSize(0.0f)
 			{}
@@ -116,7 +116,7 @@ namespace GuGu {
 			struct SlotBuilderArguments : public BoxPanel::BoxSlot<HorizontalBoxSlot>::SlotBuilderArguments
 			{
 				//using BoxPanel::BoxSlot::SlotBuilderArguments;
-				SlotBuilderArguments(std::shared_ptr<Slot> inSlot)
+				SlotBuilderArguments(std::shared_ptr<HorizontalBoxSlot> inSlot)
 					: BoxPanel::BoxSlot<HorizontalBoxSlot>::SlotBuilderArguments(inSlot)
 				{}
 
@@ -152,5 +152,66 @@ namespace GuGu {
 		};
 
 		void init(const BuilderArguments& arguments);	
+	};
+
+	class VerticalBox : public BoxPanel
+	{
+	public:
+		VerticalBox();
+
+		virtual ~VerticalBox();
+
+		class VerticalBoxSlot : public BoxPanel::BoxSlot<VerticalBoxSlot>
+		{
+		public:
+			VerticalBoxSlot() {}
+
+			virtual ~VerticalBoxSlot() {}
+
+			void init(const SlotBuilderArguments& builderArguments)
+			{
+				m_maxSize = builderArguments.MaxSize.Get();
+				m_sizeParam = builderArguments.m_sizeParam.value();
+			}
+
+			struct SlotBuilderArguments : public BoxPanel::BoxSlot<VerticalBoxSlot>::SlotBuilderArguments
+			{
+				//using BoxPanel::BoxSlot::SlotBuilderArguments;
+				SlotBuilderArguments(std::shared_ptr<VerticalBoxSlot> inSlot)
+					: BoxPanel::BoxSlot<VerticalBoxSlot>::SlotBuilderArguments(inSlot)
+				{}
+
+				virtual ~SlotBuilderArguments() {}
+
+				SlotBuilderArguments& FixedHeight()
+				{
+					m_sizeParam = Fixed();
+					return Me();
+				}
+
+				SlotBuilderArguments& StretchHeight(Attribute<float> inStretchCoefficient)
+				{
+					m_sizeParam = Stretch(inStretchCoefficient);
+					return Me();
+				}
+			};
+		private:
+		};
+
+		static VerticalBoxSlot::SlotBuilderArguments Slot()
+		{
+			return VerticalBoxSlot::SlotBuilderArguments(std::make_shared<VerticalBoxSlot>());
+		}
+
+		struct BuilderArguments
+		{
+			BuilderArguments() = default;
+
+			~BuilderArguments() = default;
+
+			ARGUMENT_SLOT(VerticalBoxSlot, Slots)
+		};
+
+		void init(const BuilderArguments& arguments);
 	};
 }

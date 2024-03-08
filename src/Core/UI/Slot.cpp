@@ -4,11 +4,11 @@
 
 namespace GuGu {
 
-	SlotBase::SlotBase(HorizontalAlignment inHorizontalAlignment, VerticalAlignment inVerticalAlignment)
+	SlotBase::SlotBase(HorizontalAlignment inHorizontalAlignment, VerticalAlignment inVerticalAlignment, Padding inPadding)
 		: m_childWidget(nullptr)
 		, m_horizontalAlignment(inHorizontalAlignment)
 		, m_verticalAlignment(inVerticalAlignment)
-		, m_padding(Padding(0.0, 0.0, 0.0, 0.0))
+		, m_padding(inPadding)
 	{
 	}
 	SlotBase::~SlotBase()

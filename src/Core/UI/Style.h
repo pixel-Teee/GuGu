@@ -1,7 +1,9 @@
 #pragma once
 
 #include <Core/Math/MyMath.h>
+
 #include "TextInfo.h"
+#include "BasicElement.h"
 
 namespace GuGu {
 	class Style
@@ -23,5 +25,25 @@ namespace GuGu {
 		math::float4 m_textColor;
 		math::float2 m_shadowOffset;
 		math::float4 m_shadowColor;
+	};
+
+	class Brush;
+	class ButtonStyle : public Style
+	{
+		ButtonStyle();
+
+		virtual ~ButtonStyle();
+
+		std::shared_ptr<Brush> m_normal;
+		ButtonStyle& setNormal(std::shared_ptr<Brush> inNormal) { m_normal = inNormal; }
+		std::shared_ptr<Brush> m_hovered;
+		ButtonStyle& setHovered(std::shared_ptr<Brush> inHovered) { m_hovered = inHovered; }
+		std::shared_ptr<Brush> m_pressed;
+		ButtonStyle& setPressed(std::shared_ptr<Brush> inPressed) { m_normal = inPressed; }
+		std::shared_ptr<Brush> m_disabled;
+		ButtonStyle& setDisabled(std::shared_ptr<Brush> inDisabled) { m_normal = inDisabled; }
+
+		Padding m_pressedPadding;
+		ButtonStyle& setPressedPadding(Padding inPressedPadding) { m_pressedPadding = inPressedPadding; }
 	};
 }

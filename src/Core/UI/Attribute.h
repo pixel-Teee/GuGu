@@ -29,17 +29,17 @@ namespace GuGu {
 		{}
 
 		template<typename SourceType>
-		Attribute(std::shared_ptr<SourceType> inUserObject, typename ObjectType(SourceType::*inConstMethodPtr)()const)
+		Attribute(std::shared_ptr<SourceType> inUserObject,  ObjectType(SourceType::*inConstMethodPtr)()const)
 			: m_value()
 			, m_bIsSet(true)
 			, m_getter(std::bind(inConstMethodPtr, inUserObject.get()))
 		{}
 
 		template<class SourceType>
-		Attribute(SourceType* inUserObject, typename void (SourceType::*inConstMethodPtr)()const)
+		Attribute(SourceType* inUserObject, void (SourceType::*inConstMethodPtr)()const)
 			: m_value()
 			, m_bIsSet(true)
-			, m_getter(std::bind(inConstMethodPtr, inUserObject.get()))
+			, m_getter(std::bind(inConstMethodPtr, inUserObject))
 		{}
 
 		static Attribute Create(const std::function<ObjectType(void)>& inGetter)
@@ -76,7 +76,7 @@ namespace GuGu {
 			, m_getter(inGetter)
 		{}
 
-		template<typename ObjectType> friend class TAttribute;
+		friend class TAttribute;
 
 		mutable ObjectType m_value;
 
