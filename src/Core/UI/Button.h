@@ -12,7 +12,7 @@ namespace GuGu {
 
 		virtual ~Button();
 
-		struct BuilderArguments
+		struct BuilderArguments : public Arguments<Button>
 		{
 			BuilderArguments() = default;
 
@@ -26,7 +26,7 @@ namespace GuGu {
 
 			ARGUMENT_VALUE(HorizontalAlignment, horizontalAlignment)
 
-			ARGUMENT_ATTRIBUTE(Padding, padding)
+			ARGUMENT_ATTRIBUTE(Padding, contentPadding)
 
 			ARGUMENT_MEMBER(ButtonStyle, buttonSyle)
 

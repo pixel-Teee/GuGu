@@ -18,7 +18,7 @@ namespace GuGu {
 	{
 		m_buttonStyle = arguments.mbuttonSyle;
 		m_clicked = arguments.mClicked;
-		m_contentPadding = arguments.mpadding;
+		m_contentPadding = arguments.mcontentPadding;
 		m_imageBursh = m_buttonStyle->m_normal;
 	}
 	uint32_t Button::GenerateElement(PaintArgs& paintArgs, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)

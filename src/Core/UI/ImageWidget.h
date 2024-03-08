@@ -16,7 +16,7 @@ namespace GuGu {
 
 		virtual ~ImageWidget();
 
-		struct BuilderArguments
+		struct BuilderArguments : public Arguments<ImageWidget>
 		{
 			BuilderArguments() = default;
 

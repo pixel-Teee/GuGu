@@ -501,7 +501,23 @@ namespace GuGu {
 						(
 							WIDGET_NEW(Button)
 							.buttonSyle(m_styles->getStyle<ButtonStyle>("closeButton"))
-							.padding(Padding(10.0f, 10.0f, 10.0f, 10.0f)))				
+							.contentPadding(Padding(10.0f, 10.0f, 10.0f, 10.0f))
+							.ClickedLambda([&] {
+									static uint32_t i = 0;
+									
+									++i;
+									if (i % 2)
+									{
+										m_textColor = math::float4(0.2f, 0.5f, 0.7f, 1.0f);
+									}
+									else
+									{
+										m_textColor = math::float4(0.9f, 0.5f, 0.7f, 1.0f);
+									}
+									return Reply::Unhandled();
+								}
+							)		
+						)				
 					)
 					+ VerticalBox::Slot()
 					.FixedHeight()
@@ -520,6 +536,10 @@ namespace GuGu {
 								fpsStr = strFormat(fpsStr, mfps, fps);
 								return fpsStr;
 							})
+                            .textColorLambda([&]{
+								math::float4 color = m_textColor;
+                                return color;
+                            })
 						)
 					)
 				)

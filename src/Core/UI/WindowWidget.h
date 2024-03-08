@@ -25,7 +25,7 @@ namespace GuGu {
 
 		virtual ~WindowWidget();
 
-		struct BuilderArguments
+		struct BuilderArguments : public Arguments<WindowWidget>
 		{
 			BuilderArguments() = default;
 

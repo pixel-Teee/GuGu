@@ -18,6 +18,7 @@ namespace GuGu {
 	void TextBlockWidget::init(const BuilderArguments& arguments)
 	{
 		m_text = arguments.mtext;
+		m_textColor = arguments.mtextColor;
 	}
 	uint32_t TextBlockWidget::GenerateElement(PaintArgs& paintArgs, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
@@ -34,8 +35,9 @@ namespace GuGu {
 			++layer;
 		}
 
+        math::float4 textColor = m_textColor.Get() ? m_textColor.Get() : m_textStyle->m_textColor;
 		//todo:generate text element
-		ElementList::addTextElement(elementList, allocatedGeometry, m_textStyle->m_textColor, m_textStyle->m_textInfo, m_text.Get(), layer);
+		ElementList::addTextElement(elementList, allocatedGeometry, textColor, m_textStyle->m_textInfo, m_text.Get(), layer);
 
 		return layer;
 	}

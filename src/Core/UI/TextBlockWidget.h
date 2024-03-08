@@ -19,13 +19,15 @@ namespace GuGu {
 
 		virtual ~TextBlockWidget();
 
-		struct BuilderArguments
+		struct BuilderArguments : public Arguments<TextBlockWidget>
 		{
 			BuilderArguments() = default;
 
 			~BuilderArguments() = default;
 
 			ARGUMENT_ATTRIBUTE(GuGuUtf8Str, text)
+
+            ARGUMENT_ATTRIBUTE(math::float4, textColor)
 		};
 
 		void init(const BuilderArguments& arguments);
@@ -39,5 +41,7 @@ namespace GuGu {
 		std::shared_ptr<TextBlockStyle> m_textStyle;
 
 		Attribute<GuGuUtf8Str> m_text;
+
+        Attribute<math::float4> m_textColor;
 	};
 }

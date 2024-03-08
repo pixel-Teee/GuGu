@@ -93,6 +93,7 @@ namespace GuGu {
 
 		//------test widget functionality------
 		std::shared_ptr<WindowWidget> createTestWindow();
+		math::float4 m_textColor;
 		//------test widget functionality------
 	};
 }

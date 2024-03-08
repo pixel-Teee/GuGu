@@ -16,7 +16,7 @@ namespace GuGu {
 
 		virtual ~BoxPanel();
 
-		struct BuilderArguments
+		struct BuilderArguments : public Arguments<BoxPanel>
 		{
 			BuilderArguments() = default;
 
@@ -142,7 +142,7 @@ namespace GuGu {
 			return HorizontalBoxSlot::SlotBuilderArguments(std::make_shared<HorizontalBoxSlot>());
 		}
 
-		struct BuilderArguments
+		struct BuilderArguments : public Arguments<HorizontalBox>
 		{
 			BuilderArguments() = default;
 
@@ -203,7 +203,7 @@ namespace GuGu {
 			return VerticalBoxSlot::SlotBuilderArguments(std::make_shared<VerticalBoxSlot>());
 		}
 
-		struct BuilderArguments
+		struct BuilderArguments : public Arguments<VerticalBox>
 		{
 			BuilderArguments() = default;
 

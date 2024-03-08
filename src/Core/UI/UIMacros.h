@@ -20,21 +20,21 @@ namespace GuGu {
 	BuilderArguments& Name(std::shared_ptr<Type> inValue) \
  	{\
 		m##Name = inValue;\
-		return *this;\
+		return Me();\
 	}\
 	std::shared_ptr<Type> m##Name;
 #define ARGUMENT_VALUE(Type, Name)\
 	BuilderArguments& Name(Type inValue) \
  	{\
 		m##Name = inValue;\
-		return *this;\
+		return Me();\
 	}\
 	Type m##Name;
 #define ARGUMENT_NAMED_SLOT(Type, Name)\
 	BuilderArguments& Name(std::shared_ptr<Widget> inValue) \
  	{\
 		m##Name->setChildWidget(inValue);\
-		return *this;\
+		return Me();\
 	}\
 	std::shared_ptr<Type> m##Name = std::make_shared<Type>();
 #define ARGUMENT_SLOT(Type, Name)\
@@ -42,33 +42,38 @@ namespace GuGu {
 	BuilderArguments& operator+(typename Type::SlotBuilderArguments& inValue) \
  	{\
 		m##Name.push_back(inValue);\
-		return *this;\
+		return Me();\
 	}\
 	BuilderArguments& operator+(typename Type::SlotBuilderArguments&& inValue) \
  	{\
 		m##Name.push_back(std::move(inValue));\
-		return *this;\
+		return Me();\
 	}
 #define ARGUMENT_ATTRIBUTE(Type, Name)\
 	Attribute<Type> m##Name;\
 	BuilderArguments& Name(Type inValue)\
 	{\
 		m##Name = inValue;\
-		return *this; \
+		return Me(); \
 	}\
 	template<class Class>\
 	BuilderArguments& Name(std::shared_ptr<Class> inObject, Type(Class::*inConstMethodPtr)()const) \
 	{\
 		m##Name = Attribute<Type>::CreateSP(inObject.get(), inConstMethodPtr);\
-		return *this;\
+		return Me();\
 	}\
 	BuilderArguments& Name##Lambda(std::function<Type(void)>&& inFunctor) \
 	{\
 		m##Name = Attribute<Type>::CreateLambda(inFunctor); \
-		return *this; \
+		return Me(); \
 	}
 #define UI_EVENT(Type, EventName)\
-	Type m##EventName;
+	Type m##EventName;\
+	BuilderArguments& EventName##Lambda(Type&& inFunctor) \
+	{\
+		m##EventName = inFunctor; \
+		return Me(); \
+	}
 #define SLOT_CONTENT(SlotType, Name) \
 	std::shared_ptr<SlotType> m##Name;
 
@@ -77,4 +82,14 @@ namespace GuGu {
 
 #define WIDGET_ASSIGN_NEW(WidgetType, OutValue) \
 	OutValue = WidgetConstruct<WidgetType>() << WidgetType::BuilderArguments()
+
+
+	template<typename WidgetType>
+	struct Arguments
+	{
+		typename WidgetType::BuilderArguments& Me()
+		{
+			return *(static_cast<typename WidgetType::BuilderArguments*>(this));
+		}
+	};
 }

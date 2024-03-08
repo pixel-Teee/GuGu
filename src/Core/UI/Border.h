@@ -14,7 +14,7 @@ namespace GuGu {
 
 		virtual ~Border();
 
-		struct BuilderArguments
+		struct BuilderArguments : public Arguments<Border>
 		{
 			BuilderArguments() = default;
 
