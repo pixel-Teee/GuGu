@@ -10,6 +10,8 @@ namespace GuGu{
 
         virtual float getDpiFactor() override;
 
+        virtual math::float2 getWindowScreenSpacePosition() override;
+
         void setNativeWindow(ANativeWindow* nativeWindow);
 
         ANativeWindow* getNativeHandle() const;

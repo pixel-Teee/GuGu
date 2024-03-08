@@ -62,7 +62,8 @@ namespace GuGu {
 		if (m_clicked)
 		{
 			m_clicked();
-		}	
+		}
+        GuGu_LOGD("%s", "click button");
 		return Reply::Unhandled();
 	}
 

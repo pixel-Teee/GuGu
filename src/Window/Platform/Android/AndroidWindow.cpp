@@ -25,6 +25,10 @@ namespace GuGu{
         return dpiFactor;
     }
 
+    math::float2 AndroidWindow::getWindowScreenSpacePosition() {
+        return math::float2(0.0f, 0.0f);
+    }
+
     void AndroidWindow::setNativeWindow(ANativeWindow *nativeWindow) {
         m_nativeWindow = nativeWindow;
     }
