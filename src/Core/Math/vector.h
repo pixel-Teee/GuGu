@@ -346,6 +346,12 @@ a.x*b.y - a.y*b.x
 }
 
 template <typename T>
+constexpr float cross(vector<T, 2> const& a, vector<T, 2> const& b)
+{
+    return a.x * b.y - a.y * b.x;
+}
+
+template <typename T>
 constexpr vector<T, 2> orthogonal(vector<T, 2> const & a)
 {
 return vector<T, 2>(-a.y, a.x);

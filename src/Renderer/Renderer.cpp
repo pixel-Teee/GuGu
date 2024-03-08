@@ -22,4 +22,8 @@ namespace GuGu {
     void Renderer::onResize(int32_t width, int32_t height)
 	{
     }
+	UIRenderPass* Renderer::getUIRenderPass() const
+	{
+		return m_UIRenderPass;
+	}
 }

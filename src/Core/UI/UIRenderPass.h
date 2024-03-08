@@ -22,6 +22,7 @@ namespace GuGu {
 	class FontCache;
 
 	class RootFileSystem;
+
 	class UIRenderPass : public IRenderPass
 	{
 	public:
@@ -40,6 +41,9 @@ namespace GuGu {
 		
 		virtual void BackBufferResized(const uint32_t width, const uint32_t height, const uint32_t sampleCount);
 
+		std::shared_ptr<WindowWidget> getWindowWidget();
+
+		std::vector<std::shared_ptr<Widget>> getAllWidgets();
 	private:
 		void loadStyleTextures();
 
@@ -72,6 +76,7 @@ namespace GuGu {
 		};
 
 		std::shared_ptr<WindowWidget> m_uiRoot;
+		std::vector<std::shared_ptr<Widget>> m_allWidgets;
 		std::shared_ptr<ElementList> m_elementList;
 		std::vector<nvrhi::BufferHandle> m_VertexBuffers;
 		std::vector<nvrhi::BufferHandle> m_IndexBuffers;

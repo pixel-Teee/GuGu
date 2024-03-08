@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Core/Math/MyMath.h>
+
 namespace GuGu {
 	class Window
 	{
@@ -7,6 +9,8 @@ namespace GuGu {
 		virtual void ToGeneratePlatformWindow() = 0;
 
 		virtual float getDpiFactor() = 0;
+
+		virtual math::float2 getWindowScreenSpacePosition() = 0;
 	};
 
 	std::shared_ptr<Window> CreateWindowFactory();

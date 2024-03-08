@@ -14,6 +14,8 @@ namespace GuGu {
 
 		virtual float getDpiFactor() override;
 
+		virtual math::float2 getWindowScreenSpacePosition() override;
+
 		void setNativeApplicationHandleAndCmdShowToCreateWindow(HINSTANCE applicationHandle, int32_t cmdShow);
 
 		HWND getNativeWindowHandle();

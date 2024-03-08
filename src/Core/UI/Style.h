@@ -30,20 +30,21 @@ namespace GuGu {
 	class Brush;
 	class ButtonStyle : public Style
 	{
-		ButtonStyle();
+	public:
+		ButtonStyle() = default;
 
 		virtual ~ButtonStyle();
 
 		std::shared_ptr<Brush> m_normal;
-		ButtonStyle& setNormal(std::shared_ptr<Brush> inNormal) { m_normal = inNormal; }
+		ButtonStyle& setNormal(std::shared_ptr<Brush> inNormal) { m_normal = inNormal; return *this; }
 		std::shared_ptr<Brush> m_hovered;
-		ButtonStyle& setHovered(std::shared_ptr<Brush> inHovered) { m_hovered = inHovered; }
+		ButtonStyle& setHovered(std::shared_ptr<Brush> inHovered) { m_hovered = inHovered; return *this; }
 		std::shared_ptr<Brush> m_pressed;
-		ButtonStyle& setPressed(std::shared_ptr<Brush> inPressed) { m_normal = inPressed; }
+		ButtonStyle& setPressed(std::shared_ptr<Brush> inPressed) { m_pressed = inPressed; return *this; }
 		std::shared_ptr<Brush> m_disabled;
-		ButtonStyle& setDisabled(std::shared_ptr<Brush> inDisabled) { m_normal = inDisabled; }
+		ButtonStyle& setDisabled(std::shared_ptr<Brush> inDisabled) { m_disabled = inDisabled; return *this; }
 
 		Padding m_pressedPadding;
-		ButtonStyle& setPressedPadding(Padding inPressedPadding) { m_pressedPadding = inPressedPadding; }
+		ButtonStyle& setPressedPadding(Padding inPressedPadding) { m_pressedPadding = inPressedPadding; return *this; }
 	};
 }

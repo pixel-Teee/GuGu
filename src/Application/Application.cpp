@@ -4,6 +4,9 @@
 
 #include <Core/Timer.h>
 #include <Core/UI/Events.h>
+#include <Core/UI/ImageWidget.h>
+#include <Core/UI/WindowWidget.h>
+#include <Core/UI/UIRenderPass.h>
 #include <Window/Window.h>
 #include <Renderer/Renderer.h>
 
@@ -102,12 +105,117 @@ namespace GuGu{
         return processMouseButtonDownEvent(window, mouseEvent);
 	}
 
+    bool Application::onMouseUp(const std::shared_ptr<Window>& window, math::float2 cursorPos)
+    {
+		PointerEvent mouseEvent(
+			cursorPos,
+			m_lastCursorPos
+		);
+		m_lastCursorPos = cursorPos;
+
+        return processMouseButtonUpEvent(window, mouseEvent);
+    }
+
     bool Application::processMouseButtonDownEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
     {
         //locate window under mouse
+        UIRenderPass* uiRenderPass = m_renderer->getUIRenderPass();
+        std::shared_ptr<WindowWidget> windowWidget = uiRenderPass->getWindowWidget();
+        std::vector<std::shared_ptr<Widget>> allWidgets = uiRenderPass->getAllWidgets();
+        assert(windowWidget->getNativeWindow() == window);//todo:fix this
 
+        std::stable_sort(allWidgets.begin(), allWidgets.end(), [&](const std::shared_ptr<Widget>& lhs, const std::shared_ptr<Widget>& rhs)
+            {
+                return lhs->getLayer() < rhs->getLayer();
+            });
 
-        return false;
+        math::float2 cursorPosition = mouseEvent.m_screenSpacePosition - window->getWindowScreenSpacePosition();
+        std::shared_ptr<Widget> collisionWidget;
+        for (uint32_t i = allWidgets.size() - 1; i > 0; --i)
+        {
+            WidgetGeometry widgetGeometry = allWidgets[i]->getWidgetGeometry();
+
+            math::float2 points[4] = {
+                math::float2(widgetGeometry.getAbsolutePosition().x, widgetGeometry.getAbsolutePosition().y),//top left
+                math::float2(widgetGeometry.getAbsolutePosition().x + widgetGeometry.getLocalSize().x, widgetGeometry.getAbsolutePosition().y),//top right
+                math::float2(widgetGeometry.getAbsolutePosition().x + widgetGeometry.getLocalSize().x, widgetGeometry.getAbsolutePosition().y + widgetGeometry.getLocalSize().y),//bottom right
+                math::float2(widgetGeometry.getAbsolutePosition().x, widgetGeometry.getAbsolutePosition().y + widgetGeometry.getLocalSize().y)//bottom left
+            };
+
+            float a = math::cross(points[1] - points[0], cursorPosition - points[0]);
+            float b = math::cross(points[2] - points[1], cursorPosition - points[1]);
+            float c = math::cross(points[3] - points[2], cursorPosition - points[2]);
+            float d = math::cross(points[0] - points[3], cursorPosition - points[3]);
+
+            if ((a > 0 && b > 0 && c > 0 && d > 0) || (a < 0 && b < 0 && c < 0 && d < 0))
+            {
+                collisionWidget = allWidgets[i];
+                break;
+            }
+        }
+
+        if (collisionWidget)
+        {
+            collisionWidget->OnMouseButtonDown(collisionWidget->getWidgetGeometry(), mouseEvent);
+			//std::shared_ptr<ImageWidget> imageWidget = std::dynamic_pointer_cast<ImageWidget>(collisionWidget);
+			//if (imageWidget)
+			//{
+			//    GuGu_LOGD("%s", u8"image widget");
+			//}
+        }
+        //GuGu_LOGD("(%f %f)", cursorPosition.x, cursorPosition.y);
+        return true;
+    }
+
+    bool Application::processMouseButtonUpEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
+    {
+		//locate window under mouse
+		UIRenderPass* uiRenderPass = m_renderer->getUIRenderPass();
+		std::shared_ptr<WindowWidget> windowWidget = uiRenderPass->getWindowWidget();
+		std::vector<std::shared_ptr<Widget>> allWidgets = uiRenderPass->getAllWidgets();
+		assert(windowWidget->getNativeWindow() == window);//todo:fix this
+
+		std::stable_sort(allWidgets.begin(), allWidgets.end(), [&](const std::shared_ptr<Widget>& lhs, const std::shared_ptr<Widget>& rhs)
+			{
+				return lhs->getLayer() < rhs->getLayer();
+			});
+
+		math::float2 cursorPosition = mouseEvent.m_screenSpacePosition - window->getWindowScreenSpacePosition();
+		std::shared_ptr<Widget> collisionWidget;
+		for (uint32_t i = allWidgets.size() - 1; i > 0; --i)
+		{
+			WidgetGeometry widgetGeometry = allWidgets[i]->getWidgetGeometry();
+
+			math::float2 points[4] = {
+				math::float2(widgetGeometry.getAbsolutePosition().x, widgetGeometry.getAbsolutePosition().y),//top left
+				math::float2(widgetGeometry.getAbsolutePosition().x + widgetGeometry.getLocalSize().x, widgetGeometry.getAbsolutePosition().y),//top right
+				math::float2(widgetGeometry.getAbsolutePosition().x + widgetGeometry.getLocalSize().x, widgetGeometry.getAbsolutePosition().y + widgetGeometry.getLocalSize().y),//bottom right
+				math::float2(widgetGeometry.getAbsolutePosition().x, widgetGeometry.getAbsolutePosition().y + widgetGeometry.getLocalSize().y)//bottom left
+			};
+
+			float a = math::cross(points[1] - points[0], cursorPosition - points[0]);
+			float b = math::cross(points[2] - points[1], cursorPosition - points[1]);
+			float c = math::cross(points[3] - points[2], cursorPosition - points[2]);
+			float d = math::cross(points[0] - points[3], cursorPosition - points[3]);
+
+			if ((a > 0 && b > 0 && c > 0 && d > 0) || (a < 0 && b < 0 && c < 0 && d < 0))
+			{
+				collisionWidget = allWidgets[i];
+				break;
+			}
+		}
+
+		if (collisionWidget)
+		{
+			collisionWidget->OnMouseButtonUp(collisionWidget->getWidgetGeometry(), mouseEvent);
+			//std::shared_ptr<ImageWidget> imageWidget = std::dynamic_pointer_cast<ImageWidget>(collisionWidget);
+			//if (imageWidget)
+			//{
+			//    GuGu_LOGD("%s", u8"image widget");
+			//}
+		}
+		//GuGu_LOGD("(%f %f)", cursorPosition.x, cursorPosition.y);
+		return true;
     }
 
     //void Application::resize(int32_t width, int32_t height) {

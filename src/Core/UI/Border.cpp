@@ -22,8 +22,11 @@ namespace GuGu {
 		m_childWidget->setVerticalAlignment(arguments.mverticalAlignment);
 		m_childWidget->setPadding(arguments.mpadding);
 	}
-	uint32_t Border::GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
+	uint32_t Border::GenerateElement(PaintArgs& paintArgs, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
+		paintArgs.m_allWidgets.push_back(shared_from_this());
+		m_geometry = allocatedGeometry;
+		m_layer = layer;
 		ArrangedWidgetArray arrangedWidgetArray;
 		AllocationChildActualSpace(allocatedGeometry, arrangedWidgetArray);
 
@@ -39,7 +42,7 @@ namespace GuGu {
 			{
 				std::shared_ptr<Widget> widget = childWidget->getWidget();
 
-				maxLayer = std::max(maxLayer, widget->GenerateElement(elementList, childWidget->getWidgetGeometry(), layer + 1));
+				maxLayer = std::max(maxLayer, widget->GenerateElement(paintArgs, elementList, childWidget->getWidgetGeometry(), layer + 1));
 			}
 		}
 

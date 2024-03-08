@@ -35,16 +35,24 @@ namespace GuGu {
 
 		void init(const BuilderArguments& arguments);
 
-		virtual uint32_t GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer);
+		virtual uint32_t GenerateElement(PaintArgs& paintArgs, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer);
 
 		virtual math::double2 ComputeFixedSize(float inLayoutScaleMultiplier);
 
-		//virtual Reply onMouseButtonDown(const WidgetGeometry& geometry);
+		virtual Reply OnMouseButtonDown(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent) override;
+
+		virtual Reply OnMouseButtonUp(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent) override;
 	private:
+		void Press();
+
+		void Release();
+
 		std::shared_ptr<ButtonStyle> m_buttonStyle;
 
 		Attribute<Padding> m_contentPadding;
 
 		OnClicked m_clicked;
+
+		bool m_bIsPressed;
 	};
 }

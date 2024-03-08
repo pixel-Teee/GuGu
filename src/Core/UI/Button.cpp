@@ -8,6 +8,7 @@
 
 namespace GuGu {
 	Button::Button()
+	: m_bIsPressed(false)
 	{
 	}
 	Button::~Button()
@@ -18,11 +19,18 @@ namespace GuGu {
 		m_buttonStyle = arguments.mbuttonSyle;
 		m_clicked = arguments.mClicked;
 		m_contentPadding = arguments.mpadding;
+		m_imageBursh = m_buttonStyle->m_normal;
 	}
-	uint32_t Button::GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
+	uint32_t Button::GenerateElement(PaintArgs& paintArgs, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
+		paintArgs.m_allWidgets.push_back(shared_from_this());
+		m_geometry = allocatedGeometry;
+		m_layer = layer;
 		ArrangedWidgetArray arrangedWidgetArray;
-		Border::AllocationChildActualSpace(allocatedGeometry, arrangedWidgetArray);
+		if (m_childWidget) //todo:add null widget
+		{
+			Border::AllocationChildActualSpace(allocatedGeometry, arrangedWidgetArray);
+		}	
 
 		ElementList::addBoxElement(elementList, allocatedGeometry, math::float4(1.0f, 1.0f, 1.0f, 1.0f), m_imageBursh.Get(), layer); //background
 
@@ -36,7 +44,7 @@ namespace GuGu {
 			{
 				std::shared_ptr<Widget> widget = childWidget->getWidget();
 
-				maxLayer = std::max(maxLayer, widget->GenerateElement(elementList, childWidget->getWidgetGeometry(), layer + 1));
+				maxLayer = std::max(maxLayer, widget->GenerateElement(paintArgs, elementList, childWidget->getWidgetGeometry(), layer + 1));
 			}
 		}
 
@@ -45,6 +53,43 @@ namespace GuGu {
 	math::double2 Button::ComputeFixedSize(float inLayoutScaleMultiplier)
 	{
 		return math::double2(m_imageBursh.Get()->m_actualSize.x, m_imageBursh.Get()->m_actualSize.y);
+	}
+
+	Reply Button::OnMouseButtonDown(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent)
+	{
+		//update button state
+		Press();
+		if (m_clicked)
+		{
+			m_clicked();
+		}	
+		return Reply::Unhandled();
+	}
+
+	Reply Button::OnMouseButtonUp(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent)
+	{
+		Release();
+		return Reply::Unhandled();
+	}
+
+	void Button::Press()
+	{
+		if (!m_bIsPressed)
+		{
+			m_bIsPressed = true;
+			//update image
+			m_imageBursh = m_buttonStyle->m_pressed;
+		}
+	}
+
+	void Button::Release()
+	{
+		if (m_bIsPressed)
+		{
+			m_bIsPressed = false;
+			//update image
+			m_imageBursh = m_buttonStyle->m_normal;
+		}
 	}
 
 }

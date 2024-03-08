@@ -44,6 +44,8 @@ namespace GuGu {
 
 		//------input------
 		virtual bool onMouseDown(const std::shared_ptr<Window>& window, math::float2 cursorPos);
+
+		virtual bool onMouseUp(const std::shared_ptr<Window>& window, math::float2 cursorPos);
 		//------input------
 	protected:
 		std::shared_ptr<Renderer> m_renderer;
@@ -54,6 +56,8 @@ namespace GuGu {
 		float mfps = 0;//one frame's time
 	private:
 		bool processMouseButtonDownEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent);
+
+		bool processMouseButtonUpEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent);
 
 		bool m_alreadyExit;
 

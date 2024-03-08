@@ -7,14 +7,14 @@ namespace GuGu{
 
     Widget::Widget()
     {
-
+        m_layer = 0;
     }
 
     Widget::~Widget() {
 
     }
 
-    uint32_t Widget::GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
+    uint32_t Widget::GenerateElement(PaintArgs& paintArgs, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
     {
         return layer;
     }
@@ -31,6 +31,10 @@ namespace GuGu{
     {
         return Reply::Unhandled();
     }
+    Reply Widget::OnMouseButtonUp(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
+    {
+        return Reply::Unhandled();
+    }
     SlotBase* Widget::getSlot(uint32_t index)
 	{
 		return nullptr;
@@ -42,6 +46,14 @@ namespace GuGu{
     math::double2 Widget::getFixedSize() const
     {
         return m_fixedSize;
+    }
+    const WidgetGeometry& Widget::getWidgetGeometry() const
+    {
+        return m_geometry;
+    }
+    uint32_t Widget::getLayer() const
+    {
+        return m_layer;
     }
     void Widget::setFixedSize(math::double2 fixedSize)
     {

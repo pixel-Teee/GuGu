@@ -19,8 +19,11 @@ namespace GuGu {
 	{
 		m_text = arguments.mtext;
 	}
-	uint32_t TextBlockWidget::GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
+	uint32_t TextBlockWidget::GenerateElement(PaintArgs& paintArgs, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
+		paintArgs.m_allWidgets.push_back(shared_from_this());
+		m_geometry = allocatedGeometry;
+		m_layer = layer;
 		math::float2 shadowOffset = m_textStyle->m_shadowOffset;
 		math::float4 shadowColor = m_textStyle->m_shadowColor;
 

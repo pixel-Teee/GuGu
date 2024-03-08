@@ -33,7 +33,7 @@ namespace GuGu {
 
 		void init(const BuilderArguments& arguments);
 
-		virtual uint32_t GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer);
+		virtual uint32_t GenerateElement(PaintArgs& paintArgs, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer);
 
 		virtual math::double2 ComputeFixedSize(float inLayoutScaleMultiplier);
 

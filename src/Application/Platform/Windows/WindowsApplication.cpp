@@ -159,6 +159,27 @@ namespace GuGu {
 
 				break;
 			}
+			case WM_LBUTTONUP:
+			{
+				POINT cursorPoint;
+				cursorPoint.x = GET_X_LPARAM(lParam);
+				cursorPoint.y = GET_Y_LPARAM(lParam);
+				ClientToScreen(hwnd, &cursorPoint);
+
+				std::shared_ptr<Window> window;
+				//find native window
+				std::vector<std::shared_ptr<WindowsWindow>> windows = globalApplication->getPlatformWindows();
+				for (int32_t i = 0; i < windows.size(); ++i)
+				{
+					if (windows[i]->getNativeWindowHandle() == hwnd)
+					{
+						window = windows[i];
+					}
+				}
+
+				globalApplication->onMouseUp(window, math::float2(cursorPoint.x, cursorPoint.y));
+				break;
+			}
 			case WM_DESTROY:
 			{
 				PostQuitMessage(0);

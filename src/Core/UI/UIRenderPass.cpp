@@ -13,6 +13,7 @@
 #include "ElementList.h"
 
 #include "Border.h"
+#include "Button.h"
 #include "BoxPanel.h"
 #include "ImageWidget.h"
 #include "WindowWidget.h"
@@ -356,6 +357,16 @@ namespace GuGu {
 	{
 	}
 
+	std::shared_ptr<WindowWidget> UIRenderPass::getWindowWidget()
+	{
+		return m_uiRoot;//todo:fix this
+	}
+
+	std::vector<std::shared_ptr<Widget>> UIRenderPass::getAllWidgets()
+	{
+		return m_allWidgets;
+	}
+
 	void UIRenderPass::updateTextAtlasTexture()
 	{
 		std::shared_ptr<FontCache> fontCache = FontCache::getFontCache();
@@ -463,7 +474,9 @@ namespace GuGu {
 	}
 	void UIRenderPass::generateWidgetElement(WidgetGeometry& allocatedWidgetGeometry)
 	{
-		m_uiRoot->GenerateElement(*m_elementList, allocatedWidgetGeometry, 0);
+		m_allWidgets.clear();
+		PaintArgs paintArgs(m_allWidgets);
+		m_uiRoot->GenerateElement(paintArgs, *m_elementList, allocatedWidgetGeometry, 0);
 	}
 	std::shared_ptr<WindowWidget> UIRenderPass::createTestWindow()
 	{
@@ -486,9 +499,9 @@ namespace GuGu {
 						.brush(m_styles->getBrush("headerBackground"))
 						.Content
 						(
-							WIDGET_NEW(ImageWidget)
-							.brush(m_styles->getBrush("CloseButton"))
-						)				
+							WIDGET_NEW(Button)
+							.buttonSyle(m_styles->getStyle<ButtonStyle>("closeButton"))
+							.padding(Padding(10.0f, 10.0f, 10.0f, 10.0f)))				
 					)
 					+ VerticalBox::Slot()
 					.FixedHeight()

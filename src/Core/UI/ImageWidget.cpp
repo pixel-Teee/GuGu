@@ -19,8 +19,11 @@ namespace GuGu {
 		if(arguments.mbrush.Get())
 			m_imageBursh = arguments.mbrush;
 	}
-	uint32_t ImageWidget::GenerateElement(ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
+	uint32_t ImageWidget::GenerateElement(PaintArgs& paintArgs, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
+		paintArgs.m_allWidgets.push_back(shared_from_this());
+		m_geometry = allocatedGeometry;
+		m_layer = layer;
 		ElementList::addBoxElement(elementList, allocatedGeometry, math::float4(1.0f, 1.0f, 1.0f, 1.0f), m_imageBursh.Get(), layer);
 
 		return layer;

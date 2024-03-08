@@ -64,6 +64,15 @@ namespace GuGu {
 		return m_dpiFactor;
 	}
 
+	math::float2 WindowsWindow::getWindowScreenSpacePosition()
+	{
+		RECT rect;
+		GetWindowRect(m_windowHandle, &rect);
+
+		int32_t titleBarHeight = GetSystemMetrics(SM_CYCAPTION);
+		return math::float2(rect.left, rect.top + titleBarHeight);
+	}
+
 	void WindowsWindow::setNativeApplicationHandleAndCmdShowToCreateWindow(HINSTANCE applicationHandle, int32_t cmdShow)
 	{
 		m_ownerApplicationHandle = applicationHandle;
