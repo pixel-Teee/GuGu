@@ -559,7 +559,6 @@ namespace GuGu {
 						.verticalAlignment(VerticalAlignment::Center)
 						.horizontalAlignment(HorizontalAlignment::Center)
 						.brush(m_styles->getBrush("background"))
-						//.Clip(WidgetClipping::ClipToBounds)
 						.Content
 						(
 							WIDGET_NEW(TextBlockWidget)
