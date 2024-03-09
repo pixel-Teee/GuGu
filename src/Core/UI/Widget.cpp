@@ -2,10 +2,12 @@
 
 #include "Widget.h"
 #include "Slot.h"
+#include "ElementList.h"
 
 namespace GuGu{
 
     Widget::Widget()
+        : m_widgetClipping(WidgetClipping::Inherit)
     {
         m_layer = 0;
     }
@@ -14,7 +16,33 @@ namespace GuGu{
 
     }
 
-    uint32_t Widget::GenerateElement(PaintArgs& paintArgs, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
+    uint32_t Widget::generateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
+    {
+		paintArgs.m_allWidgets.push_back(shared_from_this());
+		m_geometry = allocatedGeometry;
+		m_layer = layer;
+
+        bool bClipToBounds = false;
+        math::box2 cullingBounds = calculateCullingAndClippingRules(allocatedGeometry, cullingRect, bClipToBounds);
+
+        if (bClipToBounds)
+        {
+            ClippingZone clippingZone(allocatedGeometry);
+            elementList.pushClip(clippingZone);
+        }
+
+        //clipping
+        uint32_t maxLayer = onGenerateElement(paintArgs, cullingBounds, elementList, allocatedGeometry, layer);
+
+        if (bClipToBounds)
+        {
+            elementList.popClip();
+        }
+
+        return maxLayer;
+    }
+
+    uint32_t Widget::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
     {
         return layer;
     }
@@ -74,5 +102,28 @@ namespace GuGu{
 		}
 		size = ComputeFixedSize(inLayoutScaleMultiplier);
 		setFixedSize(size);
+    }
+    math::box2 Widget::calculateCullingAndClippingRules(const WidgetGeometry& allottedGeometry, const math::box2 cullingRect, bool& bClipToBounds)
+    {
+        bClipToBounds = false;
+
+        switch (m_widgetClipping)
+        {
+        case WidgetClipping::Inherit:
+            bClipToBounds = false;
+            break;
+        case WidgetClipping::ClipToBounds:
+            bClipToBounds = true;
+            break;
+        }
+
+        if (bClipToBounds)
+        {
+            math::box2 myCullingRect(allottedGeometry.getRenderBoundingRect());
+
+            return myCullingRect;
+        }
+
+        return cullingRect;
     }
 }

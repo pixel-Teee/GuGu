@@ -218,7 +218,6 @@ namespace GuGu {
 			psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
 			psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
 			psoDesc.renderState.depthStencilState.depthTestEnable = false;
-
 			m_FontPipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
 		}
 
@@ -274,7 +273,17 @@ namespace GuGu {
 			const float height = float(fbinfo.height);
 
 			const nvrhi::Viewport viewport = nvrhi::Viewport(0, width, 0, height, 0.f, 1.f);
-			state.viewport.addViewportAndScissorRect(viewport);
+			state.viewport.addViewport(viewport);
+			if (m_elementList->getBatches()[i]->m_clippingState != nullptr)
+			{
+				ClippingZone clipZone = m_elementList->getBatches()[i]->m_clippingState->m_scissorRect.value();
+				nvrhi::Rect clipScissor(clipZone.m_topLeft.x, clipZone.m_topRight.x, clipZone.m_topRight.y, clipZone.m_bottomRight.y);
+				state.viewport.addScissorRect(clipScissor);
+			}
+			else
+			{
+				state.viewport.addScissorRect(nvrhi::Rect(viewport));
+			}
 
 			// Update the pipeline, bindings, and other state.
 			m_CommandList->setGraphicsState(state);
@@ -476,7 +485,9 @@ namespace GuGu {
 	{
 		m_allWidgets.clear();
 		PaintArgs paintArgs(m_allWidgets);
-		m_uiRoot->GenerateElement(paintArgs, *m_elementList, allocatedWidgetGeometry, 0);
+
+		math::box2 cullingRect(math::float2(0.0f, 0.0f), math::float2(allocatedWidgetGeometry.getLocalSize().x, allocatedWidgetGeometry.getLocalSize().y));
+		m_uiRoot->generateElement(paintArgs, cullingRect, *m_elementList, allocatedWidgetGeometry, 0);
 	}
 	std::shared_ptr<WindowWidget> UIRenderPass::createTestWindow()
 	{
@@ -526,9 +537,11 @@ namespace GuGu {
 						.verticalAlignment(VerticalAlignment::Center)
 						.horizontalAlignment(HorizontalAlignment::Center)
 						.brush(m_styles->getBrush("background"))
+						//.Clip(WidgetClipping::ClipToBounds)
 						.Content
 						(
 							WIDGET_NEW(TextBlockWidget)
+							.Clip(WidgetClipping::ClipToBounds)
 							.textLambda([&] {
 								float mfps = Application::getApplication()->getmFps();
 								uint32_t fps = Application::getApplication()->getFps();

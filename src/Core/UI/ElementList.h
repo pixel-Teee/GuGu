@@ -5,6 +5,7 @@
 #include <Core/Math/MyMath.h>
 #include <Renderer/nvrhi.h>
 
+#include "Clipping.h"
 #include "BasicElement.h"
 
 namespace GuGu {
@@ -28,6 +29,7 @@ namespace GuGu {
 		//std::shared_ptr<Brush> m_brush;
 		nvrhi::TextureHandle m_texture;
 		uint32_t m_layer;//note:useful for batch
+		const ClippingState* m_clippingState;//weak
 	};
 	class ElementList
 	{
@@ -45,6 +47,14 @@ namespace GuGu {
 		void generateBatches();
 
 		const std::vector<std::shared_ptr<BatchData>>& getBatches() const;
+
+		int32_t pushClip(const ClippingZone& inClipZone);
+
+		void popClip();
+
+		int32_t getClippintIndex() const;
+
+		const ClippingState* getClippingState(uint32_t clippingIndex) const;
 	private:
 		std::vector<std::shared_ptr<Element>> m_elements;
 
@@ -53,5 +63,7 @@ namespace GuGu {
 		void generateBoxBatch(std::shared_ptr<BatchData> boxBatch, std::shared_ptr<Element> element);
 
 		void generateTextBatch(std::shared_ptr<Element> element);
+
+		ClippingManager m_clippingManager;
 	};
 }

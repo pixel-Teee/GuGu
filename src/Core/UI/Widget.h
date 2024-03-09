@@ -2,7 +2,10 @@
 
 #include "Reply.h"
 #include "Events.h"
+#include "Clipping.h"
 #include "WidgetGeometry.h"
+
+#include <Core/Math/MyMath.h>
 
 namespace GuGu{
     class Widget;
@@ -24,7 +27,9 @@ namespace GuGu{
 
         virtual ~Widget();
 
-        virtual uint32_t GenerateElement(PaintArgs& paintArgs, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer);
+		uint32_t generateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer);
+
+        virtual uint32_t onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer);
 
         virtual math::double2 ComputeFixedSize(float inLayoutScaleMultiplier);
 
@@ -47,9 +52,12 @@ namespace GuGu{
         void setFixedSize(math::double2 fixedSize);
 
         void prepass(float inLayoutScaleMultiplier);
+
+        math::box2 calculateCullingAndClippingRules(const WidgetGeometry& allottedGeometry, const math::box2 cullingRect, bool& bClipToBounds);
     protected:
         WidgetGeometry m_geometry;
         math::double2 m_fixedSize;
         uint32_t m_layer;
+        WidgetClipping m_widgetClipping;
     };
 }

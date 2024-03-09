@@ -152,11 +152,8 @@ namespace GuGu {
 	{
 		
 	}
-	uint32_t BoxPanel::GenerateElement(PaintArgs& paintArgs, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
+	uint32_t BoxPanel::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
-		paintArgs.m_allWidgets.push_back(shared_from_this());
-		m_geometry = allocatedGeometry;
-		m_layer = layer;
 		uint32_t maxLayerId = layer;
 
 		ArrangedWidgetArray arrangedWidgetArray;
@@ -170,7 +167,7 @@ namespace GuGu {
 			{
 				std::shared_ptr<Widget> widget = childWidget->getWidget();
 
-				const uint32_t curWidgetsMaxLayerId = childWidget->getWidget()->GenerateElement(paintArgs, elementList, childWidget->getWidgetGeometry(), layer);
+				const uint32_t curWidgetsMaxLayerId = childWidget->getWidget()->onGenerateElement(paintArgs, cullingRect, elementList, childWidget->getWidgetGeometry(), layer);
 				maxLayerId = std::max(maxLayerId, curWidgetsMaxLayerId);
 			}		
 		}

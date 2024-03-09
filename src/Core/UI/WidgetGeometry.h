@@ -25,6 +25,10 @@ namespace GuGu {
 		WidgetGeometry getChildGeometry(math::double2 inLocalSize, math::double2 inTranslation, math::daffine2 parentAccumulateTransform);
 
 		WidgetGeometry getOffsetGeometry(math::double2 inTranslation);
+
+		math::box2 getRenderBoundingRect() const;
+
+		math::box2 getRenderBoundingRect(const math::box2& localSpaceRect) const;
 	private:
 		math::double2 mLocalPosition;
 		math::double2 mLocalSize;

@@ -57,4 +57,18 @@ namespace GuGu {
 		offsetGeometry.mAbsolutePosition = offsetGeometry.mAccumulateTransform.m_translation;
 		return offsetGeometry;
 	}
+	math::box2 WidgetGeometry::getRenderBoundingRect() const
+	{
+		math::box2 localRect = math::box2(math::float2(0.0f, 0.0f), math::float2(mLocalSize.x, mLocalSize.y));
+		return getRenderBoundingRect(localRect);
+	}
+	math::box2 WidgetGeometry::getRenderBoundingRect(const math::box2& localSpaceRect) const
+	{
+		math::box2 rect;
+		math::double2 topLeft = mAccumulateTransform.transformPoint(math::double2(localSpaceRect.m_mins.x, localSpaceRect.m_mins.y));
+		rect.m_mins = math::float2(topLeft.x, topLeft.y);
+		math::double2 extent = mAccumulateTransform.transformVector(math::double2(localSpaceRect.m_maxs.x, localSpaceRect.m_maxs.y));
+		rect.m_maxs = math::float2(extent.x, extent.y);
+		return rect;
+	}
 }

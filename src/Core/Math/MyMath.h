@@ -9,7 +9,7 @@ namespace dm = GuGu::math;
 #include "vector.h"
 #include "matrix.h"
 #include "affine.h"
-//#include "box.h"
+#include "box.h"
 #include "color.h"
 #include "quat.h"
 //#include "sphere.h"

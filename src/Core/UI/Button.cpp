@@ -21,11 +21,8 @@ namespace GuGu {
 		m_contentPadding = arguments.mcontentPadding;
 		m_imageBursh = m_buttonStyle->m_normal;
 	}
-	uint32_t Button::GenerateElement(PaintArgs& paintArgs, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
+	uint32_t Button::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
-		paintArgs.m_allWidgets.push_back(shared_from_this());
-		m_geometry = allocatedGeometry;
-		m_layer = layer;
 		ArrangedWidgetArray arrangedWidgetArray;
 		if (m_childWidget) //todo:add null widget
 		{
@@ -44,7 +41,7 @@ namespace GuGu {
 			{
 				std::shared_ptr<Widget> widget = childWidget->getWidget();
 
-				maxLayer = std::max(maxLayer, widget->GenerateElement(paintArgs, elementList, childWidget->getWidgetGeometry(), layer + 1));
+				maxLayer = std::max(maxLayer, widget->generateElement(paintArgs, cullingRect, elementList, childWidget->getWidgetGeometry(), layer + 1));
 			}
 		}
 

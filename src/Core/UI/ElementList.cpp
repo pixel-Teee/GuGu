@@ -19,15 +19,20 @@ namespace GuGu {
 	{
 		m_elements.clear();
 		m_batches.clear();
+		m_clippingManager.resetClippingState();
 	}
 	void ElementList::addBoxElement(ElementList& elementList, const WidgetGeometry& widgetGeometry, math::float4 color, std::shared_ptr<Brush> brush, uint32_t layer)
 	{
+		std::shared_ptr<BoxElement> boxElement = std::make_shared<BoxElement>(Element::ElementType::Box, widgetGeometry, color, brush, layer, brush->m_tiling);
+		boxElement->setClipIndex(elementList.getClippintIndex());
 		//generate a box element to element list
-		elementList.m_elements.push_back(std::make_shared<BoxElement>(Element::ElementType::Box, widgetGeometry, color, brush, layer, brush->m_tiling));
+		elementList.m_elements.push_back(boxElement);
 	}
 	void ElementList::addTextElement(ElementList& elementList, const WidgetGeometry& widgetGeometry, math::float4 color, std::shared_ptr<TextInfo> textInfo, const GuGuUtf8Str& text, uint32_t layer)
 	{
-		elementList.m_elements.push_back(std::make_shared<TextElement>(Element::ElementType::Text, widgetGeometry, color, textInfo, text, layer));
+		std::shared_ptr<TextElement> textElement = std::make_shared<TextElement>(Element::ElementType::Text, widgetGeometry, color, textInfo, text, layer);
+		textElement->setClipIndex(elementList.getClippintIndex());
+		elementList.m_elements.push_back(textElement);
 	}
 	void ElementList::generateBatches()
 	{
@@ -44,6 +49,7 @@ namespace GuGu {
 					std::shared_ptr<BatchData> boxBatch = std::make_shared<BatchData>();
 					boxBatch->shaderType = UIShaderType::Default;
 					boxBatch->m_layer = m_elements[i]->m_layer;
+					boxBatch->m_clippingState = getClippingState(m_elements[i]->m_clipIndex);
 					generateBoxBatch(boxBatch, m_elements[i]);
 					m_batches.push_back(boxBatch);
 					break;
@@ -89,6 +95,23 @@ namespace GuGu {
 	const std::vector<std::shared_ptr<BatchData>>& ElementList::getBatches() const
 	{
 		return m_batches;
+	}
+	int32_t ElementList::pushClip(const ClippingZone& inClipZone)
+	{
+		const int32_t newClipIndex = m_clippingManager.pushClip(inClipZone);
+		return newClipIndex;
+	}
+	void ElementList::popClip()
+	{
+		m_clippingManager.popClip();
+	}
+	int32_t ElementList::getClippintIndex() const
+	{
+		return m_clippingManager.getClippingIndex();
+	}
+	const ClippingState* ElementList::getClippingState(uint32_t clippingIndex) const
+	{
+		return m_clippingManager.getClippingState(clippingIndex);
 	}
 	void ElementList::generateBoxBatch(std::shared_ptr<BatchData> boxBatch, std::shared_ptr<Element> element)
 	{
@@ -151,6 +174,7 @@ namespace GuGu {
 				const GlyphEntry& entry = *characterList.getCharacter(Char);
 
 				std::shared_ptr<BatchData> batchData = std::make_shared<BatchData>();
+				batchData->m_clippingState = getClippingState(element->m_clipIndex);
 
 				const bool isWhiteSpace = Char.getUnicode().at(0) == 0;
 

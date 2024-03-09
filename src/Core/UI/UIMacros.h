@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include "Clipping.h"
+
 namespace GuGu {
 
 	template<typename WidgetType>
@@ -91,5 +93,10 @@ namespace GuGu {
 		{
 			return *(static_cast<typename WidgetType::BuilderArguments*>(this));
 		}
+
+		typename WidgetType::BuilderArguments& Clip(WidgetClipping inValue) { //todo:fix this
+			mClip = inValue; return Me();
+		} 
+		WidgetClipping mClip = WidgetClipping::Inherit;
 	};
 }

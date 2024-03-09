@@ -19,6 +19,8 @@ namespace GuGu {
 
 		virtual ~Element();
 
+		void setClipIndex(uint32_t clipIndex);
+
 		friend class ElementList;
 
 	private:
@@ -29,5 +31,7 @@ namespace GuGu {
 		uint32_t m_layer;
 
 		bool m_tiling;
+
+		uint32_t m_clipIndex;
 	};
 }
