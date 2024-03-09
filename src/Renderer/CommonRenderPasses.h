@@ -1,9 +1,35 @@
 #pragma once
 
 #include <Renderer/nvrhi.h>
+#include <Core/Math/MyMath.h>
 
 namespace GuGu{
+    class BindingCache;
     class ShaderFactory;
+
+	enum class BlitSampler
+	{
+		Point,
+		Linear,
+		Sharpen
+	};
+
+    struct BlitParameters
+    {
+        nvrhi::IFramebuffer* targetFramebuffer = nullptr;
+        nvrhi::Viewport targetViewport;
+        math::box2 targetBox = math::box2(0.0f, 1.0f);
+
+        nvrhi::ITexture* sourceTexture = nullptr;
+        uint32_t sourceArraySlice = 0;
+        uint32_t sourceMip = 0;
+        math::box2 sourceBox = math::box2(0.0f, 1.0f);
+        nvrhi::Format sourceFormat = nvrhi::Format::UNKNOWN;
+
+        BlitSampler sampler = BlitSampler::Linear;
+        nvrhi::BlendState::RenderTarget blendState;
+        Color blendConstantColor = Color(0.0f);
+    };
     class CommonRenderPasses
     {
     protected:
@@ -58,9 +84,9 @@ namespace GuGu{
 
         CommonRenderPasses(nvrhi::IDevice* device, std::shared_ptr<ShaderFactory> shaderFactory);
 
-        //void BlitTexture(nvrhi::ICommandList* commandList, const BlitParameters& params, BindingCache* bindingCache = nullptr);
+        void BlitTexture(nvrhi::ICommandList* commandList, const BlitParameters& params, BindingCache* bindingCache = nullptr);
 //
-        //// Simplified form of BlitTexture that blits the entire source texture, mip 0 slice 0, into the entire target framebuffer using a linear sampler.
-        //void BlitTexture(nvrhi::ICommandList* commandList, nvrhi::IFramebuffer* targetFramebuffer, nvrhi::ITexture* sourceTexture, BindingCache* bindingCache = nullptr);
+        // Simplified form of BlitTexture that blits the entire source texture, mip 0 slice 0, into the entire target framebuffer using a linear sampler.
+        void BlitTexture(nvrhi::ICommandList* commandList, nvrhi::IFramebuffer* targetFramebuffer, nvrhi::ITexture* sourceTexture, BindingCache* bindingCache = nullptr);
     };
 }

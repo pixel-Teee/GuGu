@@ -18,7 +18,8 @@ namespace GuGu {
 	enum class UIShaderType
 	{
 		Default,
-		Font
+		Font,
+		Line
 	};
 
 	struct BatchData
@@ -44,6 +45,8 @@ namespace GuGu {
 
 		static void addTextElement(ElementList& elementList, const WidgetGeometry& widgetGeometry, math::float4 color, std::shared_ptr<TextInfo> textInfo, const GuGuUtf8Str& text, uint32_t layer);
 
+		static void addLineElement(ElementList& elementList, const WidgetGeometry& widgetGeometry, math::float4 color, const std::vector<math::float2>& points, float thickNess, uint32_t layer);
+
 		void generateBatches();
 
 		const std::vector<std::shared_ptr<BatchData>>& getBatches() const;
@@ -63,6 +66,8 @@ namespace GuGu {
 		void generateBoxBatch(std::shared_ptr<BatchData> boxBatch, std::shared_ptr<Element> element);
 
 		void generateTextBatch(std::shared_ptr<Element> element);
+		
+		void generateLineBatch(std::shared_ptr<Element> element);
 
 		ClippingManager m_clippingManager;
 	};

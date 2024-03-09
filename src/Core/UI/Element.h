@@ -10,7 +10,8 @@ namespace GuGu {
 		enum ElementType
 		{
 			Box,
-			Text
+			Text,
+			Line
 		};
 
 		Element();

@@ -2126,4 +2126,31 @@ namespace std{
             return hash;
         }
     };
+
+	template<> struct hash<GuGu::nvrhi::BindingSetItem>
+	{
+		std::size_t operator()(GuGu::nvrhi::BindingSetItem const& s) const noexcept
+		{
+			size_t value = 0;
+			GuGu::nvrhi::hash_combine(value, s.resourceHandle);
+			GuGu::nvrhi::hash_combine(value, s.slot);
+			GuGu::nvrhi::hash_combine(value, s.type);
+			GuGu::nvrhi::hash_combine(value, s.dimension);
+			GuGu::nvrhi::hash_combine(value, s.format);
+			GuGu::nvrhi::hash_combine(value, s.rawData[0]);
+			GuGu::nvrhi::hash_combine(value, s.rawData[1]);
+			return value;
+		}
+	};
+
+	template<> struct hash<GuGu::nvrhi::BindingSetDesc>
+	{
+		std::size_t operator()(GuGu::nvrhi::BindingSetDesc const& s) const noexcept
+		{
+			size_t value = 0;
+			for (const auto& item : s.bindings)
+                GuGu::nvrhi::hash_combine(value, item);
+			return value;
+		}
+	};
 }

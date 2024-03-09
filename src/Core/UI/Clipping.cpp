@@ -8,7 +8,7 @@ namespace GuGu {
 		m_topLeft = math::float2(boundingGeometry.getAbsolutePosition().x, boundingGeometry.getAbsolutePosition().y);
 		m_topRight = math::float2(m_topLeft.x + boundingGeometry.getLocalSize().x, m_topLeft.y);
 		m_bottomLeft = math::float2(m_topLeft.x, m_topLeft.y + boundingGeometry.getLocalSize().y);
-		m_bottomRight = math::float2(m_topLeft.x + boundingGeometry.getLocalSize().x, m_topLeft.y + boundingGeometry.getLocalSize().x);
+		m_bottomRight = math::float2(m_topLeft.x + boundingGeometry.getLocalSize().x, m_topLeft.y + boundingGeometry.getLocalSize().y);
 
 		//m_topLeft = math::float2(0.0f, 0.0f);
 		//m_topRight = math::float2(200.0f, 0.0f);

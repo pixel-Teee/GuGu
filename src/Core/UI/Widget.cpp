@@ -29,6 +29,14 @@ namespace GuGu{
         {
             ClippingZone clippingZone(allocatedGeometry);
             elementList.pushClip(clippingZone);
+
+			std::vector<math::float2> points;
+            points.push_back(clippingZone.m_topLeft);
+            points.push_back(clippingZone.m_topRight);
+            points.push_back(clippingZone.m_bottomRight);
+            points.push_back(clippingZone.m_bottomLeft);
+            points.push_back(clippingZone.m_topLeft);
+            ElementList::addLineElement(elementList, WidgetGeometry(), math::float4(0.9f, 0.3f, 0.2f, 1.0f), points, 5.0f, layer);
         }
 
         //clipping

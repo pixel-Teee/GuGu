@@ -557,6 +557,8 @@ template<int n> vector<float, n> snorm8ToVector(uint v); // undefined
 template<> float2 snorm8ToVector<2>(uint v);
 template<> float3 snorm8ToVector<3>(uint v);
 template<> float4 snorm8ToVector<4>(uint v);
+
+bool lineIntersect(const math::float2& p1, const math::float2& p2, const math::float2& p3, const math::float2& p4, math::float2& intersect, float tolerance = 0.1f);
 }
 
 }

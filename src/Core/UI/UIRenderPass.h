@@ -64,12 +64,14 @@ namespace GuGu {
 		nvrhi::ShaderHandle m_vertexShader;
 		nvrhi::ShaderHandle m_pixelShader;
 		nvrhi::ShaderHandle m_pixelFontShader;
+		nvrhi::ShaderHandle m_lineShader;
 
 		nvrhi::InputLayoutHandle m_inputLayout;
 		nvrhi::BindingLayoutHandle m_bindingLayout;
 		nvrhi::BindingSetHandle m_bindingSet;
 		nvrhi::GraphicsPipelineHandle m_pipeline;
 		nvrhi::GraphicsPipelineHandle m_FontPipeline;
+		nvrhi::GraphicsPipelineHandle m_LinePipeline;
 		struct ConstantBufferEntry {
 			dm::float4x4 viewProjMatrix;
 			float padding[16 * 3];

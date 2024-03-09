@@ -3,6 +3,7 @@
 #include "ElementList.h"
 #include "Element.h"
 #include "BoxElement.h"
+#include "LineElement.h"
 #include "TextElement.h"
 #include "Brush.h"
 #include "FontCache.h"
@@ -34,6 +35,15 @@ namespace GuGu {
 		textElement->setClipIndex(elementList.getClippintIndex());
 		elementList.m_elements.push_back(textElement);
 	}
+	void ElementList::addLineElement(ElementList& elementList, const WidgetGeometry& widgetGeometry, math::float4 color, const std::vector<math::float2>& points, float thickNess, uint32_t layer)
+	{
+		std::shared_ptr<LineElement> lineElement = std::make_shared<LineElement>(Element::ElementType::Line, widgetGeometry, layer, false);
+		lineElement->m_thickNess = thickNess;
+		lineElement->m_points = points;
+		lineElement->m_color = color;
+		lineElement->setClipIndex(elementList.getClippintIndex());
+		elementList.m_elements.push_back(lineElement);
+	}
 	void ElementList::generateBatches()
 	{
 		std::stable_sort(m_elements.begin(), m_elements.end(), [=](const std::shared_ptr<Element>& lhs, const std::shared_ptr<Element>& rhs) {
@@ -60,6 +70,11 @@ namespace GuGu {
 					//generateTextBatch(textBatch, m_elements[i]);
 					//m_batches.push_back(textBatch);
 					generateTextBatch(m_elements[i]);
+					break;
+				}
+				case Element::ElementType::Line:
+				{
+					generateLineBatch(m_elements[i]);
 					break;
 				}
 			}
@@ -216,5 +231,79 @@ namespace GuGu {
 				lineX += entry.xAdvance;
 			}
 		}
+	}
+	void ElementList::generateLineBatch(std::shared_ptr<Element> element)
+	{
+		std::shared_ptr<LineElement> lineElement = std::static_pointer_cast<LineElement>(element);
+		math::double2 absolutePosition = lineElement->m_geometry.getAbsolutePosition(); //todo:add scale
+		math::float2 fAbsolutePosition = math::float2(absolutePosition.x, absolutePosition.y);
+		std::vector<math::float2> points = lineElement->m_points;
+		std::shared_ptr<BatchData> batchData = std::make_shared<BatchData>();
+		math::float4 color = lineElement->m_color;//todo:fix this
+		batchData->m_clippingState = getClippingState(element->m_clipIndex);
+		batchData->m_layer = element->m_layer;
+		batchData->shaderType = UIShaderType::Line;
+		const float filterScale = 1.0f;
+		float requestedThickness = lineElement->m_thickNess;
+		static const float twoRootTwo = 2 * 1.4142135623730950488016887242097f;//todo:fix this
+		const float lineThickness = twoRootTwo + requestedThickness;
+		const float halfThickness = lineThickness * 0.5f + filterScale;
+
+		math::float2 startPos = points[0];
+		math::float2 endPos = points[1];
+
+		math::float2 normal = math::normalize(math::float2(startPos.y - endPos.y, endPos.x - startPos.x));
+		math::float2 up = normal * halfThickness;
+
+		batchData->m_vertices.emplace_back(math::float4(1.0f, 0.0f, 0.0f, 0.0f), fAbsolutePosition + startPos + up, color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		batchData->m_vertices.emplace_back(math::float4(1.0f, 0.0f, 0.0f, 0.0f), fAbsolutePosition + startPos - up, color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+
+		for (int32_t point = 1; point < points.size(); ++point)
+		{
+			endPos = points[point];
+
+			bool bCheckIntersection = (point + 1) < points.size();
+
+			normal = math::normalize(math::float2(startPos.y - endPos.y, endPos.x - startPos.x));
+
+			up = normal * halfThickness;
+
+			math::float2 intersectUpper = endPos + up;
+			math::float2 intersectLower = endPos - up;
+
+			if (bCheckIntersection)
+			{
+				math::float2 nextEndPos = points[point + 1];
+
+				math::float2 nextNormal = math::normalize(math::float2(endPos.y - nextEndPos.y, nextEndPos.x - endPos.x));
+
+				math::float2 nextUp = nextNormal * halfThickness;
+
+				math::float2 intersectionPoint;
+				if (lineIntersect(startPos + up, endPos + up, endPos + nextUp, nextEndPos + nextUp, intersectionPoint))
+				{
+					intersectUpper = intersectionPoint;
+				}
+				if (lineIntersect(startPos - up, endPos - up, endPos - nextUp, nextEndPos - nextUp, intersectionPoint))
+				{
+					intersectLower = intersectionPoint;
+				}
+			}
+
+			batchData->m_vertices.emplace_back(math::float4(1.0f, 0.0f, 0.0f, 0.0f), fAbsolutePosition + intersectUpper, color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+			batchData->m_vertices.emplace_back(math::float4(0.0f, 0.0f, 0.0f, 0.0f), fAbsolutePosition + intersectLower, color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+
+			batchData->m_indices.emplace_back(2 * point + 0);
+			batchData->m_indices.emplace_back(2 * point - 2);
+			batchData->m_indices.emplace_back(2 * point - 1);
+
+			batchData->m_indices.emplace_back(2 * point + 1);
+			batchData->m_indices.emplace_back(2 * point + 0);
+			batchData->m_indices.emplace_back(2 * point - 1);
+
+			startPos = endPos;
+		}
+
+		m_batches.push_back(batchData);
 	}
 }

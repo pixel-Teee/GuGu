@@ -23,4 +23,28 @@ namespace GuGu{
         samplerDesc.setMaxAnisotropy(16);
         m_AnisotropicWrapSampler = m_Device->createSampler(samplerDesc);
     }
+    void CommonRenderPasses::BlitTexture(nvrhi::ICommandList* commandList, const BlitParameters& params, BindingCache* bindingCache)
+    {
+        const nvrhi::FramebufferDesc& targetFramebufferDesc = params.targetFramebuffer->getDesc();
+
+        const nvrhi::FramebufferInfoEx& fbInfo = params.targetFramebuffer->getFramebufferInfo();
+        const nvrhi::TextureDesc& sourceDesc = params.sourceTexture->getDesc();
+
+        //todo:add check texture array
+
+        nvrhi::Viewport targetViewport = params.targetViewport;
+        if (targetViewport.width() == 0 && targetViewport.height() == 0)
+        {
+            targetViewport = nvrhi::Viewport(float(fbInfo.width), float(fbInfo.height));
+        }
+
+        //todo:add more logic
+    }
+    void CommonRenderPasses::BlitTexture(nvrhi::ICommandList* commandList, nvrhi::IFramebuffer* targetFramebuffer, nvrhi::ITexture* sourceTexture, BindingCache* bindingCache)
+    {
+        BlitParameters params;
+        params.targetFramebuffer = targetFramebuffer;
+        params.sourceTexture = sourceTexture;
+        BlitTexture(commandList, params, bindingCache);
+    }
 }

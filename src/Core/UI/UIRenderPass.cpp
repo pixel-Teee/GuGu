@@ -83,7 +83,12 @@ namespace GuGu {
 		m_pixelFontShader = shaderFactory->CreateShader("asset/UIShader.hlsl", "main_ps", &macros,
 			nvrhi::ShaderType::Pixel);
 
-		if (!m_vertexShader || !m_pixelShader || !m_pixelFontShader)
+		macros.clear();
+		macros.push_back(ShaderMacro("UI_Line", "1"));
+		m_lineShader = shaderFactory->CreateShader("asset/UIShader.hlsl", "main_ps", &macros,
+			nvrhi::ShaderType::Pixel);
+
+		if (!m_vertexShader || !m_pixelShader || !m_pixelFontShader || !m_lineShader)
 			return false;
 
 		nvrhi::VertexAttributeDesc attributes[] = {
@@ -221,6 +226,21 @@ namespace GuGu {
 			m_FontPipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
 		}
 
+		if (!m_LinePipeline)
+		{
+			nvrhi::GraphicsPipelineDesc psoDesc;
+			psoDesc.VS = m_vertexShader;
+			psoDesc.PS = m_lineShader;
+			psoDesc.inputLayout = m_inputLayout;
+			psoDesc.bindingLayouts = { m_bindingLayout };
+			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+			//psoDesc.renderState.blendState.targets[0].setBlendEnable(true);
+			//psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
+			//psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
+			psoDesc.renderState.depthStencilState.depthTestEnable = false;
+			m_LinePipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
+		}
+
 		m_CommandList->open();
 
 		math::float3 cameraPos = math::float3(0.0f, 0.0f, 0.0f);
@@ -262,10 +282,12 @@ namespace GuGu {
 				{ m_VertexBuffers[i], 2, offsetof(UIVertex, color)},
 				{ m_VertexBuffers[i], 3, offsetof(UIVertex, secondaryColor)}
 			};
-			if(m_elementList->getBatches()[i]->shaderType == UIShaderType::Default)
+			if (m_elementList->getBatches()[i]->shaderType == UIShaderType::Default)
 				state.pipeline = m_pipeline;
-			else if(m_elementList->getBatches()[i]->shaderType == UIShaderType::Font)
+			else if (m_elementList->getBatches()[i]->shaderType == UIShaderType::Font)
 				state.pipeline = m_FontPipeline;
+			else
+				state.pipeline = m_LinePipeline;
 			state.framebuffer = framebuffer;
 
 			// Construct the viewport so that all viewports form a grid.

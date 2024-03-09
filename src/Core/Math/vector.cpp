@@ -108,5 +108,41 @@ namespace GuGu {
 			float w = static_cast<signed char>((v >> 24) & 0xff);
 			return max(float4(x, y, z, w) / 127.0f, float4(-1.f));
 		}
+
+		bool lineIntersect(const math::float2& p1, const math::float2& p2, const math::float2& p3, const math::float2& p4, math::float2& intersect, float tolerance)
+		{
+			float NumA = ((p4.x - p3.x) * (p1.y - p3.y) - (p4.y - p3.y) * (p1.x - p3.x));
+			float NumB = ((p2.x - p1.x) * (p1.y - p3.y) - (p2.y - p1.y) * (p1.x - p3.x));
+
+			float Denom = (p4.y - p3.y) * (p2.x - p1.x) - (p4.x - p3.x) * (p2.y - p1.y);
+
+			if (isnear(NumA, 0) && isnear(NumB, 0))
+			{
+				// Lines are the same
+				math::float2 p = p1 + p2;
+				intersect = math::float2(p.x / 2, p.y / 2);//todo:fix this
+				return true;
+			}
+
+			if (isnear(Denom, 0))
+			{
+				// Lines are parallel
+				return false;
+			}
+
+			float B = NumB / Denom;
+			float A = NumA / Denom;
+
+			// Note that this is a "tweaked" intersection test for the purpose of joining line segments.  We don't just want to know if the line segments
+			// Intersect, but where they would if they don't currently. Except that we don't care in the case that where the segments 
+			// intersection is so far away that its infeasible to use the intersection point later.
+			if (A >= -tolerance && A <= (1.0f + tolerance) && B >= -tolerance && B <= (1.0f + tolerance))
+			{
+				intersect = p1 + A * (p2 - p1);
+				return true;
+			}
+
+			return false;
+		}
 	}
 }
