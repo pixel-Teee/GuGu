@@ -39,8 +39,8 @@ namespace GuGu{
             ElementList::addLineElement(elementList, WidgetGeometry(), math::float4(0.9f, 0.3f, 0.2f, 1.0f), points, 1.0f, layer + 1);
 
             //math::float2 direction = math::float2(150.0f, 0.0f);
-            //ElementList::addSplineElement(elementList, WidgetGeometry(), math::float4(1.0f, 1.0f, 1.0f, 1.0f), clippingZone.m_topLeft, direction,
-            //    clippingZone.m_bottomRight, direction, 0.02f, layer);
+			//ElementList::addSplineElement(elementList, WidgetGeometry(), math::float4(1.0f, 1.0f, 1.0f, 1.0f), clippingZone.m_topLeft, direction,
+			//	clippingZone.m_bottomRight, direction, 0.02f, layer);
         }
 
         //clipping
