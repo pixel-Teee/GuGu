@@ -14,6 +14,7 @@
 
 #include "Border.h"
 #include "Button.h"
+#include "Overlay.h"
 #include "BoxPanel.h"
 #include "ImageWidget.h"
 #include "WindowWidget.h"
@@ -525,16 +526,24 @@ namespace GuGu {
 					+ VerticalBox::Slot()
 					.FixedHeight()
 					(
-						WIDGET_NEW(Border)
-						.verticalAlignment(VerticalAlignment::Center)
-						.horizontalAlignment(HorizontalAlignment::Right)
-						.padding(Padding(0.0f, 0.0f, 10.0f, 0.0f))
-						.brush(m_styles->getBrush("headerBackground"))
-						.Content
+						WIDGET_NEW(Overlay)
+						+ Overlay::Slot()
+						.HorizontalAlignment(HorizontalAlignment::Stretch)
+						.VerticalAlignment(VerticalAlignment::Stretch)
+						(
+							WIDGET_NEW(ImageWidget)
+							//.Clip(WidgetClipping::ClipToBounds)
+							.brush(m_styles->getBrush("headerBackground"))
+						)
+						+ Overlay::Slot()
+						.HorizontalAlignment(HorizontalAlignment::Right)
+						.VerticalAlignment(VerticalAlignment::Center)
+						.Padding(Padding(0.0f, 0.0f, 10.0f, 0.0f))
 						(
 							WIDGET_NEW(Button)
 							.buttonSyle(m_styles->getStyle<ButtonStyle>("closeButton"))
-							.contentPadding(Padding(10.0f, 10.0f, 10.0f, 10.0f))
+							//.contentPadding(Padding(10.0f, 10.0f, 10.0f, 10.0f))
+							//.Clip(WidgetClipping::ClipToBounds)
 							.ClickedLambda([&] {
 									static uint32_t i = 0;
 									
@@ -549,8 +558,8 @@ namespace GuGu {
 									}
 									return Reply::Unhandled();
 								}
-							)		
-						)				
+							)	
+						)
 					)
 					+ VerticalBox::Slot()
 					.FixedHeight()
@@ -559,6 +568,7 @@ namespace GuGu {
 						.verticalAlignment(VerticalAlignment::Center)
 						.horizontalAlignment(HorizontalAlignment::Center)
 						.brush(m_styles->getBrush("background"))
+						//.Clip(WidgetClipping::ClipToBounds)
 						.Content
 						(
 							WIDGET_NEW(TextBlockWidget)

@@ -20,6 +20,7 @@ namespace GuGu {
 		m_clicked = arguments.mClicked;
 		m_contentPadding = arguments.mcontentPadding;
 		m_imageBursh = m_buttonStyle->m_normal;
+		m_widgetClipping = arguments.mClip;
 	}
 	uint32_t Button::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{

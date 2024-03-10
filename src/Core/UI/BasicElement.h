@@ -38,6 +38,11 @@ namespace GuGu {
 			: left(inLeft), top(inTop), right(inRight), bottom(inBottom)
 		{}
 
+		math::float2 getFixedSize() const
+		{
+			return math::float2(left + right, top + bottom);
+		}
+
 		template<Orientation orientation>
 		float getTotalSpaceAlong() const
 		{

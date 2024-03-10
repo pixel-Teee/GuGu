@@ -167,7 +167,7 @@ namespace GuGu {
 			{
 				std::shared_ptr<Widget> widget = childWidget->getWidget();
 
-				const uint32_t curWidgetsMaxLayerId = childWidget->getWidget()->onGenerateElement(paintArgs, cullingRect, elementList, childWidget->getWidgetGeometry(), layer);
+				const uint32_t curWidgetsMaxLayerId = childWidget->getWidget()->generateElement(paintArgs, cullingRect, elementList, childWidget->getWidgetGeometry(), layer);
 				maxLayerId = std::max(maxLayerId, curWidgetsMaxLayerId);
 			}		
 		}
@@ -222,6 +222,7 @@ namespace GuGu {
 			//m_childrens[i] = std::reinterpret_pointer_cast<BoxPanelSlot>(boxSlot);
             m_childrens[i] = std::static_pointer_cast<BoxPanelSlot>(std::static_pointer_cast<SlotBase>(boxSlot));
 		}
+		m_widgetClipping = arguments.mClip;
 	}
 	VerticalBox::VerticalBox()
 		: BoxPanel(Orientation::Vertical)
@@ -241,5 +242,6 @@ namespace GuGu {
 			//m_childrens[i] = std::reinterpret_pointer_cast<BoxPanelSlot>(boxSlot);
 			m_childrens[i] = std::static_pointer_cast<BoxPanelSlot>(std::static_pointer_cast<SlotBase>(boxSlot));
 		}
+		m_widgetClipping = arguments.mClip;
 	}
 }

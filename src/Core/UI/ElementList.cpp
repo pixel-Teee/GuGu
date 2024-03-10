@@ -4,10 +4,12 @@
 #include "Element.h"
 #include "BoxElement.h"
 #include "LineElement.h"
+#include "SplineElement.h"
 #include "TextElement.h"
 #include "Brush.h"
 #include "FontCache.h"
 #include "CharacterList.h"
+#include "LineBuilder.h"
 
 namespace GuGu {
 	ElementList::ElementList()
@@ -44,6 +46,14 @@ namespace GuGu {
 		lineElement->setClipIndex(elementList.getClippintIndex());
 		elementList.m_elements.push_back(lineElement);
 	}
+	void ElementList::addSplineElement(ElementList& elementList, const WidgetGeometry& widgetGeometry, math::float4 color, const math::float2& inStart, const math::float2& inStartDir, const math::float2& inEnd, const math::float2& inEndDir, float thickNess, uint32_t layer)
+	{
+		std::shared_ptr<SplineElement> lineElement = std::make_shared<SplineElement>(Element::ElementType::Spline, widgetGeometry, layer);
+		lineElement->setHermiteSpline(inStart, inStartDir, inEnd, inEndDir, thickNess, color);
+		//lineElement->m_points = points;
+		lineElement->setClipIndex(elementList.getClippintIndex());
+		elementList.m_elements.push_back(lineElement);
+	}
 	void ElementList::generateBatches()
 	{
 		std::stable_sort(m_elements.begin(), m_elements.end(), [=](const std::shared_ptr<Element>& lhs, const std::shared_ptr<Element>& rhs) {
@@ -77,6 +87,11 @@ namespace GuGu {
 					generateLineBatch(m_elements[i]);
 					break;
 				}
+				case Element::ElementType::Spline:
+				{
+					generateSplineBatch(m_elements[i]);
+					break;
+				}
 			}
 		}
 
@@ -87,7 +102,7 @@ namespace GuGu {
 		{
 			if (m_batches[i]->shaderType == m_batches[lastBatch]->shaderType
 				&& m_batches[i]->m_texture == m_batches[lastBatch]->m_texture
-				&& m_batches[i]->m_layer == m_batches[lastBatch]->m_layer)
+				&& m_batches[i]->m_layer == m_batches[lastBatch]->m_layer && m_batches[i]->m_clippingState == m_batches[lastBatch]->m_clippingState)
 			{
 				int32_t indexOffset = m_batches[lastBatch]->m_vertices.size();
 				m_batches[lastBatch]->m_vertices.insert(m_batches[lastBatch]->m_vertices.end(), m_batches[i]->m_vertices.begin(), m_batches[i]->m_vertices.end());
@@ -303,6 +318,29 @@ namespace GuGu {
 
 			startPos = endPos;
 		}
+
+		m_batches.push_back(batchData);
+	}
+	void ElementList::generateSplineBatch(std::shared_ptr<Element> element)
+	{
+		std::shared_ptr<SplineElement> lineElement = std::static_pointer_cast<SplineElement>(element);
+		math::double2 absolutePosition = lineElement->m_geometry.getAbsolutePosition(); //todo:add scale
+		math::float2 fAbsolutePosition = math::float2(absolutePosition.x, absolutePosition.y);
+
+		std::shared_ptr<BatchData> batchData = std::make_shared<BatchData>();
+		math::float4 color = lineElement->m_color;//todo:fix this
+		batchData->m_clippingState = getClippingState(element->m_clipIndex);
+		batchData->m_layer = element->m_layer;
+		batchData->shaderType = UIShaderType::Line;
+		const float filterScale = 1.0f;
+		float requestedThickness = lineElement->m_thickNess;
+		static const float twoRootTwo = 2 * 1.4142135623730950488016887242097f;//todo:fix this
+		const float lineThickness = twoRootTwo + requestedThickness;
+		const float halfThickness = lineThickness * 0.5f + filterScale;
+
+		LineBuilder lineBuilder(*batchData, lineElement->P0, halfThickness, lineElement->m_geometry, Color(color.x, color.y, color.z, color.w));
+
+		lineBuilder.buildBezierGeometry(lineElement->P0, lineElement->P1, lineElement->P2, lineElement->P3);
 
 		m_batches.push_back(batchData);
 	}

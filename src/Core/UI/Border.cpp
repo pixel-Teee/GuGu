@@ -21,6 +21,7 @@ namespace GuGu {
 		m_childWidget->setHorizontalAlignment(arguments.mhorizontalAlignment);
 		m_childWidget->setVerticalAlignment(arguments.mverticalAlignment);
 		m_childWidget->setPadding(arguments.mpadding);
+		m_widgetClipping = arguments.mClip;
 	}
 	uint32_t Border::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
