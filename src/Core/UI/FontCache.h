@@ -35,7 +35,7 @@ namespace GuGu {
 
 		void Init(std::shared_ptr<FileSystem> fileSystem);
 
-		math::double2 measureText(const GuGuUtf8Str& str, const TextInfo& textInfo, float inScale);//todo:add font scale
+		math::float2 measureText(const GuGuUtf8Str& str, const TextInfo& textInfo, float inScale);//todo:add font scale
 
 		std::shared_ptr<AtlasedTextureSlot> addCharacter(uint16_t inSizeX, uint16_t inSizeY, std::vector<uint8_t>& rawPixels);
 

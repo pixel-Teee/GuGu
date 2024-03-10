@@ -23,7 +23,7 @@ namespace GuGu {
 		m_windowType = arguments.mType;
 		m_childWidget = arguments.mContent;
 	}
-	uint32_t WindowWidget::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
+	uint32_t WindowWidget::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
 		ArrangedWidgetArray arrangedWidgetArray;
 		AllocationChildActualSpace(allocatedGeometry, arrangedWidgetArray);
@@ -49,11 +49,11 @@ namespace GuGu {
 
 		return maxLayer;
 	}
-	math::double2 WindowWidget::ComputeFixedSize(float inLayoutScaleMultiplier)
+	GuGu::math::float2 WindowWidget::ComputeFixedSize(float inLayoutScaleMultiplier)
 	{
 		return m_childWidget->getChildWidget()->getFixedSize();
 	}
-	void WindowWidget::AllocationChildActualSpace(WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray)
+	void WindowWidget::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray)
 	{
 		//arrange single children
 		uint32_t slotNumber = getSlotsNumber();

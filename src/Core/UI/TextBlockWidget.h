@@ -35,9 +35,9 @@ namespace GuGu {
 
 		void init(const BuilderArguments& arguments);
 
-		virtual uint32_t onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer) override;
+		virtual uint32_t onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer) override;
 
-		virtual math::double2 ComputeFixedSize(float inLayoutScaleMultiplier) override;
+		virtual math::float2 ComputeFixedSize(float inLayoutScaleMultiplier) override;
 
 		void setText(GuGuUtf8Str& newText);
 	private:

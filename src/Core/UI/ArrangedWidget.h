@@ -11,9 +11,9 @@ namespace GuGu {
 
 		virtual ~ArrangedWidget();
 
-		std::shared_ptr<Widget> getWidget();
+		std::shared_ptr<Widget> getWidget() const;
 
-		WidgetGeometry& getWidgetGeometry();
+		const WidgetGeometry& getWidgetGeometry() const;
 	private:
 		WidgetGeometry m_widgetGeometry;
 		std::shared_ptr<Widget> m_widget;

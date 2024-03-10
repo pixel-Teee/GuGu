@@ -12,6 +12,7 @@
 #include "BasicElement.h"
 #include "ElementList.h"
 
+#include "Graph.h"
 #include "Border.h"
 #include "Button.h"
 #include "Overlay.h"
@@ -529,17 +530,17 @@ namespace GuGu {
 					(
 						WIDGET_NEW(Overlay)
 						+ Overlay::Slot()
-						.HorizontalAlignment(HorizontalAlignment::Stretch)
-						.VerticalAlignment(VerticalAlignment::Stretch)
+						.setHorizontalAlignment(HorizontalAlignment::Stretch)
+						.setVerticalAlignment(VerticalAlignment::Stretch)
 						(
 							WIDGET_NEW(ImageWidget)
 							//.Clip(WidgetClipping::ClipToBounds)
 							.brush(m_styles->getBrush("headerBackground"))
 						)
 						+ Overlay::Slot()
-						.HorizontalAlignment(HorizontalAlignment::Right)
-						.VerticalAlignment(VerticalAlignment::Center)
-						.Padding(Padding(0.0f, 0.0f, 10.0f, 0.0f))
+						.setHorizontalAlignment(HorizontalAlignment::Right)
+						.setVerticalAlignment(VerticalAlignment::Center)
+						.setPadding(Padding(0.0f, 0.0f, 10.0f, 0.0f))
 						(
 							WIDGET_NEW(Button)
 							.buttonSyle(m_styles->getStyle<ButtonStyle>("closeButton"))
@@ -598,6 +599,11 @@ namespace GuGu {
 								.brush(m_styles->getBrush("fun"))
 							)
 						)
+					)
+					+ VerticalBox::Slot()
+					.FixedHeight()
+					(
+						WIDGET_NEW(Graph)
 					)
 				)
 			);

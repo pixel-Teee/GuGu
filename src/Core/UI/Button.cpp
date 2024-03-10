@@ -22,7 +22,7 @@ namespace GuGu {
 		m_imageBursh = m_buttonStyle->m_normal;
 		m_widgetClipping = arguments.mClip;
 	}
-	uint32_t Button::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
+	uint32_t Button::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
 		ArrangedWidgetArray arrangedWidgetArray;
 		if (m_childWidget) //todo:add null widget
@@ -48,9 +48,9 @@ namespace GuGu {
 
 		return maxLayer;
 	}
-	math::double2 Button::ComputeFixedSize(float inLayoutScaleMultiplier)
+	GuGu::math::float2 Button::ComputeFixedSize(float inLayoutScaleMultiplier)
 	{
-		return math::double2(m_imageBursh.Get()->m_actualSize.x, m_imageBursh.Get()->m_actualSize.y);
+		return math::float2(m_imageBursh.Get()->m_actualSize.x, m_imageBursh.Get()->m_actualSize.y);
 	}
 
 	Reply Button::OnMouseButtonDown(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent)

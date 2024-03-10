@@ -16,7 +16,7 @@ namespace GuGu{
 
     }
 
-    uint32_t Widget::generateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
+    uint32_t Widget::generateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
     {
 		paintArgs.m_allWidgets.push_back(shared_from_this());
 		m_geometry = allocatedGeometry;
@@ -54,17 +54,17 @@ namespace GuGu{
         return maxLayer;
     }
 
-    uint32_t Widget::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
+    uint32_t Widget::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
     {
         return layer;
     }
 
-    math::double2 Widget::ComputeFixedSize(float inLayoutScaleMultiplier) {
+    GuGu::math::float2 Widget::ComputeFixedSize(float inLayoutScaleMultiplier) {
         //noting to do
-        return math::double2(0.0, 0.0);
+        return math::float2(0.0, 0.0);
     }
 
-    void Widget::AllocationChildActualSpace(WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) {
+    void Widget::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) {
         //noting to do
     }
     Reply Widget::OnMouseButtonDown(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
@@ -83,8 +83,8 @@ namespace GuGu{
 	{
 		return 0;
 	}
-    math::double2 Widget::getFixedSize() const
-    {
+    GuGu::math::float2 Widget::getFixedSize() const
+{
         return m_fixedSize;
     }
     const WidgetGeometry& Widget::getWidgetGeometry() const
@@ -95,14 +95,14 @@ namespace GuGu{
     {
         return m_layer;
     }
-    void Widget::setFixedSize(math::double2 fixedSize)
+    void Widget::setFixedSize(math::float2 fixedSize)
     {
         m_fixedSize = fixedSize;
     }
     void Widget::prepass(float inLayoutScaleMultiplier)
     {
 		uint32_t widgetNumbers = getSlotsNumber();
-		math::double2 size = math::double2(0.0, 0.0);
+		math::float2 size = math::float2(0.0, 0.0);
 		for (size_t i = 0; i < widgetNumbers; ++i)
 		{
 			SlotBase* childSlot = getSlot(i);

@@ -21,7 +21,7 @@ namespace GuGu {
 		}
 		m_widgetClipping = arguments.mClip;
 	}
-	uint32_t Overlay::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
+	uint32_t Overlay::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
 		uint32_t maxLayerId = layer;
 
@@ -43,7 +43,7 @@ namespace GuGu {
 
 		return maxLayerId;
 	}
-	math::double2 Overlay::ComputeFixedSize(float inLayoutScaleMultiplier)
+	GuGu::math::float2 Overlay::ComputeFixedSize(float inLayoutScaleMultiplier)
 	{
 		math::float2 maxSize(0.0f, 0.0f);
 		for (int32_t childIndex = 0; childIndex < m_childrens.size(); ++childIndex)
@@ -51,15 +51,15 @@ namespace GuGu {
 			const OverlaySlot& curSlot = *m_childrens[childIndex];
 
 			//todo:add visibility
-			math::double2 childSize = curSlot.getChildWidget()->getFixedSize();
+			math::float2 childSize = curSlot.getChildWidget()->getFixedSize();
 			math::float2 childDesiredSize = math::float2(childSize.x, childSize.y) + curSlot.getPadding().getFixedSize();
 			maxSize.x = std::max(maxSize.x, childDesiredSize.x);
 			maxSize.y = std::max(maxSize.y, childDesiredSize.y);
 		}
 
-		return math::double2(maxSize.x, maxSize.y);
+		return math::float2(maxSize.x, maxSize.y);
 	}
-	void Overlay::AllocationChildActualSpace(WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray)
+	void Overlay::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray)
 	{
 		for (int32_t childIndex = 0; childIndex < m_childrens.size(); ++childIndex)
 		{

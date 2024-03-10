@@ -20,11 +20,11 @@ namespace GuGu {
 
 		math::float2 getAbsolutePosition() const;
 
-		math::affine2 getAccumulateTransform();
+		math::affine2 getAccumulateTransform() const;
 
-		WidgetGeometry getChildGeometry(math::float2 inLocalSize, math::float2 inTranslation, math::affine2 parentAccumulateTransform);
+		WidgetGeometry getChildGeometry(math::float2 inLocalSize, math::float2 inTranslation, const math::affine2 parentAccumulateTransform) const;
 
-		WidgetGeometry getOffsetGeometry(math::float2 inTranslation);
+		WidgetGeometry getOffsetGeometry(math::float2 inTranslation) const;
 
 		math::box2 getRenderBoundingRect() const;
 

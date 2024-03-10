@@ -11,11 +11,11 @@ namespace GuGu {
 	ArrangedWidget::~ArrangedWidget()
 	{
 	}
-	std::shared_ptr<Widget> ArrangedWidget::getWidget()
+	std::shared_ptr<Widget> ArrangedWidget::getWidget() const
 	{
 		return m_widget;
 	}
-	WidgetGeometry& ArrangedWidget::getWidgetGeometry()
+	const WidgetGeometry& ArrangedWidget::getWidgetGeometry() const
 	{
 		return m_widgetGeometry;
 	}

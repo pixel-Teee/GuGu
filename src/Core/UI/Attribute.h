@@ -69,6 +69,11 @@ namespace GuGu {
 			return m_value;
 		}
 
+		bool IsSet() const
+		{
+			return m_bIsSet;
+		}
+
 	private:
 		Attribute(const std::function<ObjectType(void)>& inGetter, bool bExplicitConstructor)
 			: m_value()

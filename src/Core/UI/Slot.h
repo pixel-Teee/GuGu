@@ -58,19 +58,19 @@ namespace GuGu {
 				return Me();
 			}
 
-			typename SlotType::SlotBuilderArguments& Padding(Padding inPadding)
+			typename SlotType::SlotBuilderArguments& setPadding(Padding inPadding)
 			{
 				m_slot->setPadding(inPadding);
 				return Me();
 			}
 
-			typename SlotType::SlotBuilderArguments& HorizontalAlignment(HorizontalAlignment horizontalAlignment)
+			typename SlotType::SlotBuilderArguments& setHorizontalAlignment(HorizontalAlignment horizontalAlignment)
 			{
 				m_slot->setHorizontalAlignment(horizontalAlignment);
 				return Me();
 			}
 
-			typename SlotType::SlotBuilderArguments& VerticalAlignment(VerticalAlignment verticalAlignment)
+			typename SlotType::SlotBuilderArguments& setVerticalAlignment(VerticalAlignment verticalAlignment)
 			{
 				m_slot->setVerticalAlignment(verticalAlignment);
 				return Me();

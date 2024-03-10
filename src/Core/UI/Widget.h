@@ -27,13 +27,13 @@ namespace GuGu{
 
         virtual ~Widget();
 
-		uint32_t generateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer);
+		uint32_t generateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer);
 
-        virtual uint32_t onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer);
+        virtual uint32_t onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer);
 
-        virtual math::double2 ComputeFixedSize(float inLayoutScaleMultiplier);
+        virtual math::float2 ComputeFixedSize(float inLayoutScaleMultiplier);
 
-        virtual void AllocationChildActualSpace(WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray);
+        virtual void AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray);
 
         virtual Reply OnMouseButtonDown(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent);
 
@@ -43,20 +43,20 @@ namespace GuGu{
 
 		virtual uint32_t getSlotsNumber();
 
-        virtual math::double2 getFixedSize() const;
+        virtual math::float2 getFixedSize() const;
 
         const WidgetGeometry& getWidgetGeometry() const;
 
         uint32_t getLayer() const;
 
-        void setFixedSize(math::double2 fixedSize);
+        void setFixedSize(math::float2 fixedSize);
 
         void prepass(float inLayoutScaleMultiplier);
 
         math::box2 calculateCullingAndClippingRules(const WidgetGeometry& allottedGeometry, const math::box2 cullingRect, bool& bClipToBounds);
     protected:
         WidgetGeometry m_geometry;
-        math::double2 m_fixedSize;
+        math::float2 m_fixedSize;
         uint32_t m_layer;
         WidgetClipping m_widgetClipping;
     };

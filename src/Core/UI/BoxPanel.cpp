@@ -8,7 +8,7 @@
 
 namespace GuGu {
 	template<Orientation orientation, typename SlotType>
-	static void ArrangeChildrenAlong(std::vector<SlotType>& childrens, WidgetGeometry& widgetGeometry, ArrangedWidgetArray& arrangedWidgetArray)
+	static void ArrangeChildrenAlong(std::vector<SlotType>& childrens, const WidgetGeometry& widgetGeometry, ArrangedWidgetArray& arrangedWidgetArray)
 	{
 		if (childrens.size() > 0)
 		{
@@ -28,7 +28,7 @@ namespace GuGu {
 				}
 				else
 				{
-					math::double2 childFixedSize = curChild->getChildWidget()->getFixedSize();
+					math::float2 childFixedSize = curChild->getChildWidget()->getFixedSize();
 
 					//fixed size children contribute their fixed size to the fixed space requirement
 					const float childSize = (orientation == Orientation::Vertical) ? childFixedSize.y : childFixedSize.x;
@@ -58,7 +58,7 @@ namespace GuGu {
 				}
 				else
 				{
-					math::double2 childFixedSize = curChild->getChildWidget()->getFixedSize();
+					math::float2 childFixedSize = curChild->getChildWidget()->getFixedSize();
 
 					//fixed sized widgets get their desired size value
 					childSize = (orientation == Orientation::Vertical) ? childFixedSize.y : childFixedSize.x;
@@ -103,7 +103,7 @@ namespace GuGu {
 		{
 			const SlotType& curChild = childrens[childIndex];
 
-			math::double2 childFixedSize = curChild->getChildWidget()->getFixedSize();
+			math::float2 childFixedSize = curChild->getChildWidget()->getFixedSize();
 
 			if (orientation == Orientation::Vertical)
 			{
@@ -152,7 +152,7 @@ namespace GuGu {
 	{
 		
 	}
-	uint32_t BoxPanel::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
+	uint32_t BoxPanel::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
 		uint32_t maxLayerId = layer;
 
@@ -174,15 +174,15 @@ namespace GuGu {
 
 		return maxLayerId;
 	}
-	math::double2 BoxPanel::ComputeFixedSize(float inLayoutScaleMultiplier)
+	GuGu::math::float2 BoxPanel::ComputeFixedSize(float inLayoutScaleMultiplier)
 	{
 		math::float2 fixedSize = (m_orientation == Orientation::Horizontal) 
 			? ComputeDesiredSizeForBox<Orientation::Horizontal>(m_childrens)
 			: ComputeDesiredSizeForBox<Orientation::Vertical>(m_childrens);
 
-		return math::double2(fixedSize.x, fixedSize.y);
+		return fixedSize;
 	}
-	void BoxPanel::AllocationChildActualSpace(WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray)
+	void BoxPanel::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray)
 	{
 		if (m_orientation == Orientation::Horizontal)
 		{

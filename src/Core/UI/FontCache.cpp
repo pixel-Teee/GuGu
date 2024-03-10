@@ -33,14 +33,14 @@ namespace GuGu {
 	{
 		m_fileSystem = fileSystem;
 	}
-	math::double2 FontCache::measureText(const GuGuUtf8Str& str, const TextInfo& textInfo, float inScale)
+	math::float2 FontCache::measureText(const GuGuUtf8Str& str, const TextInfo& textInfo, float inScale)
 	{
 		std::shared_ptr<CharacterList> characterList = getCharacterList(textInfo, inScale);
 
 		const uint16_t maxHeight = characterList->getMaxHeight();
 
 		//the size of the string
-		math::double2 size(0, 0);
+		math::float2 size(0, 0);
 		//widest line encountered while drawing this text
 		int32_t maxLineWidth = 0;
 		//the width of the current line so far

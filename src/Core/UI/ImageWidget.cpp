@@ -20,15 +20,15 @@ namespace GuGu {
 			m_imageBursh = arguments.mbrush;
 		m_widgetClipping = arguments.mClip;
 	}
-	uint32_t ImageWidget::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
+	uint32_t ImageWidget::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
 		ElementList::addBoxElement(elementList, allocatedGeometry, math::float4(1.0f, 1.0f, 1.0f, 1.0f), m_imageBursh.Get(), layer);
 
 		return layer;
 	}
-	math::double2 ImageWidget::ComputeFixedSize(float inLayoutScaleMultiplier)
+	GuGu::math::float2 ImageWidget::ComputeFixedSize(float inLayoutScaleMultiplier)
 	{
-		return math::double2(m_imageBursh.Get()->m_actualSize.x, m_imageBursh.Get()->m_actualSize.y);
+		return math::float2(m_imageBursh.Get()->m_actualSize.x, m_imageBursh.Get()->m_actualSize.y);
 	}
 
 }

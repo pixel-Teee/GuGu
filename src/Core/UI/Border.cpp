@@ -23,7 +23,7 @@ namespace GuGu {
 		m_childWidget->setPadding(arguments.mpadding);
 		m_widgetClipping = arguments.mClip;
 	}
-	uint32_t Border::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
+	uint32_t Border::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
 		ArrangedWidgetArray arrangedWidgetArray;
 		AllocationChildActualSpace(allocatedGeometry, arrangedWidgetArray);
@@ -46,12 +46,12 @@ namespace GuGu {
 
 		return maxLayer;
 	}
-	math::double2 Border::ComputeFixedSize(float inLayoutScaleMultiplier)
+	GuGu::math::float2 Border::ComputeFixedSize(float inLayoutScaleMultiplier)
 	{
 		//return m_childWidget->getChildWidget()->getFixedSize();
-		return math::double2(m_imageBursh.Get()->m_actualSize.x, m_imageBursh.Get()->m_actualSize.y);
+		return math::float2(m_imageBursh.Get()->m_actualSize.x, m_imageBursh.Get()->m_actualSize.y);
 	}
-	void Border::AllocationChildActualSpace(WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray)
+	void Border::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray)
 	{
 		//arrange single children
 		uint32_t slotNumber = getSlotsNumber();
@@ -62,7 +62,7 @@ namespace GuGu {
 			AlignmentArrangeResult xalignmentResult = AlignChild<Orientation::Horizontal>(*getSlot(0), allocatedGeometry.getLocalSize().x);
 			AlignmentArrangeResult yAlignmentResult = AlignChild<Orientation::Vertical>(*getSlot(0), allocatedGeometry.getLocalSize().y);
 
-			WidgetGeometry childGeometry = allocatedGeometry.getChildGeometry(math::float2(xalignmentResult.m_size, yAlignmentResult.m_size), math::float2(xalignmentResult.m_offset, yAlignmentResult.m_offset), allocatedGeometry.getAccumulateTransform());
+			const WidgetGeometry childGeometry = allocatedGeometry.getChildGeometry(math::float2(xalignmentResult.m_size, yAlignmentResult.m_size), math::float2(xalignmentResult.m_offset, yAlignmentResult.m_offset), allocatedGeometry.getAccumulateTransform());
 
 			arrangedWidgetArray.pushWidget(childGeometry, getSlot(0)->getChildWidget());
 		}

@@ -22,7 +22,7 @@ namespace GuGu {
 		m_widgetClipping = arguments.mClip;
 	}
 
-	uint32_t TextBlockWidget::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, WidgetGeometry& allocatedGeometry, uint32_t layer)
+	uint32_t TextBlockWidget::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
 		math::float2 shadowOffset = m_textStyle->m_shadowOffset;
 		math::float4 shadowColor = m_textStyle->m_shadowColor;
@@ -40,7 +40,7 @@ namespace GuGu {
 
 		return layer;
 	}
-	math::double2 TextBlockWidget::ComputeFixedSize(float inLayoutScaleMultiplier)
+	GuGu::math::float2 TextBlockWidget::ComputeFixedSize(float inLayoutScaleMultiplier)
 	{
 		return FontCache::getFontCache()->measureText(m_text.Get(), *m_textStyle->m_textInfo, inLayoutScaleMultiplier);
 	}

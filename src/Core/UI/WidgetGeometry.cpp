@@ -35,11 +35,11 @@ namespace GuGu {
 	{
 		return mAbsoluteScale;
 	}
-	math::affine2 WidgetGeometry::getAccumulateTransform()
+	math::affine2 WidgetGeometry::getAccumulateTransform() const
 	{
 		return mAccumulateTransform;
 	}
-	WidgetGeometry WidgetGeometry::getChildGeometry(math::float2 inLocalSize, math::float2 inTranslation, math::affine2 parentAccumulateTransform)
+	WidgetGeometry WidgetGeometry::getChildGeometry(math::float2 inLocalSize, math::float2 inTranslation, const math::affine2 parentAccumulateTransform) const
 	{
 		math::affine2 localLayoutTransform(math::float2x2::identity(), inTranslation);
 		WidgetGeometry childGeometry;
@@ -50,7 +50,7 @@ namespace GuGu {
 		childGeometry.mAbsoluteScale = childGeometry.mAccumulateTransform.m_linear[0][0];//fix:to get scale factor
 		return childGeometry;
 	}
-	WidgetGeometry WidgetGeometry::getOffsetGeometry(math::float2 inTranslation)
+	WidgetGeometry WidgetGeometry::getOffsetGeometry(math::float2 inTranslation) const
 	{
 		WidgetGeometry offsetGeometry = *this;
 		offsetGeometry.mAccumulateTransform.m_translation += inTranslation;
