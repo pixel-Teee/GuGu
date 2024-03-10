@@ -146,18 +146,24 @@ namespace GuGu {
 	void ElementList::generateBoxBatch(std::shared_ptr<BatchData> boxBatch, std::shared_ptr<Element> element)
 	{
 		std::shared_ptr<BoxElement> boxElement = std::static_pointer_cast<BoxElement>(element);
-		math::double2 absolutePosition = boxElement->m_geometry.getAbsolutePosition();
-		math::double2 localSize = boxElement->m_geometry.getLocalSize();
+		//math::double2 absolutePosition = boxElement->m_geometry.getAbsolutePosition();
+		math::affine2 transform = boxElement->m_geometry.getAccumulateTransform();
+		math::float2 localSize = boxElement->m_geometry.getLocalSize();
 		//math::double2 localSize = math::double2(200.0f, 200.0f);
 		math::float4 color = boxElement->m_color;
 		std::shared_ptr<Brush> brush = boxElement->m_brush;
 		bool tiling = element->m_tiling;
 		math::float2 tile = tiling ?  math::float2(localSize.x / brush->m_actualSize.x, localSize.y / brush->m_actualSize.x) : math::float2(1.0f, 1.0f);
+
+		math::float2 topLeft = math::float2(0.0f, 0.0f);
+		math::float2 bottomRight = math::float2(localSize.x, localSize.y);
+		math::float2 topRight = math::float2(localSize.x, 0.0f);
+		math::float2 bottomLeft = math::float2(0.0f, localSize.y);
 		//math::float2 tile = tiling ? math::float2(4.0f, 4.0f) : math::float2(1.0f, 1.0f);
-		boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x, brush->m_startUV.y, tile.x, tile.y), math::float2(absolutePosition.x, absolutePosition.y), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
-		boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x + brush->m_sizeUV.x, brush->m_startUV.y + brush->m_sizeUV.y, tile.x, tile.y), math::float2(absolutePosition.x + localSize.x, absolutePosition.y + localSize.y), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
-		boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x, brush->m_startUV.y + brush->m_sizeUV.y, tile.x, tile.y), math::float2(absolutePosition.x, absolutePosition.y + localSize.y), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
-		boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x + brush->m_sizeUV.x, brush->m_startUV.y, tile.x, tile.y), math::float2(absolutePosition.x + localSize.x, absolutePosition.y), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x, brush->m_startUV.y, tile.x, tile.y), transform.transformPoint(topLeft), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x + brush->m_sizeUV.x, brush->m_startUV.y + brush->m_sizeUV.y, tile.x, tile.y), transform.transformPoint(bottomRight), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x, brush->m_startUV.y + brush->m_sizeUV.y, tile.x, tile.y), transform.transformPoint(bottomLeft), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x + brush->m_sizeUV.x, brush->m_startUV.y, tile.x, tile.y), transform.transformPoint(topRight), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
 
 		boxBatch->m_indices.emplace_back(0);
 		boxBatch->m_indices.emplace_back(1);
@@ -172,7 +178,9 @@ namespace GuGu {
 	{
 		std::shared_ptr<TextElement> textElement = std::static_pointer_cast<TextElement>(element);
 		float scale = textElement->m_geometry.getAbsoluteScale();
-		math::double2 absolutePosition = textElement->m_geometry.getAbsolutePosition();
+		//math::float2 absolutePosition = textElement->m_geometry.getAbsolutePosition();
+		math::affine2 transform = textElement->m_geometry.getAccumulateTransform();
+		//transform.m_linear = math::float2x2::identity();
 		//math::double2 localSize = textElement->m_geometry.getLocalSize();
 		//math::double2 localSize = math::double2(200.0f, 200.0f);
 		math::float4 color = textElement->m_color;
@@ -220,10 +228,10 @@ namespace GuGu {
 					const float sizeU = entry.m_glyphFontAtlasData.uSize * invTextureSizeX;
 					const float sizeV = entry.m_glyphFontAtlasData.vSize * invTextureSizeY;
 
-					math::double2 upperLeft = absolutePosition + math::double2(x, y);
-					math::double2 upperRight = absolutePosition + math::double2(x + sizeX, y);
-					math::double2 lowerLeft = absolutePosition + math::double2(x, y + sizeY);
-					math::double2 lowerRight = absolutePosition + math::double2(x + sizeX, y + sizeY);
+					math::float2 upperLeft = transform.transformPoint(math::float2(x, y));
+					math::float2 upperRight = transform.transformPoint(math::float2(x + sizeX, y));
+					math::float2 lowerLeft = transform.transformPoint(math::float2(x, y + sizeY));
+					math::float2 lowerRight = transform.transformPoint(math::float2(x + sizeX, y + sizeY));
 					
 					batchData->m_vertices.emplace_back(math::float4(u, v, 1.0f, 1.0f), math::float2(upperLeft.x, upperLeft.y), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
 					batchData->m_vertices.emplace_back(math::float4(u + sizeU, v + sizeV, 1.0f, 1.0f), math::float2(lowerRight.x, lowerRight.y), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
@@ -250,7 +258,7 @@ namespace GuGu {
 	void ElementList::generateLineBatch(std::shared_ptr<Element> element)
 	{
 		std::shared_ptr<LineElement> lineElement = std::static_pointer_cast<LineElement>(element);
-		math::double2 absolutePosition = lineElement->m_geometry.getAbsolutePosition(); //todo:add scale
+		math::float2 absolutePosition = lineElement->m_geometry.getAbsolutePosition(); //todo:add scale
 		math::float2 fAbsolutePosition = math::float2(absolutePosition.x, absolutePosition.y);
 		std::vector<math::float2> points = lineElement->m_points;
 		std::shared_ptr<BatchData> batchData = std::make_shared<BatchData>();
@@ -324,7 +332,7 @@ namespace GuGu {
 	void ElementList::generateSplineBatch(std::shared_ptr<Element> element)
 	{
 		std::shared_ptr<SplineElement> lineElement = std::static_pointer_cast<SplineElement>(element);
-		math::double2 absolutePosition = lineElement->m_geometry.getAbsolutePosition(); //todo:add scale
+		math::float2 absolutePosition = lineElement->m_geometry.getAbsolutePosition(); //todo:add scale
 		math::float2 fAbsolutePosition = math::float2(absolutePosition.x, absolutePosition.y);
 
 		std::shared_ptr<BatchData> batchData = std::make_shared<BatchData>();

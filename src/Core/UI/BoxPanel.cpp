@@ -86,7 +86,7 @@ namespace GuGu {
 
 				const math::float2 localSize = math::float2(xAlignmentResult.m_size, yAlignmentResult.m_size);
 
-				arrangedWidgetArray.pushWidget(widgetGeometry.getChildGeometry(math::double2(localSize.x, localSize.y), math::double2(localPosition.x, localPosition.y), widgetGeometry.getAccumulateTransform()), curChild->getChildWidget());
+				arrangedWidgetArray.pushWidget(widgetGeometry.getChildGeometry(math::float2(localSize.x, localSize.y), math::float2(localPosition.x, localPosition.y), widgetGeometry.getAccumulateTransform()), curChild->getChildWidget());
 
 				//offset the next child by the size of the current child and any post-child (bottom/right) margin
 				positionSoFar += (orientation == Orientation::Vertical) ? slotSize.y : slotSize.x;

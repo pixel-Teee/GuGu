@@ -214,7 +214,7 @@ namespace GuGu{
 			//    GuGu_LOGD("%s", u8"image widget");
 			//}
 		}
-		//GuGu_LOGD("(%f %f)", cursorPosition.x, cursorPosition.y);
+		GuGu_LOGD("(%f %f)", cursorPosition.x, cursorPosition.y);
 		return true;
     }
 

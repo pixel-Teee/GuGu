@@ -66,11 +66,15 @@ namespace GuGu {
 
 	math::float2 WindowsWindow::getWindowScreenSpacePosition()
 	{
-		RECT rect;
-		GetWindowRect(m_windowHandle, &rect);
+		RECT windowRect;
+		GetWindowRect(m_windowHandle, &windowRect);
 
-		int32_t titleBarHeight = GetSystemMetrics(SM_CYCAPTION);
-		return math::float2(rect.left, rect.top + titleBarHeight);
+		//RECT clientRect;
+		//GetClientRect(m_windowHandle, &clientRect);
+		//int32_t titleBarHeight = (windowRect.bottom - windowRect.top) - (clientRect.bottom - clientRect.top);
+
+		int32_t titleBarHeight = GetSystemMetrics(SM_CYCAPTION); //todo:fix this
+		return math::float2(windowRect.left, windowRect.top + titleBarHeight);
 	}
 
 	void WindowsWindow::setNativeApplicationHandleAndCmdShowToCreateWindow(HINSTANCE applicationHandle, int32_t cmdShow)

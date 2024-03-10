@@ -334,8 +334,9 @@ namespace GuGu {
 		math::int2 windowWidthAndHeight = math::int2(GetDeviceManager()->getDeviceCreationParameters().backBufferWidth, GetDeviceManager()->getDeviceCreationParameters().backBufferHeight);
 		
 		WidgetGeometry geometry;
-		geometry.setAbsoluteScale(m_uiRoot->getNativeWindow()->getDpiFactor());
-		geometry.setLocalSize(math::double2(windowWidthAndHeight.x, windowWidthAndHeight.y));
+		//geometry.setAbsoluteScale(m_uiRoot->getNativeWindow()->getDpiFactor());
+		//todo:fix this
+		geometry.setLocalSize(math::float2(windowWidthAndHeight.x, windowWidthAndHeight.y));
 		generateWidgetElement(geometry);
 		m_elementList->generateBatches();
 		m_VertexBuffers.clear();

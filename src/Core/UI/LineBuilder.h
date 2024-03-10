@@ -82,7 +82,7 @@ namespace GuGu {
 			{
 				math::float2 lastUp = m_lastNormal * m_halfLineThickness;
 
-				math::double2 absolutePosition = m_transform.getAbsolutePosition();
+				math::float2 absolutePosition = m_transform.getAbsolutePosition();
 				math::float2 fabsolutePosition = math::float2(absolutePosition.x, absolutePosition.y);
 				m_renderBatch.m_vertices.emplace_back(math::float4(1.0f, 0.0f, 0.0f, 0.0f), fabsolutePosition + m_lastPointAdded[1] + lastUp, color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
 				m_renderBatch.m_vertices.emplace_back(math::float4(0.0f, 0.0f, 0.0f, 0.0f), fabsolutePosition + m_lastPointAdded[1] - lastUp, color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
@@ -111,7 +111,7 @@ namespace GuGu {
 				//once we have two points, we have a normal, so we can generate the first bit of geometry
 				math::float2 lastUp = m_lastNormal * m_halfLineThickness;
 
-				math::double2 absolutePosition = m_transform.getAbsolutePosition();
+				math::float2 absolutePosition = m_transform.getAbsolutePosition();
 				math::float2 fabsolutePosition = math::float2(absolutePosition.x, absolutePosition.y);
 				m_renderBatch.m_vertices.emplace_back(math::float4(1.0f, 0.0f, 0.0f, 0.0f), fabsolutePosition + m_lastPointAdded[1] + lastUp, color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
 				m_renderBatch.m_vertices.emplace_back(math::float4(0.0f, 0.0f, 0.0f, 0.0f), fabsolutePosition + m_lastPointAdded[1] - lastUp, color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
@@ -121,7 +121,7 @@ namespace GuGu {
 			{
 				const math::float2 averagedUp = math::normalize((0.5f * (newNormal + m_lastNormal))) * m_halfLineThickness;
 
-				math::double2 absolutePosition = m_transform.getAbsolutePosition();
+				math::float2 absolutePosition = m_transform.getAbsolutePosition();
 				math::float2 fabsolutePosition = math::float2(absolutePosition.x, absolutePosition.y);
 				m_renderBatch.m_vertices.emplace_back(math::float4(1.0f, 0.0f, 0.0f, 0.0f), fabsolutePosition + m_lastPointAdded[0] + averagedUp, color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
 				m_renderBatch.m_vertices.emplace_back(math::float4(0.0f, 0.0f, 0.0f, 0.0f), fabsolutePosition + m_lastPointAdded[0] - averagedUp, color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));

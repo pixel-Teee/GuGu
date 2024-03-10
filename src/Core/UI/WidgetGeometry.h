@@ -10,30 +10,30 @@ namespace GuGu {
 
 		virtual ~WidgetGeometry();
 
-		void setLocalSize(math::double2 localSize);
+		void setLocalSize(math::float2 localSize);
 
-		math::double2 getLocalSize() const;
+		math::float2 getLocalSize() const;
 
 		void setAbsoluteScale(float scale);
 
 		float getAbsoluteScale() const;
 
-		math::double2 getAbsolutePosition() const;
+		math::float2 getAbsolutePosition() const;
 
-		math::daffine2 getAccumulateTransform();
+		math::affine2 getAccumulateTransform();
 
-		WidgetGeometry getChildGeometry(math::double2 inLocalSize, math::double2 inTranslation, math::daffine2 parentAccumulateTransform);
+		WidgetGeometry getChildGeometry(math::float2 inLocalSize, math::float2 inTranslation, math::affine2 parentAccumulateTransform);
 
-		WidgetGeometry getOffsetGeometry(math::double2 inTranslation);
+		WidgetGeometry getOffsetGeometry(math::float2 inTranslation);
 
 		math::box2 getRenderBoundingRect() const;
 
 		math::box2 getRenderBoundingRect(const math::box2& localSpaceRect) const;
 	private:
-		math::double2 mLocalPosition;
-		math::double2 mLocalSize;
+		math::float2 mLocalPosition;
+		math::float2 mLocalSize;
 		float mAbsoluteScale;
-		math::double2 mAbsolutePosition;
-		math::daffine2 mAccumulateTransform;
+		math::float2 mAbsolutePosition;
+		math::affine2 mAccumulateTransform;
 	};
 }

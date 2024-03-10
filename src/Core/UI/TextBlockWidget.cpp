@@ -30,7 +30,7 @@ namespace GuGu {
 		if (shadowColor.w != 0.0f)
 		{
 			//draw shadow
-			ElementList::addTextElement(elementList, allocatedGeometry.getOffsetGeometry(math::double2(shadowOffset.x, shadowOffset.y)), m_textStyle->m_shadowColor, m_textStyle->m_textInfo, m_text.Get(), layer);
+			ElementList::addTextElement(elementList, allocatedGeometry.getOffsetGeometry(math::float2(shadowOffset.x, shadowOffset.y)), m_textStyle->m_shadowColor, m_textStyle->m_textInfo, m_text.Get(), layer);
 			++layer;
 		}
 

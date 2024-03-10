@@ -164,6 +164,7 @@ namespace GuGu {
 				POINT cursorPoint;
 				cursorPoint.x = GET_X_LPARAM(lParam);
 				cursorPoint.y = GET_Y_LPARAM(lParam);
+				//GuGu_LOGD("(%d %d)", cursorPoint.x, cursorPoint.y);
 				ClientToScreen(hwnd, &cursorPoint);
 
 				std::shared_ptr<Window> window;
