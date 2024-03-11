@@ -26,4 +26,8 @@ namespace GuGu {
 	{
 		return m_UIRenderPass;
 	}
+	Demo* Renderer::getDemoPass() const
+	{
+		return m_demo;
+	}
 }

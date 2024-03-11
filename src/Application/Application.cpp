@@ -8,6 +8,7 @@
 #include <Core/UI/WindowWidget.h>
 #include <Core/UI/UIRenderPass.h>
 #include <Window/Window.h>
+#include <Renderer/Demo.h>
 #include <Renderer/Renderer.h>
 
 namespace GuGu{
@@ -33,6 +34,9 @@ namespace GuGu{
 
             if(m_focused)
             {
+                UIRenderPass* uiRenderPass = m_renderer->getUIRenderPass();
+                Demo* demoPass = m_renderer->getDemoPass();
+                uiRenderPass->setRenderTarget(demoPass->getRenderTarget());
                 m_renderer->onRender();
             }
         }

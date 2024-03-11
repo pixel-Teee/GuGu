@@ -49,6 +49,8 @@ namespace GuGu {
 
 		static void addSplineElement(ElementList& elementList, const WidgetGeometry& widgetGeometry, math::float4 color, const math::float2& inStart, const math::float2& inStartDir, const math::float2& inEnd, const math::float2& inEndDir, float thickNess, uint32_t layer);
 
+		static void addViewportElement(ElementList& elementList, const WidgetGeometry& widgetGeometry, math::float4 color, nvrhi::TextureHandle renderTarget, uint32_t layer);
+
 		void generateBatches();
 
 		const std::vector<std::shared_ptr<BatchData>>& getBatches() const;
@@ -72,6 +74,8 @@ namespace GuGu {
 		void generateLineBatch(std::shared_ptr<Element> element);
 
 		void generateSplineBatch(std::shared_ptr<Element> element);
+
+		void generateViewportBatch(std::shared_ptr<Element> element);
 
 		ClippingManager m_clippingManager;
 	};

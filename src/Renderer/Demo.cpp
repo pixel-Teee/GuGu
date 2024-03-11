@@ -550,7 +550,7 @@ namespace GuGu {
 			m_CommandList->writeBuffer(skinnedInstance->jointBuffer, jointMatrices.data(), jointMatrices.size() * sizeof(math::float4x4));
 		}
 
-		nvrhi::utils::ClearColorAttachment(m_CommandList, m_frameBuffer, 0, Color(0.2f));
+		nvrhi::utils::ClearColorAttachment(m_CommandList, m_frameBuffer, 0, Color(0.8f));
 
 		math::float3 cameraPos = math::float3(0.0f, 0.0f, -4);
 		math::float3 cameraDir = normalize(math::float3(0.0f, 0.0f, 1.0f));
@@ -600,7 +600,7 @@ namespace GuGu {
 		RenderView(state, viewProjMatrix);
 
 		//blit to swap chain framebuffer
-		m_commonRenderPass->BlitTexture(m_CommandList, framebuffer, m_renderTarget, m_bindingCache.get());
+		//m_commonRenderPass->BlitTexture(m_CommandList, framebuffer, m_renderTarget, m_bindingCache.get());
 		
 		m_CommandList->close();
 		GetDevice()->executeCommandList(m_CommandList);
@@ -609,6 +609,10 @@ namespace GuGu {
 	{
 		//load scene from gltf
 		m_testGraph = std::make_shared<SceneGraph>();
+	}
+	nvrhi::TextureHandle Demo::getRenderTarget()
+	{
+		return m_renderTarget;
 	}
 	void Demo::RenderView(nvrhi::GraphicsState& graphicsState, math::float4x4 viewProjMatrix)
 	{

@@ -12,7 +12,8 @@ namespace GuGu {
 			Box,
 			Text,
 			Line,
-			Spline
+			Spline,
+			Viewport
 		};
 
 		Element();

@@ -35,6 +35,8 @@ namespace GuGu {
 		void Render(nvrhi::IFramebuffer* framebuffer) override;
 
 		void LoadScene(const GuGuUtf8Str& filePath);
+
+		nvrhi::TextureHandle getRenderTarget();
 	private:
 		void RenderView(nvrhi::GraphicsState& graphicsState, math::float4x4 viewProjMatrix);
 

@@ -20,6 +20,8 @@ namespace GuGu {
         virtual void onResize(int32_t width, int32_t height);
 
 		UIRenderPass* getUIRenderPass() const;
+
+		Demo* getDemoPass() const;
 	protected:
 		DeviceManager* m_deviceManager;//todo:remove this	
 

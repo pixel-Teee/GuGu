@@ -5,6 +5,7 @@
 #include "BoxElement.h"
 #include "LineElement.h"
 #include "SplineElement.h"
+#include "ViewportElement.h"
 #include "TextElement.h"
 #include "Brush.h"
 #include "FontCache.h"
@@ -54,6 +55,15 @@ namespace GuGu {
 		lineElement->setClipIndex(elementList.getClippintIndex());
 		elementList.m_elements.push_back(lineElement);
 	}
+	void ElementList::addViewportElement(ElementList& elementList, const WidgetGeometry& widgetGeometry, math::float4 color, nvrhi::TextureHandle renderTarget, uint32_t layer)
+	{
+		std::shared_ptr<ViewportElement> viewportElement = std::make_shared<ViewportElement>(Element::ElementType::Viewport, widgetGeometry, layer, false);
+		viewportElement->setClipIndex(elementList.getClippintIndex());
+		viewportElement->m_renderTargetResouce = renderTarget;
+		viewportElement->m_color = color;
+		//generate a box element to element list
+		elementList.m_elements.push_back(viewportElement);
+	}
 	void ElementList::generateBatches()
 	{
 		std::stable_sort(m_elements.begin(), m_elements.end(), [=](const std::shared_ptr<Element>& lhs, const std::shared_ptr<Element>& rhs) {
@@ -90,6 +100,11 @@ namespace GuGu {
 				case Element::ElementType::Spline:
 				{
 					generateSplineBatch(m_elements[i]);
+					break;
+				}
+				case Element::ElementType::Viewport:
+				{
+					generateViewportBatch(m_elements[i]);
 					break;
 				}
 			}
@@ -351,5 +366,39 @@ namespace GuGu {
 		lineBuilder.buildBezierGeometry(lineElement->P0, lineElement->P1, lineElement->P2, lineElement->P3);
 
 		m_batches.push_back(batchData);
+	}
+	void ElementList::generateViewportBatch(std::shared_ptr<Element> element)
+	{
+		std::shared_ptr<BatchData> boxBatch = std::make_shared<BatchData>();
+		boxBatch->shaderType = UIShaderType::Default;
+		boxBatch->m_layer = element->m_layer;
+		boxBatch->m_clippingState = getClippingState(element->m_clipIndex);
+
+		std::shared_ptr<ViewportElement> viewportElement = std::static_pointer_cast<ViewportElement>(element);
+		//math::double2 absolutePosition = boxElement->m_geometry.getAbsolutePosition();
+		math::affine2 transform = viewportElement->m_geometry.getAccumulateTransform();
+		math::float2 localSize = viewportElement->m_geometry.getLocalSize();
+		//math::double2 localSize = math::double2(200.0f, 200.0f);
+		math::float4 color = viewportElement->m_color;
+
+		math::float2 topLeft = math::float2(0.0f, 0.0f);
+		math::float2 bottomRight = math::float2(localSize.x, localSize.y);
+		math::float2 topRight = math::float2(localSize.x, 0.0f);
+		math::float2 bottomLeft = math::float2(0.0f, localSize.y);
+		//math::float2 tile = tiling ? math::float2(4.0f, 4.0f) : math::float2(1.0f, 1.0f);
+		boxBatch->m_vertices.emplace_back(math::float4(0.0f, 0.0f, 1.0f, 1.0f), transform.transformPoint(topLeft), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(1.0f, 1.0f, 1.0f, 1.0f), transform.transformPoint(bottomRight), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(0.0f, 1.0f, 1.0f, 1.0f), transform.transformPoint(bottomLeft), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(1.0f, 0.0f, 1.0f, 1.0f), transform.transformPoint(topRight), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+
+		boxBatch->m_indices.emplace_back(0);
+		boxBatch->m_indices.emplace_back(1);
+		boxBatch->m_indices.emplace_back(2);
+		boxBatch->m_indices.emplace_back(0);
+		boxBatch->m_indices.emplace_back(3);
+		boxBatch->m_indices.emplace_back(1);
+
+		boxBatch->m_texture = viewportElement->m_renderTargetResouce;
+		m_batches.push_back(boxBatch);
 	}
 }

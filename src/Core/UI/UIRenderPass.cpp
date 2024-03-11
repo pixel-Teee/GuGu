@@ -19,6 +19,7 @@
 #include "BoxPanel.h"
 #include "ImageWidget.h"
 #include "WindowWidget.h"
+#include "Viewport.h"
 #include "TextBlockWidget.h"
 #include "AtlasTexture.h"
 #include "FontCache.h"
@@ -402,6 +403,11 @@ namespace GuGu {
 		return m_allWidgets;
 	}
 
+	void UIRenderPass::setRenderTarget(nvrhi::TextureHandle renderTarget)
+	{
+		m_viewport->setRenderTarget(renderTarget);
+	}
+
 	void UIRenderPass::updateTextAtlasTexture()
 	{
 		std::shared_ptr<FontCache> fontCache = FontCache::getFontCache();
@@ -595,16 +601,9 @@ namespace GuGu {
 							+ VerticalBox::Slot()
 							.FixedHeight()
 							(
-								WIDGET_NEW(ImageWidget)
-								//.Clip(WidgetClipping::ClipToBounds)
-								.brush(m_styles->getBrush("fun"))
+								WIDGET_ASSIGN_NEW(ViewportWidget, m_viewport)
 							)
 						)
-					)
-					+ VerticalBox::Slot()
-					.FixedHeight()
-					(
-						WIDGET_NEW(Graph)
 					)
 				)
 			);
