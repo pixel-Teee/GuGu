@@ -27,7 +27,7 @@ namespace GuGu{
     }
     VulkanRenderer::~VulkanRenderer() {
         m_deviceManager->RemoveRenderPass(m_demo);
-		//m_deviceManager->RemoveRenderPass(m_vertexBuffer);
+		m_deviceManager->RemoveRenderPass(m_vertexBuffer);
 		m_deviceManager->RemoveRenderPass(m_UIRenderPass);
         delete m_vertexBuffer;
         delete m_UIRenderPass;
@@ -54,16 +54,17 @@ namespace GuGu{
         }
         m_vertexBuffer =  new VertexBuffer(m_deviceManager);
         m_UIRenderPass = new UIRenderPass(m_deviceManager);
+        m_vertexBuffer = new VertexBuffer(m_deviceManager);
         m_demo = new Demo(m_deviceManager);
 		if (m_demo->Init())
 		{
 			m_deviceManager->AddRenderPassToBack(m_demo);
 		}
 
-		//if(m_vertexBuffer->Init())
-		//{
-		//    m_deviceManager->AddRenderPassToBack(m_vertexBuffer);
-		//}
+		if(m_vertexBuffer->Init())
+		{
+		    m_deviceManager->AddRenderPassToBack(m_vertexBuffer);
+		}
         if (m_UIRenderPass->Init())
         {
             m_deviceManager->AddRenderPassToBack(m_UIRenderPass);

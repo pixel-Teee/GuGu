@@ -10,6 +10,7 @@
 #include <Window/Window.h>
 #include <Renderer/Demo.h>
 #include <Renderer/Renderer.h>
+#include <Renderer/VertexBuffer.h>
 
 namespace GuGu{
     Application::Application()
@@ -36,7 +37,8 @@ namespace GuGu{
             {
                 UIRenderPass* uiRenderPass = m_renderer->getUIRenderPass();
                 Demo* demoPass = m_renderer->getDemoPass();
-                uiRenderPass->setRenderTarget(demoPass->getRenderTarget());
+                VertexBuffer* vertexBuffer = m_renderer->getVertexBufferPass();
+                uiRenderPass->setRenderTarget(vertexBuffer->getRenderTarget());
                 m_renderer->onRender();
             }
         }

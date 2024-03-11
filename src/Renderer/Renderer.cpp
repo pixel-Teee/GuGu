@@ -30,4 +30,8 @@ namespace GuGu {
 	{
 		return m_demo;
 	}
+	VertexBuffer* Renderer::getVertexBufferPass() const
+	{
+		return m_vertexBuffer;
+	}
 }

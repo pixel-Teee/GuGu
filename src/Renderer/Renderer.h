@@ -22,6 +22,8 @@ namespace GuGu {
 		UIRenderPass* getUIRenderPass() const;
 
 		Demo* getDemoPass() const;
+
+		VertexBuffer* getVertexBufferPass() const;
 	protected:
 		DeviceManager* m_deviceManager;//todo:remove this	
 

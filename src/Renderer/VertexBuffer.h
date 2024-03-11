@@ -91,5 +91,14 @@ namespace GuGu {
         void BackBufferResizing() override;
 
         void Render(nvrhi::IFramebuffer* framebuffer) override;
+
+        nvrhi::TextureHandle getRenderTarget();
+
+        math::uint2 m_renderTargetSize;
+		nvrhi::TextureHandle m_renderTarget;
+		nvrhi::TextureHandle m_depthTarget;
+		nvrhi::FramebufferHandle m_frameBuffer;
+
+		void initRenderTargetAndDepthTarget();
     };
 }

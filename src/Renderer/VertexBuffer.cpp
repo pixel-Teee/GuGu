@@ -166,6 +166,16 @@ namespace GuGu {
 
 	void VertexBuffer::Render(nvrhi::IFramebuffer* framebuffer){
 		const nvrhi::FramebufferInfoEx& fbinfo = framebuffer->getFramebufferInfo();
+		math::uint2 size = math::uint2(fbinfo.width, fbinfo.height);
+		if (!m_renderTarget || math::any(m_renderTargetSize != size))
+		{
+			m_renderTarget = nullptr;
+
+			m_renderTargetSize = size;
+
+			initRenderTargetAndDepthTarget();
+		}
+
 		if (!m_Pipeline) {
 			nvrhi::GraphicsPipelineDesc psoDesc;
 			psoDesc.VS = m_VertexShader;
@@ -175,12 +185,12 @@ namespace GuGu {
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
 			psoDesc.renderState.depthStencilState.depthTestEnable = false;
 
-			m_Pipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
+			m_Pipeline = GetDevice()->createGraphicsPipeline(psoDesc, m_frameBuffer);
 		}
 
 		m_CommandList->open();
 
-		nvrhi::utils::ClearColorAttachment(m_CommandList, framebuffer, 0, Color(0.2f));
+		nvrhi::utils::ClearColorAttachment(m_CommandList, m_frameBuffer, 0, Color(0.2f));
 
 		// Fill out the constant buffer slices for multiple views of the model.
 		ConstantBufferEntry modelConstants[c_NumViews];
@@ -211,7 +221,7 @@ namespace GuGu {
 					{m_VertexBuffer, 0, offsetof(Vertex, position)}
 			};
 			state.pipeline = m_Pipeline;
-			state.framebuffer = framebuffer;
+			state.framebuffer = m_frameBuffer;
 
 			// Construct the viewport so that all viewports form a grid.
 			const float width = float(fbinfo.width) * 0.5f;
@@ -260,5 +270,53 @@ namespace GuGu {
 		//
 		m_CommandList->close();
 		GetDevice()->executeCommandList(m_CommandList);
+	}
+	nvrhi::TextureHandle VertexBuffer::getRenderTarget()
+	{
+		return m_renderTarget;
+	}
+	void VertexBuffer::initRenderTargetAndDepthTarget()
+	{
+		nvrhi::TextureDesc desc;
+		desc.width = m_renderTargetSize.x;
+		desc.height = m_renderTargetSize.y;
+		desc.initialState = nvrhi::ResourceStates::RenderTarget;
+		desc.isRenderTarget = true;
+		desc.useClearValue = true;
+		desc.clearValue = Color(0.f);
+		desc.sampleCount = 1;
+		desc.dimension = nvrhi::TextureDimension::Texture2D;
+		desc.keepInitialState = true;
+		desc.isTypeless = false;
+		desc.isUAV = false;
+		desc.mipLevels = 1;
+
+		desc.format = nvrhi::Format::SRGBA8_UNORM;
+		desc.debugName = "RenderTarget";
+		m_renderTarget = GetDevice()->createTexture(desc);
+
+		const nvrhi::Format depthFormats[] = {
+			nvrhi::Format::D24S8,
+			nvrhi::Format::D32S8,
+			nvrhi::Format::D32,
+			nvrhi::Format::D16 };
+
+		const nvrhi::FormatSupport depthFeatures =
+			nvrhi::FormatSupport::Texture |
+			nvrhi::FormatSupport::DepthStencil |
+			nvrhi::FormatSupport::ShaderLoad;
+
+		desc.format = nvrhi::utils::ChooseFormat(GetDevice(), depthFeatures, depthFormats, std::size(depthFormats));
+		desc.isTypeless = true;
+		desc.initialState = nvrhi::ResourceStates::DepthWrite;
+		desc.clearValue = Color(0.f);
+		desc.debugName = "Depth";
+		m_depthTarget = GetDevice()->createTexture(desc);
+
+		nvrhi::FramebufferDesc fbDesc;
+		fbDesc.addColorAttachment(m_renderTarget, nvrhi::TextureSubresourceSet(0, 1, 0, 1));
+		fbDesc.setDepthAttachment(m_depthTarget, nvrhi::TextureSubresourceSet(0, 1, 0, 1));
+
+		m_frameBuffer = GetDevice()->createFramebuffer(fbDesc);
 	}
 }
