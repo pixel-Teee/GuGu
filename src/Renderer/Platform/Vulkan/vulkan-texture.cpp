@@ -539,7 +539,52 @@ namespace GuGu{
 			clearTexture(texture, subresources, clearValue);
 		}
 
-		
+        void CommandList::clearDepthStencilTexture(ITexture* _texture, TextureSubresourceSet subresources, bool clearDepth, float depth, bool clearStencil, uint8_t stencil)
+        {
+			endRenderPass();
+
+			if (!clearDepth && !clearStencil)
+			{
+				return;
+			}
+
+			Texture* texture = checked_cast<Texture*>(_texture);
+			assert(texture);
+			assert(m_CurrentCmdBuf);
+
+			subresources = subresources.resolve(texture->desc, false);
+
+			if (m_EnableAutomaticBarriers)
+			{
+				requireTextureState(texture, subresources, ResourceStates::CopyDest);
+			}
+			commitBarriers();
+
+            VkImageAspectFlags aspectFlags = 0;
+
+			if (clearDepth)
+				aspectFlags |= VK_IMAGE_ASPECT_DEPTH_BIT;
+
+			if (clearStencil)
+				aspectFlags |= VK_IMAGE_ASPECT_STENCIL_BIT;
+
+            VkImageSubresourceRange subresourceRange;
+            subresourceRange.aspectMask = aspectFlags;
+            subresourceRange.baseArrayLayer = subresources.baseArraySlice;
+            subresourceRange.layerCount = subresources.numArraySlices;
+            subresourceRange.baseMipLevel = subresources.baseMipLevel;
+            subresourceRange.levelCount = subresources.numMipLevels;
+
+            VkClearDepthStencilValue clearValue;
+            clearValue.depth = depth;
+            clearValue.stencil = stencil;
+			//auto clearValue = vk::ClearDepthStencilValue(depth, uint32_t(stencil));
+			//m_CurrentCmdBuf->cmdBuf.clearDepthStencilImage(texture->image,
+			//	vk::ImageLayout::eTransferDstOptimal,
+			//	&clearValue,
+			//	1, &subresourceRange);
+            vkCmdClearDepthStencilImage(m_CurrentCmdBuf->cmdBuf, texture->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &clearValue, 1, &subresourceRange);
+        }
 
         uint32_t Texture::getNumSubresources() const {
             return desc.mipLevels * desc.arraySize;

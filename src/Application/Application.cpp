@@ -38,7 +38,7 @@ namespace GuGu{
                 UIRenderPass* uiRenderPass = m_renderer->getUIRenderPass();
                 Demo* demoPass = m_renderer->getDemoPass();
                 VertexBuffer* vertexBuffer = m_renderer->getVertexBufferPass();
-                uiRenderPass->setRenderTarget(vertexBuffer->getRenderTarget());
+                uiRenderPass->setRenderTarget(demoPass->getRenderTarget());
                 m_renderer->onRender();
             }
         }

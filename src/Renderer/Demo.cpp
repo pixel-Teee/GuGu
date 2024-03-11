@@ -487,7 +487,7 @@ namespace GuGu {
 			psoDesc.inputLayout = m_InputLayout;
 			psoDesc.bindingLayouts = { m_BindingLayout };
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
-			psoDesc.renderState.depthStencilState.depthTestEnable = false;
+			psoDesc.renderState.depthStencilState.depthTestEnable = true;
 
 			m_Pipeline = GetDevice()->createGraphicsPipeline(psoDesc, m_frameBuffer);
 		}
@@ -499,7 +499,7 @@ namespace GuGu {
 			psoDesc.inputLayout = m_InputLayout;
 			psoDesc.bindingLayouts = { m_SkinnedBindingLayout };
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
-			psoDesc.renderState.depthStencilState.depthTestEnable = false;
+			psoDesc.renderState.depthStencilState.depthTestEnable = true;
 
 			m_SkinnedPipeline = GetDevice()->createGraphicsPipeline(psoDesc, m_frameBuffer);
 		}
@@ -551,8 +551,9 @@ namespace GuGu {
 		}
 
 		nvrhi::utils::ClearColorAttachment(m_CommandList, m_frameBuffer, 0, Color(0.2f, 0.3f, 0.7f, 1.0f));
+		m_CommandList->clearDepthStencilTexture(m_depthTarget, nvrhi::AllSubresources, true, 1.0f, true, 0);
 
-		math::float3 cameraPos = math::float3(0.0f, 0.0f, -4);
+		math::float3 cameraPos = math::float3(0.0f, 0.0f, -20);
 		math::float3 cameraDir = normalize(math::float3(0.0f, 0.0f, 1.0f));
 		math::float3 cameraUp = math::float3(0.0f, 1.0f, 0.0f);
 		math::float3 cameraRight = normalize(cross(cameraDir, cameraUp));
@@ -565,10 +566,10 @@ namespace GuGu {
 		math::affine3 viewMatrix =
 			math::yawPitchRoll(0.f, math::radians(-30.f), 0.f)
 			* math::translation(math::float3(0, 0, 2));
-		math::float4x4 projMatrix = math::perspProjD3DStyle(math::radians(60.f),
+		math::float4x4 projMatrix = math::perspProjD3DStyle(math::radians(45.f),
 			float(fbinfo.width) /
-			float(fbinfo.height), 0.0f,
-			1000.f);
+			float(fbinfo.height), 10.0f,
+			40.f);
 		math::float4x4 viewProjMatrix = math::affineToHomogeneous(worldToView) * projMatrix;
 		//modelConstants.viewProjMatrix = viewProjMatrix;
 
@@ -803,7 +804,7 @@ namespace GuGu {
 		desc.format = nvrhi::utils::ChooseFormat(GetDevice(), depthFeatures, depthFormats, std::size(depthFormats));
 		desc.isTypeless = true;
 		desc.initialState = nvrhi::ResourceStates::DepthWrite;
-		desc.clearValue = Color(0.f);
+		desc.clearValue = Color(1.f);
 		desc.debugName = "Depth";
 		m_depthTarget = GetDevice()->createTexture(desc);
 
