@@ -12,7 +12,9 @@
 #include <Renderer/TextureCache.h>
 
 #include "CubeGeometry.h"
+#include "BindingCache.h"
 #include "ShaderFactory.h"
+#include "CommonRenderPasses.h"
 #include "utils.h"
 
 #include <gltf/gltfLoader.h>
@@ -41,6 +43,7 @@ namespace GuGu {
 		m_rootFileSystem = std::make_shared<RootFileSystem>();
 		m_rootFileSystem->mount("asset", archiverFileSystem);
 #endif	
+		m_renderTargetSize = math::uint2(0, 0);
 
 		m_CommandList = GetDevice()->createCommandList();
 		m_CommandList->open();
@@ -288,9 +291,10 @@ namespace GuGu {
 			{
 				nvrhi::BufferDesc jointBufferDesc;
 				jointBufferDesc.debugName = "JointBuffer";
-				jointBufferDesc.initialState = nvrhi::ResourceStates::ShaderResource;
+				jointBufferDesc.initialState = nvrhi::ResourceStates::ConstantBuffer;
 				jointBufferDesc.keepInitialState = true;
 				jointBufferDesc.canHaveRawViews = true;
+				jointBufferDesc.isConstantBuffer = true;
 				jointBufferDesc.byteSize = sizeof(dm::float4x4) * skinnedInstance->joints.size();
 				skinnedInstance->jointBuffer = GetDevice()->createBuffer(jointBufferDesc);
 			}
@@ -340,6 +344,8 @@ namespace GuGu {
 		//node->SetName("CubeNode");
 
 		std::shared_ptr<ShaderFactory> shaderFactory = std::make_shared<ShaderFactory>(GetDevice(), m_rootFileSystem);
+		m_commonRenderPass = std::make_shared<CommonRenderPasses>(GetDevice(), shaderFactory);
+		m_bindingCache = std::make_shared<BindingCache>(GetDevice());
 
 		std::vector<ShaderMacro> macros;
 		macros.push_back({ "DEFAULT", "1" });
@@ -463,6 +469,17 @@ namespace GuGu {
 	void Demo::Render(nvrhi::IFramebuffer* framebuffer)
 	{
 		const nvrhi::FramebufferInfoEx& fbinfo = framebuffer->getFramebufferInfo();
+
+		math::uint2 size = math::uint2(fbinfo.width, fbinfo.height);
+		if (!m_renderTarget || math::any(m_renderTargetSize != size))
+		{
+			m_renderTarget = nullptr;
+
+			m_renderTargetSize = size;
+
+			initRenderTargetAndDepthTarget();
+		}
+
 		if (!m_Pipeline) {
 			nvrhi::GraphicsPipelineDesc psoDesc;
 			psoDesc.VS = m_VertexShader;
@@ -472,7 +489,7 @@ namespace GuGu {
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
 			psoDesc.renderState.depthStencilState.depthTestEnable = false;
 
-			m_Pipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
+			m_Pipeline = GetDevice()->createGraphicsPipeline(psoDesc, m_frameBuffer);
 		}
 
 		if (!m_SkinnedPipeline) {
@@ -484,7 +501,7 @@ namespace GuGu {
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
 			psoDesc.renderState.depthStencilState.depthTestEnable = false;
 
-			m_SkinnedPipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
+			m_SkinnedPipeline = GetDevice()->createGraphicsPipeline(psoDesc, m_frameBuffer);
 		}
 
 		m_CommandList->open();
@@ -533,7 +550,7 @@ namespace GuGu {
 			m_CommandList->writeBuffer(skinnedInstance->jointBuffer, jointMatrices.data(), jointMatrices.size() * sizeof(math::float4x4));
 		}
 
-		nvrhi::utils::ClearColorAttachment(m_CommandList, framebuffer, 0, Color(0.2f));
+		nvrhi::utils::ClearColorAttachment(m_CommandList, m_frameBuffer, 0, Color(0.2f));
 
 		math::float3 cameraPos = math::float3(0.0f, 0.0f, -4);
 		math::float3 cameraDir = normalize(math::float3(0.0f, 0.0f, 1.0f));
@@ -568,7 +585,7 @@ namespace GuGu {
 		//		{m_buffers->vertexBuffer, 0, 0}
 		//};
 		//state.pipeline = m_Pipeline;
-		state.framebuffer = framebuffer;
+		state.framebuffer = m_frameBuffer;
 
 		// Construct the viewport so that all viewports form a grid.
 		const float width = float(fbinfo.width);
@@ -581,6 +598,9 @@ namespace GuGu {
 		state.viewport.addViewportAndScissorRect(viewport);
 
 		RenderView(state, viewProjMatrix);
+
+		//blit to swap chain framebuffer
+		m_commonRenderPass->BlitTexture(m_CommandList, framebuffer, m_renderTarget, m_bindingCache.get());
 		
 		m_CommandList->close();
 		GetDevice()->executeCommandList(m_CommandList);
@@ -743,6 +763,51 @@ namespace GuGu {
 		}
 
 		return bufferHandle;
+	}
+
+	void Demo::initRenderTargetAndDepthTarget()
+	{
+		nvrhi::TextureDesc desc;
+		desc.width = m_renderTargetSize.x;
+		desc.height = m_renderTargetSize.y;
+		desc.initialState = nvrhi::ResourceStates::RenderTarget;
+		desc.isRenderTarget = true;
+		desc.useClearValue = true;
+		desc.clearValue = Color(0.f);
+		desc.sampleCount = 1;
+		desc.dimension = nvrhi::TextureDimension::Texture2D;
+		desc.keepInitialState = true;
+		desc.isTypeless = false;
+		desc.isUAV = false;
+		desc.mipLevels = 1;
+
+		desc.format = nvrhi::Format::SRGBA8_UNORM;
+		desc.debugName = "RenderTarget";
+		m_renderTarget = GetDevice()->createTexture(desc);
+
+		const nvrhi::Format depthFormats[] = {
+			nvrhi::Format::D24S8,
+			nvrhi::Format::D32S8,
+			nvrhi::Format::D32,
+			nvrhi::Format::D16 };
+
+		const nvrhi::FormatSupport depthFeatures =
+			nvrhi::FormatSupport::Texture |
+			nvrhi::FormatSupport::DepthStencil |
+			nvrhi::FormatSupport::ShaderLoad;
+
+		desc.format = nvrhi::utils::ChooseFormat(GetDevice(), depthFeatures, depthFormats, std::size(depthFormats));
+		desc.isTypeless = true;
+		desc.initialState = nvrhi::ResourceStates::DepthWrite;
+		desc.clearValue = Color(0.f);
+		desc.debugName = "Depth";
+		m_depthTarget = GetDevice()->createTexture(desc);
+
+		nvrhi::FramebufferDesc fbDesc;
+		fbDesc.addColorAttachment(m_renderTarget, nvrhi::TextureSubresourceSet(0, 1, 0, 1));
+		fbDesc.setDepthAttachment(m_depthTarget, nvrhi::TextureSubresourceSet(0, 1, 0, 1));
+
+		m_frameBuffer = GetDevice()->createFramebuffer(fbDesc);
 	}
 
 }

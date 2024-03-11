@@ -57,6 +57,14 @@ namespace GuGu{
             m_AnyVolatileBufferWrites = false;
         }
 
+		void CommandList::setPushConstants(const void* data, size_t byteSize)
+		{
+            assert(m_CurrentCmdBuf);
+
+            vkCmdPushConstants(m_CurrentCmdBuf->cmdBuf, m_CurrentPipelineLayout, m_CurrentPushConstantsVisibility,
+                0, uint32_t(byteSize), data);
+		}
+
         void CommandList::executed(Queue &queue, uint64_t submissionID) {
             assert(m_CurrentCmdBuf);
 

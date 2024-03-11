@@ -327,6 +327,8 @@ namespace GuGu {
 		//GuGuUtf8Str mfpsStr = u8"帧率的倒数\n一帧耗费时长:%.3f毫秒\n帧率:%dfps";
 		//mfpsStr = strFormat(mfpsStr, mfps, fps);
 		//m_textBlockWidget->setText(mfpsStr);
+		m_CommandList->open();
+		updateTextAtlasTexture();//batch will reference the font texture
 
 		calculateWidgetsFixedSize(m_uiRoot);
 
@@ -340,10 +342,11 @@ namespace GuGu {
 		geometry.setLocalSize(math::float2(windowWidthAndHeight.x, windowWidthAndHeight.y));
 		generateWidgetElement(geometry);
 		m_elementList->generateBatches();
+
 		m_VertexBuffers.clear();
 		m_IndexBuffers.clear();
 		//generate vertex and index
-		m_CommandList->open();
+		
 		m_constantBuffers.clear();
 		std::vector<std::shared_ptr<BatchData>> batches = m_elementList->getBatches();
 		for (size_t i = 0; i < batches.size(); ++i)
@@ -377,8 +380,6 @@ namespace GuGu {
 				nvrhi::utils::CreateStaticConstantBufferDesc(
 					sizeof(ConstantBufferEntry), "ConstantBuffer").setInitialState(nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(true)));
 		}
-
-		updateTextAtlasTexture();
 
 		m_CommandList->close();
 		GetDevice()->executeCommandList(m_CommandList);

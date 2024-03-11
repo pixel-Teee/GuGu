@@ -380,6 +380,64 @@ namespace GuGu{
 			return submissionID;
 		}  
 
+		FormatSupport Device::queryFormatSupport(Format format)
+		{
+			VkFormat vulkanFormat = convertFormat(format);
+
+			VkFormatProperties props;
+			//m_Context.physicalDevice.getFormatProperties(vk::Format(vulkanFormat), &props);
+			vkGetPhysicalDeviceFormatProperties(m_Context.physicalDevice, vulkanFormat, &props);
+
+			FormatSupport result = FormatSupport::None;
+
+			if (props.bufferFeatures)
+				result = result | FormatSupport::Buffer;
+
+			if (format == Format::R32_UINT || format == Format::R16_UINT) {
+				// There is no explicit bit in vk::FormatFeatureFlags for index buffers
+				result = result | FormatSupport::IndexBuffer;
+			}
+
+			if (props.bufferFeatures & VK_FORMAT_FEATURE_VERTEX_BUFFER_BIT)
+				result = result | FormatSupport::VertexBuffer;
+
+			if (props.optimalTilingFeatures)
+				result = result | FormatSupport::Texture;
+
+			if (props.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
+				result = result | FormatSupport::DepthStencil;
+
+			if (props.optimalTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT)
+				result = result | FormatSupport::RenderTarget;
+
+			if (props.optimalTilingFeatures & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT)
+				result = result | FormatSupport::Blendable;
+
+			if ((props.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) ||
+				(props.bufferFeatures & VK_FORMAT_FEATURE_UNIFORM_TEXEL_BUFFER_BIT))
+			{
+				result = result | FormatSupport::ShaderLoad;
+			}
+
+			if (props.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)
+				result = result | FormatSupport::ShaderSample;
+
+			if ((props.optimalTilingFeatures & VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT) ||
+				(props.bufferFeatures & VK_FORMAT_FEATURE_STORAGE_TEXEL_BUFFER_BIT))
+			{
+				result = result | FormatSupport::ShaderUavLoad;
+				result = result | FormatSupport::ShaderUavStore;
+			}
+
+			if ((props.optimalTilingFeatures & VK_FORMAT_FEATURE_STORAGE_IMAGE_ATOMIC_BIT) ||
+				(props.bufferFeatures & VK_FORMAT_FEATURE_STORAGE_TEXEL_BUFFER_BIT))
+			{
+				result = result | FormatSupport::ShaderAtomic;
+			}
+
+			return result;
+		}
+
         void VulkanContext::nameVKObject(const void *handle, VkObjectType objtype,
                                          const char *name) const {
             if (name && *name && handle) //todo:fix this

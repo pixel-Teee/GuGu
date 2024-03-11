@@ -1917,7 +1917,7 @@ namespace GuGu{
 //
             //// Sets the push constants block on the command list, aka "root constants" on DX12.
             //// Only valid after setGraphicsState or setComputeState etc.
-            //virtual void setPushConstants(const void* data, size_t byteSize) = 0;
+            virtual void setPushConstants(const void* data, size_t byteSize) = 0;
 //
             virtual void setGraphicsState(const GraphicsState& state) = 0;
             virtual void draw(const DrawArguments& args) = 0;
@@ -2087,7 +2087,7 @@ namespace GuGu{
 
            virtual bool queryFeatureSupport(Feature feature, void* pInfo = nullptr, size_t infoSize = 0) = 0;
 
-           //virtual FormatSupport queryFormatSupport(Format format) = 0;
+           virtual FormatSupport queryFormatSupport(Format format) = 0;
 
            //virtual Object getNativeQueue(ObjectType objectType, CommandQueue queue) = 0;
 
@@ -2151,6 +2151,37 @@ namespace std{
 			for (const auto& item : s.bindings)
                 GuGu::nvrhi::hash_combine(value, item);
 			return value;
+		}
+	};
+
+	template<> struct hash<GuGu::nvrhi::FramebufferInfo>
+	{
+		std::size_t operator()(GuGu::nvrhi::FramebufferInfo const& s) const noexcept
+		{
+			size_t hash = 0;
+			for (auto format : s.colorFormats)
+                GuGu::nvrhi::hash_combine(hash, format);
+			GuGu::nvrhi::hash_combine(hash, s.depthFormat);
+			GuGu::nvrhi::hash_combine(hash, s.sampleCount);
+			GuGu::nvrhi::hash_combine(hash, s.sampleQuality);
+			return hash;
+		}
+	};
+
+	template<> struct hash<GuGu::nvrhi::BlendState::RenderTarget>
+	{
+		std::size_t operator()(GuGu::nvrhi::BlendState::RenderTarget const& s) const noexcept
+		{
+			size_t hash = 0;
+			GuGu::nvrhi::hash_combine(hash, s.blendEnable);
+			GuGu::nvrhi::hash_combine(hash, s.srcBlend);
+			GuGu::nvrhi::hash_combine(hash, s.destBlend);
+			GuGu::nvrhi::hash_combine(hash, s.blendOp);
+			GuGu::nvrhi::hash_combine(hash, s.srcBlendAlpha);
+			GuGu::nvrhi::hash_combine(hash, s.destBlendAlpha);
+			GuGu::nvrhi::hash_combine(hash, s.blendOpAlpha);
+			GuGu::nvrhi::hash_combine(hash, s.colorWriteMask);
+			return hash;
 		}
 	};
 }

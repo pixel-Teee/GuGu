@@ -28,6 +28,7 @@ namespace GuGu {
         auto skinnedMesh = std::make_shared<MeshInfo>();
 		skinnedMesh->skinPrototype = m_prototypeMesh;
 		skinnedMesh->name = m_prototypeMesh->name;
+        skinnedMesh->objectSpaceBounds = m_prototypeMesh->objectSpaceBounds;
 		skinnedMesh->totalVertices = m_prototypeMesh->totalVertices;
 		skinnedMesh->totalIndices = m_prototypeMesh->totalIndices;
 		skinnedMesh->geometries.reserve(m_prototypeMesh->geometries.size());

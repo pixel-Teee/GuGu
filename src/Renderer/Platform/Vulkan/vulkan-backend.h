@@ -691,7 +691,7 @@ namespace GuGu{
             //void waitForIdle() override;
             void runGarbageCollection() override;
             bool queryFeatureSupport(Feature feature, void* pInfo = nullptr, size_t infoSize = 0) override;
-            //FormatSupport queryFormatSupport(Format format) override;
+            FormatSupport queryFormatSupport(Format format) override;
             //Object getNativeQueue(ObjectType objectType, CommandQueue queue) override;
             //IMessageCallback* getMessageCallback() override { return m_Context.messageCallback; }
 //
@@ -751,7 +751,7 @@ namespace GuGu{
             //void clearBufferUInt(IBuffer* b, uint32_t clearValue) override;
             void copyBuffer(IBuffer* dest, uint64_t destOffsetBytes, IBuffer* src, uint64_t srcOffsetBytes, uint64_t dataSizeBytes) override;
 //
-            //void setPushConstants(const void* data, size_t byteSize) override;
+            void setPushConstants(const void* data, size_t byteSize) override;
 //
             void setGraphicsState(const GraphicsState& state) override;
             void draw(const DrawArguments& args) override;

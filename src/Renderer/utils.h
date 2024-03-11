@@ -40,6 +40,12 @@ namespace GuGu{
                 BindingLayoutHandle& bindingLayout,
                 BindingSetHandle& bindingSet);
 
+		Format ChooseFormat(
+			IDevice* device,
+			nvrhi::FormatSupport requiredFeatures,
+			const nvrhi::Format* requestedFormats,
+			size_t requestedFormatCount);
+
         void InvalidEnum();
         void NotSupported();
         const char* DebugNameToString(const GuGuUtf8Str& debugName);

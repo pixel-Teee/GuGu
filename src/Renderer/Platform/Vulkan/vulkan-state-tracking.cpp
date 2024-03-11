@@ -135,7 +135,7 @@ namespace GuGu{
 
                 VkImageAspectFlags aspectMask = (VkImageAspectFlagBits)0;
                 if (formatInfo.hasDepth) aspectMask |= VK_IMAGE_ASPECT_DEPTH_BIT;
-                if (formatInfo.hasStencil) aspectMask |= VK_IMAGE_ASPECT_DEPTH_BIT;
+                if (formatInfo.hasStencil) aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
                 if (!aspectMask) aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 
                 VkImageSubresourceRange subresourceRange = {};

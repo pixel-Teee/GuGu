@@ -55,6 +55,12 @@ float4 getFontColor(PSInput VIn)
     return color;
 }
 
+float4 getLineSegmentElementColor(PSInput VIn)
+{
+    float4 color = VIn.Color;
+    return color;
+}
+
 float4 main_ps(PSInput VIn) : SV_Target0
 {
     float4 OutColor;
@@ -64,6 +70,10 @@ float4 main_ps(PSInput VIn) : SV_Target0
 
 #ifdef UI_Font
     OutColor = getFontColor(VIn);
+#endif
+    
+#ifdef UI_Line
+    OutColor = getLineSegmentElementColor(VIn);
 #endif
     
     return OutColor;

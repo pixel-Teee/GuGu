@@ -20,6 +20,7 @@ namespace GuGu {
 
 		const GuGuUtf8Str& GetName() const;
 		SceneGraphNode* GetNode() const { return m_node.lock().get(); }
+		virtual dm::box3 getLocalBoundingBox() { return dm::box3::empty(); }
 		virtual std::shared_ptr<SceneGraphLeaf> Clone() = 0;
 		
 		friend class SceneGraphNode;
@@ -36,6 +37,7 @@ namespace GuGu {
 
 		const std::shared_ptr<MeshInfo>& GetMesh() const { return m_mesh; }
 		std::shared_ptr<SceneGraphLeaf> Clone() override;
+		dm::box3 getLocalBoundingBox() override { return m_mesh->objectSpaceBounds; }
 
 		const std::shared_ptr<MeshInfo>& getMesh() const { return m_mesh; }
 

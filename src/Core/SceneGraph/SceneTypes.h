@@ -40,6 +40,7 @@ namespace GuGu {
 	{
 		uint32_t indexOffsetInMesh = 0;
 		uint32_t vertexOffsetInMesh = 0;
+		dm::box3 objectSpaceBounds;
 		uint32_t numIndices = 0;
 		uint32_t numVertices = 0;
 		
@@ -51,6 +52,7 @@ namespace GuGu {
 		std::shared_ptr<BufferGroup> buffers;
 		std::shared_ptr<MeshInfo> skinPrototype;
 		std::vector<std::shared_ptr<MeshGeometry>> geometries;
+		dm::box3 objectSpaceBounds;
 		uint32_t indexOffset = 0;
 		uint32_t vertexOffset = 0;
 		uint32_t totalIndices = 0;

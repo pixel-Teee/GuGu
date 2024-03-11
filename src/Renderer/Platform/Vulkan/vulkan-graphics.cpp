@@ -113,15 +113,19 @@ namespace GuGu{
 				VkAttachmentDescription2 attachmentDescription2 = {};
 				attachmentDescription2.sType = VK_STRUCTURE_TYPE_ATTACHMENT_DESCRIPTION_2;
 				attachmentDescription2.format = texture->imageInfo.format;
+                attachmentDescription2.samples = texture->imageInfo.samples;
 				attachmentDescription2.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
 				attachmentDescription2.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 				attachmentDescription2.initialLayout = depthLayout;
 				attachmentDescription2.finalLayout = depthLayout;
+                attachmentDescs.push_back(attachmentDescription2);
 
 				VkAttachmentReference2 attachmentReference2{};
 				attachmentReference2.sType = VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2;
 				attachmentReference2.attachment = uint32_t(attachmentDescs.size() - 1);
 				attachmentReference2.layout = depthLayout;
+
+                depthAttachmentRef = attachmentReference2;
 
 				TextureSubresourceSet subresources = att.subresources.resolve(texture->desc, true);
 				TextureDimension dimension = getDimensionForFramebuffer(texture->desc.dimension, subresources.numArraySlices > 1);

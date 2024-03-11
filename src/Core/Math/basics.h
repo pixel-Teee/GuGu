@@ -6,10 +6,6 @@
 
 
 namespace GuGu{
-
-
-
-
     namespace math
     {
 

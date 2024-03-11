@@ -296,6 +296,8 @@ namespace GuGu {
 					}
 				}
 
+				dm::box3 bounds = dm::box3::empty();
+
 				if (positions)
 				{
 					auto [positionSrc, positionStride] = cgltf_buffer_iterator(positions, sizeof(float) * 3);
@@ -305,7 +307,7 @@ namespace GuGu {
 					{
 						*positionDst = (const float*)positionSrc;
 
-						//bounds |= *positionDst;
+						bounds |= *positionDst;
 
 						positionSrc += positionStride;
 						++positionDst;
@@ -461,6 +463,8 @@ namespace GuGu {
 				geometry->vertexOffsetInMesh = minfo->totalVertices;
 				geometry->numIndices = (uint32_t)indexCount;
 				geometry->numVertices = (uint32_t)positions->count;
+				geometry->objectSpaceBounds = bounds;
+				minfo->objectSpaceBounds |= bounds;
 				minfo->totalIndices += geometry->numIndices;
 				minfo->totalVertices += geometry->numVertices;
 				minfo->geometries.push_back(geometry);

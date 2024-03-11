@@ -3,12 +3,14 @@
 #include "DeviceManager.h"
 
 namespace GuGu {
+	class BindingCache;
 	class RootFileSystem;
 	class BufferGroup;
 	class MeshInfo;
 	class MeshInstance;
 	class SceneGraph;
 	class MeshGeometry;
+	class CommonRenderPasses;
 	struct DrawItem
 	{
 		const MeshInfo* mesh;
@@ -71,5 +73,15 @@ namespace GuGu {
 		std::vector<DrawItem> m_drawItems;
 
 		float m_wallClockTime = 0.0f;
+
+		std::shared_ptr<CommonRenderPasses> m_commonRenderPass;
+		std::shared_ptr<BindingCache> m_bindingCache;
+
+		math::uint2 m_renderTargetSize;
+		nvrhi::TextureHandle m_renderTarget;
+		nvrhi::TextureHandle m_depthTarget;
+		nvrhi::FramebufferHandle m_frameBuffer;
+
+		void initRenderTargetAndDepthTarget();
 	};
 }
