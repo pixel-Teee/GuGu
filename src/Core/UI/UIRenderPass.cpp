@@ -603,6 +603,13 @@ namespace GuGu {
 							(
 								WIDGET_ASSIGN_NEW(ViewportWidget, m_viewport)
 							)
+							+ VerticalBox::Slot()
+							.StretchHeight(0.2f)
+							(
+								WIDGET_NEW(ImageWidget)
+								//.Clip(WidgetClipping::ClipToBounds)
+								.brush(m_styles->getBrush("fun"))
+							)
 						)
 					)
 				)

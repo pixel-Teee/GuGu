@@ -550,7 +550,7 @@ namespace GuGu {
 			m_CommandList->writeBuffer(skinnedInstance->jointBuffer, jointMatrices.data(), jointMatrices.size() * sizeof(math::float4x4));
 		}
 
-		nvrhi::utils::ClearColorAttachment(m_CommandList, m_frameBuffer, 0, Color(0.8f));
+		nvrhi::utils::ClearColorAttachment(m_CommandList, m_frameBuffer, 0, Color(0.2f, 0.3f, 0.7f, 1.0f));
 
 		math::float3 cameraPos = math::float3(0.0f, 0.0f, -4);
 		math::float3 cameraDir = normalize(math::float3(0.0f, 0.0f, 1.0f));
