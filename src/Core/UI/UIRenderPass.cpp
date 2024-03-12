@@ -17,6 +17,7 @@
 #include "Button.h"
 #include "Overlay.h"
 #include "BoxPanel.h"
+#include "CheckBox.h"
 #include "ImageWidget.h"
 #include "WindowWidget.h"
 #include "Viewport.h"
@@ -603,13 +604,16 @@ namespace GuGu {
 							(
 								WIDGET_ASSIGN_NEW(ViewportWidget, m_viewport)
 							)
-							//+ VerticalBox::Slot()
-							//.StretchHeight(0.2f)
-							//(
-							//	WIDGET_NEW(ImageWidget)
-							//	//.Clip(WidgetClipping::ClipToBounds)
-							//	.brush(m_styles->getBrush("fun"))
-							//)
+							+ VerticalBox::Slot()
+							.FixedHeight()
+							(
+								WIDGET_NEW(CheckBox)
+								.Content
+								(
+									WIDGET_NEW(TextBlockWidget)
+									.text("复选框")
+								)
+							)
 						)
 					)
 				)

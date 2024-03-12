@@ -101,4 +101,11 @@ namespace GuGu {
 		Fixed() : SizeParam(SizeParam::Fixed, 0.0f)
 		{}
 	};
+
+	enum class CheckBoxState : uint8_t
+	{
+		Unchecked,
+
+		Checked
+	};
 }

@@ -19,6 +19,8 @@ namespace GuGu {
 
 		std::shared_ptr<Brush> getBrush(const GuGuUtf8Str& str);
 
+		std::shared_ptr<Brush> getNoBrush();
+
 		void getBrush(std::vector<std::shared_ptr<Brush>>& brush);//useful for load texture
 
 		static std::shared_ptr<StyleSet> getStyle();

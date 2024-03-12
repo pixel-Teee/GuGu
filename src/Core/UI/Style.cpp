@@ -22,4 +22,7 @@ namespace GuGu {
 	ButtonStyle::~ButtonStyle()
 	{
 	}
+	CheckBoxStyle::~CheckBoxStyle()
+	{
+	}
 }

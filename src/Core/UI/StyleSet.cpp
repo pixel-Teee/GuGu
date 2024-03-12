@@ -63,6 +63,28 @@ namespace GuGu {
 		closeButtonStyle->setNormal(closeButtonNormal);
 		closeButtonStyle->setPressed(closeButtonPressed);
 		m_styles.insert({ "closeButton", closeButtonStyle });
+
+		//checkbox
+		std::shared_ptr<Brush> checkboxBackground = std::make_shared<Brush>();
+		checkboxBackground->m_tiling = false;
+		checkboxBackground->m_texturePath = u8"asset/MinimumWindow/checkbackground.png";
+		m_brushes.insert({ u8"checkboxBackground", checkboxBackground });
+
+		std::shared_ptr<Brush> checkedImage = std::make_shared<Brush>();
+		checkedImage->m_tiling = false;
+		checkedImage->m_texturePath = u8"asset/MinimumWindow/checked.png";
+		m_brushes.insert({ u8"checkedImage", checkedImage });
+
+		std::shared_ptr<Brush> uncheckedImage = std::make_shared<Brush>();
+		uncheckedImage->m_tiling = false;
+		uncheckedImage->m_texturePath = u8"asset/MinimumWindow/unchecked.png";
+		m_brushes.insert({ u8"uncheckedImage", uncheckedImage });
+
+		std::shared_ptr<CheckBoxStyle> checkBoxStyle = std::make_shared<CheckBoxStyle>();
+		checkBoxStyle->setBackgroundImage(checkboxBackground);
+		checkBoxStyle->setCheckedImage(checkedImage);
+		checkBoxStyle->setUncheckedImage(uncheckedImage);
+		m_styles.insert({ "checkBox", checkBoxStyle });
 	}
 	StyleSet::~StyleSet()
 	{
@@ -76,6 +98,10 @@ namespace GuGu {
 		GuGu_LOGE("don't find brush!");
 
 		return nullptr;
+	}
+	std::shared_ptr<Brush> StyleSet::getNoBrush()
+	{
+		return std::make_shared<Brush>();
 	}
 	void StyleSet::getBrush(std::vector<std::shared_ptr<Brush>>& brush)
 	{

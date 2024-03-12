@@ -47,4 +47,22 @@ namespace GuGu {
 		Padding m_pressedPadding;
 		ButtonStyle& setPressedPadding(Padding inPressedPadding) { m_pressedPadding = inPressedPadding; return *this; }
 	};
+
+	class CheckBoxStyle : public Style
+	{
+	public:
+		CheckBoxStyle() = default;
+
+		virtual ~CheckBoxStyle();
+
+		std::shared_ptr<Brush> m_uncheckedImage;
+		CheckBoxStyle& setUncheckedImage(std::shared_ptr<Brush> inUncheckedImage) { m_uncheckedImage = inUncheckedImage; return *this; }
+		std::shared_ptr<Brush> m_checkedImage;
+		CheckBoxStyle& setCheckedImage(std::shared_ptr<Brush> inCheckedImage) { m_checkedImage = inCheckedImage; return *this; }
+		std::shared_ptr<Brush> m_backgroundImage;
+		CheckBoxStyle& setBackgroundImage(std::shared_ptr<Brush> inBackgroundImage) { m_backgroundImage = inBackgroundImage; return *this; }
+
+		Padding m_padding;
+		CheckBoxStyle& setPadding(Padding inPadding) { m_padding = inPadding; return *this; }
+	};
 }

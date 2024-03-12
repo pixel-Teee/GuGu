@@ -64,6 +64,12 @@ namespace GuGu {
 		m##Name = Attribute<Type>::CreateSP(inObject.get(), inConstMethodPtr);\
 		return Me();\
 	}\
+	template<class Class>\
+	BuilderArguments& Name(Class* inObject, Type(Class::*inConstMethodPtr)()const) \
+	{\
+		m##Name = Attribute<Type>::CreateSP(inObject, inConstMethodPtr);\
+		return Me();\
+	}\
 	BuilderArguments& Name##Lambda(std::function<Type(void)>&& inFunctor) \
 	{\
 		m##Name = Attribute<Type>::CreateLambda(inFunctor); \
