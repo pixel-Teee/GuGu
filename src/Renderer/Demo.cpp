@@ -601,7 +601,7 @@ namespace GuGu {
 		RenderView(state, viewProjMatrix);
 
 		//blit to swap chain framebuffer
-		//m_commonRenderPass->BlitTexture(m_CommandList, framebuffer, m_renderTarget, m_bindingCache.get());
+		m_commonRenderPass->BlitTexture(m_CommandList, framebuffer, m_renderTarget, m_bindingCache.get());
 		
 		m_CommandList->close();
 		GetDevice()->executeCommandList(m_CommandList);
