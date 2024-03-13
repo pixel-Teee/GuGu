@@ -33,7 +33,7 @@ namespace GuGu {
 			struct SlotBuilderArguments : public Slot<SlotType>::SlotBuilderArguments
 			{
 				SlotBuilderArguments(std::shared_ptr<SlotType> inSlot)
-					: Slot<SlotType>::SlotBuilderArguments(inSlot) {}
+					: Slot<SlotType>::SlotBuilderArguments(inSlot){}
 				virtual ~SlotBuilderArguments() {};
 
 				//ARGUMENT_ATTRIBUTE(std::optional<SizeParam>, sizeParam)
@@ -107,8 +107,10 @@ namespace GuGu {
 
 			virtual ~HorizontalBoxSlot() {}
 
-			void init(const SlotBuilderArguments& builderArguments)
+			void init(std::shared_ptr<Widget> inParentWidget, const SlotBuilderArguments& builderArguments)
 			{
+				m_parentWidget = inParentWidget;
+				m_childWidget->setParentWidget(inParentWidget);
 				m_maxSize = builderArguments.MaxSize.Get();
 				m_sizeParam = builderArguments.m_sizeParam.value();
 			}
@@ -168,8 +170,10 @@ namespace GuGu {
 
 			virtual ~VerticalBoxSlot() {}
 
-			void init(const SlotBuilderArguments& builderArguments)
+			void init(std::shared_ptr<Widget> inParentWidget, const SlotBuilderArguments& builderArguments)
 			{
+				m_parentWidget = inParentWidget;
+				m_childWidget->setParentWidget(inParentWidget);
 				m_maxSize = builderArguments.MaxSize.Get();
 				m_sizeParam = builderArguments.m_sizeParam.value();
 			}

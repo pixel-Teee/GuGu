@@ -20,9 +20,10 @@ namespace GuGu {
 
 			virtual ~OverlaySlot() {}
 
-			void init(const SlotBuilderArguments& builderArguments)
+			void init(std::shared_ptr<Widget> inParentWidget,const SlotBuilderArguments& builderArguments)
 			{
-				
+				m_parentWidget = inParentWidget;
+				m_childWidget->setParentWidget(inParentWidget);
 			}
 
 			struct SlotBuilderArguments : public Slot<OverlaySlot>::SlotBuilderArguments

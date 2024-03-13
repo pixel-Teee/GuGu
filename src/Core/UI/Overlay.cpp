@@ -18,6 +18,7 @@ namespace GuGu {
 		for (size_t i = 0; i < arguments.mSlots.size(); ++i)
 		{
 			m_childrens.push_back(std::static_pointer_cast<OverlaySlot>(arguments.mSlots[i].m_slot));
+			m_childrens[i]->init(shared_from_this(), arguments.mSlots[i]);
 		}
 		m_widgetClipping = arguments.mClip;
 	}

@@ -218,7 +218,7 @@ namespace GuGu {
 		{
 			std::shared_ptr<HorizontalBox::HorizontalBoxSlot> boxSlot = std::static_pointer_cast<HorizontalBox::HorizontalBoxSlot>(arguments.mSlots[i].m_slot);
 			HorizontalBoxSlot::SlotBuilderArguments builderArguments = arguments.mSlots[i];
-			boxSlot->init(builderArguments);
+			boxSlot->init(shared_from_this(), builderArguments);
 			//m_childrens[i] = std::reinterpret_pointer_cast<BoxPanelSlot>(boxSlot);
             m_childrens[i] = std::static_pointer_cast<BoxPanelSlot>(std::static_pointer_cast<SlotBase>(boxSlot));
 		}
@@ -238,7 +238,7 @@ namespace GuGu {
 		{
 			std::shared_ptr<VerticalBox::VerticalBoxSlot> boxSlot = std::static_pointer_cast<VerticalBox::VerticalBoxSlot>(arguments.mSlots[i].m_slot);
 			VerticalBoxSlot::SlotBuilderArguments builderArguments = arguments.mSlots[i];
-			boxSlot->init(builderArguments);
+			boxSlot->init(shared_from_this(), builderArguments);
 			//m_childrens[i] = std::reinterpret_pointer_cast<BoxPanelSlot>(boxSlot);
 			m_childrens[i] = std::static_pointer_cast<BoxPanelSlot>(std::static_pointer_cast<SlotBase>(boxSlot));
 		}

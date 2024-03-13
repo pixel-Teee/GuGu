@@ -22,6 +22,8 @@ namespace GuGu {
 		m_childWidget->setVerticalAlignment(arguments.mverticalAlignment);
 		m_childWidget->setPadding(arguments.mpadding);
 		m_widgetClipping = arguments.mClip;
+		m_childWidget->m_parentWidget = shared_from_this();
+		m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 	}
 	uint32_t Border::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
@@ -49,7 +51,7 @@ namespace GuGu {
 	GuGu::math::float2 Border::ComputeFixedSize(float inLayoutScaleMultiplier)
 	{
 		//return m_childWidget->getChildWidget()->getFixedSize();
-		return math::float2(m_imageBursh.Get()->m_actualSize.x, m_imageBursh.Get()->m_actualSize.y);
+		return m_childWidget->getChildWidget()->getFixedSize() + m_childWidget->getPadding().getFixedSize();
 	}
 	void Border::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray)
 	{

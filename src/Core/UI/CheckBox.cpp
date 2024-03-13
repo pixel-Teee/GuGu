@@ -35,15 +35,15 @@ namespace GuGu {
 								(
 									WIDGET_NEW(Overlay)
 									+ Overlay::Slot()
-									.setVerticalAlignment(VerticalAlignment::Center)
-									.setHorizontalAlignment(HorizontalAlignment::Center)
+									.setVerticalAlignment(VerticalAlignment::Stretch)
+									.setHorizontalAlignment(HorizontalAlignment::Stretch)
 									(
 										WIDGET_NEW(ImageWidget)
 										.brush(this, &CheckBox::onGetBackgroundImage)
 									)
 									+ Overlay::Slot()
-									.setVerticalAlignment(VerticalAlignment::Center)
-									.setHorizontalAlignment(HorizontalAlignment::Center)
+									.setVerticalAlignment(VerticalAlignment::Stretch)
+									.setHorizontalAlignment(HorizontalAlignment::Stretch)
 									(
 										WIDGET_NEW(ImageWidget)
 										.brush(this, &CheckBox::onGetCheckImage)
@@ -61,6 +61,7 @@ namespace GuGu {
 									)
 								)
 						);
+		m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 	}
 	void CheckBox::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray)
 	{

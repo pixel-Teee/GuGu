@@ -28,7 +28,10 @@ namespace GuGu {
 	}
 	GuGu::math::float2 ImageWidget::ComputeFixedSize(float inLayoutScaleMultiplier)
 	{
-		return math::float2(m_imageBursh.Get()->m_actualSize.x, m_imageBursh.Get()->m_actualSize.y);
+		if (m_imageBursh.Get())
+			return math::float2(m_imageBursh.Get()->m_actualSize.x, m_imageBursh.Get()->m_actualSize.y);
+		else
+			return math::float2(0.0f, 0.0f);
 	}
 
 }

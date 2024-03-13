@@ -160,15 +160,28 @@ namespace GuGu{
             }
         }
 
-        if (collisionWidget)
+        std::vector<std::shared_ptr<Widget>> widgets;
+        std::shared_ptr<Widget> currentWidget = collisionWidget;
+        while (currentWidget)
         {
-            collisionWidget->OnMouseButtonDown(collisionWidget->getWidgetGeometry(), mouseEvent);
-			//std::shared_ptr<ImageWidget> imageWidget = std::dynamic_pointer_cast<ImageWidget>(collisionWidget);
-			//if (imageWidget)
-			//{
-			//    GuGu_LOGD("%s", u8"image widget");
-			//}
+            widgets.push_back(currentWidget);
+            currentWidget = currentWidget->getParentWidget();
         }
+
+        for (int32_t i = widgets.size() - 1; i >= 0; --i)
+        {
+            widgets[i]->OnMouseButtonDown(collisionWidget->getWidgetGeometry(), mouseEvent);
+        }
+
+		//if (collisionWidget)
+		//{
+		//    collisionWidget->OnMouseButtonDown(collisionWidget->getWidgetGeometry(), mouseEvent);
+		//	//std::shared_ptr<ImageWidget> imageWidget = std::dynamic_pointer_cast<ImageWidget>(collisionWidget);
+		//	//if (imageWidget)
+		//	//{
+		//	//    GuGu_LOGD("%s", u8"image widget");
+		//	//}
+		//}
         //GuGu_LOGD("(%f %f)", cursorPosition.x, cursorPosition.y);
         return true;
     }

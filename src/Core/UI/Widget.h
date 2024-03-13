@@ -45,6 +45,10 @@ namespace GuGu{
 
         virtual math::float2 getFixedSize() const;
 
+        std::shared_ptr<Widget> getParentWidget() const;
+
+        void setParentWidget(std::shared_ptr<Widget> parentWidget);
+
         const WidgetGeometry& getWidgetGeometry() const;
 
         uint32_t getLayer() const;
@@ -55,6 +59,7 @@ namespace GuGu{
 
         math::box2 calculateCullingAndClippingRules(const WidgetGeometry& allottedGeometry, const math::box2 cullingRect, bool& bClipToBounds);
     protected:
+        std::weak_ptr<Widget> m_parentWidget;
         WidgetGeometry m_geometry;
         math::float2 m_fixedSize;
         uint32_t m_layer;

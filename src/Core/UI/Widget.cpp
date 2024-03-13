@@ -87,6 +87,14 @@ namespace GuGu{
 {
         return m_fixedSize;
     }
+    std::shared_ptr<Widget> Widget::getParentWidget() const
+    {
+        return m_parentWidget.lock();
+    }
+    void Widget::setParentWidget(std::shared_ptr<Widget> parentWidget)
+    {
+        m_parentWidget = parentWidget;
+    }
     const WidgetGeometry& Widget::getWidgetGeometry() const
     {
         return m_geometry;

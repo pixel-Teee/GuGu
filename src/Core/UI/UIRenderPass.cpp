@@ -18,6 +18,7 @@
 #include "Overlay.h"
 #include "BoxPanel.h"
 #include "CheckBox.h"
+#include "NullWidget.h"
 #include "ImageWidget.h"
 #include "WindowWidget.h"
 #include "Viewport.h"
@@ -210,6 +211,9 @@ namespace GuGu {
 			psoDesc.inputLayout = m_inputLayout;
 			psoDesc.bindingLayouts = { m_bindingLayout };
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+			psoDesc.renderState.blendState.targets[0].setBlendEnable(true);
+			psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
+			psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
 			psoDesc.renderState.depthStencilState.depthTestEnable = false;
 			//psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;//todo:fix this
 
@@ -238,9 +242,9 @@ namespace GuGu {
 			psoDesc.inputLayout = m_inputLayout;
 			psoDesc.bindingLayouts = { m_bindingLayout };
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
-			//psoDesc.renderState.blendState.targets[0].setBlendEnable(true);
-			//psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
-			//psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
+			psoDesc.renderState.blendState.targets[0].setBlendEnable(true);
+			psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
+			psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
 			psoDesc.renderState.depthStencilState.depthTestEnable = false;
 			m_LinePipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
 		}
@@ -607,12 +611,23 @@ namespace GuGu {
 							+ VerticalBox::Slot()
 							.FixedHeight()
 							(
-								WIDGET_NEW(CheckBox)
-								.Content
+								WIDGET_NEW(HorizontalBox)
+								+ HorizontalBox::Slot()
+								.FixedWidth()
 								(
 									WIDGET_NEW(TextBlockWidget)
 									.text("复选框")
 								)
+								+ HorizontalBox::Slot()
+								.FixedWidth()
+								(
+									WIDGET_NEW(CheckBox)
+									.Content
+									(
+										WIDGET_NEW(NullWidget)
+									)
+								)					
+								
 							)
 						)
 					)

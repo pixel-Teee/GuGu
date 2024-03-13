@@ -29,10 +29,12 @@ namespace GuGu {
 
 		void setPadding(Padding newPadding);
 
-	protected:
 		HorizontalAlignment m_horizontalAlignment;
+
 		VerticalAlignment m_verticalAlignment;
+
 		Padding m_padding;
+
 		std::shared_ptr<Widget> m_childWidget;
 	};
 	template<typename SlotType>
@@ -48,12 +50,13 @@ namespace GuGu {
 		struct SlotBuilderArguments
 		{
 			SlotBuilderArguments(std::shared_ptr<Slot<SlotType>> inSlot)
-				: m_slot(inSlot) {}
+				: m_slot(inSlot){}
 			virtual ~SlotBuilderArguments() {};
 
 			typename SlotType::SlotBuilderArguments& operator()(std::shared_ptr<Widget> childWidget)
 			{
 				m_slot->setChildWidget(childWidget);
+				//childWidget->setParentWidget(m_parentWidget);
 				//return static_cast<typename SlotType::SlotArguments&>(*this);
 				return Me();
 			}
@@ -82,6 +85,8 @@ namespace GuGu {
 			}
 			std::shared_ptr<Slot<SlotType>> m_slot;
 		};		
+
+		std::weak_ptr<Widget> m_parentWidget;
 	};
 	
 	class SingleChildSlot : public Slot<SingleChildSlot>
