@@ -43,11 +43,11 @@ namespace GuGu {
 	{
 		math::affine2 localLayoutTransform(math::float2x2::identity(), inTranslation);
 		WidgetGeometry childGeometry;
-		childGeometry.mAccumulateTransform = parentAccumulateTransform * localLayoutTransform;
+		childGeometry.mAccumulateTransform = localLayoutTransform * parentAccumulateTransform;//this order is important
 		childGeometry.mAbsolutePosition = childGeometry.mAccumulateTransform.m_translation;
 		childGeometry.mLocalPosition = localLayoutTransform.m_translation;
 		childGeometry.mLocalSize = inLocalSize;
-		childGeometry.mAbsoluteScale = childGeometry.mAccumulateTransform.m_linear[0][0];//fix:to get scale factor
+		childGeometry.mAbsoluteScale = childGeometry.mAccumulateTransform.m_linear[0][0];//fix:to get scale factor, to use meaningful name
 		return childGeometry;
 	}
 	WidgetGeometry WidgetGeometry::getOffsetGeometry(math::float2 inTranslation) const

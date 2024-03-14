@@ -195,7 +195,7 @@ namespace GuGu {
 		float scale = textElement->m_geometry.getAbsoluteScale();
 		//math::float2 absolutePosition = textElement->m_geometry.getAbsolutePosition();
 		math::affine2 transform = textElement->m_geometry.getAccumulateTransform();
-		//transform.m_linear = math::float2x2::identity();
+		transform.m_linear = math::float2x2::identity();
 		//math::double2 localSize = textElement->m_geometry.getLocalSize();
 		//math::double2 localSize = math::double2(200.0f, 200.0f);
 		math::float4 color = textElement->m_color;

@@ -53,7 +53,7 @@ namespace GuGu {
 	}
 	GuGu::math::float2 WindowWidget::ComputeFixedSize(float inLayoutScaleMultiplier)
 	{
-		return m_childWidget->getChildWidget()->getFixedSize();
+		return m_childWidget->getChildWidget()->getFixedSize() + m_childWidget->getPadding().getFixedSize();
 	}
 	void WindowWidget::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray)
 	{

@@ -5,10 +5,18 @@
 namespace GuGu {
 	ClippingZone::ClippingZone(const WidgetGeometry& boundingGeometry)
 	{
-		m_topLeft = math::float2(boundingGeometry.getAbsolutePosition().x, boundingGeometry.getAbsolutePosition().y);
-		m_topRight = math::float2(m_topLeft.x + boundingGeometry.getLocalSize().x, m_topLeft.y);
-		m_bottomLeft = math::float2(m_topLeft.x, m_topLeft.y + boundingGeometry.getLocalSize().y);
-		m_bottomRight = math::float2(m_topLeft.x + boundingGeometry.getLocalSize().x, m_topLeft.y + boundingGeometry.getLocalSize().y);
+		//m_topLeft = math::float2(boundingGeometry.getAbsolutePosition().x, boundingGeometry.getAbsolutePosition().y);
+		//m_topRight = math::float2(m_topLeft.x + boundingGeometry.getLocalSize().x, m_topLeft.y);
+		//m_bottomLeft = math::float2(m_topLeft.x, m_topLeft.y + boundingGeometry.getLocalSize().y);
+		//m_bottomRight = math::float2(m_topLeft.x + boundingGeometry.getLocalSize().x, m_topLeft.y + boundingGeometry.getLocalSize().y);
+
+		math::float2 localSize = boundingGeometry.getLocalSize();
+		math::affine2 transform = boundingGeometry.getAccumulateTransform();
+
+		m_topLeft = transform.transformPoint(math::float2(0.0f, 0.0f));
+		m_topRight = transform.transformPoint(math::float2(localSize.x, 0.0f));
+		m_bottomLeft = transform.transformPoint(math::float2(0.0f, localSize.y));
+		m_bottomRight = transform.transformPoint(math::float2(localSize.x, localSize.y));
 
 		//m_topLeft = math::float2(0.0f, 0.0f);
 		//m_topRight = math::float2(200.0f, 0.0f);

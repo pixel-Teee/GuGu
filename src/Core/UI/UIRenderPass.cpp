@@ -343,9 +343,9 @@ namespace GuGu {
 		math::int2 windowWidthAndHeight = math::int2(GetDeviceManager()->getDeviceCreationParameters().backBufferWidth, GetDeviceManager()->getDeviceCreationParameters().backBufferHeight);
 		
 		WidgetGeometry geometry;
-		//geometry.setAbsoluteScale(m_uiRoot->getNativeWindow()->getDpiFactor());
+		geometry.setAbsoluteScale(m_uiRoot->getNativeWindow()->getDpiFactor());
 		//todo:fix this
-		geometry.setLocalSize(math::float2(windowWidthAndHeight.x, windowWidthAndHeight.y));
+		geometry.setLocalSize(math::float2(windowWidthAndHeight.x / m_uiRoot->getNativeWindow()->getDpiFactor(), windowWidthAndHeight.y / m_uiRoot->getNativeWindow()->getDpiFactor()));
 		generateWidgetElement(geometry);
 		m_elementList->generateBatches();
 
@@ -410,7 +410,8 @@ namespace GuGu {
 
 	void UIRenderPass::setRenderTarget(nvrhi::TextureHandle renderTarget)
 	{
-		m_viewport->setRenderTarget(renderTarget);
+		if(m_viewport)
+			m_viewport->setRenderTarget(renderTarget);
 	}
 
 	void UIRenderPass::updateTextAtlasTexture()

@@ -549,7 +549,7 @@ namespace GuGu {
 
 			m_CommandList->writeBuffer(skinnedInstance->jointBuffer, jointMatrices.data(), jointMatrices.size() * sizeof(math::float4x4));
 		}
-
+		nvrhi::utils::ClearColorAttachment(m_CommandList, framebuffer, 0, Color(0.0f, 0.0f, 0.0f, 1.0f));
 		nvrhi::utils::ClearColorAttachment(m_CommandList, m_frameBuffer, 0, Color(0.2f, 0.3f, 0.7f, 1.0f));
 		m_CommandList->clearDepthStencilTexture(m_depthTarget, nvrhi::AllSubresources, true, 1.0f, true, 0);
 
@@ -601,7 +601,7 @@ namespace GuGu {
 		RenderView(state, viewProjMatrix);
 
 		//blit to swap chain framebuffer
-		m_commonRenderPass->BlitTexture(m_CommandList, framebuffer, m_renderTarget, m_bindingCache.get());
+		//m_commonRenderPass->BlitTexture(m_CommandList, framebuffer, m_renderTarget, m_bindingCache.get());
 		
 		m_CommandList->close();
 		GetDevice()->executeCommandList(m_CommandList);
