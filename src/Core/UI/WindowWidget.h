@@ -58,7 +58,7 @@ namespace GuGu {
 
 		//static Slot::SlotBuilderArguments SingleSlot() { return Slot::SlotBuilderArguments(std::make_shared<Slot>()); };
 	private:
-		std::weak_ptr<Window> m_nativeWindow;
+		std::shared_ptr<Window> m_nativeWindow;
 		std::shared_ptr<SingleChildSlot> m_childWidget;
 		WindowType m_windowType;
 		std::shared_ptr<Brush> m_defaultBrush;//for window background

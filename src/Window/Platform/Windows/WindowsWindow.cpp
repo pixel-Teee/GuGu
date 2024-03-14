@@ -55,7 +55,7 @@ namespace GuGu {
 		//------get dpi scale------
 		HDC Context = GetDC(nullptr);
 		int32_t dpi = GetDeviceCaps(Context, LOGPIXELSX);
-		m_dpiFactor = (float)dpi / 72.0f;
+		m_dpiFactor = (float)dpi / 96.0f;
 		ReleaseDC(nullptr, Context);
 	}
 

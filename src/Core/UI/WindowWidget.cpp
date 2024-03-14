@@ -167,7 +167,7 @@ namespace GuGu {
 		//todo:check this window type is native window
 		if (m_windowType == WindowType::NativeWindow)
 		{
-			std::shared_ptr<Window> window = m_nativeWindow.lock();
+			std::shared_ptr<Window> window = m_nativeWindow;
 			if (window)
 			{
 				//math::int2 widthAndHeight = 
@@ -191,7 +191,7 @@ namespace GuGu {
 	}	
 	std::shared_ptr<Window> WindowWidget::getNativeWindow()
 	{
-		std::shared_ptr<Window> nativeWindow = m_nativeWindow.lock();
+		std::shared_ptr<Window> nativeWindow = m_nativeWindow;
 		return nativeWindow;
 	}
 }

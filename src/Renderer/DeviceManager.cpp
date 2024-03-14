@@ -184,10 +184,10 @@ namespace GuGu{
 
     void DeviceManager::RunMessageLoop() {
         //todo:record previous frame time stamp
-#ifndef ANDROID
+
         //note:android have bug
         UpdateWindowSize();
-#endif
+
         AnimateRenderPresent();
     }
 

@@ -2,6 +2,7 @@
 #include "AndroidWindow.h"
 
 #include <jni.h>
+#include <game-activity/GameActivity.h>
 
 float dpiFactor = 1.0f;
 

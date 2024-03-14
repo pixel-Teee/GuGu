@@ -103,6 +103,6 @@ namespace GuGu {
 		typename WidgetType::BuilderArguments& Clip(WidgetClipping inValue) { //todo:fix this
 			mClip = inValue; return Me();
 		} 
-		WidgetClipping mClip = WidgetClipping::Inherit;
+		WidgetClipping mClip = WidgetClipping::ClipToBounds;
 	};
 }

@@ -128,7 +128,12 @@ namespace GuGu{
         UIRenderPass* uiRenderPass = m_renderer->getUIRenderPass();
         std::shared_ptr<WindowWidget> windowWidget = uiRenderPass->getWindowWidget();
         std::vector<std::shared_ptr<Widget>> allWidgets = uiRenderPass->getAllWidgets();
-        assert(windowWidget->getNativeWindow() == window);//todo:fix this
+        //assert(windowWidget->getNativeWindow() == window);//todo:fix this
+
+        if(windowWidget->getNativeWindow() != window)//todo:fix this
+        {
+            windowWidget->assocateWithNativeWindow(window);
+        }
 
         std::stable_sort(allWidgets.begin(), allWidgets.end(), [&](const std::shared_ptr<Widget>& lhs, const std::shared_ptr<Widget>& rhs)
             {

@@ -102,6 +102,8 @@ namespace GuGu{
         std::vector<VkSemaphore> m_PresentSemaphores;
         std::vector<VkSemaphore> m_RenderFinishedSemaphores;
         uint64_t m_framesIndexInFlight = 0;
+
+        bool m_orientationChanged = false;
     };
 
 }
