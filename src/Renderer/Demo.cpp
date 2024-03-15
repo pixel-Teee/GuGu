@@ -349,14 +349,14 @@ namespace GuGu {
 
 		std::vector<ShaderMacro> macros;
 		macros.push_back({ "DEFAULT", "1" });
-		m_VertexShader = shaderFactory->CreateShader("asset/OpaqueGeometry.hlsl", "main_vs", &macros,
+		m_VertexShader = shaderFactory->CreateShader("asset/shader/OpaqueGeometry.hlsl", "main_vs", &macros,
 			nvrhi::ShaderType::Vertex);
-		m_PixelShader = shaderFactory->CreateShader("asset/OpaqueGeometry.hlsl", "main_ps", nullptr,
+		m_PixelShader = shaderFactory->CreateShader("asset/shader/OpaqueGeometry.hlsl", "main_ps", nullptr,
 			nvrhi::ShaderType::Pixel);
 
 		macros.clear();
 		macros.push_back({ "SKINNED", "1"});
-		m_SkinnedVertexShader = shaderFactory->CreateShader("asset/OpaqueGeometry.hlsl", "main_vs", &macros,
+		m_SkinnedVertexShader = shaderFactory->CreateShader("asset/shader/OpaqueGeometry.hlsl", "main_vs", &macros,
 			nvrhi::ShaderType::Vertex);
 
 		m_ConstantBuffers.resize(m_sceneGraph->GetMeshes().size());

@@ -50,9 +50,9 @@ namespace GuGu {
 		std::shared_ptr <ShaderFactory> shaderFactory = std::make_shared<ShaderFactory>(
 			GetDevice(), m_rootFileSystem);
 
-		m_VertexShader = shaderFactory->CreateShader("asset/shaders.hlsl", "main_vs", nullptr,
+		m_VertexShader = shaderFactory->CreateShader("asset/shader/shaders.hlsl", "main_vs", nullptr,
 			nvrhi::ShaderType::Vertex);
-		m_PixelShader = shaderFactory->CreateShader("asset/shaders.hlsl", "main_ps", nullptr,
+		m_PixelShader = shaderFactory->CreateShader("asset/shader/shaders.hlsl", "main_ps", nullptr,
 			nvrhi::ShaderType::Pixel);
 
 		if (!m_VertexShader || !m_PixelShader) {

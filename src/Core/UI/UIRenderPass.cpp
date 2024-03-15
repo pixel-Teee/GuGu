@@ -78,19 +78,19 @@ namespace GuGu {
 		macros.push_back(ShaderMacro("UI_Default", "1"));
 		//macros.push_back(ShaderMacro("UI_Font", "1"));
 
-		m_vertexShader = shaderFactory->CreateShader("asset/UIShader.hlsl", "main_vs", nullptr,
+		m_vertexShader = shaderFactory->CreateShader("asset/shader/UIShader.hlsl", "main_vs", nullptr,
 			nvrhi::ShaderType::Vertex);
-		m_pixelShader = shaderFactory->CreateShader("asset/UIShader.hlsl", "main_ps", &macros,
+		m_pixelShader = shaderFactory->CreateShader("asset/shader/UIShader.hlsl", "main_ps", &macros,
 			nvrhi::ShaderType::Pixel);
 
 		macros.clear();
 		macros.push_back(ShaderMacro("UI_Font", "1"));
-		m_pixelFontShader = shaderFactory->CreateShader("asset/UIShader.hlsl", "main_ps", &macros,
+		m_pixelFontShader = shaderFactory->CreateShader("asset/shader/UIShader.hlsl", "main_ps", &macros,
 			nvrhi::ShaderType::Pixel);
 
 		macros.clear();
 		macros.push_back(ShaderMacro("UI_Line", "1"));
-		m_lineShader = shaderFactory->CreateShader("asset/UIShader.hlsl", "main_ps", &macros,
+		m_lineShader = shaderFactory->CreateShader("asset/shader/UIShader.hlsl", "main_ps", &macros,
 			nvrhi::ShaderType::Pixel);
 
 		if (!m_vertexShader || !m_pixelShader || !m_pixelFontShader || !m_lineShader)

@@ -17,10 +17,10 @@ namespace GuGu{
                                            std::shared_ptr <ShaderFactory> shaderFactory)
                                            : m_Device(device){
 
-		m_RectVS = shaderFactory->CreateShader("asset/rectVs", "main", nullptr, nvrhi::ShaderType::Vertex);
+		m_RectVS = shaderFactory->CreateShader("asset/shader/rectVs", "main", nullptr, nvrhi::ShaderType::Vertex);
 
 		std::vector<ShaderMacro> blitMacros = { ShaderMacro("TEXTURE_ARRAY", "0") };
-		m_BlitPS = shaderFactory->CreateShader("asset/blitPs", "main", &blitMacros, nvrhi::ShaderType::Pixel);
+		m_BlitPS = shaderFactory->CreateShader("asset/shader/blitPs", "main", &blitMacros, nvrhi::ShaderType::Pixel);
 		//m_SharpenPS = shaderFactory->CreateShader("asset/sharpen_ps", "main", &blitMacros, nvrhi::ShaderType::Pixel);
 
         auto samplerDesc = nvrhi::SamplerDesc()
