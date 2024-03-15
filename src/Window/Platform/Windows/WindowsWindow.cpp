@@ -25,7 +25,7 @@ namespace GuGu {
 			0,//optional window style
 			windowClassName,//window class
 			L"GuGuWindow",//window title
-			WS_OVERLAPPEDWINDOW,
+			WS_POPUP,
 
 			0, 0, 1280, 720,//size and position
 			nullptr,//parent window
@@ -73,8 +73,8 @@ namespace GuGu {
 		//GetClientRect(m_windowHandle, &clientRect);
 		//int32_t titleBarHeight = (windowRect.bottom - windowRect.top) - (clientRect.bottom - clientRect.top);
 
-		int32_t titleBarHeight = GetSystemMetrics(SM_CYCAPTION); //todo:fix this
-		return math::float2(windowRect.left, windowRect.top + titleBarHeight);
+		//int32_t titleBarHeight = GetSystemMetrics(SM_CYCAPTION); //todo:fix this
+		return math::float2(windowRect.left, windowRect.top);
 	}
 
 	void WindowsWindow::setNativeApplicationHandleAndCmdShowToCreateWindow(HINSTANCE applicationHandle, int32_t cmdShow)
