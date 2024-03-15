@@ -168,9 +168,13 @@ namespace GuGu{
             float c = math::cross(points[3] - points[2], cursorPosition - points[2]);
             float d = math::cross(points[0] - points[3], cursorPosition - points[3]);
 
-            if ((a > 0 && b > 0 && c > 0 && d > 0) || (a < 0 && b < 0 && c < 0 && d < 0))
+            if ((a >= 0 && b >= 0 && c >= 0 && d >= 0) || (a <= 0 && b <= 0 && c <= 0 && d <= 0))
             {
                 collisionWidget = allWidgets[i];
+                //GuGu_LOGD("left top(%f, %f)", points[0].x, points[0].y);
+                //GuGu_LOGD("top right(%f, %f)", points[1].x, points[1].y);
+                //GuGu_LOGD("bottom right(%f, %f)", points[2].x, points[2].y);
+                //GuGu_LOGD("bottom left(%f, %f)", points[3].x, points[3].y);
                 break;
             }
         }

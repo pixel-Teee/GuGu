@@ -74,6 +74,7 @@ namespace GuGu {
 		wc.lpfnWndProc = WindowProc;
 		wc.hInstance = applicationInstance;
 		wc.lpszClassName = windowClassName;
+		//wc.hCursor = LoadCursor(applicationInstance, IDC_ARROW);
 		RegisterClass(&wc);
 
 		//test:create a window for test
