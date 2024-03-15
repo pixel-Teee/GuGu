@@ -122,6 +122,16 @@ namespace GuGu{
         return processMouseButtonUpEvent(window, mouseEvent);
     }
 
+    void Application::setGlobalPreRotate(float rotation)
+    {
+        m_globalRotation = rotation;
+    }
+
+    math::affine3 Application::getGlobalPreRotate() const
+    {
+        return math::rotation(math::normalize(math::float3(0.0f, 0.0f, 1.0f)), math::radians(m_globalRotation));
+    }
+
     bool Application::processMouseButtonDownEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
     {
         //locate window under mouse

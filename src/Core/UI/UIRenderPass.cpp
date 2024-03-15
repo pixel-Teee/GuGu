@@ -258,7 +258,7 @@ namespace GuGu {
 		cameraUp = normalize(cross(cameraRight, cameraDir));
 		
 		math::affine3 worldToView = math::affine3::from_cols(cameraRight, cameraUp, cameraDir, 0.0f);
-		worldToView = translation(-cameraPos) * worldToView;
+		worldToView = worldToView * Application::getApplication()->getGlobalPreRotate();
 
 		for (size_t i = 0; i < m_IndexBuffers.size(); ++i)
 		{
@@ -308,7 +308,7 @@ namespace GuGu {
 			{
 				ClippingZone clipZone = m_elementList->getBatches()[i]->m_clippingState->m_scissorRect.value();
 				nvrhi::Rect clipScissor(clipZone.m_topLeft.x, clipZone.m_topRight.x, clipZone.m_topRight.y, clipZone.m_bottomRight.y);
-				state.viewport.addScissorRect(clipScissor);
+				state.viewport.addScissorRect(clipScissor);//todo:add global pre rotate
 			}
 			else
 			{

@@ -292,7 +292,7 @@ namespace GuGu{
         //androidApplication->setFocused(true);
 
         if (int(m_deviceParams.backBufferWidth) != width ||
-            int(m_deviceParams.backBufferHeight) != height || needToRecreateSwapChain) //todo:fix this
+            int(m_deviceParams.backBufferHeight) != height || needToRecreateSwapChain || m_orientationChanged) //todo:fix this
         {
 #ifdef ANDROID
             androidApplication->setNeedToRecreateSwapChain(false);
@@ -309,6 +309,7 @@ namespace GuGu{
 
             ResizeSwapChain();
             BackBufferResized();
+            m_orientationChanged = false;
         }
 
        // m_deviceParams.vsyncEnabled = m_RequestedVSync;

@@ -34,7 +34,9 @@ namespace GuGu{
         {
             if (m_VulkanDevice)
             {
-                destroySwapChain();
+                m_oldSwapChain = m_SwapChain;
+                std::swap(m_OldSwapChainImages, m_SwapChainImages);
+                destroyOldSwapChain();
                 createWindowSurface();
                 createSwapChain();
             }
@@ -57,6 +59,7 @@ namespace GuGu{
         bool createDevice();
         bool createSwapChain();
         void destroySwapChain();
+        void destroyOldSwapChain();
 
         GuGuUtf8Str m_rendererString;//device name
 
@@ -103,7 +106,10 @@ namespace GuGu{
         std::vector<VkSemaphore> m_RenderFinishedSemaphores;
         uint64_t m_framesIndexInFlight = 0;
 
-        bool m_orientationChanged = false;
+        VkExtent2D m_displaySizeIdentity;
+        VkSurfaceTransformFlagBitsKHR m_preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+        VkSwapchainKHR m_oldSwapChain = VK_NULL_HANDLE;
+        std::vector<SwapChainImage> m_OldSwapChainImages;
     };
 
 }

@@ -47,6 +47,10 @@ namespace GuGu {
 
 		virtual bool onMouseUp(const std::shared_ptr<Window>& window, math::float2 cursorPos);
 		//------input------
+
+		void setGlobalPreRotate(float rotation);
+
+		math::affine3 getGlobalPreRotate() const;
 	protected:
 		std::shared_ptr<Renderer> m_renderer;
 
@@ -64,6 +68,8 @@ namespace GuGu {
         bool m_focused;
 
 		math::float2 m_lastCursorPos;
+
+		float m_globalRotation = 0;
 	};
 	std::shared_ptr<Application> CreateApplicationFactory();
 }

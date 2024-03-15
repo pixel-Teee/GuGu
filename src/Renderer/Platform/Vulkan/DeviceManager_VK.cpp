@@ -359,6 +359,31 @@ namespace GuGu{
 		//
 		//int32_t height = ANativeWindow_getHeight(androidWindow->getNativeHandle());
 		//int32_t width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
+        VkSurfaceCapabilitiesKHR surfaceCapabilities;
+        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_VulkanPhysicalDevice, m_windowSurface, &surfaceCapabilities);
+        if (surfaceCapabilities.currentTransform & VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR ||
+            surfaceCapabilities.currentTransform & VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR) {
+            // swap to get identity width and height
+            surfaceCapabilities.currentExtent.height = width;
+            surfaceCapabilities.currentExtent.width = height;
+        }
+
+        m_displaySizeIdentity = surfaceCapabilities.currentExtent;
+        m_preTransform = surfaceCapabilities.currentTransform;
+
+
+        if(m_preTransform & VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR)
+            Application::getApplication()->setGlobalPreRotate(90.0f);
+        else if (m_preTransform & VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR) {
+            Application::getApplication()->setGlobalPreRotate(270.0f);
+        }
+		else if (m_preTransform & VK_SURFACE_TRANSFORM_ROTATE_180_BIT_KHR) {
+            Application::getApplication()->setGlobalPreRotate(180.0f);
+		}
+        else
+        {
+            Application::getApplication()->setGlobalPreRotate(0.0f);
+        }
 
 		VkExtent2D extent{};
 		extent.width = width;
@@ -379,7 +404,7 @@ namespace GuGu{
 		swapchainCreateInfoKhr.minImageCount = m_deviceParams.swapChainBufferCount;
 		swapchainCreateInfoKhr.imageFormat = m_SwapChainFormat.format;
 		swapchainCreateInfoKhr.imageColorSpace = m_SwapChainFormat.colorSpace;
-		swapchainCreateInfoKhr.imageExtent = extent;
+		swapchainCreateInfoKhr.imageExtent = m_displaySizeIdentity;
 		swapchainCreateInfoKhr.imageArrayLayers = 1;
 		swapchainCreateInfoKhr.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
 			VK_IMAGE_USAGE_TRANSFER_DST_BIT |
@@ -388,7 +413,7 @@ namespace GuGu{
 		swapchainCreateInfoKhr.flags = m_SwapChainMutableFormatSupported ? VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR : 0;//note:this may be error
 		swapchainCreateInfoKhr.queueFamilyIndexCount = enableSwapChainSharing ? uint32_t(queues.size()) : 0;
 		swapchainCreateInfoKhr.pQueueFamilyIndices = enableSwapChainSharing ? queues.data() : nullptr;
-		swapchainCreateInfoKhr.preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
+		swapchainCreateInfoKhr.preTransform = m_preTransform;
 #ifdef ANDROID
 		swapchainCreateInfoKhr.compositeAlpha = VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR;
 #else
@@ -396,7 +421,7 @@ namespace GuGu{
 #endif
 		swapchainCreateInfoKhr.presentMode = m_deviceParams.vsyncEnabled ? VK_PRESENT_MODE_FIFO_KHR : VK_PRESENT_MODE_IMMEDIATE_KHR;
 		swapchainCreateInfoKhr.clipped = true;
-		swapchainCreateInfoKhr.oldSwapchain = VK_NULL_HANDLE;
+		swapchainCreateInfoKhr.oldSwapchain = m_oldSwapChain;
 
 		std::vector<VkFormat> imageFormats = { m_SwapChainFormat.format };
 		switch (m_SwapChainFormat.format)
@@ -504,7 +529,15 @@ namespace GuGu{
 		VkResult result = vkAcquireNextImageKHR(m_VulkanDevice, m_SwapChain, std::numeric_limits<uint64_t>::max(), m_PresentSemaphores[m_framesIndexInFlight],
 			VK_NULL_HANDLE, &m_SwapChainIndex);
 
-		assert(result == VK_SUCCESS);
+        if(result == VK_SUBOPTIMAL_KHR)
+        {
+            m_orientationChanged = true;
+            UpdateWindowSize();
+        }
+        else
+        {
+            assert(result == VK_SUCCESS);
+        }
 
 		m_NvrhiDevice->queueWaitForSemaphore(nvrhi::CommandQueue::Graphics, m_PresentSemaphores[m_framesIndexInFlight], 0);
 		//m_NvrhiDevice->queueSignalSemaphore(nvrhi::CommandQueue::Graphics, m_RenderFinishedSemaphores[m_framesIndexInFlight], 0);
@@ -1137,6 +1170,19 @@ namespace GuGu{
 		}
 		m_SwapChainImages.clear();
 	}
+
+    void DeviceManager_VK::destroyOldSwapChain() {
+        if (m_VulkanDevice)
+        {
+            vkDeviceWaitIdle(m_VulkanDevice);
+        }
+        if (m_oldSwapChain)
+        {
+            vkDestroySwapchainKHR(m_VulkanDevice, m_oldSwapChain, VK_NULL_HANDLE);//todo:fix this
+            m_oldSwapChain = VK_NULL_HANDLE;
+        }
+        m_OldSwapChainImages.clear();
+    }
 
     DeviceManager *DeviceManager::CreateVK() {
         return new DeviceManager_VK();

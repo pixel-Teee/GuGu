@@ -81,6 +81,8 @@ namespace GuGu{
 
         std::vector<nvrhi::FramebufferHandle> m_SwapChainFramebuffers;
 
+        bool m_orientationChanged = false;
+
         void UpdateWindowSize();
 
         void BackBufferResizing();
