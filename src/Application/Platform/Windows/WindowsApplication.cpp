@@ -138,33 +138,11 @@ namespace GuGu {
 		switch (uMsg)
 		{
 			case WM_LBUTTONDOWN:
-			{
-				POINT cursorPoint;
-				cursorPoint.x = GET_X_LPARAM(lParam);
-				cursorPoint.y = GET_Y_LPARAM(lParam);
-				ClientToScreen(hwnd, &cursorPoint);
-
-				std::shared_ptr<Window> window;
-				//find native window
-				std::vector<std::shared_ptr<WindowsWindow>> windows = globalApplication->getPlatformWindows();
-				for (int32_t i = 0; i < windows.size(); ++i)
-				{
-					if (windows[i]->getNativeWindowHandle() == hwnd)
-					{
-						window = windows[i];
-					}
-				}
-
-				globalApplication->onMouseDown(window, math::float2(cursorPoint.x, cursorPoint.y));
-
-				break;
-			}
 			case WM_LBUTTONUP:
 			{
 				POINT cursorPoint;
 				cursorPoint.x = GET_X_LPARAM(lParam);
 				cursorPoint.y = GET_Y_LPARAM(lParam);
-				//GuGu_LOGD("(%d %d)", cursorPoint.x, cursorPoint.y);
 				ClientToScreen(hwnd, &cursorPoint);
 
 				std::shared_ptr<Window> window;
@@ -177,8 +155,19 @@ namespace GuGu {
 						window = windows[i];
 					}
 				}
-
-				globalApplication->onMouseUp(window, math::float2(cursorPoint.x, cursorPoint.y));
+				switch (uMsg)
+				{
+					case WM_LBUTTONDOWN:
+					{
+						globalApplication->onMouseDown(window, math::float2(cursorPoint.x, cursorPoint.y));
+						break;
+					}
+					case WM_LBUTTONUP:
+					{
+						globalApplication->onMouseUp(window, math::float2(cursorPoint.x, cursorPoint.y));
+						break;
+					}
+				}
 				break;
 			}
 			case WM_DESTROY:
