@@ -156,11 +156,19 @@ namespace GuGu{
         {
             WidgetGeometry widgetGeometry = allWidgets[i]->getWidgetGeometry();
 
+            math::float2 localSize = widgetGeometry.getLocalSize();
+            math::affine2 transform = widgetGeometry.getAccumulateTransform();
+
+            math::float2 topLeft = transform.transformPoint(math::float2(0.0f, 0.0f));
+            math::float2 topRight = transform.transformPoint(math::float2(localSize.x, 0.0f));
+            math::float2 bottomLeft = transform.transformPoint(math::float2(0.0f, localSize.y));
+            math::float2 bottomRight = transform.transformPoint(math::float2(localSize.x, localSize.y));
+
             math::float2 points[4] = {
-                math::float2(widgetGeometry.getAbsolutePosition().x, widgetGeometry.getAbsolutePosition().y),//top left
-                math::float2(widgetGeometry.getAbsolutePosition().x + widgetGeometry.getLocalSize().x, widgetGeometry.getAbsolutePosition().y),//top right
-                math::float2(widgetGeometry.getAbsolutePosition().x + widgetGeometry.getLocalSize().x, widgetGeometry.getAbsolutePosition().y + widgetGeometry.getLocalSize().y),//bottom right
-                math::float2(widgetGeometry.getAbsolutePosition().x, widgetGeometry.getAbsolutePosition().y + widgetGeometry.getLocalSize().y)//bottom left
+                 topLeft,
+                 topRight,
+                 bottomRight,
+                 bottomLeft
             };
 
             float a = math::cross(points[1] - points[0], cursorPosition - points[0]);
@@ -168,7 +176,7 @@ namespace GuGu{
             float c = math::cross(points[3] - points[2], cursorPosition - points[2]);
             float d = math::cross(points[0] - points[3], cursorPosition - points[3]);
 
-            if ((a >= 0 && b >= 0 && c >= 0 && d >= 0) || (a <= 0 && b <= 0 && c <= 0 && d <= 0))
+            if ((a > 0 && b > 0 && c > 0 && d > 0) || (a < 0 && b < 0 && c < 0 && d < 0))
             {
                 collisionWidget = allWidgets[i];
                 //GuGu_LOGD("left top(%f, %f)", points[0].x, points[0].y);
@@ -224,12 +232,20 @@ namespace GuGu{
 		{
 			WidgetGeometry widgetGeometry = allWidgets[i]->getWidgetGeometry();
 
-			math::float2 points[4] = {
-				math::float2(widgetGeometry.getAbsolutePosition().x, widgetGeometry.getAbsolutePosition().y),//top left
-				math::float2(widgetGeometry.getAbsolutePosition().x + widgetGeometry.getLocalSize().x, widgetGeometry.getAbsolutePosition().y),//top right
-				math::float2(widgetGeometry.getAbsolutePosition().x + widgetGeometry.getLocalSize().x, widgetGeometry.getAbsolutePosition().y + widgetGeometry.getLocalSize().y),//bottom right
-				math::float2(widgetGeometry.getAbsolutePosition().x, widgetGeometry.getAbsolutePosition().y + widgetGeometry.getLocalSize().y)//bottom left
-			};
+			math::float2 localSize = widgetGeometry.getLocalSize();
+			math::affine2 transform = widgetGeometry.getAccumulateTransform();
+
+			math::float2 topLeft = transform.transformPoint(math::float2(0.0f, 0.0f));
+            math::float2 topRight = transform.transformPoint(math::float2(localSize.x, 0.0f));
+            math::float2 bottomLeft = transform.transformPoint(math::float2(0.0f, localSize.y));
+            math::float2 bottomRight = transform.transformPoint(math::float2(localSize.x, localSize.y));
+
+            math::float2 points[4] = {
+                 topLeft,
+                 topRight,
+                 bottomRight,
+                 bottomLeft
+			};	
 
 			float a = math::cross(points[1] - points[0], cursorPosition - points[0]);
 			float b = math::cross(points[2] - points[1], cursorPosition - points[1]);

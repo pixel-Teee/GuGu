@@ -1,4 +1,4 @@
-struct BlitConstants
+struct blitConstants
 {		
     float2 sourceOrigin;		
     float2 sourceSize;   
@@ -9,13 +9,13 @@ struct BlitConstants
 
 #ifdef SPIRV
 
-[[vk::push_constant]] ConstantBuffer<BlitConstants> g_Blit;
+[[vk::push_constant]] ConstantBuffer<blitConstants> g_Blit;
 
 #else
 
 cbuffer g_Blit : register(b0)
 {
-    BlitConstants g_Blit;
+    blitConstants g_Blit;
 }
 
 #endif

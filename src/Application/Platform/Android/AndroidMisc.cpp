@@ -53,7 +53,7 @@ namespace GuGu{
 
                             androidApplication->onMouseDown(window, math::float2(x, y));
 
-                            GuGu_LOGD("(%f, %f)", x, y);
+                            //GuGu_LOGD("(%f, %f)", x, y);
                         }
                         else if(action == AMOTION_EVENT_ACTION_UP)
                         {
