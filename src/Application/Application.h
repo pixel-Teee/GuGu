@@ -4,6 +4,8 @@
 #include <Core/GuGuUtf8Str.h>
 
 namespace GuGu {
+	class Widget;
+
 	class Timer;
 	class Window;
 	class Renderer;
@@ -62,6 +64,8 @@ namespace GuGu {
 		bool processMouseButtonDownEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent);
 
 		bool processMouseButtonUpEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent);
+
+		std::shared_ptr<Widget> locateWidgetInWindow(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent);
 
 		math::float2 translateCursorPos(math::float2 cursorPos);
 
