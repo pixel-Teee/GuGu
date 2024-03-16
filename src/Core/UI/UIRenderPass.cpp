@@ -256,16 +256,14 @@ namespace GuGu {
 		math::float3 cameraUp = math::float3(0.0f, -1.0f, 0.0f);
 		math::float3 cameraRight = normalize(cross(cameraDir, cameraUp));
 		cameraUp = normalize(cross(cameraRight, cameraDir));
-		
 		math::affine3 worldToView = math::affine3::from_cols(cameraRight, cameraUp, cameraDir, 0.0f);
-		worldToView = worldToView * Application::getApplication()->getGlobalPreRotate();
-
+		worldToView = worldToView * math::rotation(math::normalize(math::float3(0.0f, 0.0f, 1.0f)), math::radians(Application::getApplication()->getGlobalPreRotate()));
+        math::float4x4 projMatrix = math::orthoProjD3DStyle(0, fbinfo.width, 0, fbinfo.height, 0, 1);
+        math::float4x4 vp = projMatrix * math::affineToHomogeneous(worldToView);
 		for (size_t i = 0; i < m_IndexBuffers.size(); ++i)
 		{
-			math::float4x4 projMatrix = math::orthoProjD3DStyle(0, fbinfo.width, 0, fbinfo.height, 0, 1);
-
 			ConstantBufferEntry modelConstant;
-			modelConstant.viewProjMatrix = projMatrix * math::affineToHomogeneous(worldToView);
+			modelConstant.viewProjMatrix = vp;
 
 			m_CommandList->writeBuffer(m_constantBuffers[i], &modelConstant, sizeof(modelConstant));
 
@@ -298,7 +296,7 @@ namespace GuGu {
 				state.pipeline = m_LinePipeline;
 			state.framebuffer = framebuffer;
 
-			// Construct the viewport so that all viewports form a grid.
+			//construct the viewport so that all viewports form a grid.
 			const float width = float(fbinfo.width);
 			const float height = float(fbinfo.height);
 
@@ -307,7 +305,23 @@ namespace GuGu {
 			if (m_elementList->getBatches()[i]->m_clippingState != nullptr)
 			{
 				ClippingZone clipZone = m_elementList->getBatches()[i]->m_clippingState->m_scissorRect.value();
-				nvrhi::Rect clipScissor(clipZone.m_topLeft.x, clipZone.m_topRight.x, clipZone.m_topRight.y, clipZone.m_bottomRight.y);
+                //math::affine2 globalPreRotate =  math::rotation(math::radians(Application::getApplication()->getGlobalPreRotate()));
+                math::float2 points[2] = {clipZone.m_topLeft, clipZone.m_bottomRight};
+                math::float2 pointsNew[2];
+                for(uint32_t i = 0; i < 2; ++i)
+                {
+                    math::float4 tempPoint = math::float4(points[i].x, points[i].y, 0.0f, 1.0f) * vp;
+					tempPoint = math::float4(tempPoint.x / tempPoint.w, tempPoint.y / tempPoint.w, tempPoint.z / tempPoint.w, tempPoint.w / tempPoint.w);
+					pointsNew[i] = math::viewportMatrix(width, height) * tempPoint;//todo:fix this, this is platform specific viewport
+                }
+				math::float2 pointsNew2[2];
+				pointsNew2[0].x = std::min(pointsNew[0].x, pointsNew[1].x);
+				pointsNew2[1].x = std::max(pointsNew[0].x, pointsNew[1].x);
+				pointsNew2[0].y = std::min(pointsNew[0].y, pointsNew[1].y);
+				pointsNew2[1].y = std::max(pointsNew[0].y, pointsNew[1].y);
+
+                nvrhi::Rect clipScissor(pointsNew2[0].x, pointsNew2[1].x, pointsNew2[0].y, pointsNew2[1].y);
+				//nvrhi::Rect clipScissor(clipZone.m_topLeft.x, clipZone.m_topRight.x, clipZone.m_topRight.y, clipZone.m_bottomRight.y);
 				state.viewport.addScissorRect(clipScissor);//todo:add global pre rotate
 			}
 			else

@@ -50,7 +50,7 @@ namespace GuGu {
 
 		void setGlobalPreRotate(float rotation);
 
-		math::affine3 getGlobalPreRotate() const;
+		float getGlobalPreRotate() const;
 	protected:
 		std::shared_ptr<Renderer> m_renderer;
 
@@ -62,6 +62,8 @@ namespace GuGu {
 		bool processMouseButtonDownEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent);
 
 		bool processMouseButtonUpEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent);
+
+		math::float2 translateCursorPos(math::float2 cursorPos);
 
 		bool m_alreadyExit;
 

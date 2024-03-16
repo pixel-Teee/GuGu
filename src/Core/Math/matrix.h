@@ -955,5 +955,7 @@ float4x4 perspProjD3DStyleReverse(float left, float right, float bottom, float t
 float4x4 perspProjD3DStyle(float verticalFOV, float aspect, float zNear, float zFar);
 float4x4 perspProjOGLStyle(float verticalFOV, float aspect, float zNear, float zFar);
 float4x4 perspProjD3DStyleReverse(float verticalFOV, float aspect, float zNear);
+
+float4x4 viewportMatrix(float width, float height);
 }
 }

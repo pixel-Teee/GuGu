@@ -102,22 +102,29 @@ namespace GuGu{
 	{
 		//process mouse button down
 
+
+        //transfer cursorPos to local space
+        math::float2 translatedCursorPos = translateCursorPos(cursorPos);
+
+
         PointerEvent mouseEvent(
-            cursorPos,
+            translatedCursorPos,
             m_lastCursorPos
         );
-        m_lastCursorPos = cursorPos;
+        m_lastCursorPos = translatedCursorPos;
 
         return processMouseButtonDownEvent(window, mouseEvent);
 	}
 
     bool Application::onMouseUp(const std::shared_ptr<Window>& window, math::float2 cursorPos)
     {
+        math::float2 translatedCursorPos = translateCursorPos(cursorPos);
+
 		PointerEvent mouseEvent(
-			cursorPos,
+            translatedCursorPos,
 			m_lastCursorPos
 		);
-		m_lastCursorPos = cursorPos;
+		m_lastCursorPos = translatedCursorPos;
 
         return processMouseButtonUpEvent(window, mouseEvent);
     }
@@ -127,9 +134,9 @@ namespace GuGu{
         m_globalRotation = rotation;
     }
 
-    math::affine3 Application::getGlobalPreRotate() const
+    float Application::getGlobalPreRotate() const
     {
-        return math::rotation(math::normalize(math::float3(0.0f, 0.0f, 1.0f)), math::radians(m_globalRotation));
+        return m_globalRotation;
     }
 
     bool Application::processMouseButtonDownEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
@@ -270,6 +277,34 @@ namespace GuGu{
 		}
 		GuGu_LOGD("(%f %f)", cursorPosition.x, cursorPosition.y);
 		return true;
+    }
+
+    math::float2 Application::translateCursorPos(math::float2 cursorPos)
+    {
+        DeviceManager* deviceManager = m_renderer->getDeviceManager();
+        uint32_t width = deviceManager->getDeviceCreationParameters().backBufferWidth;
+        uint32_t height = deviceManager->getDeviceCreationParameters().backBufferHeight;
+
+        math::float4x4 viewport = math::viewportMatrix(width, height);
+		math::float3 cameraPos = math::float3(0.0f, 0.0f, 0.0f);
+		math::float3 cameraDir = normalize(math::float3(0.0f, 0.0f, 1.0f));
+		math::float3 cameraUp = math::float3(0.0f, -1.0f, 0.0f);
+		math::float3 cameraRight = normalize(cross(cameraDir, cameraUp));
+		cameraUp = normalize(cross(cameraRight, cameraDir));
+		math::affine3 worldToView = math::affine3::from_cols(cameraRight, cameraUp, cameraDir, 0.0f);
+		math::affine3 preRotateWorldToView = worldToView * math::rotation(math::normalize(math::float3(0.0f, 0.0f, 1.0f)), math::radians(getGlobalPreRotate()));
+		math::float4x4 projMatrix = math::orthoProjD3DStyle(0, width, 0, height, 0, 1);
+		math::float4x4 vp = projMatrix * math::affineToHomogeneous(preRotateWorldToView);
+        math::float4x4 vpInverse = math::inverse(vp);
+        math::float4 originCursor = math::inverse(viewport) * math::float4(cursorPos.x, cursorPos.y, 0.0f, 1.0f) * vpInverse;
+
+        //git rid of rotate
+        math::affine3 negPreRotateWorldToView = worldToView * math::rotation(math::normalize(math::float3(0.0f, 0.0f, 1.0f)), math::radians(-getGlobalPreRotate()));
+        vp = projMatrix * math::affineToHomogeneous(negPreRotateWorldToView);
+		math::float4 tempPoint = originCursor * vp;
+		tempPoint = math::float4(tempPoint.x / tempPoint.w, tempPoint.y / tempPoint.w, tempPoint.z / tempPoint.w, tempPoint.w / tempPoint.w);
+        math::float4 newCursor = math::viewportMatrix(width, height) * tempPoint;
+        return newCursor;
     }
 
     //void Application::resize(int32_t width, int32_t height) {

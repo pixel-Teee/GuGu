@@ -361,6 +361,8 @@ namespace GuGu{
 		//int32_t width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
         VkSurfaceCapabilitiesKHR surfaceCapabilities;
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_VulkanPhysicalDevice, m_windowSurface, &surfaceCapabilities);
+        width = surfaceCapabilities.currentExtent.width;
+        height = surfaceCapabilities.currentExtent.height;
         if (surfaceCapabilities.currentTransform & VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR ||
             surfaceCapabilities.currentTransform & VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR) {
             // swap to get identity width and height
@@ -370,7 +372,6 @@ namespace GuGu{
 
         m_displaySizeIdentity = surfaceCapabilities.currentExtent;
         m_preTransform = surfaceCapabilities.currentTransform;
-
 
         if(m_preTransform & VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR)
             Application::getApplication()->setGlobalPreRotate(90.0f);
@@ -404,7 +405,7 @@ namespace GuGu{
 		swapchainCreateInfoKhr.minImageCount = m_deviceParams.swapChainBufferCount;
 		swapchainCreateInfoKhr.imageFormat = m_SwapChainFormat.format;
 		swapchainCreateInfoKhr.imageColorSpace = m_SwapChainFormat.colorSpace;
-		swapchainCreateInfoKhr.imageExtent = m_displaySizeIdentity;
+		swapchainCreateInfoKhr.imageExtent = extent;
 		swapchainCreateInfoKhr.imageArrayLayers = 1;
 		swapchainCreateInfoKhr.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
 			VK_IMAGE_USAGE_TRANSFER_DST_BIT |

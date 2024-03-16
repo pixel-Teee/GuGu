@@ -24,6 +24,8 @@ namespace GuGu {
 		Demo* getDemoPass() const;
 
 		VertexBuffer* getVertexBufferPass() const;
+
+		DeviceManager* getDeviceManager() const;
 	protected:
 		DeviceManager* m_deviceManager;//todo:remove this	
 

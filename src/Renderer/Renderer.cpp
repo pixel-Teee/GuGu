@@ -34,4 +34,8 @@ namespace GuGu {
 	{
 		return m_vertexBuffer;
 	}
+	DeviceManager* Renderer::getDeviceManager() const
+	{
+		return m_deviceManager;
+	}
 }

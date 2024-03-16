@@ -99,5 +99,15 @@ namespace GuGu{
                    0, 0, 0, 1,
                    0, 0, zNear, 0);
        }
+       float4x4 viewportMatrix(float width, float height)
+       {
+           float4x4 viewportM(
+               width / 2.0f, 0.0f, 0.0f, width / 2.0f,
+               0.0f, -height / 2.0f, 0.0f, height / 2.0f,
+               0, 0, 1, 0,
+               0, 0, 0, 1
+           );
+           return viewportM;
+       }
     }
 }
