@@ -92,7 +92,7 @@ namespace GuGu {
 	class SingleChildSlot : public Slot<SingleChildSlot>
 	{
 	public:
-		SingleChildSlot() : Slot(HorizontalAlignment::Center, VerticalAlignment::Center, Padding(0.0f, 0.0f, 0.0f, 0.0f)) {}
+		SingleChildSlot() : Slot(HorizontalAlignment::Stretch, VerticalAlignment::Stretch, Padding(0.0f, 0.0f, 0.0f, 0.0f)) {}
 
 		SingleChildSlot(HorizontalAlignment inHorizontalAlignment, VerticalAlignment inVerticalAlignment, Padding inPadding)
 			: Slot(inHorizontalAlignment, inVerticalAlignment, inPadding)

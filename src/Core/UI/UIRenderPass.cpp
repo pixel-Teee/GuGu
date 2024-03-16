@@ -545,11 +545,11 @@ namespace GuGu {
 	{
 		return WIDGET_ASSIGN_NEW(WindowWidget, m_uiRoot)
 			.Type(WindowWidget::NativeWindow)
-			.Content
+			.Content //fill and fill
 			(
 				WIDGET_NEW(HorizontalBox)
 				+ HorizontalBox::Slot()
-				.FixedWidth()
+				.StretchWidth(1.0f)
 				(
 					WIDGET_NEW(VerticalBox)
 					+ VerticalBox::Slot()
@@ -591,7 +591,7 @@ namespace GuGu {
 						)
 					)
 					+ VerticalBox::Slot()
-					.FixedHeight()
+					.StretchHeight(1.0f)
 					(
 						WIDGET_NEW(Border)
 						.verticalAlignment(VerticalAlignment::Center)
@@ -619,7 +619,7 @@ namespace GuGu {
 								})
 							)
 							+ VerticalBox::Slot()
-							.FixedHeight()
+							.StretchHeight(1.0f)
 							(
 								WIDGET_ASSIGN_NEW(ViewportWidget, m_viewport)
 							)
