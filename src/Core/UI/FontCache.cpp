@@ -122,6 +122,28 @@ namespace GuGu {
 
 		return ((maxHeight + (1 << 5)) >> 6);
 	}
+	int16_t FontCache::getBaseLine(const TextInfo& textInfo, float scale)
+	{
+		GuGuUtf8Str Char(u8"0");
+
+		std::shared_ptr<FreeTypeFace> freeTypeFace;
+		if (m_faces.find(textInfo) != m_faces.end())
+			freeTypeFace = m_faces[textInfo];
+		else
+		{
+			GuGuUtf8Str filePath = textInfo.getFilePath();
+			freeTypeFace = std::make_shared<FreeTypeFace>(&m_library, filePath, m_fileSystem);
+			m_faces.insert({ textInfo, freeTypeFace });
+		}
+
+		FT_Error error = FT_Get_Char_Index(freeTypeFace->getFontFace(), Char.getUnicode().at(0));
+		//uint32_t glyphIndex = FT_Get_Char_Index(freeTypeFace->getFontFace(), Char.getUnicode().at(0));//todo:fix this
+		FreeTypeUtils::ApplySizeAndScale(freeTypeFace->getFontFace(), textInfo.getSize(), scale);
+
+		FT_Pos baseLine = FT_MulFix(freeTypeFace->getFontFace()->size->metrics.descender, freeTypeFace->getFontFace()->size->metrics.y_scale);
+
+		return ((baseLine + (1 << 5)) >> 6);
+	}
 	std::shared_ptr<FreeTypeFace> FontCache::getFreeTypeFace(const TextInfo& textInfo)
 	{
 		return m_faces[textInfo];

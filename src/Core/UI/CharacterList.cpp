@@ -11,6 +11,7 @@ namespace GuGu {
 	CharacterList::CharacterList(const FontKey& fontKey)
 		: m_fontKey(fontKey)
 		, m_MaxHeight(0)
+		, m_BaseLine(0)
 	{
 	}
 	CharacterList::~CharacterList()
@@ -23,6 +24,15 @@ namespace GuGu {
 			m_MaxHeight = FontCache::getFontCache()->getMaxCharacterHeight(m_fontKey.getTextInfo(), m_fontKey.getScale());
 		}
 		return m_MaxHeight;
+	}
+	int16_t CharacterList::getBaseLine()
+	{
+		if (m_BaseLine == 0)
+		{
+			m_BaseLine = FontCache::getFontCache()->getBaseLine(m_fontKey.getTextInfo(), m_fontKey.getScale());
+		}
+
+		return m_BaseLine;
 	}
 	std::shared_ptr<GlyphEntry> CharacterList::getCharacter(GuGuUtf8Str Char)
 	{
@@ -46,6 +56,7 @@ namespace GuGu {
 		newEntry->Char = Char;
 		newEntry->glyphIndex = glyphIndex;
 		newEntry->xAdvance = xAdvance;
+		newEntry->globalDescender = getBaseLine();
 		FT_Load_Glyph(freeTypeFace->getFontFace(), glyphIndex, 0);
 		FT_GlyphSlot slot = freeTypeFace->getFontFace()->glyph;
 		newEntry->m_glyphFontAtlasData.verticalOffset = slot->bitmap_top;

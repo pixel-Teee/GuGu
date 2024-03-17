@@ -43,6 +43,8 @@ namespace GuGu {
 
 		uint16_t getMaxCharacterHeight(const TextInfo& textInfo, float scale);
 
+		int16_t getBaseLine(const TextInfo& textInfo, float scale);
+
 		std::shared_ptr<FreeTypeFace> getFreeTypeFace(const TextInfo& textInfo);		
 
 		void setFontAtlasTexture(nvrhi::TextureHandle newTexture);

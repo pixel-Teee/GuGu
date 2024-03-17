@@ -41,6 +41,8 @@ namespace GuGu {
 		int16_t xOffset = 0;
 		/*the offset to apply in y when drawing this glyph*/
 		int16_t yOffset = 0;
+		/*the largest vertical distance below the baseline for any character in the font*/
+		int16_t globalDescender = 0;
 
 		GlyphFontAtlasData m_glyphFontAtlasData;
 	};
@@ -54,6 +56,8 @@ namespace GuGu {
 
 		uint16_t getMaxHeight();
 
+		int16_t getBaseLine();
+
 		std::shared_ptr<GlyphEntry> getCharacter(GuGuUtf8Str Char);
 	private:
 		FontKey m_fontKey;//key
@@ -62,6 +66,7 @@ namespace GuGu {
 
 		uint16_t m_MaxHeight;
 
-		uint16_t m_BaseLine;
+		/*the offset from the bottom of the max character height to the baseline*/
+		int16_t m_BaseLine;
 	};
 }

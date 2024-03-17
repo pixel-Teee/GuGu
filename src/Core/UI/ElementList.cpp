@@ -239,7 +239,8 @@ namespace GuGu {
 				{
 					const float x = lineX + entry.m_glyphFontAtlasData.horizontalOffset;
 
-					const float y = posY - entry.m_glyphFontAtlasData.verticalOffset + maxHeight;//todo:add max height and global descendar
+					//posX, posY is the upper left corner of the bounding box representing the string
+					const float y = posY - entry.m_glyphFontAtlasData.verticalOffset + maxHeight + entry.globalDescender;//todo:add max height and global descender
 					const float u = entry.m_glyphFontAtlasData.startU * invTextureSizeX;
 					const float v = entry.m_glyphFontAtlasData.startV * invTextureSizeY;
 					const float sizeX = entry.m_glyphFontAtlasData.uSize;
