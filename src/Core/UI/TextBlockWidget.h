@@ -5,6 +5,7 @@
 #include "Widget.h"
 #include "Attribute.h"
 #include "UIMacros.h"
+#include "TextBlockLayout.h"
 
 #include <functional>
 
@@ -46,5 +47,7 @@ namespace GuGu {
 		Attribute<GuGuUtf8Str> m_text;
 
         Attribute<math::float4> m_textColor;
+
+		std::unique_ptr<TextBlockLayout> m_textLayoutCache;
 	};
 }

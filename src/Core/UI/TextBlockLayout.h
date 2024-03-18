@@ -1,9 +1,11 @@
 #pragma once
 
 #include "Style.h"//TextBlockStyle depends this header file
+#include "TextLayout.h"
 
 namespace GuGu {
 	class Widget;
+	//class TextLayout;
 	class ITextLayoutMarshaller;
 	class TextBlockLayout
 	{
@@ -11,6 +13,44 @@ namespace GuGu {
 		TextBlockLayout(Widget* inOwner, TextBlockStyle inDefaultTextStyle, std::shared_ptr<ITextLayoutMarshaller> inMarshaller);
 
 		virtual ~TextBlockLayout();
+
+		struct WidgetDesiredSizeArgs
+		{
+			WidgetDesiredSizeArgs(
+				const GuGuUtf8Str& inText,
+				const Padding& inMargin,
+				const float inWrapTextAt,
+				const TextJustify::Type inJustification,
+				const bool inAutoWrapText
+			) :
+				text(inText)
+				, margin(inMargin)
+				, wrapTextAt(inWrapTextAt)
+				, justification(inJustification)
+				, autoWrapText(inAutoWrapText)
+			{ }
+			const GuGuUtf8Str text = GuGuUtf8Str();
+			const Padding margin;
+			const float wrapTextAt = 0.0f;
+			const TextJustify::Type justification;
+			const bool autoWrapText = false;
+		};
+
+		math::float2 ComputeFixedSize(const WidgetDesiredSizeArgs& inWidgetArgs, const float inScale, const TextBlockStyle& inTextStyle);
+
+		float calculateWrappingWidth() const;
+
 	private:
+		void updateTextLayout(const GuGuUtf8Str& inText);
+
+		std::shared_ptr<TextLayout> m_textLayout;
+
+		std::shared_ptr<ITextLayoutMarshaller> m_marshaller;
+
+		math::float2 m_cachedSize;
+
+		float m_cachedWrapTextAt;
+
+		bool m_bCachedAutoWrapText;
 	};
 }

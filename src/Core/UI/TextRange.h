@@ -1,0 +1,47 @@
+#pragma once
+
+#include <vector>
+
+#include <Core/HashCombine.h>
+
+namespace GuGu {
+	class GuGuUtf8Str;
+
+	struct TextRange
+	{
+		TextRange()
+			: m_beginIndex(-1)
+			, m_endIndex(-1)
+		{}
+
+		TextRange(int32_t inBeginIndex, int32_t inEndIndex)
+			: m_beginIndex(inBeginIndex), m_endIndex(inEndIndex)
+		{}
+
+		int32_t len() const { return m_endIndex - m_beginIndex; }
+
+		static void CalculateLineRangesFromString(const GuGuUtf8Str& input, std::vector<TextRange>& lineRanges);
+
+		bool operator==(const TextRange& other) const
+		{
+			return m_beginIndex == other.m_beginIndex && m_endIndex == other.m_endIndex;
+		}
+		int32_t m_beginIndex;
+		int32_t m_endIndex;
+	};
+}
+
+namespace std
+{
+	template<>
+	struct hash<GuGu::TextRange>
+	{
+		size_t operator()(const GuGu::TextRange& s) const
+		{
+			size_t keyHash = 0;
+			GuGu::hash_combine(keyHash, s.m_beginIndex);
+			GuGu::hash_combine(keyHash, s.m_endIndex);
+			return keyHash;
+		}
+	};
+}

@@ -1,5 +1,7 @@
 #include "ITextLayoutMarshaller.h"
 
+#include "Attribute.h"
+
 namespace GuGu {
 	class PlainTextLayoutMarshaller : public ITextLayoutMarshaller
 	{
@@ -13,5 +15,8 @@ namespace GuGu {
 		virtual void getText(GuGuUtf8Str& targetString, const TextLayout& sourceTextLayout) override;
 
 		static std::shared_ptr<PlainTextLayoutMarshaller> Create();
+
+	protected:
+		Attribute<bool> m_bIsPassword;
 	};
 }

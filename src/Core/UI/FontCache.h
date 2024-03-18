@@ -12,6 +12,8 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
+#include "CharacterList.h"//GlyphEntry depends on it
+
 namespace GuGu {
 	//class TextInfo;
 	class GuGuUtf8Str;
@@ -24,6 +26,72 @@ namespace GuGu {
 	struct AtlasedTextureSlot;
 
 	class FileSystem;
+
+	enum class TextShapingMethod : uint8_t
+	{
+		Auto = 0,
+
+		KerningOnly,
+
+		FullShaping
+	};
+
+	//这个是针对渲染一个文本序列的信息
+	class ShapedGlyphSequence
+	{
+	public:
+		explicit ShapedGlyphSequence()
+			: m_glyphsToRender()
+			, m_textBaseLine(0)
+			, m_maxTextHeight(0)
+			, m_sequenceWidth(0)
+			, m_sourceIndicesToGlyphData(SourceTextRange(0, 0))
+		{}
+
+		struct SourceTextRange
+		{
+			SourceTextRange(const int32_t inTextStart, const int32_t inTextLen)
+				: textStart(inTextStart)
+				, textLen(inTextLen)
+			{}
+			int32_t textStart;
+			int32_t textLen;
+		};
+
+		struct SourceIndexToGlyphData
+		{
+			SourceIndexToGlyphData()
+				: glyphIndex(-1)
+				, additionalGlyphIndices()
+			{}
+
+
+			int32_t glyphIndex;
+			std::vector<int32_t> additionalGlyphIndices;
+		};
+
+		struct SourceIndicesToGlyphData
+		{
+			explicit SourceIndicesToGlyphData(const SourceTextRange& inSourceTextRange)
+				: m_sourceTextRange(inSourceTextRange)
+				, m_glyphDataArray()
+			{
+				m_glyphDataArray.resize(inSourceTextRange.textLen);
+			}
+
+		private:
+			SourceTextRange m_sourceTextRange;
+			std::vector<SourceIndexToGlyphData> m_glyphDataArray;
+		};
+
+		std::vector<GlyphEntry> m_glyphsToRender;
+		int16_t m_textBaseLine;
+		uint16_t m_maxTextHeight;
+		int32_t m_sequenceWidth;
+		std::vector<std::weak_ptr<FreeTypeFace>> m_glyphFontFaces;
+		/*一个从source indices 指向它们的 shaped glyph data 的索引*/
+		SourceIndicesToGlyphData m_sourceIndicesToGlyphData;
+	};
 	
 	class FontCache {
 	public:

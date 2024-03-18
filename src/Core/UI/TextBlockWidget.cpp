@@ -6,11 +6,14 @@
 #include "Style.h"
 #include "StyleSet.h"
 #include "ElementList.h"
+#include "PlainTextLayoutMarshaller.h"
 
 namespace GuGu {
 	TextBlockWidget::TextBlockWidget()
 	{
 		m_textStyle = StyleSet::getStyle()->getStyle<TextBlockStyle>("normalText");
+
+		m_textLayoutCache = std::make_unique<TextBlockLayout>(this, *m_textStyle, PlainTextLayoutMarshaller::Create());
 	}
 	TextBlockWidget::~TextBlockWidget()
 	{
