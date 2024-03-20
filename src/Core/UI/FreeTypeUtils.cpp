@@ -18,5 +18,13 @@ namespace GuGu {
 			//set the pixel size
 			FT_Set_Pixel_Sizes(inFace, requiredFontPixelSize, requiredFontPixelSize);
 		}
+		FT_Pos getDescender(FT_Face inFace)
+		{
+			return FT_MulFix(inFace->descender, inFace->size->metrics.y_scale);
+		}
+		FT_Pos getScaledHeight(FT_Face inFace)
+		{
+			return FT_MulFix(inFace->height, inFace->size->metrics.y_scale);
+		}
 	}
 }

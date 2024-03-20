@@ -5,6 +5,8 @@
 #include <Core/GuGuFile.h>
 #include <Core/FileSystem/FileSystem.h>
 
+#include "FreeTypeUtils.h"
+
 namespace GuGu {
 	FreeTypeFace::FreeTypeFace(FT_Library* library, GuGuUtf8Str& filePath, std::shared_ptr<FileSystem> fileSystem)
 		: m_library(library)
@@ -39,6 +41,16 @@ namespace GuGu {
 	FT_Face FreeTypeFace::getFontFace()
 	{
 		return m_ftFace;
+	}
+
+	FT_Pos FreeTypeFace::getDescender() const
+	{
+		return FreeTypeUtils::getDescender(m_ftFace);
+	}
+
+	FT_Pos FreeTypeFace::getScaledHeight() const
+	{
+		return FreeTypeUtils::getScaledHeight(m_ftFace);
 	}
 
     //FreeTypeFace::FreeTypeFace() {

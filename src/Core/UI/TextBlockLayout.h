@@ -1,12 +1,17 @@
 #pragma once
 
 #include "Style.h"//TextBlockStyle depends this header file
-#include "TextLayout.h"
+#include "GuGuTextLayout.h"
 
 namespace GuGu {
 	class Widget;
 	//class TextLayout;
 	class ITextLayoutMarshaller;
+
+	struct PaintArgs;
+	class WidgetGeometry;
+	class ElementList;
+	class Style;
 	class TextBlockLayout
 	{
 	public:
@@ -36,6 +41,9 @@ namespace GuGu {
 			const bool autoWrapText = false;
 		};
 
+		int32_t OnPaint(const PaintArgs& inPaintArgs, const WidgetGeometry& inAllottedGeometry,
+			const math::box2& cullingRect, ElementList& outDrawElement, int32_t layerId, const Style& inWidgetStyle);
+
 		math::float2 ComputeFixedSize(const WidgetDesiredSizeArgs& inWidgetArgs, const float inScale, const TextBlockStyle& inTextStyle);
 
 		float calculateWrappingWidth() const;
@@ -43,7 +51,7 @@ namespace GuGu {
 	private:
 		void updateTextLayout(const GuGuUtf8Str& inText);
 
-		std::shared_ptr<TextLayout> m_textLayout;
+		std::shared_ptr<GuGuTextLayout> m_textLayout;
 
 		std::shared_ptr<ITextLayoutMarshaller> m_marshaller;
 

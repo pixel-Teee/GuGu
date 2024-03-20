@@ -3,6 +3,7 @@
 #include "TextBlockLayout.h"
 #include "GuGuTextLayout.h"
 #include "PlainTextLayoutMarshaller.h"
+#include "WidgetGeometry.h"
 
 namespace GuGu {
 	TextBlockLayout::TextBlockLayout(Widget* inOwner, TextBlockStyle inDefaultTextStyle, std::shared_ptr<ITextLayoutMarshaller> inMarshaller)
@@ -15,6 +16,14 @@ namespace GuGu {
 	}
 	TextBlockLayout::~TextBlockLayout()
 	{
+	}
+	int32_t TextBlockLayout::OnPaint(const PaintArgs& inPaintArgs, const WidgetGeometry& inAllottedGeometry, const math::box2& cullingRect, ElementList& outDrawElement, int32_t layerId, const Style& inWidgetStyle)
+	{
+		m_cachedSize = inAllottedGeometry.getLocalSize();
+
+		m_textLayout->setWrappingWidth(calculateWrappingWidth());
+
+		return m_textLayout->OnPaint(inPaintArgs, inAllottedGeometry, cullingRect, outDrawElement, layerId, inWidgetStyle);
 	}
 	math::float2 TextBlockLayout::ComputeFixedSize(const WidgetDesiredSizeArgs& inWidgetArgs, const float inScale, const TextBlockStyle& inTextStyle)
 	{

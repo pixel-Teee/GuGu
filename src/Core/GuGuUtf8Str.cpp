@@ -459,6 +459,10 @@ namespace GuGu {
 		}
 		return true;
 	}
+	bool GuGuUtf8Str::operator!=(const GuGuUtf8Str& rhs) const
+	{
+		return !(*this == rhs);
+	}
 	GuGuUtf8Str GuGuUtf8Str::operator[](size_t pos) const
 	{
 		assert(pos < m_len);

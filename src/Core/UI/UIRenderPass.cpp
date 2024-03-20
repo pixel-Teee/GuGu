@@ -609,7 +609,7 @@ namespace GuGu {
 								.textLambda([&] {
 									float mfps = Application::getApplication()->getmFps();
 									uint32_t fps = Application::getApplication()->getFps();
-									GuGuUtf8Str fpsStr = u8"帧率的倒数\n一帧耗费时长:%.3f毫秒\n帧率:%dfps";
+									GuGuUtf8Str fpsStr = u8"帧率的倒数\r\n一帧耗费时长:%.3f毫秒\r\n帧率:%dfps";
 									fpsStr = strFormat(fpsStr, mfps, fps);
 									return fpsStr;
 									})

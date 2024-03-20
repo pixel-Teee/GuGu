@@ -45,6 +45,18 @@ namespace GuGu {
 	}
 	GuGu::math::float2 TextBlockWidget::ComputeFixedSize(float inLayoutScaleMultiplier)
 	{
+		//m_textLayoutCache->ComputeFixedSize(
+		//	TextBlockLayout::WidgetDesiredSizeArgs(
+		//		m_text.Get(),
+		//		Padding(0.0f, 0.0f, 0.0f, 0.0f),
+		//		0,
+		//		TextJustify::Type::Left,
+		//		false
+		//	),
+		//	inLayoutScaleMultiplier,
+		//	*m_textStyle
+		//);
+
 		return FontCache::getFontCache()->measureText(m_text.Get(), *m_textStyle->m_textInfo, inLayoutScaleMultiplier);
 	}
 	void TextBlockWidget::setText(GuGuUtf8Str& newText)

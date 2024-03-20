@@ -54,6 +54,8 @@ namespace GuGu {
 
 		bool operator==(const GuGuUtf8Str& rhs) const;
 
+		bool operator!=(const GuGuUtf8Str& rhs) const;
+
 		GuGuUtf8Str operator[](size_t pos) const;
 
 		std::wstring getUtf16String() const;//useful for win32 api

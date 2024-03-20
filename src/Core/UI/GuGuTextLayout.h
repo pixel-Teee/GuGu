@@ -14,6 +14,7 @@ namespace GuGu {
 
 		const TextBlockStyle& getDefaultTextStyle() const;
 
+		int32_t OnPaint(const PaintArgs& inPaintArgs, const WidgetGeometry& inAllottedGeometry, const math::box2& cullingRect, ElementList& elementList, int32_t layerId, const Style& inWidgetStyle);
 	private:
 		TextBlockStyle m_defaultTextStyle;
 

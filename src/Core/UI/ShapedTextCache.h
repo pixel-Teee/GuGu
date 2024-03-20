@@ -6,6 +6,13 @@
 #include <Core/HashCombine.h>
 
 namespace GuGu {
+	class ShapedTextCache;
+	class CacheShapedTextKey;
+	namespace ShapedTextCacheUtil
+	{
+		math::float2 measureShapedText(const std::shared_ptr<ShapedTextCache>& inShapedTextCache, const CacheShapedTextKey& inRunKey, const TextRange& inMeasureRange,
+			const GuGuUtf8Str& inText);
+	}
 
 	class CacheShapedTextKey //相比于FontKey，多了TextRange和ShapedTextContext，描述缓存一段文本范围的cache
 	{
@@ -62,6 +69,14 @@ namespace GuGu
 		ShapedTextCache(const std::shared_ptr<FontCache>& inFontCache)
 			: m_fontCachePtr(inFontCache)
 		{}
+
+		std::shared_ptr<ShapedGlyphSequence> findShapedText(const CacheShapedTextKey& inKey);
+
+		std::shared_ptr<ShapedGlyphSequence> addShapedText(const CacheShapedTextKey& inKey, const GuGuUtf8Str& inText);
+
+		std::shared_ptr<ShapedGlyphSequence> addShapedText(const CacheShapedTextKey& inKey, std::shared_ptr<ShapedGlyphSequence> inShapedText);
+
+		std::shared_ptr<ShapedGlyphSequence> findOrAddShapedText(const CacheShapedTextKey& inKey, const GuGuUtf8Str& inText);
 	private:
 		std::weak_ptr<FontCache> m_fontCachePtr;
 

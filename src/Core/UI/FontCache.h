@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <unordered_map>
 
 #include "TextInfo.h"
@@ -58,6 +59,8 @@ namespace GuGu {
 			int32_t textLen;
 		};
 
+		ShapedGlyphSequence(std::vector<GlyphEntry> inGlyphsToRender, const int16_t inTextBaseLine, const uint16_t inMaxTextHeight, const SourceTextRange& inSourceTextRange);
+
 		struct SourceIndexToGlyphData
 		{
 			SourceIndexToGlyphData()
@@ -65,6 +68,25 @@ namespace GuGu {
 				, additionalGlyphIndices()
 			{}
 
+			SourceIndexToGlyphData(const int32_t inGlyphIndex)
+				: glyphIndex(inGlyphIndex)
+				, additionalGlyphIndices()
+			{}
+
+			int32_t getLowestGlyphIndex() const
+			{
+				return glyphIndex;
+			}
+
+			int32_t getHighestGlyphIndex() const
+			{
+				return (additionalGlyphIndices.size() > 0) ? additionalGlyphIndices.back() : glyphIndex;
+			}
+
+			bool isValid() const
+			{
+				return glyphIndex != -1;
+			}
 
 			int32_t glyphIndex;
 			std::vector<int32_t> additionalGlyphIndices;
@@ -79,10 +101,32 @@ namespace GuGu {
 				m_glyphDataArray.resize(inSourceTextRange.textLen);
 			}
 
+			SourceIndexToGlyphData* getGlyphData(const int32_t inSourceTextIndex)
+			{
+				const int32_t internalIndex = inSourceTextIndex - m_sourceTextRange.textStart;
+				return (internalIndex >= 0 && internalIndex < m_glyphDataArray.size()) ? &m_glyphDataArray[internalIndex] : nullptr;
+			}
+
+			const SourceIndexToGlyphData* getGlyphData(const int32_t inSourceTextIndex) const
+			{
+				const int32_t internalIndex = inSourceTextIndex - m_sourceTextRange.textStart;
+				return (internalIndex >= 0 && internalIndex < m_glyphDataArray.size()) ? &m_glyphDataArray[internalIndex] : nullptr;
+			}
+
 		private:
 			SourceTextRange m_sourceTextRange;
 			std::vector<SourceIndexToGlyphData> m_glyphDataArray;
 		};
+
+		uint16_t getMaxTextHeight() const
+		{
+			return m_maxTextHeight;
+		}
+
+		std::optional<int32_t> getMeasuredWidth(const int32_t inStartIndex, const int32_t inEndIndex) const;
+
+		typedef std::function<bool(const GlyphEntry&, int32_t)> eachShapedGlyphEntryCallback;
+		void EnumerateLogicalGlyphsInSourceRange(const int32_t InStartIndex, const int32_t InEndIndex, const eachShapedGlyphEntryCallback& InGlyphCallback) const;
 
 		std::vector<GlyphEntry> m_glyphsToRender;
 		int16_t m_textBaseLine;
@@ -91,6 +135,21 @@ namespace GuGu {
 		std::vector<std::weak_ptr<FreeTypeFace>> m_glyphFontFaces;
 		/*一个从source indices 指向它们的 shaped glyph data 的索引*/
 		SourceIndicesToGlyphData m_sourceIndicesToGlyphData;
+	};
+
+	struct KerningOnlyTextSequenceEntry
+	{
+		int32_t textStartIndex;
+		int32_t textLength;
+		GuGuUtf8Str filePath;
+		std::shared_ptr<FreeTypeFace> faceAndMemory;
+
+		KerningOnlyTextSequenceEntry(const int32_t inTextStartIndex, const int32_t inTextLen, const GuGuUtf8Str inFilePath, std::shared_ptr<FreeTypeFace> inFaceAndMemory)
+			: textStartIndex(inTextStartIndex)
+			, textLength(inTextLen)
+			, filePath(inFilePath)
+			, faceAndMemory(inFaceAndMemory)
+		{}
 	};
 	
 	class FontCache {
@@ -127,8 +186,15 @@ namespace GuGu {
 
 		void clear();
 
+		std::shared_ptr<ShapedGlyphSequence> shapeUnidirectionalText(const GuGuUtf8Str& inText, const int32_t InTextStart, const int32_t InTextLen, const TextInfo& inFontInfo, const float inFontScale, const TextShapingMethod inTextShapingMethod) const;
+
 		friend class CharacterList;
 	private:
+		void performTextShaping(const GuGuUtf8Str& inText, const int32_t inTextStart, const int32_t inTextLen, const TextInfo& inFontInfo, const float inFontScale, const TextShapingMethod textShapingMethod, std::vector<GlyphEntry>& outGlyphsToRender) const;
+
+		void performKerningOnlyTextShaping(const GuGuUtf8Str& inText, const int32_t inTextStart, const int32_t inTextLen, const TextInfo& inFontInfo, const float inFontScale, std::vector<GlyphEntry>& outGlyphsToRender) const;
+
+		std::shared_ptr<ShapedGlyphSequence> finalizeTextShaping(std::vector<GlyphEntry> inGlyphsToRender, const TextInfo& inFontInfo, const float inFontScale, const ShapedGlyphSequence::SourceTextRange& inSourceTextRange) const;
 		//void copyDataIntoSlot(std::shared_ptr<AtlasedTextureSlot> slotToCopyTo, const std::vector<uint8_t>& data);
 		//void copyRow(const FCopyRowData& copyRowData);
 		//void zeroRow(const FCopyRowData& copyRowData);

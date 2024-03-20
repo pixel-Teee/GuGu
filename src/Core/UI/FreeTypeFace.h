@@ -18,6 +18,10 @@ namespace GuGu {
 		virtual ~FreeTypeFace();
 
 		FT_Face getFontFace();
+
+		FT_Pos getDescender() const;
+
+		FT_Pos getScaledHeight() const;
 	private:
 		struct FFTStreamHandler
 		{

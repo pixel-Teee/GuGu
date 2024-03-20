@@ -11,7 +11,78 @@
 
 #include <Core/Math/MyMath.h>
 
+#include <freetype/ftadvanc.h>
+
 namespace GuGu {
+	ShapedGlyphSequence::ShapedGlyphSequence(std::vector<GlyphEntry> inGlyphsToRender, const int16_t inTextBaseLine, const uint16_t inMaxTextHeight, const SourceTextRange& inSourceTextRange)
+		: m_glyphsToRender(inGlyphsToRender)
+		, m_textBaseLine(inTextBaseLine)
+		, m_maxTextHeight(inMaxTextHeight)
+		, m_sequenceWidth(0)
+		, m_sourceIndicesToGlyphData(inSourceTextRange)
+	{
+		const int32_t numGlyphsToRender = m_glyphsToRender.size();
+
+		for (int32_t currentGlyphIndex = 0; currentGlyphIndex < numGlyphsToRender; ++currentGlyphIndex)
+		{
+			const GlyphEntry& currentGlyph = m_glyphsToRender[currentGlyphIndex];
+
+			m_sequenceWidth += currentGlyph.xAdvance;
+
+			SourceIndexToGlyphData* sourceIndexToGlyphData = m_sourceIndicesToGlyphData.getGlyphData(currentGlyph.sourceIndex);
+
+			if (sourceIndexToGlyphData->isValid())
+			{
+				sourceIndexToGlyphData->additionalGlyphIndices.push_back(currentGlyphIndex);
+			}
+			else
+			{
+				*sourceIndexToGlyphData = SourceIndexToGlyphData(currentGlyphIndex);
+			}
+		}
+	}
+	std::optional<int32_t> ShapedGlyphSequence::getMeasuredWidth(const int32_t inStartIndex, const int32_t inEndIndex) const
+	{
+		int32_t measuredWidth = 0;
+
+		auto glyphCallback = [&](const GlyphEntry& currentGlyph, int32_t currentGlyphIndex) -> bool
+		{
+			measuredWidth += currentGlyph.xAdvance;
+			return true;
+		};
+
+		EnumerateLogicalGlyphsInSourceRange(inStartIndex, inEndIndex, glyphCallback);
+
+		return measuredWidth;
+	}
+	void ShapedGlyphSequence::EnumerateLogicalGlyphsInSourceRange(const int32_t InStartIndex, const int32_t InEndIndex, const eachShapedGlyphEntryCallback& InGlyphCallback) const
+	{
+		if (InStartIndex == InEndIndex)
+			return;
+
+		int32_t sourceIndex = InStartIndex;
+		while (sourceIndex < InEndIndex)
+		{
+			//获取与这个source index 相符合的 glyphs
+			const SourceIndexToGlyphData* sourceIndexToGlyphData = m_sourceIndicesToGlyphData.getGlyphData(sourceIndex);
+
+			if (!sourceIndexToGlyphData)
+				return;
+
+			//枚举每个被相应 source index 生成的glyph
+			const int32_t startGlyphIndex = sourceIndexToGlyphData->getLowestGlyphIndex();
+			const int32_t endGlyphIndex = sourceIndexToGlyphData->getHighestGlyphIndex();
+
+			for (int32_t currentGlyphIndex = startGlyphIndex; currentGlyphIndex <= endGlyphIndex; ++currentGlyphIndex)
+			{
+				const GlyphEntry& currentGlyph = m_glyphsToRender[currentGlyphIndex];
+
+				InGlyphCallback(currentGlyph, currentGlyphIndex);
+
+				sourceIndex += 1;//todo：这里之后需要修改为NumCharactersInGlyph，多个字母可能表示一个字符
+			}
+		}
+	}
 	FontCache::FontCache()
 	{
 		m_atlasSize = 1024;
@@ -146,6 +217,15 @@ namespace GuGu {
 	}
 	std::shared_ptr<FreeTypeFace> FontCache::getFreeTypeFace(const TextInfo& textInfo)
 	{
+		std::shared_ptr<FreeTypeFace> freeTypeFace;
+		if (m_faces.find(textInfo) != m_faces.end())
+			freeTypeFace = m_faces[textInfo];
+		else
+		{
+			GuGuUtf8Str filePath = textInfo.getFilePath();
+			freeTypeFace = std::make_shared<FreeTypeFace>(&m_library, filePath, m_fileSystem);
+			m_faces.insert({ textInfo, freeTypeFace });
+		}
 		return m_faces[textInfo];
 	}
 	void FontCache::setFontAtlasTexture(nvrhi::TextureHandle newTexture)
@@ -172,4 +252,136 @@ namespace GuGu {
 	{
 		m_atlasTexture->setTextureAtlas(nullptr);
 	}
+	std::shared_ptr<ShapedGlyphSequence> FontCache::shapeUnidirectionalText(const GuGuUtf8Str& inText, const int32_t InTextStart, const int32_t InTextLen, const TextInfo& inFontInfo, const float inFontScale, const TextShapingMethod inTextShapingMethod) const
+	{
+		//todo：暂时不用 harfbuzz 来塑形
+
+		std::vector<GlyphEntry> glyphsToRender;
+		performTextShaping(inText, InTextStart, InTextLen, inFontInfo, inFontScale, inTextShapingMethod, glyphsToRender);
+		return finalizeTextShaping(std::move(glyphsToRender), inFontInfo, inFontScale, ShapedGlyphSequence::SourceTextRange(InTextStart, InTextLen));
+	}
+	void FontCache::performTextShaping(const GuGuUtf8Str& inText, const int32_t inTextStart, const int32_t inTextLen, const TextInfo& inFontInfo, const float inFontScale, const TextShapingMethod textShapingMethod, std::vector<GlyphEntry>& outGlyphsToRender) const
+	{
+		if (inTextLen > 0)
+		{
+			performKerningOnlyTextShaping(inText, inTextStart, inTextLen, inFontInfo, inFontScale, outGlyphsToRender);
+		}
+	}
+	void FontCache::performKerningOnlyTextShaping(const GuGuUtf8Str& inText, const int32_t inTextStart, const int32_t inTextLen, const TextInfo& inFontInfo, const float inFontScale, std::vector<GlyphEntry>& outGlyphsToRender) const
+	{
+		std::vector<KerningOnlyTextSequenceEntry> kerningOnlyTextSequence;
+
+		//步骤1：分割文本到段，对于相同的font face 进行分割
+		{
+			//暂时只用一种文本对于TextInfo
+			int32_t splitStartIndex = inTextStart;
+			int32_t runningTextIndex = inTextStart;
+			GuGuUtf8Str fontFilePath("");
+			std::shared_ptr<FreeTypeFace> runningFaceAndMemory;
+			float runningSubFontScalingFactor = 1.0f;
+
+			auto appendPendingFontDataToSequence = [&]()
+			{
+				if (fontFilePath != u8"")
+				{
+					kerningOnlyTextSequence.emplace_back(
+						splitStartIndex,					
+						runningTextIndex - splitStartIndex,
+						fontFilePath,
+						runningFaceAndMemory
+					);
+
+					fontFilePath = "";
+					runningFaceAndMemory.reset();
+					runningSubFontScalingFactor = 1.0f;
+				}
+			};
+
+			const int32_t textEndIndex = inTextStart + inTextLen;
+			for (; runningTextIndex < textEndIndex; ++runningTextIndex)
+			{
+				const GuGuUtf8Str currentChar = inText[runningTextIndex];
+
+				const bool bShouldRenderAsWhitespace = false;//todo:修复这里
+
+				GuGuUtf8Str filePath = inFontInfo.m_textPath;
+				std::shared_ptr<FreeTypeFace> face = FontCache::getFontCache()->getFreeTypeFace(inFontInfo);
+
+				if (fontFilePath != "" || fontFilePath != filePath || face != runningFaceAndMemory)
+				{
+					appendPendingFontDataToSequence();
+
+					fontFilePath = filePath;
+					splitStartIndex = runningTextIndex;
+					runningFaceAndMemory = face;
+				}
+			}
+
+			appendPendingFontDataToSequence();
+		}
+
+		//步骤2：目前我们使用font cache 去获取每个字母的大小，还有每个字母对的kerning
+		{
+			outGlyphsToRender.reserve(outGlyphsToRender.size() + inTextLen);
+
+			for (const KerningOnlyTextSequenceEntry& kerningOnlyTextSequenceEntry : kerningOnlyTextSequence)
+			{
+				if (!kerningOnlyTextSequenceEntry.faceAndMemory)
+				{
+					continue;
+				}
+
+				const bool bHasKerning = FT_HAS_KERNING(kerningOnlyTextSequenceEntry.faceAndMemory->getFontFace());
+
+				uint32_t glyphFlags = 0;
+
+				FreeTypeUtils::ApplySizeAndScale(kerningOnlyTextSequenceEntry.faceAndMemory->getFontFace(), inFontInfo.m_size, inFontScale);
+
+				for (int32_t sequenceCharIndex = 0; sequenceCharIndex < kerningOnlyTextSequenceEntry.textLength; ++sequenceCharIndex)
+				{
+					const int32_t currentCharIndex = kerningOnlyTextSequenceEntry.textStartIndex + sequenceCharIndex;
+					const GuGuUtf8Str currentChar = inText[currentCharIndex];
+
+					//todo:这里要处理不能显示的字符
+					uint32_t glyphIndex = FT_Get_Char_Index(kerningOnlyTextSequenceEntry.faceAndMemory->getFontFace(), currentChar.getUnicode().at(0));
+
+					int16_t xAdvance = 0;
+					{
+						FT_Fixed cachedAdvanceData = 0;
+						//todo:这里以后可能需要缓存，暂时不缓存了
+						FT_Error error = FT_Get_Advance(kerningOnlyTextSequenceEntry.faceAndMemory->getFontFace(), glyphIndex, 0, &cachedAdvanceData);
+						if (error == 0)
+						{
+							cachedAdvanceData = FT_MulFix(cachedAdvanceData, kerningOnlyTextSequenceEntry.faceAndMemory->getFontFace()->size->metrics.x_scale);
+							xAdvance = ((((cachedAdvanceData + (1 << 9)) >> 10) + (1 << 5)) >> 6);
+						}
+					}
+
+					outGlyphsToRender.push_back(GlyphEntry());
+					const int32_t currentGlyphEntryIndex = outGlyphsToRender.size() - 1;
+					GlyphEntry& shapedGlyphEntry = outGlyphsToRender[currentGlyphEntryIndex];
+					shapedGlyphEntry.glyphIndex = glyphIndex;
+					shapedGlyphEntry.sourceIndex = currentCharIndex;
+					shapedGlyphEntry.xAdvance = xAdvance;
+					shapedGlyphEntry.yAdvance = 0;
+					shapedGlyphEntry.xOffset = 0;
+					shapedGlyphEntry.yOffset = 0;
+					
+					//暂时不考虑kerning
+				}
+			}
+		}
+	}
+	std::shared_ptr<ShapedGlyphSequence> FontCache::finalizeTextShaping(std::vector<GlyphEntry> inGlyphsToRender, const TextInfo& inFontInfo, const float inFontScale, const ShapedGlyphSequence::SourceTextRange& inSourceTextRange) const
+	{
+		int16_t textBaseLine = 0;
+		uint16_t maxHeight = 0;
+		std::shared_ptr<FreeTypeFace> face = FontCache::getFontCache()->getFreeTypeFace(inFontInfo);;
+		FreeTypeUtils::ApplySizeAndScale(face->getFontFace(), inFontInfo.m_size, inFontScale);
+		//获取base line和max height大小
+		textBaseLine = ((face->getDescender() + (1 << 5)) >> 6);
+		maxHeight = ((face->getScaledHeight() + (1 << 5)) >> 6);
+		return std::make_shared<ShapedGlyphSequence>(inGlyphsToRender, textBaseLine, maxHeight, inSourceTextRange);
+	}
+
 }

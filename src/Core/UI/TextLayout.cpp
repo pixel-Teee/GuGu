@@ -3,21 +3,42 @@
 #include "TextLayout.h"
 #include "ILayoutBlock.h"
 #include "ShapedTextCache.h"
+#include "WidgetGeometry.h"
 
 namespace GuGu {
-	LineModel::LineModel(const std::shared_ptr<GuGuUtf8Str>& inText)
+	TextLayout::LineModel::LineModel(const std::shared_ptr<GuGuUtf8Str>& inText)
 		: text(inText)
 		, m_shapedTextCache(ShapedTextCache::Create(FontCache::getFontCache()))
 	{
 	}
-	RunModel::RunModel(const std::shared_ptr<IRun>& inRun)
+	TextLayout::RunModel::RunModel(const std::shared_ptr<IRun>& inRun)
 		: m_run(inRun)
 	{
 	}
 
-	TextRange RunModel::getTextRange() const
+	TextRange TextLayout::RunModel::getTextRange() const
 	{
 		return m_run->getTextRange();
+	}
+
+	int16_t TextLayout::RunModel::getBaseLine(float inScale) const
+	{
+		return m_run->getBaseLine(inScale);
+	}
+
+	int16_t TextLayout::RunModel::getMaxHeight(float inScale) const
+	{
+		return m_run->getMaxHeight(inScale);
+	}
+
+	std::shared_ptr<ILayoutBlock> TextLayout::RunModel::createBlock(const BlockDefinition& blockDefine, float inScale, const LayoutBlockTextContext& inTextContext) const
+	{
+		const TextRange& sizeRange = blockDefine.m_actualRange;
+		if (m_measuredRanges.size() == 0)
+		{
+			TextRange runRange = m_run->getTextRange();
+			return m_run->createBlock(blockDefine.m_actualRange.m_beginIndex, blockDefine.m_actualRange.m_endIndex, m_run->measure(sizeRange.m_beginIndex, sizeRange.m_endIndex, inScale, inTextContext), inTextContext);
+		}
 	}
 
 	TextLayout::TextLayout()
@@ -91,6 +112,9 @@ namespace GuGu {
 
 		const RunTextContext runTextContext(m_textShapingMethod, lineModel.m_shapedTextCache);
 
+		int16_t maxAboveBaseline = 0;
+		int16_t maxBelowBaseline = 0;
+
 		//max int32 and min int32
 		TextRange softLineRange = TextRange(((int32_t)0x7fffffff), ((int32_t)0x80000000));
 		for (; OutRunIndex < lineModel.runs.size(); )
@@ -109,8 +133,78 @@ namespace GuGu {
 			const bool isLastBlock = blockStopIndex == stopIndex;
 
 			//add the new block
+			{
+				BlockDefinition blockDefine;
+				blockDefine.m_actualRange = TextRange(blockBeginIndex, blockStopIndex);
 
+				outSoftLine.push_back(run.createBlock(blockDefine, m_scale, LayoutBlockTextContext(runTextContext)));
+				outPreviousBlockEnd = blockStopIndex;
+
+				const TextRange& blockRange = outSoftLine.back()->getTextRange();
+				softLineRange.m_beginIndex = std::min(softLineRange.m_beginIndex, blockRange.m_beginIndex);
+				softLineRange.m_endIndex = std::max(softLineRange.m_endIndex, blockRange.m_endIndex);
+			}
+
+			//获取baseline和翻转它的符号，baseline通常都是负的
+			const int16_t baseLine = -(run.getBaseLine(m_scale));
+
+			maxAboveBaseline = std::max(maxAboveBaseline, (int16_t)(run.getMaxHeight(m_scale) - baseLine));
+			maxBelowBaseline = std::max(maxBelowBaseline, baseLine);
+
+			if (blockStopIndex == runRange.m_endIndex)
+			{
+				++OutRunIndex;
+			}
+
+			if (isLastBlock)
+			{
+				break;
+			}
 		}
+
+		math::float2 lineSize(0.0f, 0.0f);
+		math::float2 currentOffset(0, m_textLayoutSize.m_height);
+
+		if (outSoftLine.size() > 0)
+		{
+			float currentHorizontalPos = 0.0f;
+			for (int32_t index = 0; index < outSoftLine.size(); ++index)
+			{
+				const std::shared_ptr<ILayoutBlock> block = outSoftLine[index];
+				const std::shared_ptr<IRun> run = block->getRun();
+				
+				const int16_t blockBaseLine = run->getBaseLine(m_scale);
+				const int16_t verticalOffset = maxAboveBaseline - block->getSize().y - blockBaseLine;
+				//todo:添加kerning
+
+				block->setLocationOffset(math::float2(currentOffset.x + currentHorizontalPos, currentOffset.y + verticalOffset));
+
+				currentHorizontalPos += block->getSize().x;
+			}
+
+			const float unscaleLineHeight = maxAboveBaseline + maxBelowBaseline;
+
+			lineSize.x = currentHorizontalPos;
+			lineSize.y = unscaleLineHeight;//todo:添加line height percentage
+
+			TextLayout::LineView lineView;
+			lineView.offset = currentOffset;
+			lineView.size = lineSize;
+			lineView.textHeight = unscaleLineHeight;
+			lineView.justificationWidth = justificationWidth.value_or(lineView.size.x);
+			lineView.range = softLineRange;
+			lineView.modelIndex = lineModelIndex;
+			for (size_t i = 0; i < outSoftLine.size(); ++i)
+			{
+				lineView.blocks.push_back(outSoftLine[i]);
+			}
+
+			m_lineViews.push_back(lineView);
+		}
+
+		m_textLayoutSize.m_drawWidth = std::max(m_textLayoutSize.m_drawWidth, lineSize.x);
+		m_textLayoutSize.m_wrappedWidth = std::max(m_textLayoutSize.m_wrappedWidth, (stopIndex == -1) ? lineSize.x : wrappedLineWidth);
+		m_textLayoutSize.m_height += lineSize.y;
 	}
 
 }

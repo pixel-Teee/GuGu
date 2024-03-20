@@ -44,30 +44,61 @@ namespace GuGu {
 	};
 	class RunModel;
 	class ShapedTextCache;
-	struct LineModel
-	{
-		LineModel(const std::shared_ptr<GuGuUtf8Str>& inText);
-
-		std::shared_ptr<GuGuUtf8Str> text;
-		std::vector<RunModel> runs;
-		std::shared_ptr<ShapedTextCache> m_shapedTextCache;
-	};
 	class ILayoutBlock;
 	//这个RunModel就是IRun，间接调用了一层
-	class RunModel
-	{
-	public:
-		RunModel(const std::shared_ptr<IRun>& inRun);
+	struct LayoutBlockTextContext;
 
-		TextRange getTextRange() const;
-	private:
-		std::shared_ptr<IRun> m_run;
-		std::vector<TextRange> m_measuredRanges;
-		std::vector<math::float2> m_measuredRangeSizes;
-	};
+	struct PaintArgs;
+	class WidgetGeometry;
+	class ElementList;
+	class Style;
 	class TextLayout
 	{
 	public:
+		struct BlockDefinition
+		{
+			/*排除尾置空白的范围，被用来通常去展示和交互文本*/
+			TextRange m_actualRange;
+		};
+
+		class RunModel
+		{
+		public:
+			RunModel(const std::shared_ptr<IRun>& inRun);
+
+			TextRange getTextRange() const;
+
+			int16_t getBaseLine(float inScale) const;
+
+			int16_t getMaxHeight(float inScale) const;
+
+			std::shared_ptr<ILayoutBlock> createBlock(const BlockDefinition& blockDefine, float inScale, const LayoutBlockTextContext& inTextContext) const;
+		private:
+			std::shared_ptr<IRun> m_run;
+			std::vector<TextRange> m_measuredRanges;
+			std::vector<math::float2> m_measuredRangeSizes;
+		};
+
+		struct LineModel
+		{
+			LineModel(const std::shared_ptr<GuGuUtf8Str>& inText);
+
+			std::shared_ptr<GuGuUtf8Str> text;
+			std::vector<RunModel> runs;
+			std::shared_ptr<ShapedTextCache> m_shapedTextCache;
+		};
+
+		struct LineView
+		{
+			std::vector<std::shared_ptr<ILayoutBlock>> blocks;
+			math::float2 offset;
+			math::float2 size;
+			float textHeight;
+			float justificationWidth;
+			TextRange range;
+			int32_t modelIndex;
+		};
+		
 		TextLayout();
 
 		virtual ~TextLayout();
@@ -97,7 +128,8 @@ namespace GuGu {
 		};
 
 		void addLines(const std::vector<NewLineData>& newLines);
-	private:
+
+	protected:
 
 		void flowLineLayout(const int32_t lineModelIndex, const float wrappingDrawWidth, std::vector<std::shared_ptr<ILayoutBlock>>& softLine);
 
@@ -118,5 +150,7 @@ namespace GuGu {
 		std::vector<LineModel> m_lineModels;
 
 		TextShapingMethod m_textShapingMethod;
+
+		std::vector<LineView> m_lineViews;
 	};
 }

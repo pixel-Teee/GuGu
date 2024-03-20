@@ -29,7 +29,7 @@ namespace GuGu {
 		math::box2 getRenderBoundingRect() const;
 
 		math::box2 getRenderBoundingRect(const math::box2& localSpaceRect) const;
-	private:
+	public:
 		math::float2 mLocalPosition;
 		math::float2 mLocalSize;
 		float mAbsoluteScale;
