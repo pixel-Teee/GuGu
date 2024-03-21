@@ -63,6 +63,12 @@ namespace GuGu{
 
                             //GuGu_LOGD("(%f, %f)", x, y);
                         }
+                        else if(action == AMOTION_EVENT_ACTION_MOVE)
+                        {
+                            std::shared_ptr<AndroidWindow> window = androidApplication->getPlatformWindow();
+
+                            androidApplication->onMouseMove(window, math::float2(x, y));
+                        }
                     }
                 }
                 android_app_clear_motion_events(input_buf);
