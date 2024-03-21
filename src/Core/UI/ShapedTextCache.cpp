@@ -16,6 +16,14 @@ namespace GuGu {
 
 			return math::float2(measuredWidth.value(), shapedText->getMaxTextHeight());
 		}
+		std::shared_ptr<ShapedGlyphSequence> getShapedTextSubSequence(const std::shared_ptr<ShapedTextCache>& inShapedTextCache, const CacheShapedTextKey& inRunKey, const TextRange& inTextRange, const GuGuUtf8Str& inText)
+		{
+			std::shared_ptr<ShapedGlyphSequence> shapedText = inShapedTextCache->findOrAddShapedText(inRunKey, inText);
+
+			//todo:额外检查一下
+
+			return shapedText;
+		}
 	}
 	std::shared_ptr<ShapedTextCache> ShapedTextCache::Create(const std::shared_ptr<FontCache>& inFontCache)
 	{

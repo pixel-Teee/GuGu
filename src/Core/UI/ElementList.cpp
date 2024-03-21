@@ -7,6 +7,7 @@
 #include "SplineElement.h"
 #include "ViewportElement.h"
 #include "TextElement.h"
+#include "ShapedTextElement.h"
 #include "Brush.h"
 #include "FontCache.h"
 #include "CharacterList.h"
@@ -68,6 +69,14 @@ namespace GuGu {
 		//generate a box element to element list
 		elementList.m_elements.push_back(viewportElement);
 	}
+	void ElementList::addShapedTextElement(ElementList& elementList, const WidgetGeometry& widgetGeometry, math::float4 color, std::shared_ptr<ShapedGlyphSequence> shapedText, uint32_t layer)
+	{
+		std::shared_ptr<ShapedTextElement> shapedTextElement = std::make_shared<ShapedTextElement>(Element::ElementType::ShapedText, widgetGeometry, layer);
+		shapedTextElement->setClipIndex(elementList.getClippintIndex());
+		shapedTextElement->m_color = color;
+		shapedTextElement->m_shapedTextSequence = shapedText;
+		elementList.m_elements.push_back(shapedTextElement);
+	}
 	void ElementList::generateBatches()
 	{
 		std::stable_sort(m_elements.begin(), m_elements.end(), [=](const std::shared_ptr<Element>& lhs, const std::shared_ptr<Element>& rhs) {
@@ -109,6 +118,11 @@ namespace GuGu {
 				case Element::ElementType::Viewport:
 				{
 					generateViewportBatch(m_elements[i]);
+					break;
+				}
+				case Element::ElementType::ShapedText:
+				{
+					generateShapedTextBatch(m_elements[i]);
 					break;
 				}
 			}
@@ -237,16 +251,16 @@ namespace GuGu {
 
 				if (!isWhiteSpace)
 				{
-					const float x = lineX + entry.m_glyphFontAtlasData.horizontalOffset;
+					const float x = lineX + entry.m_glyphFontAtlasData->horizontalOffset;
 
 					//posX, posY is the upper left corner of the bounding box representing the string
-					const float y = posY - entry.m_glyphFontAtlasData.verticalOffset + maxHeight + entry.globalDescender;//todo:add max height and global descender
-					const float u = entry.m_glyphFontAtlasData.startU * invTextureSizeX;
-					const float v = entry.m_glyphFontAtlasData.startV * invTextureSizeY;
-					const float sizeX = entry.m_glyphFontAtlasData.uSize;
-					const float sizeY = entry.m_glyphFontAtlasData.vSize;
-					const float sizeU = entry.m_glyphFontAtlasData.uSize * invTextureSizeX;
-					const float sizeV = entry.m_glyphFontAtlasData.vSize * invTextureSizeY;
+					const float y = posY - entry.m_glyphFontAtlasData->verticalOffset + maxHeight + entry.globalDescender;//todo:add max height and global descender
+					const float u = entry.m_glyphFontAtlasData->startU * invTextureSizeX;
+					const float v = entry.m_glyphFontAtlasData->startV * invTextureSizeY;
+					const float sizeX = entry.m_glyphFontAtlasData->uSize;
+					const float sizeY = entry.m_glyphFontAtlasData->vSize;
+					const float sizeU = entry.m_glyphFontAtlasData->uSize * invTextureSizeX;
+					const float sizeV = entry.m_glyphFontAtlasData->vSize * invTextureSizeY;
 
 					math::float2 upperLeft = transform.transformPoint(math::float2(x, y));
 					math::float2 upperRight = transform.transformPoint(math::float2(x + sizeX, y));
@@ -405,5 +419,108 @@ namespace GuGu {
 
 		boxBatch->m_texture = viewportElement->m_renderTargetResouce;
 		m_batches.push_back(boxBatch);
+	}
+	void ElementList::generateShapedTextBatch(std::shared_ptr<Element> element)
+	{
+		std::shared_ptr<ShapedTextElement> textElement = std::static_pointer_cast<ShapedTextElement>(element);
+		std::shared_ptr<ShapedGlyphSequence> shapedGlyphSequence = textElement->m_shapedTextSequence;
+		math::float4 color = textElement->m_color;
+		std::shared_ptr<FontCache> fontCache = FontCache::getFontCache();
+
+		const int16_t textBaseLine = shapedGlyphSequence->m_textBaseLine;
+		const uint16_t maxHeight = shapedGlyphSequence->m_maxTextHeight;
+
+		ShapedTextBuildContext shapedTextBuildContext;
+		shapedTextBuildContext.fontCache = fontCache.get();
+		shapedTextBuildContext.maxHeight = maxHeight;
+		shapedTextBuildContext.textBaseLine = textBaseLine;
+		shapedTextBuildContext.shapedGlyphSequence = shapedGlyphSequence.get();
+		shapedTextBuildContext.element = textElement.get();
+		
+		auto buildFontGeometry = [&](const math::float4& inTint, int32_t inLayer)
+		{
+			math::float2 topLeft(0, 0);
+
+			const float posX = topLeft.x;
+			float posY = topLeft.y;
+
+			shapedTextBuildContext.startLineX = posX;
+			shapedTextBuildContext.startLineY = posY;
+			shapedTextBuildContext.layerId = inLayer;
+			shapedTextBuildContext.fontTint = inTint;
+			
+			buildShapedTextSequence(shapedTextBuildContext);
+		};
+
+		buildFontGeometry(color, element->m_layer);
+	}
+	void ElementList::buildShapedTextSequence(const ShapedTextBuildContext& context)
+	{
+		const ShapedGlyphSequence* glyphSequenceToRender = context.shapedGlyphSequence;
+
+		float invTextureSizeX = 1.0f / 1024.0f;
+		float invTextureSizeY = 1.0f / 1024.0f;
+
+		float lineX = context.startLineX;
+		float lineY = context.startLineY;
+
+		int32_t numGlyphs = glyphSequenceToRender->m_glyphsToRender.size();
+		const std::vector<GlyphEntry>& glyphsToRender = glyphSequenceToRender->m_glyphsToRender;
+		for (int32_t glyphIndex = 0; glyphIndex < numGlyphs; ++glyphIndex)
+		{
+			const GlyphEntry& glyphToRender = glyphsToRender[glyphIndex];
+
+			float X = 0;
+			float SizeX = 0;
+			float Y = 0;
+			float U = 0;
+			float V = 0;
+			float SizeY = 0;
+			float SizeU = 0;
+			float SizeV = 0;
+
+			const GlyphFontAtlasData glyphAtlasData = context.fontCache->getShapedGlyphFontAtlasData(glyphToRender);
+			X += lineX + glyphAtlasData.horizontalOffset + glyphToRender.xOffset;
+
+			std::shared_ptr<BatchData> batch = std::make_shared<BatchData>();
+			batch->shaderType = UIShaderType::Font;
+			batch->m_layer = context.element->m_layer;
+			batch->m_clippingState = getClippingState(context.element->m_clipIndex);
+
+			Y = lineY - glyphAtlasData.verticalOffset + glyphToRender.yOffset + ((context.maxHeight + context.textBaseLine));
+			U = glyphAtlasData.startU * invTextureSizeX;
+			V = glyphAtlasData.startV * invTextureSizeY;
+			SizeX = glyphAtlasData.uSize;
+			SizeY = glyphAtlasData.vSize;
+			SizeU = glyphAtlasData.uSize * invTextureSizeX;
+			SizeV = glyphAtlasData.vSize * invTextureSizeY;
+
+			math::affine2 transform = context.element->m_geometry.getAccumulateTransform();
+			transform.m_linear = math::float2x2::identity();
+			math::float4 color = static_cast<ShapedTextElement*>(context.element)->m_color;
+			math::float2 UpperLeft = transform.transformPoint(math::float2(X, Y));
+			math::float2 UpperRight = transform.transformPoint(math::float2(X + SizeX, Y));
+			math::float2 LowerLeft = transform.transformPoint(math::float2(X, Y + SizeY));
+			math::float2 LowerRight = transform.transformPoint(math::float2(X + SizeX, Y + SizeY));
+
+			batch->m_vertices.emplace_back(math::float4(U, V, 1.0f, 1.0f), math::float2(UpperLeft.x, UpperLeft.y), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+			batch->m_vertices.emplace_back(math::float4(U + SizeU, V + SizeV, 1.0f, 1.0f), math::float2(LowerRight.x, LowerRight.y), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+			batch->m_vertices.emplace_back(math::float4(U, V + SizeV, 1.0f, 1.0f), math::float2(LowerLeft.x, LowerLeft.y), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+			batch->m_vertices.emplace_back(math::float4(U + SizeU, V, 1.0f, 1.0f), math::float2(UpperRight.x, UpperRight.y), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+
+			batch->m_indices.emplace_back(0);
+			batch->m_indices.emplace_back(1);
+			batch->m_indices.emplace_back(2);
+			batch->m_indices.emplace_back(0);
+			batch->m_indices.emplace_back(3);
+			batch->m_indices.emplace_back(1);
+
+			batch->m_texture = FontCache::getFontCache()->getFontAtlasTexture();
+
+			lineX += glyphToRender.xAdvance;
+			lineY += glyphToRender.yAdvance;
+
+			m_batches.push_back(batch);
+		}
 	}
 }

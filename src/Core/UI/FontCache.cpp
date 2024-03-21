@@ -84,6 +84,7 @@ namespace GuGu {
 		}
 	}
 	FontCache::FontCache()
+		: m_freeTypeCacheDirectory(std::make_shared<FreeTypeCacheDirectory>())
 	{
 		m_atlasSize = 1024;
 		m_atlasTexture = std::make_shared<AtlasTexture>(m_atlasSize, 1);
@@ -145,7 +146,7 @@ namespace GuGu {
 
 				previousChar = currentChar;
 
-				const int32_t totalCharSpacing = entry->m_glyphFontAtlasData.horizontalOffset + entry->xAdvance;
+				const int32_t totalCharSpacing = entry->m_glyphFontAtlasData->horizontalOffset + entry->xAdvance;
 
 				currentX += entry->xAdvance;
 			}
@@ -260,6 +261,61 @@ namespace GuGu {
 		performTextShaping(inText, InTextStart, InTextLen, inFontInfo, inFontScale, inTextShapingMethod, glyphsToRender);
 		return finalizeTextShaping(std::move(glyphsToRender), inFontInfo, inFontScale, ShapedGlyphSequence::SourceTextRange(InTextStart, InTextLen));
 	}
+	GlyphFontAtlasData FontCache::getShapedGlyphFontAtlasData(const GlyphEntry& inShapedGlyph)
+	{
+		std::shared_ptr<GlyphFontAtlasData> cachedAtlasData = inShapedGlyph.m_glyphFontAtlasData;
+
+		if (cachedAtlasData != nullptr)
+		{
+			return *cachedAtlasData;
+		}
+
+		ShapedGlyphEntryKey glyphKey(inShapedGlyph.m_fontFace.lock(), inShapedGlyph.fontSize, inShapedGlyph.fontScale, inShapedGlyph.glyphIndex);
+
+		auto it = m_shapedGlyphToAtlasData.find(glyphKey);
+
+		if (it != m_shapedGlyphToAtlasData.end())
+		{
+			inShapedGlyph.m_glyphFontAtlasData = (*it).second;
+			return *inShapedGlyph.m_glyphFontAtlasData;
+		}
+
+		std::shared_ptr<GlyphFontAtlasData> newAtlasData = std::make_shared<GlyphFontAtlasData>();
+		FT_Load_Glyph(inShapedGlyph.m_fontFace.lock()->getFontFace(), inShapedGlyph.glyphIndex, 0);
+		FT_GlyphSlot slot = inShapedGlyph.m_fontFace.lock()->getFontFace()->glyph;
+		newAtlasData->verticalOffset = slot->bitmap_top;
+		newAtlasData->horizontalOffset = slot->bitmap_left;
+		FT_Render_Glyph(slot, FT_RENDER_MODE_NORMAL);
+		FT_Bitmap* bitMap = nullptr;
+		//FT_Bitmap tmpBitmap;
+		bitMap = &slot->bitmap;
+		const uint32_t bytesPerPixel = 1;
+		std::vector<uint8_t> rawPixels(bitMap->rows * bitMap->width * bytesPerPixel);
+		for (uint32_t row = 0; row < bitMap->rows; ++row)
+		{
+			std::memcpy(&rawPixels[row * bitMap->width * bytesPerPixel], &bitMap->buffer[row * bitMap->pitch], bitMap->width * bytesPerPixel);
+		}
+		const int32_t grayBoost = 255 / (bitMap->num_grays - 1);
+		for (uint8_t& rawPixel : rawPixels)
+		{
+			rawPixel *= grayBoost;
+		}
+
+		uint16_t characterWidth = bitMap->width;
+		uint16_t characterHeight = bitMap->rows;
+		//GuGu_LOGD("font:%s size:%d, %d", Char.getStr(), characterWidth, characterHeight);
+		//todo:add texture atlas
+		std::shared_ptr<AtlasedTextureSlot> atlasedTextureSlot = FontCache::getFontCache()->addCharacter(characterWidth, characterHeight, rawPixels);
+		newAtlasData->startU = atlasedTextureSlot->x + atlasedTextureSlot->padding;
+		newAtlasData->startV = atlasedTextureSlot->y + atlasedTextureSlot->padding;
+		newAtlasData->vSize = atlasedTextureSlot->height - 2 * atlasedTextureSlot->padding;
+		newAtlasData->uSize = atlasedTextureSlot->width - 2 * atlasedTextureSlot->padding;
+
+		FontCache::getFontCache()->setDirtyFlag(true);
+		m_shapedGlyphToAtlasData.insert({ glyphKey, newAtlasData });
+		inShapedGlyph.m_glyphFontAtlasData = newAtlasData;
+		return *newAtlasData;
+	}
 	void FontCache::performTextShaping(const GuGuUtf8Str& inText, const int32_t inTextStart, const int32_t inTextLen, const TextInfo& inFontInfo, const float inFontScale, const TextShapingMethod textShapingMethod, std::vector<GlyphEntry>& outGlyphsToRender) const
 	{
 		if (inTextLen > 0)
@@ -336,6 +392,7 @@ namespace GuGu {
 				uint32_t glyphFlags = 0;
 
 				FreeTypeUtils::ApplySizeAndScale(kerningOnlyTextSequenceEntry.faceAndMemory->getFontFace(), inFontInfo.m_size, inFontScale);
+				std::shared_ptr<FreeTypeAdvanceCache> advanceCache = m_freeTypeCacheDirectory->getAdvanceCache(kerningOnlyTextSequenceEntry.faceAndMemory->getFontFace(), 0, inFontInfo.m_size, inFontScale);
 
 				for (int32_t sequenceCharIndex = 0; sequenceCharIndex < kerningOnlyTextSequenceEntry.textLength; ++sequenceCharIndex)
 				{
@@ -348,18 +405,24 @@ namespace GuGu {
 					int16_t xAdvance = 0;
 					{
 						FT_Fixed cachedAdvanceData = 0;
-						//todo:这里以后可能需要缓存，暂时不缓存了
-						FT_Error error = FT_Get_Advance(kerningOnlyTextSequenceEntry.faceAndMemory->getFontFace(), glyphIndex, 0, &cachedAdvanceData);
-						if (error == 0)
+						if (advanceCache->findOrCache(glyphIndex, cachedAdvanceData))
 						{
-							cachedAdvanceData = FT_MulFix(cachedAdvanceData, kerningOnlyTextSequenceEntry.faceAndMemory->getFontFace()->size->metrics.x_scale);
 							xAdvance = ((((cachedAdvanceData + (1 << 9)) >> 10) + (1 << 5)) >> 6);
 						}
+						//FT_Error error = FT_Get_Advance(kerningOnlyTextSequenceEntry.faceAndMemory->getFontFace(), glyphIndex, 0, &cachedAdvanceData);
+						//if (error == 0)
+						//{
+						//	cachedAdvanceData = FT_MulFix(cachedAdvanceData, kerningOnlyTextSequenceEntry.faceAndMemory->getFontFace()->size->metrics.x_scale);
+						//	xAdvance = ((((cachedAdvanceData + (1 << 9)) >> 10) + (1 << 5)) >> 6);
+						//}
 					}
 
 					outGlyphsToRender.push_back(GlyphEntry());
 					const int32_t currentGlyphEntryIndex = outGlyphsToRender.size() - 1;
 					GlyphEntry& shapedGlyphEntry = outGlyphsToRender[currentGlyphEntryIndex];
+					shapedGlyphEntry.fontSize = inFontInfo.m_size;
+					shapedGlyphEntry.fontScale = inFontScale;
+					shapedGlyphEntry.m_fontFace = kerningOnlyTextSequenceEntry.faceAndMemory;
 					shapedGlyphEntry.glyphIndex = glyphIndex;
 					shapedGlyphEntry.sourceIndex = currentCharIndex;
 					shapedGlyphEntry.xAdvance = xAdvance;
@@ -383,5 +446,15 @@ namespace GuGu {
 		maxHeight = ((face->getScaledHeight() + (1 << 5)) >> 6);
 		return std::make_shared<ShapedGlyphSequence>(inGlyphsToRender, textBaseLine, maxHeight, inSourceTextRange);
 	}
+
+	ShapedGlyphEntryKey::ShapedGlyphEntryKey(std::shared_ptr<FreeTypeFace> inFreeTypeFace, int32_t fontSize, float fontScale, uint32_t glyphIndex)
+		: m_fontFace(inFreeTypeFace)
+		, m_fontSize(fontSize)
+		, m_fontScale(fontScale)
+		, m_glyphIndex(glyphIndex)
+	{
+	}
+
+
 
 }

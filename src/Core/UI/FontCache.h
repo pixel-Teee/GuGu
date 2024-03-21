@@ -15,6 +15,8 @@
 
 #include "CharacterList.h"//GlyphEntry depends on it
 
+#include <Core/HashCombine.h>
+
 namespace GuGu {
 	//class TextInfo;
 	class GuGuUtf8Str;
@@ -151,7 +153,48 @@ namespace GuGu {
 			, faceAndMemory(inFaceAndMemory)
 		{}
 	};
+
+	struct ShapedGlyphEntryKey
+	{
+	public:
+		ShapedGlyphEntryKey(std::shared_ptr<FreeTypeFace> inFreeTypeFace, int32_t fontSize, float fontScale, uint32_t glyphIndex);
+
+		bool operator==(const ShapedGlyphEntryKey& rhs) const
+		{
+			return m_fontFace.lock() == rhs.m_fontFace.lock() && m_fontSize == rhs.m_fontSize && m_fontScale == rhs.m_fontScale && m_glyphIndex == rhs.m_glyphIndex;
+		}
 	
+		std::weak_ptr<FreeTypeFace> m_fontFace;
+
+		int32_t m_fontSize;
+
+		float m_fontScale;
+
+		uint32_t m_glyphIndex;
+	};
+}
+
+namespace std
+{
+	template<>
+	struct hash<GuGu::ShapedGlyphEntryKey>
+	{
+		size_t operator()(const GuGu::ShapedGlyphEntryKey& s) const
+		{
+			size_t keyHash = 0;
+			GuGu::hash_combine(keyHash, s.m_fontFace.lock().get());
+			GuGu::hash_combine(keyHash, s.m_fontSize);
+			GuGu::hash_combine(keyHash, s.m_fontScale);
+			GuGu::hash_combine(keyHash, s.m_glyphIndex);
+			return keyHash;
+		}
+	};
+}
+
+
+
+namespace GuGu{
+	class FreeTypeCacheDirectory;
 	class FontCache {
 	public:
 		FontCache();
@@ -188,6 +231,8 @@ namespace GuGu {
 
 		std::shared_ptr<ShapedGlyphSequence> shapeUnidirectionalText(const GuGuUtf8Str& inText, const int32_t InTextStart, const int32_t InTextLen, const TextInfo& inFontInfo, const float inFontScale, const TextShapingMethod inTextShapingMethod) const;
 
+		GlyphFontAtlasData getShapedGlyphFontAtlasData(const GlyphEntry& inShapedGlyph);
+
 		friend class CharacterList;
 	private:
 		void performTextShaping(const GuGuUtf8Str& inText, const int32_t inTextStart, const int32_t inTextLen, const TextInfo& inFontInfo, const float inFontScale, const TextShapingMethod textShapingMethod, std::vector<GlyphEntry>& outGlyphsToRender) const;
@@ -202,6 +247,10 @@ namespace GuGu {
 
 		std::unordered_map<TextInfo, std::shared_ptr<FreeTypeFace>> m_faces;
 
+		std::unordered_map<ShapedGlyphEntryKey, std::shared_ptr<GlyphFontAtlasData>> m_shapedGlyphToAtlasData;
+
+		std::shared_ptr<FreeTypeCacheDirectory> m_freeTypeCacheDirectory;
+
 		std::shared_ptr<AtlasTexture> m_atlasTexture;
 
 		FT_Library m_library;
@@ -211,5 +260,7 @@ namespace GuGu {
 		bool m_fontAtlasDirty;
 
 		std::shared_ptr<FileSystem> m_fileSystem;
+
+		
 	};
 }

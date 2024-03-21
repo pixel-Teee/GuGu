@@ -14,7 +14,8 @@ namespace GuGu {
 	class TextInfo;
 	class WidgetGeometry;
 	class GuGuUtf8Str;
-
+	class ShapedGlyphSequence;
+	class FontCache;
 	enum class UIShaderType
 	{
 		Default,
@@ -31,6 +32,19 @@ namespace GuGu {
 		nvrhi::TextureHandle m_texture;
 		uint32_t m_layer;//note:useful for batch
 		const ClippingState* m_clippingState;//weak
+	};
+
+	struct ShapedTextBuildContext
+	{
+		const ShapedGlyphSequence* shapedGlyphSequence;
+		Element* element;
+		FontCache* fontCache;
+		float textBaseLine;
+		float maxHeight;
+		float startLineX;
+		float startLineY;
+		int32_t layerId;
+		math::float4 fontTint;
 	};
 	class ElementList
 	{
@@ -50,6 +64,8 @@ namespace GuGu {
 		static void addSplineElement(ElementList& elementList, const WidgetGeometry& widgetGeometry, math::float4 color, const math::float2& inStart, const math::float2& inStartDir, const math::float2& inEnd, const math::float2& inEndDir, float thickNess, uint32_t layer);
 
 		static void addViewportElement(ElementList& elementList, const WidgetGeometry& widgetGeometry, math::float4 color, nvrhi::TextureHandle renderTarget, uint32_t layer);
+
+		static void addShapedTextElement(ElementList& elementList, const WidgetGeometry& widgetGeometry, math::float4 color, std::shared_ptr<ShapedGlyphSequence> shapedText, uint32_t layer);
 
 		void generateBatches();
 
@@ -76,6 +92,10 @@ namespace GuGu {
 		void generateSplineBatch(std::shared_ptr<Element> element);
 
 		void generateViewportBatch(std::shared_ptr<Element> element);
+
+		void generateShapedTextBatch(std::shared_ptr<Element> element);
+
+		void buildShapedTextSequence(const ShapedTextBuildContext& context);
 
 		ClippingManager m_clippingManager;
 	};

@@ -38,7 +38,6 @@ namespace GuGu {
 
 		updateTextLayout(inWidgetArgs.text);//使用marshaller来填充text layout
 
-
 		return m_textLayout->getSize();
 	}
 	float TextBlockLayout::calculateWrappingWidth() const
@@ -52,6 +51,7 @@ namespace GuGu {
 	}
 	void TextBlockLayout::updateTextLayout(const GuGuUtf8Str& inText)
 	{
+		m_textLayout->clearLines();
 		m_marshaller->setText(inText, *m_textLayout);//通过装配器来填充TextLayout
 	}
 }

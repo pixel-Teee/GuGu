@@ -4,6 +4,10 @@
 #include "DefaultLayoutBlock.h"
 #include "IRun.h"
 #include "ShapedTextCache.h"
+#include "WidgetGeometry.h"
+#include "ElementList.h"
+
+#include <Core/Math/MyMath.h>
 
 namespace GuGu {
 	TextRun::TextRun(const RunInfo& inRunInfo, const std::shared_ptr<const GuGuUtf8Str>& inText, const TextBlockStyle& style)
@@ -54,10 +58,27 @@ namespace GuGu {
 		const std::shared_ptr<ILayoutBlock>& Block = textArgs.block;
 		const TextBlockStyle& DefaultStyle = textArgs.defaultStyle;
 		const TextLayout::LineView& Line = textArgs.line;
+		const TextRange blockRange = Block->getTextRange();
 		const LayoutBlockTextContext BlockTextContext = Block->getTextContext();
-		//std::shared_ptr<ShapedGlyphSequence> shapedText = ShapedTextCacheUtil::getShapedTextSubSequence(
-		//	block
-		//)
-		return 0;
+
+		const float inverseScale = 1.0f / allottedGeometry.mAbsoluteScale;
+
+		std::shared_ptr<ShapedGlyphSequence> shapedText = ShapedTextCacheUtil::getShapedTextSubSequence(
+			BlockTextContext.m_shapedTextCache,
+			CacheShapedTextKey(Line.range, allottedGeometry.getAccumulateTransform().m_linear[0][0], BlockTextContext, *m_style.m_textInfo),//todo:这里传递了一个缩放，暂时直接取，以后增加getScale函数
+			blockRange,
+			*m_text
+		);
+
+		math::affine2 inverseScaleTransform = math::affine2(math::float2(inverseScale, 0), math::float2(0, inverseScale), math::float2(0, 0));
+
+		ElementList::addShapedTextElement(outDrawElements,
+			allottedGeometry.getChildGeometry(inverseScaleTransform.transformVector(Block->getSize()), inverseScaleTransform.transformPoint(Block->getLocationOffset()), allottedGeometry.getAccumulateTransform()),
+			math::float4(1.0f, 1.0f, 1.0f, 1.0f),
+			shapedText,
+			layerId + 1
+		);
+
+		return layerId + 1;
 	}
 }

@@ -26,8 +26,15 @@ namespace GuGu {
 		/*true if this entry is valid, false otherwise*/
 		bool valid = false;
 	};
+	class FreeTypeFace;
 	struct GlyphEntry
 	{
+		int32_t fontSize;
+
+		float fontScale;
+
+		std::weak_ptr<FreeTypeFace> m_fontFace;
+
 		GuGuUtf8Str Char;
 		/*the index of this glyph in the FreeType face*/
 		uint32_t glyphIndex = 0;
@@ -44,7 +51,7 @@ namespace GuGu {
 		/*the largest vertical distance below the baseline for any character in the font*/
 		int16_t globalDescender = 0;
 
-		GlyphFontAtlasData m_glyphFontAtlasData;
+		mutable std::shared_ptr<GlyphFontAtlasData> m_glyphFontAtlasData;
 	};
 	//struct FontKey;
 	class CharacterList

@@ -1,11 +1,13 @@
 #include <pch.h>
 
 #include "FreeTypeFace.h"
+#include <freetype/ftadvanc.h>
 
 #include <Core/GuGuFile.h>
 #include <Core/FileSystem/FileSystem.h>
 
 #include "FreeTypeUtils.h"
+
 
 namespace GuGu {
 	FreeTypeFace::FreeTypeFace(FT_Library* library, GuGuUtf8Str& filePath, std::shared_ptr<FileSystem> fileSystem)
@@ -105,5 +107,45 @@ namespace GuGu {
 			}
 		}
 		return inCount;
+	}
+	FreeTypeAdvanceCache::FreeTypeAdvanceCache(FT_Face inFace, const int32_t inLoadFlags, const int32_t inFontSize, const float inFontScale)
+		: face(inFace)
+		, loadFlags(inLoadFlags)
+		, fontSize(inFontSize)
+		, fontScale(inFontScale)
+	{
+	}
+	bool FreeTypeAdvanceCache::findOrCache(const uint32_t inGlyphIndex, FT_Fixed& outCachedAdvance)
+	{
+		auto it = advanceMap.find(inGlyphIndex);
+		if (it != advanceMap.end())
+		{
+			outCachedAdvance = (*it).second;
+			return true;
+		}
+
+		FreeTypeUtils::ApplySizeAndScale(face, fontSize, fontScale);
+
+		const FT_Error error = FT_Get_Advance(face, inGlyphIndex, loadFlags, &outCachedAdvance);
+
+		if (error == 0)
+		{
+			advanceMap.insert({ inGlyphIndex, outCachedAdvance });
+			return true;
+		}
+
+		return false;
+	}
+	std::shared_ptr<FreeTypeAdvanceCache> FreeTypeCacheDirectory::getAdvanceCache(FT_Face inFace, const int32_t inLoadFlags, const int32_t inFontSize, const float inFontScale)
+	{
+		const FreeTypeCacheFontKey key(inFace, inLoadFlags, inFontSize, inFontScale);
+
+		auto it = advanceCacheMap.find(key);
+		if (it != advanceCacheMap.end())
+			return it->second;
+
+		auto entry = std::make_shared<FreeTypeAdvanceCache>(inFace, inLoadFlags, inFontSize, inFontScale);
+		advanceCacheMap.insert({ key, entry });
+		return entry;
 	}
 }

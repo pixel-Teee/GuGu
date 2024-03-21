@@ -13,7 +13,8 @@ namespace GuGu {
 			Text,
 			Line,
 			Spline,
-			Viewport
+			Viewport,
+			ShapedText
 		};
 
 		Element();

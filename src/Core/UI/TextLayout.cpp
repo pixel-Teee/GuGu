@@ -94,6 +94,13 @@ namespace GuGu {
 		}
 	}
 
+	void TextLayout::clearLines()
+	{
+		m_lineModels.clear();
+		m_textLayoutSize = TextLayoutSize();
+		m_lineViews.clear();
+	}
+
 	void TextLayout::flowLineLayout(const int32_t lineModelIndex, const float wrappingDrawWidth, std::vector<std::shared_ptr<ILayoutBlock>>& softLine)
 	{
 		const LineModel& lineModel = m_lineModels[lineModelIndex];

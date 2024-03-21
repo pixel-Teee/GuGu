@@ -129,6 +129,8 @@ namespace GuGu {
 
 		void addLines(const std::vector<NewLineData>& newLines);
 
+		void clearLines();
+
 	protected:
 
 		void flowLineLayout(const int32_t lineModelIndex, const float wrappingDrawWidth, std::vector<std::shared_ptr<ILayoutBlock>>& softLine);

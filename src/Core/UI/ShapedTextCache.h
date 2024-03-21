@@ -12,6 +12,9 @@ namespace GuGu {
 	{
 		math::float2 measureShapedText(const std::shared_ptr<ShapedTextCache>& inShapedTextCache, const CacheShapedTextKey& inRunKey, const TextRange& inMeasureRange,
 			const GuGuUtf8Str& inText);
+
+		std::shared_ptr<ShapedGlyphSequence> getShapedTextSubSequence(const std::shared_ptr<ShapedTextCache>& inShapedTextCache,
+			const CacheShapedTextKey& inRunKey, const TextRange& inTextRange, const GuGuUtf8Str& inText);
 	}
 
 	class CacheShapedTextKey //相比于FontKey，多了TextRange和ShapedTextContext，描述缓存一段文本范围的cache

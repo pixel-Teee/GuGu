@@ -40,6 +40,7 @@ namespace GuGu {
 			return m_characters[Char];
 
 		std::shared_ptr<GlyphEntry> newEntry = std::make_shared<GlyphEntry>();
+		newEntry->m_glyphFontAtlasData = std::make_shared<GlyphFontAtlasData>();
 		m_characters.insert({ Char, newEntry });
 
 		std::shared_ptr<FreeTypeFace> freeTypeFace = FontCache::getFontCache()->getFreeTypeFace(m_fontKey.getTextInfo());
@@ -53,14 +54,17 @@ namespace GuGu {
 		xAdvance = ((advance + (1 << 9) >> 10) + (1 << 5)) >> 6;
 		//------get advance------
 
+		newEntry->m_fontFace = freeTypeFace;
+		newEntry->fontScale = m_fontKey.getScale();
+		newEntry->fontSize = m_fontKey.getTextInfo().getSize();
 		newEntry->Char = Char;
 		newEntry->glyphIndex = glyphIndex;
 		newEntry->xAdvance = xAdvance;
 		newEntry->globalDescender = getBaseLine();
 		FT_Load_Glyph(freeTypeFace->getFontFace(), glyphIndex, 0);
 		FT_GlyphSlot slot = freeTypeFace->getFontFace()->glyph;
-		newEntry->m_glyphFontAtlasData.verticalOffset = slot->bitmap_top;
-		newEntry->m_glyphFontAtlasData.horizontalOffset = slot->bitmap_left;
+		newEntry->m_glyphFontAtlasData->verticalOffset = slot->bitmap_top;
+		newEntry->m_glyphFontAtlasData->horizontalOffset = slot->bitmap_left;
 
 		FT_Render_Glyph(slot, FT_RENDER_MODE_NORMAL);
 		FT_Bitmap* bitMap = nullptr;
@@ -83,10 +87,10 @@ namespace GuGu {
 		//GuGu_LOGD("font:%s size:%d, %d", Char.getStr(), characterWidth, characterHeight);
 		//todo:add texture atlas
 		std::shared_ptr<AtlasedTextureSlot> atlasedTextureSlot = FontCache::getFontCache()->addCharacter(characterWidth, characterHeight, rawPixels);
-		newEntry->m_glyphFontAtlasData.startU = atlasedTextureSlot->x + atlasedTextureSlot->padding;
-		newEntry->m_glyphFontAtlasData.startV = atlasedTextureSlot->y + atlasedTextureSlot->padding;
-		newEntry->m_glyphFontAtlasData.vSize = atlasedTextureSlot->height - 2 * atlasedTextureSlot->padding;
-		newEntry->m_glyphFontAtlasData.uSize = atlasedTextureSlot->width - 2 * atlasedTextureSlot->padding;
+		newEntry->m_glyphFontAtlasData->startU = atlasedTextureSlot->x + atlasedTextureSlot->padding;
+		newEntry->m_glyphFontAtlasData->startV = atlasedTextureSlot->y + atlasedTextureSlot->padding;
+		newEntry->m_glyphFontAtlasData->vSize = atlasedTextureSlot->height - 2 * atlasedTextureSlot->padding;
+		newEntry->m_glyphFontAtlasData->uSize = atlasedTextureSlot->width - 2 * atlasedTextureSlot->padding;
 
 		FontCache::getFontCache()->setDirtyFlag(true);
 

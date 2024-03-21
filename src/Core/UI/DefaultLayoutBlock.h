@@ -28,6 +28,8 @@ namespace GuGu {
 
 		virtual void setLocationOffset(const math::float2& inLocationOffset) override;
 
+		virtual math::float2 getLocationOffset() const override;
+
 		virtual math::float2 getSize() const override;
 
 		virtual LayoutBlockTextContext getTextContext() const override;
@@ -36,7 +38,7 @@ namespace GuGu {
 
 		TextRange m_range;
 		math::float2 m_size;
-		math::float2 m_locationOffset;
+		math::float2 m_locationOffset;//块的左上角起始点，每个块都有这个，绘制的时候使用
 		LayoutBlockTextContext m_textContext;
 	};
 }

@@ -23,6 +23,10 @@ namespace GuGu {
 	{
 		m_locationOffset = inLocationOffset;
 	}
+	math::float2 DefaultLayoutBlock::getLocationOffset() const
+	{
+		return m_locationOffset;
+	}
 	math::float2 DefaultLayoutBlock::getSize() const
 	{
 		return m_size;

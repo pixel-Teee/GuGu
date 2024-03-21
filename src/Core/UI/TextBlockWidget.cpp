@@ -30,34 +30,36 @@ namespace GuGu {
 		math::float2 shadowOffset = m_textStyle->m_shadowOffset;
 		math::float4 shadowColor = m_textStyle->m_shadowColor;
 
+		uint32_t highestLayer = layer;
 		if (shadowColor.w != 0.0f)
 		{
 			//draw shadow
-			ElementList::addTextElement(elementList, allocatedGeometry.getOffsetGeometry(math::float2(shadowOffset.x, shadowOffset.y)), m_textStyle->m_shadowColor, m_textStyle->m_textInfo, m_text.Get(), layer);
-			++layer;
+			//highestLayer = std::max(highestLayer, (uint32_t)m_textLayoutCache->OnPaint(paintArgs, allocatedGeometry.getOffsetGeometry(math::float2(shadowOffset.x, shadowOffset.y)), cullingRect, elementList, layer, *m_textStyle));
+			//ElementList::addTextElement(elementList, allocatedGeometry.getOffsetGeometry(math::float2(shadowOffset.x, shadowOffset.y)), m_textStyle->m_shadowColor, m_textStyle->m_textInfo, m_text.Get(), layer);
+			//++layer;
 		}
 
         math::float4 textColor = m_textColor.Get() ? m_textColor.Get() : m_textStyle->m_textColor;
 		//todo:generate text element
-		ElementList::addTextElement(elementList, allocatedGeometry, textColor, m_textStyle->m_textInfo, m_text.Get(), layer);
-
-		return layer;
+		//ElementList::addTextElement(elementList, allocatedGeometry, textColor, m_textStyle->m_textInfo, m_text.Get(), layer);
+		highestLayer = std::max(highestLayer, (uint32_t)m_textLayoutCache->OnPaint(paintArgs, allocatedGeometry, cullingRect, elementList, layer, *m_textStyle));
+		return highestLayer;
 	}
 	GuGu::math::float2 TextBlockWidget::ComputeFixedSize(float inLayoutScaleMultiplier)
 	{
-		//m_textLayoutCache->ComputeFixedSize(
-		//	TextBlockLayout::WidgetDesiredSizeArgs(
-		//		m_text.Get(),
-		//		Padding(0.0f, 0.0f, 0.0f, 0.0f),
-		//		0,
-		//		TextJustify::Type::Left,
-		//		false
-		//	),
-		//	inLayoutScaleMultiplier,
-		//	*m_textStyle
-		//);
+		return m_textLayoutCache->ComputeFixedSize(
+			TextBlockLayout::WidgetDesiredSizeArgs(
+				m_text.Get(),
+				Padding(0.0f, 0.0f, 0.0f, 0.0f),
+				0,
+				TextJustify::Type::Left,
+				false
+			),
+			inLayoutScaleMultiplier,
+			*m_textStyle
+		);
 
-		return FontCache::getFontCache()->measureText(m_text.Get(), *m_textStyle->m_textInfo, inLayoutScaleMultiplier);
+		//return FontCache::getFontCache()->measureText(m_text.Get(), *m_textStyle->m_textInfo, inLayoutScaleMultiplier);
 	}
 	void TextBlockWidget::setText(GuGuUtf8Str& newText)
 	{
