@@ -26,6 +26,8 @@ namespace GuGu {
 
 		WidgetGeometry getOffsetGeometry(math::float2 inTranslation) const;
 
+		math::float2 absoluteToLocal(math::float2 absolutePosition) const;
+
 		math::box2 getRenderBoundingRect() const;
 
 		math::box2 getRenderBoundingRect(const math::box2& localSpaceRect) const;

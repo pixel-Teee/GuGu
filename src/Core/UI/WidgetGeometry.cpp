@@ -57,6 +57,11 @@ namespace GuGu {
 		offsetGeometry.mAbsolutePosition = offsetGeometry.mAccumulateTransform.m_translation;
 		return offsetGeometry;
 	}
+	math::float2 WidgetGeometry::absoluteToLocal(math::float2 absolutePosition) const
+	{
+		math::affine2 inverseTransform = math::inverse(mAccumulateTransform);
+		return inverseTransform.transformPoint(absolutePosition);
+	}
 	math::box2 WidgetGeometry::getRenderBoundingRect() const
 	{
 		math::box2 localRect = math::box2(math::float2(0.0f, 0.0f), math::float2(mLocalSize.x, mLocalSize.y));

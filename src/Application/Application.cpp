@@ -129,6 +129,24 @@ namespace GuGu{
         return processMouseButtonUpEvent(window, mouseEvent);
     }
 
+    bool Application::onMouseMove(const std::shared_ptr<Window>& window, math::float2 cursorPos)
+    {
+		math::float2 translatedCursorPos = translateCursorPos(cursorPos);
+
+		PointerEvent mouseEvent(
+			translatedCursorPos,
+			m_lastCursorPos
+		);
+		m_lastCursorPos = translatedCursorPos;
+
+		return processMouseMoveEvent(window, mouseEvent);
+    }
+
+    std::shared_ptr<Widget> Application::getCaptorWidget() const
+    {
+        return m_captorWidget.lock();
+    }
+
     void Application::setGlobalPreRotate(float rotation)
     {
         m_globalRotation = rotation;
@@ -153,7 +171,17 @@ namespace GuGu{
 
         for (int32_t i = widgets.size() - 1; i >= 0; --i)
         {
-            widgets[i]->OnMouseButtonDown(collisionWidget->getWidgetGeometry(), mouseEvent);
+            Reply reply = widgets[i]->OnMouseButtonDown(collisionWidget->getWidgetGeometry(), mouseEvent);
+
+            std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
+			if (mouseCaptor != nullptr)
+			{
+                m_captorWidget = mouseCaptor;
+			}
+            if (reply.shouldReleaseMouse())
+            {
+                m_captorWidget.reset();
+            }
         }
 
 		//if (collisionWidget)
@@ -174,15 +202,79 @@ namespace GuGu{
 		//locate window under mouse
         std::shared_ptr<Widget> collisionWidget = locateWidgetInWindow(window, mouseEvent);
 
-		if (collisionWidget)
+		std::vector<std::shared_ptr<Widget>> widgets;
+		std::shared_ptr<Widget> currentWidget = collisionWidget;
+		while (currentWidget)
 		{
-			collisionWidget->OnMouseButtonUp(collisionWidget->getWidgetGeometry(), mouseEvent);
-			//std::shared_ptr<ImageWidget> imageWidget = std::dynamic_pointer_cast<ImageWidget>(collisionWidget);
-			//if (imageWidget)
-			//{
-			//    GuGu_LOGD("%s", u8"image widget");
-			//}
+			widgets.push_back(currentWidget);
+			currentWidget = currentWidget->getParentWidget();
 		}
+
+		for (int32_t i = widgets.size() - 1; i >= 0; --i)
+		{
+			Reply reply = widgets[i]->OnMouseButtonUp(collisionWidget->getWidgetGeometry(), mouseEvent);
+
+            std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
+            if (mouseCaptor != nullptr)
+            {
+                m_captorWidget = mouseCaptor;
+            }
+			if (reply.shouldReleaseMouse())
+			{
+				m_captorWidget.reset();
+			}
+		}
+
+		//if (collisionWidget)
+		//{
+		//    collisionWidget->OnMouseButtonDown(collisionWidget->getWidgetGeometry(), mouseEvent);
+		//	//std::shared_ptr<ImageWidget> imageWidget = std::dynamic_pointer_cast<ImageWidget>(collisionWidget);
+		//	//if (imageWidget)
+		//	//{
+		//	//    GuGu_LOGD("%s", u8"image widget");
+		//	//}
+		//}
+		//GuGu_LOGD("(%f %f)", cursorPosition.x, cursorPosition.y);
+		return true;
+    }
+
+    bool Application::processMouseMoveEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
+    {
+		//locate window under mouse
+		std::shared_ptr<Widget> collisionWidget = locateWidgetInWindow(window, mouseEvent);
+
+		std::vector<std::shared_ptr<Widget>> widgets;
+		std::shared_ptr<Widget> currentWidget = collisionWidget;
+		while (currentWidget)
+		{
+			widgets.push_back(currentWidget);
+			currentWidget = currentWidget->getParentWidget();
+		}
+
+		for (int32_t i = widgets.size() - 1; i >= 0; --i)
+		{
+            Reply reply = widgets[i]->OnMouseMove(collisionWidget->getWidgetGeometry(), mouseEvent);
+
+			std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
+			if (mouseCaptor != nullptr)
+			{
+                m_captorWidget = mouseCaptor;
+			}
+			if (reply.shouldReleaseMouse())
+			{
+				m_captorWidget.reset();
+			}
+		}
+
+		//if (collisionWidget)
+		//{
+		//    collisionWidget->OnMouseButtonDown(collisionWidget->getWidgetGeometry(), mouseEvent);
+		//	//std::shared_ptr<ImageWidget> imageWidget = std::dynamic_pointer_cast<ImageWidget>(collisionWidget);
+		//	//if (imageWidget)
+		//	//{
+		//	//    GuGu_LOGD("%s", u8"image widget");
+		//	//}
+		//}
 		//GuGu_LOGD("(%f %f)", cursorPosition.x, cursorPosition.y);
 		return true;
     }
@@ -201,7 +293,7 @@ namespace GuGu{
 
         math::float2 cursorPosition = mouseEvent.m_screenSpacePosition - window->getWindowScreenSpacePosition();
         std::shared_ptr<Widget> collisionWidget;
-        for (uint32_t i = allWidgets.size() - 1; i > 0; --i)
+        for (int32_t i = allWidgets.size() - 1; i > 0; --i)
         {
             WidgetGeometry widgetGeometry = allWidgets[i]->getWidgetGeometry();
 

@@ -3,6 +3,7 @@
 #include <functional>
 
 namespace GuGu {
+	class Widget;
 	class ReplyBase
 	{
 	public:
@@ -39,9 +40,37 @@ namespace GuGu {
 		{
 			return Reply(false);
 		}
+
+		Reply& captureMouse(std::shared_ptr<Widget> inMouseCaptor)
+		{
+			m_bReleaseMouseCapture = false;
+			m_mouseCaptor = inMouseCaptor;
+			return Me();
+		}
+
+		Reply& releaseMouseCapture()
+		{
+			m_bReleaseMouseCapture = true;
+			m_mouseCaptor.reset();
+			return Me();
+		}
+
+		std::shared_ptr<Widget> getMouseCaptor()
+		{
+			return m_mouseCaptor.lock();
+		}
+
+		bool shouldReleaseMouse() const
+		{
+			return m_bReleaseMouseCapture;
+		}
 	private:
 		Reply(bool bIsHandled) : TReplyBase<Reply>(bIsHandled)
 		{}
+
+		std::weak_ptr<Widget> m_mouseCaptor;
+
+		bool m_bReleaseMouseCapture = false;
 	};
 
 	using OnClicked = std::function<Reply()>;

@@ -75,6 +75,11 @@ namespace GuGu{
     {
         return Reply::Unhandled();
     }
+    Reply Widget::OnMouseMove(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
+    {
+        //GuGu_LOGD("{%f, %f}", inMouseEvent.m_screenSpacePosition.x, inMouseEvent.m_screenSpacePosition.y);
+        return Reply::Unhandled();
+    }
     SlotBase* Widget::getSlot(uint32_t index)
 	{
 		return nullptr;

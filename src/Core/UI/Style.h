@@ -65,4 +65,21 @@ namespace GuGu {
 		Padding m_padding;
 		CheckBoxStyle& setPadding(Padding inPadding) { m_padding = inPadding; return *this; }
 	};
+
+	class SliderStyle : public Style
+	{
+	public:
+		SliderStyle() = default;
+
+		virtual ~SliderStyle();
+
+		std::shared_ptr<Brush> m_normalBarImage;
+		SliderStyle& setNormalBarImage(std::shared_ptr<Brush> inNormalBarImage) { m_normalBarImage = inNormalBarImage; return *this; }
+
+		std::shared_ptr<Brush> m_normalThumbImage;
+		SliderStyle& setNormalThumbImage(std::shared_ptr<Brush> inNormalThumbImage) { m_normalThumbImage = inNormalThumbImage; return *this; }
+
+		float barThickNess;
+		SliderStyle& setBarThickness(float inBarThickness) { barThickNess = inBarThickness; return *this; }
+	};
 }

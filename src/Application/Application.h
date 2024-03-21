@@ -48,6 +48,10 @@ namespace GuGu {
 		virtual bool onMouseDown(const std::shared_ptr<Window>& window, math::float2 cursorPos);
 
 		virtual bool onMouseUp(const std::shared_ptr<Window>& window, math::float2 cursorPos);
+
+		virtual bool onMouseMove(const std::shared_ptr<Window>& window, math::float2 cursorPos);
+
+		std::shared_ptr<Widget> getCaptorWidget() const;
 		//------input------
 
 		void setGlobalPreRotate(float rotation);
@@ -65,6 +69,8 @@ namespace GuGu {
 
 		bool processMouseButtonUpEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent);
 
+		bool processMouseMoveEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent);
+
 		std::shared_ptr<Widget> locateWidgetInWindow(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent);
 
 		math::float2 translateCursorPos(math::float2 cursorPos);
@@ -76,6 +82,8 @@ namespace GuGu {
 		math::float2 m_lastCursorPos;
 
 		float m_globalRotation = 0;
+
+		std::weak_ptr<Widget> m_captorWidget;
 	};
 	std::shared_ptr<Application> CreateApplicationFactory();
 }

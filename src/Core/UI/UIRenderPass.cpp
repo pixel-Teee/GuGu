@@ -23,6 +23,7 @@
 #include "WindowWidget.h"
 #include "Viewport.h"
 #include "TextBlockWidget.h"
+#include "Slider.h"
 #include "AtlasTexture.h"
 #include "FontCache.h"
 #include "UIMacros.h"
@@ -643,6 +644,38 @@ namespace GuGu {
 									)
 								)					
 								
+							)
+							+ VerticalBox::Slot()
+							.FixedHeight()
+							(
+								WIDGET_NEW(HorizontalBox)
+								+ HorizontalBox::Slot()
+								.FixedWidth()
+								(
+									WIDGET_NEW(TextBlockWidget)
+									.text("金属度")
+								)
+								+ HorizontalBox::Slot()
+								.StretchWidth(1.0f)
+								(
+									WIDGET_NEW(Slider)
+								)
+							)
+							+ VerticalBox::Slot()
+							.FixedHeight()
+							(
+								WIDGET_NEW(HorizontalBox)
+								+ HorizontalBox::Slot()
+								.FixedWidth()
+								(
+									WIDGET_NEW(TextBlockWidget)
+									.text("粗糙度")
+								)
+								+ HorizontalBox::Slot()
+								.StretchWidth(1.0f)
+								(
+									WIDGET_NEW(Slider)
+								)
 							)
 						)
 					)

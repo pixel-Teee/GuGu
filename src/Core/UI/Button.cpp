@@ -62,13 +62,13 @@ namespace GuGu {
 			m_clicked();
 		}
         GuGu_LOGD("%s", "click button");
-		return Reply::Unhandled();
+		return Reply::Unhandled().captureMouse(shared_from_this());
 	}
 
 	Reply Button::OnMouseButtonUp(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent)
 	{
 		Release();
-		return Reply::Unhandled();
+		return Reply::Unhandled().releaseMouseCapture();
 	}
 
 	void Button::Press()

@@ -69,6 +69,21 @@ namespace GuGu {
 			return m_value;
 		}
 
+		template<typename OtherType>
+		void Set(const OtherType& inNewValue)
+		{
+			//m_getter.clear();
+			m_value = inNewValue;
+			m_bIsSet = true;
+		}
+
+		void Set(ObjectType&& inNewValue)
+		{
+			//m_getter.clear();
+			m_value = std::move(inNewValue);
+			m_bIsSet = true;
+		}
+
 		bool IsSet() const
 		{
 			return m_bIsSet;

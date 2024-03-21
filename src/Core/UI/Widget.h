@@ -39,6 +39,8 @@ namespace GuGu{
 
         virtual Reply OnMouseButtonUp(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent);
 
+        virtual Reply OnMouseMove(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent);
+
 		virtual SlotBase* getSlot(uint32_t index);
 
 		virtual uint32_t getSlotsNumber();

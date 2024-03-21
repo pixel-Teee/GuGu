@@ -85,6 +85,22 @@ namespace GuGu {
 		checkBoxStyle->setCheckedImage(checkedImage);
 		checkBoxStyle->setUncheckedImage(uncheckedImage);
 		m_styles.insert({ "checkBox", checkBoxStyle });
+
+		std::shared_ptr<Brush> normalBarImage = std::make_shared<Brush>();
+		normalBarImage->m_tiling = false;
+		normalBarImage->m_texturePath = u8"asset/MinimumWindow/bar.png";
+		m_brushes.insert({ u8"normalBarImage", normalBarImage });
+
+		std::shared_ptr<Brush> thumbImage = std::make_shared<Brush>();
+		thumbImage->m_tiling = false;
+		thumbImage->m_texturePath = u8"asset/MinimumWindow/thumb.png";
+		m_brushes.insert({ u8"thumbImage", thumbImage });
+
+		std::shared_ptr<SliderStyle> sliderStyle = std::make_shared<SliderStyle>();
+		sliderStyle->setNormalBarImage(normalBarImage);
+		sliderStyle->setNormalThumbImage(thumbImage);
+		sliderStyle->setBarThickness(10.0f);
+		m_styles.insert({ "slider", sliderStyle });
 	}
 	StyleSet::~StyleSet()
 	{

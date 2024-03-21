@@ -25,4 +25,7 @@ namespace GuGu {
 	CheckBoxStyle::~CheckBoxStyle()
 	{
 	}
+	SliderStyle::~SliderStyle()
+	{
+	}
 }

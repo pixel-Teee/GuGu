@@ -116,7 +116,7 @@ namespace GuGu {
 			m_isCheckboxChecked = CheckBoxState::Checked;
 		}
 
-		return Reply::Unhandled();
+		return Reply::Unhandled().captureMouse(shared_from_this());
 	}
 	Reply CheckBox::OnMouseButtonUp(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent)
 	{
@@ -131,7 +131,7 @@ namespace GuGu {
 		//	m_isCheckboxChecked = CheckBoxState::Checked;
 		//}
 		//
-		return Reply::Unhandled();
+		return Reply::Unhandled().releaseMouseCapture();
 	}
 	SlotBase* CheckBox::getSlot(uint32_t index)
 	{
