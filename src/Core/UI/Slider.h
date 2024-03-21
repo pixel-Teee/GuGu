@@ -7,6 +7,7 @@
 namespace GuGu {
 	class Brush;
 	class SliderStyle;
+	using OnFloatValueChanged = std::function<void(float)>;
 	class Slider : public Widget
 	{
 	public:
@@ -22,6 +23,12 @@ namespace GuGu {
 			}
 
 			~BuilderArguments() = default;		
+
+			ARGUMENT_VALUE(float, MinValue)
+
+			ARGUMENT_VALUE(float, MaxValue)
+
+			UI_EVENT(OnFloatValueChanged, OnValueChanged)
 		};
 
 		void init(const BuilderArguments& arguments);
@@ -53,5 +60,9 @@ namespace GuGu {
 		std::shared_ptr<SliderStyle> m_sliderStyle;
 
 		Attribute<float> m_valueAttribute;
+
+		float m_minValue;
+		float m_maxValue;
+		OnFloatValueChanged m_onValueChanged;
 	};
 }

@@ -13,6 +13,8 @@ namespace GuGu {
 	{
 		m_orientation = Orientation::Horizontal;
 		m_valueAttribute = 0.0f;
+		m_minValue = 0.0f;
+		m_maxValue = 1.0f;
 	}
 	Slider::~Slider()
 	{
@@ -112,7 +114,14 @@ namespace GuGu {
 	}
 	float Slider::getNormalizedValue() const
 	{
-		return m_valueAttribute.Get();
+		if (m_maxValue == m_minValue)
+		{
+			return 1.0f;
+		}
+		else
+		{
+			return (m_valueAttribute.Get() - m_minValue) / (m_maxValue - m_minValue);
+		}
 	}
 	std::shared_ptr<Brush> Slider::getThumbImage() const
 	{
@@ -125,13 +134,22 @@ namespace GuGu {
 	void Slider::commitValue(float newValue)
 	{
 		m_valueAttribute.Set(newValue);
+
+		if(m_onValueChanged)
+			m_onValueChanged(newValue);
 	}
 	float Slider::positionToValue(const WidgetGeometry& geometry, const math::float2& absolutePosition)
 	{
 		const math::float2 localPosition = geometry.absoluteToLocal(absolutePosition);
 
-		float denominator = geometry.mLocalSize.x;
+		const float indentation = getThumbImage()->m_actualSize.x;
+		const float halfIndentation = 0.5f * indentation;
 
-		return localPosition.x / denominator;
+		float denominator = geometry.mLocalSize.x - indentation;
+		float relativeValue = (denominator != 0.0f) ? (localPosition.x - halfIndentation) / denominator : 0.0f;
+		
+		relativeValue = std::clamp(relativeValue, 0.0f, 1.0f) * (m_maxValue - m_minValue) + m_minValue;
+
+		return relativeValue;
 	}
 }

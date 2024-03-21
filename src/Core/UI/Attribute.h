@@ -72,14 +72,14 @@ namespace GuGu {
 		template<typename OtherType>
 		void Set(const OtherType& inNewValue)
 		{
-			//m_getter.clear();
+			m_getter = nullptr;
 			m_value = inNewValue;
 			m_bIsSet = true;
 		}
 
 		void Set(ObjectType&& inNewValue)
 		{
-			//m_getter.clear();
+			m_getter = nullptr;
 			m_value = std::move(inNewValue);
 			m_bIsSet = true;
 		}
