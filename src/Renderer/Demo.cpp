@@ -8,6 +8,7 @@
 
 #include <Core/SceneGraph/SceneTypes.h>
 #include <Core/SceneGraph/SceneGraph.h>
+#include <Core/Timer.h>
 
 #include <Renderer/TextureCache.h>
 
@@ -27,8 +28,10 @@ namespace GuGu {
 		currentBufferSize += range.byteSize;
 	}
 
-	bool Demo::Init()
+	bool Demo::Init(std::shared_ptr<UIData> uiData)
 	{
+		m_uiData = uiData;
+
 		GuGuUtf8Str assetPath = Application::GetDirectoryWithExecutable();
 #if 1
 		std::shared_ptr<NativeFileSystem> nativeFileSystem = std::make_shared<NativeFileSystem>(assetPath);
@@ -80,13 +83,15 @@ namespace GuGu {
 		m_sceneGraph = std::make_shared<SceneGraph>();
 		auto node = std::make_shared<SceneGraphNode>();
 			
-		Load("asset/Robot.gltf", node, m_rootFileSystem);
+		//Load("asset/Robot.gltf", node, m_rootFileSystem);
 
-		auto node2 = std::make_shared<SceneGraphNode>();
-		Load("asset/gyroscope.gltf", node2, m_rootFileSystem);
+		Load("asset/sphere.gltf", node, m_rootFileSystem);
 
+		//auto node2 = std::make_shared<SceneGraphNode>();
+		//Load("asset/gyroscope.gltf", node2, m_rootFileSystem);
+		//
 		m_sceneGraph->SetRootNode(node);
-		m_sceneGraph->Attach(node, node2);
+		//m_sceneGraph->Attach(node, node2);
 
 		//refresh scene graph
 		for (const auto& mesh : m_sceneGraph->GetMeshes())
@@ -360,12 +365,31 @@ namespace GuGu {
 			nvrhi::ShaderType::Vertex);
 
 		m_ConstantBuffers.resize(m_sceneGraph->GetMeshes().size());
-
+		m_PbrMaterialBuffers.resize(m_sceneGraph->GetMeshes().size());
+		m_PassBuffers = GetDevice()->createBuffer(
+			nvrhi::utils::CreateStaticConstantBufferDesc(
+				sizeof(Pass), "PassBuffer")
+			.setInitialState(
+				nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
+					true));
+		m_LightBuffers = GetDevice()->createBuffer(
+			nvrhi::utils::CreateStaticConstantBufferDesc(
+				sizeof(Light), "LightBuffer")
+				.setInitialState(
+				nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
+					true));
 		for (size_t i = 0; i < m_ConstantBuffers.size(); ++i)
 		{
 			m_ConstantBuffers[i] = GetDevice()->createBuffer(
 				nvrhi::utils::CreateStaticConstantBufferDesc(
 					sizeof(ConstantBufferEntry), "ConstantBuffer")
+				.setInitialState(
+					nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
+						true));
+
+			m_PbrMaterialBuffers[i] = GetDevice()->createBuffer(
+				nvrhi::utils::CreateStaticConstantBufferDesc(
+					sizeof(PbrMaterial), "PbrMaterialConstantBuffer")
 				.setInitialState(
 					nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
 						true));
@@ -418,6 +442,9 @@ namespace GuGu {
 		layoutDesc.visibility = nvrhi::ShaderType::All;
 		layoutDesc.bindings = {
 			nvrhi::BindingLayoutItem::ConstantBuffer(0),
+			nvrhi::BindingLayoutItem::ConstantBuffer(2),
+			nvrhi::BindingLayoutItem::ConstantBuffer(3),
+			nvrhi::BindingLayoutItem::ConstantBuffer(4),
 			nvrhi::BindingLayoutItem::Texture_SRV(0),
 			nvrhi::BindingLayoutItem::Sampler(0)
 		};
@@ -427,6 +454,9 @@ namespace GuGu {
 		layoutDesc.bindings = {
 			nvrhi::BindingLayoutItem::ConstantBuffer(0),
 			nvrhi::BindingLayoutItem::ConstantBuffer(1),
+			nvrhi::BindingLayoutItem::ConstantBuffer(2),
+			nvrhi::BindingLayoutItem::ConstantBuffer(3),
+			nvrhi::BindingLayoutItem::ConstantBuffer(4),
 			nvrhi::BindingLayoutItem::Texture_SRV(0),
 			nvrhi::BindingLayoutItem::Sampler(0)
 		};
@@ -553,8 +583,8 @@ namespace GuGu {
 		nvrhi::utils::ClearColorAttachment(m_CommandList, m_frameBuffer, 0, Color(0.2f, 0.3f, 0.7f, 1.0f));
 		m_CommandList->clearDepthStencilTexture(m_depthTarget, nvrhi::AllSubresources, true, 1.0f, true, 0);
 
-		math::float3 cameraPos = math::float3(0.0f, 0.0f, -20);
-		math::float3 cameraDir = normalize(math::float3(0.0f, 0.0f, 1.0f));
+		math::float3 cameraPos = math::float3(0.0f, 0.0f, -7);
+		math::float3 cameraDir = normalize(math::float3(0.0f, 0.0f, 1.0f) - cameraPos);
 		math::float3 cameraUp = math::float3(0.0f, 1.0f, 0.0f);
 		math::float3 cameraRight = normalize(cross(cameraDir, cameraUp));
 		cameraUp = normalize(cross(cameraRight, cameraDir));
@@ -566,13 +596,29 @@ namespace GuGu {
 		math::affine3 viewMatrix =
 			math::yawPitchRoll(0.f, math::radians(-30.f), 0.f)
 			* math::translation(math::float3(0, 0, 2));
-		math::float4x4 projMatrix = math::perspProjD3DStyle(math::radians(45.f),
+		math::float4x4 projMatrix = math::perspProjD3DStyleReverse(math::radians(45.f),
 			float(fbinfo.width) /
-			float(fbinfo.height), 10.0f,
-			40.f);
+			float(fbinfo.height), 0.0f
+			);
 		math::float4x4 viewProjMatrix = math::affineToHomogeneous(worldToView) * projMatrix;
 		//modelConstants.viewProjMatrix = viewProjMatrix;
 
+		Pass pass;
+		pass.camPos = cameraPos;
+		m_CommandList->writeBuffer(m_PassBuffers, &pass, sizeof(pass));
+
+		Light light;
+		light.lightPositions[0] = math::float4(-10.0f, 10.0f, 10.0f, 0.0f);
+		light.lightPositions[1] = math::float4(10.0f, 10.0f, 10.0f, 0.0f);
+		light.lightPositions[2] = math::float4(-10.0f, -10.0f, 10.0f, 0.0f);
+		light.lightPositions[3] = math::float4(10.0f, -10.0f, 10.0f, 0.0f);
+		for (size_t i = 0; i < 4; ++i)
+		{
+			//light.lightPositions[i] = math::float4(10.0f, 10.0f, 10.0f, 0.0f);
+			//light.lightPositions[i].x += std::sin(Application::getApplication()->getTimer()->GetDeltaTime() * 5.0);
+			light.lightColors[i] = math::float4(300.0f, 300.0f, 300.0f, 1.0f);
+		}
+		m_CommandList->writeBuffer(m_LightBuffers, &light, sizeof(light));
 		// Upload all constant buffer slices at once.
 		//m_CommandList->writeBuffer(m_ConstantBuffer, &modelConstants, sizeof(modelConstants));
 		
@@ -639,6 +685,7 @@ namespace GuGu {
 					drawItem.bufferGroup = mesh->buffers.get();
 					drawItem.meshGeometry = geometry.get();
 					drawItem.m_worldMatrix = m_ConstantBuffers[index];
+					drawItem.m_pbrMaterial = m_PbrMaterialBuffers[index];
 					drawItem.m_isSkinned = false;
 					m_drawItems.push_back(drawItem);								
 				}
@@ -647,9 +694,16 @@ namespace GuGu {
 				SceneGraphNode* node = meshInstance->GetNode();
 				ConstantBufferEntry modelConstants;
 				modelConstants.viewProjMatrix = viewProjMatrix;
+				modelConstants.worldMatrix = math::float4x4::identity();
 				//get the global matrix to fill constant buffer		
 				m_CommandList->writeBuffer(m_ConstantBuffers[index], &modelConstants, sizeof(modelConstants));
 
+				PbrMaterial pbrMaterial;
+				pbrMaterial.albedo = math::float3(1.0f, 1.0f, 1.0f);
+				pbrMaterial.metallic = m_uiData->metallic;;
+				pbrMaterial.roughness = m_uiData->roughness;
+				pbrMaterial.ao = 0.0f;
+				m_CommandList->writeBuffer(m_PbrMaterialBuffers[index], &pbrMaterial, sizeof(pbrMaterial));
 				++index;
 			}
 			
@@ -665,6 +719,7 @@ namespace GuGu {
 					drawItem.bufferGroup = mesh->skinPrototype->buffers.get();
 					drawItem.meshGeometry = geometry.get();
 					drawItem.m_worldMatrix = m_ConstantBuffers[index];
+					drawItem.m_pbrMaterial = m_PbrMaterialBuffers[index];
 					drawItem.m_isSkinned = true;
 					drawItem.m_skinnedMatrix = skinnedMeshInstance->jointBuffer;
 					m_drawItems.push_back(drawItem);
@@ -674,9 +729,15 @@ namespace GuGu {
 				SceneGraphNode* node = skinnedMeshInstance->GetNode();
 				ConstantBufferEntry modelConstants;
 				modelConstants.viewProjMatrix = math::affineToHomogeneous(node->GetLocalToWorldTransformFloat()) * viewProjMatrix;
+				modelConstants.worldMatrix = math::float4x4::identity();
 				//get the global matrix to fill constant buffer		
 				m_CommandList->writeBuffer(m_ConstantBuffers[index], &modelConstants, sizeof(modelConstants));
-
+				PbrMaterial pbrMaterial;
+				pbrMaterial.albedo = math::float3(1.0f, 1.0f, 1.0f);
+				pbrMaterial.metallic = m_uiData->metallic;;
+				pbrMaterial.roughness = m_uiData->roughness;
+				pbrMaterial.ao = 0.0f;
+				m_CommandList->writeBuffer(m_PbrMaterialBuffers[index], &pbrMaterial, sizeof(pbrMaterial));
 				++index;
 			}
 
@@ -692,7 +753,10 @@ namespace GuGu {
 			{			
 				desc.bindings = {
 					nvrhi::BindingSetItem::ConstantBuffer(0, m_drawItems[i].m_worldMatrix),
-					nvrhi::BindingSetItem::Texture_SRV(0, m_Texture),
+					nvrhi::BindingSetItem::ConstantBuffer(2, m_drawItems[i].m_pbrMaterial),
+					nvrhi::BindingSetItem::ConstantBuffer(3, m_LightBuffers),
+					nvrhi::BindingSetItem::ConstantBuffer(4, m_PassBuffers),
+					nvrhi::BindingSetItem::Texture_SRV(0, m_commonRenderPass->m_whiteTexture),
 					nvrhi::BindingSetItem::Sampler(0, m_pointWrapSampler)
 				};
 				bindingSet = GetDevice()->createBindingSet(desc, m_BindingLayout);
@@ -702,7 +766,10 @@ namespace GuGu {
 				desc.bindings = {
 					nvrhi::BindingSetItem::ConstantBuffer(0, m_drawItems[i].m_worldMatrix),
 					nvrhi::BindingSetItem::ConstantBuffer(1, m_drawItems[i].m_skinnedMatrix),
-					nvrhi::BindingSetItem::Texture_SRV(0, m_Texture),
+					nvrhi::BindingSetItem::ConstantBuffer(2, m_drawItems[i].m_pbrMaterial),
+					nvrhi::BindingSetItem::ConstantBuffer(3, m_LightBuffers),
+					nvrhi::BindingSetItem::ConstantBuffer(4, m_PassBuffers),
+					nvrhi::BindingSetItem::Texture_SRV(0, m_commonRenderPass->m_whiteTexture),
 					nvrhi::BindingSetItem::Sampler(0, m_pointWrapSampler)
 				};
 				bindingSet = GetDevice()->createBindingSet(desc, m_SkinnedBindingLayout);

@@ -48,6 +48,25 @@ namespace GuGu{
 
             m_BlitBindingLayout = m_Device->createBindingLayout(layoutDesc);
         }
+
+        unsigned int whiteImage = 0xffffffff;
+		nvrhi::TextureDesc textureDesc;
+		textureDesc.format = nvrhi::Format::RGBA8_UNORM;
+		textureDesc.width = 1;
+		textureDesc.height = 1;
+		textureDesc.mipLevels = 1;
+		textureDesc.debugName = "WhiteTexture";
+		m_whiteTexture = m_Device->createTexture(textureDesc);
+
+		nvrhi::CommandListHandle commandList = m_Device->createCommandList();
+		commandList->open();
+		commandList->beginTrackingTextureState(m_whiteTexture, nvrhi::AllSubresources, nvrhi::ResourceStates::Common);
+		commandList->writeTexture(m_whiteTexture, 0, 0, &whiteImage, 4);
+		commandList->setPermanentTextureState(m_whiteTexture, nvrhi::ResourceStates::ShaderResource);
+		commandList->commitBarriers();
+
+		commandList->close();
+		m_Device->executeCommandList(commandList);
     }
     void CommonRenderPasses::BlitTexture(nvrhi::ICommandList* commandList, const BlitParameters& params, BindingCache* bindingCache)
     {

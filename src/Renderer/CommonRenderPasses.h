@@ -73,6 +73,7 @@ namespace GuGu{
 		
 		std::unordered_map<PsoCacheKey, nvrhi::GraphicsPipelineHandle, PsoCacheKey::Hash> m_BlitPsoCache;
 
+        
     public:
         //nvrhi::ShaderHandle m_FullscreenVS;
         //nvrhi::ShaderHandle m_FullscreenAtOneVS;
@@ -84,7 +85,7 @@ namespace GuGu{
 //
         //nvrhi::TextureHandle m_BlackTexture;
         //nvrhi::TextureHandle m_GrayTexture;
-        //nvrhi::TextureHandle m_WhiteTexture;
+        nvrhi::TextureHandle m_whiteTexture;
         //nvrhi::TextureHandle m_BlackTexture2DArray;
         //nvrhi::TextureHandle m_WhiteTexture2DArray;
         //nvrhi::TextureHandle m_BlackCubeMapArray;

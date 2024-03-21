@@ -44,7 +44,7 @@ namespace GuGu {
 	}
 	math::float2 ViewportWidget::ComputeFixedSize(float inLayoutScaleMultiplier)
 	{
-		return math::float2(320.0f, 180.0f);//todo:fix this
+		return math::float2(600.0f, 480.0f);//todo:fix this
 	}
 	void ViewportWidget::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray)
 	{

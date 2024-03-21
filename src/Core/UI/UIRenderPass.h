@@ -24,6 +24,7 @@ namespace GuGu {
 
 	class RootFileSystem;
 
+	struct UIData;
 	class UIRenderPass : public IRenderPass
 	{
 	public:
@@ -32,7 +33,7 @@ namespace GuGu {
 
 		virtual ~UIRenderPass();
 
-		bool Init();
+		bool Init(std::shared_ptr<UIData> uiData);
 
 		virtual void Render(nvrhi::IFramebuffer* framebuffer);
 
@@ -100,6 +101,8 @@ namespace GuGu {
 		//------test widget functionality------
 		std::shared_ptr<WindowWidget> createTestWindow();
 		math::float4 m_textColor;
+
+		std::shared_ptr<UIData> m_uiData;
 		//------test widget functionality------
 	};
 }

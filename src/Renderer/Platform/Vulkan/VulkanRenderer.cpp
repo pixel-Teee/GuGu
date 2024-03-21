@@ -21,7 +21,10 @@
 #include <Renderer/VertexBuffer.h>
 #include <Renderer/Demo.h>
 
+#include <Core/UI/UIData.h>//todo:未来移除这个
+
 namespace GuGu{
+
     VulkanRenderer::VulkanRenderer() {
 
     }
@@ -52,11 +55,12 @@ namespace GuGu{
             GuGu_LOGE("cannot initialize a graphics device with the requested parameters");
             return;
         }
+        std::shared_ptr<UIData> uiData = std::make_shared<UIData>();
         m_vertexBuffer =  new VertexBuffer(m_deviceManager);
         m_UIRenderPass = new UIRenderPass(m_deviceManager);
         m_vertexBuffer = new VertexBuffer(m_deviceManager);
         m_demo = new Demo(m_deviceManager);
-		if (m_demo->Init())
+		if (m_demo->Init(uiData))
 		{
 			m_deviceManager->AddRenderPassToBack(m_demo);
 		}
@@ -65,7 +69,7 @@ namespace GuGu{
 		{
 		    m_deviceManager->AddRenderPassToBack(m_vertexBuffer);
 		}
-        if (m_UIRenderPass->Init())
+        if (m_UIRenderPass->Init(uiData))
         {
             m_deviceManager->AddRenderPassToBack(m_UIRenderPass);
         }

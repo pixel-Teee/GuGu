@@ -33,6 +33,7 @@
 #include <Window/Window.h>
 #include <Application/Application.h>
 #include <Core/FileSystem/FileSystem.h>
+#include <Core/UI/UIData.h>
 
 namespace GuGu {
 
@@ -40,8 +41,10 @@ namespace GuGu {
 	{
 
 	}
-	bool UIRenderPass::Init()
+	bool UIRenderPass::Init(std::shared_ptr<UIData> uiData)
 	{
+		m_uiData = uiData;
+
 		m_CommandList = GetDevice()->createCommandList();
 		m_CommandList->open();
 		GuGuUtf8Str assetPath = Application::GetDirectoryWithExecutable();
@@ -653,12 +656,18 @@ namespace GuGu {
 								.FixedWidth()
 								(
 									WIDGET_NEW(TextBlockWidget)
-									.text("金属度")
+									.text(u8"金属度")
 								)
 								+ HorizontalBox::Slot()
 								.StretchWidth(1.0f)
 								(
 									WIDGET_NEW(Slider)
+									.MaxValue(1.0f)
+									.MinValue(0.0f)
+									.OnValueChangedLambda([&](float inValue) {
+											m_uiData->metallic = inValue;
+										}
+									)
 								)
 							)
 							+ VerticalBox::Slot()
@@ -669,12 +678,18 @@ namespace GuGu {
 								.FixedWidth()
 								(
 									WIDGET_NEW(TextBlockWidget)
-									.text("粗糙度")
+									.text(u8"粗糙度")
 								)
 								+ HorizontalBox::Slot()
 								.StretchWidth(1.0f)
 								(
 									WIDGET_NEW(Slider)
+									.MaxValue(1.0f)
+									.MinValue(0.0f)
+									.OnValueChangedLambda([&](float inValue) {
+											m_uiData->roughness = inValue;
+										}
+									)
 								)
 							)
 						)

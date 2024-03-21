@@ -21,6 +21,9 @@ namespace GuGu {
 	}
 	void Slider::init(const BuilderArguments& arguments)
 	{
+		m_minValue = arguments.mMinValue;
+		m_maxValue = arguments.mMaxValue;
+		m_onValueChanged = arguments.mOnValueChanged;
 	}
 	uint32_t Slider::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{

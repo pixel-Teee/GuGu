@@ -2,6 +2,8 @@
 
 #include "DeviceManager.h"
 
+#include <Core/UI/UIData.h>
+
 namespace GuGu {
 	class BindingCache;
 	class RootFileSystem;
@@ -19,14 +21,15 @@ namespace GuGu {
 		nvrhi::BufferHandle m_worldMatrix;
 		nvrhi::BufferHandle m_skinnedMatrix;
 		bool m_isSkinned = false;
+		nvrhi::BufferHandle m_pbrMaterial;
 	};
-
+	//struct UIData;
 	class Demo : public IRenderPass
 	{
 	public:
 		using IRenderPass::IRenderPass;
 
-		bool Init();
+		bool Init(std::shared_ptr<UIData> uiData);
 
 		virtual void Update(float fElapsedTimeSeconds) override;
 
@@ -58,6 +61,9 @@ namespace GuGu {
 		nvrhi::ShaderHandle m_PixelShader;
 		nvrhi::ShaderHandle m_SkinnedVertexShader;
 		std::vector<nvrhi::BufferHandle> m_ConstantBuffers;
+		std::vector<nvrhi::BufferHandle> m_PbrMaterialBuffers;
+		nvrhi::BufferHandle m_LightBuffers;
+		nvrhi::BufferHandle m_PassBuffers;
 		nvrhi::InputLayoutHandle m_InputLayout;
 		nvrhi::BindingLayoutHandle m_BindingLayout;
 		nvrhi::BindingLayoutHandle m_SkinnedBindingLayout;
@@ -69,7 +75,25 @@ namespace GuGu {
 
 		struct ConstantBufferEntry {
 			dm::float4x4 viewProjMatrix;
-			float padding[16 * 3];
+			dm::float4x4 worldMatrix;
+			float padding[32];
+		};
+
+		struct PbrMaterial {
+			math::float3 albedo;
+			float metallic;
+			float roughness;
+			float ao;
+		};
+
+		struct Pass {
+			math::float3 camPos;
+		};
+
+		struct Light
+		{
+			math::float4 lightPositions[4];
+			math::float4 lightColors[4];
 		};
 
 		std::vector<DrawItem> m_drawItems;
@@ -85,5 +109,7 @@ namespace GuGu {
 		nvrhi::FramebufferHandle m_frameBuffer;
 
 		void initRenderTargetAndDepthTarget();
+
+		std::shared_ptr<UIData> m_uiData;
 	};
 }
