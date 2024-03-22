@@ -583,7 +583,7 @@ namespace GuGu {
 		nvrhi::utils::ClearColorAttachment(m_CommandList, m_frameBuffer, 0, Color(0.2f, 0.3f, 0.7f, 1.0f));
 		m_CommandList->clearDepthStencilTexture(m_depthTarget, nvrhi::AllSubresources, true, 1.0f, true, 0);
 
-		math::float3 cameraPos = math::float3(0.0f, 0.0f, -7);
+		math::float3 cameraPos = math::float3(1.0f, 2.0f, -9);
 		math::float3 cameraDir = normalize(math::float3(0.0f, 0.0f, 1.0f) - cameraPos);
 		math::float3 cameraUp = math::float3(0.0f, 1.0f, 0.0f);
 		math::float3 cameraRight = normalize(cross(cameraDir, cameraUp));
@@ -604,7 +604,7 @@ namespace GuGu {
 		//modelConstants.viewProjMatrix = viewProjMatrix;
 
 		Pass pass;
-		pass.camPos = cameraPos;
+		pass.camPos = -cameraPos;//todo:这里是否是错误的？
 		m_CommandList->writeBuffer(m_PassBuffers, &pass, sizeof(pass));
 
 		Light light;
@@ -616,7 +616,7 @@ namespace GuGu {
 		{
 			//light.lightPositions[i] = math::float4(10.0f, 10.0f, 10.0f, 0.0f);
 			//light.lightPositions[i].x += std::sin(Application::getApplication()->getTimer()->GetDeltaTime() * 5.0);
-			light.lightColors[i] = math::float4(300.0f, 300.0f, 300.0f, 1.0f);
+			light.lightColors[i] = math::float4(900.0f, 900.0f, 900.0f, 1.0f);
 		}
 		m_CommandList->writeBuffer(m_LightBuffers, &light, sizeof(light));
 		// Upload all constant buffer slices at once.

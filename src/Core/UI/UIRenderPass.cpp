@@ -613,7 +613,7 @@ namespace GuGu {
 								.textLambda([&] {
 									float mfps = Application::getApplication()->getmFps();
 									uint32_t fps = Application::getApplication()->getFps();
-									GuGuUtf8Str fpsStr = u8"帧率的倒数\r\n一帧耗费时长:%.3f毫秒\r\n帧率:%dfps";
+									GuGuUtf8Str fpsStr = u8"一帧耗费时长:%.3f毫秒\r\n帧率:%dfps";
 									fpsStr = strFormat(fpsStr, mfps, fps);
 									return fpsStr;
 									})
@@ -627,27 +627,27 @@ namespace GuGu {
 							(
 								WIDGET_ASSIGN_NEW(ViewportWidget, m_viewport)
 							)
-							+ VerticalBox::Slot()
-							.FixedHeight()
-							(
-								WIDGET_NEW(HorizontalBox)
-								+ HorizontalBox::Slot()
-								.FixedWidth()
-								(
-									WIDGET_NEW(TextBlockWidget)
-									.text("复选框")
-								)
-								+ HorizontalBox::Slot()
-								.FixedWidth()
-								(
-									WIDGET_NEW(CheckBox)
-									.Content
-									(
-										WIDGET_NEW(NullWidget)
-									)
-								)					
-								
-							)
+							//+ VerticalBox::Slot()
+							//.FixedHeight()
+							//(
+							//	WIDGET_NEW(HorizontalBox)
+							//	+ HorizontalBox::Slot()
+							//	.FixedWidth()
+							//	(
+							//		WIDGET_NEW(TextBlockWidget)
+							//		.text("复选框")
+							//	)
+							//	+ HorizontalBox::Slot()
+							//	.FixedWidth()
+							//	(
+							//		WIDGET_NEW(CheckBox)
+							//		.Content
+							//		(
+							//			WIDGET_NEW(NullWidget)
+							//		)
+							//	)					
+							//	
+							//)
 							+ VerticalBox::Slot()
 							.FixedHeight()
 							(

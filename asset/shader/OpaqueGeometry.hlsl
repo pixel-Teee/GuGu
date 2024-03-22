@@ -63,7 +63,7 @@ void main_vs(
     o_posWS = mul(float4(i_pos, 1), g_World).xyz;
     o_uv = i_uv;
     o_normal = mul(float4(i_normal, 0), g_World).xyz;
-    o_tangent = mul(float4(i_tangent, 0), g_Transform).xyz;
+    o_tangent = mul(float4(i_tangent, 0), g_World).xyz;
 }
 
 
@@ -87,7 +87,7 @@ void main_ps(
 )
 {
     
-    float3 Albedo = t_Texture.Sample(s_Sampler, i_uv) * albedo;
+    float3 Albedo = t_Texture.Sample(s_Sampler, i_uv).xyz * albedo;
     //o_color = t_Texture.Sample(s_Sampler, i_uv);
     
     float3 N = normalize(i_normal);
@@ -169,6 +169,6 @@ float GeometrySmith(float3 N, float3 V, float3 L, float roughness)
 // ----------------------------------------------------------------------------
 float3 fresnelSchlick(float cosTheta, float3 F0)
 {
-    return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+    return F0 + (float3(1.0, 1.0, 1.0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }
 // ----------------------------------------------------------------------------
