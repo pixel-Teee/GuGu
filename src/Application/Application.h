@@ -83,7 +83,8 @@ namespace GuGu {
 
 		float m_globalRotation = 0;
 
-		std::weak_ptr<Widget> m_captorWidget;
+		//std::weak_ptr<Widget> m_captorWidget;
+		std::vector<std::weak_ptr<Widget>> m_captorWidgetsPath;
 	};
 	std::shared_ptr<Application> CreateApplicationFactory();
 }

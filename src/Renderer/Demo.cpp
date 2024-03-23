@@ -85,7 +85,7 @@ namespace GuGu {
 			
 		//Load("asset/Robot.gltf", node, m_rootFileSystem);
 
-		Load("asset/sphere.gltf", node, m_rootFileSystem);
+		Load("asset/monkey.gltf", node, m_rootFileSystem);
 
 		//auto node2 = std::make_shared<SceneGraphNode>();
 		//Load("asset/gyroscope.gltf", node2, m_rootFileSystem);
@@ -583,7 +583,7 @@ namespace GuGu {
 		nvrhi::utils::ClearColorAttachment(m_CommandList, m_frameBuffer, 0, Color(0.2f, 0.3f, 0.7f, 1.0f));
 		m_CommandList->clearDepthStencilTexture(m_depthTarget, nvrhi::AllSubresources, true, 1.0f, true, 0);
 
-		math::float3 cameraPos = math::float3(1.0f, 2.0f, -9);
+		math::float3 cameraPos = math::float3(0.0f, 0.0f, -9);
 		math::float3 cameraDir = normalize(math::float3(0.0f, 0.0f, 1.0f) - cameraPos);
 		math::float3 cameraUp = math::float3(0.0f, 1.0f, 0.0f);
 		math::float3 cameraRight = normalize(cross(cameraDir, cameraUp));

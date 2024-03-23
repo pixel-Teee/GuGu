@@ -144,7 +144,9 @@ namespace GuGu{
 
     std::shared_ptr<Widget> Application::getCaptorWidget() const
     {
-        return m_captorWidget.lock();
+        if (!m_captorWidgetsPath.empty())
+            return m_captorWidgetsPath.back().lock();
+        return nullptr;
     }
 
     void Application::setGlobalPreRotate(float rotation)
@@ -159,31 +161,62 @@ namespace GuGu{
 
     bool Application::processMouseButtonDownEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
     {
-        std::shared_ptr<Widget> collisionWidget = locateWidgetInWindow(window, mouseEvent);
-
-        std::vector<std::shared_ptr<Widget>> widgets;
-        std::shared_ptr<Widget> currentWidget = collisionWidget;
-        while (currentWidget)
-        {
-            widgets.push_back(currentWidget);
-            currentWidget = currentWidget->getParentWidget();
-        }
-
-        for (int32_t i = widgets.size() - 1; i >= 0; --i)
-        {
-            Reply reply = widgets[i]->OnMouseButtonDown(collisionWidget->getWidgetGeometry(), mouseEvent);
-
-            std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
-			if (mouseCaptor != nullptr)
+		if (!m_captorWidgetsPath.empty())
+		{
+			std::vector<std::weak_ptr<Widget>> captorWidgetsPath = m_captorWidgetsPath;
+			for (int32_t i = captorWidgetsPath.size() - 1; i >= 0; --i)
 			{
-                m_captorWidget = mouseCaptor;
+				std::shared_ptr<Widget> widget = captorWidgetsPath[i].lock();
+				if (widget != nullptr)
+				{
+					Reply reply = widget->OnMouseButtonUp(widget->getWidgetGeometry(), mouseEvent);
+					std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
+					if (mouseCaptor != nullptr)
+					{
+						//m_captorWidget = mouseCaptor;
+						m_captorWidgetsPath.clear();
+						for (size_t j = 0; j <= i; ++j)
+							m_captorWidgetsPath.push_back(captorWidgetsPath[j]);
+					}
+					if (reply.shouldReleaseMouse())
+					{
+						m_captorWidgetsPath.clear();
+					}
+				}
 			}
-            if (reply.shouldReleaseMouse())
-            {
-                m_captorWidget.reset();
-            }
-        }
+		}
+        else
+        {
+			std::shared_ptr<Widget> collisionWidget = locateWidgetInWindow(window, mouseEvent);
 
+			std::vector<std::shared_ptr<Widget>> widgets;
+			std::shared_ptr<Widget> currentWidget = collisionWidget;
+			while (currentWidget)
+			{
+				widgets.push_back(currentWidget);
+				currentWidget = currentWidget->getParentWidget();
+			}
+
+			for (int32_t i = widgets.size() - 1; i >= 0; --i)
+			{
+				Reply reply = widgets[i]->OnMouseButtonDown(widgets[i]->getWidgetGeometry(), mouseEvent);
+
+				std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
+				if (mouseCaptor != nullptr)
+				{
+					//m_captorWidget = mouseCaptor;
+					m_captorWidgetsPath.clear();
+					for (size_t j = 0; j <= i; ++j)
+						m_captorWidgetsPath.push_back(widgets[i]);
+				}
+				if (reply.shouldReleaseMouse())
+				{
+					m_captorWidgetsPath.clear();
+				}
+			}
+
+        }
+        
 		//if (collisionWidget)
 		//{
 		//    collisionWidget->OnMouseButtonDown(collisionWidget->getWidgetGeometry(), mouseEvent);
@@ -199,31 +232,62 @@ namespace GuGu{
 
     bool Application::processMouseButtonUpEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
     {
-		//locate window under mouse
-        std::shared_ptr<Widget> collisionWidget = locateWidgetInWindow(window, mouseEvent);
-
-		std::vector<std::shared_ptr<Widget>> widgets;
-		std::shared_ptr<Widget> currentWidget = collisionWidget;
-		while (currentWidget)
+		if (!m_captorWidgetsPath.empty())
 		{
-			widgets.push_back(currentWidget);
-			currentWidget = currentWidget->getParentWidget();
-		}
-
-		for (int32_t i = widgets.size() - 1; i >= 0; --i)
-		{
-			Reply reply = widgets[i]->OnMouseButtonUp(collisionWidget->getWidgetGeometry(), mouseEvent);
-
-            std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
-            if (mouseCaptor != nullptr)
-            {
-                m_captorWidget = mouseCaptor;
-            }
-			if (reply.shouldReleaseMouse())
+			std::vector<std::weak_ptr<Widget>> captorWidgetsPath = m_captorWidgetsPath;
+			for (int32_t i = captorWidgetsPath.size() - 1; i >= 0; --i)
 			{
-				m_captorWidget.reset();
+				std::shared_ptr<Widget> widget = captorWidgetsPath[i].lock();
+				if (widget != nullptr)
+				{
+					Reply reply = widget->OnMouseButtonUp(widget->getWidgetGeometry(), mouseEvent);
+					std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
+					if (mouseCaptor != nullptr)
+					{
+						//m_captorWidget = mouseCaptor;
+						m_captorWidgetsPath.clear();
+						for (size_t j = 0; j <= i; ++j)
+							m_captorWidgetsPath.push_back(captorWidgetsPath[j]);
+					}
+					if (reply.shouldReleaseMouse())
+					{
+						m_captorWidgetsPath.clear();
+					}
+				}
 			}
 		}
+        else
+        {
+			//locate window under mouse
+			std::shared_ptr<Widget> collisionWidget = locateWidgetInWindow(window, mouseEvent);
+
+			std::vector<std::shared_ptr<Widget>> widgets;
+			std::shared_ptr<Widget> currentWidget = collisionWidget;
+			while (currentWidget)
+			{
+				widgets.push_back(currentWidget);
+				currentWidget = currentWidget->getParentWidget();
+			}
+
+			for (int32_t i = widgets.size() - 1; i >= 0; --i)
+			{
+				Reply reply = widgets[i]->OnMouseButtonUp(widgets[i]->getWidgetGeometry(), mouseEvent);
+
+				std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
+				if (mouseCaptor != nullptr)
+				{
+					//m_captorWidget = mouseCaptor;
+					m_captorWidgetsPath.clear();
+					for (size_t j = 0; j <= i; ++j)
+						m_captorWidgetsPath.push_back(widgets[i]);
+				}
+				if (reply.shouldReleaseMouse())
+				{
+					m_captorWidgetsPath.clear();
+				}
+			}
+        }
+		
 
 		//if (collisionWidget)
 		//{
@@ -240,32 +304,62 @@ namespace GuGu{
 
     bool Application::processMouseMoveEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
     {
-		//locate window under mouse
-		std::shared_ptr<Widget> collisionWidget = locateWidgetInWindow(window, mouseEvent);
 
-		std::vector<std::shared_ptr<Widget>> widgets;
-		std::shared_ptr<Widget> currentWidget = collisionWidget;
-		while (currentWidget)
-		{
-			widgets.push_back(currentWidget);
-			currentWidget = currentWidget->getParentWidget();
-		}
+        if (!m_captorWidgetsPath.empty())
+        {
+            std::vector<std::weak_ptr<Widget>> captorWidgetsPath = m_captorWidgetsPath;
+            for (int32_t i = captorWidgetsPath.size() - 1; i >= 0; --i)
+            {
+                std::shared_ptr<Widget> widget = captorWidgetsPath[i].lock();
+                if (widget != nullptr)
+                {
+                    Reply reply = widget->OnMouseMove(widget->getWidgetGeometry(), mouseEvent);
+					std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
+					if (mouseCaptor != nullptr)
+					{
+						//m_captorWidget = mouseCaptor;
+						m_captorWidgetsPath.clear();
+						for (size_t j = 0; j <= i; ++j)
+							m_captorWidgetsPath.push_back(captorWidgetsPath[j]);
+					}
+					if (reply.shouldReleaseMouse())
+					{
+						m_captorWidgetsPath.clear();
+					}
+                }
+            }
+        }
+        else
+        {
+			//locate window under mouse
+			std::shared_ptr<Widget> collisionWidget = locateWidgetInWindow(window, mouseEvent);
 
-		for (int32_t i = widgets.size() - 1; i >= 0; --i)
-		{
-            Reply reply = widgets[i]->OnMouseMove(collisionWidget->getWidgetGeometry(), mouseEvent);
-
-			std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
-			if (mouseCaptor != nullptr)
+			std::vector<std::shared_ptr<Widget>> widgets;
+			std::shared_ptr<Widget> currentWidget = collisionWidget;
+			while (currentWidget)
 			{
-                m_captorWidget = mouseCaptor;
+				widgets.push_back(currentWidget);
+				currentWidget = currentWidget->getParentWidget();
 			}
-			if (reply.shouldReleaseMouse())
-			{
-				m_captorWidget.reset();
-			}
-		}
 
+			for (int32_t i = widgets.size() - 1; i >= 0; --i)
+			{
+				Reply reply = widgets[i]->OnMouseMove(widgets[i]->getWidgetGeometry(), mouseEvent);
+
+				std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
+				if (mouseCaptor != nullptr)
+				{
+					//m_captorWidget = mouseCaptor;
+					m_captorWidgetsPath.clear();
+					for (size_t j = 0; j <= i; ++j)
+						m_captorWidgetsPath.push_back(widgets[i]);
+				}
+				if (reply.shouldReleaseMouse())
+				{
+					m_captorWidgetsPath.clear();
+				}
+			}
+        }
 		//if (collisionWidget)
 		//{
 		//    collisionWidget->OnMouseButtonDown(collisionWidget->getWidgetGeometry(), mouseEvent);
