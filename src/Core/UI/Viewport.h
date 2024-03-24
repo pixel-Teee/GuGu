@@ -19,6 +19,8 @@ namespace GuGu {
 			BuilderArguments() = default;
 
 			~BuilderArguments() = default;
+
+			ARGUMENT_NAMED_SLOT(SingleChildSlot, Content)
 		};
 
 		void init(const BuilderArguments& arguments);
@@ -35,7 +37,7 @@ namespace GuGu {
 
 		void setRenderTarget(nvrhi::TextureHandle renderTarget);
 	private:
-		//std::shared_ptr<SingleChildSlot> m_childWidget;
+		std::shared_ptr<SingleChildSlot> m_childWidget;
 
 		nvrhi::TextureHandle m_renderTarget;
 	};

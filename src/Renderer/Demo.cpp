@@ -518,7 +518,7 @@ namespace GuGu {
 			psoDesc.bindingLayouts = { m_BindingLayout };
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
 			psoDesc.renderState.depthStencilState.depthTestEnable = true;
-
+			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
 			m_Pipeline = GetDevice()->createGraphicsPipeline(psoDesc, m_frameBuffer);
 		}
 
@@ -530,7 +530,7 @@ namespace GuGu {
 			psoDesc.bindingLayouts = { m_SkinnedBindingLayout };
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
 			psoDesc.renderState.depthStencilState.depthTestEnable = true;
-
+			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
 			m_SkinnedPipeline = GetDevice()->createGraphicsPipeline(psoDesc, m_frameBuffer);
 		}
 
@@ -583,35 +583,34 @@ namespace GuGu {
 		nvrhi::utils::ClearColorAttachment(m_CommandList, m_frameBuffer, 0, Color(0.2f, 0.3f, 0.7f, 1.0f));
 		m_CommandList->clearDepthStencilTexture(m_depthTarget, nvrhi::AllSubresources, true, 1.0f, true, 0);
 
-		math::float3 cameraPos = math::float3(0.0f, 0.0f, -9);
-		math::float3 cameraDir = normalize(math::float3(0.0f, 0.0f, 1.0f) - cameraPos);
+		math::float3 cameraPos = math::float3(0.0f, 0.0f, m_uiData->camPos);
+		math::float3 cameraDir = normalize(math::float3(0.0f, m_uiData->dir, 1.0f) - cameraPos);
 		math::float3 cameraUp = math::float3(0.0f, 1.0f, 0.0f);
-		math::float3 cameraRight = normalize(cross(cameraDir, cameraUp));
-		cameraUp = normalize(cross(cameraRight, cameraDir));
+		math::float3 cameraRight = normalize(cross(cameraUp, cameraDir));
+		cameraUp = normalize(cross(cameraDir, cameraRight));
 
-		math::affine3 worldToView = math::affine3::from_cols(cameraRight, cameraUp, cameraDir, 0.0f);
-		worldToView = translation(-cameraPos) * worldToView;
+		math::affine3 worldToView = math::affine3::from_cols(cameraRight, cameraUp, cameraDir, -cameraPos);
 
 		//ConstantBufferEntry modelConstants;
 		math::affine3 viewMatrix =
 			math::yawPitchRoll(0.f, math::radians(-30.f), 0.f)
 			* math::translation(math::float3(0, 0, 2));
-		math::float4x4 projMatrix = math::perspProjD3DStyleReverse(math::radians(45.f),
+		math::float4x4 projMatrix = math::perspProjD3DStyle(math::radians(45.f),
 			float(fbinfo.width) /
-			float(fbinfo.height), 0.0f
+			float(fbinfo.height), 1.0f, 50.0f
 			);
 		math::float4x4 viewProjMatrix = math::affineToHomogeneous(worldToView) * projMatrix;
 		//modelConstants.viewProjMatrix = viewProjMatrix;
 
 		Pass pass;
-		pass.camPos = -cameraPos;//todo:这里是否是错误的？
+		pass.camPos = cameraPos;//todo:这里是否是错误的？
 		m_CommandList->writeBuffer(m_PassBuffers, &pass, sizeof(pass));
 
 		Light light;
-		light.lightPositions[0] = math::float4(-10.0f, 10.0f, 10.0f, 0.0f);
-		light.lightPositions[1] = math::float4(10.0f, 10.0f, 10.0f, 0.0f);
-		light.lightPositions[2] = math::float4(-10.0f, -10.0f, 10.0f, 0.0f);
-		light.lightPositions[3] = math::float4(10.0f, -10.0f, 10.0f, 0.0f);
+		light.lightPositions[0] = math::float4(-10.0f, 10.0f, -10.0f, 0.0f);
+		light.lightPositions[1] = math::float4(10.0f, 10.0f, -10.0f, 0.0f);
+		light.lightPositions[2] = math::float4(-10.0f, -10.0f, -10.0f, 0.0f);
+		light.lightPositions[3] = math::float4(10.0f, -10.0f, -10.0f, 0.0f);
 		for (size_t i = 0; i < 4; ++i)
 		{
 			//light.lightPositions[i] = math::float4(10.0f, 10.0f, 10.0f, 0.0f);

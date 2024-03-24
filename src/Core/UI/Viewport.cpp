@@ -15,30 +15,33 @@ namespace GuGu {
 	}
 	void ViewportWidget::init(const BuilderArguments& arguments)
 	{
+		m_childWidget = arguments.mContent;
+		m_childWidget->m_parentWidget = shared_from_this();
+		m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 	}
 	uint32_t ViewportWidget::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
-		//ArrangedWidgetArray arrangedWidgetArray;
-		//AllocationChildActualSpace(allocatedGeometry, arrangedWidgetArray);
+		ArrangedWidgetArray arrangedWidgetArray;
+		AllocationChildActualSpace(allocatedGeometry, arrangedWidgetArray);
 
 		if (m_renderTarget)
 		{
 			ElementList::addViewportElement(elementList, allocatedGeometry, math::float4(1.0f, 1.0f, 1.0f, 1.0f), m_renderTarget, layer + 1);
 		}
 		
-		//uint32_t widgetNumbers = arrangedWidgetArray.getArrangedWidgetsNumber();//note:just one
-		////math::double2 size = math::double2(0.0, 0.0);
-		//uint32_t maxLayer = 0;
-		//for (size_t i = 0; i < widgetNumbers; ++i)
-		//{
-		//	std::shared_ptr<ArrangedWidget> childWidget = arrangedWidgetArray.getArrangedWidget(i);
-		//	if (childWidget)
-		//	{
-		//		std::shared_ptr<Widget> widget = childWidget->getWidget();
-		//
-		//		maxLayer = std::max(maxLayer, widget->generateElement(paintArgs, cullingRect, elementList, childWidget->getWidgetGeometry(), layer + 1));
-		//	}
-		//}
+		uint32_t widgetNumbers = arrangedWidgetArray.getArrangedWidgetsNumber();//note:just one
+		//math::double2 size = math::double2(0.0, 0.0);
+		uint32_t maxLayer = 0;
+		for (size_t i = 0; i < widgetNumbers; ++i)
+		{
+			std::shared_ptr<ArrangedWidget> childWidget = arrangedWidgetArray.getArrangedWidget(i);
+			if (childWidget)
+			{
+				std::shared_ptr<Widget> widget = childWidget->getWidget();
+
+				maxLayer = std::max(maxLayer, widget->generateElement(paintArgs, cullingRect, elementList, childWidget->getWidgetGeometry(), layer + 1));
+			}
+		}
 
 		return layer + 1;
 	}
@@ -61,11 +64,11 @@ namespace GuGu {
 	}
 	SlotBase* ViewportWidget::getSlot(uint32_t index)
 	{
-		return nullptr;
+		return m_childWidget.get();
 	}
 	uint32_t ViewportWidget::getSlotsNumber()
 	{
-		return 0;
+		return 1;
 	}
 	void ViewportWidget::setRenderTarget(nvrhi::TextureHandle renderTarget)
 	{

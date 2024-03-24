@@ -533,10 +533,12 @@ namespace GuGu {
 		}
 		m_atlasTexture->setTextureAtlas(textureAtlas);
 	}
+	//自下而上，计算固定大小
 	void UIRenderPass::calculateWidgetsFixedSize(std::shared_ptr<WindowWidget> windowWidget)
 	{
 		windowWidget->prepass(windowWidget->getNativeWindow()->getDpiFactor());
 	}
+	//自上而下递归，分配实际空间
 	void UIRenderPass::generateWidgetElement(WidgetGeometry& allocatedWidgetGeometry)
 	{
 		m_allWidgets.clear();
@@ -626,6 +628,18 @@ namespace GuGu {
 							.StretchHeight(1.0f)
 							(
 								WIDGET_ASSIGN_NEW(ViewportWidget, m_viewport)
+								.Content(
+									WIDGET_NEW(Overlay)
+									+Overlay::Slot()
+									.setPadding(Padding(20.0f, 20.0f, 0.0f, 0.0f))
+									.setHorizontalAlignment(HorizontalAlignment::Left)
+									.setVerticalAlignment(VerticalAlignment::Top)
+									(
+										WIDGET_NEW(TextBlockWidget)
+										//.Clip(WidgetClipping::ClipToBounds)
+										.text("测试Overlay")
+									)			
+								)
 							)
 							//+ VerticalBox::Slot()
 							//.FixedHeight()
@@ -688,6 +702,50 @@ namespace GuGu {
 									.MinValue(0.0f)
 									.OnValueChangedLambda([&](float inValue) {
 											m_uiData->roughness = inValue;
+										}
+									)
+								)
+							)
+							+ VerticalBox::Slot()
+							.FixedHeight()
+							(
+								WIDGET_NEW(HorizontalBox)
+								+ HorizontalBox::Slot()
+								.FixedWidth()
+								(
+									WIDGET_NEW(TextBlockWidget)
+									.text(u8"dir")
+									)
+								+ HorizontalBox::Slot()
+								.StretchWidth(1.0f)
+								(
+									WIDGET_NEW(Slider)
+									.MaxValue(10.0f)
+									.MinValue(-10.0f)
+									.OnValueChangedLambda([&](float inValue) {
+										m_uiData->dir = inValue;
+										}
+									)
+								)
+							)
+							+ VerticalBox::Slot()
+							.FixedHeight()
+							(
+								WIDGET_NEW(HorizontalBox)
+								+ HorizontalBox::Slot()
+								.FixedWidth()
+								(
+									WIDGET_NEW(TextBlockWidget)
+									.text(u8"pos")
+									)
+								+ HorizontalBox::Slot()
+								.StretchWidth(1.0f)
+								(
+									WIDGET_NEW(Slider)
+									.MaxValue(10.0f)
+									.MinValue(-10.0f)
+									.OnValueChangedLambda([&](float inValue) {
+										m_uiData->camPos = inValue;
 										}
 									)
 								)
