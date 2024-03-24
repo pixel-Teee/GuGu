@@ -8,7 +8,7 @@ namespace GuGu {
 
 		UIData() {}
 
-		float camPos = 0.0f;
+		float camPos = -10.0f;
 		float dir = 0.0f;
 	};
 }

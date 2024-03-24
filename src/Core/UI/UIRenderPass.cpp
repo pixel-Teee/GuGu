@@ -742,8 +742,8 @@ namespace GuGu {
 								.StretchWidth(1.0f)
 								(
 									WIDGET_NEW(Slider)
-									.MaxValue(10.0f)
-									.MinValue(-10.0f)
+									.MaxValue(0.0f)
+									.MinValue(-40.0f)
 									.OnValueChangedLambda([&](float inValue) {
 										m_uiData->camPos = inValue;
 										}

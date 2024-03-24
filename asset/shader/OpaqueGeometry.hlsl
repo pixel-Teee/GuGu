@@ -59,7 +59,7 @@ void main_vs(
     i_pos = posL;
     //o_pos = i_pos;
 #endif
-    o_pos = mul(float4(i_pos, 1), g_Transform);
+    o_pos = mul(mul(float4(i_pos, 1), g_World), g_Transform);
     o_posWS = mul(float4(i_pos, 1), g_World).xyz;
     o_uv = i_uv;
     o_normal = mul(float4(i_normal, 0), g_World).xyz;
