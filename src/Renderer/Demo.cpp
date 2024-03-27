@@ -595,7 +595,7 @@ namespace GuGu {
 		math::affine3 viewMatrix =
 			math::yawPitchRoll(0.f, math::radians(-30.f), 0.f)
 			* math::translation(math::float3(0, 0, 2));
-		math::float4x4 projMatrix = math::perspProjD3DStyle(math::radians(30.f),
+		math::float4x4 projMatrix = math::perspProjD3DStyle(math::radians(45.f),
 			float(fbinfo.width) /
 			float(fbinfo.height), 1.0f, 50.0f
 			);

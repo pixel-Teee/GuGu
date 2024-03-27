@@ -135,7 +135,7 @@ namespace GuGu {
 		{
 			if (m_batches[i]->shaderType == m_batches[lastBatch]->shaderType
 				&& m_batches[i]->m_texture == m_batches[lastBatch]->m_texture
-				&& m_batches[i]->m_layer == m_batches[lastBatch]->m_layer && m_batches[i]->m_clippingState == m_batches[lastBatch]->m_clippingState)
+				&& m_batches[i]->m_layer == m_batches[lastBatch]->m_layer && m_batches[i]->m_clippingState == m_batches[lastBatch]->m_clippingState && m_batches[i]->m_shaderParams == m_batches[lastBatch]->m_shaderParams)
 			{
 				int32_t indexOffset = m_batches[lastBatch]->m_vertices.size();
 				m_batches[lastBatch]->m_vertices.insert(m_batches[lastBatch]->m_vertices.end(), m_batches[i]->m_vertices.begin(), m_batches[i]->m_vertices.end());
@@ -300,11 +300,14 @@ namespace GuGu {
 		batchData->m_clippingState = getClippingState(element->m_clipIndex);
 		batchData->m_layer = element->m_layer;
 		batchData->shaderType = UIShaderType::Line;
+		
 		const float filterScale = 1.0f;
 		float requestedThickness = lineElement->m_thickNess;
 		static const float twoRootTwo = 2 * 1.4142135623730950488016887242097f;//todo:fix this
 		const float lineThickness = twoRootTwo + requestedThickness;
 		const float halfThickness = lineThickness * 0.5f + filterScale;
+
+		batchData->m_shaderParams = ShaderParam(math::float4(0.0f, 0.0f, 0.0f, 0.0f));
 
 		math::float2 startPos = points[0];
 		math::float2 endPos = points[1];
@@ -312,8 +315,8 @@ namespace GuGu {
 		math::float2 normal = math::normalize(math::float2(startPos.y - endPos.y, endPos.x - startPos.x));
 		math::float2 up = normal * halfThickness;
 
-		batchData->m_vertices.emplace_back(math::float4(1.0f, 0.0f, 0.0f, 0.0f), fAbsolutePosition + startPos + up, color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
-		batchData->m_vertices.emplace_back(math::float4(1.0f, 0.0f, 0.0f, 0.0f), fAbsolutePosition + startPos - up, color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		batchData->m_vertices.emplace_back(math::float4(1.0f, 0.0f, 0.0f, 0.0f), fAbsolutePosition + startPos + up, color, math::float4(1.0f, 0.0f, 0.0f, 0.0f));
+		batchData->m_vertices.emplace_back(math::float4(1.0f, 0.0f, 0.0f, 0.0f), fAbsolutePosition + startPos - up, color, math::float4(0.0f, 0.0f, 0.0f, 0.0f));
 
 		for (int32_t point = 1; point < points.size(); ++point)
 		{
@@ -379,6 +382,8 @@ namespace GuGu {
 		static const float twoRootTwo = 2 * 1.4142135623730950488016887242097f;//todo:fix this
 		const float lineThickness = twoRootTwo + requestedThickness;
 		const float halfThickness = lineThickness * 0.5f + filterScale;
+
+		batchData->m_shaderParams = ShaderParam(math::float4(requestedThickness, filterScale, 0.0f, 0.0f));
 
 		LineBuilder lineBuilder(*batchData, lineElement->P0, halfThickness, lineElement->m_geometry, Color(color.x, color.y, color.z, color.w));
 

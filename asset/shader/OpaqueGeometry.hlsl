@@ -93,8 +93,8 @@ void main_ps(
     float3 N = normalize(i_normal);
     float3 V = normalize(camPos - i_posWS);
 
-    float3 F0 = float3(0.04f, 0.04f, 0.04f);
-    F0 = lerp(F0, Albedo, metallic);
+    float3 F0 = float3(0.04f, 0.04f, 0.04f);//基础反射率
+    F0 = lerp(F0, Albedo, metallic);//用金属度在基础反射率和漫反射之间插值，金属度控制漫反射的占比
     
     float3 Lo = float3(0.0f, 0.0f, 0.0f);
     
@@ -113,7 +113,7 @@ void main_ps(
 
         float3 kS = F;
         float3 kD = float3(1.0, 1.0, 1.0) - kS;
-        kD *= 1.0 - metallic;
+        kD *= 1.0 - metallic;//这里，金属度控制漫反射的占比
         
         float3 numerator = NDF * G * F;
         float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + 0.0001;

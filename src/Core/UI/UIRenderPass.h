@@ -78,7 +78,8 @@ namespace GuGu {
 		nvrhi::GraphicsPipelineHandle m_LinePipeline;
 		struct ConstantBufferEntry {
 			dm::float4x4 viewProjMatrix;
-			float padding[16 * 3];
+			dm::float4 shaderParam;
+			float padding[44];
 		};
 
 		std::shared_ptr<WindowWidget> m_uiRoot;

@@ -11,6 +11,7 @@ struct PSInput
 cbuffer CB : register(b0)
 {
     float4x4 ViewProjection;
+    float4 shaderParams;
 };
 
 PSInput main_vs(float4 InTextureCoordinate : TEXCOORD0, float2 InPosition : POSITIONT0,
@@ -35,7 +36,7 @@ SamplerState s_Sampler : register(s0);
 float2 GetUV(PSInput VIn, uint UVIndex)
 {
     float4 UVVector = VIn.TextureCoordinate;
-    return UVIndex ? UVVector.xy : UVVector.zw;
+    return UVIndex ? UVVector.zw : UVVector.xy;
 }
 
 float4 getColor(PSInput VIn, float2 UV)
@@ -57,7 +58,23 @@ float4 getFontColor(PSInput VIn)
 
 float4 getLineSegmentElementColor(PSInput VIn)
 {
+    float lineWidth = shaderParams.x;
+    float filterWidthScale = shaderParams.y;
+    float gradient = GetUV(VIn, 0).x;
+    float2 gradientDerivative = float2(abs(ddx(gradient)), abs(ddy(gradient)));
+    float pixelSizeInUV = sqrt(dot(gradientDerivative, gradientDerivative));
+    float halfLineWidthUV = 0.5f * pixelSizeInUV * lineWidth;
+    float halfFilterWidthUV = filterWidthScale * pixelSizeInUV;
+    float distanceToLineCenter = abs(0.5f - gradient);
+    float lineCoverage = smoothstep(halfLineWidthUV + halfFilterWidthUV, halfLineWidthUV - halfFilterWidthUV, distanceToLineCenter);
+    
+    if(lineCoverage <= 0.0f)
+    {
+        discard;
+    }
+    
     float4 color = VIn.Color;
+    color.a *= lineCoverage;
     return color;
 }
 

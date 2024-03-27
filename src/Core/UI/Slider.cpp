@@ -21,6 +21,7 @@ namespace GuGu {
 	}
 	void Slider::init(const BuilderArguments& arguments)
 	{
+		m_orientation = arguments.morientation;
 		m_minValue = arguments.mMinValue;
 		m_maxValue = arguments.mMaxValue;
 		m_onValueChanged = arguments.mOnValueChanged;
@@ -60,6 +61,7 @@ namespace GuGu {
 		if (m_orientation == Orientation::Vertical)
 		{
 			//暂时不处理垂直的
+			//sliderGeometry = sliderGeometry.getChildGeometry(math::float2(allottedWidth, allottedHeight), math::float2(0.0f, 0.0f), sliderGeometry.getAccumulateTransform());
 		}
 
 		//绘制滑条块
@@ -68,7 +70,7 @@ namespace GuGu {
 		auto barImage = getBarImage();
 		auto thumbImage = getThumbImage();
 		ElementList::addBoxElement(elementList,
-			allocatedGeometry.getChildGeometry(barSize, barTopLeft, allocatedGeometry.getAccumulateTransform()),
+			sliderGeometry.getChildGeometry(barSize, barTopLeft, sliderGeometry.getAccumulateTransform()),
 			math::float4(1.0f),
 			barImage,
 			layer
@@ -77,7 +79,7 @@ namespace GuGu {
 		++layer;
 
 		ElementList::addBoxElement(elementList,
-			allocatedGeometry.getChildGeometry(handleSize, handleTopLeftPoint, allocatedGeometry.getAccumulateTransform()),
+			sliderGeometry.getChildGeometry(handleSize, handleTopLeftPoint, sliderGeometry.getAccumulateTransform()),
 			math::float4(1.0f),
 			thumbImage,
 			layer

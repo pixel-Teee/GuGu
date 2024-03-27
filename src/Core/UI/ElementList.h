@@ -23,6 +23,24 @@ namespace GuGu {
 		Line
 	};
 
+	struct ShaderParam
+	{
+		math::float4 pixelParams;
+
+		ShaderParam()
+			: pixelParams(0, 0, 0, 0)
+		{}
+
+		ShaderParam(const math::float4& inPixelParams)
+			: pixelParams(inPixelParams)
+		{}
+
+		bool operator==(const ShaderParam& rhs) const
+		{
+			return (pixelParams.x == rhs.pixelParams.x && pixelParams.y == rhs.pixelParams.y && pixelParams.z == rhs.pixelParams.z && pixelParams.w == rhs.pixelParams.w);
+		}
+	};
+
 	struct BatchData
 	{
 		UIShaderType shaderType = UIShaderType::Default;
@@ -32,6 +50,7 @@ namespace GuGu {
 		nvrhi::TextureHandle m_texture;
 		uint32_t m_layer;//note:useful for batch
 		const ClippingState* m_clippingState;//weak
+		ShaderParam m_shaderParams;
 	};
 
 	struct ShapedTextBuildContext

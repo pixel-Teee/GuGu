@@ -268,7 +268,7 @@ namespace GuGu {
 		{
 			ConstantBufferEntry modelConstant;
 			modelConstant.viewProjMatrix = vp;
-
+			modelConstant.shaderParam = m_elementList->getBatches()[i]->m_shaderParams.pixelParams;
 			m_CommandList->writeBuffer(m_constantBuffers[i], &modelConstant, sizeof(modelConstant));
 
 			nvrhi::BindingSetDesc desc;
@@ -617,6 +617,7 @@ namespace GuGu {
 									uint32_t fps = Application::getApplication()->getFps();
 									GuGuUtf8Str fpsStr = u8"一帧耗费时长:%.3f毫秒\r\n帧率:%dfps";
 									fpsStr = strFormat(fpsStr, mfps, fps);
+									//GuGuUtf8Str str = u8"臂跳释阔孕\r\n型佩层愧茎\r\n橘代克屿牛\r\n炊间成羞蝴\r\n顾堆殿友岁\r\n火柜九体妇\r\n枯窑雄密般\r\n鞭宵醉始著\r\n复赚霸扰夺\r\n况说柄响附\r\n庄存叔劫屈\r\n健疯窜滥限\r\n追侵删榆容\r\n挺左丢帮器\r\n搜涂酬魂很\r\n配你御字栗\r\n勇尚沫葡吗\r\n菊庙侍引镜\r\n笔络没蜓页\r\n灾穿卵奴绕";
 									return fpsStr;
 									})
 								.textColorLambda([&] {
@@ -753,6 +754,12 @@ namespace GuGu {
 						)
 					)
 				)
+				//+ HorizontalBox::Slot()
+				//.StretchWidth(1.0)
+				//(
+				//	WIDGET_NEW(Slider)
+				//	.orientation(Orientation::Vertical)
+				//)
 			);
 	}
 }

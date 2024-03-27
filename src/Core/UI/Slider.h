@@ -17,7 +17,8 @@ namespace GuGu {
 
 		struct BuilderArguments : public Arguments<Slider>
 		{
-			BuilderArguments()
+			BuilderArguments()	
+				: morientation(Orientation::Horizontal)
 			{
 				mClip = WidgetClipping::Inherit;
 			}
@@ -27,6 +28,8 @@ namespace GuGu {
 			ARGUMENT_VALUE(float, MinValue)
 
 			ARGUMENT_VALUE(float, MaxValue)
+
+			ARGUMENT_VALUE(Orientation, orientation)
 
 			UI_EVENT(OnFloatValueChanged, OnValueChanged)
 		};
