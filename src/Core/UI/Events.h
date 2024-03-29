@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Math/MyMath.h>
+#include <Core/GuGuUtf8Str.h>
 
 namespace GuGu {
 	struct InputEvent
@@ -20,5 +21,19 @@ namespace GuGu {
 		math::float2 m_screenSpacePosition;
 		math::float2 m_lastScreenSpacePosition;
 		math::float2 m_cursorDelta;
+	};
+
+	struct CharacterEvent : public InputEvent
+	{
+		CharacterEvent(const GuGuUtf8Str inCharacter)
+			: m_character(inCharacter)
+		{}
+
+		GuGuUtf8Str getCharacter() const
+		{
+			return m_character;
+		}
+	private:
+		GuGuUtf8Str m_character;
 	};
 }

@@ -101,6 +101,12 @@ namespace GuGu {
 		sliderStyle->setNormalThumbImage(thumbImage);
 		sliderStyle->setBarThickness(10.0f);
 		m_styles.insert({ "slider", sliderStyle });
+
+		//editable text
+		std::shared_ptr<Brush> selectionBackground = std::make_shared<Brush>();
+		selectionBackground->m_tiling = false;
+		selectionBackground->m_texturePath = u8"asset/MinimumWindow/thumb.png";
+		m_brushes.insert({ "selectionBackground", selectionBackground });
 	}
 	StyleSet::~StyleSet()
 	{

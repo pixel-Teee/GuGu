@@ -24,6 +24,18 @@ namespace GuGu {
 
 			return shapedText;
 		}
+		int32_t findCharacterIndexAtOffset(const std::shared_ptr<ShapedTextCache>& inShapedTextCache, const CacheShapedTextKey& inRunKey, const TextRange& inTextRange, const GuGuUtf8Str& inText, const int32_t inHorizontalOffset)
+		{
+			std::shared_ptr<FontCache> fontCache = FontCache::getFontCache();
+
+			if (!fontCache)
+				return -1;
+
+			std::shared_ptr<ShapedGlyphSequence> shapedText = inShapedTextCache->findOrAddShapedText(inRunKey, inText);
+
+			std::optional<ShapedGlyphSequence::GlyphOffsetResult> glyphOffsetResult = shapedText->getGlyphAtOffset(*fontCache, inTextRange.m_beginIndex, inTextRange.m_beginIndex, inHorizontalOffset);
+			return 0;
+		}
 	}
 	std::shared_ptr<ShapedTextCache> ShapedTextCache::Create(const std::shared_ptr<FontCache>& inFontCache)
 	{

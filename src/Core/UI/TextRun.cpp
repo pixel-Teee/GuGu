@@ -24,6 +24,11 @@ namespace GuGu {
 	{
 		return m_range;
 	}
+	void TextRun::setTextRange(const TextRange& value)
+	{
+		m_range = value;
+	}
+	
 	int16_t TextRun::getMaxHeight(float scale) const
 	{
 		const std::shared_ptr<FontCache> fontCache = FontCache::getFontCache();
@@ -80,5 +85,35 @@ namespace GuGu {
 		);
 
 		return layerId + 1;
+	}
+	void TextRun::appendTextTo(GuGuUtf8Str& text) const
+	{
+		GuGuUtf8Str subStr = m_text->substr(m_range.m_beginIndex, m_range.len());
+		text.append(subStr);
+	}
+	int32_t TextRun::getTextIndexAt(const std::shared_ptr<ILayoutBlock>& block, const math::float2& location, float scale) const
+	{
+		const math::float2& blockOffset = block->getLocationOffset();
+		const math::float2& blockSize = block->getSize();
+
+		const float left = blockOffset.x;
+		const float top = blockOffset.y;
+		const float right = blockOffset.x + blockSize.x;
+		const float bottom = blockOffset.y + blockSize.y;
+
+		const bool containsPoint = location.x >= left && location.x < right && location.y >= top && location.y < bottom;
+
+		if (!containsPoint)
+		{
+			return -1;
+		}
+
+		const TextRange BlockRange = block->getTextRange();
+		const LayoutBlockTextContext BlockTextContext = block->getTextContext();
+
+		const int32_t index = ShapedTextCacheUtil::findCharacterIndexAtOffset(BlockTextContext.m_shapedTextCache, CacheShapedTextKey(TextRange(0, m_text->len()), scale, BlockTextContext, *m_style.m_textInfo),
+			BlockRange, *m_text, location.x - blockOffset.x);
+
+		return index;
 	}
 }

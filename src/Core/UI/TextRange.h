@@ -22,6 +22,20 @@ namespace GuGu {
 
 		static void CalculateLineRangesFromString(const GuGuUtf8Str& input, std::vector<TextRange>& lineRanges);
 
+		bool Contains(int32_t index) const { return index >= m_beginIndex && index <= m_endIndex; }
+
+		void offset(int32_t amount) { m_beginIndex += amount; m_beginIndex = std::max(0, m_beginIndex); m_endIndex += amount; m_endIndex += std::max(0, m_endIndex); }
+
+		TextRange intersect(const TextRange& other) const
+		{
+			TextRange intersected(std::max(m_beginIndex, other.m_beginIndex), std::min(m_endIndex, other.m_endIndex));
+
+			if (intersected.m_endIndex <= intersected.m_beginIndex)
+				return TextRange(0, 0);
+
+			return intersected;
+		}
+
 		bool operator==(const TextRange& other) const
 		{
 			return m_beginIndex == other.m_beginIndex && m_endIndex == other.m_endIndex;

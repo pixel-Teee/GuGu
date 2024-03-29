@@ -23,6 +23,7 @@ namespace GuGu {
 
 	class CharacterList;
 	class FreeTypeFace;
+	class FontCache;
 
 	struct FCopyRowData;
 	class AtlasTexture;
@@ -62,6 +63,33 @@ namespace GuGu {
 		};
 
 		ShapedGlyphSequence(std::vector<GlyphEntry> inGlyphsToRender, const int16_t inTextBaseLine, const uint16_t inMaxTextHeight, const SourceTextRange& inSourceTextRange);
+
+		struct GlyphOffsetResult
+		{
+			GlyphOffsetResult()
+				: m_glyph(nullptr)
+				, m_glyphOffset(0)
+				, m_characterIndex(0)
+			{}
+
+			GlyphOffsetResult(const int32_t inCharacterIndex)
+				: m_glyph(nullptr)
+				, m_glyphOffset(0)
+				, m_characterIndex(inCharacterIndex)
+			{}
+
+			GlyphOffsetResult(const GlyphEntry* inGlyph, const int32_t inGlyphOffset)
+				: m_glyph(inGlyph)
+				, m_glyphOffset(inGlyphOffset)
+				, m_characterIndex(inGlyph->sourceIndex)
+			{}
+			//被碰撞到的的glyph
+			const GlyphEntry* m_glyph;
+			//碰撞到的glyph的左边的偏移
+			int32_t m_glyphOffset;
+			//被碰撞到的glyph index
+			int32_t m_characterIndex;
+		};
 
 		struct SourceIndexToGlyphData
 		{
@@ -129,6 +157,8 @@ namespace GuGu {
 
 		typedef std::function<bool(const GlyphEntry&, int32_t)> eachShapedGlyphEntryCallback;
 		void EnumerateLogicalGlyphsInSourceRange(const int32_t InStartIndex, const int32_t InEndIndex, const eachShapedGlyphEntryCallback& InGlyphCallback) const;
+
+		std::optional<GlyphOffsetResult> getGlyphAtOffset(FontCache& inFontCache, const int32_t inStartIndex, const int32_t inEndIndex, const int32_t inHorizontalOffset, const int32_t inStartOffset = 0) const;
 
 		std::vector<GlyphEntry> m_glyphsToRender;
 		int16_t m_textBaseLine;

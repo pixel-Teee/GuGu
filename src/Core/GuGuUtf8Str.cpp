@@ -301,7 +301,7 @@ namespace GuGu {
 			m_str[i] = str[j];
 		}
 
-		calculateCharacterByteCount();
+		m_len = calculateCharacterByteCount();
 		
 		return *this;
 	}

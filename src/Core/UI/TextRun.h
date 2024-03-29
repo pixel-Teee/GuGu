@@ -18,6 +18,8 @@ namespace GuGu {
 
 		virtual TextRange getTextRange() const override;
 
+		virtual void setTextRange(const TextRange& value) override;
+
 		virtual int16_t getMaxHeight(float scale) const override;
 
 		virtual int16_t getBaseLine(float inScale) const override;
@@ -30,6 +32,10 @@ namespace GuGu {
 
 		virtual int32_t OnPaint(const PaintArgs& paintArgs, const TextArgs& textArgs, const WidgetGeometry& allottedGeometry, const math::box2& cullingRect,
 			ElementList& outDrawElements, int32_t layerId, const Style& inWidgetStyle) const override;
+
+		virtual void appendTextTo(GuGuUtf8Str& text) const override;
+
+		virtual int32_t getTextIndexAt(const std::shared_ptr<ILayoutBlock>& block, const math::float2& location, float scale) const override;
 	protected:
 		RunInfo m_runInfo;
 		std::shared_ptr<const GuGuUtf8Str> m_text;

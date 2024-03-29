@@ -83,6 +83,10 @@ namespace GuGu {
 			}
 		}
 	}
+	std::optional<ShapedGlyphSequence::GlyphOffsetResult> ShapedGlyphSequence::getGlyphAtOffset(FontCache& inFontCache, const int32_t inStartIndex, const int32_t inEndIndex, const int32_t inHorizontalOffset, const int32_t inStartOffset) const
+	{
+		return std::optional<GlyphOffsetResult>();
+	}
 	FontCache::FontCache()
 		: m_freeTypeCacheDirectory(std::make_shared<FreeTypeCacheDirectory>())
 	{

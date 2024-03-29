@@ -142,6 +142,12 @@ namespace GuGu{
 		return processMouseMoveEvent(window, mouseEvent);
     }
 
+	bool Application::onKeyChar(const GuGuUtf8Str Character)
+	{
+		CharacterEvent characterEvent(Character);
+		return processKeyCharEvent(characterEvent);
+	}
+
     std::shared_ptr<Widget> Application::getCaptorWidget() const
     {
         if (!m_captorWidgetsPath.empty())
@@ -149,7 +155,12 @@ namespace GuGu{
         return nullptr;
     }
 
-    void Application::setGlobalPreRotate(float rotation)
+	bool Application::hasAnyFocus(std::shared_ptr<const Widget> inWidget) const
+	{
+		return m_focusWidgetsPath.back().lock() == inWidget;
+	}
+
+	void Application::setGlobalPreRotate(float rotation)
     {
         m_globalRotation = rotation;
     }
@@ -169,7 +180,7 @@ namespace GuGu{
 				std::shared_ptr<Widget> widget = captorWidgetsPath[i].lock();
 				if (widget != nullptr)
 				{
-					Reply reply = widget->OnMouseButtonUp(widget->getWidgetGeometry(), mouseEvent);
+					Reply reply = widget->OnMouseButtonDown(widget->getWidgetGeometry(), mouseEvent);
 					std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
 					if (mouseCaptor != nullptr)
 					{
@@ -212,6 +223,13 @@ namespace GuGu{
 				if (reply.shouldReleaseMouse())
 				{
 					m_captorWidgetsPath.clear();
+				}
+				std::shared_ptr<Widget> requestedFocusRecepient = reply.getFocusRecepient();
+				if (requestedFocusRecepient)
+				{
+					m_focusWidgetsPath.clear();
+					for (size_t j = 0; j <= i; ++j)
+						m_focusWidgetsPath.push_back(widgets[i]);
 				}
 			}
 
@@ -284,6 +302,13 @@ namespace GuGu{
 				if (reply.shouldReleaseMouse())
 				{
 					m_captorWidgetsPath.clear();
+				}
+				std::shared_ptr<Widget> requestedFocusRecepient = reply.getFocusRecepient();
+				if (requestedFocusRecepient)
+				{
+					m_focusWidgetsPath.clear();
+					for (size_t j = 0; j <= i; ++j)
+						m_focusWidgetsPath.push_back(widgets[i]);
 				}
 			}
         }
@@ -358,6 +383,13 @@ namespace GuGu{
 				{
 					m_captorWidgetsPath.clear();
 				}
+				std::shared_ptr<Widget> requestedFocusRecepient = reply.getFocusRecepient();
+				if (requestedFocusRecepient)
+				{
+					m_focusWidgetsPath.clear();
+					for (size_t j = 0; j <= i; ++j)
+						m_focusWidgetsPath.push_back(widgets[i]);
+				}
 			}
         }
 		//if (collisionWidget)
@@ -372,6 +404,21 @@ namespace GuGu{
 		//GuGu_LOGD("(%f %f)", cursorPosition.x, cursorPosition.y);
 		return true;
     }
+
+	bool Application::processKeyCharEvent(const CharacterEvent& inCharacterEvent)
+	{
+		Reply reply = Reply::Unhandled();
+
+		//focus path
+		std::vector<std::shared_ptr<Widget>> focusPath;
+		for (size_t i = 0; i < m_focusWidgetsPath.size(); ++i)
+			focusPath.push_back(m_focusWidgetsPath[i].lock());
+
+		for (size_t i = 0; i < focusPath.size(); ++i)
+			focusPath[i]->OnKeyChar(focusPath[i]->getWidgetGeometry(), inCharacterEvent);
+
+		return true;
+	}
 
     std::shared_ptr<Widget> Application::locateWidgetInWindow(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
     {

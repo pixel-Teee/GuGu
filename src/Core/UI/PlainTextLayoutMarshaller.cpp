@@ -40,9 +40,11 @@ namespace GuGu {
 		}
 
 		targetTextLayout.addLines(linesToAdd);
+		
 	}
 	void PlainTextLayoutMarshaller::getText(GuGuUtf8Str& targetString, const TextLayout& sourceTextLayout)
 	{
+		sourceTextLayout.getAsText(targetString);
 	}
 	std::shared_ptr<PlainTextLayoutMarshaller> PlainTextLayoutMarshaller::Create()
 	{

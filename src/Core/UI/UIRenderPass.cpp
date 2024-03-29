@@ -23,6 +23,7 @@
 #include "WindowWidget.h"
 #include "Viewport.h"
 #include "TextBlockWidget.h"
+#include "EditableText.h"
 #include "Slider.h"
 #include "AtlasTexture.h"
 #include "FontCache.h"
@@ -34,6 +35,7 @@
 #include <Application/Application.h>
 #include <Core/FileSystem/FileSystem.h>
 #include <Core/UI/UIData.h>
+#include <Core/Timer.h>
 
 namespace GuGu {
 
@@ -542,7 +544,7 @@ namespace GuGu {
 	void UIRenderPass::generateWidgetElement(WidgetGeometry& allocatedWidgetGeometry)
 	{
 		m_allWidgets.clear();
-		PaintArgs paintArgs(m_allWidgets);
+		PaintArgs paintArgs(m_allWidgets, Application::getApplication()->getTimer()->GetTotalTime(), Application::getApplication()->getTimer()->GetDeltaTime());
 
 		math::box2 cullingRect(math::float2(0.0f, 0.0f), math::float2(allocatedWidgetGeometry.getLocalSize().x, allocatedWidgetGeometry.getLocalSize().y));
 		m_uiRoot->generateElement(paintArgs, cullingRect, *m_elementList, allocatedWidgetGeometry, 0);
@@ -749,6 +751,23 @@ namespace GuGu {
 										m_uiData->camPos = inValue;
 										}
 									)
+								)
+							)
+							+ VerticalBox::Slot()
+							.FixedHeight()
+							(
+								WIDGET_NEW(HorizontalBox)
+								+ HorizontalBox::Slot()
+								.FixedWidth()
+								(
+									WIDGET_NEW(TextBlockWidget)
+									.text(u8"可编辑文本框:")
+									)
+								+ HorizontalBox::Slot()
+								.StretchWidth(1.0f)
+								(
+									WIDGET_NEW(EditableText)
+									.text("文本")
 								)
 							)
 						)

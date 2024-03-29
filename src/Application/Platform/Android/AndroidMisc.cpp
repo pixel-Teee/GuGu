@@ -74,6 +74,11 @@ namespace GuGu{
                 android_app_clear_motion_events(input_buf);
             }
         }
+
+        if(app->textInputState)
+        {
+            app->textInputState = 0;
+        }
         return true;
     }
 }

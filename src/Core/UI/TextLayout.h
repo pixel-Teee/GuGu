@@ -3,6 +3,7 @@
 #include "BasicElement.h"
 #include "TextRange.h"
 #include "FontCache.h"//text shaping method
+#include "TextLineHightlight.h"
 
 #include <vector>
 namespace GuGu {
@@ -17,6 +18,81 @@ namespace GuGu {
 			Right
 		};
 	}
+	//在text model 中的位置
+	struct TextLocation
+	{
+	public:
+		TextLocation(const int32_t inLineIndex = 0, const int32_t inOffset = 0)
+			: lineIndex(inLineIndex), offset(inOffset)
+		{
+		}
+
+		TextLocation(const TextLocation& inLocation, const int32_t inOffset)
+			: lineIndex(inLocation.getLineIndex())
+			, offset(std::max(inLocation.getOffset() + inOffset, 0))
+		{}
+
+		bool operator==(const TextLocation& other) const
+		{
+			return lineIndex == other.lineIndex && offset == other.offset;
+		}
+
+		int32_t getLineIndex() const { return lineIndex; }
+		int32_t getOffset() const { return offset; }
+	private:
+		int32_t lineIndex;
+		int32_t offset;
+	};
+	class TextSelection
+	{
+	public:
+		TextLocation m_locationA;
+		TextLocation m_locationB;
+	public:
+		TextSelection()
+			: m_locationA(-1)
+			, m_locationB(-1)
+		{}
+
+		TextSelection(const TextLocation& inLocationA, const TextLocation& inLocationB)
+			: m_locationA(inLocationA)
+			, m_locationB(inLocationB)
+		{}
+
+		const TextLocation& getBeginning() const
+		{
+			if (m_locationA.getLineIndex() == m_locationB.getLineIndex())
+			{
+				if (m_locationA.getOffset() < m_locationB.getOffset())
+					return m_locationA;
+
+				return m_locationB;
+			}
+			else if (m_locationA.getLineIndex() < m_locationB.getLineIndex())
+			{
+				return m_locationA;
+			}
+
+			return m_locationB;
+		}
+
+		const TextLocation& getEnd() const
+		{
+			if (m_locationA.getLineIndex() == m_locationB.getLineIndex())
+			{
+				if (m_locationA.getOffset() > m_locationB.getOffset())
+					return m_locationA;
+
+				return m_locationB;
+			}
+			else if (m_locationA.getLineIndex() > m_locationB.getLineIndex())
+			{
+				return m_locationA;
+			}
+
+			return m_locationB;
+		}
+	};
 	struct TextLayoutSize
 	{
 		TextLayoutSize()
@@ -52,6 +128,8 @@ namespace GuGu {
 	class WidgetGeometry;
 	class ElementList;
 	class Style;
+
+	class ILineHighlighter;
 	class TextLayout
 	{
 	public:
@@ -67,10 +145,13 @@ namespace GuGu {
 			RunModel(const std::shared_ptr<IRun>& inRun);
 
 			TextRange getTextRange() const;
+			void setTextRange(const TextRange& value);
 
 			int16_t getBaseLine(float inScale) const;
 
 			int16_t getMaxHeight(float inScale) const;
+
+			void appendTextTo(GuGuUtf8Str& text) const;
 
 			std::shared_ptr<ILayoutBlock> createBlock(const BlockDefinition& blockDefine, float inScale, const LayoutBlockTextContext& inTextContext) const;
 		private:
@@ -86,17 +167,50 @@ namespace GuGu {
 			std::shared_ptr<GuGuUtf8Str> text;
 			std::vector<RunModel> runs;
 			std::shared_ptr<ShapedTextCache> m_shapedTextCache;
+			std::vector<TextLineHighlight> m_lineHighlights;//画光标用
+		};
+		
+		struct LineViewHighlight
+		{
+			/*x offset对于这个高亮，相对于FLineView::Offset*/
+			float m_offsetX;
+			/*这个高亮的宽度，这个高度可以是FLineView::Size.Y或者FLineView::TextHeight*/
+			float m_width;
+			/*自定义高亮实现*/
+			std::shared_ptr<ILineHighlighter> m_highLighter;
 		};
 
 		struct LineView
 		{
 			std::vector<std::shared_ptr<ILayoutBlock>> blocks;
+			std::vector<LineViewHighlight> m_overlayHighlights;
 			math::float2 offset;
 			math::float2 size;
 			float textHeight;
 			float justificationWidth;
 			TextRange range;
 			int32_t modelIndex;
+		};
+
+		struct TextOffsetLocations
+		{
+			friend TextLayout;
+		private:
+			struct OffsetEntry
+			{
+				OffsetEntry(const int32_t inFlatStringIndex, const int32_t inDocumentLineLength)
+					: flagStringIndex(inFlatStringIndex)
+					, documentLineLength(inDocumentLineLength)
+				{}
+
+				OffsetEntry() {}
+
+				int32_t flagStringIndex;
+
+				int32_t documentLineLength;
+			};
+
+			std::vector<OffsetEntry> m_offsetData;
 		};
 		
 		TextLayout();
@@ -131,9 +245,33 @@ namespace GuGu {
 
 		void clearLines();
 
+		const std::vector<TextLayout::LineModel>& getLineModels() const { return m_lineModels; }
+		const std::vector<TextLayout::LineView>& getLineViews() const { return m_lineViews; }
+
+		bool insertAt(const TextLocation& location, GuGuUtf8Str character);
+
+		void getAsText(GuGuUtf8Str& displayText, TextOffsetLocations* const outTextOffsetLocations = nullptr) const;
+
+		TextSelection getGraphemeAt(const TextLocation& location) const;
+
+		void addLineHighlight(const TextLineHighlight& highlight);
+
+		void removeLineHighlight(const TextLineHighlight& highlight);
+
+		void flowHighlights();
+
+		virtual void updateLayout();
+
+		virtual void updateIfNeeded();
+
+		TextLocation getTextLocationAt(const math::float2& relative) const;
+
+		TextLocation getTextLocationAt(const LineView& lineView, const math::float2& relative) const;
 	protected:
 
 		void flowLineLayout(const int32_t lineModelIndex, const float wrappingDrawWidth, std::vector<std::shared_ptr<ILayoutBlock>>& softLine);
+
+		void getAsTextAndOffsets(GuGuUtf8Str* const OutDisplayText, TextOffsetLocations* const OutTextOffsetLocations) const;
 
 		void createLineViewBlocks(int32_t lineModelIndex, const int32_t stopIndex, const float wrappedLineWidth, const std::optional<float>& justificationWidth,
 			int32_t& OutRunIndex, int32_t& outPreviousBlockEnd, std::vector<std::shared_ptr<ILayoutBlock>>& outSoftLine);

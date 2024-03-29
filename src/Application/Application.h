@@ -10,6 +10,7 @@ namespace GuGu {
 	class Window;
 	class Renderer;
 	struct PointerEvent;
+	struct CharacterEvent;
 	class Application {
 	public:
 		Application();
@@ -51,8 +52,12 @@ namespace GuGu {
 
 		virtual bool onMouseMove(const std::shared_ptr<Window>& window, math::float2 cursorPos);
 
+		virtual bool onKeyChar(const GuGuUtf8Str Character);
+
 		std::shared_ptr<Widget> getCaptorWidget() const;
 		//------input------
+
+		bool hasAnyFocus(std::shared_ptr<const Widget> inWidget) const;
 
 		void setGlobalPreRotate(float rotation);
 
@@ -71,6 +76,8 @@ namespace GuGu {
 
 		bool processMouseMoveEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent);
 
+		bool processKeyCharEvent(const CharacterEvent& inCharacterEvent);
+
 		std::shared_ptr<Widget> locateWidgetInWindow(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent);
 
 		math::float2 translateCursorPos(math::float2 cursorPos);
@@ -85,6 +92,8 @@ namespace GuGu {
 
 		//std::weak_ptr<Widget> m_captorWidget;
 		std::vector<std::weak_ptr<Widget>> m_captorWidgetsPath;
+
+		std::vector<std::weak_ptr<Widget>> m_focusWidgetsPath;
 	};
 	std::shared_ptr<Application> CreateApplicationFactory();
 }

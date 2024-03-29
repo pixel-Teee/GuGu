@@ -5,6 +5,7 @@
 #include "TextLayout.h"
 #include "WidgetGeometry.h"
 #include "ILayoutBlock.h"
+#include "ILineHighlighter.h"
 
 namespace GuGu {
 	GuGuTextLayout::GuGuTextLayout(Widget* inOwner, TextBlockStyle inDefaultTextStyle)
@@ -37,8 +38,27 @@ namespace GuGu {
 
 				highestLayerId = run->OnPaint(inPaintArgs, textArgs, inAllottedGeometry, cullingRect, elementList, layerId, inWidgetStyle);
 			}
+
+			const int32_t highestOverlayId = OnPaintHighlights(inPaintArgs, lineView, lineView.m_overlayHighlights, m_defaultTextStyle, inAllottedGeometry, cullingRect, elementList, highestLayerId);
+			highestLayerId = std::max(highestLayerId, highestOverlayId);
 		}
 
 		return highestLayerId;
+	}
+	int32_t GuGuTextLayout::OnPaintHighlights(const PaintArgs& args, const TextLayout::LineView& lineView, const std::vector<LineViewHighlight>& hightlights, const TextBlockStyle& defaultTextStyle, const WidgetGeometry& allottedGeometry, const math::box2& cullingRect, ElementList& elementList, int32_t layerId) const
+	{
+		int32_t currentLayerId = layerId;
+
+		for (const LineViewHighlight& highLight : hightlights)
+		{
+			const std::shared_ptr<ILineHighlighter> lineHighlighter = std::static_pointer_cast<ILineHighlighter>(highLight.m_highLighter);
+
+			if (lineHighlighter)
+			{
+				currentLayerId = lineHighlighter->onPaint(args, lineView, highLight.m_offsetX, highLight.m_width, defaultTextStyle, allottedGeometry, cullingRect, elementList, currentLayerId);
+			}
+		}
+
+		return currentLayerId;
 	}
 }

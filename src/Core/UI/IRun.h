@@ -82,6 +82,8 @@ namespace GuGu {
 
 		virtual TextRange getTextRange() const = 0;
 
+		virtual void setTextRange(const TextRange& value) = 0;
+
 		virtual int16_t getMaxHeight(float scale) const = 0;
 
 		virtual int16_t getBaseLine(float inScale) const = 0;
@@ -92,6 +94,10 @@ namespace GuGu {
 
 		virtual int32_t OnPaint(const PaintArgs& paintArgs, const TextArgs& textArgs, const WidgetGeometry& allottedGeometry, const math::box2& cullingRect,
 			ElementList& outDrawElements, int32_t layerId, const Style& inWidgetStyle) const = 0;
+
+		virtual void appendTextTo(GuGuUtf8Str& text) const = 0;
+
+		virtual int32_t getTextIndexAt(const std::shared_ptr<ILayoutBlock>& block, const math::float2& location, float scale) const = 0;
 	};
 }
 

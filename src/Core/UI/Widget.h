@@ -14,11 +14,17 @@ namespace GuGu{
     class ArrangedWidgetArray;
 	struct PaintArgs
 	{
-		PaintArgs(std::vector<std::shared_ptr<Widget>>& inWidgets)
+		PaintArgs(std::vector<std::shared_ptr<Widget>>& inWidgets, double inCurrentTime, double inDeltaTime)
 			: m_allWidgets(inWidgets)
+            , m_currentTime(inCurrentTime)
+            , m_deltaTime(inDeltaTime)
 		{}
 
 		std::vector<std::shared_ptr<Widget>>& m_allWidgets;
+
+        double m_currentTime;
+        
+        double m_deltaTime;
 	};
     class Widget : public std::enable_shared_from_this<Widget>
     {
@@ -31,15 +37,21 @@ namespace GuGu{
 
         virtual uint32_t onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer);
 
+        virtual void cacheDesiredSize(float inLayoutScaleMultiplier);
+
         virtual math::float2 ComputeFixedSize(float inLayoutScaleMultiplier);
 
         virtual void AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray);
+
+        virtual void Tick(const WidgetGeometry& allocatedGeometry, const double inCurrentTime, const float inDeltaTime);
 
         virtual Reply OnMouseButtonDown(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent);
 
         virtual Reply OnMouseButtonUp(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent);
 
         virtual Reply OnMouseMove(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent);
+
+        virtual Reply OnKeyChar(const WidgetGeometry& myGeometry, const CharacterEvent& inCharacterEvent);
 
 		virtual SlotBase* getSlot(uint32_t index);
 
@@ -60,6 +72,8 @@ namespace GuGu{
         void prepass(float inLayoutScaleMultiplier);
 
         math::box2 calculateCullingAndClippingRules(const WidgetGeometry& allottedGeometry, const math::box2 cullingRect, bool& bClipToBounds);
+
+        bool hasAnyFocus() const;
     protected:
         std::weak_ptr<Widget> m_parentWidget;
         WidgetGeometry m_geometry;

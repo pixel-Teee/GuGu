@@ -15,6 +15,9 @@ namespace GuGu {
 
 		std::shared_ptr<ShapedGlyphSequence> getShapedTextSubSequence(const std::shared_ptr<ShapedTextCache>& inShapedTextCache,
 			const CacheShapedTextKey& inRunKey, const TextRange& inTextRange, const GuGuUtf8Str& inText);
+
+		int32_t findCharacterIndexAtOffset(const std::shared_ptr<ShapedTextCache>& inShapedTextCache,
+			const CacheShapedTextKey& inRunKey, const TextRange& inTextRange, const GuGuUtf8Str& inText, const int32_t inHorizontalOffset);
 	}
 
 	class CacheShapedTextKey //相比于FontKey，多了TextRange和ShapedTextContext，描述缓存一段文本范围的cache

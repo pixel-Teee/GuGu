@@ -64,13 +64,21 @@ namespace GuGu {
 		{
 			return m_bReleaseMouseCapture;
 		}
+
+		Reply& setFocus(std::shared_ptr<Widget> giveMeFocus);
+
+		std::shared_ptr<Widget> getFocusRecepient() const { return m_focusRecipient.lock(); }
 	private:
 		Reply(bool bIsHandled) : TReplyBase<Reply>(bIsHandled)
 		{}
 
 		std::weak_ptr<Widget> m_mouseCaptor;
 
+		std::weak_ptr<Widget> m_focusRecipient;
+
 		bool m_bReleaseMouseCapture = false;
+
+		uint32_t m_bSetUserFocus : 1;
 	};
 
 	using OnClicked = std::function<Reply()>;

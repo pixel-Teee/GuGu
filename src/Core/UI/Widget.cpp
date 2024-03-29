@@ -4,6 +4,8 @@
 #include "Slot.h"
 #include "ElementList.h"
 
+#include <Application/Application.h>
+
 namespace GuGu{
 
     Widget::Widget()
@@ -18,6 +20,10 @@ namespace GuGu{
 
     uint32_t Widget::generateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
     {
+        Widget* mutableThis = const_cast<Widget*>(this);
+
+        mutableThis->Tick(allocatedGeometry, paintArgs.m_currentTime, paintArgs.m_deltaTime);
+
 		paintArgs.m_allWidgets.push_back(shared_from_this());
 		m_geometry = allocatedGeometry;
 		m_layer = layer;
@@ -59,6 +65,11 @@ namespace GuGu{
         return layer;
     }
 
+    void Widget::cacheDesiredSize(float inLayoutScaleMultiplier)
+    {
+        m_fixedSize = ComputeFixedSize(inLayoutScaleMultiplier);
+    }
+
     GuGu::math::float2 Widget::ComputeFixedSize(float inLayoutScaleMultiplier) {
         //noting to do
         return math::float2(0.0, 0.0);
@@ -67,6 +78,10 @@ namespace GuGu{
     void Widget::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) {
         //noting to do
     }
+    void Widget::Tick(const WidgetGeometry& allocatedGeometry, const double inCurrentTime, const float inDeltaTime)
+    {
+    }
+
     Reply Widget::OnMouseButtonDown(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
     {
         return Reply::Unhandled();
@@ -78,6 +93,10 @@ namespace GuGu{
     Reply Widget::OnMouseMove(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
     {
         //GuGu_LOGD("{%f, %f}", inMouseEvent.m_screenSpacePosition.x, inMouseEvent.m_screenSpacePosition.y);
+        return Reply::Unhandled();
+    }
+    Reply Widget::OnKeyChar(const WidgetGeometry& myGeometry, const CharacterEvent& inCharacterEvent)
+    {
         return Reply::Unhandled();
     }
     SlotBase* Widget::getSlot(uint32_t index)
@@ -125,8 +144,7 @@ namespace GuGu{
                 childWidget->prepass(inLayoutScaleMultiplier);
 			}
 		}
-		size = ComputeFixedSize(inLayoutScaleMultiplier);
-		setFixedSize(size);
+        cacheDesiredSize(inLayoutScaleMultiplier);
     }
     math::box2 Widget::calculateCullingAndClippingRules(const WidgetGeometry& allottedGeometry, const math::box2 cullingRect, bool& bClipToBounds)
     {
@@ -150,5 +168,9 @@ namespace GuGu{
         }
 
         return cullingRect;
+    }
+    bool Widget::hasAnyFocus() const
+    {
+        return Application::getApplication()->hasAnyFocus(shared_from_this());
     }
 }

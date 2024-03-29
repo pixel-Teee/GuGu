@@ -177,6 +177,38 @@ namespace GuGu {
 				}
 				break;
 			}
+			case WM_CHAR:
+			{
+				uint32_t utf32CodePoint = wParam;
+
+				std::string buffer;
+				if (utf32CodePoint < 0x80)
+					buffer.push_back(utf32CodePoint);
+				else if (utf32CodePoint < 0x800)
+				{
+					buffer.push_back((utf32CodePoint >> 6) | 0xC0);
+					buffer.push_back((utf32CodePoint & 0x3F) | 0xC0);
+				}
+				else if (utf32CodePoint < 0x10000)
+				{
+					buffer.push_back((utf32CodePoint >> 12) | 0xE0);
+					buffer.push_back(((utf32CodePoint >> 6) & 0x3F) | 0x80);
+					buffer.push_back((utf32CodePoint & 0x3F) | 0x80);
+				}
+				else if (utf32CodePoint < 0x110000)
+				{
+					buffer.push_back((utf32CodePoint >> 18) | 0xF0);
+					buffer.push_back(((utf32CodePoint >> 12) & 0x3F) | 0x80);
+					buffer.push_back(((utf32CodePoint >> 6) & 0x3F) | 0x80);
+					buffer.push_back((utf32CodePoint & 0x3F) | 0x80);
+				}
+
+				GuGuUtf8Str Character(buffer);
+
+				//from utf32 to utf8
+				globalApplication->onKeyChar(Character);
+				break;
+			}
 			case WM_DESTROY:
 			{
 				PostQuitMessage(0);
