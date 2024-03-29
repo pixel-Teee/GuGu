@@ -3,26 +3,10 @@
 #include <Core/Math/MyMath.h>
 #include <Core/GuGuUtf8Str.h>
 
+#include <Application/InputTypes.h>
+
 namespace GuGu {
-	struct Key
-	{
-		Key() {
 
-		}
-
-		Key(const GuGuUtf8Str inName)
-			: m_keyName(inName)
-		{}
-
-		friend bool operator==(const Key& keyA, const Key& keyB) { return keyA.m_keyName == keyB.m_keyName; }
-	private:
-		GuGuUtf8Str m_keyName;
-	};
-
-	struct Keys
-	{
-		static const Key BackSpace;
-	};
 	struct InputEvent
 	{
 

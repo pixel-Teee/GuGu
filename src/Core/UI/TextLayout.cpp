@@ -266,6 +266,9 @@ namespace GuGu {
 		for (int32_t lineModelIndex = 0; lineModelIndex < m_lineModels.size(); ++lineModelIndex)
 		{
 			flowLineLayout(lineModelIndex, m_wrappingWidth, softLine);
+
+			//flush line text shaping cache
+			m_lineModels[lineModelIndex].m_shapedTextCache->Clear();//清理掉shaped text cache
 		}
 	}
 
@@ -396,7 +399,7 @@ namespace GuGu {
 				}
 				else
 				{
-					const TextRange newRange(removeTextRange.m_beginIndex, runRange.m_endIndex - intersectedLength);
+					const TextRange newRange(runRange.m_beginIndex, runRange.m_endIndex - intersectedLength);
 					runModel.setTextRange(newRange);
 				}
 

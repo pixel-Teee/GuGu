@@ -31,6 +31,11 @@ namespace GuGu {
         return m_directionOrPosition;
     }
 
+    math::int2 MoveCursor::getMoveDirection() const
+    {
+        return math::int2(m_directionOrPosition.x, m_directionOrPosition.y);
+    }
+
     float MoveCursor::getGeometryScale() const
     {
         return m_geometryScale;

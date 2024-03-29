@@ -150,7 +150,12 @@ namespace GuGu{
 
 	bool Application::onKeyDown(const int32_t keyCode, const uint32_t characterCode)
 	{
-		return false;
+		const Key key = InputKeyManager::Get().getKeyFromCodes(keyCode, characterCode);
+
+		//字符串名，字符码，虚拟键码
+		KeyEvent keyEvent(key, characterCode, keyCode);
+
+		return processKeyDownEvent(keyEvent);
 	}
 
     std::shared_ptr<Widget> Application::getCaptorWidget() const
@@ -423,6 +428,21 @@ namespace GuGu{
 
 		for (size_t i = 0; i < focusPath.size(); ++i)
 			focusPath[i]->OnKeyChar(focusPath[i]->getWidgetGeometry(), inCharacterEvent);
+
+		return true;
+	}
+
+	bool Application::processKeyDownEvent(const KeyEvent& inKeyEvent)
+	{
+		Reply reply = Reply::Unhandled();
+
+		//focus path
+		std::vector<std::shared_ptr<Widget>> focusPath;
+		for (size_t i = 0; i < m_focusWidgetsPath.size(); ++i)
+			focusPath.push_back(m_focusWidgetsPath[i].lock());
+
+		for (size_t i = 0; i < focusPath.size(); ++i)
+			focusPath[i]->OnKeyDown(focusPath[i]->getWidgetGeometry(), inKeyEvent);
 
 		return true;
 	}

@@ -324,13 +324,19 @@ namespace GuGu {
 		{
 			int32_t startPos = 0;
 			int32_t copyByteStarPos = 0;
+			//int32_t copyByteDstPos = 0;
+			int32_t copyBytes = 0;
 			int32_t copyStartLen = pos + len;
 			for (int32_t i = 0; i < pos; ++i)
 				startPos += m_characterByteCount[i];
 			for (int32_t i = 0; i < copyStartLen; ++i)
 				copyByteStarPos += m_characterByteCount[i];
+			for (int32_t i = copyStartLen; i < m_len; ++i)
+				copyBytes += m_characterByteCount[i];
 			strcpy(m_str + startPos, m_str + copyByteStarPos);
-			calculateCharacterByteCount();
+			uint32_t totalByteCount = startPos + copyBytes;
+			m_str[totalByteCount] = '\0';
+			m_len = calculateCharacterByteCount();
 		}
 
 		return *this;

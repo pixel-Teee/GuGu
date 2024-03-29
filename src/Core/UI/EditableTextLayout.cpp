@@ -88,6 +88,14 @@ namespace GuGu {
         switch (codePoint)
         {
             case 8: //back space
+            {
+				Reply reply = boolToReply(handleBackspace());
+
+				const GuGuUtf8Str editedText = getEditableText();
+				m_boundText = editedText;
+
+				return reply;
+            }
             break;
 
             case '\n': //new line(ctrl + enter)
@@ -123,12 +131,12 @@ namespace GuGu {
 
         const Key key = inKeyEvent.getKey();
 
-        if (key == Keys::BackSpace)
-        {
-            //move left
-            moveCursor(MoveCursor::cardinal(CursorMoveGranularity::Word, math::int2(-1, 0), CursorAction::SelectText));
-            reply = boolToReply(handleBackspace());
-        }
+		//if (key == Keys::BackSpace)
+		//{
+		//    //move left
+		//    moveCursor(MoveCursor::cardinal(CursorMoveGranularity::Word, math::int2(-1, 0), CursorAction::SelectText));
+		//    reply = boolToReply(handleBackspace());
+		//}
 
         return reply;
     }
@@ -181,7 +189,11 @@ namespace GuGu {
         TextLocation newCursorPosition;
         TextLocation cursorPosition = m_cursorInfo.getCursorInteractionLocation();
 
-        if (inArgs.getMoveMethod() == CursorMoveMethod::ScreenPosition)
+        if (inArgs.getMoveMethod() == CursorMoveMethod::Cardinal)
+        {
+            newCursorPosition = translatedLocation(cursorPosition, inArgs.getMoveDirection().x);
+        }
+        else if (inArgs.getMoveMethod() == CursorMoveMethod::ScreenPosition)
         {
             newCursorPosition = m_textLayout->getTextLocationAt(inArgs.getLocalPosition() * inArgs.getGeometryScale());
         }
@@ -208,20 +220,22 @@ namespace GuGu {
 
                 //todo:join line with next line
             }
-            else
-            {
-                //删除在caret左边的grapheme
-                const TextSelection deleteSelection = m_textLayout->getGraphemeAt(TextLocation(cursorInteractionPosition, -1));
-                const int32_t graphemeSize = deleteSelection.getEnd().getOffset() - deleteSelection.getBeginning().getOffset();
-                if (m_textLayout->removeAt(deleteSelection.getBeginning(), graphemeSize))
-                {
-                    finalCursorLocation = TextLocation(cursorInteractionPosition, -graphemeSize);
-                }
-            }
-
-            m_cursorInfo.setCursorLocationAndCalculateAlignment(*m_textLayout, finalCursorLocation);
             
-            updateCursorHighlight();
+        }
+        else
+        {
+			
+			//删除在caret左边的grapheme
+			const TextSelection deleteSelection = m_textLayout->getGraphemeAt(TextLocation(cursorInteractionPosition, -1));
+			const int32_t graphemeSize = deleteSelection.getEnd().getOffset() - deleteSelection.getBeginning().getOffset();
+			if (m_textLayout->removeAt(deleteSelection.getBeginning(), graphemeSize))
+			{
+				finalCursorLocation = TextLocation(cursorInteractionPosition, -graphemeSize);
+			}
+		    
+			m_cursorInfo.setCursorLocationAndCalculateAlignment(*m_textLayout, finalCursorLocation);
+
+			updateCursorHighlight();
         }
 
         return true;
@@ -260,5 +274,31 @@ namespace GuGu {
         {
             m_textLayout->addLineHighlight(lineHighlight);
         }
+    }
+    TextLocation EditableTextLayout::translatedLocation(const TextLocation& currentLocation, int8_t direction) const
+    {
+        const std::vector<TextLayout::LineModel>& lines = m_textLayout->getLineModels();
+
+        const int32_t newOffsetInLine = (direction > 0) ? currentLocation.getOffset() + 1 : currentLocation.getOffset() - 1;//暂时不用分词器
+
+        if (newOffsetInLine == -1) //没有可用的grapheme去移动
+        {
+            if (direction > 0)
+            {
+                if (currentLocation.getLineIndex() < lines.size() - 1)
+                {
+                    return TextLocation(currentLocation.getLineIndex() + 1, 0);
+                }
+            }
+            else if (currentLocation.getLineIndex() > 0)
+            {
+                const int32_t newLineIndex = currentLocation.getLineIndex() - 1;
+                return TextLocation(newLineIndex, lines[newLineIndex].text->len());
+            }
+
+            return currentLocation;
+        }
+
+        return TextLocation(currentLocation.getLineIndex(), newOffsetInLine);
     }
 }

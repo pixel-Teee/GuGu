@@ -82,4 +82,8 @@ namespace GuGu {
 
 		return shapedText;
 	}
+	void ShapedTextCache::Clear()
+	{
+		m_cachedShapedText.clear();
+	}
 }

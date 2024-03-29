@@ -539,6 +539,7 @@ namespace GuGu {
 					shapedGlyphEntry.yAdvance = 0;
 					shapedGlyphEntry.xOffset = 0;
 					shapedGlyphEntry.yOffset = 0;
+					shapedGlyphEntry.Char = currentChar;
 					
 					//暂时不考虑kerning
 				}

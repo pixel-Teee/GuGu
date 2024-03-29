@@ -62,6 +62,9 @@ namespace GuGu {
 		/*更新激活的光标高亮，基于文本布局的状态*/
 		void updateCursorHighlight();
 
+		//给定一个位置还有一个方向去偏移，返回一个新位置
+		TextLocation translatedLocation(const TextLocation& currentLocation, int8_t direction) const;
+
 		IEditableTextWidget* m_ownerWidget;
 
 		std::shared_ptr<ITextLayoutMarshaller> m_marshaller;

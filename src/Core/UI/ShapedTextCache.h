@@ -83,6 +83,8 @@ namespace GuGu
 		std::shared_ptr<ShapedGlyphSequence> addShapedText(const CacheShapedTextKey& inKey, std::shared_ptr<ShapedGlyphSequence> inShapedText);
 
 		std::shared_ptr<ShapedGlyphSequence> findOrAddShapedText(const CacheShapedTextKey& inKey, const GuGuUtf8Str& inText);
+
+		void Clear();
 	private:
 		std::weak_ptr<FontCache> m_fontCachePtr;
 

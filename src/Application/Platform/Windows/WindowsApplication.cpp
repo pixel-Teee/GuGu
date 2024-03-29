@@ -179,11 +179,11 @@ namespace GuGu {
 			}
 			case WM_KEYDOWN:
 			{
-				const int32_t win32Key = wParam;
+				const int32_t win32Key = wParam;//获取虚拟码
 
 				int32_t actualKey = win32Key;
 
-				//获取字母码点从虚拟键的按压
+				//获取字母码点从虚拟键的按压，将虚拟码转换为字符值
 				uint32_t charCode = MapVirtualKey(win32Key, MAPVK_VK_TO_CHAR);
 
 				globalApplication->onKeyDown(actualKey, charCode);

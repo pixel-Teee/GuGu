@@ -11,6 +11,7 @@ namespace GuGu {
 	class Renderer;
 	struct PointerEvent;
 	struct CharacterEvent;
+    struct KeyEvent;
 	class Application {
 	public:
 		Application();
@@ -79,6 +80,8 @@ namespace GuGu {
 		bool processMouseMoveEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent);
 
 		bool processKeyCharEvent(const CharacterEvent& inCharacterEvent);
+
+		bool processKeyDownEvent(const KeyEvent& inKeyEvent);
 
 		std::shared_ptr<Widget> locateWidgetInWindow(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent);
 
