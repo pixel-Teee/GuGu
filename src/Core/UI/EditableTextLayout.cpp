@@ -131,6 +131,15 @@ namespace GuGu {
 
         const Key key = inKeyEvent.getKey();
 
+        if (key == Keys::Left)
+        {
+            moveCursor(MoveCursor::cardinal(CursorMoveGranularity::Word, math::int2(-1, 0), CursorAction::MoveCursor));
+        }
+        else if (key == Keys::Right)
+        {
+            moveCursor(MoveCursor::cardinal(CursorMoveGranularity::Word, math::int2(+1, 0), CursorAction::MoveCursor));
+        }
+
 		//if (key == Keys::BackSpace)
 		//{
 		//    //move left
