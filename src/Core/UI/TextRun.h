@@ -14,6 +14,8 @@ namespace GuGu {
 	public:
 		TextRun(const RunInfo& inRunInfo, const std::shared_ptr<const GuGuUtf8Str>& inText, const TextBlockStyle& style);
 
+		TextRun(const RunInfo& inRunInfo, const std::shared_ptr<const GuGuUtf8Str>& inText, const TextBlockStyle& style, const TextRange& inRange);
+
 		virtual ~TextRun();
 
 		virtual TextRange getTextRange() const override;

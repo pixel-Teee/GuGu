@@ -15,11 +15,12 @@ namespace GuGu {
 	class ElementList;
 	class WidgetGeometry;
 
+	struct KeyEvent;
 	struct CharacterEvent;
 	struct PointerEvent;
 
 	class MoveCursor;
-	class EditableTextTypes::CursorLineHighlighter;
+	//class EditableTextTypes::CursorLineHighlighter;
 	class EditableTextLayout
 	{
 	public:
@@ -44,6 +45,8 @@ namespace GuGu {
 
 		Reply handleKeyChar(const CharacterEvent& inCharacterEvent);
 
+		Reply handleKeyDown(const KeyEvent& inKeyEvent);
+
 		Reply handleMouseButtonDown(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent);
 
 		Reply handleMouseButtonUp(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent);
@@ -53,6 +56,8 @@ namespace GuGu {
 		GuGuUtf8Str getEditableText() const;
 
 		bool moveCursor(const MoveCursor& inArgs);
+
+		bool handleBackspace();
 	private:
 		/*更新激活的光标高亮，基于文本布局的状态*/
 		void updateCursorHighlight();

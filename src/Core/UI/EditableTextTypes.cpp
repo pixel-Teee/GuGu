@@ -65,11 +65,18 @@ namespace GuGu {
 			math::float2 cursorWidth = FontCache::getFontCache()->getMaxCharacterHeight(*defaultStyle.m_textInfo, 1.0f) * 0.08f;
 
 			const double currentTime = Application::getApplication()->getTimer()->GetTotalTime();
+
+			//这里文字是预缩放的
+			const float inverseScale = 1.0f / allottedGeometry.mAbsoluteScale;
+
 			const double timeSinceLastInteraction = currentTime - m_cursorInfo->getLastCursorInteractionTime();
 			const bool bForceCursorVisible = timeSinceLastInteraction < 0.1f;
 			float cursorOpacity = (bForceCursorVisible) ? 1.0f : std::roundf(makePulsatingValue(timeSinceLastInteraction, 1.0f));
 
-			WidgetGeometry paintGeometry = allottedGeometry.getChildGeometry(math::float2(cursorWidth.x, size.y), location, allottedGeometry.getAccumulateTransform());
+			math::float2 transformedSize = math::scaling(math::float2(inverseScale)).transformVector(math::float2(cursorWidth.x, size.y));
+			math::float2 transformedLocation = math::scaling(math::float2(inverseScale)).transformPoint(location);
+
+			WidgetGeometry paintGeometry = allottedGeometry.getChildGeometry(transformedSize, transformedLocation, allottedGeometry.getAccumulateTransform());
 
 			ElementList::addBoxElement(outDrawElements, paintGeometry, math::float4(1.0f, 1.0f, 1.0f, cursorOpacity * cursorOpacity), m_cursorBrush, layerId);
 

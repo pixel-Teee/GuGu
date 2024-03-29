@@ -99,6 +99,10 @@ namespace GuGu{
     {
         return Reply::Unhandled();
     }
+    Reply Widget::OnKeyDown(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent)
+    {
+        return Reply::Unhandled();
+    }
     SlotBase* Widget::getSlot(uint32_t index)
 	{
 		return nullptr;

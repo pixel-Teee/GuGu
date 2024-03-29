@@ -33,8 +33,8 @@ namespace GuGu {
 
 			std::shared_ptr<ShapedGlyphSequence> shapedText = inShapedTextCache->findOrAddShapedText(inRunKey, inText);
 
-			std::optional<ShapedGlyphSequence::GlyphOffsetResult> glyphOffsetResult = shapedText->getGlyphAtOffset(*fontCache, inTextRange.m_beginIndex, inTextRange.m_beginIndex, inHorizontalOffset);
-			return 0;
+			std::optional<ShapedGlyphSequence::GlyphOffsetResult> glyphOffsetResult = shapedText->getGlyphAtOffset(*fontCache, inTextRange.m_beginIndex, inTextRange.m_endIndex, inHorizontalOffset);
+			return glyphOffsetResult->m_characterIndex;
 		}
 	}
 	std::shared_ptr<ShapedTextCache> ShapedTextCache::Create(const std::shared_ptr<FontCache>& inFontCache)

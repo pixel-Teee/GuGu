@@ -54,6 +54,8 @@ namespace GuGu {
 
 		virtual bool onKeyChar(const GuGuUtf8Str Character);
 
+		virtual bool onKeyDown(const int32_t keyCode, const uint32_t characterCode);
+
 		std::shared_ptr<Widget> getCaptorWidget() const;
 		//------input------
 

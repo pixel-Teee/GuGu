@@ -267,6 +267,10 @@ namespace GuGu {
 		TextLocation getTextLocationAt(const math::float2& relative) const;
 
 		TextLocation getTextLocationAt(const LineView& lineView, const math::float2& relative) const;
+
+		bool removeAt(const TextLocation& location, int32_t count);
+
+		virtual std::shared_ptr<IRun> createDefaultTextRun(const std::shared_ptr<GuGuUtf8Str>& newText, const TextRange& newRange) const = 0;
 	protected:
 
 		void flowLineLayout(const int32_t lineModelIndex, const float wrappingDrawWidth, std::vector<std::shared_ptr<ILayoutBlock>>& softLine);

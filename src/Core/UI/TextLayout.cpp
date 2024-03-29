@@ -320,6 +320,97 @@ namespace GuGu {
 
 			return TextLocation(lineView.modelIndex, textIndex);
 		}
+
+        const LineModel& lineModel = m_lineModels[lineView.modelIndex];
+        const int32_t lineTextLength = lineModel.text->len();
+        if(lineTextLength == 0 || !lineView.blocks.size())
+        {
+            return TextLocation(lineView.modelIndex, 0);
+        }
+        else if(relative.x < lineView.blocks[0]->getLocationOffset().x)
+        {
+            const auto& block = lineView.blocks[0];
+            const TextRange blockRange = block->getTextRange();
+            const LayoutBlockTextContext blockContext = block->getTextContext();
+            return TextLocation(lineView.modelIndex, blockRange.m_beginIndex);
+        }
+        else
+        {
+            const auto& block = lineView.blocks[0];
+            const TextRange blockRange = block->getTextRange();
+            const LayoutBlockTextContext blockContext = block->getTextContext();
+            return TextLocation(lineView.modelIndex, blockRange.m_endIndex);
+        }
+	}
+
+	bool TextLayout::removeAt(const TextLocation& location, int32_t count)
+	{
+		int32_t removeLocation = location.getOffset();
+		int32_t lineIndex = location.getLineIndex();
+
+		if (!(lineIndex >= 0 && lineIndex < m_lineModels.size()))
+			return false;
+
+		LineModel& lineModel = m_lineModels[lineIndex];
+
+		count = std::min(count, lineModel.text->len() - removeLocation);
+
+		if (count == 0)
+			return false;
+
+		lineModel.text->erase(removeLocation, count);
+
+		const TextRange removeTextRange(removeLocation, removeLocation + count);
+		for (int32_t runIndex = lineModel.runs.size() - 1; runIndex >= 0; --runIndex)
+		{
+			RunModel& runModel = lineModel.runs[runIndex];
+			const TextRange runRange = runModel.getTextRange();
+
+			const TextRange intersectedRangeToRemove = runRange.intersect(removeTextRange);
+
+			if (intersectedRangeToRemove.isEmpty() && runRange.m_beginIndex >= removeTextRange.m_endIndex)
+			{
+				TextRange newRange = runRange;
+				newRange.offset(-count);
+				runModel.setTextRange(newRange);
+			}
+			else if (!intersectedRangeToRemove.isEmpty())
+			{
+				const int32_t runLength = runRange.len();
+				const int32_t intersectedLength = intersectedRangeToRemove.len();
+
+				if (runLength == intersectedLength)
+				{
+					auto it = lineModel.runs.begin() + runIndex;
+					lineModel.runs.erase(it);
+					if (lineModel.runs.size() == 0)
+					{
+						std::shared_ptr<IRun> newTextRun = createDefaultTextRun(lineModel.text, TextRange(0, 0));
+						lineModel.runs.push_back(newTextRun);
+					}
+				}
+				else if (runRange.m_beginIndex > removeTextRange.m_beginIndex)
+				{
+					const TextRange newRange(removeTextRange.m_beginIndex, runRange.m_endIndex - count);
+					runModel.setTextRange(newRange);
+				}
+				else
+				{
+					const TextRange newRange(removeTextRange.m_beginIndex, runRange.m_endIndex - intersectedLength);
+					runModel.setTextRange(newRange);
+				}
+
+				if(runRange.m_beginIndex <= removeTextRange.m_beginIndex)
+					break;
+			}
+			else if (intersectedRangeToRemove.isEmpty() && runRange.isEmpty() && removeTextRange.Contains(runRange.m_beginIndex)
+				&& removeTextRange.Contains(runRange.m_endIndex))
+			{
+				auto it = lineModel.runs.begin() + runIndex;
+				lineModel.runs.erase(it);
+			}
+		}
+		return true;
 	}
 
 	void TextLayout::flowLineLayout(const int32_t lineModelIndex, const float wrappingDrawWidth, std::vector<std::shared_ptr<ILayoutBlock>>& softLine)

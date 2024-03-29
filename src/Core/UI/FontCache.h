@@ -143,6 +143,16 @@ namespace GuGu {
 				return (internalIndex >= 0 && internalIndex < m_glyphDataArray.size()) ? &m_glyphDataArray[internalIndex] : nullptr;
 			}
 
+			int32_t getSourceTextStartIndex() const
+			{
+				return m_sourceTextRange.textStart;
+			}
+
+			int32_t getSourceTextEndIndex() const
+			{
+				return m_sourceTextRange.textStart + m_sourceTextRange.textLen;
+			}
+
 		private:
 			SourceTextRange m_sourceTextRange;
 			std::vector<SourceIndexToGlyphData> m_glyphDataArray;
@@ -157,8 +167,12 @@ namespace GuGu {
 
 		typedef std::function<bool(const GlyphEntry&, int32_t)> eachShapedGlyphEntryCallback;
 		void EnumerateLogicalGlyphsInSourceRange(const int32_t InStartIndex, const int32_t InEndIndex, const eachShapedGlyphEntryCallback& InGlyphCallback) const;
+		void EnumerateVisualGlyphsInSourceRange(const int32_t InStartIndex, const int32_t InEndIndex, const eachShapedGlyphEntryCallback& InGlyphCallback) const;
 
 		std::optional<GlyphOffsetResult> getGlyphAtOffset(FontCache& inFontCache, const int32_t inStartIndex, const int32_t inEndIndex, const int32_t inHorizontalOffset, const int32_t inStartOffset = 0) const;
+
+		bool hasFoundGlyphAtOffset(FontCache& inFontCache, const int32_t inHorizontalOffset, const GlyphEntry& inCurrentEntry, const int32_t inCurrentGlyphIndex, int32_t& inOutCurrentOffset,
+			const GlyphEntry*& outMatchedGlyph) const;
 
 		std::vector<GlyphEntry> m_glyphsToRender;
 		int16_t m_textBaseLine;

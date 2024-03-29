@@ -53,6 +53,8 @@ namespace GuGu{
 
         virtual Reply OnKeyChar(const WidgetGeometry& myGeometry, const CharacterEvent& inCharacterEvent);
 
+        virtual Reply OnKeyDown(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent);
+
 		virtual SlotBase* getSlot(uint32_t index);
 
 		virtual uint32_t getSlotsNumber();

@@ -38,6 +38,8 @@ namespace GuGu {
 
 		virtual Reply OnKeyChar(const WidgetGeometry& myGeometry, const CharacterEvent& inCharacterEvent) override;
 
+		virtual Reply OnKeyDown(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent) override;
+
 		virtual std::shared_ptr<Widget> getWidget() override;
 	protected:
 		std::shared_ptr<PlainTextLayoutMarshaller> m_plainTextMarshaller;

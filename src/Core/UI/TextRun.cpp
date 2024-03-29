@@ -17,6 +17,13 @@ namespace GuGu {
 		, m_range(0, inText->len())
 	{
 	}
+	TextRun::TextRun(const RunInfo& inRunInfo, const std::shared_ptr<const GuGuUtf8Str>& inText, const TextBlockStyle& style, const TextRange& inRange)
+		: m_runInfo(inRunInfo)
+		, m_text(inText)
+		, m_style(style)
+		, m_range(inRange)
+	{
+	}
 	TextRun::~TextRun()
 	{
 	}

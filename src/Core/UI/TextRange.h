@@ -19,6 +19,7 @@ namespace GuGu {
 		{}
 
 		int32_t len() const { return m_endIndex - m_beginIndex; }
+		bool isEmpty() const { return (m_endIndex - m_beginIndex) <= 0; }
 
 		static void CalculateLineRangesFromString(const GuGuUtf8Str& input, std::vector<TextRange>& lineRanges);
 

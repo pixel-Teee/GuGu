@@ -3,6 +3,10 @@
 #include "IEditableTextWidget.h"
 
 namespace GuGu {
+    MoveCursor MoveCursor::cardinal(CursorMoveGranularity granularity, math::int2 direction, CursorAction action)
+    {
+        return MoveCursor(granularity, CursorMoveMethod::Cardinal, math::float2(direction.x, direction.y), 1.0f, action);
+    }
     MoveCursor MoveCursor::viaScreenPointer(math::float2 localPosition, float geometryScale, CursorAction action)
     {
         return MoveCursor(CursorMoveGranularity::Character, CursorMoveMethod::ScreenPosition, localPosition, geometryScale, action);

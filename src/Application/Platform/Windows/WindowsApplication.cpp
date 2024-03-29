@@ -177,6 +177,18 @@ namespace GuGu {
 				}
 				break;
 			}
+			case WM_KEYDOWN:
+			{
+				const int32_t win32Key = wParam;
+
+				int32_t actualKey = win32Key;
+
+				//获取字母码点从虚拟键的按压
+				uint32_t charCode = MapVirtualKey(win32Key, MAPVK_VK_TO_CHAR);
+
+				globalApplication->onKeyDown(actualKey, charCode);
+				break;
+			}
 			case WM_CHAR:
 			{
 				uint32_t utf32CodePoint = wParam;

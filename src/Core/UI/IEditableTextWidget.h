@@ -32,6 +32,8 @@ namespace GuGu {
 	class MoveCursor
 	{
 	public:
+		static MoveCursor cardinal(CursorMoveGranularity granularity, math::int2 direction, CursorAction action);
+
 		static MoveCursor viaScreenPointer(math::float2 localPosition, float geometryScale, CursorAction action);
 
 		MoveCursor(CursorMoveGranularity inGranularity, CursorMoveMethod inMethod, math::float2 inDirectionPosition, float inGeometryScale, CursorAction inAction);

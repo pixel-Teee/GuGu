@@ -4,6 +4,25 @@
 #include <Core/GuGuUtf8Str.h>
 
 namespace GuGu {
+	struct Key
+	{
+		Key() {
+
+		}
+
+		Key(const GuGuUtf8Str inName)
+			: m_keyName(inName)
+		{}
+
+		friend bool operator==(const Key& keyA, const Key& keyB) { return keyA.m_keyName == keyB.m_keyName; }
+	private:
+		GuGuUtf8Str m_keyName;
+	};
+
+	struct Keys
+	{
+		static const Key BackSpace;
+	};
 	struct InputEvent
 	{
 
@@ -35,5 +54,27 @@ namespace GuGu {
 		}
 	private:
 		GuGuUtf8Str m_character;
+	};
+
+	struct KeyEvent : public InputEvent
+	{
+	public:
+		KeyEvent(const Key inKey, uint32_t inCharacterCode, const int32_t inKeyCode)
+			: m_key(inKey)
+			, m_characterCode(inCharacterCode)
+			, m_keyCode(inKeyCode)
+		{}
+
+		Key getKey() const
+		{
+			return m_key;
+		}
+	private:
+		//按下的键的名字
+		Key m_key;
+		//按下的字母码点
+		uint32_t m_characterCode;
+		//原先从键盘输入的键盘码在任何转换映射之前
+		uint32_t m_keyCode;
 	};
 }

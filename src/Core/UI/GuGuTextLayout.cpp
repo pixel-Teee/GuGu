@@ -6,6 +6,7 @@
 #include "WidgetGeometry.h"
 #include "ILayoutBlock.h"
 #include "ILineHighlighter.h"
+#include "TextRun.h"
 
 namespace GuGu {
 	GuGuTextLayout::GuGuTextLayout(Widget* inOwner, TextBlockStyle inDefaultTextStyle)
@@ -60,5 +61,9 @@ namespace GuGu {
 		}
 
 		return currentLayerId;
+	}
+	std::shared_ptr<IRun> GuGuTextLayout::createDefaultTextRun(const std::shared_ptr<GuGuUtf8Str>& newText, const TextRange& newRange) const
+	{
+		return std::make_shared<TextRun>(RunInfo(), newText, m_defaultTextStyle, newRange);
 	}
 }

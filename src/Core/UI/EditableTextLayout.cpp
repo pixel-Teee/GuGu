@@ -13,6 +13,15 @@ namespace GuGu {
     {
         return (bHandled) ? Reply::Handled() : Reply::Unhandled();
     }
+
+    bool isCharAllowed(const uint32_t codePoint) 
+    {
+        if (codePoint == '\t')
+            return true;
+        else if (codePoint <= 0x1F)
+            return false;
+        return true;
+    }
     EditableTextLayout::EditableTextLayout(IEditableTextWidget& inOwnerWidget, const Attribute<GuGuUtf8Str>& inInitialText, TextBlockStyle inTextStyle, const std::optional<TextShapingMethod> inTextShapingMethod, std::shared_ptr<ITextLayoutMarshaller> inMarshaller)
         : m_ownerWidget(&inOwnerWidget)
         , m_textStyle(inTextStyle)
@@ -78,6 +87,22 @@ namespace GuGu {
 
         switch (codePoint)
         {
+            case 8: //back space
+            break;
+
+            case '\n': //new line(ctrl + enter)
+            break;
+
+            case 1:  //ctrl + a
+            case 3:  //ctrl + c
+            case 13: //enter
+            case 22: //ctrl + v
+            case 24: //ctrl + x
+            case 25: //ctrl + y
+            case 26: //ctrl + z
+            case 27: //esc
+            case 127: //ctrl + backspace
+                return Reply::Handled();
             default:
             {
                 //end edit transaction
@@ -92,9 +117,23 @@ namespace GuGu {
 
         return Reply::Unhandled();
     }
+    Reply EditableTextLayout::handleKeyDown(const KeyEvent& inKeyEvent)
+    {
+        Reply reply = Reply::Unhandled();
+
+        const Key key = inKeyEvent.getKey();
+
+        if (key == Keys::BackSpace)
+        {
+            //move left
+            moveCursor(MoveCursor::cardinal(CursorMoveGranularity::Word, math::int2(-1, 0), CursorAction::SelectText));
+            reply = boolToReply(handleBackspace());
+        }
+
+        return reply;
+    }
     Reply EditableTextLayout::handleMouseButtonDown(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
     {
-
         moveCursor(MoveCursor::viaScreenPointer(myGeometry.absoluteToLocal(inMouseEvent.m_screenSpacePosition), myGeometry.mAbsoluteScale, CursorAction::MoveCursor));
 
         Reply reply = Reply::Handled();
@@ -112,19 +151,24 @@ namespace GuGu {
     }
     bool EditableTextLayout::handleTypeChar(const GuGuUtf8Str& inChar)
     {
-        const TextLocation cursorInteractionPosition = m_cursorInfo.getCursorInteractionLocation();
-        const std::vector<TextLayout::LineModel>& lines = m_textLayout->getLineModels();
-        const TextLayout::LineModel& line = lines[cursorInteractionPosition.getLineIndex()];
+        const bool bIsCharAllowed = isCharAllowed(inChar.getUtf16String().at(0));
+        if (bIsCharAllowed)
+        {
+			const TextLocation cursorInteractionPosition = m_cursorInfo.getCursorInteractionLocation();
+			const std::vector<TextLayout::LineModel>& lines = m_textLayout->getLineModels();
+			const TextLayout::LineModel& line = lines[cursorInteractionPosition.getLineIndex()];
 
-        m_textLayout->insertAt(cursorInteractionPosition, inChar);
+			m_textLayout->insertAt(cursorInteractionPosition, inChar);
 
-		const TextLocation finalCursorLocation = TextLocation(cursorInteractionPosition.getLineIndex(), std::min(cursorInteractionPosition.getOffset() + 1, line.text->len()));
+			const TextLocation finalCursorLocation = TextLocation(cursorInteractionPosition.getLineIndex(), std::min(cursorInteractionPosition.getOffset() + 1, line.text->len()));
 
-		m_cursorInfo.setCursorLocationAndCalculateAlignment(*m_textLayout, finalCursorLocation);
+			m_cursorInfo.setCursorLocationAndCalculateAlignment(*m_textLayout, finalCursorLocation);
 
-        updateCursorHighlight();
+			updateCursorHighlight();
 
-        return true;
+			return true;
+        }
+        return false;
     }
     GuGuUtf8Str EditableTextLayout::getEditableText() const
     {
@@ -140,6 +184,44 @@ namespace GuGu {
         if (inArgs.getMoveMethod() == CursorMoveMethod::ScreenPosition)
         {
             newCursorPosition = m_textLayout->getTextLocationAt(inArgs.getLocalPosition() * inArgs.getGeometryScale());
+        }
+
+        m_cursorInfo.setCursorLocationAndCalculateAlignment(*m_textLayout, newCursorPosition);
+
+        updateCursorHighlight();
+
+        return true;
+    }
+    bool EditableTextLayout::handleBackspace()
+    {
+        const TextLocation cursorInteractionPosition = m_cursorInfo.getCursorInteractionLocation();
+        TextLocation finalCursorLocation = cursorInteractionPosition;
+
+        const std::vector<TextLayout::LineModel>& lines = m_textLayout->getLineModels();
+
+        if (cursorInteractionPosition.getOffset() == 0)
+        {
+            if (cursorInteractionPosition.getLineIndex() > 0)
+            {
+                const int32_t previousLineIndex = cursorInteractionPosition.getLineIndex() - 1;
+                const int32_t cachePreviousLinesCurrentLength = lines[previousLineIndex].text->len();
+
+                //todo:join line with next line
+            }
+            else
+            {
+                //删除在caret左边的grapheme
+                const TextSelection deleteSelection = m_textLayout->getGraphemeAt(TextLocation(cursorInteractionPosition, -1));
+                const int32_t graphemeSize = deleteSelection.getEnd().getOffset() - deleteSelection.getBeginning().getOffset();
+                if (m_textLayout->removeAt(deleteSelection.getBeginning(), graphemeSize))
+                {
+                    finalCursorLocation = TextLocation(cursorInteractionPosition, -graphemeSize);
+                }
+            }
+
+            m_cursorInfo.setCursorLocationAndCalculateAlignment(*m_textLayout, finalCursorLocation);
+            
+            updateCursorHighlight();
         }
 
         return true;

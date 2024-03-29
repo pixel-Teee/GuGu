@@ -148,6 +148,11 @@ namespace GuGu{
 		return processKeyCharEvent(characterEvent);
 	}
 
+	bool Application::onKeyDown(const int32_t keyCode, const uint32_t characterCode)
+	{
+		return false;
+	}
+
     std::shared_ptr<Widget> Application::getCaptorWidget() const
     {
         if (!m_captorWidgetsPath.empty())
@@ -157,7 +162,9 @@ namespace GuGu{
 
 	bool Application::hasAnyFocus(std::shared_ptr<const Widget> inWidget) const
 	{
-		return m_focusWidgetsPath.back().lock() == inWidget;
+		if(!m_focusWidgetsPath.empty())
+			return m_focusWidgetsPath.back().lock() == inWidget;
+        return false;
 	}
 
 	void Application::setGlobalPreRotate(float rotation)

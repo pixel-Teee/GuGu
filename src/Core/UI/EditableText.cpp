@@ -54,6 +54,14 @@ namespace GuGu {
 		
 		return reply;
 	}
+	Reply EditableText::OnKeyDown(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent)
+	{
+		Reply reply = Reply::Unhandled();
+
+		reply = m_editableTextLayout->handleKeyDown(inKeyEvent);
+
+		return reply;
+	}
 	std::shared_ptr<Widget> EditableText::getWidget()
 	{
 		return shared_from_this();

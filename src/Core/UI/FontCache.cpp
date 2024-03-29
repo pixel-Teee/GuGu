@@ -83,9 +83,115 @@ namespace GuGu {
 			}
 		}
 	}
+	void ShapedGlyphSequence::EnumerateVisualGlyphsInSourceRange(const int32_t InStartIndex, const int32_t InEndIndex, const eachShapedGlyphEntryCallback& InGlyphCallback) const
+	{
+		if (InStartIndex == InEndIndex)
+			return;
+
+		const SourceIndexToGlyphData* startSourceIndexToGlyphData = m_sourceIndicesToGlyphData.getGlyphData(InStartIndex);
+		const SourceIndexToGlyphData* endSourceIndexToGlyphData = m_sourceIndicesToGlyphData.getGlyphData(InEndIndex - 1);
+
+		int32_t startGlyphIndex = -1;
+		int32_t endGlyphIndex = -1;
+		if (startSourceIndexToGlyphData->glyphIndex <= endSourceIndexToGlyphData->glyphIndex)
+		{
+			startGlyphIndex = startSourceIndexToGlyphData->getLowestGlyphIndex();
+			endGlyphIndex = endSourceIndexToGlyphData->getHighestGlyphIndex();
+		}
+		else
+		{
+			startGlyphIndex = endSourceIndexToGlyphData->getLowestGlyphIndex();
+			endGlyphIndex = startSourceIndexToGlyphData->getHighestGlyphIndex();
+		}
+
+		bool bStartIndexInRange = m_sourceIndicesToGlyphData.getSourceTextStartIndex() == InStartIndex;
+		bool bEndIndexInRange = m_sourceIndicesToGlyphData.getSourceTextEndIndex() == InEndIndex;
+
+		for (int32_t currentGlyphIndex = startGlyphIndex; currentGlyphIndex <= endGlyphIndex; ++currentGlyphIndex)
+		{
+			const GlyphEntry& currentGlyph = m_glyphsToRender[currentGlyphIndex];
+
+			if (!bStartIndexInRange || !bEndIndexInRange)
+			{
+				const int32_t glyphStartSourceIndex = currentGlyph.sourceIndex;
+				const int32_t glyphEndSourceIndex = currentGlyph.sourceIndex + 1;//todo:这里要修复，可能一个字母占用多个glyph
+
+				if (!bStartIndexInRange && glyphStartSourceIndex == InStartIndex)
+					bStartIndexInRange = true;
+
+				if (!bEndIndexInRange && glyphEndSourceIndex == InEndIndex)
+					bEndIndexInRange = true;
+			}
+
+			if (!InGlyphCallback(currentGlyph, currentGlyphIndex))
+				return;
+		}
+
+		return;
+	}
 	std::optional<ShapedGlyphSequence::GlyphOffsetResult> ShapedGlyphSequence::getGlyphAtOffset(FontCache& inFontCache, const int32_t inStartIndex, const int32_t inEndIndex, const int32_t inHorizontalOffset, const int32_t inStartOffset) const
 	{
+		int32_t currentOffset = inStartOffset;
+
+		const GlyphEntry* matchedGlyph = nullptr;
+		const GlyphEntry* rightMostGlyph = nullptr;
+
+		auto glyphCallbck = [&](const GlyphEntry& currentGlyph, int32_t currentGlyphIndex)->bool
+		{
+			if (hasFoundGlyphAtOffset(inFontCache, inHorizontalOffset, currentGlyph, currentGlyphIndex, /*out*/currentOffset, /*out*/matchedGlyph))
+				return false;
+			rightMostGlyph = &currentGlyph;
+			return true;
+		};
+
+		EnumerateVisualGlyphsInSourceRange(inStartIndex, inEndIndex, glyphCallbck);
+
+		if (matchedGlyph)
+		{
+			return GlyphOffsetResult(matchedGlyph, currentOffset);
+		}
+
+		if (!rightMostGlyph)
+		{
+			if (inEndIndex >= m_sourceIndicesToGlyphData.getSourceTextStartIndex() && inEndIndex <= m_sourceIndicesToGlyphData.getSourceTextEndIndex())
+				return GlyphOffsetResult(inEndIndex);
+		}
+		else
+		{
+			if (inStartIndex >= m_sourceIndicesToGlyphData.getSourceTextStartIndex() && inEndIndex <= m_sourceIndicesToGlyphData.getSourceTextEndIndex())
+				return GlyphOffsetResult(inStartIndex);
+		}
+
 		return std::optional<GlyphOffsetResult>();
+	}
+	bool ShapedGlyphSequence::hasFoundGlyphAtOffset(FontCache& inFontCache, const int32_t inHorizontalOffset, const GlyphEntry& inCurrentEntry, const int32_t inCurrentGlyphIndex, int32_t& inOutCurrentOffset, const GlyphEntry*& outMatchedGlyph) const
+	{
+		
+		int32_t totalGlyphSpacing = 0;
+		int32_t totalGlyphAdvance = 0;
+		for (int32_t subGlyphIndex = inCurrentGlyphIndex; ;++subGlyphIndex)
+		{
+			const GlyphEntry& subGlyph = m_glyphsToRender[subGlyphIndex];
+			const GlyphFontAtlasData& subGlyphAtlasData = inFontCache.getShapedGlyphFontAtlasData(subGlyph);
+			totalGlyphSpacing += subGlyphAtlasData.horizontalOffset + subGlyph.xAdvance;
+			totalGlyphAdvance += subGlyph.xAdvance;
+
+			const bool bIsWithinGlyphCluster = (subGlyphIndex + 1) >= 0 && (subGlyphIndex + 1) < m_glyphsToRender.size() && subGlyph.sourceIndex == m_glyphsToRender[subGlyphIndex + 1].sourceIndex;
+			if(!bIsWithinGlyphCluster)
+				break;
+		}
+
+		const int32_t glyphWidthToTest = totalGlyphSpacing / 2.0f;
+
+		if (inHorizontalOffset < (inOutCurrentOffset + glyphWidthToTest))
+		{
+			outMatchedGlyph = &inCurrentEntry;
+
+			return true;
+		}
+
+		inOutCurrentOffset += totalGlyphAdvance;
+		return false;
 	}
 	FontCache::FontCache()
 		: m_freeTypeCacheDirectory(std::make_shared<FreeTypeCacheDirectory>())
