@@ -53,7 +53,7 @@ namespace GuGu {
 	}
 #define ARGUMENT_ATTRIBUTE(Type, Name)\
 	Attribute<Type> m##Name;\
-	BuilderArguments& Name(Type inValue)\
+	BuilderArguments& Name(Attribute<Type> inValue)\
 	{\
 		m##Name = inValue;\
 		return Me(); \

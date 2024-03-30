@@ -82,4 +82,15 @@ namespace GuGu {
 		float barThickNess;
 		SliderStyle& setBarThickness(float inBarThickness) { barThickNess = inBarThickness; return *this; }
 	};
+
+	class EditableTextBoxStyle : public Style
+	{
+	public:
+		EditableTextBoxStyle() = default;
+
+		virtual ~EditableTextBoxStyle();
+
+		std::shared_ptr<Brush> m_backgroundImageNormal;
+		EditableTextBoxStyle& setBackgroundImageNormal(std::shared_ptr<Brush> inNormalBackgroundImage) { m_backgroundImageNormal = inNormalBackgroundImage; return *this; }
+	};
 }

@@ -107,6 +107,16 @@ namespace GuGu {
 		selectionBackground->m_tiling = false;
 		selectionBackground->m_texturePath = u8"asset/MinimumWindow/thumb.png";
 		m_brushes.insert({ "selectionBackground", selectionBackground });
+
+		//editable text Box
+		std::shared_ptr<Brush> editableTextBoxBackgroundImageNormal = std::make_shared<Brush>();
+		editableTextBoxBackgroundImageNormal->m_tiling = false;
+		editableTextBoxBackgroundImageNormal->m_texturePath = u8"asset/MinimumWindow/headerBackground.png";
+		m_brushes.insert({ "editableTextBoxBack.backgroundImageNormal", editableTextBoxBackgroundImageNormal });
+
+		std::shared_ptr<EditableTextBoxStyle> editableTextBoxStyle = std::make_shared<EditableTextBoxStyle>();
+		editableTextBoxStyle->setBackgroundImageNormal(editableTextBoxBackgroundImageNormal);
+		m_styles.insert({ "EditableTextBox", editableTextBoxStyle });
 	}
 	StyleSet::~StyleSet()
 	{

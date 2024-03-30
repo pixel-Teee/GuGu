@@ -29,7 +29,7 @@ namespace GuGu {
 	void ElementList::addBoxElement(ElementList& elementList, const WidgetGeometry& widgetGeometry, math::float4 color, std::shared_ptr<Brush> brush, uint32_t layer)
 	{
 		//cull
-		if (brush->m_texture == nullptr)
+		if (brush == nullptr)
 			return;
 		
 		std::shared_ptr<BoxElement> boxElement = std::make_shared<BoxElement>(Element::ElementType::Box, widgetGeometry, color, brush, layer, brush->m_tiling);

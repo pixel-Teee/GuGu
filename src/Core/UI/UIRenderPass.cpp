@@ -24,6 +24,7 @@
 #include "Viewport.h"
 #include "TextBlockWidget.h"
 #include "EditableText.h"
+#include "EditableTextBox.h"
 #include "Slider.h"
 #include "AtlasTexture.h"
 #include "FontCache.h"
@@ -766,8 +767,8 @@ namespace GuGu {
 								+ HorizontalBox::Slot()
 								.StretchWidth(1.0f)
 								(
-									WIDGET_NEW(EditableText)
-									.text("文本")
+									WIDGET_NEW(EditableTextBox)
+									.Text("文本")
 								)
 							)
 						)

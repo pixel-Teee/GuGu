@@ -28,4 +28,7 @@ namespace GuGu {
 	SliderStyle::~SliderStyle()
 	{
 	}
+	EditableTextBoxStyle::~EditableTextBoxStyle()
+	{
+	}
 }
