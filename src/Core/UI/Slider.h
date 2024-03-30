@@ -19,6 +19,7 @@ namespace GuGu {
 		{
 			BuilderArguments()	
 				: morientation(Orientation::Horizontal)
+				, mIsFocusable(true)
 			{
 				mClip = WidgetClipping::Inherit;
 			}
@@ -30,6 +31,8 @@ namespace GuGu {
 			ARGUMENT_VALUE(float, MaxValue)
 
 			ARGUMENT_VALUE(Orientation, orientation)
+
+			ARGUMENT_VALUE(bool, IsFocusable)
 
 			UI_EVENT(OnFloatValueChanged, OnValueChanged)
 		};
@@ -45,6 +48,8 @@ namespace GuGu {
 		virtual Reply OnMouseButtonUp(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent) override;
 
 		virtual Reply OnMouseMove(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent) override;
+
+		virtual bool supportsKeyboardFocus() const override;
 
 		float getNormalizedValue() const;
 
@@ -67,5 +72,7 @@ namespace GuGu {
 		float m_minValue;
 		float m_maxValue;
 		OnFloatValueChanged m_onValueChanged;
+
+		bool m_isFocusable;
 	};
 }

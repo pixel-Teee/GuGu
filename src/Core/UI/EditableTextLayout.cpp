@@ -166,6 +166,10 @@ namespace GuGu {
 		
 		return reply;
     }
+    void EditableTextLayout::handleFocusLost()
+    {
+        updateCursorHighlight();
+    }
     bool EditableTextLayout::handleTypeChar(const GuGuUtf8Str& inChar)
     {
         const bool bIsCharAllowed = isCharAllowed(inChar.getUtf16String().at(0));

@@ -25,6 +25,7 @@ namespace GuGu {
 		m_minValue = arguments.mMinValue;
 		m_maxValue = arguments.mMaxValue;
 		m_onValueChanged = arguments.mOnValueChanged;
+		m_isFocusable = arguments.mIsFocusable;
 	}
 	uint32_t Slider::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
@@ -116,6 +117,10 @@ namespace GuGu {
 		}
 
 		return Reply::Unhandled();
+	}
+	bool Slider::supportsKeyboardFocus() const
+	{
+		return m_isFocusable;
 	}
 	float Slider::getNormalizedValue() const
 	{

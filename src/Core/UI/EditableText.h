@@ -40,6 +40,8 @@ namespace GuGu {
 
 		virtual Reply OnKeyDown(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent) override;
 
+		virtual void OnFocusLost() override;
+
 		virtual std::shared_ptr<Widget> getWidget() override;
 	protected:
 		std::shared_ptr<PlainTextLayoutMarshaller> m_plainTextMarshaller;

@@ -51,7 +51,9 @@ namespace GuGu {
 
 		Reply handleMouseButtonUp(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent);
 
-		bool handleTypeChar(const GuGuUtf8Str& inChar);
+		void handleFocusLost();
+
+		bool handleTypeChar(const GuGuUtf8Str& inChar);	
 
 		GuGuUtf8Str getEditableText() const;
 

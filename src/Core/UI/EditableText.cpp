@@ -62,6 +62,10 @@ namespace GuGu {
 
 		return reply;
 	}
+	void EditableText::OnFocusLost()
+	{
+		m_editableTextLayout->handleFocusLost();
+	}
 	std::shared_ptr<Widget> EditableText::getWidget()
 	{
 		return shared_from_this();

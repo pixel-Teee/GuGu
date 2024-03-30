@@ -103,6 +103,13 @@ namespace GuGu{
     {
         return Reply::Unhandled();
     }
+    void Widget::OnFocusLost()
+    {
+    }
+    bool Widget::supportsKeyboardFocus() const
+    {
+        return false;
+    }
     SlotBase* Widget::getSlot(uint32_t index)
 	{
 		return nullptr;

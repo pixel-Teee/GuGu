@@ -241,10 +241,38 @@ namespace GuGu{
 				{
 					m_focusWidgetsPath.clear();
 					for (size_t j = 0; j <= i; ++j)
-						m_focusWidgetsPath.push_back(widgets[i]);
+						m_focusWidgetsPath.push_back(widgets[j]);
 				}
 			}
 
+			//设置新的焦点控件
+			for (int32_t i = widgets.size() - 1; i >= 0; --i)
+			{
+				if (widgets[i]->supportsKeyboardFocus())
+				{
+					std::vector<std::shared_ptr<Widget>> focusedWidgetPath;
+					for (size_t j = 0; j <= i; ++j)
+						focusedWidgetPath.push_back(widgets[j]);
+
+					std::vector<std::weak_ptr<Widget>> oldFocusWidgetsPath;
+					oldFocusWidgetsPath = m_focusWidgetsPath;
+
+					for (int32_t j = focusedWidgetPath.size() - 1; j >= 0; --j)
+					{
+						if (focusedWidgetPath[j]->supportsKeyboardFocus())
+						{
+							m_focusWidgetsPath.clear();
+							for (int32_t k = 0; k <= j; ++k)
+								m_focusWidgetsPath.push_back(widgets[k]);
+							break;
+						}
+					}
+					for (size_t j = 0; j < m_focusWidgetsPath.size(); ++j)
+						oldFocusWidgetsPath[j].lock()->OnFocusLost();
+
+					break;
+				}
+			}
         }
         
 		//if (collisionWidget)
@@ -320,7 +348,7 @@ namespace GuGu{
 				{
 					m_focusWidgetsPath.clear();
 					for (size_t j = 0; j <= i; ++j)
-						m_focusWidgetsPath.push_back(widgets[i]);
+						m_focusWidgetsPath.push_back(widgets[j]);
 				}
 			}
         }
@@ -400,7 +428,7 @@ namespace GuGu{
 				{
 					m_focusWidgetsPath.clear();
 					for (size_t j = 0; j <= i; ++j)
-						m_focusWidgetsPath.push_back(widgets[i]);
+						m_focusWidgetsPath.push_back(widgets[j]);
 				}
 			}
         }

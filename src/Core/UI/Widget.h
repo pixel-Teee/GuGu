@@ -55,6 +55,10 @@ namespace GuGu{
 
         virtual Reply OnKeyDown(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent);
 
+        virtual void OnFocusLost();
+
+        virtual bool supportsKeyboardFocus() const;
+
 		virtual SlotBase* getSlot(uint32_t index);
 
 		virtual uint32_t getSlotsNumber();
