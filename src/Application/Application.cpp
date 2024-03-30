@@ -161,14 +161,14 @@ namespace GuGu{
     std::shared_ptr<Widget> Application::getCaptorWidget() const
     {
         if (!m_captorWidgetsPath.empty())
-            return m_captorWidgetsPath.back().lock();
+            return m_captorWidgetsPath.front().lock();
         return nullptr;
     }
 
 	bool Application::hasAnyFocus(std::shared_ptr<const Widget> inWidget) const
 	{
 		if(!m_focusWidgetsPath.empty())
-			return m_focusWidgetsPath.back().lock() == inWidget;
+			return m_focusWidgetsPath.front().lock() == inWidget;
         return false;
 	}
 
@@ -187,7 +187,7 @@ namespace GuGu{
 		if (!m_captorWidgetsPath.empty())
 		{
 			std::vector<std::weak_ptr<Widget>> captorWidgetsPath = m_captorWidgetsPath;
-			for (int32_t i = captorWidgetsPath.size() - 1; i >= 0; --i)
+			for (int32_t i = 0; i < captorWidgetsPath.size(); ++i)
 			{
 				std::shared_ptr<Widget> widget = captorWidgetsPath[i].lock();
 				if (widget != nullptr)
@@ -198,7 +198,7 @@ namespace GuGu{
 					{
 						//m_captorWidget = mouseCaptor;
 						m_captorWidgetsPath.clear();
-						for (size_t j = 0; j <= i; ++j)
+						for (int32_t j = i; j < captorWidgetsPath.size(); ++j)
 							m_captorWidgetsPath.push_back(captorWidgetsPath[j]);
 					}
 					if (reply.shouldReleaseMouse())
@@ -220,7 +220,10 @@ namespace GuGu{
 				currentWidget = currentWidget->getParentWidget();
 			}
 
-			for (int32_t i = widgets.size() - 1; i >= 0; --i)
+			//widgets 最后一个是 根window
+
+			//从碰撞到的widget开始派发事件
+			for (int32_t i = 0; i < widgets.size(); ++i)
 			{
 				Reply reply = widgets[i]->OnMouseButtonDown(widgets[i]->getWidgetGeometry(), mouseEvent);
 
@@ -229,7 +232,7 @@ namespace GuGu{
 				{
 					//m_captorWidget = mouseCaptor;
 					m_captorWidgetsPath.clear();
-					for (size_t j = 0; j <= i; ++j)
+					for (int32_t j = i; j < widgets.size(); ++j)
 						m_captorWidgetsPath.push_back(widgets[i]);
 				}
 				if (reply.shouldReleaseMouse())
@@ -240,29 +243,29 @@ namespace GuGu{
 				if (requestedFocusRecepient)
 				{
 					m_focusWidgetsPath.clear();
-					for (size_t j = 0; j <= i; ++j)
+					for (int32_t j = i; j < widgets.size(); ++j)
 						m_focusWidgetsPath.push_back(widgets[j]);
 				}
 			}
 
 			//设置新的焦点控件
-			for (int32_t i = widgets.size() - 1; i >= 0; --i)
+			for (int32_t i = 0; i < widgets.size(); ++i)
 			{
 				if (widgets[i]->supportsKeyboardFocus())
 				{
 					std::vector<std::shared_ptr<Widget>> focusedWidgetPath;
-					for (size_t j = 0; j <= i; ++j)
+					for (int32_t j = i; j < widgets.size(); ++j)
 						focusedWidgetPath.push_back(widgets[j]);
 
 					std::vector<std::weak_ptr<Widget>> oldFocusWidgetsPath;
 					oldFocusWidgetsPath = m_focusWidgetsPath;
 
-					for (int32_t j = focusedWidgetPath.size() - 1; j >= 0; --j)
+					for (int32_t j = 0; j < focusedWidgetPath.size(); ++j)
 					{
 						if (focusedWidgetPath[j]->supportsKeyboardFocus())
 						{
 							m_focusWidgetsPath.clear();
-							for (int32_t k = 0; k <= j; ++k)
+							for (int32_t k = j; k < widgets.size(); ++k)
 								m_focusWidgetsPath.push_back(widgets[k]);
 							break;
 						}
@@ -293,7 +296,7 @@ namespace GuGu{
 		if (!m_captorWidgetsPath.empty())
 		{
 			std::vector<std::weak_ptr<Widget>> captorWidgetsPath = m_captorWidgetsPath;
-			for (int32_t i = captorWidgetsPath.size() - 1; i >= 0; --i)
+			for (int32_t i = 0; i < captorWidgetsPath.size(); ++i)
 			{
 				std::shared_ptr<Widget> widget = captorWidgetsPath[i].lock();
 				if (widget != nullptr)
@@ -304,7 +307,7 @@ namespace GuGu{
 					{
 						//m_captorWidget = mouseCaptor;
 						m_captorWidgetsPath.clear();
-						for (size_t j = 0; j <= i; ++j)
+						for (int32_t j = i; j < captorWidgetsPath.size(); ++j)
 							m_captorWidgetsPath.push_back(captorWidgetsPath[j]);
 					}
 					if (reply.shouldReleaseMouse())
@@ -314,9 +317,8 @@ namespace GuGu{
 				}
 			}
 		}
-        else
-        {
-			//locate window under mouse
+		else
+		{
 			std::shared_ptr<Widget> collisionWidget = locateWidgetInWindow(window, mouseEvent);
 
 			std::vector<std::shared_ptr<Widget>> widgets;
@@ -327,7 +329,10 @@ namespace GuGu{
 				currentWidget = currentWidget->getParentWidget();
 			}
 
-			for (int32_t i = widgets.size() - 1; i >= 0; --i)
+			//widgets 最后一个是 根window
+
+			//从碰撞到的widget开始派发事件
+			for (int32_t i = 0; i < widgets.size(); ++i)
 			{
 				Reply reply = widgets[i]->OnMouseButtonUp(widgets[i]->getWidgetGeometry(), mouseEvent);
 
@@ -336,7 +341,7 @@ namespace GuGu{
 				{
 					//m_captorWidget = mouseCaptor;
 					m_captorWidgetsPath.clear();
-					for (size_t j = 0; j <= i; ++j)
+					for (int32_t j = i; j < widgets.size(); ++j)
 						m_captorWidgetsPath.push_back(widgets[i]);
 				}
 				if (reply.shouldReleaseMouse())
@@ -347,11 +352,11 @@ namespace GuGu{
 				if (requestedFocusRecepient)
 				{
 					m_focusWidgetsPath.clear();
-					for (size_t j = 0; j <= i; ++j)
+					for (int32_t j = i; j < widgets.size(); ++j)
 						m_focusWidgetsPath.push_back(widgets[j]);
 				}
 			}
-        }
+		}
 		
 
 		//if (collisionWidget)
@@ -370,33 +375,32 @@ namespace GuGu{
     bool Application::processMouseMoveEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
     {
 
-        if (!m_captorWidgetsPath.empty())
-        {
-            std::vector<std::weak_ptr<Widget>> captorWidgetsPath = m_captorWidgetsPath;
-            for (int32_t i = captorWidgetsPath.size() - 1; i >= 0; --i)
-            {
-                std::shared_ptr<Widget> widget = captorWidgetsPath[i].lock();
-                if (widget != nullptr)
-                {
-                    Reply reply = widget->OnMouseMove(widget->getWidgetGeometry(), mouseEvent);
+		if (!m_captorWidgetsPath.empty())
+		{
+			std::vector<std::weak_ptr<Widget>> captorWidgetsPath = m_captorWidgetsPath;
+			for (int32_t i = 0; i < captorWidgetsPath.size(); ++i)
+			{
+				std::shared_ptr<Widget> widget = captorWidgetsPath[i].lock();
+				if (widget != nullptr)
+				{
+					Reply reply = widget->OnMouseMove(widget->getWidgetGeometry(), mouseEvent);
 					std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
 					if (mouseCaptor != nullptr)
 					{
 						//m_captorWidget = mouseCaptor;
 						m_captorWidgetsPath.clear();
-						for (size_t j = 0; j <= i; ++j)
+						for (int32_t j = i; j < captorWidgetsPath.size(); ++j)
 							m_captorWidgetsPath.push_back(captorWidgetsPath[j]);
 					}
 					if (reply.shouldReleaseMouse())
 					{
 						m_captorWidgetsPath.clear();
 					}
-                }
-            }
-        }
-        else
-        {
-			//locate window under mouse
+				}
+			}
+		}
+		else
+		{
 			std::shared_ptr<Widget> collisionWidget = locateWidgetInWindow(window, mouseEvent);
 
 			std::vector<std::shared_ptr<Widget>> widgets;
@@ -407,7 +411,10 @@ namespace GuGu{
 				currentWidget = currentWidget->getParentWidget();
 			}
 
-			for (int32_t i = widgets.size() - 1; i >= 0; --i)
+			//widgets 最后一个是 根window
+
+			//从碰撞到的widget开始派发事件
+			for (int32_t i = 0; i < widgets.size(); ++i)
 			{
 				Reply reply = widgets[i]->OnMouseMove(widgets[i]->getWidgetGeometry(), mouseEvent);
 
@@ -416,7 +423,7 @@ namespace GuGu{
 				{
 					//m_captorWidget = mouseCaptor;
 					m_captorWidgetsPath.clear();
-					for (size_t j = 0; j <= i; ++j)
+					for (int32_t j = i; j < widgets.size(); ++j)
 						m_captorWidgetsPath.push_back(widgets[i]);
 				}
 				if (reply.shouldReleaseMouse())
@@ -427,11 +434,13 @@ namespace GuGu{
 				if (requestedFocusRecepient)
 				{
 					m_focusWidgetsPath.clear();
-					for (size_t j = 0; j <= i; ++j)
+					for (int32_t j = i; j < widgets.size(); ++j)
 						m_focusWidgetsPath.push_back(widgets[j]);
 				}
 			}
-        }
+		}
+
+
 		//if (collisionWidget)
 		//{
 		//    collisionWidget->OnMouseButtonDown(collisionWidget->getWidgetGeometry(), mouseEvent);
