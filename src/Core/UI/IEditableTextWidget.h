@@ -44,6 +44,8 @@ namespace GuGu {
 
 		math::int2 getMoveDirection() const;
 
+		CursorAction getAction() const;
+
 		float getGeometryScale() const;
 	private:
 		CursorMoveGranularity m_granularity;

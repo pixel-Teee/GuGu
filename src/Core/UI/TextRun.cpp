@@ -50,6 +50,10 @@ namespace GuGu {
 	{
 		return std::make_shared<TextRun>(inRunInfo, inText, style);
 	}
+	std::shared_ptr<TextRun> TextRun::Create(const RunInfo& inRunInfo, const std::shared_ptr<const GuGuUtf8Str>& inText, const TextBlockStyle& style, const TextRange& inRange)
+	{
+		return std::make_shared<TextRun>(inRunInfo, inText, style, inRange);
+	}
 	std::shared_ptr<ILayoutBlock> TextRun::createBlock(int32_t startIndex, int32_t endIndex, math::float2 size, const LayoutBlockTextContext& textContext)
 	{
 		return DefaultLayoutBlock::Create(shared_from_this(), TextRange(startIndex, endIndex), size, textContext);
@@ -93,9 +97,23 @@ namespace GuGu {
 
 		return layerId + 1;
 	}
+	void TextRun::move(const std::shared_ptr<GuGuUtf8Str>& newText, const TextRange& newRange)
+	{
+		m_text = newText;
+		m_range = newRange;
+	}
+	std::shared_ptr<IRun> TextRun::clone()
+	{
+		return TextRun::Create(m_runInfo, m_text, m_style, m_range);
+	}
 	void TextRun::appendTextTo(GuGuUtf8Str& text) const
 	{
 		GuGuUtf8Str subStr = m_text->substr(m_range.m_beginIndex, m_range.len());
+		text.append(subStr);
+	}
+	void TextRun::appendTextTo(GuGuUtf8Str& text, const TextRange& range) const
+	{
+		GuGuUtf8Str subStr = m_text->substr(range.m_beginIndex, range.len());
 		text.append(subStr);
 	}
 	int32_t TextRun::getTextIndexAt(const std::shared_ptr<ILayoutBlock>& block, const math::float2& location, float scale) const

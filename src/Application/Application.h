@@ -3,6 +3,8 @@
 #include <Core/Math/MyMath.h>
 #include <Core/GuGuUtf8Str.h>
 
+#include <Core/UI/Events.h>//ModifierKeysState depends on it
+
 namespace GuGu {
 	class Widget;
 
@@ -58,9 +60,13 @@ namespace GuGu {
 		virtual bool onKeyDown(const int32_t keyCode, const uint32_t characterCode);
 
 		std::shared_ptr<Widget> getCaptorWidget() const;
+
+		virtual ModifierKeysState getModifierKeys() const { return ModifierKeysState(); }
 		//------input------
 
 		bool hasAnyFocus(std::shared_ptr<const Widget> inWidget) const;
+
+		bool doesWidgetHaveMouseCapture(std::shared_ptr<const Widget> inWidget) const;
 
 		void setGlobalPreRotate(float rotation);
 

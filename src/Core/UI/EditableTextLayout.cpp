@@ -8,6 +8,14 @@
 #include "Events.h"
 #include "Widget.h"
 
+#ifdef WIN32
+#include <Application/Platform/Windows/WindowsMisc.h>
+#else
+#ifdef ANDROID
+#include <Application/Platform/Android/AndroidMisc.h>
+#endif
+#endif
+
 namespace GuGu {
     Reply boolToReply(const bool bHandled)
     {
@@ -30,9 +38,12 @@ namespace GuGu {
         m_textLayout = std::make_shared<GuGuTextLayout>(inOwnerWidget.getWidget().get(), m_textStyle);
         m_boundText = inInitialText;
         m_cursorLineHighlighter = EditableTextTypes::CursorLineHighlighter::Create(&m_cursorInfo);
+        m_textSelectionHighlighter = EditableTextTypes::TextSelectionHighlighter::Create();
 
 		m_textLayout->clearLines();
 		m_marshaller->setText(m_boundText.Get(), *m_textLayout);
+
+        m_bIsDragSelecting = false;
     }
     EditableTextLayout::~EditableTextLayout()
     {
@@ -134,10 +145,22 @@ namespace GuGu {
         if (key == Keys::Left)
         {
             moveCursor(MoveCursor::cardinal(CursorMoveGranularity::Word, math::int2(-1, 0), CursorAction::MoveCursor));
+            reply = Reply::Handled();
         }
         else if (key == Keys::Right)
         {
             moveCursor(MoveCursor::cardinal(CursorMoveGranularity::Word, math::int2(+1, 0), CursorAction::MoveCursor));
+            reply = Reply::Handled();
+        }
+        else if (key == Keys::C && inKeyEvent.isControlDown())
+        {
+            copySelectedTextToClipboard();
+            reply = Reply::Handled();
+        }
+        else if (key == Keys::V && inKeyEvent.isControlDown())
+        {
+            pasteTextFromClipboard();
+            reply = Reply::Handled();
         }
 
 		//if (key == Keys::BackSpace)
@@ -153,6 +176,9 @@ namespace GuGu {
     {
         moveCursor(MoveCursor::viaScreenPointer(myGeometry.absoluteToLocal(inMouseEvent.m_screenSpacePosition), myGeometry.mAbsoluteScale, CursorAction::MoveCursor));
 
+		//开始拖动选择
+		m_bIsDragSelecting = true;
+
         Reply reply = Reply::Handled();
         reply.captureMouse(m_ownerWidget->getWidget());
         reply.setFocus(m_ownerWidget->getWidget());
@@ -161,10 +187,25 @@ namespace GuGu {
     }
     Reply EditableTextLayout::handleMouseButtonUp(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
     {
+        if (m_ownerWidget->getWidget()->hasMouseCapture())
+        {
+            m_bIsDragSelecting = false;
+        }
+
 		Reply reply = Reply::Handled();
         reply.releaseMouseCapture();
 		
 		return reply;
+    }
+    Reply EditableTextLayout::handleMouseMove(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
+    {
+        if (m_bIsDragSelecting && m_ownerWidget->getWidget()->hasAnyFocus() && (inMouseEvent.getCursorDelta().x != 0 || inMouseEvent.getCursorDelta().y != 0))
+        {
+            moveCursor(MoveCursor::viaScreenPointer(myGeometry.absoluteToLocal(inMouseEvent.m_screenSpacePosition), myGeometry.mAbsoluteScale, CursorAction::SelectText));
+            return Reply::Handled();
+        }
+
+        return Reply::Unhandled();
     }
     void EditableTextLayout::handleFocusLost()
     {
@@ -179,7 +220,7 @@ namespace GuGu {
 			const std::vector<TextLayout::LineModel>& lines = m_textLayout->getLineModels();
 			const TextLayout::LineModel& line = lines[cursorInteractionPosition.getLineIndex()];
 
-			m_textLayout->insertAt(cursorInteractionPosition, inChar);
+			m_textLayout->insertAt(cursorInteractionPosition, inChar, true);
 
 			const TextLocation finalCursorLocation = TextLocation(cursorInteractionPosition.getLineIndex(), std::min(cursorInteractionPosition.getOffset() + 1, line.text->len()));
 
@@ -202,6 +243,8 @@ namespace GuGu {
         TextLocation newCursorPosition;
         TextLocation cursorPosition = m_cursorInfo.getCursorInteractionLocation();
 
+        
+
         if (inArgs.getMoveMethod() == CursorMoveMethod::Cardinal)
         {
             newCursorPosition = translatedLocation(cursorPosition, inArgs.getMoveDirection().x);
@@ -211,6 +254,24 @@ namespace GuGu {
             newCursorPosition = m_textLayout->getTextLocationAt(inArgs.getLocalPosition() * inArgs.getGeometryScale());
         }
 
+        if (inArgs.getAction() == CursorAction::SelectText)
+        {
+            if (!m_selectionStart.has_value())
+            {
+                m_selectionStart = cursorPosition;
+            }
+        }
+        else
+        {
+            //clear selection
+            m_selectionStart.reset();
+        }
+
+        //if (m_selectionStart.has_value())
+        //{
+        //    //GuGu_LOGD("%d, %d", m_selectionStart->getOffset(), newCursorPosition.getOffset());
+        //}
+        
         m_cursorInfo.setCursorLocationAndCalculateAlignment(*m_textLayout, newCursorPosition);
 
         updateCursorHighlight();
@@ -253,6 +314,44 @@ namespace GuGu {
 
         return true;
     }
+
+    void EditableTextLayout::insertTextAtCursorImpl(const GuGuUtf8Str& inString)
+    {
+        std::vector<TextRange> lineRanges;
+        TextRange::CalculateLineRangesFromString(inString, lineRanges);//参数是要插入的文本
+
+        //插入每一行
+        {
+            bool bIsFirstLine = true;
+            for (const TextRange& lineRange : lineRanges)
+            {
+                if (!bIsFirstLine)
+                {
+                    const TextLocation cursorInteractionPosition = m_cursorInfo.getCursorInteractionLocation();
+                    if (m_textLayout->splitLineAt(cursorInteractionPosition))//分割光标出的原先的文本
+                    {
+                        const TextLocation newCursorPosition = TextLocation(cursorInteractionPosition.getLineIndex() + 1, 0);
+                        m_cursorInfo.setCursorLocationAndCalculateAlignment(*m_textLayout, newCursorPosition);
+                    }
+                }
+                bIsFirstLine = false;
+
+                const GuGuUtf8Str newLineText = inString.substr(lineRange.m_beginIndex, lineRange.len());
+
+                const TextLocation cursorInteractionPosition = m_cursorInfo.getCursorInteractionLocation();
+                const std::vector<TextLayout::LineModel>& lines = m_textLayout->getLineModels();
+                const TextLayout::LineModel& line = lines[cursorInteractionPosition.getLineIndex()];
+
+                //插入文本在光标位置
+                m_textLayout->insertAt(cursorInteractionPosition, newLineText);
+
+                const TextLocation newCursorPosition = TextLocation(cursorInteractionPosition.getLineIndex(), std::min(cursorInteractionPosition.getOffset() + newLineText.len(), line.text->len()));
+                m_cursorInfo.setCursorLocationAndCalculateAlignment(*m_textLayout, newCursorPosition);
+            }
+
+            updateCursorHighlight();
+        }
+    }
     void EditableTextLayout::updateCursorHighlight()
     {
         //todo:封装成一个函数
@@ -266,9 +365,39 @@ namespace GuGu {
         }
         m_activeLineHighlights.clear();
         //todo:remove cursor high light
-        static const int32_t cursorZOrder = 11;
+        static const int32_t selectionHighlightZOrder = -10;//绘制在文本下面
+        static const int32_t cursorZOrder = 11;//绘制在文本上面
+
+        const TextLocation cursorInteractionPosition = m_cursorInfo.getCursorInteractionLocation();
+        const TextLocation selectionLocation = m_selectionStart.value_or(cursorInteractionPosition);
 
         const bool bHasKeyboardFocus = m_ownerWidget->getWidget()->hasAnyFocus();//检查自己是否有焦点
+        const bool bHasSelection = selectionLocation != cursorInteractionPosition;
+
+        if (bHasSelection)
+        {
+            const TextSelection selection(selectionLocation, cursorInteractionPosition);
+
+            const int32_t selectionBeginningLineIndex = selection.getBeginning().getLineIndex();
+            const int32_t selectionBeginningLineOffset = selection.getBeginning().getOffset();
+
+            const int32_t selectionEndLineIndex = selection.getEnd().getLineIndex();
+            const int32_t selectionEndLineOffset = selection.getEnd().getOffset();
+            
+            m_textSelectionHighlighter->setHasKeyboardFocus(bHasKeyboardFocus);
+
+            //GuGu_LOGD("%d, %d 更新选择", selectionBeginningLineOffset, selectionEndLineOffset);
+
+            if (selectionBeginningLineIndex == selectionEndLineIndex)
+            {
+                const TextRange range(selectionBeginningLineOffset, selectionEndLineOffset);
+                m_activeLineHighlights.push_back(TextLineHighlight(selectionBeginningLineIndex, range, selectionHighlightZOrder, m_textSelectionHighlighter));
+            }
+            else
+            {
+                //todo:多行处理
+            }
+        }
 
         if (bHasKeyboardFocus)
         {
@@ -287,6 +416,42 @@ namespace GuGu {
         {
             m_textLayout->addLineHighlight(lineHighlight);
         }
+    }
+    void EditableTextLayout::copySelectedTextToClipboard()
+    {
+        if (anyTextSelected())
+        {
+            const TextLocation cursorInteractionPosition = m_cursorInfo.getCursorInteractionLocation();
+            TextLocation selectionLocation = m_selectionStart.value_or(cursorInteractionPosition);
+            TextSelection selection(selectionLocation, cursorInteractionPosition);
+
+            //获取抓取的子串
+            GuGuUtf8Str selectedText;
+            m_textLayout->getSelectionAsText(selectedText, selection);
+
+            //拷贝文本到剪切板
+            PlatformMisc::ClipboardCopy(selectedText);
+        }
+    }
+    void EditableTextLayout::pasteTextFromClipboard()
+    {
+        //删除选择的文本
+
+        //从剪切板获取文本
+        GuGuUtf8Str pastedText;
+        PlatformMisc::ClipboardPaste(pastedText);
+
+        if (pastedText.len() > 0)
+        {
+            insertTextAtCursorImpl(pastedText);
+            m_textLayout->updateIfNeeded();
+        }
+    }
+    bool EditableTextLayout::anyTextSelected() const
+    {
+        const TextLocation cursorInteractionPosition = m_cursorInfo.getCursorInteractionLocation();
+        const TextLocation selectionPosition = m_selectionStart.value_or(cursorInteractionPosition);
+        return selectionPosition != cursorInteractionPosition;
     }
     TextLocation EditableTextLayout::translatedLocation(const TextLocation& currentLocation, int8_t direction) const
     {

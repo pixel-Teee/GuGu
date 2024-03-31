@@ -6,6 +6,22 @@
 #include "WidgetGeometry.h"
 
 namespace GuGu {
+	static void getRangeAsTextFromLine(GuGuUtf8Str& displayText, const TextLayout::LineModel& lineModel, const TextRange& range)
+	{
+		for (int32_t runIndex = 0; runIndex < lineModel.runs.size(); ++runIndex)
+		{
+			const TextLayout::RunModel& run = lineModel.runs[runIndex];
+			const TextRange& runRange = run.getTextRange();
+
+			const TextRange intersectRange = runRange.intersect(range);
+
+			if (!intersectRange.isEmpty())
+				run.appendTextTo(displayText, intersectRange);//把run的intersect range加到display text上
+			else if(runRange.m_beginIndex > range.m_endIndex)
+				break;
+		}
+	}
+
 	TextLayout::LineModel::LineModel(const std::shared_ptr<GuGuUtf8Str>& inText)
 		: text(inText)
 		, m_shapedTextCache(ShapedTextCache::Create(FontCache::getFontCache()))
@@ -36,9 +52,19 @@ namespace GuGu {
 		return m_run->getMaxHeight(inScale);
 	}
 
+	std::shared_ptr<IRun> TextLayout::RunModel::getRun() const
+	{
+		return m_run;
+	}
+
 	void TextLayout::RunModel::appendTextTo(GuGuUtf8Str& text) const
 	{
 		m_run->appendTextTo(text);
+	}
+
+	void TextLayout::RunModel::appendTextTo(GuGuUtf8Str& text, const TextRange& range) const
+	{
+		m_run->appendTextTo(text, range);
 	}
 
 	std::shared_ptr<ILayoutBlock> TextLayout::RunModel::createBlock(const BlockDefinition& blockDefine, float inScale, const LayoutBlockTextContext& inTextContext) const
@@ -111,7 +137,7 @@ namespace GuGu {
 		m_lineViews.clear();
 	}
 
-	bool TextLayout::insertAt(const TextLocation& location, GuGuUtf8Str character)
+	bool TextLayout::insertAt(const TextLocation& location, GuGuUtf8Str character, bool isCharacter)
 	{
 		const int32_t insertLocation = location.getOffset();//一行的偏移
 		const int32_t lineIndex = location.getLineIndex();
@@ -143,6 +169,100 @@ namespace GuGu {
 				runModel.setTextRange(newRange);
 			}
 		}
+		return true;
+	}
+
+	bool TextLayout::insertAt(const TextLocation& location, const GuGuUtf8Str& text)
+	{
+		const int32_t insertLocation = location.getOffset();
+		const int32_t lineIndex = location.getLineIndex();
+
+		if (!(lineIndex >= 0 && lineIndex < m_lineModels.size()))
+		{
+			return false;
+		}
+
+		LineModel& lineModel = m_lineModels[lineIndex];
+
+		lineModel.text->insert(insertLocation, text.getStr());
+
+		bool runIsAfterInsertLocation = false;
+		for (int32_t runIndex = 0; runIndex < lineModel.runs.size(); ++runIndex)
+		{
+			RunModel& runModel = lineModel.runs[runIndex];
+			const TextRange& runRange = runModel.getTextRange();
+
+			const bool bIsLastRun = runIndex == lineModel.runs.size() - 1;
+
+			if (runRange.Contains(insertLocation) || (bIsLastRun && !runIsAfterInsertLocation))
+			{
+				runIsAfterInsertLocation = true;
+
+				runModel.setTextRange(TextRange(runRange.m_beginIndex, runRange.m_endIndex + text.len()));
+			}
+			else if (runIsAfterInsertLocation)
+			{
+				TextRange newRange = runRange;
+				newRange.offset(text.len());
+				runModel.setTextRange(newRange);
+			}
+		}
+
+		return true;
+	}
+
+	bool TextLayout::splitLineAt(const TextLocation& location)
+	{
+		int32_t breakLocation = location.getOffset();
+		int32_t lineIndex = location.getLineIndex();
+
+		if (!(lineIndex >= 0 && lineIndex < m_lineModels.size()))
+		{
+			return false;
+		}
+
+		LineModel& lineModel = m_lineModels[lineIndex];
+
+		LineModel leftLineModel(std::make_shared<GuGuUtf8Str>(lineModel.text->substr(0, breakLocation)));
+		LineModel rightLineModel(std::make_shared<GuGuUtf8Str>(lineModel.text->substr(breakLocation, lineModel.text->len() - breakLocation)));
+
+		bool runIsToTheLeftOfTheBreakLocation = true;
+		for (int32_t runIndex = 0; runIndex < lineModel.runs.size(); ++runIndex)
+		{
+			const std::shared_ptr<IRun> run = lineModel.runs[runIndex].getRun();
+			const TextRange& runRange = run->getTextRange();
+
+			const bool bIsLastRun = runIndex == lineModel.runs.size() - 1;
+			if (runRange.Contains(breakLocation) || (bIsLastRun && runIsToTheLeftOfTheBreakLocation))
+			{
+				runIsToTheLeftOfTheBreakLocation = false;
+
+				std::shared_ptr<IRun> leftRun;
+				std::shared_ptr<IRun> rightRun;
+
+				leftRun = run->clone();
+				leftRun->move(leftLineModel.text, TextRange(runRange.m_beginIndex, leftLineModel.text->len()));
+				
+				rightRun = run;
+				rightRun->move(rightLineModel.text, TextRange(0, runRange.m_endIndex - leftLineModel.text->len()));
+			}
+			else if (runIsToTheLeftOfTheBreakLocation)
+			{
+				leftLineModel.runs.push_back(RunModel(run));
+			}
+			else
+			{
+				TextRange newRange = runRange;
+				newRange.offset(-leftLineModel.text->len());
+
+				run->move(rightLineModel.text, newRange);
+				rightLineModel.runs.push_back(RunModel(run));
+			}
+		}
+
+		m_lineModels[lineIndex] = leftLineModel;
+		auto it = m_lineModels.begin() + lineIndex + 1;
+		m_lineModels.insert(it, rightLineModel);
 		return true;
 	}
 
@@ -247,8 +367,15 @@ namespace GuGu {
 
 					lineViewHighlight.m_offsetX += run->measure(blockTextRange.m_beginIndex, intersectedRange.m_beginIndex, m_scale, runTextContext).x;
 
-					//append line view hight light and reset
-					lineView.m_overlayHighlights.push_back(lineViewHighlight);
+					if (lineHightlight.m_zorder < 0)
+					{
+						lineView.m_underlayHighlights.push_back(lineViewHighlight);
+					}
+					else
+					{
+						//append line view hight light and reset
+						lineView.m_overlayHighlights.push_back(lineViewHighlight);
+					}				
 					lineViewHighlight.m_offsetX = runningBlockOffset;
 					lineViewHighlight.m_width = 0.0f;
 				}
@@ -414,6 +541,31 @@ namespace GuGu {
 			}
 		}
 		return true;
+	}
+
+	void TextLayout::getSelectionAsText(GuGuUtf8Str& displayText, const TextSelection& selection) const
+	{
+		int32_t selectionBeginningLineIndex = selection.getBeginning().getLineIndex();
+		int32_t selectionBeginningLineOffset = selection.getBeginning().getOffset();
+
+		int32_t selectionEndLineIndex = selection.getEnd().getLineIndex();
+		int32_t selectionEndLineOffset = selection.getEnd().getOffset();
+
+		if (selectionBeginningLineIndex >= 0 && selectionBeginningLineIndex < m_lineModels.size() && selectionEndLineIndex >= 0 && selectionEndLineIndex < m_lineModels.size())
+		{
+			if (selectionBeginningLineIndex == selectionEndLineIndex)
+			{
+				const TextRange selectionRange(selectionBeginningLineOffset, selectionEndLineOffset);
+				const LineModel& lineModel = m_lineModels[selectionBeginningLineIndex];
+
+				//把line model 的 selection range 添加到 display text 上
+				getRangeAsTextFromLine(displayText, lineModel, selectionRange);
+			}
+			else
+			{
+				//todo:处理多行
+			}
+		}
 	}
 
 	void TextLayout::flowLineLayout(const int32_t lineModelIndex, const float wrappingDrawWidth, std::vector<std::shared_ptr<ILayoutBlock>>& softLine)

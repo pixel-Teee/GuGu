@@ -69,6 +69,24 @@ namespace GuGu {
 
 			std::shared_ptr<Brush> m_cursorBrush;
 		};
+
+		class TextSelectionHighlighter : public ILineHighlighter
+		{
+		public:
+			static std::shared_ptr<TextSelectionHighlighter> Create();
+
+			virtual int32_t onPaint(const PaintArgs& args, const TextLayout::LineView& line, const float offsetX, const float inWidth, const TextBlockStyle& defaultStyle, const WidgetGeometry& allottedGeometry,
+				const math::box2& cullingRect, ElementList& outDrawElements, int32_t layerId) const override;
+
+			TextSelectionHighlighter();
+
+			void setHasKeyboardFocus(const bool bInHasKeyboardFocus)
+			{
+				m_bHasKeyboardFocus = bInHasKeyboardFocus;
+			}
+		protected:
+			bool m_bHasKeyboardFocus;
+		};
 	}
 
 }

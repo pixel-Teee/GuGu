@@ -28,6 +28,8 @@ namespace GuGu {
 
 		static std::shared_ptr<TextRun> Create(const RunInfo& inRunInfo, const std::shared_ptr<const GuGuUtf8Str>& inText, const TextBlockStyle& style);
 
+		static std::shared_ptr<TextRun> Create(const RunInfo& inRunInfo, const std::shared_ptr<const GuGuUtf8Str>& inText, const TextBlockStyle& style, const TextRange& inRange);
+
 		virtual std::shared_ptr<ILayoutBlock> createBlock(int32_t startIndex, int32_t endIndex, math::float2 size, const LayoutBlockTextContext& textContext) override;
 
 		virtual math::float2 measure(int32_t startIndex, int32_t endIndex, float scale, const RunTextContext& textContext) const override;
@@ -35,7 +37,13 @@ namespace GuGu {
 		virtual int32_t OnPaint(const PaintArgs& paintArgs, const TextArgs& textArgs, const WidgetGeometry& allottedGeometry, const math::box2& cullingRect,
 			ElementList& outDrawElements, int32_t layerId, const Style& inWidgetStyle) const override;
 
+		virtual void move(const std::shared_ptr<GuGuUtf8Str>& newText, const TextRange& newRange) override;
+
+		virtual std::shared_ptr<IRun> clone() override;
+
 		virtual void appendTextTo(GuGuUtf8Str& text) const override;
+
+		virtual void appendTextTo(GuGuUtf8Str& text, const TextRange& range) const override;
 
 		virtual int32_t getTextIndexAt(const std::shared_ptr<ILayoutBlock>& block, const math::float2& location, float scale) const override;
 	protected:

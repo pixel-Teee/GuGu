@@ -81,4 +81,12 @@ namespace GuGu{
         }
         return true;
     }
+
+    void AndroidMisc::ClipboardCopy(const GuGuUtf8Str &str) {
+
+    }
+
+    void AndroidMisc::ClipboardPaste(GuGuUtf8Str &str) {
+
+    }
 }

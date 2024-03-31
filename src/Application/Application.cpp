@@ -153,7 +153,7 @@ namespace GuGu{
 		const Key key = InputKeyManager::Get().getKeyFromCodes(keyCode, characterCode);
 
 		//字符串名，字符码，虚拟键码
-		KeyEvent keyEvent(key, characterCode, keyCode);
+		KeyEvent keyEvent(key, getModifierKeys(),characterCode, keyCode);
 
 		return processKeyDownEvent(keyEvent);
 	}
@@ -170,6 +170,13 @@ namespace GuGu{
 		if(!m_focusWidgetsPath.empty())
 			return m_focusWidgetsPath.front().lock() == inWidget;
         return false;
+	}
+
+	bool Application::doesWidgetHaveMouseCapture(std::shared_ptr<const Widget> inWidget) const
+	{
+		if (!m_captorWidgetsPath.empty())
+			return m_captorWidgetsPath.front().lock() == inWidget;
+		return false;
 	}
 
 	void Application::setGlobalPreRotate(float rotation)
@@ -270,7 +277,7 @@ namespace GuGu{
 							break;
 						}
 					}
-					for (size_t j = 0; j < m_focusWidgetsPath.size(); ++j)
+					for (int32_t j = 0; j < oldFocusWidgetsPath.size(); ++j)
 						oldFocusWidgetsPath[j].lock()->OnFocusLost();
 
 					break;

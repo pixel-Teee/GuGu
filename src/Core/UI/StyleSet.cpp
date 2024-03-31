@@ -30,6 +30,11 @@ namespace GuGu {
 		biscuit->m_tiling = false;
 		biscuit->m_texturePath = u8"asset/biscuit.jpg";
 		m_brushes.insert({ u8"biscuit", biscuit });
+
+		std::shared_ptr<Brush> textBlockHighlightShape = std::make_shared<Brush>();
+		textBlockHighlightShape->m_tiling = false;
+		textBlockHighlightShape->m_texturePath = u8"asset/MinimumWindow/TextBlockHighlightShape.png";
+		m_brushes.insert({ u8"textBlockHighlightShape", textBlockHighlightShape });
         
 		std::shared_ptr<TextInfo> textInfo = std::make_shared<TextInfo>();
 		textInfo->m_size = 18;//12pt
@@ -37,6 +42,7 @@ namespace GuGu {
 		textInfo->m_name = u8"NotoSansSC-Regular.ttf";
 		std::shared_ptr<TextBlockStyle> textBlockStyle = std::make_shared<TextBlockStyle>(textInfo, math::float4(0.59f, 0.98f, 0.59f, 1.0f), math::float2(1.0f, 0.0f), math::float4(0.0f, 1.0f, 0.0f, 0.4f));
 		m_styles.insert({ "normalText", textBlockStyle });
+		textBlockStyle->setHighLightShape(textBlockHighlightShape);
 
 		//minimum window
 		std::shared_ptr<Brush> closeButtonNormal = std::make_shared<Brush>();

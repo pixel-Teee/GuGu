@@ -78,9 +78,40 @@ namespace GuGu {
 
 			WidgetGeometry paintGeometry = allottedGeometry.getChildGeometry(transformedSize, transformedLocation, allottedGeometry.getAccumulateTransform());
 
-			ElementList::addBoxElement(outDrawElements, paintGeometry, math::float4(1.0f, 1.0f, 1.0f, cursorOpacity * cursorOpacity), m_cursorBrush, layerId);
+			ElementList::addBoxElement(outDrawElements, paintGeometry, math::float4(1.0f, 1.0f, 1.0f, cursorOpacity * cursorOpacity), m_cursorBrush, ++layerId);
 
 			return layerId;
+		}
+		std::shared_ptr<TextSelectionHighlighter> TextSelectionHighlighter::Create()
+		{
+			return std::make_shared<TextSelectionHighlighter>();
+		}
+		int32_t TextSelectionHighlighter::onPaint(const PaintArgs& args, const TextLayout::LineView& line, const float offsetX, const float inWidth, const TextBlockStyle& defaultStyle, const WidgetGeometry& allottedGeometry, const math::box2& cullingRect, ElementList& outDrawElements, int32_t layerId) const
+		{
+			math::float2 location(line.offset.x + offsetX, line.offset.y);
+
+			math::float4 selectionBackgroundColorAndOpacity = math::float4(0.3f, 0.6f, 0.2f, 1.0f);
+
+			//这里文字是预缩放的
+			const float inverseScale = 1.0f / allottedGeometry.mAbsoluteScale;
+
+			const float minHighlightWidth = line.range.isEmpty() ? 4.0f * allottedGeometry.mAbsoluteScale : 0.0f;
+			const float highlightWidth = std::max(inWidth, minHighlightWidth);
+
+			math::float2 transformedSize = math::scaling(math::float2(inverseScale)).transformVector(math::float2(highlightWidth, std::max(line.size.y, line.textHeight)));
+			math::float2 transformedLocation = math::scaling(math::float2(inverseScale)).transformPoint(location);
+
+			WidgetGeometry paintGeometry = allottedGeometry.getChildGeometry(transformedSize, transformedLocation, allottedGeometry.getAccumulateTransform());
+
+			if (highlightWidth > 0.0f)
+			{
+				ElementList::addBoxElement(outDrawElements, paintGeometry, selectionBackgroundColorAndOpacity, defaultStyle.m_highLightShape, ++layerId);
+			}
+
+			return layerId;
+		}
+		TextSelectionHighlighter::TextSelectionHighlighter()
+		{
 		}
 	}
 

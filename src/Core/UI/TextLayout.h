@@ -37,6 +37,11 @@ namespace GuGu {
 			return lineIndex == other.lineIndex && offset == other.offset;
 		}
 
+		bool operator!=(const TextLocation& other) const
+		{
+			return lineIndex != other.lineIndex || offset != other.offset;
+		}
+
 		int32_t getLineIndex() const { return lineIndex; }
 		int32_t getOffset() const { return offset; }
 	private:
@@ -151,7 +156,11 @@ namespace GuGu {
 
 			int16_t getMaxHeight(float inScale) const;
 
+			std::shared_ptr<IRun> getRun() const;
+
 			void appendTextTo(GuGuUtf8Str& text) const;
+
+			void appendTextTo(GuGuUtf8Str& text, const TextRange& range) const;
 
 			std::shared_ptr<ILayoutBlock> createBlock(const BlockDefinition& blockDefine, float inScale, const LayoutBlockTextContext& inTextContext) const;
 		private:
@@ -183,7 +192,8 @@ namespace GuGu {
 		struct LineView
 		{
 			std::vector<std::shared_ptr<ILayoutBlock>> blocks;
-			std::vector<LineViewHighlight> m_overlayHighlights;
+			std::vector<LineViewHighlight> m_underlayHighlights;//绘制在文本底下的高亮
+			std::vector<LineViewHighlight> m_overlayHighlights;//绘制在文本上面的高亮，比如比光标
 			math::float2 offset;
 			math::float2 size;
 			float textHeight;
@@ -248,7 +258,11 @@ namespace GuGu {
 		const std::vector<TextLayout::LineModel>& getLineModels() const { return m_lineModels; }
 		const std::vector<TextLayout::LineView>& getLineViews() const { return m_lineViews; }
 
-		bool insertAt(const TextLocation& location, GuGuUtf8Str character);
+		bool insertAt(const TextLocation& location, GuGuUtf8Str character, bool isCharacter);
+
+		bool insertAt(const TextLocation& location, const GuGuUtf8Str& text);
+
+		bool splitLineAt(const TextLocation& location);
 
 		void getAsText(GuGuUtf8Str& displayText, TextOffsetLocations* const outTextOffsetLocations = nullptr) const;
 
@@ -269,6 +283,8 @@ namespace GuGu {
 		TextLocation getTextLocationAt(const LineView& lineView, const math::float2& relative) const;
 
 		bool removeAt(const TextLocation& location, int32_t count);
+
+		void getSelectionAsText(GuGuUtf8Str& displayText, const TextSelection& selection) const;
 
 		virtual std::shared_ptr<IRun> createDefaultTextRun(const std::shared_ptr<GuGuUtf8Str>& newText, const TextRange& newRange) const = 0;
 	protected:

@@ -17,6 +17,18 @@ namespace GuGu {
 		//keyCodes存放实际按键的字母，而keyNames则存放键的英文名
 		ADDKEYMAP('0', "Zero");
 
+		if (bMapUppercaseKeys)
+		{
+			ADDKEYMAP('C', "C");
+			ADDKEYMAP('V', "V");
+		}
+
+		if (bMapLowercaseKeys)
+		{
+			ADDKEYMAP('c', "C");
+			ADDKEYMAP('v', "V");
+		}
+		
 #undef ADDKEYMAP
 
 		return numMappings;

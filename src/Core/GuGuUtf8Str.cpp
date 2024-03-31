@@ -505,6 +505,45 @@ namespace GuGu {
 
 		return res;
 	}
+	GuGuUtf8Str GuGuUtf8Str::fromUtf16ToUtf8(wchar_t* str)
+	{
+		//从u16转换为u8
+		GuGuUtf8Str res;
+
+		std::string tmpRes;
+		int32_t len = wcslen(str);
+		
+		for(uint32_t i = 0; i < len; ++i)
+		{
+			uint32_t codePoint = str[i];
+
+			if (codePoint <= 0x7f)
+			{
+				tmpRes += codePoint;//ascii
+			}
+			else if (codePoint <= 0x7FF)
+			{
+				tmpRes += (char)(0xC0 | ((codePoint >> 6) & 0x1F));
+				tmpRes += (char)(0x80 | (codePoint & 0x3F));
+			}
+			else if (codePoint <= 0xFFFF)
+			{
+				tmpRes += (char)(0xE0 | ((codePoint >> 12) & 0x0F));
+				tmpRes += (char)(0x80 | ((codePoint >> 6) & 0x3F));
+				tmpRes += (char)(0x80 | (codePoint & 0x3F));
+			}
+			else if (codePoint <= 0x10FFFF)
+			{
+				tmpRes += (char)(0xf0 | ((codePoint >> 18) & 0x07));
+				tmpRes += (char)(0x80 | ((codePoint >> 12) & 0x3F));
+				tmpRes += (char)(0x80 | ((codePoint >> 6) & 0x3F));
+				tmpRes += (char)(0x80 | (codePoint & 0x3F));
+			}
+		}
+
+		res = tmpRes;
+		return res;
+	}
 	std::vector<uint32_t> GuGuUtf8Str::getUnicode() const
 	{
 		std::vector<uint32_t> res;

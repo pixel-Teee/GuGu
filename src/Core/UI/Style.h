@@ -14,6 +14,7 @@ namespace GuGu {
 		virtual ~Style();
 	};
 	
+	class Brush;
 	class TextBlockStyle : public Style
 	{
 	public:
@@ -25,9 +26,11 @@ namespace GuGu {
 		math::float4 m_textColor;
 		math::float2 m_shadowOffset;
 		math::float4 m_shadowColor;
+
+		std::shared_ptr<Brush> m_highLightShape;
+		TextBlockStyle& setHighLightShape(const std::shared_ptr<Brush> inHighLightShape) { m_highLightShape = inHighLightShape; return *this; }
 	};
 
-	class Brush;
 	class ButtonStyle : public Style
 	{
 	public:

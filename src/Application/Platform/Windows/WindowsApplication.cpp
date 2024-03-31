@@ -20,7 +20,7 @@ namespace GuGu {
 
 	WindowsApplication::WindowsApplication()
 	{
-	
+		std::memset(m_modifierKeyState, 0, sizeof(m_modifierKeyState));
 	}
 	void WindowsApplication::init()
 	{
@@ -82,6 +82,16 @@ namespace GuGu {
 		window->setNativeApplicationHandleAndCmdShowToCreateWindow(m_applicationInstance, cmdShow);
 		window->ToGeneratePlatformWindow();
 		m_windows.push_back(window);
+	}
+
+	ModifierKeysState WindowsApplication::getModifierKeys() const
+	{
+		return ModifierKeysState(m_modifierKeyState[ModifierKey::LeftControl]);
+	}
+
+	void WindowsApplication::setModifierKeyState(ModifierKey::Type key, bool value)
+	{
+		m_modifierKeyState[key] = value;
 	}
 
 	static bool FolderExists(const GuGuUtf8Str& folderPath)
@@ -183,10 +193,87 @@ namespace GuGu {
 
 				int32_t actualKey = win32Key;
 
+				switch (win32Key)
+				{
+					case VK_SHIFT:
+					{
+						//分清楚left和right shift
+						actualKey = MapVirtualKey((lParam & 0x00ff0000) >> 16, MAPVK_VSC_TO_VK_EX);
+						if (actualKey == VK_LSHIFT)
+						{
+							globalApplication->setModifierKeyState(WindowsApplication::ModifierKey::Type::LeftShift, true);
+						}
+						else
+						{
+							globalApplication->setModifierKeyState(WindowsApplication::ModifierKey::Type::RightShift, true);
+						}
+						break;
+					}
+					case VK_CONTROL:
+					{
+						if ((lParam & 0x1000000) == 0)
+						{
+							actualKey = VK_LCONTROL;
+							globalApplication->setModifierKeyState(WindowsApplication::ModifierKey::Type::LeftControl, true);
+						}
+						else
+						{
+							actualKey = VK_RCONTROL;
+							globalApplication->setModifierKeyState(WindowsApplication::ModifierKey::Type::RightControl, true);
+						}
+						break;
+					}
+				}
+
 				//获取字母码点从虚拟键的按压，将虚拟码转换为字符值
 				uint32_t charCode = MapVirtualKey(win32Key, MAPVK_VK_TO_CHAR);
 
 				globalApplication->onKeyDown(actualKey, charCode);
+				break;
+			}
+			case WM_KEYUP:
+			{
+				const int32_t win32Key = wParam;//获取虚拟码
+
+				int32_t actualKey = win32Key;
+
+				switch (win32Key)
+				{
+					case VK_SHIFT:
+					{
+						//分清楚left和right shift
+						actualKey = MapVirtualKey((lParam & 0x00ff0000) >> 16, MAPVK_VSC_TO_VK_EX);
+						if (actualKey == VK_LSHIFT)
+						{
+							globalApplication->setModifierKeyState(WindowsApplication::ModifierKey::Type::LeftShift, false);
+						}
+						else
+						{
+							globalApplication->setModifierKeyState(WindowsApplication::ModifierKey::Type::RightShift, false);
+						}
+						break;
+					}
+					case VK_CONTROL:
+					{
+						if ((lParam & 0x1000000) == 0)
+						{
+							actualKey = VK_LCONTROL;
+							globalApplication->setModifierKeyState(WindowsApplication::ModifierKey::Type::LeftControl, false);
+						}
+						else
+						{
+							actualKey = VK_RCONTROL;
+							globalApplication->setModifierKeyState(WindowsApplication::ModifierKey::Type::RightControl, false);
+						}
+						break;
+					}
+				}
+
+				//获取字母码点从虚拟键的按压，将虚拟码转换为字符值
+				uint32_t charCode = MapVirtualKey(win32Key, MAPVK_VK_TO_CHAR);
+
+				//添加onKeyUp
+				//globalApplication->onKeyDown(actualKey, charCode);
 				break;
 			}
 			case WM_CHAR:

@@ -51,6 +51,8 @@ namespace GuGu {
 
 		Reply handleMouseButtonUp(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent);
 
+		Reply handleMouseMove(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent);
+
 		void handleFocusLost();
 
 		bool handleTypeChar(const GuGuUtf8Str& inChar);	
@@ -60,9 +62,21 @@ namespace GuGu {
 		bool moveCursor(const MoveCursor& inArgs);
 
 		bool handleBackspace();
+
 	private:
+		/*插入给定的文本在现在的光标位置*/
+		void insertTextAtCursorImpl(const GuGuUtf8Str& inString);
+		
 		/*更新激活的光标高亮，基于文本布局的状态*/
 		void updateCursorHighlight();
+
+		/*拷贝选择到的文本到剪切板*/
+		void copySelectedTextToClipboard();
+
+		/*从剪切板粘贴文本*/
+		void pasteTextFromClipboard();
+
+		bool anyTextSelected() const;
 
 		//给定一个位置还有一个方向去偏移，返回一个新位置
 		TextLocation translatedLocation(const TextLocation& currentLocation, int8_t direction) const;
@@ -83,6 +97,14 @@ namespace GuGu {
 
 		std::shared_ptr<EditableTextTypes::CursorLineHighlighter> m_cursorLineHighlighter;
 
+		std::shared_ptr<EditableTextTypes::TextSelectionHighlighter> m_textSelectionHighlighter;
+
 		std::vector<TextLineHighlight> m_activeLineHighlights;
+
+		//如果选择了文本通过使用左键拖动鼠标光标，那这个值为真
+		bool m_bIsDragSelecting;
+
+		//选择的开始的地方，结束的地方是光标所在的位置
+		std::optional<TextLocation> m_selectionStart;
 	};
 }

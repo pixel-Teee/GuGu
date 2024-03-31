@@ -46,6 +46,10 @@ namespace GuGu {
 	{
 		return m_editableTextLayout->handleMouseButtonUp(myGeometry, inMouseEvent);
 	}
+	Reply EditableText::OnMouseMove(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
+	{
+		return m_editableTextLayout->handleMouseMove(myGeometry, inMouseEvent);
+	}
 	Reply EditableText::OnKeyChar(const WidgetGeometry& myGeometry, const CharacterEvent& inCharacterEvent)
 	{
 		Reply reply = Reply::Unhandled();

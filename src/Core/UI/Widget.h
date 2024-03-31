@@ -80,6 +80,8 @@ namespace GuGu{
         math::box2 calculateCullingAndClippingRules(const WidgetGeometry& allottedGeometry, const math::box2 cullingRect, bool& bClipToBounds);
 
         bool hasAnyFocus() const;
+
+        bool hasMouseCapture() const;
     protected:
         std::weak_ptr<Widget> m_parentWidget;
         WidgetGeometry m_geometry;

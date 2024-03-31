@@ -184,4 +184,8 @@ namespace GuGu{
     {
         return Application::getApplication()->hasAnyFocus(shared_from_this());
     }
+    bool Widget::hasMouseCapture() const
+    {
+        return Application::getApplication()->doesWidgetHaveMouseCapture(shared_from_this());
+    }
 }

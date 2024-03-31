@@ -30,6 +30,10 @@ namespace GuGu {
 		{
 			const TextLayout::LineView& lineView = m_lineViews[lineIndex];
 
+			const int32_t highestUnderlayLayerId = OnPaintHighlights(inPaintArgs, lineView, lineView.m_underlayHighlights, m_defaultTextStyle, inAllottedGeometry, cullingRect, elementList, layerId);
+	
+			int32_t textLayer = highestUnderlayLayerId + 1;
+			int32_t highestBlockLayerId = textLayer;
 			//渲染这行的每个块
 			for (const std::shared_ptr<ILayoutBlock>& block : lineView.blocks)
 			{
@@ -37,10 +41,13 @@ namespace GuGu {
 				
 				const std::shared_ptr<IRun> run = block->getRun();
 
-				highestLayerId = run->OnPaint(inPaintArgs, textArgs, inAllottedGeometry, cullingRect, elementList, layerId, inWidgetStyle);
+				int32_t highestRunLayerId = textLayer;
+				highestRunLayerId = run->OnPaint(inPaintArgs, textArgs, inAllottedGeometry, cullingRect, elementList, layerId, inWidgetStyle);
+
+				highestBlockLayerId = std::max(highestBlockLayerId, highestRunLayerId);
 			}
 
-			const int32_t highestOverlayId = OnPaintHighlights(inPaintArgs, lineView, lineView.m_overlayHighlights, m_defaultTextStyle, inAllottedGeometry, cullingRect, elementList, highestLayerId);
+			const int32_t highestOverlayId = OnPaintHighlights(inPaintArgs, lineView, lineView.m_overlayHighlights, m_defaultTextStyle, inAllottedGeometry, cullingRect, elementList, highestBlockLayerId);
 			highestLayerId = std::max(highestLayerId, highestOverlayId);
 		}
 

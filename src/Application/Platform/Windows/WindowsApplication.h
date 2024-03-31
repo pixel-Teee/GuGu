@@ -24,9 +24,30 @@ namespace GuGu {
 		static std::shared_ptr<WindowsApplication> getApplication();
 
 		void setNativeApplicationHandleAndCmdShow(HINSTANCE applicationInstance, int32_t cmdShow);
+
+		virtual ModifierKeysState getModifierKeys() const override;
+
+		struct ModifierKey
+		{
+			enum Type
+			{
+				LeftShift, //VK_LSHIFT
+				RightShift, //VK_RSHIFT
+				LeftControl, //VK_LCONTROL
+				RightControl, //VK_RCONTROL
+				LeftAlt, //VK_LMENU
+				RightAlt, //VK_RMENU
+				CapsLock, //VK_CAPITAL
+				Count,
+			};
+		};
+
+		void setModifierKeyState(ModifierKey::Type key, bool value);
 	private:
 		HINSTANCE m_applicationInstance;
 
 		std::vector<std::shared_ptr<WindowsWindow>> m_windows;
+
+		bool m_modifierKeyState[ModifierKey::Count];		
 	};
 }

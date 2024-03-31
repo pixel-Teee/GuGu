@@ -6,10 +6,42 @@
 #include <Application/InputTypes.h>
 
 namespace GuGu {
+	//修饰键
+	class ModifierKeysState
+	{
+	public:
+		ModifierKeysState()
+		{
+			m_bIsLeftControlDown = false;
+		}
+		ModifierKeysState(const bool bInLeftControlDown)
+			: m_bIsLeftControlDown(bInLeftControlDown)
+		{}
+
+		bool isControlDown() const
+		{
+			return m_bIsLeftControlDown;
+		}
+
+		uint16_t m_bIsLeftControlDown : 1;
+	};
 
 	struct InputEvent
 	{
+	public:
+		InputEvent()
+		{}
+		InputEvent(const ModifierKeysState& inModifierKeys)
+			: m_modifierKeys(inModifierKeys)
+		{}
 
+		bool isControlDown() const
+		{
+			return m_modifierKeys.isControlDown();
+		}
+	protected:
+		//修饰键
+		ModifierKeysState m_modifierKeys;
 	};
 
 	struct PointerEvent : public InputEvent
@@ -21,6 +53,11 @@ namespace GuGu {
 			, m_lastScreenSpacePosition(inLastScreenSpacePosition)
 			, m_cursorDelta(inScreenSpacePosition - inLastScreenSpacePosition)
 		{}
+
+		math::float2 getCursorDelta() const
+		{
+			return m_cursorDelta;
+		}
 		math::float2 m_screenSpacePosition;
 		math::float2 m_lastScreenSpacePosition;
 		math::float2 m_cursorDelta;
@@ -43,8 +80,9 @@ namespace GuGu {
 	struct KeyEvent : public InputEvent
 	{
 	public:
-		KeyEvent(const Key inKey, uint32_t inCharacterCode, const int32_t inKeyCode)
+		KeyEvent(const Key inKey, const ModifierKeysState& inModifierKeys, const uint32_t inCharacterCode, const int32_t inKeyCode)
 			: m_key(inKey)
+			, InputEvent(inModifierKeys)
 			, m_characterCode(inCharacterCode)
 			, m_keyCode(inKeyCode)
 		{}
@@ -54,6 +92,7 @@ namespace GuGu {
 			return m_key;
 		}
 	private:
+
 		//按下的键的名字
 		Key m_key;
 		//按下的字母码点
