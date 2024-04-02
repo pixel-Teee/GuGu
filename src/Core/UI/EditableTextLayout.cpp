@@ -213,6 +213,12 @@ namespace GuGu {
     }
     bool EditableTextLayout::handleTypeChar(const GuGuUtf8Str& inChar)
     {
+        if (anyTextSelected())
+        {
+            //删除选中的文本
+            deleteSelectedText();
+        }
+
         const bool bIsCharAllowed = isCharAllowed(inChar.getUtf16String().at(0));
         if (bIsCharAllowed)
         {
@@ -280,38 +286,45 @@ namespace GuGu {
     }
     bool EditableTextLayout::handleBackspace()
     {
-        const TextLocation cursorInteractionPosition = m_cursorInfo.getCursorInteractionLocation();
-        TextLocation finalCursorLocation = cursorInteractionPosition;
-
-        const std::vector<TextLayout::LineModel>& lines = m_textLayout->getLineModels();
-
-        if (cursorInteractionPosition.getOffset() == 0)
+        if (anyTextSelected())
         {
-            if (cursorInteractionPosition.getLineIndex() > 0)
-            {
-                const int32_t previousLineIndex = cursorInteractionPosition.getLineIndex() - 1;
-                const int32_t cachePreviousLinesCurrentLength = lines[previousLineIndex].text->len();
-
-                //todo:join line with next line
-            }
-            
+            //删除选中的文本
+            deleteSelectedText();
         }
         else
         {
-			
-			//删除在caret左边的grapheme
-			const TextSelection deleteSelection = m_textLayout->getGraphemeAt(TextLocation(cursorInteractionPosition, -1));
-			const int32_t graphemeSize = deleteSelection.getEnd().getOffset() - deleteSelection.getBeginning().getOffset();
-			if (m_textLayout->removeAt(deleteSelection.getBeginning(), graphemeSize))
+			const TextLocation cursorInteractionPosition = m_cursorInfo.getCursorInteractionLocation();
+			TextLocation finalCursorLocation = cursorInteractionPosition;
+
+			const std::vector<TextLayout::LineModel>& lines = m_textLayout->getLineModels();
+
+			if (cursorInteractionPosition.getOffset() == 0)
 			{
-				finalCursorLocation = TextLocation(cursorInteractionPosition, -graphemeSize);
+				if (cursorInteractionPosition.getLineIndex() > 0)
+				{
+					const int32_t previousLineIndex = cursorInteractionPosition.getLineIndex() - 1;
+					const int32_t cachePreviousLinesCurrentLength = lines[previousLineIndex].text->len();
+
+					//todo:join line with next line
+				}
+
 			}
-		    
-			m_cursorInfo.setCursorLocationAndCalculateAlignment(*m_textLayout, finalCursorLocation);
+			else
+			{
 
-			updateCursorHighlight();
+				//删除在caret左边的grapheme
+				const TextSelection deleteSelection = m_textLayout->getGraphemeAt(TextLocation(cursorInteractionPosition, -1));
+				const int32_t graphemeSize = deleteSelection.getEnd().getOffset() - deleteSelection.getBeginning().getOffset();
+				if (m_textLayout->removeAt(deleteSelection.getBeginning(), graphemeSize))
+				{
+					finalCursorLocation = TextLocation(cursorInteractionPosition, -graphemeSize);
+				}
+
+				m_cursorInfo.setCursorLocationAndCalculateAlignment(*m_textLayout, finalCursorLocation);
+
+				updateCursorHighlight();
+			}
         }
-
         return true;
     }
 
@@ -452,6 +465,39 @@ namespace GuGu {
         const TextLocation cursorInteractionPosition = m_cursorInfo.getCursorInteractionLocation();
         const TextLocation selectionPosition = m_selectionStart.value_or(cursorInteractionPosition);
         return selectionPosition != cursorInteractionPosition;
+    }
+    void EditableTextLayout::deleteSelectedText()
+    {
+        if (anyTextSelected())
+        {
+            const TextLocation cursorInteractionPosition = m_cursorInfo.getCursorInteractionLocation();
+            TextLocation selectionLocation = m_selectionStart.value_or(cursorInteractionPosition);
+            TextSelection selection(selectionLocation, cursorInteractionPosition);
+
+            int32_t selectionBeginningLineIndex = selection.getBeginning().getLineIndex();
+            int32_t selectionBeginningLineOffset = selection.getBeginning().getOffset();
+
+            int32_t selectionEndLineIndex = selection.getEnd().getLineIndex();
+            int32_t selectionEndLineOffset = selection.getEnd().getOffset();
+
+            if (selectionBeginningLineIndex == selectionEndLineIndex)
+            {
+                m_textLayout->removeAt(TextLocation(selectionBeginningLineIndex, selectionBeginningLineOffset), selectionEndLineOffset - selectionBeginningLineOffset);
+            }
+            else
+            {
+                //todo:多行处理
+            }
+
+            clearSelection();
+            const TextLocation finalCursorLocation = TextLocation(selectionBeginningLineIndex, selectionBeginningLineOffset);
+            m_cursorInfo.setCursorLocationAndCalculateAlignment(*m_textLayout, finalCursorLocation);
+            updateCursorHighlight();
+        }
+    }
+    void EditableTextLayout::clearSelection()
+    {
+        m_selectionStart = std::optional<TextLocation>();
     }
     TextLocation EditableTextLayout::translatedLocation(const TextLocation& currentLocation, int8_t direction) const
     {

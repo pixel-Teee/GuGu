@@ -78,6 +78,12 @@ namespace GuGu {
 
 		bool anyTextSelected() const;
 
+		//删除任何现在选择的文本
+		void deleteSelectedText();
+
+		//删除激活的文本选择
+		void clearSelection();
+
 		//给定一个位置还有一个方向去偏移，返回一个新位置
 		TextLocation translatedLocation(const TextLocation& currentLocation, int8_t direction) const;
 
