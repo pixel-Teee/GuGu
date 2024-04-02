@@ -449,6 +449,7 @@ namespace GuGu {
     void EditableTextLayout::pasteTextFromClipboard()
     {
         //删除选择的文本
+        deleteSelectedText();
 
         //从剪切板获取文本
         GuGuUtf8Str pastedText;
