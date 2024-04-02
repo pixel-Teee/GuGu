@@ -33,9 +33,9 @@ namespace GuGu{
 
         if (bClipToBounds)
         {
-            ClippingZone clippingZone(allocatedGeometry);
-            elementList.pushClip(clippingZone);
-
+			ClippingZone clippingZone(allocatedGeometry);
+			elementList.pushClip(clippingZone);
+			
 			std::vector<math::float2> points;
 			points.push_back(clippingZone.m_topLeft);
 			points.push_back(clippingZone.m_topRight);

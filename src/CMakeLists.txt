@@ -20,6 +20,8 @@ file(GLOB SourceFile "main.cpp"
 "Core/FileSystem/*.cpp"
 "Core/Animation/*.h"
 "Core/Animation/*.cpp"
+"Core/Reflection/*.h"
+"Core/Reflection/*.cpp"
 "gltf/*.h"
 "gltf/*.cpp"
 "pch.h")

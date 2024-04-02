@@ -671,7 +671,7 @@ namespace GuGu {
 							(
 								WIDGET_NEW(HorizontalBox)
 								+ HorizontalBox::Slot()
-								.FixedWidth()
+								.StretchWidth(0.2f)
 								(
 									WIDGET_NEW(TextBlockWidget)
 									.text(u8"金属度")
@@ -687,13 +687,30 @@ namespace GuGu {
 										}
 									)
 								)
+								//+ HorizontalBox::Slot()
+								//.FixedWidth()
+								//(
+								//	WIDGET_NEW(TextBlockWidget)
+								//	.text(u8"金属度")
+								//	)
+								//+ HorizontalBox::Slot()
+								//.StretchWidth(1.0f)
+								//(
+								//	WIDGET_NEW(Slider)
+								//	.MaxValue(1.0f)
+								//	.MinValue(0.0f)
+								//	.OnValueChangedLambda([&](float inValue) {
+								//		m_uiData->metallic = inValue;
+								//		}
+								//	)
+								//)
 							)
 							+ VerticalBox::Slot()
 							.FixedHeight()
 							(
 								WIDGET_NEW(HorizontalBox)
 								+ HorizontalBox::Slot()
-								.FixedWidth()
+								.StretchWidth(0.2f)
 								(
 									WIDGET_NEW(TextBlockWidget)
 									.text(u8"粗糙度")
@@ -715,7 +732,7 @@ namespace GuGu {
 							(
 								WIDGET_NEW(HorizontalBox)
 								+ HorizontalBox::Slot()
-								.FixedWidth()
+								.StretchWidth(0.2f)
 								(
 									WIDGET_NEW(TextBlockWidget)
 									.text(u8"dir")
@@ -737,11 +754,11 @@ namespace GuGu {
 							(
 								WIDGET_NEW(HorizontalBox)
 								+ HorizontalBox::Slot()
-								.FixedWidth()
+								.StretchWidth(0.2f)
 								(
 									WIDGET_NEW(TextBlockWidget)
 									.text(u8"pos")
-									)
+								)
 								+ HorizontalBox::Slot()
 								.StretchWidth(1.0f)
 								(
@@ -759,11 +776,12 @@ namespace GuGu {
 							(
 								WIDGET_NEW(HorizontalBox)
 								+ HorizontalBox::Slot()
-								.FixedWidth()
+								.StretchWidth(0.3f)
 								(
 									WIDGET_NEW(TextBlockWidget)
 									.text(u8"可编辑文本框:")
-									)
+									.Clip(WidgetClipping::ClipToBounds)
+								)
 								+ HorizontalBox::Slot()
 								.StretchWidth(1.0f)
 								(
