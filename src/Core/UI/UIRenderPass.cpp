@@ -790,16 +790,16 @@ namespace GuGu {
 									.Text("文本")
 								)
 							)
-							+ VerticalBox::Slot()
-							.FixedHeight()
-							(
-								WIDGET_NEW(HorizontalBox)
-								+ HorizontalBox::Slot()
-								.StretchWidth(0.3f)
-								(
-									WIDGET_NEW(SpinBox<double>)
-								)
-							)
+							//+ VerticalBox::Slot()
+							//.FixedHeight()
+							//(
+							//	WIDGET_NEW(HorizontalBox)
+							//	+ HorizontalBox::Slot()
+							//	.StretchWidth(0.3f)
+							//	(
+							//		WIDGET_NEW(SpinBox<double>)
+							//	)
+							//)
 						)
 					)
 				)
