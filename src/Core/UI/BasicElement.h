@@ -108,4 +108,20 @@ namespace GuGu {
 
 		Checked
 	};
+
+	//文本提交方式
+	namespace TextCommit
+	{
+		enum Type
+		{
+			/*失去焦点或者相似的事件造成隐式的提交*/
+			Default,
+			/*用户通过输入键提交*/
+			OnEnter,
+			/*用户通过tab或者显式地移动焦点进行提交*/
+			OnUserMovedFocus,
+			/*键盘焦点通过escape key 或者其他相似的操作清除焦点*/
+			OnCleared
+		};
+	}
 }

@@ -797,7 +797,7 @@ namespace GuGu {
 								+ HorizontalBox::Slot()
 								.StretchWidth(0.3f)
 								(
-									WIDGET_NEW(SpinBox<uint32_t>)
+									WIDGET_NEW(SpinBox<double>)
 								)
 							)
 						)

@@ -214,6 +214,13 @@ namespace GuGu {
     {
         clearSelection();
 
+        //之后要根据focus event来判断
+        TextCommit::Type textAction;
+        textAction = TextCommit::OnUserMovedFocus;
+
+        const GuGuUtf8Str editedText = getEditableText();
+        m_ownerWidget->onTextCommitted(editedText, textAction);
+
         updateCursorHighlight();
     }
     bool EditableTextLayout::handleTypeChar(const GuGuUtf8Str& inChar)

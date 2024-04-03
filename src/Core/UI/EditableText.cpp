@@ -16,6 +16,8 @@ namespace GuGu {
 		m_editableTextLayout = std::make_unique<EditableTextLayout>(*this, arguments.mtext, textStyle, TextShapingMethod::KerningOnly, m_plainTextMarshaller);
 
 		m_OnIsTypedCharValid = arguments.monIsTypedCharValid;
+
+		m_OnTextCommittedCallback = arguments.monTextCommitted;
 	}
 	uint32_t EditableText::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
@@ -89,6 +91,14 @@ namespace GuGu {
 		}
 
 		return inChar != u8"\t";
+	}
+
+	void EditableText::onTextCommitted(const GuGuUtf8Str& inText, const TextCommit::Type inTextAction)
+	{
+		if (m_OnTextCommittedCallback)
+		{
+			m_OnTextCommittedCallback(inText, inTextAction);
+		}
 	}
 
 }

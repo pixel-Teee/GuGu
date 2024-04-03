@@ -97,6 +97,8 @@ namespace GuGu {
 			m_spinBoxStyle = arguments.mStyle.Get();
 
 			m_interface = std::make_shared<DefaultNumericTypeInterface<NumericType>>();
+			m_minValue = arguments.mMinValue;
+			m_maxValue = arguments.mMaxValue;
 
 			this->m_childWidget = std::make_shared<SingleChildSlot>();
 			//m_childWidget = arguments.mContent;
@@ -118,6 +120,7 @@ namespace GuGu {
 					WIDGET_ASSIGN_NEW(EditableText, m_editableText)
 					.text(this, &SpinBox<NumericType>::getValueAsText)
 					.onIsTypedCharValid(this, &SpinBox<NumericType>::isCharacterValid)
+					.onTextCommitted(this, &SpinBox<NumericType>::textFieldOnTextCommited)
 				)
 			);
 
@@ -196,9 +199,65 @@ namespace GuGu {
 			return m_interface->toString(currentValue);
 		}
 
+		//todo:这里要根据NumericType类型来获取最小值
+		NumericType getMinSliderValue() const { return m_minSliderValue.Get().value_or(-5000.0f);}
+		NumericType getMaxSliderValue() const { return m_maxSliderValue.Get().value_or(5000.0f); }
+		NumericType getMinValue() const { return m_minValue.Get().value_or(-5000.0f); }
+		NumericType getMaxValue() const { return m_maxValue.Get().value_or(5000.0f); } //todo:这里转换为NumericType，如果不匹配，会崩溃
+		
 		bool isCharacterValid(GuGuUtf8Str inChar) const
 		{
 			return m_interface->isCharacterValid(inChar);
+		}
+
+		enum CommitMethod
+		{
+			CommitedViaSpin,
+			CommitedViaTypeIn,
+			CommittedViaArrayKey,
+			CommittedViaCode
+		};
+
+		void textFieldOnTextCommited(const GuGuUtf8Str& newText, TextCommit::Type commitInfo)
+		{
+			//todo:进入文本模式
+
+			std::optional<NumericType> newValue = m_interface->fromString(newText, m_valueAttribute.Get());
+			if (newValue.has_value())
+			{
+				commitValue(newValue.value(), CommitedViaTypeIn, commitInfo);
+			}
+		}
+
+		void commitValue(double newValue, CommitMethod commitMethod, TextCommit::Type originalCommitInfo)
+		{
+			if (commitMethod == CommitedViaSpin || commitMethod == CommittedViaArrayKey)
+			{
+				newValue = std::clamp(newValue, (double)getMinSliderValue(), (double)getMaxSliderValue());
+			}
+
+			newValue = std::clamp(newValue, (double)getMinValue(), (double)getMaxValue());
+
+			if (!m_valueAttribute.IsBound())
+			{
+				m_valueAttribute.Set(newValue);//todo:这里要round到整数
+			}
+
+			auto currentValue = m_valueAttribute.Get();
+
+			if (commitMethod == CommitedViaSpin)
+			{
+				if (currentValue != m_cachedExternalValue)
+				{
+					newValue = currentValue;
+				}
+			}
+
+			m_internalValue = newValue;
+
+			//todo:增加更多逻辑
+
+
 		}
 
 	private:
@@ -214,6 +273,8 @@ namespace GuGu {
 		//通常用于识别作用在spin box 上外部的值，并且同步内部的值到它们，当一个值提交到spin box 的时候，进行同步
 		NumericType m_cachedExternalValue;
 
+		double m_internalValue;
+
 		//用于阻止逐帧的cached数值值的转换到字符串
 		GuGuUtf8Str m_cachedValueString;
 
@@ -227,6 +288,10 @@ namespace GuGu {
 
 		Attribute<std::optional<int32_t>> m_minFractionalDigits;
 		Attribute<std::optional<int32_t>> m_maxFractionalDigits;
+		Attribute<std::optional<NumericType>> m_minSliderValue;
+		Attribute<std::optional<NumericType>> m_maxSliderValue;
+		Attribute<std::optional<NumericType>> m_minValue;
+		Attribute<std::optional<NumericType>> m_maxValue;
 	};
 
 	template<typename NumericType>

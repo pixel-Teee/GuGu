@@ -3,9 +3,11 @@
 #include <Core/Math/MyMath.h>
 #include <Core/GuGuUtf8Str.h>
 
+#include "BasicElement.h"
+
 namespace GuGu {
 	class Widget;
-
+	class GuGuUtf8Str;
 	enum class CursorMoveMethod
 	{
 		//移动在基本的方向，箭头左，右，上，下
@@ -62,5 +64,7 @@ namespace GuGu {
 		virtual std::shared_ptr<Widget> getWidget() = 0;
 
 		virtual bool canTypeCharacter(const GuGuUtf8Str inChar) const = 0;
+
+		virtual void onTextCommitted(const GuGuUtf8Str& inText, const TextCommit::Type inTextAction) = 0;
 	};
 }

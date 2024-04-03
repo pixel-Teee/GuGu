@@ -12,6 +12,8 @@ namespace GuGu {
 	template<typename R, typename Class, typename... Args>
 	struct functionTraits<Class, std::function<R(Args...)>> {
 		using ConstMethod = R(Class::*)(Args...) const;
+		using Method = R(Class::*)(Args...);
+		static const uint32_t ParamCount = sizeof...(Args);
 	};
 
 	template<typename WidgetType>
@@ -93,8 +95,24 @@ namespace GuGu {
 	template<class Class>\
 	BuilderArguments& EventName(Class* inObject, typename functionTraits<Class, Type>::ConstMethod inConstMethodPtr) \
 	{\
-		m##EventName = std::bind(inConstMethodPtr, inObject, std::placeholders::_1); \
+		if constexpr (functionTraits<Class, Type>::ParamCount == 0) \
+			m##EventName = std::bind(inConstMethodPtr, inObject); \
+		else if constexpr (functionTraits<Class, Type>::ParamCount == 1) \
+			m##EventName = std::bind(inConstMethodPtr, inObject, std::placeholders::_1); \
+		else if constexpr (functionTraits<Class, Type>::ParamCount == 2) \
+			m##EventName = std::bind(inConstMethodPtr, inObject, std::placeholders::_1, std::placeholders::_2); \
 		return static_cast<BuilderArguments*>(this)->Me(); \
+	}\
+	template<class Class>\
+	BuilderArguments& EventName(Class* inObject, typename functionTraits<Class, Type>::Method inMethodPtr) \
+	{\
+		if constexpr (functionTraits<Class, Type>::ParamCount == 0) \
+			m##EventName = std::bind(inMethodPtr, inObject); \
+		else if constexpr (functionTraits<Class, Type>::ParamCount == 1) \
+			m##EventName = std::bind(inMethodPtr, inObject, std::placeholders::_1); \
+		else if constexpr (functionTraits<Class, Type>::ParamCount == 2) \
+			m##EventName = std::bind(inMethodPtr, inObject, std::placeholders::_1, std::placeholders::_2); \
+			return static_cast<BuilderArguments*>(this)->Me(); \
 	}
 #define SLOT_CONTENT(SlotType, Name) \
 	std::shared_ptr<SlotType> m##Name;

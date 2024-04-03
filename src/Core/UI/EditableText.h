@@ -20,9 +20,11 @@ namespace GuGu {
 
 			~BuilderArguments() = default;
 
-			ARGUMENT_ATTRIBUTE(GuGuUtf8Str, text);
+			ARGUMENT_ATTRIBUTE(GuGuUtf8Str, text)
 
-			UI_EVENT(OnIsTypedCharValid, onIsTypedCharValid);
+			UI_EVENT(OnIsTypedCharValid, onIsTypedCharValid)
+
+			UI_EVENT(OnTextCommitted, onTextCommitted)
 		};
 
 		void init(const BuilderArguments& arguments);
@@ -52,6 +54,8 @@ namespace GuGu {
 		virtual std::shared_ptr<Widget> getWidget() override;
 
 		virtual bool canTypeCharacter(const GuGuUtf8Str inChar) const override;
+
+		virtual void onTextCommitted(const GuGuUtf8Str& inText, const TextCommit::Type inTextAction) override;
 	protected:
 		std::shared_ptr<PlainTextLayoutMarshaller> m_plainTextMarshaller;
 
@@ -59,5 +63,8 @@ namespace GuGu {
 
 		//被调用，当一个字母被输入，并且我们想知道是否文本输入框支持这个字母
 		OnIsTypedCharValid m_OnIsTypedCharValid;
+
+		//被调用，当文本被提交的时候，发生在用户按下enter或者文本失去焦点的时候
+		OnTextCommitted m_OnTextCommittedCallback;
 	};
 }

@@ -89,6 +89,11 @@ namespace GuGu {
 			return m_bIsSet;
 		}
 
+		bool IsBound() const
+		{
+			return m_getter.operator bool();
+		}
+
 	private:
 		Attribute(const std::function<ObjectType(void)>& inGetter, bool bExplicitConstructor)
 			: m_value()
