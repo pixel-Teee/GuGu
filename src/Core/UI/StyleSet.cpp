@@ -123,6 +123,16 @@ namespace GuGu {
 		std::shared_ptr<EditableTextBoxStyle> editableTextBoxStyle = std::make_shared<EditableTextBoxStyle>();
 		editableTextBoxStyle->setBackgroundImageNormal(editableTextBoxBackgroundImageNormal);
 		m_styles.insert({ "EditableTextBox", editableTextBoxStyle });
+
+		//spin box
+		std::shared_ptr<Brush> spinBoxBackgroundBrushImage = std::make_shared<Brush>();
+		spinBoxBackgroundBrushImage->m_tiling = false;
+		spinBoxBackgroundBrushImage->m_texturePath = u8"asset/MinimumWindow/SpinBoxBackground.png";
+		m_brushes.insert({ "spinBoxBackground", spinBoxBackgroundBrushImage });
+
+		std::shared_ptr<SpinBoxStyle> spinBoxStyle = std::make_shared<SpinBoxStyle>();
+		spinBoxStyle->setBackgroundBrush(spinBoxBackgroundBrushImage);
+		m_styles.insert({ "SpinBox", spinBoxStyle });
 	}
 	StyleSet::~StyleSet()
 	{

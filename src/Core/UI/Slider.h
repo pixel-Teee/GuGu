@@ -3,11 +3,12 @@
 #include "Widget.h"
 #include "UIMacros.h"
 #include "BasicElement.h"
+#include "WidgetDelegates.h"
 
 namespace GuGu {
 	class Brush;
 	class SliderStyle;
-	using OnFloatValueChanged = std::function<void(float)>;
+
 	class Slider : public Widget
 	{
 	public:

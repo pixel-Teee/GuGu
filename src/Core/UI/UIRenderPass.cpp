@@ -30,6 +30,7 @@
 #include "FontCache.h"
 #include "UIMacros.h"
 #include "Attribute.h"
+#include "SpinBox.h"
 
 #include <Core/GuGuFile.h>
 #include <Window/Window.h>
@@ -787,6 +788,16 @@ namespace GuGu {
 								(
 									WIDGET_NEW(EditableTextBox)
 									.Text("文本")
+								)
+							)
+							+ VerticalBox::Slot()
+							.FixedHeight()
+							(
+								WIDGET_NEW(HorizontalBox)
+								+ HorizontalBox::Slot()
+								.StretchWidth(0.3f)
+								(
+									WIDGET_NEW(SpinBox<uint32_t>)
 								)
 							)
 						)

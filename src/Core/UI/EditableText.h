@@ -4,6 +4,7 @@
 #include "UIMacros.h"
 #include "IEditableTextWidget.h"
 #include "EditableTextLayout.h"
+#include "WidgetDelegates.h"
 
 namespace GuGu {
 	class PlainTextLayoutMarshaller;
@@ -20,6 +21,8 @@ namespace GuGu {
 			~BuilderArguments() = default;
 
 			ARGUMENT_ATTRIBUTE(GuGuUtf8Str, text);
+
+			UI_EVENT(OnIsTypedCharValid, onIsTypedCharValid);
 		};
 
 		void init(const BuilderArguments& arguments);
@@ -42,12 +45,19 @@ namespace GuGu {
 
 		virtual Reply OnKeyDown(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent) override;
 
+		virtual bool supportsKeyboardFocus() const override;
+
 		virtual void OnFocusLost() override;
 
 		virtual std::shared_ptr<Widget> getWidget() override;
+
+		virtual bool canTypeCharacter(const GuGuUtf8Str inChar) const override;
 	protected:
 		std::shared_ptr<PlainTextLayoutMarshaller> m_plainTextMarshaller;
 
 		std::unique_ptr<EditableTextLayout> m_editableTextLayout;
+
+		//被调用，当一个字母被输入，并且我们想知道是否文本输入框支持这个字母
+		OnIsTypedCharValid m_OnIsTypedCharValid;
 	};
 }

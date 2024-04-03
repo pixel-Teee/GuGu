@@ -124,13 +124,16 @@ namespace GuGu {
                 return Reply::Handled();
             default:
             {
-                //end edit transaction
-                Reply reply = boolToReply(handleTypeChar(Character));
+                if (m_ownerWidget->canTypeCharacter(Character))
+                {
+					//end edit transaction
+					Reply reply = boolToReply(handleTypeChar(Character));
 
-                const GuGuUtf8Str editedText = getEditableText();
-                m_boundText = editedText;
+					const GuGuUtf8Str editedText = getEditableText();
+					m_boundText = editedText;
 
-                return reply;
+					return reply;
+                }               
             }
         }
 
@@ -209,6 +212,8 @@ namespace GuGu {
     }
     void EditableTextLayout::handleFocusLost()
     {
+        clearSelection();
+
         updateCursorHighlight();
     }
     bool EditableTextLayout::handleTypeChar(const GuGuUtf8Str& inChar)

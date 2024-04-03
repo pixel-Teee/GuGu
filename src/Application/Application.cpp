@@ -227,6 +227,10 @@ namespace GuGu{
 				currentWidget = currentWidget->getParentWidget();
 			}
 
+			//记录旧的焦点路径
+			std::vector<std::weak_ptr<Widget>> oldFocusWidgetsPath;
+			oldFocusWidgetsPath = m_focusWidgetsPath;
+
 			//widgets 最后一个是 根window
 
 			//从碰撞到的widget开始派发事件
@@ -263,9 +267,6 @@ namespace GuGu{
 					std::vector<std::shared_ptr<Widget>> focusedWidgetPath;
 					for (int32_t j = i; j < widgets.size(); ++j)
 						focusedWidgetPath.push_back(widgets[j]);
-
-					std::vector<std::weak_ptr<Widget>> oldFocusWidgetsPath;
-					oldFocusWidgetsPath = m_focusWidgetsPath;
 
 					for (int32_t j = 0; j < focusedWidgetPath.size(); ++j)
 					{

@@ -1,10 +1,18 @@
 #pragma once
 
 #include <memory>
+#include <functional>
 
 #include "Clipping.h"
 
 namespace GuGu {
+	template<typename...>
+	struct functionTraits;
+
+	template<typename R, typename Class, typename... Args>
+	struct functionTraits<Class, std::function<R(Args...)>> {
+		using ConstMethod = R(Class::*)(Args...) const;
+	};
 
 	template<typename WidgetType>
 	struct WidgetConstruct
@@ -22,21 +30,21 @@ namespace GuGu {
 	BuilderArguments& Name(std::shared_ptr<Type> inValue) \
  	{\
 		m##Name = inValue;\
-		return Me();\
+		return static_cast<BuilderArguments*>(this)->Me();\
 	}\
 	std::shared_ptr<Type> m##Name;
 #define ARGUMENT_VALUE(Type, Name)\
 	BuilderArguments& Name(Type inValue) \
  	{\
 		m##Name = inValue;\
-		return Me();\
+		return static_cast<BuilderArguments*>(this)->Me();\
 	}\
 	Type m##Name;
 #define ARGUMENT_NAMED_SLOT(Type, Name)\
 	BuilderArguments& Name(std::shared_ptr<Widget> inValue) \
  	{\
 		m##Name->setChildWidget(inValue);\
-		return Me();\
+		return static_cast<BuilderArguments*>(this)->Me();\
 	}\
 	std::shared_ptr<Type> m##Name = std::make_shared<Type>();
 #define ARGUMENT_SLOT(Type, Name)\
@@ -44,43 +52,49 @@ namespace GuGu {
 	BuilderArguments& operator+(typename Type::SlotBuilderArguments& inValue) \
  	{\
 		m##Name.push_back(inValue);\
-		return Me();\
+		return static_cast<BuilderArguments*>(this)->Me();\
 	}\
 	BuilderArguments& operator+(typename Type::SlotBuilderArguments&& inValue) \
  	{\
 		m##Name.push_back(std::move(inValue));\
-		return Me();\
+		return static_cast<BuilderArguments*>(this)->Me();\
 	}
 #define ARGUMENT_ATTRIBUTE(Type, Name)\
 	Attribute<Type> m##Name;\
 	BuilderArguments& Name(Attribute<Type> inValue)\
 	{\
 		m##Name = inValue;\
-		return Me(); \
+		return static_cast<BuilderArguments*>(this)->Me(); \
 	}\
 	template<class Class>\
 	BuilderArguments& Name(std::shared_ptr<Class> inObject, Type(Class::*inConstMethodPtr)()const) \
 	{\
 		m##Name = Attribute<Type>::CreateSP(inObject.get(), inConstMethodPtr);\
-		return Me();\
+		return static_cast<BuilderArguments*>(this)->Me();\
 	}\
 	template<class Class>\
 	BuilderArguments& Name(Class* inObject, Type(Class::*inConstMethodPtr)()const) \
 	{\
 		m##Name = Attribute<Type>::CreateSP(inObject, inConstMethodPtr);\
-		return Me();\
+		return static_cast<BuilderArguments*>(this)->Me();\
 	}\
 	BuilderArguments& Name##Lambda(std::function<Type(void)>&& inFunctor) \
 	{\
 		m##Name = Attribute<Type>::CreateLambda(inFunctor); \
-		return Me(); \
+		return static_cast<BuilderArguments*>(this)->Me(); \
 	}
 #define UI_EVENT(Type, EventName)\
 	Type m##EventName;\
 	BuilderArguments& EventName##Lambda(Type&& inFunctor) \
 	{\
 		m##EventName = inFunctor; \
-		return Me(); \
+		return static_cast<BuilderArguments*>(this)->Me(); \
+	}\
+	template<class Class>\
+	BuilderArguments& EventName(Class* inObject, typename functionTraits<Class, Type>::ConstMethod inConstMethodPtr) \
+	{\
+		m##EventName = std::bind(inConstMethodPtr, inObject, std::placeholders::_1); \
+		return static_cast<BuilderArguments*>(this)->Me(); \
 	}
 #define SLOT_CONTENT(SlotType, Name) \
 	std::shared_ptr<SlotType> m##Name;

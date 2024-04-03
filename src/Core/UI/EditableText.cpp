@@ -14,6 +14,8 @@ namespace GuGu {
 		m_plainTextMarshaller = std::make_shared<PlainTextLayoutMarshaller>();
 
 		m_editableTextLayout = std::make_unique<EditableTextLayout>(*this, arguments.mtext, textStyle, TextShapingMethod::KerningOnly, m_plainTextMarshaller);
+
+		m_OnIsTypedCharValid = arguments.monIsTypedCharValid;
 	}
 	uint32_t EditableText::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
@@ -66,6 +68,10 @@ namespace GuGu {
 
 		return reply;
 	}
+	bool EditableText::supportsKeyboardFocus() const
+	{
+		return true;
+	}
 	void EditableText::OnFocusLost()
 	{
 		m_editableTextLayout->handleFocusLost();
@@ -73,6 +79,16 @@ namespace GuGu {
 	std::shared_ptr<Widget> EditableText::getWidget()
 	{
 		return shared_from_this();
+	}
+
+	bool EditableText::canTypeCharacter(const GuGuUtf8Str inChar) const
+	{
+		if (m_OnIsTypedCharValid)
+		{
+			return m_OnIsTypedCharValid(inChar);
+		}
+
+		return inChar != u8"\t";
 	}
 
 }

@@ -6,7 +6,7 @@
 #include "BasicElement.h"
 
 namespace GuGu {
-	class Style
+	struct Style
 	{
 	public:
 		Style();
@@ -15,7 +15,7 @@ namespace GuGu {
 	};
 	
 	class Brush;
-	class TextBlockStyle : public Style
+	struct TextBlockStyle : public Style
 	{
 	public:
 		TextBlockStyle(std::shared_ptr<TextInfo> textInfo, math::float4 textColor = math::float4(1.0f, 1.0f, 1.0f, 1.0f), math::float2 shadowOffset = math::float2(0.0f, 0.0f), math::float4 shadowColor = math::float4(1.0f, 1.0f, 1.0f, 1.0f));
@@ -31,7 +31,7 @@ namespace GuGu {
 		TextBlockStyle& setHighLightShape(const std::shared_ptr<Brush> inHighLightShape) { m_highLightShape = inHighLightShape; return *this; }
 	};
 
-	class ButtonStyle : public Style
+	struct ButtonStyle : public Style
 	{
 	public:
 		ButtonStyle() = default;
@@ -51,7 +51,7 @@ namespace GuGu {
 		ButtonStyle& setPressedPadding(Padding inPressedPadding) { m_pressedPadding = inPressedPadding; return *this; }
 	};
 
-	class CheckBoxStyle : public Style
+	struct CheckBoxStyle : public Style
 	{
 	public:
 		CheckBoxStyle() = default;
@@ -69,7 +69,7 @@ namespace GuGu {
 		CheckBoxStyle& setPadding(Padding inPadding) { m_padding = inPadding; return *this; }
 	};
 
-	class SliderStyle : public Style
+	struct SliderStyle : public Style
 	{
 	public:
 		SliderStyle() = default;
@@ -86,7 +86,7 @@ namespace GuGu {
 		SliderStyle& setBarThickness(float inBarThickness) { barThickNess = inBarThickness; return *this; }
 	};
 
-	class EditableTextBoxStyle : public Style
+	struct EditableTextBoxStyle : public Style
 	{
 	public:
 		EditableTextBoxStyle() = default;
@@ -95,5 +95,15 @@ namespace GuGu {
 
 		std::shared_ptr<Brush> m_backgroundImageNormal;
 		EditableTextBoxStyle& setBackgroundImageNormal(std::shared_ptr<Brush> inNormalBackgroundImage) { m_backgroundImageNormal = inNormalBackgroundImage; return *this; }
+	};
+
+	struct SpinBoxStyle : public Style
+	{
+		SpinBoxStyle() = default;
+
+		virtual ~SpinBoxStyle();
+
+		std::shared_ptr<Brush> m_backgroundBrsuh;
+		SpinBoxStyle& setBackgroundBrush(std::shared_ptr<Brush> inBackgroundBrush) { m_backgroundBrsuh = inBackgroundBrush; return *this; }
 	};
 }

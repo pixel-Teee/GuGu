@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Math/MyMath.h>
+#include <Core/GuGuUtf8Str.h>
 
 namespace GuGu {
 	class Widget;
@@ -59,5 +60,7 @@ namespace GuGu {
 	{
 	public:
 		virtual std::shared_ptr<Widget> getWidget() = 0;
+
+		virtual bool canTypeCharacter(const GuGuUtf8Str inChar) const = 0;
 	};
 }

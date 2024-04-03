@@ -31,4 +31,7 @@ namespace GuGu {
 	EditableTextBoxStyle::~EditableTextBoxStyle()
 	{
 	}
+	SpinBoxStyle::~SpinBoxStyle()
+	{
+	}
 }
