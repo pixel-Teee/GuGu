@@ -611,185 +611,167 @@ namespace GuGu {
 						.Content
 						(
 							WIDGET_NEW(VerticalBox)
-							//+VerticalBox::Slot()
+							+VerticalBox::Slot()
+							.FixedHeight()
+							(
+								WIDGET_NEW(TextBlockWidget)
+								.Clip(WidgetClipping::ClipToBounds)
+								.textLambda([&] {
+									float mfps = Application::getApplication()->getmFps();
+									uint32_t fps = Application::getApplication()->getFps();
+									GuGuUtf8Str fpsStr = u8"一帧耗费时长:%.3f毫秒\r\n帧率:%dfps";
+									fpsStr = strFormat(fpsStr, mfps, fps);
+									//GuGuUtf8Str str = u8"臂跳释阔孕\r\n型佩层愧茎\r\n橘代克屿牛\r\n炊间成羞蝴\r\n顾堆殿友岁\r\n火柜九体妇\r\n枯窑雄密般\r\n鞭宵醉始著\r\n复赚霸扰夺\r\n况说柄响附\r\n庄存叔劫屈\r\n健疯窜滥限\r\n追侵删榆容\r\n挺左丢帮器\r\n搜涂酬魂很\r\n配你御字栗\r\n勇尚沫葡吗\r\n菊庙侍引镜\r\n笔络没蜓页\r\n灾穿卵奴绕";
+									return fpsStr;
+									})
+								.textColorLambda([&] {
+										math::float4 color = m_textColor;
+										return color;
+								})
+							)
+							+ VerticalBox::Slot()
+							.StretchHeight(1.0f)
+							(
+								WIDGET_ASSIGN_NEW(ViewportWidget, m_viewport)
+								.Content(
+									WIDGET_NEW(Overlay)
+									+Overlay::Slot()
+									.setPadding(Padding(20.0f, 20.0f, 0.0f, 0.0f))
+									.setHorizontalAlignment(HorizontalAlignment::Left)
+									.setVerticalAlignment(VerticalAlignment::Top)
+									(
+										WIDGET_NEW(TextBlockWidget)
+										//.Clip(WidgetClipping::ClipToBounds)
+										.text("测试Overlay")
+									)			
+								)
+							)
+							//+ VerticalBox::Slot()
 							//.FixedHeight()
 							//(
-							//	WIDGET_NEW(TextBlockWidget)
-							//	.Clip(WidgetClipping::ClipToBounds)
-							//	.textLambda([&] {
-							//		float mfps = Application::getApplication()->getmFps();
-							//		uint32_t fps = Application::getApplication()->getFps();
-							//		GuGuUtf8Str fpsStr = u8"一帧耗费时长:%.3f毫秒\r\n帧率:%dfps";
-							//		fpsStr = strFormat(fpsStr, mfps, fps);
-							//		//GuGuUtf8Str str = u8"臂跳释阔孕\r\n型佩层愧茎\r\n橘代克屿牛\r\n炊间成羞蝴\r\n顾堆殿友岁\r\n火柜九体妇\r\n枯窑雄密般\r\n鞭宵醉始著\r\n复赚霸扰夺\r\n况说柄响附\r\n庄存叔劫屈\r\n健疯窜滥限\r\n追侵删榆容\r\n挺左丢帮器\r\n搜涂酬魂很\r\n配你御字栗\r\n勇尚沫葡吗\r\n菊庙侍引镜\r\n笔络没蜓页\r\n灾穿卵奴绕";
-							//		return fpsStr;
-							//		})
-							//	.textColorLambda([&] {
-							//			math::float4 color = m_textColor;
-							//			return color;
-							//	})
-							//)
-							//+ VerticalBox::Slot()
-							//.StretchHeight(1.0f)
-							//(
-							//	WIDGET_ASSIGN_NEW(ViewportWidget, m_viewport)
-							//	.Content(
-							//		WIDGET_NEW(Overlay)
-							//		+Overlay::Slot()
-							//		.setPadding(Padding(20.0f, 20.0f, 0.0f, 0.0f))
-							//		.setHorizontalAlignment(HorizontalAlignment::Left)
-							//		.setVerticalAlignment(VerticalAlignment::Top)
+							//	WIDGET_NEW(HorizontalBox)
+							//	+ HorizontalBox::Slot()
+							//	.FixedWidth()
+							//	(
+							//		WIDGET_NEW(TextBlockWidget)
+							//		.text("复选框")
+							//	)
+							//	+ HorizontalBox::Slot()
+							//	.FixedWidth()
+							//	(
+							//		WIDGET_NEW(CheckBox)
+							//		.Content
 							//		(
-							//			WIDGET_NEW(TextBlockWidget)
-							//			//.Clip(WidgetClipping::ClipToBounds)
-							//			.text("测试Overlay")
-							//		)			
-							//	)
-							//)
-							////+ VerticalBox::Slot()
-							////.FixedHeight()
-							////(
-							////	WIDGET_NEW(HorizontalBox)
-							////	+ HorizontalBox::Slot()
-							////	.FixedWidth()
-							////	(
-							////		WIDGET_NEW(TextBlockWidget)
-							////		.text("复选框")
-							////	)
-							////	+ HorizontalBox::Slot()
-							////	.FixedWidth()
-							////	(
-							////		WIDGET_NEW(CheckBox)
-							////		.Content
-							////		(
-							////			WIDGET_NEW(NullWidget)
-							////		)
-							////	)					
-							////	
-							////)
-							//+ VerticalBox::Slot()
-							//.FixedHeight()
-							//(
-							//	WIDGET_NEW(HorizontalBox)
-							//	+ HorizontalBox::Slot()
-							//	.StretchWidth(0.2f)
-							//	(
-							//		WIDGET_NEW(TextBlockWidget)
-							//		.text(u8"金属度")
-							//	)
-							//	+ HorizontalBox::Slot()
-							//	.StretchWidth(1.0f)
-							//	(
-							//		WIDGET_NEW(Slider)
-							//		.MaxValue(1.0f)
-							//		.MinValue(0.0f)
-							//		.OnValueChangedLambda([&](float inValue) {
-							//				m_uiData->metallic = inValue;
-							//			}
+							//			WIDGET_NEW(NullWidget)
 							//		)
-							//	)
-							//	//+ HorizontalBox::Slot()
-							//	//.FixedWidth()
-							//	//(
-							//	//	WIDGET_NEW(TextBlockWidget)
-							//	//	.text(u8"金属度")
-							//	//	)
-							//	//+ HorizontalBox::Slot()
-							//	//.StretchWidth(1.0f)
-							//	//(
-							//	//	WIDGET_NEW(Slider)
-							//	//	.MaxValue(1.0f)
-							//	//	.MinValue(0.0f)
-							//	//	.OnValueChangedLambda([&](float inValue) {
-							//	//		m_uiData->metallic = inValue;
-							//	//		}
-							//	//	)
-							//	//)
+							//	)					
+							//	
 							//)
-							//+ VerticalBox::Slot()
-							//.FixedHeight()
-							//(
-							//	WIDGET_NEW(HorizontalBox)
-							//	+ HorizontalBox::Slot()
-							//	.StretchWidth(0.2f)
-							//	(
-							//		WIDGET_NEW(TextBlockWidget)
-							//		.text(u8"粗糙度")
-							//	)
-							//	+ HorizontalBox::Slot()
-							//	.StretchWidth(1.0f)
-							//	(
-							//		WIDGET_NEW(Slider)
-							//		.MaxValue(1.0f)
-							//		.MinValue(0.0f)
-							//		.OnValueChangedLambda([&](float inValue) {
-							//				m_uiData->roughness = inValue;
-							//			}
-							//		)
-							//	)
-							//)
-							//+ VerticalBox::Slot()
-							//.FixedHeight()
-							//(
-							//	WIDGET_NEW(HorizontalBox)
-							//	+ HorizontalBox::Slot()
-							//	.StretchWidth(0.2f)
-							//	(
-							//		WIDGET_NEW(TextBlockWidget)
-							//		.text(u8"dir")
-							//		)
-							//	+ HorizontalBox::Slot()
-							//	.StretchWidth(1.0f)
-							//	(
-							//		WIDGET_NEW(Slider)
-							//		.MaxValue(10.0f)
-							//		.MinValue(-10.0f)
-							//		.OnValueChangedLambda([&](float inValue) {
-							//			m_uiData->dir = inValue;
-							//			}
-							//		)
-							//	)
-							//)
-							//+ VerticalBox::Slot()
-							//.FixedHeight()
-							//(
-							//	WIDGET_NEW(HorizontalBox)
-							//	+ HorizontalBox::Slot()
-							//	.StretchWidth(0.2f)
-							//	(
-							//		WIDGET_NEW(TextBlockWidget)
-							//		.text(u8"pos")
-							//	)
-							//	+ HorizontalBox::Slot()
-							//	.StretchWidth(1.0f)
-							//	(
-							//		WIDGET_NEW(Slider)
-							//		.MaxValue(0.0f)
-							//		.MinValue(-40.0f)
-							//		.OnValueChangedLambda([&](float inValue) {
-							//			m_uiData->camPos = inValue;
-							//			}
-							//		)
-							//	)
-							//)
-							//+ VerticalBox::Slot()
-							//.FixedHeight()
-							//(
-							//	WIDGET_NEW(HorizontalBox)
-							//	+ HorizontalBox::Slot()
-							//	.StretchWidth(0.3f)
-							//	(
-							//		WIDGET_NEW(TextBlockWidget)
-							//		.text(u8"可编辑文本框:")
-							//		.Clip(WidgetClipping::ClipToBounds)
-							//	)
-							//	+ HorizontalBox::Slot()
-							//	.StretchWidth(1.0f)
-							//	(
-							//		WIDGET_NEW(EditableTextBox)
-							//		.Text("文本")
-							//	)
-							//)
+							+ VerticalBox::Slot()
+							.FixedHeight()
+							(
+								WIDGET_NEW(HorizontalBox)
+								+ HorizontalBox::Slot()
+								.StretchWidth(0.2f)
+								(
+									WIDGET_NEW(TextBlockWidget)
+									.text(u8"金属度")
+								)
+								+ HorizontalBox::Slot()
+								.StretchWidth(1.0f)
+								(
+									WIDGET_NEW(Slider)
+									.MaxValue(1.0f)
+									.MinValue(0.0f)
+									.OnValueChangedLambda([&](float inValue) {
+											m_uiData->metallic = inValue;
+										}
+									)
+								)
+								//+ HorizontalBox::Slot()
+								//.FixedWidth()
+								//(
+								//	WIDGET_NEW(TextBlockWidget)
+								//	.text(u8"金属度")
+								//	)
+								//+ HorizontalBox::Slot()
+								//.StretchWidth(1.0f)
+								//(
+								//	WIDGET_NEW(Slider)
+								//	.MaxValue(1.0f)
+								//	.MinValue(0.0f)
+								//	.OnValueChangedLambda([&](float inValue) {
+								//		m_uiData->metallic = inValue;
+								//		}
+								//	)
+								//)
+							)
+							+ VerticalBox::Slot()
+							.FixedHeight()
+							(
+								WIDGET_NEW(HorizontalBox)
+								+ HorizontalBox::Slot()
+								.StretchWidth(0.2f)
+								(
+									WIDGET_NEW(TextBlockWidget)
+									.text(u8"粗糙度")
+								)
+								+ HorizontalBox::Slot()
+								.StretchWidth(1.0f)
+								(
+									WIDGET_NEW(Slider)
+									.MaxValue(1.0f)
+									.MinValue(0.0f)
+									.OnValueChangedLambda([&](float inValue) {
+											m_uiData->roughness = inValue;
+										}
+									)
+								)
+							)
+							+ VerticalBox::Slot()
+							.FixedHeight()
+							(
+								WIDGET_NEW(HorizontalBox)
+								+ HorizontalBox::Slot()
+								.StretchWidth(0.2f)
+								(
+									WIDGET_NEW(TextBlockWidget)
+									.text(u8"dir")
+									)
+								+ HorizontalBox::Slot()
+								.StretchWidth(1.0f)
+								(
+									WIDGET_NEW(Slider)
+									.MaxValue(10.0f)
+									.MinValue(-10.0f)
+									.OnValueChangedLambda([&](float inValue) {
+										m_uiData->dir = inValue;
+										}
+									)
+								)
+							)
+							+ VerticalBox::Slot()
+							.FixedHeight()
+							(
+								WIDGET_NEW(HorizontalBox)
+								+ HorizontalBox::Slot()
+								.StretchWidth(0.2f)
+								(
+									WIDGET_NEW(TextBlockWidget)
+									.text(u8"pos")
+								)
+								+ HorizontalBox::Slot()
+								.StretchWidth(1.0f)
+								(
+									WIDGET_NEW(Slider)
+									.MaxValue(0.0f)
+									.MinValue(-40.0f)
+									.OnValueChangedLambda([&](float inValue) {
+										m_uiData->camPos = inValue;
+										}
+									)
+								)
+							)
 							+ VerticalBox::Slot()
 							.FixedHeight()
 							(
@@ -797,9 +779,27 @@ namespace GuGu {
 								+ HorizontalBox::Slot()
 								.StretchWidth(0.3f)
 								(
-									WIDGET_NEW(SpinBox<double>)
+									WIDGET_NEW(TextBlockWidget)
+									.text(u8"可编辑文本框:")
+									.Clip(WidgetClipping::ClipToBounds)
+								)
+								+ HorizontalBox::Slot()
+								.StretchWidth(1.0f)
+								(
+									WIDGET_NEW(EditableTextBox)
+									.Text("文本")
 								)
 							)
+							//+ VerticalBox::Slot()
+							//.FixedHeight()
+							//(
+							//	WIDGET_NEW(HorizontalBox)
+							//	+ HorizontalBox::Slot()
+							//	.StretchWidth(0.3f)
+							//	(
+							//		WIDGET_NEW(SpinBox<double>)
+							//	)
+							//)
 						)
 					)
 				)
