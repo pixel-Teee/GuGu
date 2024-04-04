@@ -795,7 +795,38 @@ namespace GuGu {
 							//(
 							//	WIDGET_NEW(HorizontalBox)
 							//	+ HorizontalBox::Slot()
-							//	.StretchWidth(0.3f)
+							//	.FixedWidth()
+							//	(
+							//		WIDGET_NEW(TextBlockWidget)
+							//		.text(u8"x:")
+							//		.Clip(WidgetClipping::ClipToBounds)
+							//	)
+							//	+ HorizontalBox::Slot()
+							//	.FixedWidth()
+							//	(
+							//		WIDGET_NEW(SpinBox<double>)
+							//	)
+							//	+ HorizontalBox::Slot()
+							//	.FixedWidth()
+							//	(
+							//		WIDGET_NEW(TextBlockWidget)
+							//		.text(u8"y:")
+							//		.Clip(WidgetClipping::ClipToBounds)
+							//	)
+							//	+ HorizontalBox::Slot()
+							//	.FixedWidth()
+							//	(
+							//		WIDGET_NEW(SpinBox<double>)
+							//	)
+							//	+ HorizontalBox::Slot()
+							//	.FixedWidth()
+							//	(
+							//		WIDGET_NEW(TextBlockWidget)
+							//		.text(u8"z:")
+							//		.Clip(WidgetClipping::ClipToBounds)
+							//	)
+							//	+ HorizontalBox::Slot()
+							//	.FixedWidth()
 							//	(
 							//		WIDGET_NEW(SpinBox<double>)
 							//	)

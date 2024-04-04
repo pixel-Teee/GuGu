@@ -18,6 +18,12 @@
 
 namespace GuGu {
 	
+	template<class T>
+	static constexpr T gridSnap(T location, T grid)
+	{
+		return (grid == T{}) ? location : (std::floor((location + (grid / (T)2)) * grid) * grid);
+	}
+
 	template<typename NumericType>
 	class SpinBox : public Widget
 	{
@@ -132,6 +138,10 @@ namespace GuGu {
 			m_minFractionalDigits = arguments.mMinFractionDigits.Get().has_value() ? arguments.mMinFractionDigits : defaultMinFractionalDigits;
 			m_maxFractionalDigits = arguments.mMaxFractionDigits.Get().has_value() ? arguments.mMaxFractionDigits : defaultMaxFractionalDigits;
 			m_visibilityAttribute = arguments.mVisibility;
+
+			m_distanceDragged = 0.0f;
+			m_bDragging = false;
+			m_delta = arguments.mDelta;
 		}
 
 		virtual uint32_t onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer) override
@@ -194,6 +204,56 @@ namespace GuGu {
 		virtual uint32_t getSlotsNumber() override
 		{
 			return 1;
+		}
+
+		virtual Reply OnMouseButtonDown(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent) override
+		{
+			//todo:判断鼠标左键按下
+			m_distanceDragged = 0.0f;
+			m_preDragValue = m_valueAttribute.Get();
+			m_internalValue = (double)m_preDragValue;
+			m_cachedMousePosition = math::int2(inMouseEvent.m_screenSpacePosition.x, inMouseEvent.m_screenSpacePosition.y);
+
+			Reply returnReply = Reply::Handled().captureMouse(shared_from_this()).setFocus(shared_from_this());
+
+			return returnReply;
+		}
+
+		virtual Reply OnMouseButtonUp(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent) override
+		{
+			//todo:判断左键按下
+
+			if (!hasMouseCapture())
+			{
+				//lost capture
+				m_bDragging = false;
+
+				return Reply::Unhandled();
+			}
+
+			if (m_bDragging)
+			{
+				NumericType currentDelta = m_delta.Get();
+				if (currentDelta != NumericType())
+				{
+					//grid snap
+					m_internalValue = gridSnap(m_internalValue, (double)currentDelta);
+				}
+
+				const NumericType currentValue = m_internalValue;//todo:如果这是一个整数，进行round
+				notifyValueCommitted(currentValue);
+			}
+
+			m_bDragging = false;
+
+			Reply reply = Reply::Handled().releaseMouseCapture();
+
+			if (m_distanceDragged < 5.0f)//todo:这里这个之后要修复
+			{
+				reply.setFocus(m_editableText);
+			}
+
+			return reply;
 		}
 
 		GuGuUtf8Str getValueAsText() const
@@ -268,6 +328,11 @@ namespace GuGu {
 
 		}
 
+		void notifyValueCommitted(NumericType currentValue) const
+		{
+			
+		}
+
 	private:
 		static const int32_t defaultMinFractionalDigits;
 
@@ -294,12 +359,23 @@ namespace GuGu {
 
 		std::shared_ptr<INumericTypeInterface<NumericType>> m_interface;
 
+		float m_distanceDragged;
+		//internal value 的状态，在一个drag操作开始之前
+		NumericType m_preDragValue;
 		Attribute<std::optional<int32_t>> m_minFractionalDigits;
 		Attribute<std::optional<int32_t>> m_maxFractionalDigits;
 		Attribute<std::optional<NumericType>> m_minSliderValue;
 		Attribute<std::optional<NumericType>> m_maxSliderValue;
 		Attribute<std::optional<NumericType>> m_minValue;
 		Attribute<std::optional<NumericType>> m_maxValue;
+
+		Attribute<NumericType> m_delta;
+
+		//cache 的鼠标位置，去恢复，在滚动之后
+		math::int2 m_cachedMousePosition;
+
+		//用户是否在拖动滑条
+		bool m_bDragging;
 	};
 
 	template<typename NumericType>

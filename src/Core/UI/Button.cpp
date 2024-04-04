@@ -59,6 +59,10 @@ namespace GuGu {
 				return m_childWidget->getChildWidget()->getFixedSize() + m_childWidget->getPadding().getFixedSize();
 			}
 		}	
+		else
+		{
+			return math::float2(m_imageBursh.Get()->m_actualSize.x, m_imageBursh.Get()->m_actualSize.y);
+		}
 		return math::float2(0, 0);
 	}
 
