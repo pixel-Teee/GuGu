@@ -59,6 +59,8 @@ namespace GuGu {
 
 		GuGuUtf8Str getEditableText() const;
 
+		bool setEditableText(const GuGuUtf8Str& textToSet);
+
 		bool moveCursor(const MoveCursor& inArgs);
 
 		bool handleBackspace();
@@ -112,5 +114,8 @@ namespace GuGu {
 
 		//选择的开始的地方，结束的地方是光标所在的位置
 		std::optional<TextLocation> m_selectionStart;
+
+		//上一次tick的bound text
+		GuGuUtf8Str m_boundTextLastTick;
 	};
 }

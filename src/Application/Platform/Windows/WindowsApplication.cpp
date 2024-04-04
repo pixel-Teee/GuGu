@@ -86,7 +86,7 @@ namespace GuGu {
 
 	ModifierKeysState WindowsApplication::getModifierKeys() const
 	{
-		return ModifierKeysState(m_modifierKeyState[ModifierKey::LeftControl]);
+		return ModifierKeysState(m_modifierKeyState[ModifierKey::LeftControl], m_modifierKeyState[ModifierKey::LeftShift]);
 	}
 
 	void WindowsApplication::setModifierKeyState(ModifierKey::Type key, bool value)

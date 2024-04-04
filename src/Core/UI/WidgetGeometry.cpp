@@ -25,7 +25,12 @@ namespace GuGu {
 	math::float2 WidgetGeometry::getAbsolutePosition() const
 	{
 		return mAbsolutePosition;
-	}	
+	}
+	math::float2 WidgetGeometry::getAbsoluteSize() const
+	{
+		return mAccumulateTransform.transformVector(mLocalSize);
+	}
+
 	void WidgetGeometry::setAbsoluteScale(float scale)
 	{
 		mAbsoluteScale = scale;

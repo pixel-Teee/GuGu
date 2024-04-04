@@ -20,6 +20,8 @@ namespace GuGu {
 
 		math::float2 getAbsolutePosition() const;
 
+		math::float2 getAbsoluteSize() const;
+
 		math::affine2 getAccumulateTransform() const;
 
 		WidgetGeometry getChildGeometry(math::float2 inLocalSize, math::float2 inTranslation, const math::affine2 parentAccumulateTransform) const;
@@ -31,6 +33,7 @@ namespace GuGu {
 		math::box2 getRenderBoundingRect() const;
 
 		math::box2 getRenderBoundingRect(const math::box2& localSpaceRect) const;
+		
 	public:
 		math::float2 mLocalPosition;
 		math::float2 mLocalSize;

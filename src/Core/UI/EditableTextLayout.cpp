@@ -76,6 +76,8 @@ namespace GuGu {
     void EditableTextLayout::Tick(const WidgetGeometry& allocatedGeometry, const double inCurrentTime, const float inDeltaTime)
     {
         //refresh();
+        const GuGuUtf8Str& textToSet = m_boundText.Get();//note:刷新回调
+        refresh();
     }
     bool EditableTextLayout::refresh()
     {
@@ -84,10 +86,18 @@ namespace GuGu {
     }
     bool EditableTextLayout::refreshImpl(const GuGuUtf8Str& inTextToSet)
     {
-		m_textLayout->clearLines();
-		m_marshaller->setText(inTextToSet, *m_textLayout); //todo:这里可能存在问题，之后修复
-        
-        m_textLayout->flowHighlights();
+        bool bHasSetText = false;
+
+        if (m_boundTextLastTick != inTextToSet)
+        {
+            bHasSetText = setEditableText(inTextToSet);
+            m_boundTextLastTick = inTextToSet;
+        }
+
+        if (bHasSetText)
+        {
+            m_textLayout->updateIfNeeded();
+        }
         return false;
     }
     Reply EditableTextLayout::handleKeyChar(const CharacterEvent& inCharacterEvent)
@@ -256,12 +266,33 @@ namespace GuGu {
         m_marshaller->getText(editedText, *m_textLayout);
         return editedText;
     }
+    bool EditableTextLayout::setEditableText(const GuGuUtf8Str& textToSet)
+    {
+        bool bHasTextChanged = false;
+
+        if (!bHasTextChanged)
+        {
+            const GuGuUtf8Str editedText = getEditableText();
+            bHasTextChanged = textToSet != editedText;//要更新文本信息
+        }
+
+        if (bHasTextChanged)
+        {
+            clearSelection();
+            m_textLayout->clearLines();
+
+            m_marshaller->setText(textToSet, *m_textLayout);
+
+
+            return true;
+        }
+
+        return false;
+    }
     bool EditableTextLayout::moveCursor(const MoveCursor& inArgs)
     {
         TextLocation newCursorPosition;
-        TextLocation cursorPosition = m_cursorInfo.getCursorInteractionLocation();
-
-        
+        TextLocation cursorPosition = m_cursorInfo.getCursorInteractionLocation();  
 
         if (inArgs.getMoveMethod() == CursorMoveMethod::Cardinal)
         {

@@ -13,9 +13,11 @@ namespace GuGu {
 		ModifierKeysState()
 		{
 			m_bIsLeftControlDown = false;
+			m_bIsLeftShitDown = false;
 		}
-		ModifierKeysState(const bool bInLeftControlDown)
+		ModifierKeysState(const bool bInLeftControlDown, const bool bInLeftShitDown)
 			: m_bIsLeftControlDown(bInLeftControlDown)
+			, m_bIsLeftShitDown(bInLeftShitDown)
 		{}
 
 		bool isControlDown() const
@@ -23,7 +25,13 @@ namespace GuGu {
 			return m_bIsLeftControlDown;
 		}
 
+		bool isShiftDown() const
+		{
+			return m_bIsLeftShitDown;
+		}
+
 		uint16_t m_bIsLeftControlDown : 1;
+		uint16_t m_bIsLeftShitDown : 1;
 	};
 
 	struct InputEvent
@@ -38,6 +46,11 @@ namespace GuGu {
 		bool isControlDown() const
 		{
 			return m_modifierKeys.isControlDown();
+		}
+
+		bool isShiftDown() const
+		{
+			return m_modifierKeys.isShiftDown();
 		}
 	protected:
 		//修饰键
