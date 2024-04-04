@@ -805,6 +805,9 @@ namespace GuGu {
 								.FixedWidth()
 								(
 									WIDGET_NEW(SpinBox<double>)
+									.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
+										m_uiData->xWorldPos = newValue;
+									})
 								)
 								+ HorizontalBox::Slot()
 								.FixedWidth()
@@ -817,6 +820,9 @@ namespace GuGu {
 								.FixedWidth()
 								(
 									WIDGET_NEW(SpinBox<double>)
+									.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
+										m_uiData->yWorldPos = newValue;
+									})
 								)
 								+ HorizontalBox::Slot()
 								.FixedWidth()
@@ -829,6 +835,9 @@ namespace GuGu {
 								.FixedWidth()
 								(
 									WIDGET_NEW(SpinBox<double>)
+									.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
+										m_uiData->zWorldPos = newValue;
+									})
 								)
 							)
 						)

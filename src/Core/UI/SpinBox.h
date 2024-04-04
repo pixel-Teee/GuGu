@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "Slot.h"
 #include "Widget.h"
 #include "TextLayout.h"//TextJustify::Type
@@ -28,6 +27,8 @@ namespace GuGu {
 	class SpinBox : public Widget
 	{
 	public:
+		using OnValueCommitted = std::function<void(NumericType, TextCommit::Type)>;
+
 		struct BuilderArguments : public Arguments<SpinBox<NumericType>>
 		{
 			BuilderArguments()
@@ -87,6 +88,8 @@ namespace GuGu {
 			//当使用指数缩放，对于滑条，什么是自然值
 			ARGUMENT_ATTRIBUTE(NumericType, SliderExponentNeutralValue)
 
+			UI_EVENT(OnValueCommitted, onValueCommitted)
+
 			//一个spin box 最小的宽度
 			ARGUMENT_ATTRIBUTE(float, MinDesiredWidth)
 
@@ -122,6 +125,7 @@ namespace GuGu {
 			m_shiftMouseMovePixelPerDelta = arguments.mShiftMouseMovePixelPerDelta;
 			m_linearDeltaSensitivity = arguments.mLinearDeltaSensitivity;
 			m_sliderExponent = arguments.mSliderExponent;
+			m_onValueCommitted = arguments.monValueCommitted;
 			m_visibilityAttribute = arguments.mVisibility;
 
 			this->m_childWidget = std::make_shared<SingleChildSlot>();
@@ -360,7 +364,7 @@ namespace GuGu {
 		{
 			CommitedViaSpin,
 			CommitedViaTypeIn,
-			CommittedViaArrayKey,
+			CommittedViaArrowKey,
 			CommittedViaCode
 		};
 
@@ -381,7 +385,7 @@ namespace GuGu {
 
 		void commitValue(double newValue, double newSpinValue, CommitMethod commitMethod, TextCommit::Type originalCommitInfo)
 		{
-			if (commitMethod == CommitedViaSpin || commitMethod == CommittedViaArrayKey)
+			if (commitMethod == CommitedViaSpin || commitMethod == CommittedViaArrowKey)
 			{
 				newValue = std::clamp(newValue, (double)getMinSliderValue(), (double)getMaxSliderValue());
 				newSpinValue = std::clamp(newSpinValue, (double)getMinSliderValue(), (double)getMaxSliderValue());
@@ -407,6 +411,11 @@ namespace GuGu {
 
 			m_internalValue = newSpinValue;
 
+			if (commitMethod == CommitedViaTypeIn || commitMethod == CommittedViaArrowKey)
+			{
+				m_onValueCommitted(newValue, originalCommitInfo);
+			}
+
 			//todo:增加更多逻辑
 
 			if (!m_valueAttribute.IsBound())
@@ -430,7 +439,7 @@ namespace GuGu {
 
 		void notifyValueCommitted(NumericType currentValue) const
 		{
-			
+			m_onValueCommitted(currentValue, TextCommit::OnEnter);
 		}
 	protected:
 		void enterTextMode()
@@ -493,6 +502,8 @@ namespace GuGu {
 
 		//internal value 的状态，在一个drag操作开始之前
 		NumericType m_preDragValue;
+
+		OnValueCommitted m_onValueCommitted;
 	};
 
 	template<typename NumericType>

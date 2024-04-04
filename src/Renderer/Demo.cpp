@@ -693,7 +693,7 @@ namespace GuGu {
 				SceneGraphNode* node = meshInstance->GetNode();
 				ConstantBufferEntry modelConstants;
 				modelConstants.viewProjMatrix = viewProjMatrix;
-				modelConstants.worldMatrix = math::affineToHomogeneous(math::yawPitchRoll(math::radians(180.f), 0.0f, 0.f));
+				modelConstants.worldMatrix = math::affineToHomogeneous(math::translation(math::float3(m_uiData->xWorldPos, m_uiData->yWorldPos, m_uiData->zWorldPos)));
 				//get the global matrix to fill constant buffer		
 				m_CommandList->writeBuffer(m_ConstantBuffers[index], &modelConstants, sizeof(modelConstants));
 
