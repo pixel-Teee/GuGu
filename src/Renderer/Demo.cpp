@@ -475,6 +475,98 @@ namespace GuGu {
 			.setAllAddressModes(nvrhi::SamplerAddressMode::Wrap);
 		m_pointWrapSampler = GetDevice()->createSampler(samplerDesc);
 
+		//------grid------
+		m_gridVertexShader = shaderFactory->CreateShader("asset/shader/grid.hlsl", "main_vs", nullptr,
+			nvrhi::ShaderType::Vertex);
+		m_gridPixelShader = shaderFactory->CreateShader("asset/shader/grid.hlsl", "main_ps", nullptr,
+			nvrhi::ShaderType::Pixel);
+		layoutDesc.bindings = {
+			nvrhi::BindingLayoutItem::ConstantBuffer(0)
+		};
+		m_gridBindingLayout = GetDevice()->createBindingLayout(layoutDesc);
+
+		nvrhi::VertexAttributeDesc gridAttributes[] = {
+			nvrhi::VertexAttributeDesc()
+						.setName("POSITION")
+						.setFormat(nvrhi::Format::RGB32_FLOAT)
+						.setOffset(0)
+						.setBufferIndex(0)
+						.setElementStride(sizeof(GridVertex)),
+				nvrhi::VertexAttributeDesc()
+						.setName("COLOR")
+						.setFormat(nvrhi::Format::RGB32_FLOAT)
+						.setOffset(0)
+						.setBufferIndex(1)
+						.setElementStride(sizeof(GridVertex)),
+		};
+		m_gridInputLayout = GetDevice()->createInputLayout(gridAttributes,
+			uint32_t(std::size(gridAttributes)),
+			m_gridVertexShader);
+		m_gridConstantBuffer = GetDevice()->createBuffer(
+			nvrhi::utils::CreateStaticConstantBufferDesc(
+				sizeof(ConstantBufferEntry), "ConstantBuffer")
+			.setInitialState(
+				nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
+					true));
+
+		math::float3 xAxis(4.0f, 0.0f, 0.0f);
+		math::float3 yAxis(0.0f, 0.0f, 4.0f);
+
+		constexpr size_t divisions = 40;
+		for (size_t i = 0; i <= divisions; ++i)
+		{
+			float fPercent = float(i) / float(divisions);
+			fPercent = (fPercent * 2.0f) - 1.0f;
+
+			math::float3 scale = xAxis * fPercent;
+
+			GridVertex v1(scale - yAxis, math::float4(1.0f, 0.0f, 0.0f, 1.0f));
+			GridVertex v2(scale + yAxis, math::float4(1.0f, 0.0f, 0.0f, 1.0f));
+
+			m_gridVertices.push_back(v1);
+			m_gridVertices.push_back(v2);
+		}
+
+		GridVertex v1(math::float3(0.0, 0.0f, 0.0f) - yAxis, math::float4(1.0f, 0.0f, 0.0f, 1.0f));
+		GridVertex v2(math::float3(0.0, 0.0f, 0.0f) + yAxis, math::float4(1.0f, 0.0f, 0.0f, 1.0f));
+
+		m_gridVertices.push_back(v1);
+		m_gridVertices.push_back(v2);
+
+		for (size_t i = 0; i <= divisions; ++i)
+		{
+			float fPercent = float(i) / float(divisions);
+			fPercent = (fPercent * 2.0f) - 1.0f;
+
+			math::float3 scale = yAxis * fPercent;
+
+			GridVertex v1(scale - xAxis, math::float4(0.0f, 0.0f, 1.0f, 1.0f));
+			GridVertex v2(scale + xAxis, math::float4(0.0f, 0.0f, 1.0f, 1.0f));
+
+			m_gridVertices.push_back(v1);
+			m_gridVertices.push_back(v2);
+		}
+
+		GridVertex v3(math::float3(0.0, 0.0f, 0.0f) - xAxis, math::float4(0.0f, 0.0f, 1.0f, 1.0f));
+		GridVertex v4(math::float3(0.0, 0.0f, 0.0f) + xAxis, math::float4(0.0f, 0.0f, 1.0f, 1.0f));
+
+		m_gridVertices.push_back(v3);
+		m_gridVertices.push_back(v4);
+
+		nvrhi::BufferDesc gridVertexbufferDesc;
+		gridVertexbufferDesc.isVertexBuffer = true;
+		gridVertexbufferDesc.byteSize = sizeof(GridVertex) * m_gridVertices.size();
+		gridVertexbufferDesc.debugName = "gridVertexBuffer";
+		gridVertexbufferDesc.canHaveTypedViews = true;
+		m_gridVertexBuffer = GetDevice()->createBuffer(gridVertexbufferDesc);
+
+		m_CommandList->beginTrackingBufferState(m_gridVertexBuffer,
+			nvrhi::ResourceStates::CopyDest);
+		m_CommandList->writeBuffer(m_gridVertexBuffer, m_gridVertices.data(), sizeof(GridVertex) * m_gridVertices.size());
+		m_CommandList->setPermanentBufferState(m_gridVertexBuffer,
+			nvrhi::ResourceStates::VertexBuffer);//note:will call end tracking buffer state
+		//------grid------
+
 		m_CommandList->close();
 		GetDevice()->executeCommandList(m_CommandList);
 
@@ -532,6 +624,19 @@ namespace GuGu {
 			psoDesc.renderState.depthStencilState.depthTestEnable = true;
 			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
 			m_SkinnedPipeline = GetDevice()->createGraphicsPipeline(psoDesc, m_frameBuffer);
+		}
+
+		if (!m_gridPipeline)
+		{
+			nvrhi::GraphicsPipelineDesc psoDesc;
+			psoDesc.VS = m_gridVertexShader;
+			psoDesc.PS = m_gridPixelShader;
+			psoDesc.inputLayout = m_gridInputLayout;
+			psoDesc.bindingLayouts = { m_gridBindingLayout };
+			psoDesc.primType = nvrhi::PrimitiveType::LineList;
+			psoDesc.renderState.depthStencilState.depthTestEnable = true;
+			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
+			m_gridPipeline = GetDevice()->createGraphicsPipeline(psoDesc, m_frameBuffer);
 		}
 
 		m_CommandList->open();
@@ -597,7 +702,7 @@ namespace GuGu {
 			* math::translation(math::float3(0, 0, 2));
 		math::float4x4 projMatrix = math::perspProjD3DStyle(math::radians(45.f),
 			float(fbinfo.width) /
-			float(fbinfo.height), 1.0f, 50.0f
+			float(fbinfo.height), 1.0f, 400.0f
 			);
 		math::float4x4 viewProjMatrix = math::affineToHomogeneous(worldToView) * projMatrix;
 		//modelConstants.viewProjMatrix = viewProjMatrix;
@@ -643,7 +748,13 @@ namespace GuGu {
 			top + height, 0.f, 1.f);
 		state.viewport.addViewportAndScissorRect(viewport);
 
-		RenderView(state, viewProjMatrix);
+		nvrhi::GraphicsState gridGraphicsState;
+
+		gridGraphicsState.framebuffer = m_frameBuffer;
+
+		gridGraphicsState.viewport.addViewportAndScissorRect(viewport);
+
+		RenderView(state, gridGraphicsState, viewProjMatrix);
 
 		//blit to swap chain framebuffer
 		//m_commonRenderPass->BlitTexture(m_CommandList, framebuffer, m_renderTarget, m_bindingCache.get());
@@ -660,23 +771,23 @@ namespace GuGu {
 	{
 		return m_renderTarget;
 	}
-	void Demo::RenderView(nvrhi::GraphicsState& graphicsState, math::float4x4 viewProjMatrix)
+	void Demo::RenderView(nvrhi::GraphicsState& graphicsState, nvrhi::GraphicsState& gridGraphicsState, math::float4x4 viewProjMatrix)
 	{
 		m_drawItems.clear();
 		//render view
 
 		//traverse tree
 		SceneGraphWalker walker(m_sceneGraph->GetRootNode().get());
-
+		
 		uint32_t index = 0;
 		while (walker)
 		{
 			auto meshInstance = dynamic_cast<MeshInstance*>(walker->GetLeaf().get());
-
+		
 			if (meshInstance)
 			{
 				const MeshInfo* mesh = meshInstance->getMesh().get();
-
+		
 				for (const auto& geometry : mesh->geometries)
 				{
 					DrawItem drawItem;
@@ -688,7 +799,7 @@ namespace GuGu {
 					drawItem.m_isSkinned = false;
 					m_drawItems.push_back(drawItem);								
 				}
-
+		
 				//get the world matrix
 				SceneGraphNode* node = meshInstance->GetNode();
 				ConstantBufferEntry modelConstants;
@@ -696,7 +807,7 @@ namespace GuGu {
 				modelConstants.worldMatrix = math::affineToHomogeneous(math::translation(math::float3(m_uiData->xWorldPos, m_uiData->yWorldPos, m_uiData->zWorldPos)));
 				//get the global matrix to fill constant buffer		
 				m_CommandList->writeBuffer(m_ConstantBuffers[index], &modelConstants, sizeof(modelConstants));
-
+		
 				PbrMaterial pbrMaterial;
 				pbrMaterial.albedo = math::float3(1.0f, 1.0f, 1.0f);
 				pbrMaterial.metallic = m_uiData->metallic;;
@@ -710,7 +821,7 @@ namespace GuGu {
 			if (skinnedMeshInstance)
 			{
 				const MeshInfo* mesh = skinnedMeshInstance->getMesh().get();
-
+		
 				for (const auto& geometry : mesh->geometries)
 				{
 					DrawItem drawItem;
@@ -723,7 +834,7 @@ namespace GuGu {
 					drawItem.m_skinnedMatrix = skinnedMeshInstance->jointBuffer;
 					m_drawItems.push_back(drawItem);
 				}
-
+		
 				//get the world matrix
 				SceneGraphNode* node = skinnedMeshInstance->GetNode();
 				ConstantBufferEntry modelConstants;
@@ -739,14 +850,14 @@ namespace GuGu {
 				m_CommandList->writeBuffer(m_PbrMaterialBuffers[index], &pbrMaterial, sizeof(pbrMaterial));
 				++index;
 			}
-
+		
 			walker.Next(true);
 		}		
-
+		
 		for (size_t i = 0; i < m_drawItems.size(); ++i)
 		{
 			nvrhi::BindingSetDesc desc;
-
+		
 			nvrhi::BindingSetHandle bindingSet;
 			if (!m_drawItems[i].m_isSkinned)
 			{			
@@ -773,12 +884,12 @@ namespace GuGu {
 				};
 				bindingSet = GetDevice()->createBindingSet(desc, m_SkinnedBindingLayout);
 			}
-
+		
 			graphicsState.bindings = { bindingSet };
 			
 			if(!m_drawItems[i].bufferGroup->vertexBuffer)
 				continue;
-
+		
 			graphicsState.vertexBuffers = {
 						{m_drawItems[i].bufferGroup->vertexBuffer, 0, m_drawItems[i].bufferGroup->getVertexBufferRange(VertexAttribute::Position).byteOffset},
 						{m_drawItems[i].bufferGroup->vertexBuffer, 1, m_drawItems[i].bufferGroup->getVertexBufferRange(VertexAttribute::TexCoord1).byteOffset},
@@ -787,11 +898,11 @@ namespace GuGu {
 						{m_drawItems[i].bufferGroup->vertexBuffer, 4, m_drawItems[i].bufferGroup->getVertexBufferRange(VertexAttribute::JointWeights).byteOffset},
 						{m_drawItems[i].bufferGroup->vertexBuffer, 5, m_drawItems[i].bufferGroup->getVertexBufferRange(VertexAttribute::JointIndices).byteOffset}
 			};
-
+		
 			graphicsState.indexBuffer = {
 				m_drawItems[i].bufferGroup->indexBuffer, nvrhi::Format::R32_UINT, 0
 			};
-
+		
 			if (!m_drawItems[i].m_isSkinned)
 			{
 				graphicsState.pipeline = m_Pipeline;
@@ -812,6 +923,38 @@ namespace GuGu {
 			args.startIndexLocation = m_drawItems[i].mesh->indexOffset + m_drawItems[i].meshGeometry->indexOffsetInMesh;
 			m_CommandList->drawIndexed(args);
 		}
+
+		//draw grid
+		if (!m_gridBindingSet)
+		{
+			nvrhi::BindingSetDesc desc;
+			//nvrhi::BindingSetHandle bindingSet;
+			desc.bindings = {
+					nvrhi::BindingSetItem::ConstantBuffer(0, m_gridConstantBuffer),
+			};
+			m_gridBindingSet = GetDevice()->createBindingSet(desc, m_gridBindingLayout);
+		}
+
+		gridGraphicsState.bindings = { m_gridBindingSet };
+
+		gridGraphicsState.vertexBuffers = {
+			{m_gridVertexBuffer, 0, offsetof(GridVertex, position)},
+			{m_gridVertexBuffer, 1, offsetof(GridVertex, color)}
+		};
+
+		ConstantBufferEntry modelConstants;
+		modelConstants.viewProjMatrix = viewProjMatrix;
+		modelConstants.worldMatrix = math::float4x4::identity();
+		//get the global matrix to fill constant buffer		
+		m_CommandList->writeBuffer(m_gridConstantBuffer, &modelConstants, sizeof(modelConstants));
+
+		gridGraphicsState.setPipeline(m_gridPipeline);
+		m_CommandList->setGraphicsState(gridGraphicsState);	
+
+		// Draw the model.
+		nvrhi::DrawArguments args;
+		args.vertexCount = m_gridVertices.size();
+		m_CommandList->draw(args);
 	}
 	nvrhi::BufferHandle Demo::createGeometryBuffer(const GuGuUtf8Str& debugName, const void* data, uint64_t dataSize, bool isVertexBuffer)
 	{

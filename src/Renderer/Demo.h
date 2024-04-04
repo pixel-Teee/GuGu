@@ -41,7 +41,7 @@ namespace GuGu {
 
 		nvrhi::TextureHandle getRenderTarget();
 	private:
-		void RenderView(nvrhi::GraphicsState& graphicsState, math::float4x4 viewProjMatrix);
+		void RenderView(nvrhi::GraphicsState& graphicsState, nvrhi::GraphicsState& gridGraphicsState, math::float4x4 viewProjMatrix);
 
 		nvrhi::BufferHandle createGeometryBuffer(const GuGuUtf8Str& debugName, const void* data, uint64_t dataSize, bool isVertexBuffer);	
 
@@ -72,6 +72,29 @@ namespace GuGu {
 		nvrhi::GraphicsPipelineHandle m_Pipeline;
 		nvrhi::GraphicsPipelineHandle m_SkinnedPipeline;
 		nvrhi::TextureHandle m_Texture;
+
+		//------grid------
+		struct GridVertex
+		{
+			math::float3 position;
+			math::float3 color;
+
+			GridVertex(math::float3 inPosition, math::float3 inColor)
+			{
+				position = inPosition;
+				color = inColor;
+			}
+		};
+		nvrhi::ShaderHandle m_gridVertexShader;
+		nvrhi::ShaderHandle m_gridPixelShader;
+		nvrhi::BufferHandle m_gridConstantBuffer;
+		nvrhi::InputLayoutHandle m_gridInputLayout;
+		nvrhi::BindingLayoutHandle m_gridBindingLayout;
+		nvrhi::BindingSetHandle m_gridBindingSet;
+		nvrhi::GraphicsPipelineHandle m_gridPipeline;
+		nvrhi::BufferHandle m_gridVertexBuffer;
+		std::vector<GridVertex> m_gridVertices;
+		//------grid------
 
 		struct ConstantBufferEntry {
 			dm::float4x4 viewProjMatrix;
