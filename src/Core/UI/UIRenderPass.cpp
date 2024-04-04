@@ -805,6 +805,9 @@ namespace GuGu {
 								.FixedWidth()
 								(
 									WIDGET_NEW(SpinBox<double>)
+									.onValueChangedLambda([&](float newValue) {
+										m_uiData->xWorldPos = newValue;
+									})
 									.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
 										m_uiData->xWorldPos = newValue;
 									})
@@ -820,6 +823,9 @@ namespace GuGu {
 								.FixedWidth()
 								(
 									WIDGET_NEW(SpinBox<double>)
+									.onValueChangedLambda([&](float newValue) {
+										m_uiData->yWorldPos = newValue;
+									})
 									.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
 										m_uiData->yWorldPos = newValue;
 									})
@@ -835,6 +841,9 @@ namespace GuGu {
 								.FixedWidth()
 								(
 									WIDGET_NEW(SpinBox<double>)
+									.onValueChangedLambda([&](float newValue) {
+										m_uiData->zWorldPos = newValue;
+									})
 									.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
 										m_uiData->zWorldPos = newValue;
 									})

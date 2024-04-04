@@ -27,6 +27,8 @@ namespace GuGu {
 	class SpinBox : public Widget
 	{
 	public:
+		using OnValueChanged = std::function<void(NumericType)>;
+
 		using OnValueCommitted = std::function<void(NumericType, TextCommit::Type)>;
 
 		struct BuilderArguments : public Arguments<SpinBox<NumericType>>
@@ -88,6 +90,8 @@ namespace GuGu {
 			//当使用指数缩放，对于滑条，什么是自然值
 			ARGUMENT_ATTRIBUTE(NumericType, SliderExponentNeutralValue)
 
+			UI_EVENT(OnValueChanged, onValueChanged)
+
 			UI_EVENT(OnValueCommitted, onValueCommitted)
 
 			//一个spin box 最小的宽度
@@ -125,6 +129,7 @@ namespace GuGu {
 			m_shiftMouseMovePixelPerDelta = arguments.mShiftMouseMovePixelPerDelta;
 			m_linearDeltaSensitivity = arguments.mLinearDeltaSensitivity;
 			m_sliderExponent = arguments.mSliderExponent;
+			m_onValueChanged = arguments.monValueChanged;
 			m_onValueCommitted = arguments.monValueCommitted;
 			m_visibilityAttribute = arguments.mVisibility;
 
@@ -416,6 +421,8 @@ namespace GuGu {
 				m_onValueCommitted(newValue, originalCommitInfo);
 			}
 
+			m_onValueChanged(newValue);
+
 			//todo:增加更多逻辑
 
 			if (!m_valueAttribute.IsBound())
@@ -504,6 +511,8 @@ namespace GuGu {
 		NumericType m_preDragValue;
 
 		OnValueCommitted m_onValueCommitted;
+
+		OnValueChanged m_onValueChanged;
 	};
 
 	template<typename NumericType>
