@@ -4,6 +4,7 @@
 #include <functional>
 
 #include "Clipping.h"
+#include "Visibility.h"
 
 namespace GuGu {
 	template<typename...>
@@ -135,6 +136,13 @@ namespace GuGu {
 		typename WidgetType::BuilderArguments& Clip(WidgetClipping inValue) { //todo:fix this
 			mClip = inValue; return Me();
 		} 
+
+		typename WidgetType::BuilderArguments& visibility(Visibility inVisibility)
+		{
+			mVisibility = inVisibility; return Me();
+		}
 		WidgetClipping mClip = WidgetClipping::Inherit;
+
+		Visibility mVisibility = Visibility::Visible;
 	};
 }

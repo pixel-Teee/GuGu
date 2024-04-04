@@ -19,6 +19,7 @@ namespace GuGu {
 		if(arguments.mbrush.Get())
 			m_imageBursh = arguments.mbrush;
 		m_widgetClipping = arguments.mClip;
+		m_visibilityAttribute = arguments.mVisibility;
 	}
 	uint32_t ImageWidget::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{

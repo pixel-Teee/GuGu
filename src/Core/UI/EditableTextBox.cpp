@@ -27,6 +27,7 @@ namespace GuGu {
                 )
             )
             .brush(this, &EditableTextBox::getBorderImage));
+        m_visibilityAttribute = arguments.mVisibility;
     }
 
     std::shared_ptr<Brush> EditableTextBox::getBorderImage() const

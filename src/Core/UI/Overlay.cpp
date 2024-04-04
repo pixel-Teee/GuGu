@@ -21,12 +21,13 @@ namespace GuGu {
 			m_childrens[i]->init(shared_from_this(), arguments.mSlots[i]);
 		}
 		m_widgetClipping = arguments.mClip;
+		m_visibilityAttribute = arguments.mVisibility;
 	}
 	uint32_t Overlay::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
 		uint32_t maxLayerId = layer;
 
-		ArrangedWidgetArray arrangedWidgetArray;
+		ArrangedWidgetArray arrangedWidgetArray(Visibility::Visible);
 		AllocationChildActualSpace(allocatedGeometry, arrangedWidgetArray);
 
 		uint32_t widgetsNumber = arrangedWidgetArray.getArrangedWidgetsNumber();
@@ -50,12 +51,14 @@ namespace GuGu {
 		for (int32_t childIndex = 0; childIndex < m_childrens.size(); ++childIndex)
 		{
 			const OverlaySlot& curSlot = *m_childrens[childIndex];
-
-			//todo:add visibility
-			math::float2 childSize = curSlot.getChildWidget()->getFixedSize();
-			math::float2 childDesiredSize = math::float2(childSize.x, childSize.y) + curSlot.getPadding().getFixedSize();
-			maxSize.x = std::max(maxSize.x, childDesiredSize.x);
-			maxSize.y = std::max(maxSize.y, childDesiredSize.y);
+			const Visibility childVisiblity = curSlot.getChildWidget()->getVisibility();
+			if (childVisiblity != Visibility::Collapsed)
+			{			
+				math::float2 childSize = curSlot.getChildWidget()->getFixedSize();
+				math::float2 childDesiredSize = math::float2(childSize.x, childSize.y) + curSlot.getPadding().getFixedSize();
+				maxSize.x = std::max(maxSize.x, childDesiredSize.x);
+				maxSize.y = std::max(maxSize.y, childDesiredSize.y);
+			}			
 		}
 
 		return math::float2(maxSize.x, maxSize.y);
@@ -66,13 +69,17 @@ namespace GuGu {
 		{
 			const OverlaySlot& curChild = *m_childrens[childIndex];
 			//todo:add visibility check
+			const Visibility childVisibility = getSlot(0)->getChildWidget()->getVisibility();
 
-			const Padding slotPadding(curChild.getPadding());
+			if (arrangedWidgetArray.accepts(childVisibility)) //数组的可见性是否接受widget的可见性
+			{
+				const Padding slotPadding(curChild.getPadding());
 
-			AlignmentArrangeResult xResult = AlignChild<Orientation::Horizontal>(curChild, allocatedGeometry.getLocalSize().x);
-			AlignmentArrangeResult yResult = AlignChild<Orientation::Vertical>(curChild, allocatedGeometry.getLocalSize().y);
+				AlignmentArrangeResult xResult = AlignChild<Orientation::Horizontal>(curChild, allocatedGeometry.getLocalSize().x);
+				AlignmentArrangeResult yResult = AlignChild<Orientation::Vertical>(curChild, allocatedGeometry.getLocalSize().y);
 
-			arrangedWidgetArray.pushWidget(allocatedGeometry.getChildGeometry(math::float2(xResult.m_size, yResult.m_size), math::float2(xResult.m_offset, yResult.m_offset), allocatedGeometry.getAccumulateTransform()), curChild.getChildWidget());
+				arrangedWidgetArray.pushWidget(allocatedGeometry.getChildGeometry(math::float2(xResult.m_size, yResult.m_size), math::float2(xResult.m_offset, yResult.m_offset), allocatedGeometry.getAccumulateTransform()), curChild.getChildWidget());
+			}
 		}
 	}
 	SlotBase* Overlay::getSlot(uint32_t index)

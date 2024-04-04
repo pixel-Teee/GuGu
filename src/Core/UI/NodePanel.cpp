@@ -22,7 +22,7 @@ namespace GuGu {
 	}
 	uint32_t Node::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
-		ArrangedWidgetArray arrangedChildren;
+		ArrangedWidgetArray arrangedChildren(Visibility::Visible);
 		AllocationChildActualSpace(allocatedGeometry, arrangedChildren);
 
 		int32_t maxLayerId = layer;

@@ -111,6 +111,7 @@ namespace GuGu {
 				(
 					WIDGET_ASSIGN_NEW(TextBlockWidget, m_textBlock)
 					.text(this, &SpinBox<NumericType>::getValueAsText) //todo: 添加文本的最小宽度和对齐方式
+					.visibility(Visibility::Visible)
 				)
 				+ HorizontalBox::Slot()
 				.StretchWidth(1.0f)
@@ -121,6 +122,7 @@ namespace GuGu {
 					.text(this, &SpinBox<NumericType>::getValueAsText)
 					.onIsTypedCharValid(this, &SpinBox<NumericType>::isCharacterValid)
 					.onTextCommitted(this, &SpinBox<NumericType>::textFieldOnTextCommited)
+					.visibility(Visibility::Collapsed)
 				)
 			);
 
@@ -129,11 +131,12 @@ namespace GuGu {
 
 			m_minFractionalDigits = arguments.mMinFractionDigits.Get().has_value() ? arguments.mMinFractionDigits : defaultMinFractionalDigits;
 			m_maxFractionalDigits = arguments.mMaxFractionDigits.Get().has_value() ? arguments.mMaxFractionDigits : defaultMaxFractionalDigits;
+			m_visibilityAttribute = arguments.mVisibility;
 		}
 
 		virtual uint32_t onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer) override
 		{
-			ArrangedWidgetArray arrangedWidgetArray;
+			ArrangedWidgetArray arrangedWidgetArray(Visibility::Visible);
 			AllocationChildActualSpace(allocatedGeometry, arrangedWidgetArray);
 
 			ElementList::addBoxElement(elementList, allocatedGeometry, math::float4(1.0f, 1.0f, 1.0f, 1.0f), m_spinBoxStyle->m_backgroundBrsuh, layer + 1); //background			
@@ -169,12 +172,17 @@ namespace GuGu {
 
 			if (slotNumber)
 			{
-				AlignmentArrangeResult xalignmentResult = AlignChild<Orientation::Horizontal>(*getSlot(0), allocatedGeometry.getLocalSize().x);
-				AlignmentArrangeResult yAlignmentResult = AlignChild<Orientation::Vertical>(*getSlot(0), allocatedGeometry.getLocalSize().y);
+				const Visibility childVisibility = getSlot(0)->getChildWidget()->getVisibility();
 
-				WidgetGeometry childGeometry = allocatedGeometry.getChildGeometry(math::float2(xalignmentResult.m_size, yAlignmentResult.m_size), math::float2(xalignmentResult.m_offset, yAlignmentResult.m_offset), allocatedGeometry.getAccumulateTransform());
+				if (arrangedWidgetArray.accepts(childVisibility)) //数组的可见性是否接受widget的可见性
+				{
+					AlignmentArrangeResult xalignmentResult = AlignChild<Orientation::Horizontal>(*getSlot(0), allocatedGeometry.getLocalSize().x);
+					AlignmentArrangeResult yAlignmentResult = AlignChild<Orientation::Vertical>(*getSlot(0), allocatedGeometry.getLocalSize().y);
 
-				arrangedWidgetArray.pushWidget(childGeometry, getSlot(0)->getChildWidget());
+					WidgetGeometry childGeometry = allocatedGeometry.getChildGeometry(math::float2(xalignmentResult.m_size, yAlignmentResult.m_size), math::float2(xalignmentResult.m_offset, yAlignmentResult.m_offset), allocatedGeometry.getAccumulateTransform());
+
+					arrangedWidgetArray.pushWidget(childGeometry, getSlot(0)->getChildWidget());
+				}			
 			}
 		}
 

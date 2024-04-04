@@ -23,6 +23,7 @@ namespace GuGu {
 		m_text = arguments.mtext;
 		m_textColor = arguments.mtextColor;
 		m_widgetClipping = arguments.mClip;
+		m_visibilityAttribute = arguments.mVisibility;
 	}
 
 	uint32_t TextBlockWidget::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)

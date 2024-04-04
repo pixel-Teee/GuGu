@@ -17,7 +17,7 @@ namespace GuGu {
 	}
 	uint32_t Graph::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
-		ArrangedWidgetArray arrangedChildren;
+		ArrangedWidgetArray arrangedChildren(Visibility::Visible);
 		AllocationChildActualSpace(allocatedGeometry, arrangedChildren);
 
 		return layer;

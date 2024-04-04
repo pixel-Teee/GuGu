@@ -24,10 +24,11 @@ namespace GuGu {
 		m_childWidget = arguments.mContent;
 		m_childWidget->m_parentWidget = shared_from_this();
 		m_childWidget->m_childWidget->setParentWidget(shared_from_this());
+		m_visibilityAttribute = arguments.mVisibility;
 	}
 	uint32_t WindowWidget::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
-		ArrangedWidgetArray arrangedWidgetArray;
+		ArrangedWidgetArray arrangedWidgetArray(Visibility::Visible);//设置数组只接受可见的child widget
 		AllocationChildActualSpace(allocatedGeometry, arrangedWidgetArray);
 
 		if (m_windowType != WindowType::NativeWindow)
@@ -53,7 +54,15 @@ namespace GuGu {
 	}
 	GuGu::math::float2 WindowWidget::ComputeFixedSize(float inLayoutScaleMultiplier)
 	{
-		return m_childWidget->getChildWidget()->getFixedSize() + m_childWidget->getPadding().getFixedSize();
+		if (m_childWidget)
+		{
+			const Visibility childVisiblity = m_childWidget->getChildWidget()->getVisibility();
+			if (childVisiblity != Visibility::Collapsed)
+			{
+				return m_childWidget->getChildWidget()->getFixedSize() + m_childWidget->getPadding().getFixedSize();
+			}
+		}		
+		return math::float2(0, 0);
 	}
 	void WindowWidget::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray)
 	{
@@ -144,12 +153,17 @@ namespace GuGu {
 			//	}
 			//}
 
-			AlignmentArrangeResult xalignmentResult = AlignChild<Orientation::Horizontal>(*getSlot(0), allocatedGeometry.getLocalSize().x);
-			AlignmentArrangeResult yAlignmentResult = AlignChild<Orientation::Vertical>(*getSlot(0), allocatedGeometry.getLocalSize().y);
+			const Visibility childVisibility = getSlot(0)->getChildWidget()->getVisibility();
 
-			WidgetGeometry childGeometry = allocatedGeometry.getChildGeometry(math::float2(xalignmentResult.m_size, yAlignmentResult.m_size), math::float2(xalignmentResult.m_offset, yAlignmentResult.m_offset), allocatedGeometry.getAccumulateTransform());
+			if (arrangedWidgetArray.accepts(childVisibility)) //数组的可见性是否接受widget的可见性
+			{
+				AlignmentArrangeResult xalignmentResult = AlignChild<Orientation::Horizontal>(*getSlot(0), allocatedGeometry.getLocalSize().x);
+				AlignmentArrangeResult yAlignmentResult = AlignChild<Orientation::Vertical>(*getSlot(0), allocatedGeometry.getLocalSize().y);
 
-			arrangedWidgetArray.pushWidget(childGeometry, getSlot(0)->getChildWidget());
+				WidgetGeometry childGeometry = allocatedGeometry.getChildGeometry(math::float2(xalignmentResult.m_size, yAlignmentResult.m_size), math::float2(xalignmentResult.m_offset, yAlignmentResult.m_offset), allocatedGeometry.getAccumulateTransform());
+
+				arrangedWidgetArray.pushWidget(childGeometry, getSlot(0)->getChildWidget());
+			}		
 		}
 
 	}	

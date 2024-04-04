@@ -3,7 +3,9 @@
 #include "Reply.h"
 #include "Events.h"
 #include "Clipping.h"
+#include "Visibility.h"
 #include "WidgetGeometry.h"
+#include "Attribute.h"
 
 #include <Core/Math/MyMath.h>
 
@@ -82,11 +84,16 @@ namespace GuGu{
         bool hasAnyFocus() const;
 
         bool hasMouseCapture() const;
+
+        Visibility getVisibility() const { return m_visibilityAttribute.Get(); }
+
+        void setVisibility(Attribute<Visibility> inVisibility) { m_visibilityAttribute = inVisibility; }
     protected:
         std::weak_ptr<Widget> m_parentWidget;
         WidgetGeometry m_geometry;
         math::float2 m_fixedSize;
         uint32_t m_layer;
         WidgetClipping m_widgetClipping;
+        Attribute<Visibility> m_visibilityAttribute;
     };
 }

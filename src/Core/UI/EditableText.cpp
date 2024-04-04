@@ -18,6 +18,8 @@ namespace GuGu {
 		m_OnIsTypedCharValid = arguments.monIsTypedCharValid;
 
 		m_OnTextCommittedCallback = arguments.monTextCommitted;
+
+		m_visibilityAttribute = arguments.mVisibility;
 	}
 	uint32_t EditableText::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{

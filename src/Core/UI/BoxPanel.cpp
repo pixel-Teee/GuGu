@@ -14,29 +14,40 @@ namespace GuGu {
 		{
 			float stretchCoefficientTotal = 0;
 			float fixedTotal = 0;
+
+			bool bAnyChildVisible = false;
 		
 			for (uint32_t childIndex = 0; childIndex < childrens.size(); ++childIndex)
 			{
 				const SlotType& curChild = childrens[childIndex];
 
-				fixedTotal += curChild->getPadding().template getTotalSpaceAlong<orientation>();
-
-				if (curChild->getSizeRule() == SizeParam::Stretch)
+				if (curChild->getChildWidget()->getVisibility() != Visibility::Collapsed)
 				{
-					//for stretch children we save sum up the stretch coefficients
-					stretchCoefficientTotal += curChild->getSizeValue();
-				}
-				else
-				{
-					math::float2 childFixedSize = curChild->getChildWidget()->getFixedSize();
+					bAnyChildVisible = true;
 
-					//fixed size children contribute their fixed size to the fixed space requirement
-					const float childSize = (orientation == Orientation::Vertical) ? childFixedSize.y : childFixedSize.x;
+					fixedTotal += curChild->getPadding().template getTotalSpaceAlong<orientation>();
+					if (curChild->getSizeRule() == SizeParam::Stretch)
+					{
+						//for stretch children we save sum up the stretch coefficients
+						stretchCoefficientTotal += curChild->getSizeValue();
+					}
+					else
+					{
+						math::float2 childFixedSize = curChild->getChildWidget()->getFixedSize();
 
-					//clamp to the max size if it was specified
-					float maxSize = curChild->getMaxSize();
-					fixedTotal += maxSize > 0 ? std::min(maxSize, childSize) : childSize;
-				}
+						//fixed size children contribute their fixed size to the fixed space requirement
+						const float childSize = (orientation == Orientation::Vertical) ? childFixedSize.y : childFixedSize.x;
+
+						//clamp to the max size if it was specified
+						float maxSize = curChild->getMaxSize();
+						fixedTotal += maxSize > 0 ? std::min(maxSize, childSize) : childSize;
+					}
+				}		
+			}
+
+			if (!bAnyChildVisible)
+			{
+				return;
 			}
 
 			//the space available for size rule stretch widgets is any space that wasn't taken up by fixed-sized widgets
@@ -49,28 +60,33 @@ namespace GuGu {
 			for (size_t i = 0; i < childrens.size(); ++i)
 			{
 				const SlotType& curChild = childrens[i];
+				const Visibility childVisibility = curChild->getChildWidget()->getVisibility();
 
 				float childSize = 0;
-				if (curChild->getSizeRule() == SizeParam::Stretch)
-				{
-					if (stretchCoefficientTotal > 0)
-						childSize = nonFixedSpace * curChild->getSizeValue() / stretchCoefficientTotal;
-				}
-				else
-				{
-					math::float2 childFixedSize = curChild->getChildWidget()->getFixedSize();
 
-					//fixed sized widgets get their desired size value
-					childSize = (orientation == Orientation::Vertical) ? childFixedSize.y : childFixedSize.x;
-				}
-
-				//clamp to the max size if it is was specified
-				float maxSize = curChild->getMaxSize();
-				if (maxSize)
+				if (childVisibility != Visibility::Collapsed)
 				{
-					childSize = std::min(maxSize, childSize);
-				}
+					if (curChild->getSizeRule() == SizeParam::Stretch)
+					{
+						if (stretchCoefficientTotal > 0)
+							childSize = nonFixedSpace * curChild->getSizeValue() / stretchCoefficientTotal;
+					}
+					else
+					{
+						math::float2 childFixedSize = curChild->getChildWidget()->getFixedSize();
 
+						//fixed sized widgets get their desired size value
+						childSize = (orientation == Orientation::Vertical) ? childFixedSize.y : childFixedSize.x;
+					}
+
+					//clamp to the max size if it is was specified
+					float maxSize = curChild->getMaxSize();
+					if (maxSize)
+					{
+						childSize = std::min(maxSize, childSize);
+					}
+				}
+				
 				const Padding slotPadding(curChild->getPadding());
 
 				math::float2 slotSize = (orientation == Orientation::Vertical)
@@ -86,10 +102,13 @@ namespace GuGu {
 
 				const math::float2 localSize = math::float2(xAlignmentResult.m_size, yAlignmentResult.m_size);
 
-				arrangedWidgetArray.pushWidget(widgetGeometry.getChildGeometry(math::float2(localSize.x, localSize.y), math::float2(localPosition.x, localPosition.y), widgetGeometry.getAccumulateTransform()), curChild->getChildWidget());
+				arrangedWidgetArray.pushWidget(childVisibility, widgetGeometry.getChildGeometry(math::float2(localSize.x, localSize.y), math::float2(localPosition.x, localPosition.y), widgetGeometry.getAccumulateTransform()), curChild->getChildWidget());
 
-				//offset the next child by the size of the current child and any post-child (bottom/right) margin
-				positionSoFar += (orientation == Orientation::Vertical) ? slotSize.y : slotSize.x;
+				if (childVisibility != Visibility::Collapsed)
+				{
+					//offset the next child by the size of the current child and any post-child (bottom/right) margin
+					positionSoFar += (orientation == Orientation::Vertical) ? slotSize.y : slotSize.x;
+				}				
 			}
 		}
 	}
@@ -103,36 +122,39 @@ namespace GuGu {
 		{
 			const SlotType& curChild = childrens[childIndex];
 
-			math::float2 childFixedSize = curChild->getChildWidget()->getFixedSize();
-
-			if (orientation == Orientation::Vertical)
+			if (curChild->getChildWidget()->getVisibility() != Visibility::Collapsed)
 			{
-				myDesiredSize.x = std::max(myDesiredSize.x, (float)childFixedSize.x + curChild->getPadding().template getTotalSpaceAlong<Orientation::Horizontal>());
+				math::float2 childFixedSize = curChild->getChildWidget()->getFixedSize();
 
-				//clamp to the max size if it was specified
-				float finalChildDesiredSize = childFixedSize.y;
-				float maxSize = curChild->getMaxSize();
-				if (maxSize)
+				if (orientation == Orientation::Vertical)
 				{
-					finalChildDesiredSize = std::min(maxSize, finalChildDesiredSize);
+					myDesiredSize.x = std::max(myDesiredSize.x, (float)childFixedSize.x + curChild->getPadding().template getTotalSpaceAlong<Orientation::Horizontal>());
+
+					//clamp to the max size if it was specified
+					float finalChildDesiredSize = childFixedSize.y;
+					float maxSize = curChild->getMaxSize();
+					if (maxSize)
+					{
+						finalChildDesiredSize = std::min(maxSize, finalChildDesiredSize);
+					}
+
+					myDesiredSize.y += finalChildDesiredSize + curChild->getPadding().template getTotalSpaceAlong<Orientation::Vertical>();
 				}
-
-				myDesiredSize.y += finalChildDesiredSize + curChild->getPadding().template getTotalSpaceAlong<Orientation::Vertical>();
-			}
-			else
-			{
-				myDesiredSize.y = std::max(myDesiredSize.y, (float)childFixedSize.y + curChild->getPadding().template getTotalSpaceAlong<Orientation::Vertical>());
-
-				//clamp to the max size if it was specified
-				float finalChildDesiredSize = childFixedSize.x;
-				float maxSize = curChild->getMaxSize();
-				if (maxSize)
+				else
 				{
-					finalChildDesiredSize = std::min(maxSize, finalChildDesiredSize);
-				}
+					myDesiredSize.y = std::max(myDesiredSize.y, (float)childFixedSize.y + curChild->getPadding().template getTotalSpaceAlong<Orientation::Vertical>());
 
-				myDesiredSize.x += finalChildDesiredSize + curChild->getPadding().template getTotalSpaceAlong<Orientation::Horizontal>();
-			}
+					//clamp to the max size if it was specified
+					float finalChildDesiredSize = childFixedSize.x;
+					float maxSize = curChild->getMaxSize();
+					if (maxSize)
+					{
+						finalChildDesiredSize = std::min(maxSize, finalChildDesiredSize);
+					}
+
+					myDesiredSize.x += finalChildDesiredSize + curChild->getPadding().template getTotalSpaceAlong<Orientation::Horizontal>();
+				}
+			}		
 		}
 
 		return myDesiredSize;
@@ -150,13 +172,13 @@ namespace GuGu {
 	}
 	void BoxPanel::init(const BuilderArguments& arguments)
 	{
-		
+		m_visibilityAttribute = arguments.mVisibility;
 	}
 	uint32_t BoxPanel::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
 		uint32_t maxLayerId = layer;
 
-		ArrangedWidgetArray arrangedWidgetArray;
+		ArrangedWidgetArray arrangedWidgetArray(Visibility::Visible);
 		AllocationChildActualSpace(allocatedGeometry, arrangedWidgetArray);
 
 		uint32_t widgetsNumber = arrangedWidgetArray.getArrangedWidgetsNumber();
@@ -223,6 +245,7 @@ namespace GuGu {
             m_childrens[i] = std::static_pointer_cast<BoxPanelSlot>(std::static_pointer_cast<SlotBase>(boxSlot));
 		}
 		m_widgetClipping = arguments.mClip;
+		m_visibilityAttribute = arguments.mVisibility;
 	}
 	VerticalBox::VerticalBox()
 		: BoxPanel(Orientation::Vertical)
@@ -243,5 +266,6 @@ namespace GuGu {
 			m_childrens[i] = std::static_pointer_cast<BoxPanelSlot>(std::static_pointer_cast<SlotBase>(boxSlot));
 		}
 		m_widgetClipping = arguments.mClip;
+		m_visibilityAttribute = arguments.mVisibility;
 	}
 }

@@ -21,10 +21,11 @@ namespace GuGu {
 		m_contentPadding = arguments.mcontentPadding;
 		m_imageBursh = m_buttonStyle->m_normal;
 		m_widgetClipping = arguments.mClip;
+		m_visibilityAttribute = arguments.mVisibility;
 	}
 	uint32_t Button::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
-		ArrangedWidgetArray arrangedWidgetArray;
+		ArrangedWidgetArray arrangedWidgetArray(Visibility::Visible);
 		if (m_childWidget) //todo:add null widget
 		{
 			Border::AllocationChildActualSpace(allocatedGeometry, arrangedWidgetArray);
@@ -50,7 +51,15 @@ namespace GuGu {
 	}
 	GuGu::math::float2 Button::ComputeFixedSize(float inLayoutScaleMultiplier)
 	{
-		return math::float2(m_imageBursh.Get()->m_actualSize.x, m_imageBursh.Get()->m_actualSize.y);
+		if (m_childWidget)
+		{
+			const Visibility childVisiblity = m_childWidget->getChildWidget()->getVisibility();
+			if (childVisiblity != Visibility::Collapsed)
+			{
+				return m_childWidget->getChildWidget()->getFixedSize() + m_childWidget->getPadding().getFixedSize();
+			}
+		}	
+		return math::float2(0, 0);
 	}
 
 	Reply Button::OnMouseButtonDown(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent)

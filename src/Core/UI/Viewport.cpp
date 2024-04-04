@@ -18,10 +18,12 @@ namespace GuGu {
 		m_childWidget = arguments.mContent;
 		m_childWidget->m_parentWidget = shared_from_this();
 		m_childWidget->m_childWidget->setParentWidget(shared_from_this());
+		m_visibilityAttribute = arguments.mVisibility;
+		m_widgetClipping = arguments.mClip;
 	}
 	uint32_t ViewportWidget::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
-		ArrangedWidgetArray arrangedWidgetArray;
+		ArrangedWidgetArray arrangedWidgetArray(Visibility::Visible);
 		AllocationChildActualSpace(allocatedGeometry, arrangedWidgetArray);
 
 		if (m_renderTarget)
@@ -54,12 +56,17 @@ namespace GuGu {
 		uint32_t slotNumber = getSlotsNumber();
 		if (slotNumber)
 		{
-			AlignmentArrangeResult xalignmentResult = AlignChild<Orientation::Horizontal>(*getSlot(0), allocatedGeometry.getLocalSize().x);
-			AlignmentArrangeResult yAlignmentResult = AlignChild<Orientation::Vertical>(*getSlot(0), allocatedGeometry.getLocalSize().y);
+			const Visibility childVisibility = getSlot(0)->getChildWidget()->getVisibility();
 
-			WidgetGeometry childGeometry = allocatedGeometry.getChildGeometry(math::float2(xalignmentResult.m_size, yAlignmentResult.m_size), math::float2(xalignmentResult.m_offset, yAlignmentResult.m_offset), allocatedGeometry.getAccumulateTransform());
+			if (arrangedWidgetArray.accepts(childVisibility)) //数组的可见性是否接受widget的可见性
+			{
+				AlignmentArrangeResult xalignmentResult = AlignChild<Orientation::Horizontal>(*getSlot(0), allocatedGeometry.getLocalSize().x);
+				AlignmentArrangeResult yAlignmentResult = AlignChild<Orientation::Vertical>(*getSlot(0), allocatedGeometry.getLocalSize().y);
 
-			arrangedWidgetArray.pushWidget(childGeometry, getSlot(0)->getChildWidget());
+				WidgetGeometry childGeometry = allocatedGeometry.getChildGeometry(math::float2(xalignmentResult.m_size, yAlignmentResult.m_size), math::float2(xalignmentResult.m_offset, yAlignmentResult.m_offset), allocatedGeometry.getAccumulateTransform());
+
+				arrangedWidgetArray.pushWidget(childGeometry, getSlot(0)->getChildWidget());
+			}		
 		}
 	}
 	SlotBase* ViewportWidget::getSlot(uint32_t index)
