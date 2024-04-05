@@ -93,13 +93,22 @@ namespace GuGu {
 		m_styles.insert({ "checkBox", checkBoxStyle });
 
 		std::shared_ptr<Brush> normalBarImage = std::make_shared<Brush>();
-		normalBarImage->m_tiling = false;
+		normalBarImage->m_tiling = true;
 		normalBarImage->m_texturePath = u8"asset/MinimumWindow/bar.png";
+		normalBarImage->m_drawAs = BrushDrawType::RoundedBox;
+		normalBarImage->m_outlineSettings = BrushOutlineSettings(math::float4(4.4f, 4.4f, 4.4f, 4.4f), math::float4(1.0f, 1.0f, 1.0f, 1.0f), 0.1f);
+		normalBarImage->m_margin = Padding(0.0f, 0.0f, 0.0f, 0.0f);
 		m_brushes.insert({ u8"normalBarImage", normalBarImage });
 
 		std::shared_ptr<Brush> thumbImage = std::make_shared<Brush>();
-		thumbImage->m_tiling = false;
+		thumbImage->m_tiling = true;//rounded box 需要(0.0, 1.0)的UV
 		thumbImage->m_texturePath = u8"asset/MinimumWindow/thumb.png";
+		thumbImage->m_drawAs = BrushDrawType::RoundedBox;
+		//corner radius
+		//outline color
+		//outline width
+		thumbImage->m_outlineSettings = BrushOutlineSettings(math::float4(7.4f, 7.4f, 7.4f, 7.4f), math::float4(1.0f, 1.0f, 1.0f, 1.0f), 1.5f);
+		thumbImage->m_margin = Padding(0.0f, 0.0f, 0.0f, 0.0f);
 		m_brushes.insert({ u8"thumbImage", thumbImage });
 
 		std::shared_ptr<SliderStyle> sliderStyle = std::make_shared<SliderStyle>();

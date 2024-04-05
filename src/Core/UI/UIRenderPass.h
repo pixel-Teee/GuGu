@@ -69,6 +69,7 @@ namespace GuGu {
 		nvrhi::ShaderHandle m_pixelShader;
 		nvrhi::ShaderHandle m_pixelFontShader;
 		nvrhi::ShaderHandle m_lineShader;
+		nvrhi::ShaderHandle m_roundedBoxPixelShader;
 
 		nvrhi::InputLayoutHandle m_inputLayout;
 		nvrhi::BindingLayoutHandle m_bindingLayout;
@@ -76,10 +77,12 @@ namespace GuGu {
 		nvrhi::GraphicsPipelineHandle m_pipeline;
 		nvrhi::GraphicsPipelineHandle m_FontPipeline;
 		nvrhi::GraphicsPipelineHandle m_LinePipeline;
+		nvrhi::GraphicsPipelineHandle m_roundedBoxPipeline;
 		struct ConstantBufferEntry {
 			dm::float4x4 viewProjMatrix;
 			dm::float4 shaderParam;
-			float padding[44];
+			dm::float4 shaderParam2;
+			float padding[28];
 		};
 
 		std::shared_ptr<WindowWidget> m_uiRoot;

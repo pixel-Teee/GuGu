@@ -12,7 +12,7 @@ namespace GuGu {
 		virtual ~BoxElement();
 
 		friend class ElementList;
-	private:
+	protected:
 		math::float4 m_color;
 
 		std::shared_ptr<Brush> m_brush;

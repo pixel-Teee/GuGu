@@ -124,4 +124,28 @@ namespace GuGu {
 			OnCleared
 		};
 	}
+
+	/*
+	* 如何绘制一个图片
+	*/
+	namespace BrushDrawType
+	{
+		enum Type
+		{
+			//不做任何事情
+			NoDrawType,
+
+			//绘制一个3x3 box ，边缘和中间会被拉伸基于 margin
+			Box,
+
+			//绘制一个3x3 border ，边缘会平铺，中间是空的
+			Border,
+
+			//绘制一个图片，margin是空的
+			Image,
+
+			//绘制一个solid rectangle ，带一个外描边和一个角落半径
+			RoundedBox
+		};
+	}
 }

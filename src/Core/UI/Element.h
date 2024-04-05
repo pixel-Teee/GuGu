@@ -14,7 +14,9 @@ namespace GuGu {
 			Line,
 			Spline,
 			Viewport,
-			ShapedText
+			ShapedText,
+			RoundedBox,
+			Border
 		};
 
 		Element();

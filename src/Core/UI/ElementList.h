@@ -19,6 +19,7 @@ namespace GuGu {
 	enum class UIShaderType
 	{
 		Default,
+		RoundedBox,
 		Font,
 		Line
 	};
@@ -26,18 +27,22 @@ namespace GuGu {
 	struct ShaderParam
 	{
 		math::float4 pixelParams;
+		math::float4 pixelParams2;
 
 		ShaderParam()
 			: pixelParams(0, 0, 0, 0)
+			, pixelParams2(0, 0, 0, 0)
 		{}
 
-		ShaderParam(const math::float4& inPixelParams)
+		ShaderParam(const math::float4& inPixelParams, const math::float4& inPixelParams2 = math::float4(0, 0, 0, 0))
 			: pixelParams(inPixelParams)
+			, pixelParams2(inPixelParams2)
 		{}
 
 		bool operator==(const ShaderParam& rhs) const
 		{
-			return (pixelParams.x == rhs.pixelParams.x && pixelParams.y == rhs.pixelParams.y && pixelParams.z == rhs.pixelParams.z && pixelParams.w == rhs.pixelParams.w);
+			return (pixelParams.x == rhs.pixelParams.x && pixelParams.y == rhs.pixelParams.y && pixelParams.z == rhs.pixelParams.z && pixelParams.w == rhs.pixelParams.w)
+				&& (pixelParams2.x == rhs.pixelParams2.x && pixelParams2.y == rhs.pixelParams2.y && pixelParams2.z == rhs.pixelParams2.z && pixelParams2.w == rhs.pixelParams2.w);
 		}
 	};
 
@@ -102,7 +107,7 @@ namespace GuGu {
 
 		std::vector<std::shared_ptr<BatchData>> m_batches;
 
-		void generateBoxBatch(std::shared_ptr<BatchData> boxBatch, std::shared_ptr<Element> element);
+		void generateBoxBatch(std::shared_ptr<Element> element);
 
 		void generateTextBatch(std::shared_ptr<Element> element);
 		

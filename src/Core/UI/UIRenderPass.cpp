@@ -101,7 +101,12 @@ namespace GuGu {
 		m_lineShader = shaderFactory->CreateShader("asset/shader/UIShader.hlsl", "main_ps", &macros,
 			nvrhi::ShaderType::Pixel);
 
-		if (!m_vertexShader || !m_pixelShader || !m_pixelFontShader || !m_lineShader)
+		macros.clear();
+		macros.push_back(ShaderMacro("UI_RoundedBox", "1"));
+		m_roundedBoxPixelShader = shaderFactory->CreateShader("asset/shader/UIShader.hlsl", "main_ps", &macros,
+			nvrhi::ShaderType::Pixel);
+
+		if (!m_vertexShader || !m_pixelShader || !m_pixelFontShader || !m_lineShader || !m_roundedBoxPixelShader)
 			return false;
 
 		nvrhi::VertexAttributeDesc attributes[] = {
@@ -257,6 +262,21 @@ namespace GuGu {
 			m_LinePipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
 		}
 
+		if (!m_roundedBoxPipeline)
+		{
+			nvrhi::GraphicsPipelineDesc psoDesc;
+			psoDesc.VS = m_vertexShader;
+			psoDesc.PS = m_roundedBoxPixelShader;
+			psoDesc.inputLayout = m_inputLayout;
+			psoDesc.bindingLayouts = { m_bindingLayout };
+			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+			psoDesc.renderState.blendState.targets[0].setBlendEnable(true);
+			psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
+			psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
+			psoDesc.renderState.depthStencilState.depthTestEnable = false;
+			m_roundedBoxPipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
+		}
+
 		m_CommandList->open();
 
 		math::float3 cameraPos = math::float3(0.0f, 0.0f, 0.0f);
@@ -273,6 +293,7 @@ namespace GuGu {
 			ConstantBufferEntry modelConstant;
 			modelConstant.viewProjMatrix = vp;
 			modelConstant.shaderParam = m_elementList->getBatches()[i]->m_shaderParams.pixelParams;
+			modelConstant.shaderParam2 = m_elementList->getBatches()[i]->m_shaderParams.pixelParams2;
 			m_CommandList->writeBuffer(m_constantBuffers[i], &modelConstant, sizeof(modelConstant));
 
 			nvrhi::BindingSetDesc desc;
@@ -300,8 +321,10 @@ namespace GuGu {
 				state.pipeline = m_pipeline;
 			else if (m_elementList->getBatches()[i]->shaderType == UIShaderType::Font)
 				state.pipeline = m_FontPipeline;
-			else
+			else if (m_elementList->getBatches()[i]->shaderType == UIShaderType::Line)
 				state.pipeline = m_LinePipeline;
+			else
+				state.pipeline = m_roundedBoxPipeline;
 			state.framebuffer = framebuffer;
 
 			//construct the viewport so that all viewports form a grid.
@@ -728,6 +751,62 @@ namespace GuGu {
 									)
 								)
 							)
+							//+ VerticalBox::Slot()
+							//.FixedHeight()
+							//(
+							//	WIDGET_NEW(HorizontalBox)
+							//	+ HorizontalBox::Slot()
+							//	.StretchWidth(0.2f)
+							//	(
+							//		WIDGET_NEW(TextBlockWidget)
+							//		.text(u8"width")
+							//	)
+							//	+ HorizontalBox::Slot()
+							//	.StretchWidth(1.0f)
+							//	(
+							//		WIDGET_NEW(Slider)
+							//		.MaxValue(15.0f)
+							//		.MinValue(0.0f)
+							//		.OnValueChangedLambda([&](float inValue) {
+							//				StyleSet::getStyle()->getBrush("thumbImage")->m_outlineSettings.m_width = inValue;
+							//			}
+							//		)
+							//	)
+							//	+ HorizontalBox::Slot()
+							//	.StretchWidth(0.2f)
+							//	(
+							//		WIDGET_NEW(TextBlockWidget)
+							//		.text(u8"cornerRadius")
+							//		)
+							//	+ HorizontalBox::Slot()
+							//	.StretchWidth(1.0f)
+							//	(
+							//		WIDGET_NEW(Slider)
+							//		.MaxValue(200.0f)
+							//		.MinValue(0.0f)
+							//		.OnValueChangedLambda([&](float inValue) {
+							//			StyleSet::getStyle()->getBrush("thumbImage")->m_outlineSettings.m_cornerRadius = math::float4(inValue);
+							//			}
+							//		)
+							//	)
+							//	+ HorizontalBox::Slot()
+							//	.StretchWidth(0.2f)
+							//	(
+							//		WIDGET_NEW(TextBlockWidget)
+							//		.text(u8"Padding")
+							//		)
+							//	+ HorizontalBox::Slot()
+							//	.StretchWidth(1.0f)
+							//	(
+							//		WIDGET_NEW(Slider)
+							//		.MaxValue(15.0f)
+							//		.MinValue(0.0f)
+							//		.OnValueChangedLambda([&](float inValue) {
+							//			StyleSet::getStyle()->getBrush("thumbImage")->m_margin = Padding(inValue, inValue, inValue, inValue);
+							//			}
+							//		)
+							//	)
+							//)
 							+ VerticalBox::Slot()
 							.FixedHeight()
 							(
@@ -791,12 +870,12 @@ namespace GuGu {
 							//	)
 							//)
 							+ VerticalBox::Slot()
-							.FixedHeight()
+							.StretchHeight(0.1)
 							(
 								WIDGET_NEW(HorizontalBox)
 								+ HorizontalBox::Slot()
 								
-								.FixedWidth()
+								.StretchWidth(1.0f)
 								(
 									WIDGET_NEW(Border)
 									.Content(
@@ -819,7 +898,7 @@ namespace GuGu {
 									})
 								)
 								+ HorizontalBox::Slot()
-								.FixedWidth()
+								.StretchWidth(1.0f)
 								(
 									WIDGET_NEW(Border)
 									.Content(
@@ -842,7 +921,7 @@ namespace GuGu {
 									})
 								)
 								+ HorizontalBox::Slot()
-								.FixedWidth()
+								.StretchWidth(1.0f)
 								(
 									
 									WIDGET_NEW(Border)

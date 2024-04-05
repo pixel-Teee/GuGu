@@ -8,6 +8,7 @@
 #include "ViewportElement.h"
 #include "TextElement.h"
 #include "ShapedTextElement.h"
+#include "RoundedBoxElement.h"
 #include "Brush.h"
 #include "FontCache.h"
 #include "CharacterList.h"
@@ -31,11 +32,25 @@ namespace GuGu {
 		//cull
 		if (brush == nullptr)
 			return;
+
+		Element::ElementType elementType = (brush->m_drawAs == BrushDrawType::Border) ? Element::ElementType::Border : ((brush->m_drawAs == BrushDrawType::RoundedBox) ? Element::ElementType::RoundedBox : Element::ElementType::Box);
 		
-		std::shared_ptr<BoxElement> boxElement = std::make_shared<BoxElement>(Element::ElementType::Box, widgetGeometry, color, brush, layer, brush->m_tiling);
-		boxElement->setClipIndex(elementList.getClippintIndex());
-		//generate a box element to element list
-		elementList.m_elements.push_back(boxElement);
+		if (elementType == Element::ElementType::RoundedBox)
+		{
+			std::shared_ptr<RoundedBoxElement> boxElement = std::make_shared<RoundedBoxElement>(Element::ElementType::RoundedBox, widgetGeometry, color, brush, layer, brush->m_tiling);
+			boxElement->setClipIndex(elementList.getClippintIndex());
+			boxElement->setRadius(brush->m_outlineSettings.m_cornerRadius);
+			boxElement->setOutline(brush->m_outlineSettings.m_color, brush->m_outlineSettings.m_width);
+			//generate a box element to element list
+			elementList.m_elements.push_back(boxElement);
+		}
+		else
+		{
+			std::shared_ptr<BoxElement> boxElement = std::make_shared<BoxElement>(Element::ElementType::Box, widgetGeometry, color, brush, layer, brush->m_tiling);
+			boxElement->setClipIndex(elementList.getClippintIndex());
+			//generate a box element to element list
+			elementList.m_elements.push_back(boxElement);
+		}		
 	}
 	void ElementList::addTextElement(ElementList& elementList, const WidgetGeometry& widgetGeometry, math::float4 color, std::shared_ptr<TextInfo> textInfo, const GuGuUtf8Str& text, uint32_t layer)
 	{
@@ -88,13 +103,9 @@ namespace GuGu {
 			switch (m_elements[i]->m_elementType)
 			{
 				case Element::ElementType::Box:
+				case Element::ElementType::RoundedBox:
 				{
-					std::shared_ptr<BatchData> boxBatch = std::make_shared<BatchData>();
-					boxBatch->shaderType = UIShaderType::Default;
-					boxBatch->m_layer = m_elements[i]->m_layer;
-					boxBatch->m_clippingState = getClippingState(m_elements[i]->m_clipIndex);
-					generateBoxBatch(boxBatch, m_elements[i]);
-					m_batches.push_back(boxBatch);
+					generateBoxBatch(m_elements[i]);
 					break;
 				}
 				case Element::ElementType::Text:
@@ -176,8 +187,12 @@ namespace GuGu {
 	{
 		return m_clippingManager.getClippingState(clippingIndex);
 	}
-	void ElementList::generateBoxBatch(std::shared_ptr<BatchData> boxBatch, std::shared_ptr<Element> element)
+	void ElementList::generateBoxBatch(std::shared_ptr<Element> element)
 	{
+		std::shared_ptr<BatchData> boxBatch = std::make_shared<BatchData>();
+		boxBatch->m_layer = element->m_layer;
+		boxBatch->m_clippingState = getClippingState(element->m_clipIndex);
+
 		std::shared_ptr<BoxElement> boxElement = std::static_pointer_cast<BoxElement>(element);
 		//math::double2 absolutePosition = boxElement->m_geometry.getAbsolutePosition();
 		math::affine2 transform = boxElement->m_geometry.getAccumulateTransform();
@@ -188,24 +203,176 @@ namespace GuGu {
 		bool tiling = element->m_tiling;
 		math::float2 tile = tiling ?  math::float2(localSize.x / brush->m_actualSize.x, localSize.y / brush->m_actualSize.x) : math::float2(1.0f, 1.0f);
 
-		math::float2 topLeft = math::float2(0.0f, 0.0f);
-		math::float2 bottomRight = math::float2(localSize.x, localSize.y);
-		math::float2 topRight = math::float2(localSize.x, 0.0f);
-		math::float2 bottomLeft = math::float2(0.0f, localSize.y);
-		//math::float2 tile = tiling ? math::float2(4.0f, 4.0f) : math::float2(1.0f, 1.0f);
-		boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x, brush->m_startUV.y, tile.x, tile.y), transform.transformPoint(topLeft), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
-		boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x + brush->m_sizeUV.x, brush->m_startUV.y + brush->m_sizeUV.y, tile.x, tile.y), transform.transformPoint(bottomRight), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
-		boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x, brush->m_startUV.y + brush->m_sizeUV.y, tile.x, tile.y), transform.transformPoint(bottomLeft), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
-		boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x + brush->m_sizeUV.x, brush->m_startUV.y, tile.x, tile.y), transform.transformPoint(topRight), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		math::float4 secondaryColor = math::float4(1.0f, 1.0f, 1.0f, 1.0f);
 
-		boxBatch->m_indices.emplace_back(0);
-		boxBatch->m_indices.emplace_back(1);
-		boxBatch->m_indices.emplace_back(2);
-		boxBatch->m_indices.emplace_back(0);
-		boxBatch->m_indices.emplace_back(3);
-		boxBatch->m_indices.emplace_back(1);
+		uint32_t textureWidth = 1;
+		uint32_t textureHeight = 1;
 
-		boxBatch->m_texture = brush->m_texture;
+		math::float2 startUV = math::float2(0.0f, 0.0f);
+		math::float2 endUV = math::float2(1.0f, 1.0f);
+		math::float2 sizeUV;
+
+		sizeUV = math::float2(brush->m_sizeUV.x, brush->m_sizeUV.y);
+		endUV = math::float2(brush->m_sizeUV.x + brush->m_startUV.x, brush->m_sizeUV.y + brush->m_startUV.y);
+		startUV = math::float2(brush->m_startUV.x, brush->m_startUV.y);
+
+		textureWidth = brush->m_actualSize.x;
+		textureHeight = brush->m_actualSize.y;
+
+		if (element->m_elementType == Element::Box)
+		{
+			boxBatch->shaderType = UIShaderType::Default;
+		}
+		else if (element->m_elementType == Element::RoundedBox)
+		{
+			boxBatch->shaderType = UIShaderType::RoundedBox;
+
+			std::shared_ptr<RoundedBoxElement> roundedBoxElement = std::static_pointer_cast<RoundedBoxElement>(element);
+			boxBatch->m_shaderParams = ShaderParam(math::float4(0, roundedBoxElement->getOutlineWeight(), localSize.x, localSize.y));
+			boxBatch->m_shaderParams.pixelParams2 = roundedBoxElement->getRadius();
+
+			secondaryColor = roundedBoxElement->getOutlineColor();
+		}
+
+		Padding padding = brush->m_margin;
+
+		//image 的 margin 是空的
+		if (brush->m_drawAs != BrushDrawType::Image && (padding.left != 0.0f || padding.top != 0.0f || padding.right != 0.0f || padding.bottom != 0.0f))
+		{
+			//创建9个正方形，对于box element
+
+			//决定每个正方形的纹理坐标
+			float leftMarginU = (padding.left > 0.0f)
+				? startUV.x + padding.left * sizeUV.x : startUV.x;
+			float topMarginV = (padding.top > 0.0f)
+				? startUV.y + padding.top * sizeUV.y : startUV.y;
+			float rightMarginU = (padding.right > 0.0f)
+				? endUV.x - padding.right * sizeUV.x : endUV.x;
+			float bottomMarginV = (padding.bottom > 0.0f)
+				? endUV.y - padding.bottom * sizeUV.y : endUV.x;
+
+			float leftMarginX = textureWidth * padding.left;
+			float topMarginY = textureHeight * padding.top;
+			float rightMarginX = localSize.x - textureWidth * padding.right;
+			float bottomMarginY = localSize.y - textureHeight * padding.bottom;
+
+			math::float2 topLeft = math::float2(0.0f, 0.0f);
+			math::float2 bottomRight = math::float2(localSize.x, localSize.y);
+			math::float2 topRight = math::float2(localSize.x, 0.0f);
+			math::float2 bottomLeft = math::float2(0.0f, localSize.y);
+
+			math::float2 position = topLeft;
+			math::float2 endPos = bottomRight;
+
+			boxBatch->m_vertices.emplace_back(math::float4(startUV.x, startUV.y, tile.x, tile.y), transform.transformPoint(position), color, secondaryColor);
+			boxBatch->m_vertices.emplace_back(math::float4(startUV.x, topMarginV, tile.x, tile.y), transform.transformPoint(math::float2(position.x, topMarginY)), color, secondaryColor);
+			boxBatch->m_vertices.emplace_back(math::float4(leftMarginU, startUV.y, tile.x, tile.y), transform.transformPoint(math::float2(leftMarginX, position.y)), color, secondaryColor);
+			boxBatch->m_vertices.emplace_back(math::float4(leftMarginU, topMarginV, tile.x, tile.y), transform.transformPoint(math::float2(leftMarginX, topMarginY)), color, secondaryColor);
+			boxBatch->m_vertices.emplace_back(math::float4(rightMarginU, startUV.y, tile.x, tile.y), transform.transformPoint(math::float2(rightMarginX, position.y)), color, secondaryColor);
+			boxBatch->m_vertices.emplace_back(math::float4(rightMarginU, topMarginV, tile.x, tile.y), transform.transformPoint(math::float2(rightMarginX, topMarginY)), color, secondaryColor);
+			boxBatch->m_vertices.emplace_back(math::float4(endUV.x, startUV.y, tile.x, tile.y), transform.transformPoint(math::float2(endPos.x, position.y)), color, secondaryColor);
+			boxBatch->m_vertices.emplace_back(math::float4(endUV.x, topMarginV, tile.x, tile.y), transform.transformPoint(math::float2(endPos.x, topMarginY)), color, secondaryColor);
+			//boxBatch->m_vertices.emplace_back(math::float4(leftMarginU, topMarginV, tile.x, tile.y), transform.transformPoint(math::float2(leftMarginX, position.y)), color, secondaryColor);
+			boxBatch->m_vertices.emplace_back(math::float4(startUV.x, bottomMarginV, tile.x, tile.y), transform.transformPoint(math::float2(position.x, bottomMarginY)), color, secondaryColor);
+			boxBatch->m_vertices.emplace_back(math::float4(leftMarginU, bottomMarginV, tile.x, tile.y), transform.transformPoint(math::float2(leftMarginX, bottomMarginY)), color, secondaryColor);
+			boxBatch->m_vertices.emplace_back(math::float4(rightMarginU, bottomMarginV, tile.x, tile.y), transform.transformPoint(math::float2(rightMarginX, bottomMarginY)), color, secondaryColor);
+			boxBatch->m_vertices.emplace_back(math::float4(endUV.x, bottomMarginV, tile.x, tile.y), transform.transformPoint(math::float2(endPos.x, bottomMarginY)), color, secondaryColor);
+			boxBatch->m_vertices.emplace_back(math::float4(startUV.x, endUV.y, tile.x, tile.y), transform.transformPoint(math::float2(position.x, endPos.y)), color, secondaryColor);
+			boxBatch->m_vertices.emplace_back(math::float4(leftMarginU, endUV.y, tile.x, tile.y), transform.transformPoint(math::float2(leftMarginX, endPos.y)), color, secondaryColor);
+			boxBatch->m_vertices.emplace_back(math::float4(rightMarginU, endUV.y, tile.x, tile.y), transform.transformPoint(math::float2(rightMarginX, endPos.y)), color, secondaryColor);
+			boxBatch->m_vertices.emplace_back(math::float4(endUV.x, endUV.y, tile.x, tile.y), transform.transformPoint(math::float2(endPos.x, endPos.y)), color, secondaryColor);
+
+			//top
+			boxBatch->m_indices.emplace_back(0);
+			boxBatch->m_indices.emplace_back(2);
+			boxBatch->m_indices.emplace_back(1);
+			boxBatch->m_indices.emplace_back(1);
+			boxBatch->m_indices.emplace_back(2);
+			boxBatch->m_indices.emplace_back(3);
+
+			boxBatch->m_indices.emplace_back(2);
+			boxBatch->m_indices.emplace_back(4);
+			boxBatch->m_indices.emplace_back(3);
+			boxBatch->m_indices.emplace_back(3);
+			boxBatch->m_indices.emplace_back(4);
+			boxBatch->m_indices.emplace_back(5);
+
+			boxBatch->m_indices.emplace_back(4);
+			boxBatch->m_indices.emplace_back(6);
+			boxBatch->m_indices.emplace_back(5);
+			boxBatch->m_indices.emplace_back(6);
+			boxBatch->m_indices.emplace_back(7);
+			boxBatch->m_indices.emplace_back(5);
+
+			//middle
+			boxBatch->m_indices.emplace_back(1);
+			boxBatch->m_indices.emplace_back(3);
+			boxBatch->m_indices.emplace_back(8);
+			boxBatch->m_indices.emplace_back(3);
+			boxBatch->m_indices.emplace_back(9);
+			boxBatch->m_indices.emplace_back(8);
+
+			boxBatch->m_indices.emplace_back(3);
+			boxBatch->m_indices.emplace_back(5);
+			boxBatch->m_indices.emplace_back(9);
+			boxBatch->m_indices.emplace_back(5);
+			boxBatch->m_indices.emplace_back(10);
+			boxBatch->m_indices.emplace_back(9);
+
+			boxBatch->m_indices.emplace_back(5);
+			boxBatch->m_indices.emplace_back(7);
+			boxBatch->m_indices.emplace_back(10);
+			boxBatch->m_indices.emplace_back(7);
+			boxBatch->m_indices.emplace_back(11);
+			boxBatch->m_indices.emplace_back(10);
+
+			//bottom
+			boxBatch->m_indices.emplace_back(8);
+			boxBatch->m_indices.emplace_back(9);
+			boxBatch->m_indices.emplace_back(12);
+			boxBatch->m_indices.emplace_back(9);
+			boxBatch->m_indices.emplace_back(13);
+			boxBatch->m_indices.emplace_back(12);
+
+			boxBatch->m_indices.emplace_back(9);
+			boxBatch->m_indices.emplace_back(10);
+			boxBatch->m_indices.emplace_back(13);
+			boxBatch->m_indices.emplace_back(10);
+			boxBatch->m_indices.emplace_back(14);
+			boxBatch->m_indices.emplace_back(13);
+
+			boxBatch->m_indices.emplace_back(10);
+			boxBatch->m_indices.emplace_back(11);
+			boxBatch->m_indices.emplace_back(14);
+			boxBatch->m_indices.emplace_back(11);
+			boxBatch->m_indices.emplace_back(15);
+			boxBatch->m_indices.emplace_back(14);
+
+			boxBatch->m_texture = brush->m_texture;
+		}
+		else
+		{
+			math::float2 topLeft = math::float2(0.0f, 0.0f);
+			math::float2 bottomRight = math::float2(localSize.x, localSize.y);
+			math::float2 topRight = math::float2(localSize.x, 0.0f);
+			math::float2 bottomLeft = math::float2(0.0f, localSize.y);
+			//math::float2 tile = tiling ? math::float2(4.0f, 4.0f) : math::float2(1.0f, 1.0f);
+			boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x, brush->m_startUV.y, tile.x, tile.y), transform.transformPoint(topLeft), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+			boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x + brush->m_sizeUV.x, brush->m_startUV.y + brush->m_sizeUV.y, tile.x, tile.y), transform.transformPoint(bottomRight), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+			boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x, brush->m_startUV.y + brush->m_sizeUV.y, tile.x, tile.y), transform.transformPoint(bottomLeft), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+			boxBatch->m_vertices.emplace_back(math::float4(brush->m_startUV.x + brush->m_sizeUV.x, brush->m_startUV.y, tile.x, tile.y), transform.transformPoint(topRight), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+
+			boxBatch->m_indices.emplace_back(0);
+			boxBatch->m_indices.emplace_back(1);
+			boxBatch->m_indices.emplace_back(2);
+			boxBatch->m_indices.emplace_back(0);
+			boxBatch->m_indices.emplace_back(3);
+			boxBatch->m_indices.emplace_back(1);
+
+			boxBatch->m_texture = brush->m_texture;
+		}
+
+		m_batches.push_back(boxBatch);
 	}
 	void ElementList::generateTextBatch(std::shared_ptr<Element> element)
 	{
