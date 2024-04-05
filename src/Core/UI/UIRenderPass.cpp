@@ -795,11 +795,17 @@ namespace GuGu {
 							(
 								WIDGET_NEW(HorizontalBox)
 								+ HorizontalBox::Slot()
+								
 								.FixedWidth()
 								(
-									WIDGET_NEW(TextBlockWidget)
-									.text(u8"x:")
-									.Clip(WidgetClipping::ClipToBounds)
+									WIDGET_NEW(Border)
+									.Content(
+										WIDGET_NEW(TextBlockWidget)
+										.text(u8"x:")
+										.Clip(WidgetClipping::ClipToBounds)
+									)
+									.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
+									.BorderBackgroundColor(math::float4(1.0f, 0.0f, 0.0f, 1.0f))
 								)
 								+ HorizontalBox::Slot()
 								.FixedWidth()
@@ -815,9 +821,14 @@ namespace GuGu {
 								+ HorizontalBox::Slot()
 								.FixedWidth()
 								(
-									WIDGET_NEW(TextBlockWidget)
-									.text(u8"y:")
-									.Clip(WidgetClipping::ClipToBounds)
+									WIDGET_NEW(Border)
+									.Content(
+										WIDGET_NEW(TextBlockWidget)
+										.text(u8"y:")
+										.Clip(WidgetClipping::ClipToBounds)
+									)
+									.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
+									.BorderBackgroundColor(math::float4(0.0f, 1.0f, 0.0f, 1.0f))
 								)
 								+ HorizontalBox::Slot()
 								.FixedWidth()
@@ -833,9 +844,15 @@ namespace GuGu {
 								+ HorizontalBox::Slot()
 								.FixedWidth()
 								(
-									WIDGET_NEW(TextBlockWidget)
-									.text(u8"z:")
-									.Clip(WidgetClipping::ClipToBounds)
+									
+									WIDGET_NEW(Border)
+									.Content(
+										WIDGET_NEW(TextBlockWidget)
+										.text(u8"z:")
+										.Clip(WidgetClipping::ClipToBounds)
+									)
+									.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
+									.BorderBackgroundColor(math::float4(0.0f, 0.0f, 1.0f, 1.0f))
 								)
 								+ HorizontalBox::Slot()
 								.FixedWidth()

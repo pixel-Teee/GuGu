@@ -17,6 +17,7 @@ namespace GuGu {
 	void Border::init(const BuilderArguments& arguments)
 	{
 		m_imageBursh = arguments.mbrush;
+		m_borderBackgroundColor = arguments.mBorderBackgroundColor;
 		m_childWidget = arguments.mContent;
 		m_childWidget->setHorizontalAlignment(arguments.mhorizontalAlignment);
 		m_childWidget->setVerticalAlignment(arguments.mverticalAlignment);
@@ -31,7 +32,7 @@ namespace GuGu {
 		ArrangedWidgetArray arrangedWidgetArray(Visibility::Visible);
 		AllocationChildActualSpace(allocatedGeometry, arrangedWidgetArray);
 
-		ElementList::addBoxElement(elementList, allocatedGeometry, math::float4(1.0f, 1.0f, 1.0f, 1.0f), m_imageBursh.Get(), layer); //background
+		ElementList::addBoxElement(elementList, allocatedGeometry, m_borderBackgroundColor.Get(), m_imageBursh.Get(), layer); //background
 
 		uint32_t widgetNumbers = arrangedWidgetArray.getArrangedWidgetsNumber();//note:just one
 		//math::double2 size = math::double2(0.0, 0.0);

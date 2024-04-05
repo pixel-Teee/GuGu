@@ -16,7 +16,12 @@ namespace GuGu {
 
 		struct BuilderArguments : public Arguments<Border>
 		{
-			BuilderArguments() = default;
+			BuilderArguments():
+				mverticalAlignment(VerticalAlignment::Center)
+				, mhorizontalAlignment(HorizontalAlignment::Center)
+				, mpadding(0.1f, 0.1f, 0.1f, 0.1f)
+				, mBorderBackgroundColor(math::float4(1.0f, 1.0f, 1.0f, 1.0f))
+			{}
 
 			~BuilderArguments() = default;
 
@@ -29,6 +34,8 @@ namespace GuGu {
 			ARGUMENT_VALUE(HorizontalAlignment, horizontalAlignment)
 			
 			ARGUMENT_VALUE(Padding, padding)
+
+			ARGUMENT_ATTRIBUTE(math::float4, BorderBackgroundColor)
 		};
 
 		void init(const BuilderArguments& arguments);
@@ -46,5 +53,7 @@ namespace GuGu {
 		Attribute<std::shared_ptr<Brush>> m_imageBursh;
 
 		std::shared_ptr<SingleChildSlot> m_childWidget;
+
+		Attribute<math::float4> m_borderBackgroundColor;
 	};
 }
