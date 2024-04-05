@@ -12,6 +12,7 @@ cbuffer CB : register(b0)
 {
     float4x4 ViewProjection;
     float4 shaderParams;
+    float4 shaderParams2;
 };
 
 PSInput main_vs(float4 InTextureCoordinate : TEXCOORD0, float2 InPosition : POSITIONT0,
@@ -78,6 +79,75 @@ float4 getLineSegmentElementColor(PSInput VIn)
     return color;
 }
 
+float getRoundedBoxDistance(float2 pos, float2 center, float radius, float inset)
+{
+    //distance from center
+    pos = abs(pos - center);
+    
+    //distance from the inner coner
+    pos = pos - (center - float2(radius + inset, radius + inset));
+
+    return lerp(length(pos) - radius, max(pos.x - radius, pos.y - radius), float(pos.x <= 0 || pos.y <= 0));
+}
+
+float4 getRoundedBoxElementColorInternal(float2 size, float2 UV, float thickNess, float4 cornerRadii, float4 fillColor, float4 borderColor)
+{
+    float2 pos = size * UV;
+    float2 center = size / 2.0f;
+    
+    //if uv <= 0.5, 0.5 return 1, else return 0 
+    float2 quadrant = step(UV, float2(0.5f, 0.5f));
+
+    //cornerRadii x = top left
+    //cornerRadii y = top right
+    //cornerRadii z = bottom right
+    //cornerRadii w = bottom left
+   
+    float left = lerp(cornerRadii.y, cornerRadii.x, quadrant.x);
+    float right = lerp(cornerRadii.z, cornerRadii.w, quadrant.x);
+    float radius = lerp(right, left, quadrant.y);
+    
+    //compute the distances internal and external to the border outline
+    float dext = getRoundedBoxDistance(pos, center, radius, 0.0f);
+    float din = getRoundedBoxDistance(pos, center, max(radius - thickNess, 0), thickNess);
+    
+    //compute the border intensity and fill intensity with a smooth transition
+    float bi_spread = 1.0;
+    float bi = smoothstep(bi_spread, -bi_spread, dext);
+
+    float fi_spread = .5;
+    float fi = smoothstep(fi_spread, -fi_spread, din);
+
+    float4 fill = fillColor;
+    float4 border = borderColor;
+    
+    //alpha blend the external color 
+    float4 OutColor = lerp(border, fill, float(thickNess > radius));
+    OutColor.a = 0.0;
+
+	//blend in the border and fill colors
+    OutColor = lerp(OutColor, border, bi);
+    OutColor = lerp(OutColor, fill, fi);
+    return OutColor;
+}
+
+float4 getRoundedBoxElementColor(PSInput VIn)
+{
+    //first: box local size.xy
+    //second: uv
+    //third: 
+    //fourth: corner radius xyzw
+    
+    return getRoundedBoxElementColorInternal(shaderParams.zw, VIn.TextureCoordinate.xy,
+        shaderParams.y, //outline width height
+        shaderParams2,
+        getColor(VIn, GetUV(VIn, 0) * GetUV(VIn, 1)),
+        VIn.SecondaryColor
+    );
+    
+    //return float4(0.0f, VIn.TextureCoordinate.y, 0.0f, 1.0f);
+}
+
 float4 main_ps(PSInput VIn) : SV_Target0
 {
     float4 OutColor;
@@ -91,6 +161,10 @@ float4 main_ps(PSInput VIn) : SV_Target0
     
 #ifdef UI_Line
     OutColor = getLineSegmentElementColor(VIn);
+#endif
+    
+#ifdef UI_RoundedBox
+    OutColor = getRoundedBoxElementColor(VIn);
 #endif
     
     return OutColor;
