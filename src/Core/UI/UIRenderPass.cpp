@@ -945,6 +945,82 @@ namespace GuGu {
 									})
 								)
 							)
+							//+ VerticalBox::Slot()
+							//.StretchHeight(0.1)
+							//(
+							//	WIDGET_NEW(HorizontalBox)
+							//	+ HorizontalBox::Slot()
+							//	
+							//	.StretchWidth(1.0f)
+							//	(
+							//		WIDGET_NEW(Border)
+							//		.Content(
+							//			WIDGET_NEW(TextBlockWidget)
+							//			.text(u8"R:")
+							//			.Clip(WidgetClipping::ClipToBounds)
+							//		)
+							//		.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
+							//		.BorderBackgroundColor(math::float4(1.0f, 0.0f, 0.0f, 1.0f))
+							//	)
+							//	+ HorizontalBox::Slot()
+							//	.FixedWidth()
+							//	(
+							//		WIDGET_NEW(SpinBox<double>)
+							//		.onValueChangedLambda([&](float newValue) {
+							//			m_uiData->color.x = newValue;
+							//		})
+							//		.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
+							//			m_uiData->color.x = newValue;
+							//		})
+							//	)
+							//	+ HorizontalBox::Slot()
+							//	.StretchWidth(1.0f)
+							//	(
+							//		WIDGET_NEW(Border)
+							//		.Content(
+							//			WIDGET_NEW(TextBlockWidget)
+							//			.text(u8"G:")
+							//			.Clip(WidgetClipping::ClipToBounds)
+							//		)
+							//		.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
+							//		.BorderBackgroundColor(math::float4(0.0f, 1.0f, 0.0f, 1.0f))
+							//	)
+							//	+ HorizontalBox::Slot()
+							//	.FixedWidth()
+							//	(
+							//		WIDGET_NEW(SpinBox<double>)
+							//		.onValueChangedLambda([&](float newValue) {
+							//			m_uiData->color.y = newValue;
+							//		})
+							//		.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
+							//			m_uiData->color.y = newValue;
+							//		})
+							//	)
+							//	+ HorizontalBox::Slot()
+							//	.StretchWidth(1.0f)
+							//	(
+							//		
+							//		WIDGET_NEW(Border)
+							//		.Content(
+							//			WIDGET_NEW(TextBlockWidget)
+							//			.text(u8"B:")
+							//			.Clip(WidgetClipping::ClipToBounds)
+							//		)
+							//		.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
+							//		.BorderBackgroundColor(math::float4(0.0f, 0.0f, 1.0f, 1.0f))
+							//	)
+							//	+ HorizontalBox::Slot()
+							//	.FixedWidth()
+							//	(
+							//		WIDGET_NEW(SpinBox<double>)
+							//		.onValueChangedLambda([&](float newValue) {
+							//			m_uiData->color.z = newValue;
+							//		})
+							//		.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
+							//			m_uiData->color.z = newValue;
+							//		})
+							//	)
+							//)
 						)
 					)
 				)

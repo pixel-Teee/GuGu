@@ -809,7 +809,7 @@ namespace GuGu {
 				m_CommandList->writeBuffer(m_ConstantBuffers[index], &modelConstants, sizeof(modelConstants));
 		
 				PbrMaterial pbrMaterial;
-				pbrMaterial.albedo = math::float3(1.0f, 1.0f, 1.0f);
+				pbrMaterial.albedo = m_uiData->color;
 				pbrMaterial.metallic = m_uiData->metallic;;
 				pbrMaterial.roughness = m_uiData->roughness;
 				pbrMaterial.ao = 0.0f;
@@ -843,7 +843,7 @@ namespace GuGu {
 				//get the global matrix to fill constant buffer		
 				m_CommandList->writeBuffer(m_ConstantBuffers[index], &modelConstants, sizeof(modelConstants));
 				PbrMaterial pbrMaterial;
-				pbrMaterial.albedo = math::float3(1.0f, 1.0f, 1.0f);
+				pbrMaterial.albedo = m_uiData->color;
 				pbrMaterial.metallic = m_uiData->metallic;;
 				pbrMaterial.roughness = m_uiData->roughness;
 				pbrMaterial.ao = 0.0f;

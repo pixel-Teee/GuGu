@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Core/Math/MyMath.h>
+
 namespace GuGu {
 	struct UIData
 	{
@@ -14,5 +16,7 @@ namespace GuGu {
 		float xWorldPos = 0.0f;
 		float yWorldPos = 0.0f;
 		float zWorldPos = 0.0f;
+
+		math::float3 color = math::float3(1.0f, 1.0f, 1.0f);
 	};
 }
