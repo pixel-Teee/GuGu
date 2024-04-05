@@ -145,7 +145,7 @@ float4 getRoundedBoxElementColor(PSInput VIn)
         VIn.SecondaryColor
     );
     
-    //return float4(0.0f, VIn.TextureCoordinate.y, 0.0f, 1.0f);
+    //return float4(VIn.TextureCoordinate.x, VIn.TextureCoordinate.y, 0.0f, 1.0f);
 }
 
 float4 main_ps(PSInput VIn) : SV_Target0
