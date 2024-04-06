@@ -36,6 +36,8 @@
 
 # 展示
 
+![android-gui](gui.jpg)
+
 如下是演示的gif图
 
 ![android-gui](gui.gif)
