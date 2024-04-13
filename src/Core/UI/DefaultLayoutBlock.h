@@ -36,8 +36,8 @@ namespace GuGu {
 	private:
 		std::shared_ptr<IRun> m_run;
 
-		TextRange m_range;
-		math::float2 m_size;
+		TextRange m_range;//这段字符串在文本中的范围
+		math::float2 m_size;//测量好的文本塑形大小
 		math::float2 m_locationOffset;//块的左上角起始点，每个块都有这个，绘制的时候使用
 		LayoutBlockTextContext m_textContext;
 	};

@@ -392,16 +392,25 @@ namespace GuGu {
 		std::vector<std::shared_ptr<ILayoutBlock>> softLine;
 		for (int32_t lineModelIndex = 0; lineModelIndex < m_lineModels.size(); ++lineModelIndex)
 		{
-			flowLineLayout(lineModelIndex, m_wrappingWidth, softLine);
-
 			//flush line text shaping cache
-			m_lineModels[lineModelIndex].m_shapedTextCache->Clear();//清理掉shaped text cache
+			m_lineModels[lineModelIndex].m_shapedTextCache->Clear();//清理掉shaped text cache ，这里非常重要，不然会有相同key导致的问题
+
+			flowLineLayout(lineModelIndex, m_wrappingWidth, softLine);
 		}
 	}
 
 	void TextLayout::updateIfNeeded()
 	{
+		//创建新的view
 		updateLayout();
+
+		//更新高亮
+		updateHighLights();
+	}
+
+	void TextLayout::updateHighLights()
+	{
+		flowHighlights();
 	}
 
 	TextLocation TextLayout::getTextLocationAt(const math::float2& relative) const
@@ -574,10 +583,10 @@ namespace GuGu {
 
 		int32_t currentRunIndex = 0;
 		int32_t previousBlockEnd = 0;
-
 		
+		//todo:暂时没有断词断句的功能以及wrap的功能
 		//现在暂时没有wrap的功能，迭代所有它的runs
-		createLineViewBlocks(lineModelIndex, -1, 0.0f, std::optional<float>(), /*out*/currentRunIndex, /*out*/previousBlockEnd, softLine);
+		createLineViewBlocks(lineModelIndex, -1, 0.0f, std::optional<float>(), /*out*/currentRunIndex, /*out*/previousBlockEnd, /*out*/softLine);
 	}
 
 	void TextLayout::getAsTextAndOffsets(GuGuUtf8Str* const OutDisplayText, TextOffsetLocations* const OutTextOffsetLocations) const
@@ -641,6 +650,7 @@ namespace GuGu {
 			const RunModel& run = lineModel.runs[OutRunIndex];
 			const TextRange runRange = run.getTextRange();
 
+			//一个文本块的起始位置和结束位置
 			int32_t blockBeginIndex = std::max(outPreviousBlockEnd, runRange.m_beginIndex);
 			int32_t blockStopIndex = runRange.m_endIndex;
 

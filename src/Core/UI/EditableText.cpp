@@ -13,6 +13,7 @@ namespace GuGu {
 
 		m_plainTextMarshaller = std::make_shared<PlainTextLayoutMarshaller>();
 
+		//TextShapingMethod是塑形方式
 		m_editableTextLayout = std::make_unique<EditableTextLayout>(*this, arguments.mtext, textStyle, TextShapingMethod::KerningOnly, m_plainTextMarshaller);
 
 		m_OnIsTypedCharValid = arguments.monIsTypedCharValid;
@@ -37,12 +38,12 @@ namespace GuGu {
 	{
 		math::float2 textLayoutSize = m_editableTextLayout->ComputeFixedSize(inLayoutScaleMultiplier);
 
-        //todo:
 		return textLayoutSize;
 	}
-	void EditableText::Tick(const WidgetGeometry& allocatedGeometry, const double inCurrentTime, const float inDeltaTime)
+	void EditableText::Tick(const WidgetGeometry& allocatedGeometry, const double inCurrentTime, const float inDeltaTime) //tick发生在GenerateElement时，在onGenerateElement前
 	{
-		m_editableTextLayout->Tick(allocatedGeometry, inCurrentTime, inDeltaTime);
+		m_editableTextLayout->Tick(allocatedGeometry, inCurrentTime, inDeltaTime);//note:这个函数会获取bound text 的文本和text layout 所表示的文本进行比较 ，如果发生变动，调用
+		//marshaller 的 set text layout ，填充 text layout ，再调用 text layout 的 update if needed 更新 line view 和高亮
 	}
 	Reply EditableText::OnMouseButtonDown(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
 	{

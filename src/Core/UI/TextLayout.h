@@ -165,7 +165,7 @@ namespace GuGu {
 			std::shared_ptr<ILayoutBlock> createBlock(const BlockDefinition& blockDefine, float inScale, const LayoutBlockTextContext& inTextContext) const;
 		private:
 			std::shared_ptr<IRun> m_run;
-			std::vector<TextRange> m_measuredRanges;
+			std::vector<TextRange> m_measuredRanges;//暂时不知道这个用途
 			std::vector<math::float2> m_measuredRangeSizes;
 		};
 
@@ -277,6 +277,8 @@ namespace GuGu {
 		virtual void updateLayout();
 
 		virtual void updateIfNeeded();
+
+		virtual void updateHighLights();
 
 		TextLocation getTextLocationAt(const math::float2& relative) const;
 

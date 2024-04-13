@@ -40,7 +40,7 @@ namespace GuGu {
         m_cursorLineHighlighter = EditableTextTypes::CursorLineHighlighter::Create(&m_cursorInfo);
         m_textSelectionHighlighter = EditableTextTypes::TextSelectionHighlighter::Create();
 
-		m_textLayout->clearLines();
+		//m_textLayout->clearLines();
 		m_marshaller->setText(m_boundText.Get(), *m_textLayout);
 
         m_bIsDragSelecting = false;
@@ -57,8 +57,9 @@ namespace GuGu {
         m_textLayout->setScale(layoutScaleMultiplier);
         //todo:update if needed
 
+        //这里会创建新的view，以及更新view的高亮
         m_textLayout->updateIfNeeded();
-        m_textLayout->flowHighlights(); 
+
         //refresh();
     }
     math::float2 EditableTextLayout::ComputeFixedSize(float layoutScaleMultiplier) const
@@ -75,13 +76,11 @@ namespace GuGu {
     }
     void EditableTextLayout::Tick(const WidgetGeometry& allocatedGeometry, const double inCurrentTime, const float inDeltaTime)
     {
-        //refresh();
-        const GuGuUtf8Str& textToSet = m_boundText.Get();//note:刷新回调
         refresh();
     }
     bool EditableTextLayout::refresh()
     {
-        const GuGuUtf8Str& textToSet = m_boundText.Get();
+        const GuGuUtf8Str& textToSet = m_boundText.Get(GuGuUtf8Str(""));//note:刷新回调
         return refreshImpl(textToSet);
     }
     bool EditableTextLayout::refreshImpl(const GuGuUtf8Str& inTextToSet)
@@ -224,7 +223,7 @@ namespace GuGu {
     {
         clearSelection();
 
-        //之后要根据focus event来判断
+        //之后要根据focus event 来判断
         TextCommit::Type textAction;
         textAction = TextCommit::OnUserMovedFocus;
 
@@ -279,6 +278,7 @@ namespace GuGu {
         if (bHasTextChanged)
         {
             clearSelection();
+
             m_textLayout->clearLines();
 
             m_marshaller->setText(textToSet, *m_textLayout);
@@ -291,14 +291,15 @@ namespace GuGu {
     }
     bool EditableTextLayout::moveCursor(const MoveCursor& inArgs)
     {
+        //text location 存储了行号和在行里面的偏移
         TextLocation newCursorPosition;
         TextLocation cursorPosition = m_cursorInfo.getCursorInteractionLocation();  
 
-        if (inArgs.getMoveMethod() == CursorMoveMethod::Cardinal)
+        if (inArgs.getMoveMethod() == CursorMoveMethod::Cardinal)//上下左右
         {
             newCursorPosition = translatedLocation(cursorPosition, inArgs.getMoveDirection().x);
         }
-        else if (inArgs.getMoveMethod() == CursorMoveMethod::ScreenPosition)
+        else if (inArgs.getMoveMethod() == CursorMoveMethod::ScreenPosition)//屏幕位置
         {
             newCursorPosition = m_textLayout->getTextLocationAt(inArgs.getLocalPosition() * inArgs.getGeometryScale());
         }

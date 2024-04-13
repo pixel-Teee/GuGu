@@ -851,24 +851,24 @@ namespace GuGu {
 									)
 								)
 							)
-							//+ VerticalBox::Slot()
-							//.FixedHeight()
-							//(
-							//	WIDGET_NEW(HorizontalBox)
-							//	+ HorizontalBox::Slot()
-							//	.StretchWidth(0.3f)
-							//	(
-							//		WIDGET_NEW(TextBlockWidget)
-							//		.text(u8"可编辑文本框:")
-							//		.Clip(WidgetClipping::ClipToBounds)
-							//	)
-							//	+ HorizontalBox::Slot()
-							//	.StretchWidth(1.0f)
-							//	(
-							//		WIDGET_NEW(EditableTextBox)
-							//		.Text("文本")
-							//	)
-							//)
+							+ VerticalBox::Slot()
+							.FixedHeight()
+							(
+								WIDGET_NEW(HorizontalBox)
+								+ HorizontalBox::Slot()
+								.StretchWidth(0.3f)
+								(
+									WIDGET_NEW(TextBlockWidget)
+									.text(u8"可编辑文本框:")
+									.Clip(WidgetClipping::ClipToBounds)
+								)
+								+ HorizontalBox::Slot()
+								.StretchWidth(1.0f)
+								(
+									WIDGET_NEW(EditableTextBox)
+									.Text("文本")
+								)
+							)
 							+ VerticalBox::Slot()
 							.StretchHeight(0.1)
 							(

@@ -59,6 +59,11 @@ namespace GuGu {
 			return Create(inCallable);//lambda
 		}
 
+		const ObjectType& Get(const ObjectType& defaultValue) const
+		{
+			return m_bIsSet ? Get() : defaultValue;
+		}
+
 		const ObjectType& Get() const
 		{
 			if (m_getter)
