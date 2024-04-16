@@ -24,7 +24,7 @@ namespace GuGu {
 
 		Attribute(ObjectType&& inInitialValue)
 			: m_value(std::move(inInitialValue))
-			, m_bIsSet(false)
+			, m_bIsSet(true)
 			, m_getter()
 		{}
 

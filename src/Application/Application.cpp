@@ -216,13 +216,61 @@ namespace GuGu{
 			m_captorWidgetsPath = widgetPath.pathDownTo(mouseCaptor);
 		}
 		std::shared_ptr<Widget> requestedFocusRecepient = reply.getFocusRecepient();
-		if (requestedFocusRecepient)
-		{
-			m_focusWidgetsPath.clear();
-
-			m_focusWidgetsPath = widgetPath.pathDownTo(requestedFocusRecepient);
+		if (requestedFocusRecepient) //请求焦点的控件是有效的
+		{		
 			//for (int32_t j = i; j < widgets.size(); ++j)
 			//	m_focusWidgetsPath.push_back(widgets[j]);
+			setFocus(requestedFocusRecepient, widgetPath);
+		}
+	}
+
+	void Application::setFocus(const std::shared_ptr<Widget>& widgetToFocus, const WidgetPath& widgetPath)
+	{
+		//记录旧的焦点路径
+		WidgetPath oldFocusWidgetsPath;
+		m_focusWidgetsPath.toWidgetPath(oldFocusWidgetsPath);
+
+		//set user focus(这里是设置用户焦点的代码逻辑)
+		//设置新的焦点控件
+		size_t widgetNumber = widgetPath.m_widgets.getArrangedWidgetsNumber();
+		for (int32_t i = widgetNumber - 1; i >= 0; --i)
+		{
+			std::shared_ptr<Widget> widget = widgetPath.m_widgets[i]->getWidget();
+			if (widget->supportsKeyboardFocus())
+			{
+				WidgetPath focusedWidgetPath;
+				focusedWidgetPath = widgetPath.pathDownTo(widget);
+
+				int32_t focusedWidgetNumber = focusedWidgetPath.m_widgets.getArrangedWidgetsNumber();
+				for (int32_t j = focusedWidgetNumber - 1; j >= 0; --j)
+				{
+					std::shared_ptr<Widget> widget = focusedWidgetPath.m_widgets[j]->getWidget();
+					m_focusWidgetsPath.clear();
+					m_focusWidgetsPath = focusedWidgetPath.pathDownTo(widget);
+					break;
+				}
+
+				if (oldFocusWidgetsPath.m_widgets.getArrangedWidgetsNumber() != 0)
+				{
+					std::shared_ptr<Widget> oldFocus = oldFocusWidgetsPath.m_widgets[oldFocusWidgetsPath.m_widgets.getArrangedWidgetsNumber() - 1]->getWidget();
+					oldFocusWidgetsPath.m_widgets[oldFocusWidgetsPath.m_widgets.getArrangedWidgetsNumber() - 1]->getWidget()->OnFocusLost();
+				}
+
+				if (focusedWidgetPath.m_widgets.getArrangedWidgetsNumber() != 0)
+				{
+					std::shared_ptr<Widget> newFocusWidget = focusedWidgetPath.m_widgets[focusedWidgetPath.m_widgets.getArrangedWidgetsNumber() - 1]->getWidget();
+					newFocusWidget->OnFocusReceived(newFocusWidget->getWidgetGeometry());
+				}
+
+				//std::shared_ptr<Widget> oldFocus = oldFocusWidgetsPath.m_widgets[oldFocusWidgetsPath.m_widgets.getArrangedWidgetsNumber() - 1]->getWidget();
+				//
+				//oldFocusWidgetsPath.m_widgets[oldFocusWidgetsPath.m_widgets.getArrangedWidgetsNumber() - 1]->getWidget()->OnFocusLost();
+				//
+				//std::shared_ptr<Widget> newFocusWidget = focusedWidgetPath.m_widgets[focusedWidgetPath.m_widgets.getArrangedWidgetsNumber() - 1]->getWidget();
+				//newFocusWidget->OnFocusReceived(newFocusWidget->getWidgetGeometry());
+
+				break;
+			}
 		}
 	}
 
@@ -270,12 +318,6 @@ namespace GuGu{
 			std::reverse(widgets.begin(), widgets.end()); //构造widget path
 			WidgetPath widgetPath(widgets);
 
-			//记录旧的焦点路径
-			WidgetPath oldFocusWidgetsPath;
-			m_focusWidgetsPath.toWidgetPath(oldFocusWidgetsPath);
-
-			//widgets 第一个是 window
-
 			//从碰撞到的widget开始派发事件
 			size_t widgetNumber = widgetPath.m_widgets.getArrangedWidgetsNumber();
 			for (int32_t i = widgetNumber - 1; i >= 0; --i) //bubble policy
@@ -303,38 +345,6 @@ namespace GuGu{
 				//}
 
 				processReply(reply, widgetPath);
-			}
-
-			//set user focus(这里是设置用户焦点的代码逻辑)
-			//设置新的焦点控件
-			//size_t widgetNumber = widgetPath.m_widgets.getArrangedWidgetsNumber();
-			for (int32_t i = widgetNumber - 1; i >= 0; --i)
-			{
-				std::shared_ptr<Widget> widget = widgetPath.m_widgets[i]->getWidget();
-				if (widget->supportsKeyboardFocus())
-				{
-					WidgetPath focusedWidgetPath;
-					focusedWidgetPath = widgetPath.pathDownTo(widget);
-
-					int32_t focusedWidgetNumber = focusedWidgetPath.m_widgets.getArrangedWidgetsNumber();
-					for (int32_t j = focusedWidgetNumber - 1; j >= 0; --j)
-					{
-						std::shared_ptr<Widget> widget = focusedWidgetPath.m_widgets[j]->getWidget();
-						m_focusWidgetsPath.clear();
-						m_focusWidgetsPath = focusedWidgetPath.pathDownTo(widget);
-						break;
-					}
-
-					int32_t oldFocusWidgetPathNumber = oldFocusWidgetsPath.m_widgets.getArrangedWidgetsNumber();
-					for (int32_t j = oldFocusWidgetPathNumber - 1; j >= 0; --j)
-						oldFocusWidgetsPath.m_widgets[j]->getWidget()->OnFocusLost();
-
-					int32_t newFocusWidgetPathNumber = focusedWidgetPath.m_widgets.getArrangedWidgetsNumber();
-					for (int32_t j = newFocusWidgetPathNumber - 1; j >= 0; --j)
-						focusedWidgetPath.m_widgets[j]->getWidget()->OnFocusReceived(focusedWidgetPath.m_widgets[j]->getWidgetGeometry());
-
-					break;
-				}
 			}
         }
         

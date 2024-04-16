@@ -30,6 +30,11 @@ namespace GuGu {
         m_visibilityAttribute = arguments.mVisibility;
     }
 
+    bool EditableTextBox::supportsKeyboardFocus() const
+    {
+        return m_editableText->supportsKeyboardFocus();
+    }
+
     Reply EditableTextBox::OnFocusReceived(const WidgetGeometry& myGeometry)
     {
         Reply reply = Reply::Handled();

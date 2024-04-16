@@ -34,6 +34,8 @@ namespace GuGu {
 
 		void init(const BuilderArguments& arguments);
 
+		virtual bool supportsKeyboardFocus() const override;
+
 		virtual Reply OnFocusReceived(const WidgetGeometry& myGeometry);
 	private:
 		std::shared_ptr<Brush> getBorderImage() const;
