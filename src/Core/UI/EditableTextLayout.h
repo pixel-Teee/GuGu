@@ -59,6 +59,8 @@ namespace GuGu {
 
 		bool handleTypeChar(const GuGuUtf8Str& inChar);	
 
+		bool handleCarriageReturn();
+
 		GuGuUtf8Str getEditableText() const;
 
 		bool setEditableText(const GuGuUtf8Str& textToSet);

@@ -45,6 +45,7 @@ namespace GuGu {
 				, mSupportDynamicSliderMaxValue(false)
 				, mSliderExponent(1.0f)
 				, mMinDesiredWidth(0.0f)
+				, mSelectAllTextOnCommit(true)
 			{}
 
 			~BuilderArguments() = default;
@@ -99,6 +100,8 @@ namespace GuGu {
 
 			//spin box 中值的对齐方式
 			ARGUMENT_ATTRIBUTE(TextJustify::Type, Justification)
+
+			ARGUMENT_ATTRIBUTE(bool, SelectAllTextOnCommit)
 		};
 
 		SpinBox() {}
@@ -157,6 +160,7 @@ namespace GuGu {
 					.onTextCommitted(this, &SpinBox<NumericType>::textFieldOnTextCommited)
 					.visibility(Visibility::Collapsed)
 					.SelecAllTextWhenFocus(true) //当获取焦点的时候，选中所有文本
+					.SelectAllTextOnCommit(arguments.mSelectAllTextOnCommit) //当按下enter键之类的时候，是否选中所有文本
 				)
 			);
 

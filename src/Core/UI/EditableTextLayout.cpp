@@ -135,9 +135,10 @@ namespace GuGu {
             {
                 if (m_ownerWidget->canTypeCharacter(Character))
                 {
-					//end edit transaction
+					
 					Reply reply = boolToReply(handleTypeChar(Character));
 
+                    //end edit transaction
 					const GuGuUtf8Str editedText = getEditableText();
 					m_boundText = editedText;
 
@@ -172,6 +173,14 @@ namespace GuGu {
         else if (key == Keys::V && inKeyEvent.isControlDown())
         {
             pasteTextFromClipboard();
+            reply = Reply::Handled();
+        }
+        else if (key == Keys::Enter)
+        {
+            handleCarriageReturn();
+			//end edit transaction
+			const GuGuUtf8Str editedText = getEditableText();
+			m_boundText = editedText;
             reply = Reply::Handled();
         }
 
@@ -211,7 +220,7 @@ namespace GuGu {
     }
     Reply EditableTextLayout::handleMouseMove(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
     {
-        if (m_bIsDragSelecting && m_ownerWidget->getWidget()->hasAnyFocus() && (inMouseEvent.getCursorDelta().x != 0 || inMouseEvent.getCursorDelta().y != 0))
+        if (m_bIsDragSelecting && m_ownerWidget->getWidget()->hasMouseCapture() && (inMouseEvent.getCursorDelta().x != 0 || inMouseEvent.getCursorDelta().y != 0))
         {
             moveCursor(MoveCursor::viaScreenPointer(myGeometry.absoluteToLocal(inMouseEvent.m_screenSpacePosition), myGeometry.mAbsoluteScale, CursorAction::SelectText));
             return Reply::Handled();
@@ -272,6 +281,26 @@ namespace GuGu {
 			return true;
         }
         return false;
+    }
+    bool EditableTextLayout::handleCarriageReturn()
+    {
+        const GuGuUtf8Str editedText = getEditableText();
+
+        m_ownerWidget->onTextCommitted(editedText, TextCommit::OnEnter);
+
+        //load text
+		//if (m_boundText.IsBound())
+		//{
+		//    m_textLayout->updateIfNeeded();
+		//}
+        
+        //select all text?
+        if (m_ownerWidget->shouldSelectAllTextWhenFocused())
+        {
+            selectAllText();
+        }
+
+        return true;
     }
     GuGuUtf8Str EditableTextLayout::getEditableText() const
     {

@@ -15,6 +15,7 @@ namespace GuGu {
 		{
 			BuilderArguments()
 				: mSelecAllTextWhenFocus(false)
+				, mSelectAllTextOnCommit(false)
 			{
 				mClip = WidgetClipping::Inherit;
 			}
@@ -24,6 +25,8 @@ namespace GuGu {
 			ARGUMENT_ATTRIBUTE(GuGuUtf8Str, text)
 
 			ARGUMENT_ATTRIBUTE(bool, SelecAllTextWhenFocus)
+
+			ARGUMENT_ATTRIBUTE(bool, SelectAllTextOnCommit)
 
 			UI_EVENT(OnIsTypedCharValid, onIsTypedCharValid)//会在输入之前，调用这个回调，去过滤不符合的字符
 
@@ -63,6 +66,8 @@ namespace GuGu {
 		virtual void onTextCommitted(const GuGuUtf8Str& inText, const TextCommit::Type inTextAction) override;
 
 		virtual bool shouldSelectAllTextWhenFocused() const override;
+		
+		virtual bool shouldSelectAllTextOnCommit() const override;
 	protected:
 		//填充TextLayout的Marshaller(装配器)，TextLayout是根据一串字符串处理成渲染可用的信息的集合体
 		std::shared_ptr<PlainTextLayoutMarshaller> m_plainTextMarshaller;
@@ -72,6 +77,9 @@ namespace GuGu {
 
 		//当获取焦点的时候，是否选中所有文本，适用于spin box
 		Attribute<bool> m_bSelectAllTextWhenFocus;
+
+		//是否去选择所有的文本，当按下 enter 去提交修改
+		Attribute<bool> m_bSelectAllTextOnCommit;
 
 		//当一个字母被输入，并且我们想知道是否文本输入框支持这个字母的时候被调用
 		OnIsTypedCharValid m_OnIsTypedCharValid;

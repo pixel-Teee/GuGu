@@ -23,6 +23,8 @@ namespace GuGu {
 		m_visibilityAttribute = arguments.mVisibility;
 
 		m_bSelectAllTextWhenFocus = arguments.mSelecAllTextWhenFocus;
+
+		m_bSelectAllTextOnCommit = arguments.mSelectAllTextOnCommit;
 	}
 	uint32_t EditableText::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
@@ -114,6 +116,11 @@ namespace GuGu {
 	bool EditableText::shouldSelectAllTextWhenFocused() const
 	{
 		return m_bSelectAllTextWhenFocus.Get(false);
+	}
+
+	bool EditableText::shouldSelectAllTextOnCommit() const
+	{
+		return m_bSelectAllTextOnCommit.Get(false);
 	}
 
 }

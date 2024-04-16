@@ -15,6 +15,7 @@ namespace GuGu {
 		if (keyCodes && keyNames && (maxMappings > 0))
 		{
 			ADDKEYMAP(VK_BACK, "BackSpace"); //把windows平台相关的虚拟键映射到字符串
+			ADDKEYMAP(VK_RETURN, "Enter");
 			ADDKEYMAP(VK_LEFT, "Left");
 			ADDKEYMAP(VK_RIGHT, "Right");
 		}

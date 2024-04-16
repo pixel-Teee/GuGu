@@ -23,6 +23,7 @@ namespace GuGu {
 	struct Keys
 	{
 		static const Key BackSpace;
+		static const Key Enter;
 		static const Key Left;
 		static const Key Right;
 

@@ -230,6 +230,12 @@ namespace GuGu{
 		WidgetPath oldFocusWidgetsPath;
 		m_focusWidgetsPath.toWidgetPath(oldFocusWidgetsPath);
 
+		std::shared_ptr<Widget> oldFocus;
+		if (oldFocusWidgetsPath.m_widgets.getArrangedWidgetsNumber() != 0)
+		{
+			oldFocus = oldFocusWidgetsPath.m_widgets[oldFocusWidgetsPath.m_widgets.getArrangedWidgetsNumber() - 1]->getWidget();
+		}
+
 		//set user focus(这里是设置用户焦点的代码逻辑)
 		//设置新的焦点控件
 		size_t widgetNumber = widgetPath.m_widgets.getArrangedWidgetsNumber();
@@ -240,6 +246,11 @@ namespace GuGu{
 			{
 				WidgetPath focusedWidgetPath;
 				focusedWidgetPath = widgetPath.pathDownTo(widget);
+
+				if (widget == oldFocus) //focus 没变化，不调用onFocusLost和onFocusReceived等函数
+				{
+					return;
+				}
 
 				int32_t focusedWidgetNumber = focusedWidgetPath.m_widgets.getArrangedWidgetsNumber();
 				for (int32_t j = focusedWidgetNumber - 1; j >= 0; --j)
@@ -252,8 +263,8 @@ namespace GuGu{
 
 				if (oldFocusWidgetsPath.m_widgets.getArrangedWidgetsNumber() != 0)
 				{
-					std::shared_ptr<Widget> oldFocus = oldFocusWidgetsPath.m_widgets[oldFocusWidgetsPath.m_widgets.getArrangedWidgetsNumber() - 1]->getWidget();
-					oldFocusWidgetsPath.m_widgets[oldFocusWidgetsPath.m_widgets.getArrangedWidgetsNumber() - 1]->getWidget()->OnFocusLost();
+					//std::shared_ptr<Widget> oldFocus = oldFocusWidgetsPath.m_widgets[oldFocusWidgetsPath.m_widgets.getArrangedWidgetsNumber() - 1]->getWidget();
+					oldFocus->OnFocusLost();
 				}
 
 				if (focusedWidgetPath.m_widgets.getArrangedWidgetsNumber() != 0)
@@ -304,7 +315,7 @@ namespace GuGu{
 				}
 			}
 		}
-        else
+		else
         {
 			std::shared_ptr<Widget> collisionWidget = locateWidgetInWindow(window, mouseEvent);
 
@@ -320,7 +331,7 @@ namespace GuGu{
 
 			//从碰撞到的widget开始派发事件
 			size_t widgetNumber = widgetPath.m_widgets.getArrangedWidgetsNumber();
-			for (int32_t i = widgetNumber - 1; i >= 0; --i) //bubble policy
+			for (int32_t i = widgetNumber - 1; i >= 0; --i) //冒泡策略
 			{
 				Reply reply = widgetPath.m_widgets[i]->getWidget()->OnMouseButtonDown(widgetPath.m_widgets[i]->getWidgetGeometry(), mouseEvent);
 
