@@ -78,6 +78,8 @@ namespace GuGu {
 		void processReply(const Reply& theReply, const WidgetPath& widgetPath);
 
 		void setFocus(const std::shared_ptr<Widget>& widgetToFocus, const WidgetPath& widgetPath);
+
+		std::shared_ptr<Widget> getKeyboardFocusedWidget() const;
 	protected:
 		std::shared_ptr<Renderer> m_renderer;
 

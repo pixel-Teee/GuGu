@@ -285,6 +285,13 @@ namespace GuGu{
 		}
 	}
 
+	std::shared_ptr<Widget> Application::getKeyboardFocusedWidget() const
+	{
+		if (m_focusWidgetsPath.isEmpty())
+			return nullptr;
+		return m_focusWidgetsPath.getLastWidget().lock();
+	}
+
     bool Application::processMouseButtonDownEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
     {
 		if (!m_captorWidgetsPath.isEmpty())
@@ -329,11 +336,14 @@ namespace GuGu{
 			std::reverse(widgets.begin(), widgets.end()); //构造widget path
 			WidgetPath widgetPath(widgets);
 
+			const std::shared_ptr<Widget> previousFocusedWidget = getKeyboardFocusedWidget();
+
 			//从碰撞到的widget开始派发事件
 			size_t widgetNumber = widgetPath.m_widgets.getArrangedWidgetsNumber();
+			Reply reply = Reply::Unhandled();
 			for (int32_t i = widgetNumber - 1; i >= 0; --i) //冒泡策略
 			{
-				Reply reply = widgetPath.m_widgets[i]->getWidget()->OnMouseButtonDown(widgetPath.m_widgets[i]->getWidgetGeometry(), mouseEvent);
+				reply = widgetPath.m_widgets[i]->getWidget()->OnMouseButtonDown(widgetPath.m_widgets[i]->getWidgetGeometry(), mouseEvent);
 
 				//std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
 				//if (mouseCaptor != nullptr)
@@ -356,6 +366,24 @@ namespace GuGu{
 				//}
 
 				processReply(reply, widgetPath);
+			}
+
+			const bool bFocusedChangedByEventyHandler = previousFocusedWidget != getKeyboardFocusedWidget();
+			
+			//焦点控件和之前不一样，或者没有焦点控件被请求
+			if (!bFocusedChangedByEventyHandler && !reply.getFocusRecepient())
+			{
+				for (int32_t i = widgetNumber - 1; i >= 0; --i) //bubble policy
+				{
+					std::shared_ptr<Widget> widget = widgetPath.m_widgets[i]->getWidget();
+					if (widget->supportsKeyboardFocus())
+					{
+						WidgetPath newFocusedWidgetPath;
+						widgetPath.pathDownTo(widget);
+						setFocus(widget, widgetPath);
+						break;
+					}
+				}
 			}
         }
         
@@ -410,13 +438,12 @@ namespace GuGu{
 			WidgetPath oldFocusWidgetsPath;
 			m_focusWidgetsPath.toWidgetPath(oldFocusWidgetsPath);
 
-			//widgets 第一个是 window
-
 			//从碰撞到的widget开始派发事件
 			size_t widgetNumber = widgetPath.m_widgets.getArrangedWidgetsNumber();
+			Reply reply = Reply::Unhandled();
 			for (int32_t i = widgetNumber - 1; i >= 0; --i) //bubble policy
 			{
-				Reply reply = widgetPath.m_widgets[i]->getWidget()->OnMouseButtonUp(widgetPath.m_widgets[i]->getWidgetGeometry(), mouseEvent);
+				reply = widgetPath.m_widgets[i]->getWidget()->OnMouseButtonUp(widgetPath.m_widgets[i]->getWidgetGeometry(), mouseEvent);
 
 				//std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
 				//if (mouseCaptor != nullptr)
