@@ -55,6 +55,8 @@ namespace GuGu {
 
 		void handleFocusLost();
 
+		bool handleFocusReceived();
+
 		bool handleTypeChar(const GuGuUtf8Str& inChar);	
 
 		GuGuUtf8Str getEditableText() const;
@@ -79,6 +81,9 @@ namespace GuGu {
 		void pasteTextFromClipboard();
 
 		bool anyTextSelected() const;
+
+		/*选中所有的文本*/
+		void selectAllText();
 
 		//删除任何现在选择的文本
 		void deleteSelectedText();

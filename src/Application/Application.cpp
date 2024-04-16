@@ -7,6 +7,9 @@
 #include <Core/UI/ImageWidget.h>
 #include <Core/UI/WindowWidget.h>
 #include <Core/UI/UIRenderPass.h>
+#include <Core/UI/WidgetPath.h>
+#include <Core/UI/ArrangedWidget.h>
+#include <Core/UI/ArrangedWidgetArray.h>
 #include <Window/Window.h>
 #include <Renderer/Demo.h>
 #include <Renderer/Renderer.h>
@@ -160,22 +163,30 @@ namespace GuGu{
 
     std::shared_ptr<Widget> Application::getCaptorWidget() const
     {
-        if (!m_captorWidgetsPath.empty())
-            return m_captorWidgetsPath.front().lock();
+        if (!m_captorWidgetsPath.isEmpty())
+            return m_captorWidgetsPath.getLastWidget().lock();
         return nullptr;
     }
 
 	bool Application::hasAnyFocus(std::shared_ptr<const Widget> inWidget) const
 	{
-		if(!m_focusWidgetsPath.empty())
-			return m_focusWidgetsPath.front().lock() == inWidget;
-        return false;
+		//if(!m_focusWidgetsPath.empty())
+		//	return m_focusWidgetsPath.front().lock() == inWidget;
+		//return false;
+
+		if (!m_focusWidgetsPath.isEmpty())
+			return m_focusWidgetsPath.getLastWidget().lock() == inWidget;
+		return false;
 	}
 
 	bool Application::doesWidgetHaveMouseCapture(std::shared_ptr<const Widget> inWidget) const
 	{
-		if (!m_captorWidgetsPath.empty())
-			return m_captorWidgetsPath.front().lock() == inWidget;
+		//if (!m_captorWidgetsPath.empty())
+		//	return m_captorWidgetsPath.front().lock() == inWidget;
+		//return false;
+
+		if (!m_captorWidgetsPath.isEmpty())
+			return m_captorWidgetsPath.getLastWidget().lock() == inWidget;
 		return false;
 	}
 
@@ -189,29 +200,59 @@ namespace GuGu{
         return m_globalRotation;
     }
 
+	void Application::processReply(const Reply& reply, const WidgetPath& widgetPath)
+	{
+		if (reply.shouldReleaseMouse())
+		{
+			m_captorWidgetsPath.clear();
+		}
+		std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
+		if (mouseCaptor != nullptr)
+		{
+			//m_captorWidget = mouseCaptor;
+			//m_captorWidgetsPath.clear();
+			//for (int32_t j = i; j < widgets.size(); ++j)
+			//	m_captorWidgetsPath.push_back(widgets[i]);
+			m_captorWidgetsPath = widgetPath.pathDownTo(mouseCaptor);
+		}
+		std::shared_ptr<Widget> requestedFocusRecepient = reply.getFocusRecepient();
+		if (requestedFocusRecepient)
+		{
+			m_focusWidgetsPath.clear();
+
+			m_focusWidgetsPath = widgetPath.pathDownTo(requestedFocusRecepient);
+			//for (int32_t j = i; j < widgets.size(); ++j)
+			//	m_focusWidgetsPath.push_back(widgets[j]);
+		}
+	}
+
     bool Application::processMouseButtonDownEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
     {
-		if (!m_captorWidgetsPath.empty())
+		if (!m_captorWidgetsPath.isEmpty())
 		{
-			std::vector<std::weak_ptr<Widget>> captorWidgetsPath = m_captorWidgetsPath;
-			for (int32_t i = 0; i < captorWidgetsPath.size(); ++i)
+			//std::vector<std::weak_ptr<Widget>> captorWidgetsPath = m_captorWidgetsPath;
+			WidgetPath captorWidgetsPath;
+			m_captorWidgetsPath.toWidgetPath(captorWidgetsPath);
+			int32_t widgetNumber = captorWidgetsPath.m_widgets.getArrangedWidgetsNumber();
+			for (int32_t i = widgetNumber - 1; i >= 0; --i)
 			{
-				std::shared_ptr<Widget> widget = captorWidgetsPath[i].lock();
+				std::shared_ptr<Widget> widget = captorWidgetsPath.m_widgets.getArrangedWidget(i)->getWidget();
 				if (widget != nullptr)
 				{
 					Reply reply = widget->OnMouseButtonDown(widget->getWidgetGeometry(), mouseEvent);
-					std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
-					if (mouseCaptor != nullptr)
-					{
-						//m_captorWidget = mouseCaptor;
-						m_captorWidgetsPath.clear();
-						for (int32_t j = i; j < captorWidgetsPath.size(); ++j)
-							m_captorWidgetsPath.push_back(captorWidgetsPath[j]);
-					}
-					if (reply.shouldReleaseMouse())
-					{
-						m_captorWidgetsPath.clear();
-					}
+					processReply(reply, captorWidgetsPath);
+					//std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
+					//if (mouseCaptor != nullptr)
+					//{
+					//	//m_captorWidget = mouseCaptor;
+					//	m_captorWidgetsPath.clear();
+					//	for (int32_t j = i; j < captorWidgetsPath.size(); ++j)
+					//		m_captorWidgetsPath.push_back(captorWidgetsPath[j]);
+					//}
+					//if (reply.shouldReleaseMouse())
+					//{
+					//	m_captorWidgetsPath.clear();
+					//}
 				}
 			}
 		}
@@ -226,102 +267,107 @@ namespace GuGu{
 				widgets.push_back(currentWidget);
 				currentWidget = currentWidget->getParentWidget();
 			}
+			std::reverse(widgets.begin(), widgets.end()); //构造widget path
+			WidgetPath widgetPath(widgets);
 
 			//记录旧的焦点路径
-			std::vector<std::weak_ptr<Widget>> oldFocusWidgetsPath;
-			oldFocusWidgetsPath = m_focusWidgetsPath;
+			WidgetPath oldFocusWidgetsPath;
+			m_focusWidgetsPath.toWidgetPath(oldFocusWidgetsPath);
 
-			//widgets 最后一个是 根window
+			//widgets 第一个是 window
 
 			//从碰撞到的widget开始派发事件
-			for (int32_t i = 0; i < widgets.size(); ++i)
+			size_t widgetNumber = widgetPath.m_widgets.getArrangedWidgetsNumber();
+			for (int32_t i = widgetNumber - 1; i >= 0; --i) //bubble policy
 			{
-				Reply reply = widgets[i]->OnMouseButtonDown(widgets[i]->getWidgetGeometry(), mouseEvent);
+				Reply reply = widgetPath.m_widgets[i]->getWidget()->OnMouseButtonDown(widgetPath.m_widgets[i]->getWidgetGeometry(), mouseEvent);
 
-				std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
-				if (mouseCaptor != nullptr)
-				{
-					//m_captorWidget = mouseCaptor;
-					m_captorWidgetsPath.clear();
-					for (int32_t j = i; j < widgets.size(); ++j)
-						m_captorWidgetsPath.push_back(widgets[i]);
-				}
-				if (reply.shouldReleaseMouse())
-				{
-					m_captorWidgetsPath.clear();
-				}
-				std::shared_ptr<Widget> requestedFocusRecepient = reply.getFocusRecepient();
-				if (requestedFocusRecepient)
-				{
-					m_focusWidgetsPath.clear();
-					for (int32_t j = i; j < widgets.size(); ++j)
-						m_focusWidgetsPath.push_back(widgets[j]);
-				}
+				//std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
+				//if (mouseCaptor != nullptr)
+				//{
+				//	//m_captorWidget = mouseCaptor;
+				//	m_captorWidgetsPath.clear();
+				//	for (int32_t j = i; j < widgets.size(); ++j)
+				//		m_captorWidgetsPath.push_back(widgets[i]);
+				//}
+				//if (reply.shouldReleaseMouse())
+				//{
+				//	m_captorWidgetsPath.clear();
+				//}
+				//std::shared_ptr<Widget> requestedFocusRecepient = reply.getFocusRecepient();
+				//if (requestedFocusRecepient)
+				//{
+				//	m_focusWidgetsPath.clear();
+				//	for (int32_t j = i; j < widgets.size(); ++j)
+				//		m_focusWidgetsPath.push_back(widgets[j]);
+				//}
+
+				processReply(reply, widgetPath);
 			}
 
+			//set user focus(这里是设置用户焦点的代码逻辑)
 			//设置新的焦点控件
-			for (int32_t i = 0; i < widgets.size(); ++i)
+			//size_t widgetNumber = widgetPath.m_widgets.getArrangedWidgetsNumber();
+			for (int32_t i = widgetNumber - 1; i >= 0; --i)
 			{
-				if (widgets[i]->supportsKeyboardFocus())
+				std::shared_ptr<Widget> widget = widgetPath.m_widgets[i]->getWidget();
+				if (widget->supportsKeyboardFocus())
 				{
-					std::vector<std::shared_ptr<Widget>> focusedWidgetPath;
-					for (int32_t j = i; j < widgets.size(); ++j)
-						focusedWidgetPath.push_back(widgets[j]);
+					WidgetPath focusedWidgetPath;
+					focusedWidgetPath = widgetPath.pathDownTo(widget);
 
-					for (int32_t j = 0; j < focusedWidgetPath.size(); ++j)
+					int32_t focusedWidgetNumber = focusedWidgetPath.m_widgets.getArrangedWidgetsNumber();
+					for (int32_t j = focusedWidgetNumber - 1; j >= 0; --j)
 					{
-						if (focusedWidgetPath[j]->supportsKeyboardFocus())
-						{
-							m_focusWidgetsPath.clear();
-							for (int32_t k = j; k < widgets.size(); ++k)
-								m_focusWidgetsPath.push_back(widgets[k]);
-							break;
-						}
+						std::shared_ptr<Widget> widget = focusedWidgetPath.m_widgets[j]->getWidget();
+						m_focusWidgetsPath.clear();
+						m_focusWidgetsPath = focusedWidgetPath.pathDownTo(widget);
+						break;
 					}
-					for (int32_t j = 0; j < oldFocusWidgetsPath.size(); ++j)
-						oldFocusWidgetsPath[j].lock()->OnFocusLost();
+
+					int32_t oldFocusWidgetPathNumber = oldFocusWidgetsPath.m_widgets.getArrangedWidgetsNumber();
+					for (int32_t j = oldFocusWidgetPathNumber - 1; j >= 0; --j)
+						oldFocusWidgetsPath.m_widgets[j]->getWidget()->OnFocusLost();
+
+					int32_t newFocusWidgetPathNumber = focusedWidgetPath.m_widgets.getArrangedWidgetsNumber();
+					for (int32_t j = newFocusWidgetPathNumber - 1; j >= 0; --j)
+						focusedWidgetPath.m_widgets[j]->getWidget()->OnFocusReceived(focusedWidgetPath.m_widgets[j]->getWidgetGeometry());
 
 					break;
 				}
 			}
         }
         
-		//if (collisionWidget)
-		//{
-		//    collisionWidget->OnMouseButtonDown(collisionWidget->getWidgetGeometry(), mouseEvent);
-		//	//std::shared_ptr<ImageWidget> imageWidget = std::dynamic_pointer_cast<ImageWidget>(collisionWidget);
-		//	//if (imageWidget)
-		//	//{
-		//	//    GuGu_LOGD("%s", u8"image widget");
-		//	//}
-		//}
-        //GuGu_LOGD("(%f %f)", cursorPosition.x, cursorPosition.y);
         return true;
     }
 
     bool Application::processMouseButtonUpEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
     {
-		if (!m_captorWidgetsPath.empty())
+		if (!m_captorWidgetsPath.isEmpty())
 		{
-			std::vector<std::weak_ptr<Widget>> captorWidgetsPath = m_captorWidgetsPath;
-			for (int32_t i = 0; i < captorWidgetsPath.size(); ++i)
+			//std::vector<std::weak_ptr<Widget>> captorWidgetsPath = m_captorWidgetsPath;
+			WidgetPath captorWidgetsPath;
+			m_captorWidgetsPath.toWidgetPath(captorWidgetsPath);
+			int32_t widgetNumber = captorWidgetsPath.m_widgets.getArrangedWidgetsNumber();
+			for (int32_t i = widgetNumber - 1; i >= 0; --i)
 			{
-				std::shared_ptr<Widget> widget = captorWidgetsPath[i].lock();
+				std::shared_ptr<Widget> widget = captorWidgetsPath.m_widgets.getArrangedWidget(i)->getWidget();
 				if (widget != nullptr)
 				{
 					Reply reply = widget->OnMouseButtonUp(widget->getWidgetGeometry(), mouseEvent);
-					std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
-					if (mouseCaptor != nullptr)
-					{
-						//m_captorWidget = mouseCaptor;
-						m_captorWidgetsPath.clear();
-						for (int32_t j = i; j < captorWidgetsPath.size(); ++j)
-							m_captorWidgetsPath.push_back(captorWidgetsPath[j]);
-					}
-					if (reply.shouldReleaseMouse())
-					{
-						m_captorWidgetsPath.clear();
-					}
+					processReply(reply, captorWidgetsPath);
+					//std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
+					//if (mouseCaptor != nullptr)
+					//{
+					//	//m_captorWidget = mouseCaptor;
+					//	m_captorWidgetsPath.clear();
+					//	for (int32_t j = i; j < captorWidgetsPath.size(); ++j)
+					//		m_captorWidgetsPath.push_back(captorWidgetsPath[j]);
+					//}
+					//if (reply.shouldReleaseMouse())
+					//{
+					//	m_captorWidgetsPath.clear();
+					//}
 				}
 			}
 		}
@@ -336,33 +382,42 @@ namespace GuGu{
 				widgets.push_back(currentWidget);
 				currentWidget = currentWidget->getParentWidget();
 			}
+			std::reverse(widgets.begin(), widgets.end()); //构造widget path
+			WidgetPath widgetPath(widgets);
 
-			//widgets 最后一个是 根window
+			//记录旧的焦点路径
+			WidgetPath oldFocusWidgetsPath;
+			m_focusWidgetsPath.toWidgetPath(oldFocusWidgetsPath);
+
+			//widgets 第一个是 window
 
 			//从碰撞到的widget开始派发事件
-			for (int32_t i = 0; i < widgets.size(); ++i)
+			size_t widgetNumber = widgetPath.m_widgets.getArrangedWidgetsNumber();
+			for (int32_t i = widgetNumber - 1; i >= 0; --i) //bubble policy
 			{
-				Reply reply = widgets[i]->OnMouseButtonUp(widgets[i]->getWidgetGeometry(), mouseEvent);
+				Reply reply = widgetPath.m_widgets[i]->getWidget()->OnMouseButtonUp(widgetPath.m_widgets[i]->getWidgetGeometry(), mouseEvent);
 
-				std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
-				if (mouseCaptor != nullptr)
-				{
-					//m_captorWidget = mouseCaptor;
-					m_captorWidgetsPath.clear();
-					for (int32_t j = i; j < widgets.size(); ++j)
-						m_captorWidgetsPath.push_back(widgets[i]);
-				}
-				if (reply.shouldReleaseMouse())
-				{
-					m_captorWidgetsPath.clear();
-				}
-				std::shared_ptr<Widget> requestedFocusRecepient = reply.getFocusRecepient();
-				if (requestedFocusRecepient)
-				{
-					m_focusWidgetsPath.clear();
-					for (int32_t j = i; j < widgets.size(); ++j)
-						m_focusWidgetsPath.push_back(widgets[j]);
-				}
+				//std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
+				//if (mouseCaptor != nullptr)
+				//{
+				//	//m_captorWidget = mouseCaptor;
+				//	m_captorWidgetsPath.clear();
+				//	for (int32_t j = i; j < widgets.size(); ++j)
+				//		m_captorWidgetsPath.push_back(widgets[i]);
+				//}
+				//if (reply.shouldReleaseMouse())
+				//{
+				//	m_captorWidgetsPath.clear();
+				//}
+				//std::shared_ptr<Widget> requestedFocusRecepient = reply.getFocusRecepient();
+				//if (requestedFocusRecepient)
+				//{
+				//	m_focusWidgetsPath.clear();
+				//	for (int32_t j = i; j < widgets.size(); ++j)
+				//		m_focusWidgetsPath.push_back(widgets[j]);
+				//}
+
+				processReply(reply, widgetPath);
 			}
 		}
 		
@@ -383,27 +438,31 @@ namespace GuGu{
     bool Application::processMouseMoveEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
     {
 
-		if (!m_captorWidgetsPath.empty())
+		if (!m_captorWidgetsPath.isEmpty())
 		{
-			std::vector<std::weak_ptr<Widget>> captorWidgetsPath = m_captorWidgetsPath;
-			for (int32_t i = 0; i < captorWidgetsPath.size(); ++i)
+			//std::vector<std::weak_ptr<Widget>> captorWidgetsPath = m_captorWidgetsPath;
+			WidgetPath captorWidgetsPath;
+			m_captorWidgetsPath.toWidgetPath(captorWidgetsPath);
+			int32_t widgetNumber = captorWidgetsPath.m_widgets.getArrangedWidgetsNumber();
+			for (int32_t i = widgetNumber - 1; i >= 0; --i)
 			{
-				std::shared_ptr<Widget> widget = captorWidgetsPath[i].lock();
+				std::shared_ptr<Widget> widget = captorWidgetsPath.m_widgets.getArrangedWidget(i)->getWidget();
 				if (widget != nullptr)
 				{
 					Reply reply = widget->OnMouseMove(widget->getWidgetGeometry(), mouseEvent);
-					std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
-					if (mouseCaptor != nullptr)
-					{
-						//m_captorWidget = mouseCaptor;
-						m_captorWidgetsPath.clear();
-						for (int32_t j = i; j < captorWidgetsPath.size(); ++j)
-							m_captorWidgetsPath.push_back(captorWidgetsPath[j]);
-					}
-					if (reply.shouldReleaseMouse())
-					{
-						m_captorWidgetsPath.clear();
-					}
+					processReply(reply, captorWidgetsPath);
+					//std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
+					//if (mouseCaptor != nullptr)
+					//{
+					//	//m_captorWidget = mouseCaptor;
+					//	m_captorWidgetsPath.clear();
+					//	for (int32_t j = i; j < captorWidgetsPath.size(); ++j)
+					//		m_captorWidgetsPath.push_back(captorWidgetsPath[j]);
+					//}
+					//if (reply.shouldReleaseMouse())
+					//{
+					//	m_captorWidgetsPath.clear();
+					//}
 				}
 			}
 		}
@@ -418,33 +477,42 @@ namespace GuGu{
 				widgets.push_back(currentWidget);
 				currentWidget = currentWidget->getParentWidget();
 			}
+			std::reverse(widgets.begin(), widgets.end()); //构造widget path
+			WidgetPath widgetPath(widgets);
 
-			//widgets 最后一个是 根window
+			//记录旧的焦点路径
+			WidgetPath oldFocusWidgetsPath;
+			m_focusWidgetsPath.toWidgetPath(oldFocusWidgetsPath);
+
+			//widgets 第一个是 window
 
 			//从碰撞到的widget开始派发事件
-			for (int32_t i = 0; i < widgets.size(); ++i)
+			size_t widgetNumber = widgetPath.m_widgets.getArrangedWidgetsNumber();
+			for (int32_t i = widgetNumber - 1; i >= 0; --i) //bubble policy
 			{
-				Reply reply = widgets[i]->OnMouseMove(widgets[i]->getWidgetGeometry(), mouseEvent);
+				Reply reply = widgetPath.m_widgets[i]->getWidget()->OnMouseMove(widgetPath.m_widgets[i]->getWidgetGeometry(), mouseEvent);
 
-				std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
-				if (mouseCaptor != nullptr)
-				{
-					//m_captorWidget = mouseCaptor;
-					m_captorWidgetsPath.clear();
-					for (int32_t j = i; j < widgets.size(); ++j)
-						m_captorWidgetsPath.push_back(widgets[i]);
-				}
-				if (reply.shouldReleaseMouse())
-				{
-					m_captorWidgetsPath.clear();
-				}
-				std::shared_ptr<Widget> requestedFocusRecepient = reply.getFocusRecepient();
-				if (requestedFocusRecepient)
-				{
-					m_focusWidgetsPath.clear();
-					for (int32_t j = i; j < widgets.size(); ++j)
-						m_focusWidgetsPath.push_back(widgets[j]);
-				}
+				//std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
+				//if (mouseCaptor != nullptr)
+				//{
+				//	//m_captorWidget = mouseCaptor;
+				//	m_captorWidgetsPath.clear();
+				//	for (int32_t j = i; j < widgets.size(); ++j)
+				//		m_captorWidgetsPath.push_back(widgets[i]);
+				//}
+				//if (reply.shouldReleaseMouse())
+				//{
+				//	m_captorWidgetsPath.clear();
+				//}
+				//std::shared_ptr<Widget> requestedFocusRecepient = reply.getFocusRecepient();
+				//if (requestedFocusRecepient)
+				//{
+				//	m_focusWidgetsPath.clear();
+				//	for (int32_t j = i; j < widgets.size(); ++j)
+				//		m_focusWidgetsPath.push_back(widgets[j]);
+				//}
+
+				processReply(reply, widgetPath);
 			}
 		}
 
@@ -467,12 +535,15 @@ namespace GuGu{
 		Reply reply = Reply::Unhandled();
 
 		//focus path
-		std::vector<std::shared_ptr<Widget>> focusPath;
-		for (size_t i = 0; i < m_focusWidgetsPath.size(); ++i)
-			focusPath.push_back(m_focusWidgetsPath[i].lock());
+		WidgetPath focusPath;
+		m_focusWidgetsPath.toWidgetPath(focusPath);
 
-		for (size_t i = 0; i < focusPath.size(); ++i)
-			focusPath[i]->OnKeyChar(focusPath[i]->getWidgetGeometry(), inCharacterEvent);
+		int32_t focusWidgetNumber = focusPath.m_widgets.getArrangedWidgetsNumber();
+		for (int32_t i = focusWidgetNumber - 1; i >= 0; --i)
+		{
+			std::shared_ptr<Widget> widget = focusPath.m_widgets.getArrangedWidget(i)->getWidget();
+			widget->OnKeyChar(widget->getWidgetGeometry(), inCharacterEvent);
+		}
 
 		return true;
 	}
@@ -482,12 +553,15 @@ namespace GuGu{
 		Reply reply = Reply::Unhandled();
 
 		//focus path
-		std::vector<std::shared_ptr<Widget>> focusPath;
-		for (size_t i = 0; i < m_focusWidgetsPath.size(); ++i)
-			focusPath.push_back(m_focusWidgetsPath[i].lock());
+		WidgetPath focusPath;
+		m_focusWidgetsPath.toWidgetPath(focusPath);
 
-		for (size_t i = 0; i < focusPath.size(); ++i)
-			focusPath[i]->OnKeyDown(focusPath[i]->getWidgetGeometry(), inKeyEvent);
+		int32_t focusWidgetNumber = focusPath.m_widgets.getArrangedWidgetsNumber();
+		for (int32_t i = focusWidgetNumber - 1; i >= 0; --i)
+		{
+			std::shared_ptr<Widget> widget = focusPath.m_widgets.getArrangedWidget(i)->getWidget();
+			widget->OnKeyDown(widget->getWidgetGeometry(), inKeyEvent);
+		}
 
 		return true;
 	}

@@ -4,6 +4,7 @@
 #include <Core/GuGuUtf8Str.h>
 
 #include <Core/UI/Events.h>//ModifierKeysState depends on it
+#include <Core/UI/WidgetPath.h>
 
 namespace GuGu {
 	class Widget;
@@ -14,6 +15,8 @@ namespace GuGu {
 	struct PointerEvent;
 	struct CharacterEvent;
     struct KeyEvent;
+	class Reply;
+	class WidgetPath;
 	class Application {
 	public:
 		Application();
@@ -71,6 +74,8 @@ namespace GuGu {
 		void setGlobalPreRotate(float rotation);
 
 		float getGlobalPreRotate() const;
+
+		void processReply(const Reply& theReply, const WidgetPath& widgetPath);
 	protected:
 		std::shared_ptr<Renderer> m_renderer;
 
@@ -102,9 +107,9 @@ namespace GuGu {
 		float m_globalRotation = 0;
 
 		//std::weak_ptr<Widget> m_captorWidget;
-		std::vector<std::weak_ptr<Widget>> m_captorWidgetsPath;
+		WeakWidgetPath m_captorWidgetsPath;
 
-		std::vector<std::weak_ptr<Widget>> m_focusWidgetsPath;
+		WeakWidgetPath m_focusWidgetsPath;
 	};
 	std::shared_ptr<Application> CreateApplicationFactory();
 }

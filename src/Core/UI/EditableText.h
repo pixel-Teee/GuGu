@@ -14,6 +14,7 @@ namespace GuGu {
 		struct BuilderArguments : public Arguments<EditableText>
 		{
 			BuilderArguments()
+				: mSelecAllTextWhenFocus(false)
 			{
 				mClip = WidgetClipping::Inherit;
 			}
@@ -21,6 +22,8 @@ namespace GuGu {
 			~BuilderArguments() = default;
 
 			ARGUMENT_ATTRIBUTE(GuGuUtf8Str, text)
+
+			ARGUMENT_ATTRIBUTE(bool, SelecAllTextWhenFocus)
 
 			UI_EVENT(OnIsTypedCharValid, onIsTypedCharValid)//会在输入之前，调用这个回调，去过滤不符合的字符
 
@@ -49,6 +52,8 @@ namespace GuGu {
 
 		virtual bool supportsKeyboardFocus() const override;
 
+		virtual Reply OnFocusReceived(const WidgetGeometry& myGeometry) override;
+
 		virtual void OnFocusLost() override;
 
 		virtual std::shared_ptr<Widget> getWidget() override;
@@ -56,12 +61,17 @@ namespace GuGu {
 		virtual bool canTypeCharacter(const GuGuUtf8Str inChar) const override;
 
 		virtual void onTextCommitted(const GuGuUtf8Str& inText, const TextCommit::Type inTextAction) override;
+
+		virtual bool shouldSelectAllTextWhenFocused() const override;
 	protected:
 		//填充TextLayout的Marshaller(装配器)，TextLayout是根据一串字符串处理成渲染可用的信息的集合体
 		std::shared_ptr<PlainTextLayoutMarshaller> m_plainTextMarshaller;
 
 		//editable text layout间接地处理TextLayout
 		std::unique_ptr<EditableTextLayout> m_editableTextLayout;
+
+		//当获取焦点的时候，是否选中所有文本，适用于spin box
+		Attribute<bool> m_bSelectAllTextWhenFocus;
 
 		//当一个字母被输入，并且我们想知道是否文本输入框支持这个字母的时候被调用
 		OnIsTypedCharValid m_OnIsTypedCharValid;

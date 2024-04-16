@@ -258,6 +258,8 @@ namespace GuGu {
 		const std::vector<TextLayout::LineModel>& getLineModels() const { return m_lineModels; }
 		const std::vector<TextLayout::LineView>& getLineViews() const { return m_lineViews; }
 
+		bool isEmpty() const;
+
 		bool insertAt(const TextLocation& location, GuGuUtf8Str character, bool isCharacter);
 
 		bool insertAt(const TextLocation& location, const GuGuUtf8Str& text);

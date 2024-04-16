@@ -66,5 +66,7 @@ namespace GuGu {
 		virtual bool canTypeCharacter(const GuGuUtf8Str inChar) const = 0;
 
 		virtual void onTextCommitted(const GuGuUtf8Str& inText, const TextCommit::Type inTextAction) = 0;
+
+		virtual bool shouldSelectAllTextWhenFocused() const = 0;
 	};
 }

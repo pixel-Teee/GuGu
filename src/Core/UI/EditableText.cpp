@@ -21,6 +21,8 @@ namespace GuGu {
 		m_OnTextCommittedCallback = arguments.monTextCommitted;
 
 		m_visibilityAttribute = arguments.mVisibility;
+
+		m_bSelectAllTextWhenFocus = arguments.mSelecAllTextWhenFocus;
 	}
 	uint32_t EditableText::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
@@ -77,6 +79,11 @@ namespace GuGu {
 	{
 		return true;
 	}
+	Reply EditableText::OnFocusReceived(const WidgetGeometry& myGeometry)
+	{
+		m_editableTextLayout->handleFocusReceived();
+		return Reply::Handled();
+	}
 	void EditableText::OnFocusLost()
 	{
 		m_editableTextLayout->handleFocusLost();
@@ -102,6 +109,11 @@ namespace GuGu {
 		{
 			m_OnTextCommittedCallback(inText, inTextAction);
 		}
+	}
+
+	bool EditableText::shouldSelectAllTextWhenFocused() const
+	{
+		return m_bSelectAllTextWhenFocus.Get(false);
 	}
 
 }

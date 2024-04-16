@@ -156,6 +156,7 @@ namespace GuGu {
 					.onIsTypedCharValid(this, &SpinBox<NumericType>::isCharacterValid)
 					.onTextCommitted(this, &SpinBox<NumericType>::textFieldOnTextCommited)
 					.visibility(Visibility::Collapsed)
+					.SelecAllTextWhenFocus(true) //当获取焦点的时候，选中所有文本
 				)
 			);
 

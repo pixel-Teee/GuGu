@@ -106,6 +106,10 @@ namespace GuGu{
     void Widget::OnFocusLost()
     {
     }
+    Reply Widget::OnFocusReceived(const WidgetGeometry& myGeometry)
+    {
+        return Reply::Unhandled();
+    }
     bool Widget::supportsKeyboardFocus() const
     {
         return false;

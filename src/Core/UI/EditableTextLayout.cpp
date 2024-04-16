@@ -232,6 +232,20 @@ namespace GuGu {
 
         updateCursorHighlight();
     }
+    bool EditableTextLayout::handleFocusReceived()
+    {
+        //select all text      
+        if (m_ownerWidget->shouldSelectAllTextWhenFocused())
+        {
+            selectAllText();
+        }
+
+        updateCursorHighlight();
+
+        m_cursorInfo.updateLastCursorInteractionTime();
+
+        return true;
+    }
     bool EditableTextLayout::handleTypeChar(const GuGuUtf8Str& inChar)
     {
         if (anyTextSelected())
@@ -510,6 +524,21 @@ namespace GuGu {
         const TextLocation cursorInteractionPosition = m_cursorInfo.getCursorInteractionLocation();
         const TextLocation selectionPosition = m_selectionStart.value_or(cursorInteractionPosition);
         return selectionPosition != cursorInteractionPosition;
+    }
+    void EditableTextLayout::selectAllText()
+    {
+        if (m_textLayout->isEmpty())
+        {
+            return;
+        }
+
+        const std::vector<TextLayout::LineModel>& lines = m_textLayout->getLineModels();
+        const int32_t numberOfLines = lines.size();
+
+        m_selectionStart = TextLocation(0, 0);
+        const TextLocation newCursorPosition = TextLocation(numberOfLines - 1, lines[numberOfLines - 1].text->len());
+        m_cursorInfo.setCursorLocationAndCalculateAlignment(*m_textLayout, newCursorPosition);
+        updateCursorHighlight();
     }
     void EditableTextLayout::deleteSelectedText()
     {

@@ -55,7 +55,7 @@ namespace GuGu {
 			return Me();
 		}
 
-		std::shared_ptr<Widget> getMouseCaptor()
+		std::shared_ptr<Widget> getMouseCaptor() const
 		{
 			return m_mouseCaptor.lock();
 		}

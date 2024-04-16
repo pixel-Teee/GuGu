@@ -5,6 +5,7 @@
 #include <Core/GuGuUtf8Str.h>
 
 namespace GuGu {
+	class EditableText;
 	class EditableTextBoxStyle;
 	class EditableTextBox : public Border
 	{
@@ -32,9 +33,13 @@ namespace GuGu {
 		};
 
 		void init(const BuilderArguments& arguments);
+
+		virtual Reply OnFocusReceived(const WidgetGeometry& myGeometry);
 	private:
 		std::shared_ptr<Brush> getBorderImage() const;
 
 		std::shared_ptr<EditableTextBoxStyle> m_style;
+
+		std::shared_ptr<EditableText> m_editableText;
 	};
 }

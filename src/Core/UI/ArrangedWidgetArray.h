@@ -11,6 +11,8 @@ namespace GuGu {
 	class ArrangedWidgetArray
 	{
 	public:
+		ArrangedWidgetArray();
+
 		ArrangedWidgetArray(Visibility inVisibilityFilter);
 
 		virtual ~ArrangedWidgetArray();
@@ -21,9 +23,14 @@ namespace GuGu {
 
 		std::shared_ptr<ArrangedWidget> getArrangedWidget(uint32_t index);
 
-		uint32_t getArrangedWidgetsNumber();
+		uint32_t getArrangedWidgetsNumber() const;
+
+		const std::shared_ptr<ArrangedWidget> operator[](size_t index) const;
 
 		bool accepts(Visibility inVisibility) const;
+
+		//从一堆widgets构造arranged widget array
+		static ArrangedWidgetArray hittestFromArray(const std::vector<std::shared_ptr<Widget>>& widgets);
 	private:
 
 		std::vector<std::shared_ptr<ArrangedWidget>> m_widgets;

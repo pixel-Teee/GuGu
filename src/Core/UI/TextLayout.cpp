@@ -137,6 +137,11 @@ namespace GuGu {
 		m_lineViews.clear();
 	}
 
+	bool TextLayout::isEmpty() const
+	{
+		return (m_lineModels.size() == 0 || (m_lineModels.size() == 1 && m_lineModels[0].text->len() == 0));
+	}
+
 	bool TextLayout::insertAt(const TextLocation& location, GuGuUtf8Str character, bool isCharacter)
 	{
 		const int32_t insertLocation = location.getOffset();//一行的偏移

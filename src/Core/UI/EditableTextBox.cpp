@@ -22,12 +22,22 @@ namespace GuGu {
                 .setHorizontalAlignment(HorizontalAlignment::Center)
                 .StretchWidth(1.0f)
                 (
-                    WIDGET_NEW(EditableText)
+                    WIDGET_ASSIGN_NEW(EditableText, m_editableText)
                     .text(arguments.mText)
                 )
             )
             .brush(this, &EditableTextBox::getBorderImage));
         m_visibilityAttribute = arguments.mVisibility;
+    }
+
+    Reply EditableTextBox::OnFocusReceived(const WidgetGeometry& myGeometry)
+    {
+        Reply reply = Reply::Handled();
+
+        //转发键盘焦点到我们的编辑文本控件
+        reply.setFocus(m_editableText);
+
+        return reply;
     }
 
     std::shared_ptr<Brush> EditableTextBox::getBorderImage() const
