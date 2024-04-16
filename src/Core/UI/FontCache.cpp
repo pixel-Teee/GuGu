@@ -151,16 +151,17 @@ namespace GuGu {
 			return GlyphOffsetResult(matchedGlyph, currentOffset);
 		}
 
-		if (!rightMostGlyph)
-		{
-			if (inEndIndex >= m_sourceIndicesToGlyphData.getSourceTextStartIndex() && inEndIndex <= m_sourceIndicesToGlyphData.getSourceTextEndIndex())
-				return GlyphOffsetResult(inEndIndex);
-		}
-		else
-		{
-			if (inStartIndex >= m_sourceIndicesToGlyphData.getSourceTextStartIndex() && inEndIndex <= m_sourceIndicesToGlyphData.getSourceTextEndIndex())
-				return GlyphOffsetResult(inStartIndex);
-		}
+		//todo:如果点击的位置超出边界，那么就根据文本的方向，选择第一个或者最后一个位置
+		//if (!rightMostGlyph)
+		//{
+		if (inEndIndex >= m_sourceIndicesToGlyphData.getSourceTextStartIndex() && inEndIndex <= m_sourceIndicesToGlyphData.getSourceTextEndIndex())
+			return GlyphOffsetResult(inEndIndex);
+		//}
+		//else
+		//{
+		//	if (inStartIndex >= m_sourceIndicesToGlyphData.getSourceTextStartIndex() && inEndIndex <= m_sourceIndicesToGlyphData.getSourceTextEndIndex())
+		//		return GlyphOffsetResult(inStartIndex);
+		//}
 
 		return std::optional<GlyphOffsetResult>();
 	}

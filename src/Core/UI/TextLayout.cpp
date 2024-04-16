@@ -418,6 +418,8 @@ namespace GuGu {
 		if (m_lineViews.size() == 0)
 			return TextLocation(0, 0);
 
+		//line view 的 offset 的 y 是 line view 的 y 位置
+		//先找到line view 的 index
 		int32_t viewIndex;
 		for (viewIndex = 0; viewIndex < m_lineViews.size(); ++viewIndex)
 		{
@@ -430,8 +432,10 @@ namespace GuGu {
 			}
 		}
 
+		//没有行在我们所期望的 y 位置
 		if (viewIndex >= m_lineViews.size())
 		{
+			//那么就使用最后一行
 			viewIndex = m_lineViews.size() - 1;
 			const LineView& lineView = m_lineViews[viewIndex];
 			return getTextLocationAt(lineView, relative);
@@ -449,9 +453,11 @@ namespace GuGu {
 
 	TextLocation TextLayout::getTextLocationAt(const LineView& lineView, const math::float2& relative) const
 	{
+		//一个 line view 有多个 block
 		for (int32_t blockIndex = 0; blockIndex < lineView.blocks.size(); ++blockIndex)
 		{
 			const std::shared_ptr<ILayoutBlock>& block = lineView.blocks[blockIndex];
+			//找到具体的字在 line view 里面的位置
 			const int32_t textIndex = block->getRun()->getTextIndexAt(block, math::float2(relative.x, block->getLocationOffset().y), m_scale);
 
 			if(textIndex == -1)

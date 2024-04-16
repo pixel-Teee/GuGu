@@ -33,6 +33,7 @@ namespace GuGu {
 
 			TextLocation getCursorInteractionLocation() const
 			{
+				//如果光标在文本最后面，那么它的alignment就是right，要偏移+1，获取实际的位置
 				return TextLocation(m_cursorPosition, (m_cursorAlignment == CursorAlignment::Right) ? 1 : 0);
 			}
 

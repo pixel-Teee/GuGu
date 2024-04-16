@@ -126,6 +126,7 @@ namespace GuGu {
 		const float right = blockOffset.x + blockSize.x;
 		const float bottom = blockOffset.y + blockSize.y;
 
+		//这个字是否在block内
 		const bool containsPoint = location.x >= left && location.x < right && location.y >= top && location.y < bottom;
 
 		if (!containsPoint)
