@@ -41,6 +41,12 @@ namespace GuGu {
 				return m_lastCursorInteractionTime;
 			}
 
+			//光标在文字左边还是右边
+			CursorAlignment getCursorAlignment() const
+			{
+				return m_cursorAlignment;
+			}
+
 			void setCursorLocationAndCalculateAlignment(const TextLayout& inTextLayout, const TextLocation& inCursorPosition);
 
 			void updateLastCursorInteractionTime();

@@ -73,8 +73,12 @@ namespace GuGu {
 			const bool bForceCursorVisible = timeSinceLastInteraction < 0.1f;
 			float cursorOpacity = (bForceCursorVisible) ? 1.0f : std::roundf(makePulsatingValue(timeSinceLastInteraction, 1.0f));
 
+			CursorAlignment visualCursorAlignment = m_cursorInfo->getCursorAlignment();
+			
+			const math::float2 optionalWidth = visualCursorAlignment == CursorAlignment::Right ? math::float2(size.x, 0) : math::float2(0, 0);//根据光标在文字左边还是右边，调整光标绘制位置
+
 			math::float2 transformedSize = math::scaling(math::float2(inverseScale)).transformVector(math::float2(cursorWidth.x, size.y));
-			math::float2 transformedLocation = math::scaling(math::float2(inverseScale)).transformPoint(location);
+			math::float2 transformedLocation = math::scaling(math::float2(inverseScale)).transformPoint(location + optionalWidth);
 
 			WidgetGeometry paintGeometry = allottedGeometry.getChildGeometry(transformedSize, transformedLocation, allottedGeometry.getAccumulateTransform());
 
