@@ -8,6 +8,21 @@ elseif(ANDROID)
 	add_library(Editor SHARED ${SourceFile})
 endif()
 
+#if(WIN32)
+#	set(CMAKE_CXX_FLAGS "/utf-8")
+#	set(CMAKE_C_FLAGS "/utf-8")
+#endif()
+
+if(WIN32)
+    add_definitions(-DUNICODE -D_UNICODE -DWIN32)
+    set(CMAKE_CXX_FLAGS "/utf-8")
+    set(CMAKE_C_FLAGS "/utf-8")
+elseif(ANDROID)
+    add_definitions(-DVK_USE_PLATFORM_ANDROID_KHR=TRUE) #fix this
+    add_definitions(-DUSE_VK)
+    add_definitions(-D_DEBUG=TRUE)
+endif()
+
 target_link_libraries(Editor PUBLIC GuGu)
 target_include_directories(Editor PUBLIC "../src")
 target_precompile_headers(Editor PRIVATE "../src/pch.h")
