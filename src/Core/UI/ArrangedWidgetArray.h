@@ -30,7 +30,7 @@ namespace GuGu {
 		bool accepts(Visibility inVisibility) const;
 
 		//从一堆widgets构造arranged widget array
-		static ArrangedWidgetArray hittestFromArray(const std::vector<std::shared_ptr<Widget>>& widgets);
+		static ArrangedWidgetArray hittestFromArray(const std::vector<std::shared_ptr<Widget>>& widgets, const WidgetGeometry& offsetGeometry);
 	private:
 
 		std::vector<std::shared_ptr<ArrangedWidget>> m_widgets;

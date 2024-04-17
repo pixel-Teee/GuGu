@@ -21,13 +21,19 @@ namespace GuGu {
 	{
 		const wchar_t windowClassName[] = L"GuGuWindowClass";
 
+		int32_t screentWidth = GetSystemMetrics(SM_CXSCREEN);
+		int32_t screentHeight = GetSystemMetrics(SM_CYSCREEN);
+
+		int32_t x = (screentWidth - 1280) / 2;
+		int32_t y = (screentHeight - 720) / 2;
+
 		m_windowHandle = CreateWindowEx(
 			0,//optional window style
 			windowClassName,//window class
 			L"GuGuWindow",//window title
 			WS_POPUP,
 
-			0, 0, 1280, 720,//size and position
+			x, y, 1280, 720,//position and size
 			nullptr,//parent window
 			nullptr,//menu
 			m_ownerApplicationHandle,//owner application handle

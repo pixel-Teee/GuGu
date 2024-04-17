@@ -9,6 +9,8 @@
 #include "ArrangedWidget.h"
 #include "ArrangedWidgetArray.h"
 
+#include <Window/Window.h>
+
 namespace GuGu {
 	WindowWidget::WindowWidget()
 		: m_defaultBrush(StyleSet::getStyle()->getBrush("CheckerBoard"))
@@ -202,10 +204,15 @@ namespace GuGu {
 	{
 		m_nativeWindow = nativeWindow;
 		m_windowType = WindowType::NativeWindow;
+		setCachedScreenPosition(nativeWindow->getWindowScreenSpacePosition());
 	}	
 	std::shared_ptr<Window> WindowWidget::getNativeWindow()
 	{
 		std::shared_ptr<Window> nativeWindow = m_nativeWindow;
 		return nativeWindow;
+	}
+	void WindowWidget::setCachedScreenPosition(math::float2 newPosition)
+	{
+		m_screenPosition = newPosition;
 	}
 }

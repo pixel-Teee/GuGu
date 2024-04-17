@@ -167,6 +167,7 @@ namespace GuGu {
 						window = windows[i];
 					}
 				}
+				//GuGu_LOGD("%d %d", cursorPoint.x, cursorPoint.y);
 				switch (uMsg)
 				{
 					case WM_LBUTTONDOWN:

@@ -105,7 +105,6 @@ namespace GuGu{
 	{
 		//process mouse button down
 
-
         //transfer cursorPos to local space
         math::float2 translatedCursorPos = translateCursorPos(cursorPos);
 
@@ -305,7 +304,7 @@ namespace GuGu{
 				std::shared_ptr<Widget> widget = captorWidgetsPath.m_widgets.getArrangedWidget(i)->getWidget();
 				if (widget != nullptr)
 				{
-					Reply reply = widget->OnMouseButtonDown(widget->getWidgetGeometry(), mouseEvent);
+					Reply reply = widget->OnMouseButtonDown(captorWidgetsPath.m_widgets.getArrangedWidget(i)->getWidgetGeometry(), mouseEvent);
 					processReply(reply, captorWidgetsPath);
 					//std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
 					//if (mouseCaptor != nullptr)
@@ -334,7 +333,9 @@ namespace GuGu{
 				currentWidget = currentWidget->getParentWidget();
 			}
 			std::reverse(widgets.begin(), widgets.end()); //构造widget path
-			WidgetPath widgetPath(widgets);
+			WidgetGeometry windowOffsetGeometry;//窗口左上角坐标
+			windowOffsetGeometry.mAbsolutePosition = window->getWindowScreenSpacePosition();
+			WidgetPath widgetPath(widgets, windowOffsetGeometry);
 
 			const std::shared_ptr<Widget> previousFocusedWidget = getKeyboardFocusedWidget();
 
@@ -403,7 +404,7 @@ namespace GuGu{
 				std::shared_ptr<Widget> widget = captorWidgetsPath.m_widgets.getArrangedWidget(i)->getWidget();
 				if (widget != nullptr)
 				{
-					Reply reply = widget->OnMouseButtonUp(widget->getWidgetGeometry(), mouseEvent);
+					Reply reply = widget->OnMouseButtonUp(captorWidgetsPath.m_widgets.getArrangedWidget(i)->getWidgetGeometry(), mouseEvent);
 					processReply(reply, captorWidgetsPath);
 					//std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
 					//if (mouseCaptor != nullptr)
@@ -432,7 +433,9 @@ namespace GuGu{
 				currentWidget = currentWidget->getParentWidget();
 			}
 			std::reverse(widgets.begin(), widgets.end()); //构造widget path
-			WidgetPath widgetPath(widgets);
+			WidgetGeometry windowOffsetGeometry;//窗口左上角坐标
+			windowOffsetGeometry.mAbsolutePosition = window->getWindowScreenSpacePosition();
+			WidgetPath widgetPath(widgets, windowOffsetGeometry);
 
 			//记录旧的焦点路径
 			WidgetPath oldFocusWidgetsPath;
@@ -497,7 +500,7 @@ namespace GuGu{
 				std::shared_ptr<Widget> widget = captorWidgetsPath.m_widgets.getArrangedWidget(i)->getWidget();
 				if (widget != nullptr)
 				{
-					Reply reply = widget->OnMouseMove(widget->getWidgetGeometry(), mouseEvent);
+					Reply reply = widget->OnMouseMove(captorWidgetsPath.m_widgets.getArrangedWidget(i)->getWidgetGeometry(), mouseEvent);
 					processReply(reply, captorWidgetsPath);
 					//std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
 					//if (mouseCaptor != nullptr)
@@ -526,7 +529,9 @@ namespace GuGu{
 				currentWidget = currentWidget->getParentWidget();
 			}
 			std::reverse(widgets.begin(), widgets.end()); //构造widget path
-			WidgetPath widgetPath(widgets);
+			WidgetGeometry windowOffsetGeometry;//窗口左上角坐标
+			windowOffsetGeometry.mAbsolutePosition = window->getWindowScreenSpacePosition();
+			WidgetPath widgetPath(widgets, windowOffsetGeometry);
 
 			//记录旧的焦点路径
 			WidgetPath oldFocusWidgetsPath;
@@ -622,7 +627,7 @@ namespace GuGu{
         //assert(windowWidget->getNativeWindow() == window);//todo:fix this
         if(windowWidget->getNativeWindow() != window)
         {
-            windowWidget->assocateWithNativeWindow(window);//todo:这里需要修复，不应该在这里设置native window的
+            windowWidget->assocateWithNativeWindow(window);//todo:这里需要修复，不应该在这里设置native window 的
         }
 
         std::stable_sort(allWidgets.begin(), allWidgets.end(), [&](const std::shared_ptr<Widget>& lhs, const std::shared_ptr<Widget>& rhs)
@@ -663,6 +668,7 @@ namespace GuGu{
             }
         }
 
+		//GuGu_LOGD("%s", collisionWidget->getSlotsNumber())
         return collisionWidget;
     }
 

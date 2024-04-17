@@ -50,13 +50,14 @@ namespace GuGu {
 	{
 		return Visibility::doesVisibilityPassFilter(inVisibility, m_visibilityFilter);
 	}
-	ArrangedWidgetArray ArrangedWidgetArray::hittestFromArray(const std::vector<std::shared_ptr<Widget>>& widgets)
+	ArrangedWidgetArray ArrangedWidgetArray::hittestFromArray(const std::vector<std::shared_ptr<Widget>>& widgets, const WidgetGeometry& offsetGeometry)
 	{
 		ArrangedWidgetArray temp(Visibility::All);
 		temp.m_widgets.reserve(widgets.size());
 		for (int32_t i = 0; i < widgets.size(); ++i)
 		{
-			std::shared_ptr<ArrangedWidget> arrangedWidget = std::make_shared<ArrangedWidget>(widgets[i]->getWidgetGeometry(), widgets[i]);
+			WidgetGeometry newGeometry = widgets[i]->getWidgetGeometry().getOffsetGeometry(offsetGeometry.getAbsolutePosition());//追加窗口的左上角在屏幕坐标中的位置
+			std::shared_ptr<ArrangedWidget> arrangedWidget = std::make_shared<ArrangedWidget>(newGeometry, widgets[i]);
 			temp.m_widgets.push_back(arrangedWidget);
 		}
 		return temp;
