@@ -387,10 +387,11 @@ namespace GuGu {
 		
 		math::int2 windowWidthAndHeight = math::int2(GetDeviceManager()->getDeviceCreationParameters().backBufferWidth, GetDeviceManager()->getDeviceCreationParameters().backBufferHeight);
 		
-		WidgetGeometry geometry;
-		geometry.setAbsoluteScale(m_uiRoot->getNativeWindow()->getDpiFactor());
+		WidgetGeometry geometry = WidgetGeometry::makeRoot(math::float2(windowWidthAndHeight.x / m_uiRoot->getNativeWindow()->getDpiFactor(), windowWidthAndHeight.y / m_uiRoot->getNativeWindow()->getDpiFactor()),
+			math::affine2(math::float2x2::diagonal(m_uiRoot->getNativeWindow()->getDpiFactor()), 0.0f));
+		//geometry.setAbsoluteScale(m_uiRoot->getNativeWindow()->getDpiFactor());
 		//todo:fix this
-		geometry.setLocalSize(math::float2(windowWidthAndHeight.x / m_uiRoot->getNativeWindow()->getDpiFactor(), windowWidthAndHeight.y / m_uiRoot->getNativeWindow()->getDpiFactor()));
+		//geometry.setLocalSize(math::float2(windowWidthAndHeight.x / m_uiRoot->getNativeWindow()->getDpiFactor(), windowWidthAndHeight.y / m_uiRoot->getNativeWindow()->getDpiFactor()));
 		generateWidgetElement(geometry);
 		m_elementList->generateBatches();
 
@@ -626,401 +627,425 @@ namespace GuGu {
 					+ VerticalBox::Slot()
 					.StretchHeight(1.0f)
 					(
-						WIDGET_NEW(Border)
-						.verticalAlignment(VerticalAlignment::Center)
-						.horizontalAlignment(HorizontalAlignment::Center)
-						.brush(m_styles->getBrush("background"))
-						//.Clip(WidgetClipping::ClipToBounds)
-						.Content
+						WIDGET_NEW(HorizontalBox)
+						+ HorizontalBox::Slot()
+						.StretchWidth(1.0f)
 						(
-							WIDGET_NEW(VerticalBox)
-							+VerticalBox::Slot()
-							.FixedHeight()
+							WIDGET_NEW(Border)
+							.verticalAlignment(VerticalAlignment::Center)
+							.horizontalAlignment(HorizontalAlignment::Center)
+							.brush(m_styles->getBrush("background"))
+							//.Clip(WidgetClipping::ClipToBounds)
+							.Content
 							(
-								WIDGET_NEW(TextBlockWidget)
-								.Clip(WidgetClipping::ClipToBounds)
-								.textLambda([&] {
-									float mfps = Application::getApplication()->getmFps();
-									uint32_t fps = Application::getApplication()->getFps();
-									GuGuUtf8Str fpsStr = u8"一帧耗费时长:%.3f毫秒\r\n帧率:%dfps";
-									fpsStr = strFormat(fpsStr, mfps, fps);
-									//GuGuUtf8Str str = u8"臂跳释阔孕\r\n型佩层愧茎\r\n橘代克屿牛\r\n炊间成羞蝴\r\n顾堆殿友岁\r\n火柜九体妇\r\n枯窑雄密般\r\n鞭宵醉始著\r\n复赚霸扰夺\r\n况说柄响附\r\n庄存叔劫屈\r\n健疯窜滥限\r\n追侵删榆容\r\n挺左丢帮器\r\n搜涂酬魂很\r\n配你御字栗\r\n勇尚沫葡吗\r\n菊庙侍引镜\r\n笔络没蜓页\r\n灾穿卵奴绕";
-									return fpsStr;
-									})
-								.textColorLambda([&] {
-										math::float4 color = m_textColor;
-										return color;
-								})
-							)
-							+ VerticalBox::Slot()
-							.StretchHeight(1.0f)
-							(
-								WIDGET_ASSIGN_NEW(ViewportWidget, m_viewport)
-								.Content(
-									WIDGET_NEW(Overlay)
-									+Overlay::Slot()
-									.setPadding(Padding(20.0f, 20.0f, 0.0f, 0.0f))
-									.setHorizontalAlignment(HorizontalAlignment::Left)
-									.setVerticalAlignment(VerticalAlignment::Top)
-									(
-										WIDGET_NEW(TextBlockWidget)
-										//.Clip(WidgetClipping::ClipToBounds)
-										.text("测试Overlay")
-									)			
-								)
-							)
-							//+ VerticalBox::Slot()
-							//.FixedHeight()
-							//(
-							//	WIDGET_NEW(HorizontalBox)
-							//	+ HorizontalBox::Slot()
-							//	.FixedWidth()
-							//	(
-							//		WIDGET_NEW(TextBlockWidget)
-							//		.text("复选框")
-							//	)
-							//	+ HorizontalBox::Slot()
-							//	.FixedWidth()
-							//	(
-							//		WIDGET_NEW(CheckBox)
-							//		.Content
-							//		(
-							//			WIDGET_NEW(NullWidget)
-							//		)
-							//	)					
-							//	
-							//)
-							+ VerticalBox::Slot()
-							.FixedHeight()
-							(
-								WIDGET_NEW(HorizontalBox)
-								+ HorizontalBox::Slot()
-								.StretchWidth(0.2f)
+								WIDGET_NEW(VerticalBox)
+								+VerticalBox::Slot()
+								.FixedHeight()
 								(
 									WIDGET_NEW(TextBlockWidget)
-									.text(u8"金属度")
+									.Clip(WidgetClipping::ClipToBounds)
+									.textLambda([&] {
+										float mfps = Application::getApplication()->getmFps();
+										uint32_t fps = Application::getApplication()->getFps();
+										GuGuUtf8Str fpsStr = u8"一帧耗费时长:%.3f毫秒\r\n帧率:%dfps";
+										fpsStr = strFormat(fpsStr, mfps, fps);
+										//GuGuUtf8Str str = u8"臂跳释阔孕\r\n型佩层愧茎\r\n橘代克屿牛\r\n炊间成羞蝴\r\n顾堆殿友岁\r\n火柜九体妇\r\n枯窑雄密般\r\n鞭宵醉始著\r\n复赚霸扰夺\r\n况说柄响附\r\n庄存叔劫屈\r\n健疯窜滥限\r\n追侵删榆容\r\n挺左丢帮器\r\n搜涂酬魂很\r\n配你御字栗\r\n勇尚沫葡吗\r\n菊庙侍引镜\r\n笔络没蜓页\r\n灾穿卵奴绕";
+										return fpsStr;
+										})
+									.textColorLambda([&] {
+											math::float4 color = m_textColor;
+											return color;
+									})
 								)
-								+ HorizontalBox::Slot()
-								.StretchWidth(1.0f)
+								+ VerticalBox::Slot()
+								.StretchHeight(1.0f)
 								(
-									WIDGET_NEW(Slider)
-									.MaxValue(1.0f)
-									.MinValue(0.0f)
-									.OnValueChangedLambda([&](float inValue) {
-											m_uiData->metallic = inValue;
-										}
+									WIDGET_ASSIGN_NEW(ViewportWidget, m_viewport)
+									.Content(
+										WIDGET_NEW(Overlay)
+										+Overlay::Slot()
+										.setPadding(Padding(20.0f, 20.0f, 0.0f, 0.0f))
+										.setHorizontalAlignment(HorizontalAlignment::Left)
+										.setVerticalAlignment(VerticalAlignment::Top)
+										(
+											WIDGET_NEW(TextBlockWidget)
+											//.Clip(WidgetClipping::ClipToBounds)
+											.text("测试Overlay")
+										)			
 									)
 								)
-								//+ HorizontalBox::Slot()
-								//.FixedWidth()
+								//+ VerticalBox::Slot()
+								//.FixedHeight()
 								//(
-								//	WIDGET_NEW(TextBlockWidget)
-								//	.text(u8"金属度")
+								//	WIDGET_NEW(HorizontalBox)
+								//	+ HorizontalBox::Slot()
+								//	.FixedWidth()
+								//	(
+								//		WIDGET_NEW(TextBlockWidget)
+								//		.text("复选框")
 								//	)
-								//+ HorizontalBox::Slot()
-								//.StretchWidth(1.0f)
+								//	+ HorizontalBox::Slot()
+								//	.FixedWidth()
+								//	(
+								//		WIDGET_NEW(CheckBox)
+								//		.Content
+								//		(
+								//			WIDGET_NEW(NullWidget)
+								//		)
+								//	)					
+								//	
+								//)
+								+ VerticalBox::Slot()
+								.FixedHeight()
+								(
+									WIDGET_NEW(HorizontalBox)
+									+ HorizontalBox::Slot()
+									.StretchWidth(0.2f)
+									(
+										WIDGET_NEW(TextBlockWidget)
+										.text(u8"金属度")
+									)
+									+ HorizontalBox::Slot()
+									.StretchWidth(1.0f)
+									(
+										WIDGET_NEW(Slider)
+										.MaxValue(1.0f)
+										.MinValue(0.0f)
+										.OnValueChangedLambda([&](float inValue) {
+												m_uiData->metallic = inValue;
+											}
+										)
+									)
+									//+ HorizontalBox::Slot()
+									//.FixedWidth()
+									//(
+									//	WIDGET_NEW(TextBlockWidget)
+									//	.text(u8"金属度")
+									//	)
+									//+ HorizontalBox::Slot()
+									//.StretchWidth(1.0f)
+									//(
+									//	WIDGET_NEW(Slider)
+									//	.MaxValue(1.0f)
+									//	.MinValue(0.0f)
+									//	.OnValueChangedLambda([&](float inValue) {
+									//		m_uiData->metallic = inValue;
+									//		}
+									//	)
+									//)
+								)
+								+ VerticalBox::Slot()
+								.FixedHeight()
+								(
+									WIDGET_NEW(HorizontalBox)
+									+ HorizontalBox::Slot()
+									.StretchWidth(0.2f)
+									(
+										WIDGET_NEW(TextBlockWidget)
+										.text(u8"粗糙度")
+									)
+									+ HorizontalBox::Slot()
+									.StretchWidth(1.0f)
+									(
+										WIDGET_NEW(Slider)
+										.MaxValue(1.0f)
+										.MinValue(0.0f)
+										.OnValueChangedLambda([&](float inValue) {
+												m_uiData->roughness = inValue;
+											}
+										)
+									)
+								)
+								//+ VerticalBox::Slot()
+								//.FixedHeight()
 								//(
-								//	WIDGET_NEW(Slider)
-								//	.MaxValue(1.0f)
-								//	.MinValue(0.0f)
-								//	.OnValueChangedLambda([&](float inValue) {
-								//		m_uiData->metallic = inValue;
-								//		}
+								//	WIDGET_NEW(HorizontalBox)
+								//	+ HorizontalBox::Slot()
+								//	.StretchWidth(0.2f)
+								//	(
+								//		WIDGET_NEW(TextBlockWidget)
+								//		.text(u8"width")
+								//	)
+								//	+ HorizontalBox::Slot()
+								//	.StretchWidth(1.0f)
+								//	(
+								//		WIDGET_NEW(Slider)
+								//		.MaxValue(15.0f)
+								//		.MinValue(0.0f)
+								//		.OnValueChangedLambda([&](float inValue) {
+								//				StyleSet::getStyle()->getBrush("thumbImage")->m_outlineSettings.m_width = inValue;
+								//			}
+								//		)
+								//	)
+								//	+ HorizontalBox::Slot()
+								//	.StretchWidth(0.2f)
+								//	(
+								//		WIDGET_NEW(TextBlockWidget)
+								//		.text(u8"cornerRadius")
+								//		)
+								//	+ HorizontalBox::Slot()
+								//	.StretchWidth(1.0f)
+								//	(
+								//		WIDGET_NEW(Slider)
+								//		.MaxValue(200.0f)
+								//		.MinValue(0.0f)
+								//		.OnValueChangedLambda([&](float inValue) {
+								//			StyleSet::getStyle()->getBrush("thumbImage")->m_outlineSettings.m_cornerRadius = math::float4(inValue);
+								//			}
+								//		)
+								//	)
+								//	+ HorizontalBox::Slot()
+								//	.StretchWidth(0.2f)
+								//	(
+								//		WIDGET_NEW(TextBlockWidget)
+								//		.text(u8"Padding")
+								//		)
+								//	+ HorizontalBox::Slot()
+								//	.StretchWidth(1.0f)
+								//	(
+								//		WIDGET_NEW(Slider)
+								//		.MaxValue(15.0f)
+								//		.MinValue(0.0f)
+								//		.OnValueChangedLambda([&](float inValue) {
+								//			StyleSet::getStyle()->getBrush("thumbImage")->m_margin = Padding(inValue, inValue, inValue, inValue);
+								//			}
+								//		)
+								//	)
+								//)
+								+ VerticalBox::Slot()
+								.FixedHeight()
+								(
+									WIDGET_NEW(HorizontalBox)
+									+ HorizontalBox::Slot()
+									.StretchWidth(0.2f)
+									(
+										WIDGET_NEW(TextBlockWidget)
+										.text(u8"dir")
+										)
+									+ HorizontalBox::Slot()
+									.StretchWidth(1.0f)
+									(
+										WIDGET_NEW(Slider)
+										.MaxValue(10.0f)
+										.MinValue(-10.0f)
+										.OnValueChangedLambda([&](float inValue) {
+											m_uiData->dir = inValue;
+											}
+										)
+									)
+								)
+								+ VerticalBox::Slot()
+								.FixedHeight()
+								(
+									WIDGET_NEW(HorizontalBox)
+									+ HorizontalBox::Slot()
+									.StretchWidth(0.2f)
+									(
+										WIDGET_NEW(TextBlockWidget)
+										.text(u8"pos")
+									)
+									+ HorizontalBox::Slot()
+									.StretchWidth(1.0f)
+									(
+										WIDGET_NEW(Slider)
+										.MaxValue(0.0f)
+										.MinValue(-40.0f)
+										.OnValueChangedLambda([&](float inValue) {
+											m_uiData->camPos = inValue;
+											}
+										)
+									)
+								)
+								+ VerticalBox::Slot()
+								.FixedHeight()
+								(
+									WIDGET_NEW(HorizontalBox)
+									+ HorizontalBox::Slot()
+									.StretchWidth(0.3f)
+									(
+										WIDGET_NEW(TextBlockWidget)
+										.text(u8"可编辑文本框:")
+										.Clip(WidgetClipping::ClipToBounds)
+									)
+									+ HorizontalBox::Slot()
+									.StretchWidth(1.0f)
+									(
+										WIDGET_NEW(EditableTextBox)
+										.Text("文本")
+									)
+								)
+								+ VerticalBox::Slot()
+								.StretchHeight(0.1)
+								(
+									WIDGET_NEW(HorizontalBox)
+									+ HorizontalBox::Slot()
+									
+									.StretchWidth(1.0f)
+									(
+										WIDGET_NEW(Border)
+										.Content(
+											WIDGET_NEW(TextBlockWidget)
+											.text(u8"x:")
+											.Clip(WidgetClipping::ClipToBounds)
+										)
+										.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
+										.BorderBackgroundColor(math::float4(1.0f, 0.0f, 0.0f, 1.0f))
+									)
+									+ HorizontalBox::Slot()
+									.FixedWidth()
+									(
+										WIDGET_NEW(SpinBox<double>)
+										.onValueChangedLambda([&](float newValue) {
+											m_uiData->xWorldPos = newValue;
+										})
+										.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
+											m_uiData->xWorldPos = newValue;
+										})
+									)
+									+ HorizontalBox::Slot()
+									.StretchWidth(1.0f)
+									(
+										WIDGET_NEW(Border)
+										.Content(
+											WIDGET_NEW(TextBlockWidget)
+											.text(u8"y:")
+											.Clip(WidgetClipping::ClipToBounds)
+										)
+										.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
+										.BorderBackgroundColor(math::float4(0.0f, 1.0f, 0.0f, 1.0f))
+									)
+									+ HorizontalBox::Slot()
+									.FixedWidth()
+									(
+										WIDGET_NEW(SpinBox<double>)
+										.onValueChangedLambda([&](float newValue) {
+											m_uiData->yWorldPos = newValue;
+										})
+										.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
+											m_uiData->yWorldPos = newValue;
+										})
+									)
+									+ HorizontalBox::Slot()
+									.StretchWidth(1.0f)
+									(
+										
+										WIDGET_NEW(Border)
+										.Content(
+											WIDGET_NEW(TextBlockWidget)
+											.text(u8"z:")
+											.Clip(WidgetClipping::ClipToBounds)
+										)
+										.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
+										.BorderBackgroundColor(math::float4(0.0f, 0.0f, 1.0f, 1.0f))
+									)
+									+ HorizontalBox::Slot()
+									.FixedWidth()
+									(
+										WIDGET_NEW(SpinBox<double>)
+										.onValueChangedLambda([&](float newValue) {
+											m_uiData->zWorldPos = newValue;
+										})
+										.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
+											m_uiData->zWorldPos = newValue;
+										})
+									)
+								)
+								//+ VerticalBox::Slot()
+								//.StretchHeight(0.1)
+								//(
+								//	WIDGET_NEW(HorizontalBox)
+								//	+ HorizontalBox::Slot()
+								//	
+								//	.StretchWidth(1.0f)
+								//	(
+								//		WIDGET_NEW(Border)
+								//		.Content(
+								//			WIDGET_NEW(TextBlockWidget)
+								//			.text(u8"R:")
+								//			.Clip(WidgetClipping::ClipToBounds)
+								//		)
+								//		.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
+								//		.BorderBackgroundColor(math::float4(1.0f, 0.0f, 0.0f, 1.0f))
+								//	)
+								//	+ HorizontalBox::Slot()
+								//	.FixedWidth()
+								//	(
+								//		WIDGET_NEW(SpinBox<double>)
+								//		.onValueChangedLambda([&](float newValue) {
+								//			m_uiData->color.x = newValue;
+								//		})
+								//		.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
+								//			m_uiData->color.x = newValue;
+								//		})
+								//	)
+								//	+ HorizontalBox::Slot()
+								//	.StretchWidth(1.0f)
+								//	(
+								//		WIDGET_NEW(Border)
+								//		.Content(
+								//			WIDGET_NEW(TextBlockWidget)
+								//			.text(u8"G:")
+								//			.Clip(WidgetClipping::ClipToBounds)
+								//		)
+								//		.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
+								//		.BorderBackgroundColor(math::float4(0.0f, 1.0f, 0.0f, 1.0f))
+								//	)
+								//	+ HorizontalBox::Slot()
+								//	.FixedWidth()
+								//	(
+								//		WIDGET_NEW(SpinBox<double>)
+								//		.onValueChangedLambda([&](float newValue) {
+								//			m_uiData->color.y = newValue;
+								//		})
+								//		.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
+								//			m_uiData->color.y = newValue;
+								//		})
+								//	)
+								//	+ HorizontalBox::Slot()
+								//	.StretchWidth(1.0f)
+								//	(
+								//		
+								//		WIDGET_NEW(Border)
+								//		.Content(
+								//			WIDGET_NEW(TextBlockWidget)
+								//			.text(u8"B:")
+								//			.Clip(WidgetClipping::ClipToBounds)
+								//		)
+								//		.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
+								//		.BorderBackgroundColor(math::float4(0.0f, 0.0f, 1.0f, 1.0f))
+								//	)
+								//	+ HorizontalBox::Slot()
+								//	.FixedWidth()
+								//	(
+								//		WIDGET_NEW(SpinBox<double>)
+								//		.onValueChangedLambda([&](float newValue) {
+								//			m_uiData->color.z = newValue;
+								//		})
+								//		.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
+								//			m_uiData->color.z = newValue;
+								//		})
 								//	)
 								//)
 							)
-							+ VerticalBox::Slot()
-							.FixedHeight()
+						)
+						+ HorizontalBox::Slot()
+						.StretchWidth(1.0f)
+						(
+							WIDGET_NEW(Border)
+							.verticalAlignment(VerticalAlignment::Stretch)
+							.horizontalAlignment(HorizontalAlignment::Stretch)
+							.brush(m_styles->getBrush("background"))
+							.Content
 							(
-								WIDGET_NEW(HorizontalBox)
-								+ HorizontalBox::Slot()
-								.StretchWidth(0.2f)
-								(
-									WIDGET_NEW(TextBlockWidget)
-									.text(u8"粗糙度")
+								WIDGET_NEW(Slider)
+								.MaxValue(1.0f)
+								.MinValue(0.0f)
+								.orientation(Orientation::Vertical)
+								.OnValueChangedLambda([&](float inValue) {
+									m_uiData->metallic = inValue;
+								}
 								)
-								+ HorizontalBox::Slot()
-								.StretchWidth(1.0f)
-								(
-									WIDGET_NEW(Slider)
-									.MaxValue(1.0f)
-									.MinValue(0.0f)
-									.OnValueChangedLambda([&](float inValue) {
-											m_uiData->roughness = inValue;
-										}
-									)
-								)
-							)
-							//+ VerticalBox::Slot()
-							//.FixedHeight()
-							//(
-							//	WIDGET_NEW(HorizontalBox)
-							//	+ HorizontalBox::Slot()
-							//	.StretchWidth(0.2f)
-							//	(
-							//		WIDGET_NEW(TextBlockWidget)
-							//		.text(u8"width")
-							//	)
-							//	+ HorizontalBox::Slot()
-							//	.StretchWidth(1.0f)
-							//	(
-							//		WIDGET_NEW(Slider)
-							//		.MaxValue(15.0f)
-							//		.MinValue(0.0f)
-							//		.OnValueChangedLambda([&](float inValue) {
-							//				StyleSet::getStyle()->getBrush("thumbImage")->m_outlineSettings.m_width = inValue;
-							//			}
-							//		)
-							//	)
-							//	+ HorizontalBox::Slot()
-							//	.StretchWidth(0.2f)
-							//	(
-							//		WIDGET_NEW(TextBlockWidget)
-							//		.text(u8"cornerRadius")
-							//		)
-							//	+ HorizontalBox::Slot()
-							//	.StretchWidth(1.0f)
-							//	(
-							//		WIDGET_NEW(Slider)
-							//		.MaxValue(200.0f)
-							//		.MinValue(0.0f)
-							//		.OnValueChangedLambda([&](float inValue) {
-							//			StyleSet::getStyle()->getBrush("thumbImage")->m_outlineSettings.m_cornerRadius = math::float4(inValue);
-							//			}
-							//		)
-							//	)
-							//	+ HorizontalBox::Slot()
-							//	.StretchWidth(0.2f)
-							//	(
-							//		WIDGET_NEW(TextBlockWidget)
-							//		.text(u8"Padding")
-							//		)
-							//	+ HorizontalBox::Slot()
-							//	.StretchWidth(1.0f)
-							//	(
-							//		WIDGET_NEW(Slider)
-							//		.MaxValue(15.0f)
-							//		.MinValue(0.0f)
-							//		.OnValueChangedLambda([&](float inValue) {
-							//			StyleSet::getStyle()->getBrush("thumbImage")->m_margin = Padding(inValue, inValue, inValue, inValue);
-							//			}
-							//		)
-							//	)
-							//)
-							+ VerticalBox::Slot()
-							.FixedHeight()
-							(
-								WIDGET_NEW(HorizontalBox)
-								+ HorizontalBox::Slot()
-								.StretchWidth(0.2f)
-								(
-									WIDGET_NEW(TextBlockWidget)
-									.text(u8"dir")
-									)
-								+ HorizontalBox::Slot()
-								.StretchWidth(1.0f)
-								(
-									WIDGET_NEW(Slider)
-									.MaxValue(10.0f)
-									.MinValue(-10.0f)
-									.OnValueChangedLambda([&](float inValue) {
-										m_uiData->dir = inValue;
-										}
-									)
-								)
-							)
-							+ VerticalBox::Slot()
-							.FixedHeight()
-							(
-								WIDGET_NEW(HorizontalBox)
-								+ HorizontalBox::Slot()
-								.StretchWidth(0.2f)
-								(
-									WIDGET_NEW(TextBlockWidget)
-									.text(u8"pos")
-								)
-								+ HorizontalBox::Slot()
-								.StretchWidth(1.0f)
-								(
-									WIDGET_NEW(Slider)
-									.MaxValue(0.0f)
-									.MinValue(-40.0f)
-									.OnValueChangedLambda([&](float inValue) {
-										m_uiData->camPos = inValue;
-										}
-									)
-								)
-							)
-							+ VerticalBox::Slot()
-							.FixedHeight()
-							(
-								WIDGET_NEW(HorizontalBox)
-								+ HorizontalBox::Slot()
-								.StretchWidth(0.3f)
-								(
-									WIDGET_NEW(TextBlockWidget)
-									.text(u8"可编辑文本框:")
-									.Clip(WidgetClipping::ClipToBounds)
-								)
-								+ HorizontalBox::Slot()
-								.StretchWidth(1.0f)
-								(
-									WIDGET_NEW(EditableTextBox)
-									.Text("文本")
-								)
-							)
-							+ VerticalBox::Slot()
-							.StretchHeight(0.1)
-							(
-								WIDGET_NEW(HorizontalBox)
-								+ HorizontalBox::Slot()
-								
-								.StretchWidth(1.0f)
-								(
-									WIDGET_NEW(Border)
-									.Content(
-										WIDGET_NEW(TextBlockWidget)
-										.text(u8"x:")
-										.Clip(WidgetClipping::ClipToBounds)
-									)
-									.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
-									.BorderBackgroundColor(math::float4(1.0f, 0.0f, 0.0f, 1.0f))
-								)
-								+ HorizontalBox::Slot()
-								.FixedWidth()
-								(
-									WIDGET_NEW(SpinBox<double>)
-									.onValueChangedLambda([&](float newValue) {
-										m_uiData->xWorldPos = newValue;
-									})
-									.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
-										m_uiData->xWorldPos = newValue;
-									})
-								)
-								+ HorizontalBox::Slot()
-								.StretchWidth(1.0f)
-								(
-									WIDGET_NEW(Border)
-									.Content(
-										WIDGET_NEW(TextBlockWidget)
-										.text(u8"y:")
-										.Clip(WidgetClipping::ClipToBounds)
-									)
-									.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
-									.BorderBackgroundColor(math::float4(0.0f, 1.0f, 0.0f, 1.0f))
-								)
-								+ HorizontalBox::Slot()
-								.FixedWidth()
-								(
-									WIDGET_NEW(SpinBox<double>)
-									.onValueChangedLambda([&](float newValue) {
-										m_uiData->yWorldPos = newValue;
-									})
-									.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
-										m_uiData->yWorldPos = newValue;
-									})
-								)
-								+ HorizontalBox::Slot()
-								.StretchWidth(1.0f)
-								(
-									
-									WIDGET_NEW(Border)
-									.Content(
-										WIDGET_NEW(TextBlockWidget)
-										.text(u8"z:")
-										.Clip(WidgetClipping::ClipToBounds)
-									)
-									.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
-									.BorderBackgroundColor(math::float4(0.0f, 0.0f, 1.0f, 1.0f))
-								)
-								+ HorizontalBox::Slot()
-								.FixedWidth()
-								(
-									WIDGET_NEW(SpinBox<double>)
-									.onValueChangedLambda([&](float newValue) {
-										m_uiData->zWorldPos = newValue;
-									})
-									.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
-										m_uiData->zWorldPos = newValue;
-									})
-								)
-							)
-							//+ VerticalBox::Slot()
-							//.StretchHeight(0.1)
-							//(
-							//	WIDGET_NEW(HorizontalBox)
-							//	+ HorizontalBox::Slot()
-							//	
-							//	.StretchWidth(1.0f)
-							//	(
-							//		WIDGET_NEW(Border)
-							//		.Content(
-							//			WIDGET_NEW(TextBlockWidget)
-							//			.text(u8"R:")
-							//			.Clip(WidgetClipping::ClipToBounds)
-							//		)
-							//		.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
-							//		.BorderBackgroundColor(math::float4(1.0f, 0.0f, 0.0f, 1.0f))
-							//	)
-							//	+ HorizontalBox::Slot()
-							//	.FixedWidth()
-							//	(
-							//		WIDGET_NEW(SpinBox<double>)
-							//		.onValueChangedLambda([&](float newValue) {
-							//			m_uiData->color.x = newValue;
-							//		})
-							//		.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
-							//			m_uiData->color.x = newValue;
-							//		})
-							//	)
-							//	+ HorizontalBox::Slot()
-							//	.StretchWidth(1.0f)
-							//	(
-							//		WIDGET_NEW(Border)
-							//		.Content(
-							//			WIDGET_NEW(TextBlockWidget)
-							//			.text(u8"G:")
-							//			.Clip(WidgetClipping::ClipToBounds)
-							//		)
-							//		.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
-							//		.BorderBackgroundColor(math::float4(0.0f, 1.0f, 0.0f, 1.0f))
-							//	)
-							//	+ HorizontalBox::Slot()
-							//	.FixedWidth()
-							//	(
-							//		WIDGET_NEW(SpinBox<double>)
-							//		.onValueChangedLambda([&](float newValue) {
-							//			m_uiData->color.y = newValue;
-							//		})
-							//		.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
-							//			m_uiData->color.y = newValue;
-							//		})
-							//	)
-							//	+ HorizontalBox::Slot()
-							//	.StretchWidth(1.0f)
-							//	(
-							//		
-							//		WIDGET_NEW(Border)
-							//		.Content(
-							//			WIDGET_NEW(TextBlockWidget)
-							//			.text(u8"B:")
-							//			.Clip(WidgetClipping::ClipToBounds)
-							//		)
-							//		.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
-							//		.BorderBackgroundColor(math::float4(0.0f, 0.0f, 1.0f, 1.0f))
-							//	)
-							//	+ HorizontalBox::Slot()
-							//	.FixedWidth()
-							//	(
-							//		WIDGET_NEW(SpinBox<double>)
-							//		.onValueChangedLambda([&](float newValue) {
-							//			m_uiData->color.z = newValue;
-							//		})
-							//		.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
-							//			m_uiData->color.z = newValue;
-							//		})
-							//	)
-							//)
+							)					
 						)
 					)
 				)

@@ -72,7 +72,7 @@ namespace GuGu {
 				AlignmentArrangeResult yResult = AlignChild<Orientation::Vertical>(curChild, allocatedGeometry.getLocalSize().y);
 				Size = math::float2(xResult.m_size, yResult.m_size);
 			}
-			const WidgetGeometry childGeom = allocatedGeometry.getChildGeometry(Size, curChild.m_offset.Get(), allocatedGeometry.getAccumulateTransform());
+			const WidgetGeometry childGeom = allocatedGeometry.getChildGeometry(Size, curChild.m_offset.Get());
 			arrangedWidgetArray.pushWidget(childGeom, curChild.getChildWidget());
 		}
 	}
@@ -100,7 +100,7 @@ namespace GuGu {
 		{
 			const std::shared_ptr<Node>& someChild = std::static_pointer_cast<Node>(m_children[childIndex]->getChildWidget());
 
-			arrangedWidgetArray.pushWidget(allocatedGeometry.getChildGeometry(someChild->getFixedSize(), someChild->getPosition(), allocatedGeometry.getAccumulateTransform()), someChild);
+			arrangedWidgetArray.pushWidget(allocatedGeometry.getChildGeometry(someChild->getFixedSize(), someChild->getPosition()), someChild);
 		}
 	}
 	SlotBase* NodePanel::getSlot(uint32_t index)

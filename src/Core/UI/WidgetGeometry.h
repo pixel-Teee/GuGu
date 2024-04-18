@@ -10,7 +10,7 @@ namespace GuGu {
 
 		virtual ~WidgetGeometry();
 
-		void setLocalSize(math::float2 localSize);
+		//void setLocalSize(math::float2 localSize);
 
 		math::float2 getLocalSize() const;
 
@@ -22,9 +22,13 @@ namespace GuGu {
 
 		math::float2 getAbsoluteSize() const;
 
-		math::affine2 getAccumulateTransform() const;
+		math::affine2 getAccumulateLayoutTransform() const;
 
-		WidgetGeometry getChildGeometry(math::float2 inLocalSize, math::float2 inTranslation, const math::affine2 parentAccumulateTransform) const;
+		math::affine2 getAccumulateRenderTransform() const;
+
+		WidgetGeometry getChildGeometry(const math::float2& inLocalSize, const math::affine2& inLocalLayoutTransform, const math::affine2& inLocalRenderTransform, const math::float2& inLocalRenderTransformPivot) const;
+
+		WidgetGeometry getChildGeometry(math::float2 inLocalSize, math::float2 inTranslation) const;
 
 		WidgetGeometry getOffsetGeometry(math::float2 inTranslation) const;
 
@@ -34,11 +38,13 @@ namespace GuGu {
 
 		math::box2 getRenderBoundingRect(const math::box2& localSpaceRect) const;
 		
+		static WidgetGeometry makeRoot(const math::float2& inLocalSize, const math::affine2& inLocalLayoutTransform);
 	public:
-		math::float2 mLocalPosition;
+		math::affine2 mAccumulateRenderTransform;//相比于 accumulate layout transform ，多了旋转、斜切
+		math::float2 mLocalPosition;//local layout transform 导出
 		math::float2 mLocalSize;
-		float mAbsoluteScale;
-		math::float2 mAbsolutePosition;
-		math::affine2 mAccumulateTransform;
+		float mAbsoluteScale;//从accumulate layout transform 导出
+		math::float2 mAbsolutePosition;//从accumulate layout transform 导出
+		math::affine2 mAccumulateLayoutTransform;//accumulate layout transform 只存放绝对缩放和绝对空间，由 absolute position 和 absolute scale 组成
 	};
 }

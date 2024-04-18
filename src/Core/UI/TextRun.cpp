@@ -81,7 +81,7 @@ namespace GuGu {
 
 		std::shared_ptr<ShapedGlyphSequence> shapedText = ShapedTextCacheUtil::getShapedTextSubSequence(
 			BlockTextContext.m_shapedTextCache,
-			CacheShapedTextKey(Line.range, allottedGeometry.getAccumulateTransform().m_linear[0][0], BlockTextContext, *m_style.m_textInfo),//todo:这里传递了一个缩放，暂时直接取，以后增加getScale函数
+			CacheShapedTextKey(Line.range, allottedGeometry.getAccumulateLayoutTransform().m_linear[0][0], BlockTextContext, *m_style.m_textInfo),//todo:这里传递了一个缩放，暂时直接取，以后增加getScale函数
 			blockRange,
 			*m_text
 		);
@@ -89,7 +89,7 @@ namespace GuGu {
 		math::affine2 inverseScaleTransform = math::affine2(math::float2(inverseScale, 0), math::float2(0, inverseScale), math::float2(0, 0));
 
 		ElementList::addShapedTextElement(outDrawElements,
-			allottedGeometry.getChildGeometry(inverseScaleTransform.transformVector(Block->getSize()), inverseScaleTransform.transformPoint(Block->getLocationOffset()), allottedGeometry.getAccumulateTransform()),
+			allottedGeometry.getChildGeometry(inverseScaleTransform.transformVector(Block->getSize()), inverseScaleTransform.transformPoint(Block->getLocationOffset())),
 			math::float4(1.0f, 1.0f, 1.0f, 1.0f),
 			shapedText,
 			layerId + 1

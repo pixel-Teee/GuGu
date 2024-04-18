@@ -642,7 +642,7 @@ namespace GuGu{
             WidgetGeometry widgetGeometry = allWidgets[i]->getWidgetGeometry();
 
             math::float2 localSize = widgetGeometry.getLocalSize();
-            math::affine2 transform = widgetGeometry.getAccumulateTransform();
+            math::affine2 transform = widgetGeometry.getAccumulateLayoutTransform();
 
             math::float2 topLeft = transform.transformPoint(math::float2(0.0f, 0.0f));
             math::float2 topRight = transform.transformPoint(math::float2(localSize.x, 0.0f));

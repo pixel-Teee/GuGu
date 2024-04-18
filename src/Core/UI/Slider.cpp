@@ -45,7 +45,7 @@ namespace GuGu {
 		const float indentation = 0.0f;//缩进
 
 		//保证滑条不会超出滑条长度
-		const float sliderPercent = std::clamp(getNormalizedValue(), 0.0f, 1.0f);
+		const float sliderPercent = std::clamp(getNormalizedValue(), 0.0f, 1.0f);//滑条的数值百分比
 		const float sliderLength = allottedWidth - (indentation + handleSize.x);
 		const float sliderHandleOffset = sliderPercent * sliderLength;
 		const float sliderY = 0.5f * allottedHeight;
@@ -64,15 +64,33 @@ namespace GuGu {
 		{
 			//暂时不处理垂直的
 			//sliderGeometry = sliderGeometry.getChildGeometry(math::float2(allottedWidth, allottedHeight), math::float2(0.0f, 0.0f), sliderGeometry.getAccumulateTransform());
+			math::affine2 renderTransform;
+
+			math::float2 translation = math::float2(-allottedWidth, 0);
+			float Radians = math::radians(-90.0f);
+			math::float2 quat2D = math::float2(std::cosf(Radians), std::sinf(Radians));
+
+			//transform point
+			math::float2 rotatedTranslation = math::float2(translation.x * quat2D.x - translation.y * quat2D.y, translation.x * quat2D.y + translation.y * quat2D.x);
+
+			//todo:这里之后需要简化，封装成函数
+			renderTransform = math::affine2(math::float2x2(quat2D.x, quat2D.y, -quat2D.y, quat2D.x), rotatedTranslation);
+
+			sliderGeometry = allocatedGeometry.getChildGeometry(
+				math::float2(allottedWidth, allottedHeight),
+				math::affine2::identity(),
+				renderTransform,
+				math::float2(0, 0) //pivot
+			);
 		}
 
-		//绘制滑条块
+		//绘制slider
 		auto barTopLeft = math::float2(sliderStartPoint.x, sliderStartPoint.y - m_sliderStyle->barThickNess * 0.5f);
 		auto barSize = math::float2(sliderEndPoint.x - sliderStartPoint.x, m_sliderStyle->barThickNess);
 		auto barImage = getBarImage();
 		auto thumbImage = getThumbImage();
 		ElementList::addBoxElement(elementList,
-			sliderGeometry.getChildGeometry(barSize, barTopLeft, sliderGeometry.getAccumulateTransform()),
+			sliderGeometry.getChildGeometry(barSize, barTopLeft),
 			math::float4(1.0f),
 			barImage,
 			layer
@@ -80,8 +98,9 @@ namespace GuGu {
 
 		++layer;
 
+		//绘制handle
 		ElementList::addBoxElement(elementList,
-			sliderGeometry.getChildGeometry(handleSize, handleTopLeftPoint, sliderGeometry.getAccumulateTransform()),
+			sliderGeometry.getChildGeometry(handleSize, handleTopLeftPoint),
 			math::float4(1.0f),
 			thumbImage,
 			layer
@@ -98,6 +117,11 @@ namespace GuGu {
 
 		const float thickness = std::max(m_sliderStyle->barThickNess,
 			(float)m_sliderStyle->m_normalThumbImage->m_actualSize.y);
+
+		if (m_orientation == Orientation::Vertical)
+		{
+			return math::float2(thickness, sliderDesiredSize.y);
+		}
 
 		return math::float2(sliderDesiredSize.x, thickness);
 	}
@@ -153,12 +177,23 @@ namespace GuGu {
 	{
 		const math::float2 localPosition = geometry.absoluteToLocal(absolutePosition);
 
+		float denominator;
+		float relativeValue;
+
 		const float indentation = getThumbImage()->m_actualSize.x;
 		const float halfIndentation = 0.5f * indentation;
 
-		float denominator = geometry.mLocalSize.x - indentation;
-		float relativeValue = (denominator != 0.0f) ? (localPosition.x - halfIndentation) / denominator : 0.0f;
-		
+		if (m_orientation == Orientation::Horizontal)
+		{
+			denominator = geometry.mLocalSize.x - indentation;
+			relativeValue = (denominator != 0.0f) ? (localPosition.x - halfIndentation) / denominator : 0.0f;
+		}
+		else
+		{
+			denominator = geometry.mLocalSize.y - indentation;
+			relativeValue = (denominator != 0.0f) ? (geometry.mLocalSize.y - localPosition.y - halfIndentation) / denominator : 0.0f;
+		}
+
 		relativeValue = std::clamp(relativeValue, 0.0f, 1.0f) * (m_maxValue - m_minValue) + m_minValue;
 
 		return relativeValue;

@@ -102,7 +102,7 @@ namespace GuGu {
 
 				const math::float2 localSize = math::float2(xAlignmentResult.m_size, yAlignmentResult.m_size);
 
-				arrangedWidgetArray.pushWidget(childVisibility, widgetGeometry.getChildGeometry(math::float2(localSize.x, localSize.y), math::float2(localPosition.x, localPosition.y), widgetGeometry.getAccumulateTransform()), curChild->getChildWidget());
+				arrangedWidgetArray.pushWidget(childVisibility, widgetGeometry.getChildGeometry(math::float2(localSize.x, localSize.y), math::float2(localPosition.x, localPosition.y)), curChild->getChildWidget());
 
 				if (childVisibility != Visibility::Collapsed)
 				{

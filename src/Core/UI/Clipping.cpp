@@ -11,7 +11,7 @@ namespace GuGu {
 		//m_bottomRight = math::float2(m_topLeft.x + boundingGeometry.getLocalSize().x, m_topLeft.y + boundingGeometry.getLocalSize().y);
 
 		math::float2 localSize = boundingGeometry.getLocalSize();
-		math::affine2 transform = boundingGeometry.getAccumulateTransform();
+		math::affine2 transform = boundingGeometry.getAccumulateLayoutTransform();
 
 		m_topLeft = transform.transformPoint(math::float2(0.0f, 0.0f));
 		m_topRight = transform.transformPoint(math::float2(localSize.x, 0.0f));

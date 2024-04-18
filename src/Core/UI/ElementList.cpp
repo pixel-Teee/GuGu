@@ -195,7 +195,7 @@ namespace GuGu {
 
 		std::shared_ptr<BoxElement> boxElement = std::static_pointer_cast<BoxElement>(element);
 		//math::double2 absolutePosition = boxElement->m_geometry.getAbsolutePosition();
-		math::affine2 transform = boxElement->m_geometry.getAccumulateTransform();
+		math::affine2 transform = boxElement->m_geometry.getAccumulateRenderTransform();
 		math::float2 localSize = boxElement->m_geometry.getLocalSize();
 		//math::double2 localSize = math::double2(200.0f, 200.0f);
 		math::float4 color = boxElement->m_color;
@@ -379,7 +379,7 @@ namespace GuGu {
 		std::shared_ptr<TextElement> textElement = std::static_pointer_cast<TextElement>(element);
 		float scale = textElement->m_geometry.getAbsoluteScale();
 		//math::float2 absolutePosition = textElement->m_geometry.getAbsolutePosition();
-		math::affine2 transform = textElement->m_geometry.getAccumulateTransform();
+		math::affine2 transform = textElement->m_geometry.getAccumulateRenderTransform();
 		transform.m_linear = math::float2x2::identity();
 		//math::double2 localSize = textElement->m_geometry.getLocalSize();
 		//math::double2 localSize = math::double2(200.0f, 200.0f);
@@ -567,7 +567,7 @@ namespace GuGu {
 
 		std::shared_ptr<ViewportElement> viewportElement = std::static_pointer_cast<ViewportElement>(element);
 		//math::double2 absolutePosition = boxElement->m_geometry.getAbsolutePosition();
-		math::affine2 transform = viewportElement->m_geometry.getAccumulateTransform();
+		math::affine2 transform = viewportElement->m_geometry.getAccumulateRenderTransform();
 		math::float2 localSize = viewportElement->m_geometry.getLocalSize();
 		//math::double2 localSize = math::double2(200.0f, 200.0f);
 		math::float4 color = viewportElement->m_color;
@@ -667,7 +667,7 @@ namespace GuGu {
 			SizeU = glyphAtlasData.uSize * invTextureSizeX;
 			SizeV = glyphAtlasData.vSize * invTextureSizeY;
 
-			math::affine2 transform = context.element->m_geometry.getAccumulateTransform();
+			math::affine2 transform = context.element->m_geometry.getAccumulateRenderTransform();
 			transform.m_linear = math::float2x2::identity();
 			math::float4 color = static_cast<ShapedTextElement*>(context.element)->m_color;
 			math::float2 UpperLeft = transform.transformPoint(math::float2(X, Y));

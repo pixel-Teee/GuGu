@@ -80,7 +80,7 @@ namespace GuGu {
 			math::float2 transformedSize = math::scaling(math::float2(inverseScale)).transformVector(math::float2(cursorWidth.x, size.y));
 			math::float2 transformedLocation = math::scaling(math::float2(inverseScale)).transformPoint(location + optionalWidth);
 
-			WidgetGeometry paintGeometry = allottedGeometry.getChildGeometry(transformedSize, transformedLocation, allottedGeometry.getAccumulateTransform());
+			WidgetGeometry paintGeometry = allottedGeometry.getChildGeometry(transformedSize, transformedLocation);
 
 			ElementList::addBoxElement(outDrawElements, paintGeometry, math::float4(1.0f, 1.0f, 1.0f, cursorOpacity * cursorOpacity), m_cursorBrush, ++layerId);
 
@@ -105,7 +105,7 @@ namespace GuGu {
 			math::float2 transformedSize = math::scaling(math::float2(inverseScale)).transformVector(math::float2(highlightWidth, std::max(line.size.y, line.textHeight)));
 			math::float2 transformedLocation = math::scaling(math::float2(inverseScale)).transformPoint(location);
 
-			WidgetGeometry paintGeometry = allottedGeometry.getChildGeometry(transformedSize, transformedLocation, allottedGeometry.getAccumulateTransform());
+			WidgetGeometry paintGeometry = allottedGeometry.getChildGeometry(transformedSize, transformedLocation);
 
 			if (highlightWidth > 0.0f)
 			{
