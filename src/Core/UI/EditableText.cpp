@@ -25,6 +25,8 @@ namespace GuGu {
 		m_bSelectAllTextWhenFocus = arguments.mSelecAllTextWhenFocus;
 
 		m_bSelectAllTextOnCommit = arguments.mSelectAllTextOnCommit;
+
+		m_widgetClipping = arguments.mClip;
 	}
 	uint32_t EditableText::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{

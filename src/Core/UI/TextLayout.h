@@ -45,7 +45,7 @@ namespace GuGu {
 		int32_t getLineIndex() const { return lineIndex; }
 		int32_t getOffset() const { return offset; }
 	private:
-		int32_t lineIndex;
+		int32_t lineIndex;//line model index
 		int32_t offset;
 	};
 	class TextSelection
@@ -290,6 +290,13 @@ namespace GuGu {
 
 		void getSelectionAsText(GuGuUtf8Str& displayText, const TextSelection& selection) const;
 
+		math::float2 getLocationAt(const TextLocation& location, const bool bPerformInclusiveBoundsCheck) const;
+
+		void setVisibleRegion(const math::float2& inViewSize, const math::float2& inScrollOffset);
+
+		//inclusive 包含
+		int32_t getLineViewIndexForTextLocation(const std::vector<TextLayout::LineView>& lineViews, const TextLocation& location, const bool bPerformInclusiveBoundsCheck) const;
+
 		virtual std::shared_ptr<IRun> createDefaultTextRun(const std::shared_ptr<GuGuUtf8Str>& newText, const TextRange& newRange) const = 0;
 	protected:
 
@@ -316,5 +323,11 @@ namespace GuGu {
 		TextShapingMethod m_textShapingMethod;
 
 		std::vector<LineView> m_lineViews;
+
+		//可以从 parent widget 实际看到的 text layout 的大小
+		math::float2 m_viewSize;
+
+		//从prent widget 看到的 text layout 的 scroll offset
+		math::float2 m_scrollOffset;
 	};
 }

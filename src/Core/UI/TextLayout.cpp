@@ -79,6 +79,7 @@ namespace GuGu {
 
 	TextLayout::TextLayout()
 	{
+		m_viewSize = m_scrollOffset = math::float2(0, 0);
 	}
 	TextLayout::~TextLayout()
 	{
@@ -588,6 +589,105 @@ namespace GuGu {
 		}
 	}
 
+	math::float2 TextLayout::getLocationAt(const TextLocation& location, const bool bPerformInclusiveBoundsCheck) const
+	{
+		const int32_t lineModelIndex = location.getLineIndex();
+		const int32_t offset = location.getOffset();
+
+		//找到封装了location的offset的line view
+		const int32_t lineViewIndex = getLineViewIndexForTextLocation(m_lineViews, location, bPerformInclusiveBoundsCheck);
+
+		if (!(lineModelIndex >= 0 && lineModelIndex < m_lineViews.size()))
+		{
+			return math::float2(0, 0);
+		}
+
+		const TextLayout::LineView& lineView = m_lineViews[lineViewIndex];
+
+		//迭代每个 line view 的块
+		for (int32_t blockIndex = 0; blockIndex < lineView.blocks.size(); ++blockIndex)
+		{
+			const std::shared_ptr<ILayoutBlock>& block = lineView.blocks[blockIndex];
+			const TextRange& blockRange = block->getTextRange();
+			
+			if (blockRange.inculsiveContains(offset))
+			{
+				//如果块range包含确切的位置offset
+				const math::float2 screenLocation = block->getRun()->getLocationAt(block, offset - blockRange.m_beginIndex, m_scale);
+
+				if (screenLocation.x == 0 && screenLocation.y == 0)
+				{
+					continue;
+				}
+
+				return screenLocation;
+			}			
+		}
+
+		return math::float2(0, 0);
+	}
+
+	void TextLayout::setVisibleRegion(const math::float2& inViewSize, const math::float2& inScrollOffset)
+	{
+		if (inViewSize.x != m_viewSize.x || inViewSize.y != m_viewSize.y)
+		{
+			m_viewSize = inViewSize;
+		}
+
+		if (inScrollOffset.x != m_scrollOffset.x || inScrollOffset.y != m_scrollOffset.y)
+		{
+			const math::float2 previousScrollOffset = m_scrollOffset;
+			m_scrollOffset = inScrollOffset;
+
+			const math::float2 offsetAnjustment = -(m_scrollOffset - previousScrollOffset);
+
+			for (LineView& lineView : m_lineViews)
+			{
+				lineView.offset += offsetAnjustment;
+
+				for (const std::shared_ptr<ILayoutBlock>& block : lineView.blocks)
+				{
+					block->setLocationOffset(block->getLocationOffset() + offsetAnjustment);
+				}
+			}
+		}
+	}
+
+	int32_t TextLayout::getLineViewIndexForTextLocation(const std::vector<TextLayout::LineView>& lineViews, const TextLocation& location, const bool bPerformInclusiveBoundsCheck) const
+	{
+		const int32_t lineModelIndex = location.getLineIndex();
+		const int32_t offset = location.getOffset();
+
+		if (!(lineModelIndex >= 0 && lineModelIndex < m_lineModels.size()))
+		{
+			return -1;
+		}
+
+		const LineModel& lineModel = m_lineModels[lineModelIndex];
+		for (int32_t index = 0; index < lineViews.size(); ++index)
+		{
+			const TextLayout::LineView& lineView = lineViews[index];
+
+			if (lineView.modelIndex == lineModelIndex)
+			{
+				//简单情况，在开头，或者结尾，或者包含
+				if (offset == 0 || (lineModel.text->len() == 0) || lineView.range.Contains(offset))
+				{
+					return index;
+				}
+
+				//如果我们在最后以后，那么我们也需要去测试结束的index是range的一部分
+				const bool bIsLastLineForModel = index == (lineViews.size() - 1) || lineViews[index + 1].modelIndex != lineModelIndex;
+				if ((bIsLastLineForModel || bPerformInclusiveBoundsCheck) && lineView.range.m_endIndex == offset)
+				{
+					return index;
+				}
+			}
+		}
+
+		return -1;
+	}
+
 	void TextLayout::flowLineLayout(const int32_t lineModelIndex, const float wrappingDrawWidth, std::vector<std::shared_ptr<ILayoutBlock>>& softLine)
 	{
 		const LineModel& lineModel = m_lineModels[lineModelIndex];
@@ -703,7 +803,7 @@ namespace GuGu {
 		}
 
 		math::float2 lineSize(0.0f, 0.0f);
-		math::float2 currentOffset(0, m_textLayoutSize.m_height);
+		math::float2 currentOffset(-m_scrollOffset.x, m_textLayoutSize.m_height - m_scrollOffset.y);
 
 		if (outSoftLine.size() > 0)
 		{

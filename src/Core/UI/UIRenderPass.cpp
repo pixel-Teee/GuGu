@@ -871,7 +871,7 @@ namespace GuGu {
 									.StretchWidth(1.0f)
 									(
 										WIDGET_NEW(EditableTextBox)
-										.Text("文本")
+										.Text("文本测试你好我想回家我不是一个普通人，我想测试很多很多东西，我想成功，我不想是一个失败者，难过，我真的好难过")
 									)
 								)
 								+ VerticalBox::Slot()

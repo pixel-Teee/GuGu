@@ -88,6 +88,8 @@ namespace GuGu {
 
 		virtual int16_t getBaseLine(float inScale) const = 0;
 
+		virtual math::float2 getLocationAt(const std::shared_ptr<ILayoutBlock>& block, int32_t offset, float scale) const = 0;
+
 		virtual std::shared_ptr<ILayoutBlock> createBlock(int32_t startIndex, int32_t endIndex, math::float2 size, const LayoutBlockTextContext& textContext) = 0;
 
 		virtual math::float2 measure(int32_t startIndex, int32_t endIndex, float scale, const RunTextContext& textContext) const = 0;

@@ -26,6 +26,7 @@ namespace GuGu {
                     .text(arguments.mText)
                 )
             )
+            //.Clip(WidgetClipping::ClipToBounds)
             .brush(this, &EditableTextBox::getBorderImage));
         m_visibilityAttribute = arguments.mVisibility;
     }

@@ -61,6 +61,24 @@ namespace GuGu {
 			double m_lastCursorInteractionTime;
 		};
 
+		//关于滑动到一个给定点的信息
+		struct ScrollInfo
+		{
+
+			ScrollInfo()
+				: m_position()
+				, m_alignment(CursorAlignment::Left)
+			{}
+
+			ScrollInfo(const TextLocation inPosition, const CursorAlignment inAlignment)
+				: m_position(inPosition)
+				, m_alignment(inAlignment)
+			{}
+
+			TextLocation m_position;
+
+			CursorAlignment m_alignment;
+		};
 		
 		class CursorLineHighlighter : public ILineHighlighter
 		{

@@ -124,5 +124,11 @@ namespace GuGu {
 
 		//上一次tick的bound text
 		GuGuUtf8Str m_boundTextLastTick;
+
+		//scroll offset(在未缩放的单元)对于这个文本
+		math::float2 m_scrollOffset;
+
+		//如果被设置了，包含一个位置的待处理数据应当被滑进view里面
+		std::optional<EditableTextTypes::ScrollInfo> m_positionToScrollIntoView;
 	};
 }

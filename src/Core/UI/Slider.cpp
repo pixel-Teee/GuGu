@@ -6,6 +6,7 @@
 #include "StyleSet.h"
 
 #include <Application/Application.h>
+#include <Core/Timer.h>
 
 namespace GuGu {
 	Slider::Slider()
@@ -67,6 +68,12 @@ namespace GuGu {
 			math::affine2 renderTransform;
 
 			math::float2 translation = math::float2(-allottedWidth, 0);
+			
+			//float time = Application::getApplication()->getTimer()->GetDeltaTime();
+			//
+			//static float totalTime = 0;
+			//totalTime += time * 20.0f;
+
 			float Radians = math::radians(-90.0f);
 			math::float2 quat2D = math::float2(std::cosf(Radians), std::sinf(Radians));
 

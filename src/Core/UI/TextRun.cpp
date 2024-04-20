@@ -6,6 +6,7 @@
 #include "ShapedTextCache.h"
 #include "WidgetGeometry.h"
 #include "ElementList.h"
+#include "RunUtils.h"
 
 #include <Core/Math/MyMath.h>
 
@@ -45,6 +46,18 @@ namespace GuGu {
 	{
 		const std::shared_ptr<FontCache> fontCache = FontCache::getFontCache();
 		return fontCache->getBaseLine(*m_style.m_textInfo, inScale);
+	}
+	math::float2 TextRun::getLocationAt(const std::shared_ptr<ILayoutBlock>& block, int32_t offset, float scale) const
+	{
+		const math::float2& blockOffset = block->getLocationOffset();
+		const TextRange& blockRange = block->getTextRange();
+		const LayoutBlockTextContext blockTextContext = block->getTextContext();
+
+		//在block range 给定 offset 的 text range
+		const TextRange rangeToMeasure = calculateOffsetMeasureRange(offset, blockRange);
+		const math::float2 offsetLocation = ShapedTextCacheUtil::measureShapedText(blockTextContext.m_shapedTextCache, CacheShapedTextKey(TextRange(0, m_text->len()), scale, blockTextContext, *m_style.m_textInfo), rangeToMeasure, *m_text);
+
+		return blockOffset + offsetLocation;
 	}
 	std::shared_ptr<TextRun> TextRun::Create(const RunInfo& inRunInfo, const std::shared_ptr<const GuGuUtf8Str>& inText, const TextBlockStyle& style)
 	{

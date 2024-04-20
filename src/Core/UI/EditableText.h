@@ -17,7 +17,7 @@ namespace GuGu {
 				: mSelecAllTextWhenFocus(false)
 				, mSelectAllTextOnCommit(false)
 			{
-				mClip = WidgetClipping::Inherit;
+				mClip = WidgetClipping::ClipToBounds;
 			}
 
 			~BuilderArguments() = default;

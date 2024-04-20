@@ -27,6 +27,8 @@ namespace GuGu {
 
 		void offset(int32_t amount) { m_beginIndex += amount; m_beginIndex = std::max(0, m_beginIndex); m_endIndex += amount; m_endIndex += std::max(0, m_endIndex); }
 
+		bool inculsiveContains(int32_t index) const { return index >= m_beginIndex && index <= m_endIndex; }
+
 		TextRange intersect(const TextRange& other) const
 		{
 			TextRange intersected(std::max(m_beginIndex, other.m_beginIndex), std::min(m_endIndex, other.m_endIndex));

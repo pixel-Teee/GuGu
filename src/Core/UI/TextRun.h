@@ -26,6 +26,8 @@ namespace GuGu {
 
 		virtual int16_t getBaseLine(float inScale) const override;
 
+		virtual math::float2 getLocationAt(const std::shared_ptr<ILayoutBlock>& block, int32_t offset, float scale) const override;
+
 		static std::shared_ptr<TextRun> Create(const RunInfo& inRunInfo, const std::shared_ptr<const GuGuUtf8Str>& inText, const TextBlockStyle& style);
 
 		static std::shared_ptr<TextRun> Create(const RunInfo& inRunInfo, const std::shared_ptr<const GuGuUtf8Str>& inText, const TextBlockStyle& style, const TextRange& inRange);

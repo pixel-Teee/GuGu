@@ -7,6 +7,7 @@
 #include "PlainTextLayoutMarshaller.h"
 #include "Events.h"
 #include "Widget.h"
+#include "TextEditHelper.h"
 
 #ifdef WIN32
 #include <Application/Platform/Windows/WindowsMisc.h>
@@ -44,6 +45,8 @@ namespace GuGu {
 		m_marshaller->setText(m_boundText.Get(), *m_textLayout);
 
         m_bIsDragSelecting = false;
+
+        m_scrollOffset = math::float2(0.0f, 0.0f);
     }
     EditableTextLayout::~EditableTextLayout()
     {
@@ -77,6 +80,54 @@ namespace GuGu {
     void EditableTextLayout::Tick(const WidgetGeometry& allocatedGeometry, const double inCurrentTime, const float inDeltaTime)
     {
         refresh();
+
+        const float fontMaxCharHeight = TextEditHelper::getFontHeight(*m_textStyle.m_textInfo);
+        const float caretWidth = TextEditHelper::calculateCaretWidth(fontMaxCharHeight);//光标宽度
+
+        //尝试还有确认包含光标的行在view中
+        if (m_positionToScrollIntoView.has_value())
+        {
+            const EditableTextTypes::ScrollInfo& scrollInfo = m_positionToScrollIntoView.value();
+
+            const std::vector<TextLayout::LineView>& lineViews = m_textLayout->getLineViews();
+            //获取滑动到的位置所在的行
+            const int32_t lineViewIndex = m_textLayout->getLineViewIndexForTextLocation(lineViews, scrollInfo.m_position, scrollInfo.m_alignment == EditableTextTypes::CursorAlignment::Right);
+
+            if (lineViewIndex >= 0 && lineViewIndex < lineViews.size())
+            {
+                const TextLayout::LineView& lineView = lineViews[lineViewIndex];
+                
+                //line view 的位置大小
+                const math::box2 localLineViewRect(lineView.offset / m_textLayout->getScale(), (lineView.offset + lineView.size) / m_textLayout->getScale());
+
+                //cursor 的位置大小
+                const math::float2 localCursorLocation = m_textLayout->getLocationAt(scrollInfo.m_position, scrollInfo.m_alignment == EditableTextTypes::CursorAlignment::Left) / m_textLayout->getScale();
+                const math::box2 localCursorRect(localCursorLocation, math::float2(localCursorLocation.x + caretWidth, localCursorLocation.y + fontMaxCharHeight));
+                
+                if (localCursorRect.m_mins.x < 0.0f) //left
+                {
+                    m_scrollOffset.x += localCursorRect.m_mins.x;
+                }
+                else if (localCursorRect.m_maxs.x > allocatedGeometry.getLocalSize().x)
+                {
+                    m_scrollOffset.x += (localCursorRect.m_maxs.x - allocatedGeometry.getLocalSize().x);
+                }
+
+                if (localLineViewRect.m_mins.y < 0.0f)
+                {
+                    m_scrollOffset.y += localLineViewRect.m_mins.y;
+                }
+                else if (localLineViewRect.m_maxs.y > allocatedGeometry.getLocalSize().y)
+                {
+                    m_scrollOffset.y += (localLineViewRect.m_maxs.y - allocatedGeometry.getLocalSize().y);
+                }
+            }
+
+            m_positionToScrollIntoView.reset();
+        }
+
+        //view size and scroll offset
+        m_textLayout->setVisibleRegion(allocatedGeometry.mLocalSize, math::float2(m_scrollOffset) * m_textLayout->getScale());
     }
     bool EditableTextLayout::refresh()
     {
@@ -454,6 +505,8 @@ namespace GuGu {
     }
     void EditableTextLayout::updateCursorHighlight()
     {
+        m_positionToScrollIntoView = EditableTextTypes::ScrollInfo(m_cursorInfo.getCursorInteractionLocation(), m_cursorInfo.getCursorAlignment());
+
         //todo:封装成一个函数
         const std::vector<TextLayout::LineModel>& lines = m_textLayout->getLineModels();
         for (const TextLineHighlight& lineHighlight : m_activeLineHighlights)
@@ -606,7 +659,9 @@ namespace GuGu {
     {
         const std::vector<TextLayout::LineModel>& lines = m_textLayout->getLineModels();
 
-        const int32_t newOffsetInLine = (direction > 0) ? currentLocation.getOffset() + 1 : currentLocation.getOffset() - 1;//暂时不用分词器
+        int32_t textLen = lines[currentLocation.getLineIndex()].text->len();
+        const int32_t newOffsetInLine = (direction > 0) ? std::clamp(currentLocation.getOffset() + 1, 0, textLen) :
+            std::clamp(currentLocation.getOffset() - 1, 0, textLen);//暂时不用分词器
 
         if (newOffsetInLine == -1) //没有可用的grapheme去移动
         {
