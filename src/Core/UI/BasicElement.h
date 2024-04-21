@@ -5,6 +5,37 @@
 #include "Attribute.h"
 
 namespace GuGu {
+	struct OptionalSize
+	{
+	public:
+		OptionalSize()
+			: m_size(unspecified)
+		{}
+
+		OptionalSize(const float specifiedSize)
+			: m_size(specifiedSize)
+		{}
+
+		bool isSet() const
+		{
+			return m_size != unspecified;
+		}
+
+		float get() const
+		{
+			return m_size;
+		}
+
+		bool operator==(const OptionalSize& other) const
+		{
+			return (m_size == other.m_size);
+		}
+
+	private:
+		static const float unspecified;
+
+		float m_size;
+	};
 	enum class HorizontalAlignment
 	{
 		Left,

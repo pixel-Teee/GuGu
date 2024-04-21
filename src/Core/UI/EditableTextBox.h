@@ -38,6 +38,8 @@ namespace GuGu {
 
 		virtual Reply OnFocusReceived(const WidgetGeometry& myGeometry);
 	private:
+		Padding determinePadding() const { return Padding(8.0f, 3.0f, 8.0f, 4.0f); }//todo:fix this, 使用 style 的 padding
+
 		std::shared_ptr<Brush> getBorderImage() const;
 
 		std::shared_ptr<EditableTextBoxStyle> m_style;

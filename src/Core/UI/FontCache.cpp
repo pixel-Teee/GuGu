@@ -391,6 +391,7 @@ namespace GuGu {
 			return *inShapedGlyph.m_glyphFontAtlasData;
 		}
 
+		FreeTypeUtils::ApplySizeAndScale(inShapedGlyph.m_fontFace.lock()->getFontFace(), inShapedGlyph.fontSize, inShapedGlyph.fontScale);
 		std::shared_ptr<GlyphFontAtlasData> newAtlasData = std::make_shared<GlyphFontAtlasData>();
 		FT_Load_Glyph(inShapedGlyph.m_fontFace.lock()->getFontFace(), inShapedGlyph.glyphIndex, 0);
 		FT_GlyphSlot slot = inShapedGlyph.m_fontFace.lock()->getFontFace()->glyph;
