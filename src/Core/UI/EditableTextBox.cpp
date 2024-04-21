@@ -28,7 +28,7 @@ namespace GuGu {
 					WIDGET_NEW(BoxWidget)
 					.padding(this, &EditableTextBox::determinePadding)
 					.VAlign(VerticalAlignment::Center)
-					.HAlign(HorizontalAlignment::Left)//todo:这里要修复一下
+					//.HAlign(HorizontalAlignment::Left)//todo:这里要修复一下
 					.Content
                     (
 						WIDGET_ASSIGN_NEW(EditableText, m_editableText)
