@@ -19,12 +19,14 @@ namespace GuGu {
 
 		if (bMapUppercaseKeys)
 		{
+			ADDKEYMAP('A', "A");
 			ADDKEYMAP('C', "C");
 			ADDKEYMAP('V', "V");
 		}
 
 		if (bMapLowercaseKeys)
 		{
+			ADDKEYMAP('a', "a");
 			ADDKEYMAP('c', "C");
 			ADDKEYMAP('v', "V");
 		}

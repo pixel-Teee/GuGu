@@ -247,6 +247,11 @@ namespace GuGu {
 			m_boundText = editedText;
             reply = Reply::Handled();
         }
+        else if (key == Keys::A && inKeyEvent.isControlDown())
+        {
+            selectAllText();
+            reply = Reply::Handled();
+        }
 
 		//if (key == Keys::BackSpace)
 		//{

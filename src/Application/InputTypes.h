@@ -27,6 +27,7 @@ namespace GuGu {
 		static const Key Left;
 		static const Key Right;
 
+		static const Key A;
 		static const Key C;
 		static const Key V;
 	};
