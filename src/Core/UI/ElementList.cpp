@@ -470,7 +470,7 @@ namespace GuGu {
 		
 		const float filterScale = 1.0f;
 		float requestedThickness = lineElement->m_thickNess;
-		static const float twoRootTwo = 2 * 1.4142135623730950488016887242097f;//todo:fix this
+		static const float twoRootTwo = 0.4f * 1.4142135623730950488016887242097f;//todo:fix this
 		const float lineThickness = twoRootTwo + requestedThickness;
 		const float halfThickness = lineThickness * 0.5f + filterScale;
 

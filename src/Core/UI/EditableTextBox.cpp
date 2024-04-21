@@ -20,25 +20,24 @@ namespace GuGu {
             .Content(
                 WIDGET_NEW(HorizontalBox)
                 + HorizontalBox::Slot()
-                .setHorizontalAlignment(HorizontalAlignment::Center)
+                .setHorizontalAlignment(HorizontalAlignment::Stretch)
                 .setVerticalAlignment(VerticalAlignment::Stretch)
                 .StretchWidth(1.0f)
                 //.setPadding(Padding(5.0f, 5.0f, 5.0f, 5.0f))
                 (
-					WIDGET_NEW(BoxWidget)
-					.padding(this, &EditableTextBox::determinePadding)
-					.VAlign(VerticalAlignment::Center)
-					//.HAlign(HorizontalAlignment::Left)//todo:这里要修复一下
-					.Content
+                    WIDGET_NEW(BoxWidget)
+                    .padding(this, &EditableTextBox::determinePadding)
+                    .VAlign(VerticalAlignment::Center)
+                    .Content
                     (
-						WIDGET_ASSIGN_NEW(EditableText, m_editableText)
-						.text(arguments.mText)
-                    )         
+                        WIDGET_ASSIGN_NEW(EditableText, m_editableText)
+                        .text(arguments.mText)
+                    )
                 )
             )
             //.Clip(WidgetClipping::ClipToBounds)
-            .brush(this, &EditableTextBox::getBorderImage)
-            .horizontalAlignment(HorizontalAlignment::Left));//todo:这个要修复
+            .brush(this, &EditableTextBox::getBorderImage));
+            //.horizontalAlignment(HorizontalAlignment::Left));//todo:这个要修复
 
             m_visibilityAttribute = arguments.mVisibility;
     }
