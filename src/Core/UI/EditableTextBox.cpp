@@ -19,15 +19,18 @@ namespace GuGu {
             .Content(
                 WIDGET_NEW(HorizontalBox)
                 + HorizontalBox::Slot()
-                .setHorizontalAlignment(HorizontalAlignment::Center)
+                .setHorizontalAlignment(HorizontalAlignment::Left)
                 .StretchWidth(1.0f)
+                //.setPadding(Padding(5.0f, 5.0f, 5.0f, 5.0f))
                 (
                     WIDGET_ASSIGN_NEW(EditableText, m_editableText)
                     .text(arguments.mText)
                 )
             )
             //.Clip(WidgetClipping::ClipToBounds)
-            .brush(this, &EditableTextBox::getBorderImage));
+            .brush(this, &EditableTextBox::getBorderImage)
+            .horizontalAlignment(HorizontalAlignment::Left)
+        );
         m_visibilityAttribute = arguments.mVisibility;
     }
 

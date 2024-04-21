@@ -104,11 +104,11 @@ namespace GuGu {
                 const math::float2 localCursorLocation = m_textLayout->getLocationAt(scrollInfo.m_position, scrollInfo.m_alignment == EditableTextTypes::CursorAlignment::Left) / m_textLayout->getScale();
                 const math::box2 localCursorRect(localCursorLocation, math::float2(localCursorLocation.x + caretWidth, localCursorLocation.y + fontMaxCharHeight));
                 
-                if (localCursorRect.m_mins.x < 0.0f) //left
-                {
-                    m_scrollOffset.x += localCursorRect.m_mins.x;
-                }
-                else if (localCursorRect.m_maxs.x > allocatedGeometry.getLocalSize().x)
+				if (localCursorRect.m_mins.x < 0.0f) //left
+				{
+					m_scrollOffset.x += localCursorRect.m_mins.x;
+				}
+                if (localCursorRect.m_maxs.x > allocatedGeometry.getLocalSize().x)
                 {
                     m_scrollOffset.x += (localCursorRect.m_maxs.x - allocatedGeometry.getLocalSize().x);
                 }
@@ -124,6 +124,19 @@ namespace GuGu {
             }
 
             m_positionToScrollIntoView.reset();
+        }
+
+        //这里调整 scroll offset ，保证光标在可见的区域内
+        {
+            //caret width 被包含在 margin 里面
+            const float contentSize = m_textLayout->getSize().x;
+            const float visibleSize = allocatedGeometry.getLocalSize().x;
+
+            //view fraction 是可见的区域和整个文本串宽度的比值
+            const float viewFraction = (visibleSize > 0.0f && contentSize > 0.0f) ? visibleSize / contentSize : 1.0f;
+            const float viewOffset = (contentSize > 0.0f && viewFraction < 1.0f) ? std::clamp(m_scrollOffset.x / contentSize, 0.0f, 1.0f - viewFraction) : 0.0f;
+
+            m_scrollOffset.x = viewOffset * contentSize;
         }
 
         //view size and scroll offset

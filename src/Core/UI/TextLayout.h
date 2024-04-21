@@ -302,6 +302,8 @@ namespace GuGu {
 
 		void flowLineLayout(const int32_t lineModelIndex, const float wrappingDrawWidth, std::vector<std::shared_ptr<ILayoutBlock>>& softLine);
 
+		void justifyLayout();
+
 		void getAsTextAndOffsets(GuGuUtf8Str* const OutDisplayText, TextOffsetLocations* const OutTextOffsetLocations) const;
 
 		void createLineViewBlocks(int32_t lineModelIndex, const int32_t stopIndex, const float wrappedLineWidth, const std::optional<float>& justificationWidth,
@@ -323,6 +325,9 @@ namespace GuGu {
 		TextShapingMethod m_textShapingMethod;
 
 		std::vector<LineView> m_lineViews;
+
+		//需要对齐的所有line views 的索引
+		std::set<int32_t> m_lineViewsToJustify;
 
 		//可以从 parent widget 实际看到的 text layout 的大小
 		math::float2 m_viewSize;

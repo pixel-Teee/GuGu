@@ -871,7 +871,7 @@ namespace GuGu {
 									.StretchWidth(1.0f)
 									(
 										WIDGET_NEW(EditableTextBox)
-										.Text("文本测试你好我想回家我不是一个普通人，我想测试很多很多东西，我想成功，我不想是一个失败者，难过，我真的好难过")
+										.Text("文本测试你")
 									)
 								)
 								+ VerticalBox::Slot()
@@ -1028,25 +1028,25 @@ namespace GuGu {
 								//)
 							)
 						)
-						+ HorizontalBox::Slot()
-						.StretchWidth(1.0f)
-						(
-							WIDGET_NEW(Border)
-							.verticalAlignment(VerticalAlignment::Stretch)
-							.horizontalAlignment(HorizontalAlignment::Stretch)
-							.brush(m_styles->getBrush("background"))
-							.Content
-							(
-								WIDGET_NEW(Slider)
-								.MaxValue(1.0f)
-								.MinValue(0.0f)
-								.orientation(Orientation::Vertical)
-								.OnValueChangedLambda([&](float inValue) {
-									m_uiData->metallic = inValue;
-								}
-								)
-							)					
-						)
+						//+ HorizontalBox::Slot()
+						//.StretchWidth(1.0f)
+						//(
+						//	WIDGET_NEW(Border)
+						//	.verticalAlignment(VerticalAlignment::Stretch)
+						//	.horizontalAlignment(HorizontalAlignment::Stretch)
+						//	.brush(m_styles->getBrush("background"))
+						//	.Content
+						//	(
+						//		WIDGET_NEW(Slider)
+						//		.MaxValue(1.0f)
+						//		.MinValue(0.0f)
+						//		.orientation(Orientation::Vertical)
+						//		.OnValueChangedLambda([&](float inValue) {
+						//			m_uiData->metallic = inValue;
+						//		}
+						//		)
+						//	)					
+						//)
 					)
 				)
 				//+ HorizontalBox::Slot()

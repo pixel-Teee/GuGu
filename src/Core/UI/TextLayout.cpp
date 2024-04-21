@@ -80,6 +80,8 @@ namespace GuGu {
 	TextLayout::TextLayout()
 	{
 		m_viewSize = m_scrollOffset = math::float2(0, 0);
+		m_justification = TextJustify::Type::Left;
+		m_scale = 1.0f;
 	}
 	TextLayout::~TextLayout()
 	{
@@ -403,6 +405,8 @@ namespace GuGu {
 
 			flowLineLayout(lineModelIndex, m_wrappingWidth, softLine);
 		}
+
+		justifyLayout();
 	}
 
 	void TextLayout::updateIfNeeded()
@@ -700,6 +704,57 @@ namespace GuGu {
 		createLineViewBlocks(lineModelIndex, -1, 0.0f, std::optional<float>(), /*out*/currentRunIndex, /*out*/previousBlockEnd, /*out*/softLine);
 	}
 
+	void TextLayout::justifyLayout()
+	{
+		if (m_lineViewsToJustify.size() == 0)
+		{
+			return;
+		}
+
+		const float layoutWidthNoMargin = std::max(m_textLayoutSize.m_drawWidth, m_viewSize.x * m_scale) - (m_margin.getTotalSpaceAlong<Orientation::Horizontal>() * m_scale);
+
+		for (const int32_t lineViewIndex : m_lineViewsToJustify)
+		{
+			LineView& lineView = m_lineViews[lineViewIndex];
+
+			const TextJustify::Type visualJustification = m_justification;
+
+			float lineJustificationWidth = lineView.justificationWidth;
+
+			math::float2 offsetAdjustment = math::float2(0, 0);
+
+			switch (visualJustification)
+			{
+				case TextJustify::Type::Left:
+				{
+					const float extraSpace = lineView.size.x - lineJustificationWidth;
+					offsetAdjustment.x = -extraSpace;
+				}
+				break;
+				case TextJustify::Type::Center:
+				{
+					const float extraSpace = layoutWidthNoMargin - lineJustificationWidth;
+					offsetAdjustment.x = extraSpace * 0.5f;
+				}
+				break;
+				case TextJustify::Type::Right:
+				{
+					const float extraSpace = layoutWidthNoMargin - lineJustificationWidth;
+					offsetAdjustment.x = extraSpace;
+				}
+				break;
+			}
+
+			lineView.offset += offsetAdjustment;
+
+			for (const std::shared_ptr<ILayoutBlock>& block : lineView.blocks)
+			{
+				block->setLocationOffset(block->getLocationOffset() + offsetAdjustment);
+			}
+		}
+
+	}
+
 	void TextLayout::getAsTextAndOffsets(GuGuUtf8Str* const OutDisplayText, TextOffsetLocations* const OutTextOffsetLocations) const
 	{
 		int32_t displayTextLength = 0;
@@ -840,6 +895,8 @@ namespace GuGu {
 			}
 
 			m_lineViews.push_back(lineView);
+
+			//m_lineViewsToJustify.insert(m_lineViews.size() - 1);
 		}
 
 		m_textLayoutSize.m_drawWidth = std::max(m_textLayoutSize.m_drawWidth, lineSize.x);

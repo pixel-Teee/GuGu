@@ -43,7 +43,7 @@ namespace GuGu{
 			//points.push_back(clippingZone.m_bottomLeft);
 			//points.push_back(clippingZone.m_topLeft);
 			//ElementList::addLineElement(elementList, WidgetGeometry(), math::float4(0.56f, 0.93f, 0.56f, 1.0f), points, 1.0f, layer + 1);
-			//
+
 			//math::float2 direction = math::float2(700.0f, 410.0f);
 			//ElementList::addSplineElement(elementList, WidgetGeometry(), math::float4(0.4f, 0.7f, 1.0f, 1.0f), clippingZone.m_topLeft, direction,
 			//	clippingZone.m_bottomRight, direction, 2.7f, layer);
