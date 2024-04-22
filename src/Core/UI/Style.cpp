@@ -34,4 +34,7 @@ namespace GuGu {
 	SpinBoxStyle::~SpinBoxStyle()
 	{
 	}
+	ScrollBarStyle::~ScrollBarStyle()
+	{
+	}
 }

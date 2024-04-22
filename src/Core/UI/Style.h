@@ -106,4 +106,11 @@ namespace GuGu {
 		std::shared_ptr<Brush> m_backgroundBrsuh;
 		SpinBoxStyle& setBackgroundBrush(std::shared_ptr<Brush> inBackgroundBrush) { m_backgroundBrsuh = inBackgroundBrush; return *this; }
 	};
+
+	struct ScrollBarStyle : public Style
+	{
+		ScrollBarStyle() = default;
+
+		virtual ~ScrollBarStyle();
+	};
 }
