@@ -20,7 +20,7 @@ namespace GuGu {
 		void init(const BuilderArguments& arguments)
 		{
 			//制作table view
-
+			
 		}
 	};
 }
