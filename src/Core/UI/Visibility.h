@@ -44,6 +44,11 @@ namespace GuGu {
 			return 0 != (m_value & VISPRIVATE_SelfHitTestVisible);
 		}
 
+		bool isVisible() const
+		{
+			return 0 != (m_value & VIS_Visible);
+		}
+
 		static bool doesVisibilityPassFilter(const Visibility inVisiblity, const Visibility inVisibilityFilter)
 		{
 			return 0 != (inVisiblity.m_value & inVisibilityFilter.m_value);

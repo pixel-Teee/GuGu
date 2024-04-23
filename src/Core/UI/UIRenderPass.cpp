@@ -31,6 +31,7 @@
 #include "UIMacros.h"
 #include "Attribute.h"
 #include "SpinBox.h"
+#include "ListPanel.h"
 
 #include <Core/GuGuFile.h>
 #include <Window/Window.h>
@@ -1053,6 +1054,47 @@ namespace GuGu {
 						//		)
 						//	)					
 						//)
+						+HorizontalBox::Slot()
+						.StretchWidth(1.0f)
+						(
+							WIDGET_NEW(Border)
+							.verticalAlignment(VerticalAlignment::Stretch)
+							.horizontalAlignment(HorizontalAlignment::Stretch)
+							.brush(m_styles->getBrush("background"))
+							.Content
+							(
+								WIDGET_NEW(ListPanel)
+								.ListOrientation(Orientation::Vertical)
+								//.NumDesiredItems(2)
+								+ ListPanel::Slot()
+								(
+									WIDGET_NEW(TextBlockWidget)
+									.text(u8"你好")
+								)
+								+ ListPanel::Slot()
+								(
+									WIDGET_NEW(TextBlockWidget)
+									.text(u8"你好")
+								)
+								+ ListPanel::Slot()
+								(
+									WIDGET_NEW(TextBlockWidget)
+									.text(u8"你好")
+								)
+								+ ListPanel::Slot()
+								(
+									WIDGET_NEW(Border)
+									.verticalAlignment(VerticalAlignment::Stretch)
+									.horizontalAlignment(HorizontalAlignment::Stretch)
+									.brush(m_styles->getBrush("headerBackground"))
+									.BorderBackgroundColor(math::float4(0.7f, 0.3f, 0.1f, 1.0f))
+									.Content(
+										WIDGET_NEW(TextBlockWidget)
+										.text(u8"你好")
+									)
+								)
+							)
+						)
 					)
 				)
 				//+ HorizontalBox::Slot()
