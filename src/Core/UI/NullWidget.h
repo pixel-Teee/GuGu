@@ -23,9 +23,9 @@ namespace GuGu {
 
 		virtual math::float2 ComputeFixedSize(float inLayoutScaleMultiplier) override;
 
-		virtual SlotBase* getSlot(uint32_t index) override;
+		virtual SlotBase* getSlot(uint32_t index) const override;
 
-		virtual uint32_t getSlotsNumber() override;
+		virtual uint32_t getSlotsNumber() const override;
 	private:
 
 	};

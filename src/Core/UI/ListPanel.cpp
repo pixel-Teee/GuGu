@@ -59,21 +59,21 @@ namespace GuGu {
         desiredListPanelDimensions.m_scrollAxis *= m_preferredNumLines; //item 数量
         return desiredListPanelDimensions.toVector2d();
     }
-    void ListPanel::AllocationChildActualSpace(const WidgetGeometry& allottedGeometry, ArrangedWidgetArray& arrangedWidgetArray)
+    void ListPanel::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) const
     {
         if (m_childrens.size() > 0)
         {
-            const TableViewDimensions allottedDimensions(m_orientation, allottedGeometry.getLocalSize());
+            const TableViewDimensions allottedDimensions(m_orientation, allocatedGeometry.getLocalSize());
             TableViewDimensions dimensionsSoFar(m_orientation);
 
             if (shouldArrangeAsTiles())
             {
                 //这是一个tile view list - 安排 items 逐个沿着 line axis 直到这里没有空间，那么就创建一个新的行沿着 scroll axis
                 const ListItemAlignment listItemAlignment = m_itemAlignment.Get();
-                const float itemPadding = getItemPadding(allottedGeometry, listItemAlignment);
+                const float itemPadding = getItemPadding(allocatedGeometry, listItemAlignment);
                 const float halfItemPadding = itemPadding * 0.5f;
 
-                const TableViewDimensions localItemSize = getItemSize(allottedGeometry, listItemAlignment);
+                const TableViewDimensions localItemSize = getItemSize(allocatedGeometry, listItemAlignment);
                 dimensionsSoFar.m_scrollAxis = -std::floor(m_firstLineScrollOffset * localItemSize.m_scrollAxis) - m_overScrollAmount;
 
                 bool isNewLine = true;
@@ -83,7 +83,7 @@ namespace GuGu {
                     {
                         if (listItemAlignment == ListItemAlignment::RightAligned || listItemAlignment == ListItemAlignment::CenterAligned)
                         {
-                            const float linePadding = getLinePadding(allottedGeometry, itemIndex);
+                            const float linePadding = getLinePadding(allocatedGeometry, itemIndex);
                             const bool isVisible = m_childrens[itemIndex]->getChildWidget()->getVisibility().isVisible();
                             if (listItemAlignment == ListItemAlignment::RightAligned)
                             {
@@ -101,7 +101,7 @@ namespace GuGu {
 
                     TableViewDimensions childOffset = dimensionsSoFar;
                     childOffset.m_lineAxis += halfItemPadding;
-					WidgetGeometry childGeometry = allottedGeometry.getChildGeometry(localItemSize.toVector2d(), childOffset.toVector2d());
+					WidgetGeometry childGeometry = allocatedGeometry.getChildGeometry(localItemSize.toVector2d(), childOffset.toVector2d());
 
 					arrangedWidgetArray.pushWidget(childGeometry, m_childrens[itemIndex]->getChildWidget());
                     
@@ -131,7 +131,7 @@ namespace GuGu {
                     finalWidgetDimensions.m_scrollAxis = bIsVisible ? widgetDesiredDimensions.m_scrollAxis : 0.0f;
                     finalWidgetDimensions.m_lineAxis = allottedDimensions.m_lineAxis;
 
-					WidgetGeometry childGeometry = allottedGeometry.getChildGeometry(finalWidgetDimensions.toVector2d(), dimensionsSoFar.toVector2d());
+					WidgetGeometry childGeometry = allocatedGeometry.getChildGeometry(finalWidgetDimensions.toVector2d(), dimensionsSoFar.toVector2d());
 
 					arrangedWidgetArray.pushWidget(childGeometry, m_childrens[itemIndex]->getChildWidget());
 
@@ -190,11 +190,11 @@ namespace GuGu {
             m_preferredNumLines = m_numDesiredItems.Get();
         }
     }
-    SlotBase* ListPanel::getSlot(uint32_t index)
+    SlotBase* ListPanel::getSlot(uint32_t index) const
     {
         return m_childrens[index].get();
     }
-    uint32_t ListPanel::getSlotsNumber()
+    uint32_t ListPanel::getSlotsNumber() const
     {
         return m_childrens.size();
     }

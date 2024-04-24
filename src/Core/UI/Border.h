@@ -44,11 +44,11 @@ namespace GuGu {
 
 		virtual math::float2 ComputeFixedSize(float inLayoutScaleMultiplier);
 
-		virtual void AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) override;
+		virtual void AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) const override;
 
-		virtual SlotBase* getSlot(uint32_t index) override;
+		virtual SlotBase* getSlot(uint32_t index) const override;
 
-		virtual uint32_t getSlotsNumber() override;
+		virtual uint32_t getSlotsNumber() const override;
 	protected:
 		Attribute<std::shared_ptr<Brush>> m_imageBursh;
 

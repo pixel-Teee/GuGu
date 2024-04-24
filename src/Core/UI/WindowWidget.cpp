@@ -66,7 +66,7 @@ namespace GuGu {
 		}		
 		return math::float2(0, 0);
 	}
-	void WindowWidget::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray)
+	void WindowWidget::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) const
 	{
 		//arrange single children
 		uint32_t slotNumber = getSlotsNumber();
@@ -169,11 +169,11 @@ namespace GuGu {
 		}
 
 	}	
-	SlotBase* WindowWidget::getSlot(uint32_t index)
+	SlotBase* WindowWidget::getSlot(uint32_t index) const
 	{
 		return m_childWidget.get();
 	}
-	uint32_t WindowWidget::getSlotsNumber()
+	uint32_t WindowWidget::getSlotsNumber() const
 	{
 		if (m_childWidget) return 1;
 		return 0;

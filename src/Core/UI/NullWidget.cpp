@@ -20,11 +20,11 @@ namespace GuGu {
 	{
 		return math::float2(0.0f, 0.0f);
 	}
-	SlotBase* NullWidget::getSlot(uint32_t index)
+	SlotBase* NullWidget::getSlot(uint32_t index) const
 	{
 		return nullptr;
 	}
-	uint32_t NullWidget::getSlotsNumber()
+	uint32_t NullWidget::getSlotsNumber() const
 	{
 		return 0;
 	}

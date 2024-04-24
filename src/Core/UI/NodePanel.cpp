@@ -52,7 +52,7 @@ namespace GuGu {
 
 		return math::float2(0.0f, 0.0f);
 	}
-	void Node::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray)
+	void Node::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) const
 	{
 		for (int32_t childIndex = 0; childIndex < m_children.size(); ++childIndex)
 		{
@@ -76,11 +76,11 @@ namespace GuGu {
 			arrangedWidgetArray.pushWidget(childGeom, curChild.getChildWidget());
 		}
 	}
-	SlotBase* Node::getSlot(uint32_t index)
+	SlotBase* Node::getSlot(uint32_t index) const 
 	{
 		return m_children[index].get();
 	}
-	uint32_t Node::getSlotsNumber()
+	uint32_t Node::getSlotsNumber() const
 	{
 		return m_children.size();
 	}
@@ -94,7 +94,7 @@ namespace GuGu {
 	{
 		return math::float2(160.0f, 120.f);
 	}
-	void NodePanel::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray)
+	void NodePanel::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) const
 	{
 		for (int32_t childIndex = 0; childIndex < m_children.size(); ++childIndex)
 		{
@@ -103,11 +103,11 @@ namespace GuGu {
 			arrangedWidgetArray.pushWidget(allocatedGeometry.getChildGeometry(someChild->getFixedSize(), someChild->getPosition()), someChild);
 		}
 	}
-	SlotBase* NodePanel::getSlot(uint32_t index)
+	SlotBase* NodePanel::getSlot(uint32_t index) const
 	{
 		return m_children[index].get();
 	}
-	uint32_t NodePanel::getSlotsNumber()
+	uint32_t NodePanel::getSlotsNumber() const
 	{
 		return m_children.size();
 	}

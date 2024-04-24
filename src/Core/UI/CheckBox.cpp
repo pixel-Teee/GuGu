@@ -64,7 +64,7 @@ namespace GuGu {
 		m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 		m_visibilityAttribute = arguments.mVisibility;
 	}
-	void CheckBox::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray)
+	void CheckBox::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) const
 	{
 		uint32_t slotNumber = getSlotsNumber();
 
@@ -146,11 +146,11 @@ namespace GuGu {
 		//
 		return Reply::Unhandled().releaseMouseCapture();
 	}
-	SlotBase* CheckBox::getSlot(uint32_t index)
+	SlotBase* CheckBox::getSlot(uint32_t index) const
 	{
 		return m_childWidget.get();
 	}
-	uint32_t CheckBox::getSlotsNumber()
+	uint32_t CheckBox::getSlotsNumber() const
 	{
 		return 1;
 	}

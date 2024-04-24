@@ -3,6 +3,7 @@
 #include "Widget.h"
 #include "Slot.h"
 #include "ElementList.h"
+#include "ArrangedWidget.h"
 
 #include <Application/Application.h>
 
@@ -35,7 +36,7 @@ namespace GuGu{
         {
 			ClippingZone clippingZone(allocatedGeometry);
 			elementList.pushClip(clippingZone);
-			
+			//
 			//ClippingZone clippingZone(allocatedGeometry);
 			//std::vector<math::float2> points;
 			//points.push_back(clippingZone.m_topLeft);
@@ -49,6 +50,15 @@ namespace GuGu{
 			//ElementList::addSplineElement(elementList, WidgetGeometry(), math::float4(0.4f, 0.7f, 1.0f, 1.0f), clippingZone.m_topLeft, direction,
 			//	clippingZone.m_bottomRight, direction, 2.7f, layer);
         } 
+
+		//ClippingZone clippingZone(allocatedGeometry);
+		//std::vector<math::float2> points;
+		//points.push_back(clippingZone.m_topLeft);
+		//points.push_back(clippingZone.m_topRight);
+		//points.push_back(clippingZone.m_bottomRight);
+		//points.push_back(clippingZone.m_bottomLeft);
+		//points.push_back(clippingZone.m_topLeft);
+		//ElementList::addLineElement(elementList, WidgetGeometry(), math::float4(0.56f, 0.93f, 0.56f, 1.0f), points, 0.02f, layer + 1);
 
         //clipping
         uint32_t maxLayer = onGenerateElement(paintArgs, cullingBounds, elementList, allocatedGeometry, layer);
@@ -76,7 +86,7 @@ namespace GuGu{
         return math::float2(0.0, 0.0);
     }
 
-    void Widget::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) {
+    void Widget::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) const {
         //noting to do
     }
     void Widget::Tick(const WidgetGeometry& allocatedGeometry, const double inCurrentTime, const float inDeltaTime)
@@ -115,12 +125,12 @@ namespace GuGu{
     {
         return false;
     }
-    SlotBase* Widget::getSlot(uint32_t index)
+    GuGu::SlotBase* Widget::getSlot(uint32_t index) const
 	{
 		return nullptr;
 	}
-	uint32_t Widget::getSlotsNumber()
-	{
+	uint32_t Widget::getSlotsNumber() const
+{
 		return 0;
 	}
     GuGu::math::float2 Widget::getFixedSize() const
@@ -192,5 +202,50 @@ namespace GuGu{
     bool Widget::hasMouseCapture() const
     {
         return Application::getApplication()->doesWidgetHaveMouseCapture(shared_from_this());
+    }
+    WidgetGeometry Widget::findChildGeometry(const WidgetGeometry& myGeometry, std::shared_ptr<Widget> widgetToFind) const
+    {
+        std::set<std::shared_ptr<Widget>> widgetsToFind;
+        widgetsToFind.insert(widgetToFind);
+
+        std::unordered_map<std::shared_ptr<Widget>, ArrangedWidget> result;
+        //widgets to find 要找的 widget 集合
+        findChildGeometries(myGeometry, widgetsToFind, result);
+        auto it = result.find(widgetToFind);
+        if (it != result.end())
+            return it->second.getWidgetGeometry();
+        return WidgetGeometry();
+    }
+    bool Widget::findChildGeometries(const WidgetGeometry& myGeometry, const std::set<std::shared_ptr<Widget>>& widgetsToFind, std::unordered_map<std::shared_ptr<Widget>, ArrangedWidget>& outResult) const
+    {
+        findChildGeometries_helper(myGeometry, widgetsToFind, outResult);
+        return outResult.size() == widgetsToFind.size();
+    }
+    void Widget::findChildGeometries_helper(const WidgetGeometry& myGeometry, const std::set<std::shared_ptr<Widget>>& widgetsToFind, std::unordered_map<std::shared_ptr<Widget>, ArrangedWidget>& outResult) const
+    {
+        //执行bfs
+        ArrangedWidgetArray arrangedChildren(Visibility::Visible);
+        AllocationChildActualSpace(myGeometry, arrangedChildren);
+
+        const int32_t numChildren = arrangedChildren.getArrangedWidgetsNumber();
+
+        for (int32_t childIndex = 0; childIndex < numChildren; ++childIndex)
+        {
+            const ArrangedWidget& curChild = *arrangedChildren.getArrangedWidget(childIndex);
+
+            if (widgetsToFind.find(curChild.getWidget()) != widgetsToFind.end())
+            {
+                outResult.insert({ curChild.getWidget(), curChild });
+            }
+        }
+
+        if (outResult.size() != widgetsToFind.size())
+        {
+            for (int32_t childIndex = 0; childIndex < numChildren; ++childIndex)
+            {
+                const ArrangedWidget& curChild = *arrangedChildren.getArrangedWidget(childIndex);
+                curChild.getWidget()->findChildGeometries_helper(curChild.getWidgetGeometry(), widgetsToFind, outResult);
+            }
+        }
     }
 }

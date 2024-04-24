@@ -62,7 +62,7 @@ namespace GuGu {
 		}
 		return math::float2(0, 0);
 	}
-	void Border::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray)
+	void Border::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) const
 	{
 		//arrange single children
 		uint32_t slotNumber = getSlotsNumber();
@@ -84,12 +84,12 @@ namespace GuGu {
 		}
 
 	}
-	SlotBase* Border::getSlot(uint32_t index)
+	GuGu::SlotBase* Border::getSlot(uint32_t index) const
 	{
 		return m_childWidget.get();
 	}
-	uint32_t Border::getSlotsNumber()
-	{
+	uint32_t Border::getSlotsNumber() const 
+{
 		return 1;
 	}
 }

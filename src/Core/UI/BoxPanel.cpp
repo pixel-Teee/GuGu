@@ -8,7 +8,7 @@
 
 namespace GuGu {
 	template<Orientation orientation, typename SlotType>
-	static void ArrangeChildrenAlong(std::vector<SlotType>& childrens, const WidgetGeometry& widgetGeometry, ArrangedWidgetArray& arrangedWidgetArray)
+	static void ArrangeChildrenAlong(const std::vector<SlotType>& childrens, const WidgetGeometry& widgetGeometry, ArrangedWidgetArray& arrangedWidgetArray)
 	{
 		if (childrens.size() > 0)
 		{
@@ -204,7 +204,7 @@ namespace GuGu {
 
 		return fixedSize;
 	}
-	void BoxPanel::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray)
+	void BoxPanel::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) const
 	{
 		if (m_orientation == Orientation::Horizontal)
 		{
@@ -216,12 +216,12 @@ namespace GuGu {
 		}
 	}
 
-	SlotBase* BoxPanel::getSlot(uint32_t index)
+	SlotBase* BoxPanel::getSlot(uint32_t index) const
 	{
 		return m_childrens[index].get();
 	}
 
-	uint32_t BoxPanel::getSlotsNumber()
+	uint32_t BoxPanel::getSlotsNumber() const
 	{
 		return m_childrens.size();
 	}

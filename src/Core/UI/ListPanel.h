@@ -58,17 +58,17 @@ namespace GuGu {
 
 		virtual math::float2 ComputeFixedSize(float inLayoutScaleMultiplier) override;
 
-		virtual void AllocationChildActualSpace(const WidgetGeometry& allottedGeometry, ArrangedWidgetArray& arrangedWidgetArray) override;
+		virtual void AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) const override;
 
 		virtual uint32_t onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer) override;
 
 		virtual void Tick(const WidgetGeometry& allocatedGeometry, const double inCurrentTime, const float inDeltaTime) override;
 
-		virtual SlotBase* getSlot(uint32_t index) override;
+		virtual SlotBase* getSlot(uint32_t index)  const override;
 
-		virtual uint32_t getSlotsNumber() override;
+		virtual uint32_t getSlotsNumber() const override;
 
-		TableViewDimensions getDesiredItemDimensions() const;
+		TableViewDimensions getDesiredItemDimensions() const const;
 
 		//返回应用到每个 tile item 的水平 padding
 		float getItemPadding(const WidgetGeometry& allottedGeometry, const ListItemAlignment listItemAlignment) const;

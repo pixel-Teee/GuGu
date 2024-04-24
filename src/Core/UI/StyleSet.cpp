@@ -70,7 +70,7 @@ namespace GuGu {
 		closeButtonStyle->setPressed(closeButtonPressed);
 		m_styles.insert({ "closeButton", closeButtonStyle });
 
-		//checkbox
+		//check box
 		std::shared_ptr<Brush> checkboxBackground = std::make_shared<Brush>();
 		checkboxBackground->m_tiling = false;
 		checkboxBackground->m_texturePath = u8"asset/MinimumWindow/checkbackground.png";
@@ -144,7 +144,17 @@ namespace GuGu {
 		m_styles.insert({ "SpinBox", spinBoxStyle });
 
 		//scroll bar
+		std::shared_ptr<Brush> normalThumbImage = std::make_shared<Brush>();
+		normalThumbImage->m_tiling = false;
+		normalThumbImage->m_texturePath = u8"asset/MinimumWindow/thumb.png";
+		normalThumbImage->m_drawAs = BrushDrawType::RoundedBox;
+		normalThumbImage->m_outlineSettings = BrushOutlineSettings(math::float4(4.4f, 4.4f, 4.4f, 4.4f), math::float4(1.0f, 1.0f, 1.0f, 1.0f), 0.1f);
+		normalThumbImage->m_margin = Padding(0.0f, 0.0f, 0.0f, 0.0f);
+		m_brushes.insert({ "ScrollBarNormalThumbImage", normalThumbImage });
+
 		std::shared_ptr<ScrollBarStyle> scrollBarStyle = std::make_shared<ScrollBarStyle>();
+		scrollBarStyle->setNormalThumbImage(normalThumbImage);
+		scrollBarStyle->setThickness(8.0f);
 		m_styles.insert({ "ScrollBar", scrollBarStyle });
 	}
 	StyleSet::~StyleSet()

@@ -197,7 +197,7 @@ namespace GuGu {
 			return m_childWidget->getChildWidget()->getFixedSize() + m_childWidget->getPadding().getFixedSize();
 		}
 
-		virtual void AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) override
+		virtual void AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) const override
 		{
 			//arrange single children
 			uint32_t slotNumber = getSlotsNumber();
@@ -220,12 +220,12 @@ namespace GuGu {
 			}
 		}
 
-		virtual SlotBase* getSlot(uint32_t index) override
+		virtual SlotBase* getSlot(uint32_t index) const override
 		{
 			return m_childWidget.get();
 		}
 
-		virtual uint32_t getSlotsNumber() override
+		virtual uint32_t getSlotsNumber() const override
 		{
 			return 1;
 		}

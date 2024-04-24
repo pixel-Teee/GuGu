@@ -68,6 +68,12 @@ namespace GuGu {
 		Padding(float inLeft, float inTop, float inRight, float inBottom)
 			: left(inLeft), top(inTop), right(inRight), bottom(inBottom)
 		{}
+		Padding(float uniformPadding)
+			: left(uniformPadding)
+			, top(uniformPadding)
+			, right(uniformPadding)
+			, bottom(uniformPadding)
+		{}
 
 		math::float2 getFixedSize() const
 		{

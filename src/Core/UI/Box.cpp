@@ -76,7 +76,7 @@ namespace GuGu {
 
 		return maxLayer;
 	}
-	void BoxWidget::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray)
+	void BoxWidget::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) const
 	{
 		const Visibility childVisibility = m_childWidget->getChildWidget()->getVisibility();
 
@@ -111,11 +111,11 @@ namespace GuGu {
 			arrangedWidgetArray.pushWidget(childGeometry, getSlot(0)->getChildWidget());
 		}
 	}
-	SlotBase* BoxWidget::getSlot(uint32_t index)
+	SlotBase* BoxWidget::getSlot(uint32_t index) const
 	{
 		return m_childWidget.get();
 	}
-	uint32_t BoxWidget::getSlotsNumber()
+	uint32_t BoxWidget::getSlotsNumber() const
 	{
 		return 1;
 	}

@@ -14,14 +14,16 @@ namespace GuGu {
 	}
 	void ScrollBarTrack::init(const BuilderArguments& arguments)
 	{
-		m_offsetFraction = 0;
-		m_thumbSizeFraction = 1.0f;
+		m_offsetFraction = 0; //thunmb 的起始偏移所占的比例
+		m_thumbSizeFraction = 1.0f;//thumb 的大小所占的比例
 		m_minThumbSize = 35.0f;
 		m_orientation = arguments.morientation;
 
 		m_childrens.push_back(arguments.mTopSlot);
 		m_childrens.push_back(arguments.mBottomSlot);
 		m_childrens.push_back(arguments.mThumbSlot);
+
+		m_bIsAlwaysVisible = true;
 	}
 	math::float2 ScrollBarTrack::ComputeFixedSize(float inLayoutScaleMultiplier)
 	{
@@ -36,15 +38,15 @@ namespace GuGu {
 			return math::float2(m_minThumbSize, desiredWidth);
 		}
 	}
-	void ScrollBarTrack::AllocationChildActualSpace(const WidgetGeometry& allottedGeometry, ArrangedWidgetArray& arrangedWidgetArray)
+	void ScrollBarTrack::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) const
 	{
-		const float width = allottedGeometry.mLocalSize.x;
-		const float height = allottedGeometry.mLocalSize.y;
+		const float width = allocatedGeometry.mLocalSize.x;
+		const float height = allocatedGeometry.mLocalSize.y;
 
 		//我们只需要展示所有三个儿子 ，当thumb可见的时候 ，否则我们只需要去显示track
 		if (isNeeded())
 		{
-			TrackSizeInfo trackSizeInfo = getTrackSizeInfo(allottedGeometry);
+			TrackSizeInfo trackSizeInfo = getTrackSizeInfo(allocatedGeometry);
 
 			//安排 track 的上半部分
 			math::float2 childSize = (m_orientation == Orientation::Horizontal)
@@ -52,7 +54,7 @@ namespace GuGu {
 				: math::float2(width, trackSizeInfo.m_thumbStart);
 
 			math::float2 childPos(0, 0);
-			WidgetGeometry childGeometry = allottedGeometry.getChildGeometry(childSize, childPos);
+			WidgetGeometry childGeometry = allocatedGeometry.getChildGeometry(childSize, childPos);
 			arrangedWidgetArray.pushWidget(childGeometry, m_childrens[TOP_SLOT_INDEX]->getChildWidget());
 
 			//安排 track 的下半部分
@@ -61,10 +63,10 @@ namespace GuGu {
 				: math::float2(0, trackSizeInfo.getThumbEnd());
 
 			childSize = (m_orientation == Orientation::Horizontal)
-				? math::float2(allottedGeometry.getLocalSize().x - trackSizeInfo.getThumbEnd(), height)
-				: math::float2(width, allottedGeometry.getLocalSize().y - trackSizeInfo.getThumbEnd());
+				? math::float2(allocatedGeometry.getLocalSize().x - trackSizeInfo.getThumbEnd(), height)
+				: math::float2(width, allocatedGeometry.getLocalSize().y - trackSizeInfo.getThumbEnd());
 
-			childGeometry = allottedGeometry.getChildGeometry(childSize, childPos);
+			childGeometry = allocatedGeometry.getChildGeometry(childSize, childPos);
 			arrangedWidgetArray.pushWidget(childGeometry, m_childrens[BOTTOM_SLOT_INDEX]->getChildWidget());
 
 			//安排 thumb
@@ -76,12 +78,12 @@ namespace GuGu {
 				? math::float2(trackSizeInfo.m_thumbSize, height)
 				: math::float2(width, trackSizeInfo.m_thumbSize);
 
-			childGeometry = allottedGeometry.getChildGeometry(childSize, childPos);
+			childGeometry = allocatedGeometry.getChildGeometry(childSize, childPos);
 			arrangedWidgetArray.pushWidget(childGeometry, m_childrens[THUMB_SLOT_INDEX]->getChildWidget());
 		}
 		else
 		{
-			WidgetGeometry childGeometry = allottedGeometry.getChildGeometry(math::float2(width, height), math::float2(0, 0));
+			WidgetGeometry childGeometry = allocatedGeometry.getChildGeometry(math::float2(width, height), math::float2(0, 0));
 			arrangedWidgetArray.pushWidget(childGeometry, m_childrens[TOP_SLOT_INDEX]->getChildWidget());
 		}
 	}
@@ -107,11 +109,11 @@ namespace GuGu {
 
 		return maxLayerId;
 	}
-	SlotBase* ScrollBarTrack::getSlot(uint32_t index)
+	SlotBase* ScrollBarTrack::getSlot(uint32_t index) const
 	{
 		return m_childrens[index].get();
 	}
-	uint32_t ScrollBarTrack::getSlotsNumber()
+	uint32_t ScrollBarTrack::getSlotsNumber() const
 	{
 		return m_childrens.size();
 	}
@@ -123,5 +125,9 @@ namespace GuGu {
 	{
 		const float currentMinThumbSize = m_thumbSizeFraction <= 0.0f ? 0.0f : m_minThumbSize;
 		return TrackSizeInfo(inTrackGeometry, m_orientation, currentMinThumbSize, this->m_thumbSizeFraction, this->m_offsetFraction);
+	}
+	float ScrollBarTrack::getMinThumbSize() const
+	{
+		return m_minThumbSize;
 	}
 }

@@ -6,8 +6,11 @@
 #include "Visibility.h"
 #include "WidgetGeometry.h"
 #include "Attribute.h"
+#include "ArrangedWidget.h"
 
 #include <Core/Math/MyMath.h>
+
+#include <unordered_map>
 
 namespace GuGu{
     class Widget;
@@ -43,7 +46,7 @@ namespace GuGu{
 
         virtual math::float2 ComputeFixedSize(float inLayoutScaleMultiplier);
 
-        virtual void AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray);
+        virtual void AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) const;
 
         virtual void Tick(const WidgetGeometry& allocatedGeometry, const double inCurrentTime, const float inDeltaTime);
 
@@ -63,9 +66,9 @@ namespace GuGu{
 
         virtual bool supportsKeyboardFocus() const;
 
-		virtual SlotBase* getSlot(uint32_t index);
+		virtual SlotBase* getSlot(uint32_t index) const;
 
-		virtual uint32_t getSlotsNumber();
+		virtual uint32_t getSlotsNumber() const;
 
         virtual math::float2 getFixedSize() const;
 
@@ -90,6 +93,12 @@ namespace GuGu{
         Visibility getVisibility() const { return m_visibilityAttribute.Get(); }
 
         void setVisibility(Attribute<Visibility> inVisibility) { m_visibilityAttribute = inVisibility; }
+
+        WidgetGeometry findChildGeometry(const WidgetGeometry& myGeometry, std::shared_ptr<Widget> widgetToFind) const;
+
+        bool findChildGeometries(const WidgetGeometry& myGeometry, const std::set<std::shared_ptr<Widget>>& widgetsToFind, std::unordered_map<std::shared_ptr<Widget>, ArrangedWidget>& outResult) const;
+
+        void findChildGeometries_helper(const WidgetGeometry& myGeometry, const std::set<std::shared_ptr<Widget>>& widgetsToFind, std::unordered_map<std::shared_ptr<Widget>, ArrangedWidget>& outResult) const;
     protected:
         std::weak_ptr<Widget> m_parentWidget;
         WidgetGeometry m_geometry;

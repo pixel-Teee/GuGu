@@ -51,7 +51,7 @@ namespace GuGu {
 	{
 		return math::float2(600.0f, 480.0f);//todo:fix this
 	}
-	void ViewportWidget::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray)
+	void ViewportWidget::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) const
 	{
 		uint32_t slotNumber = getSlotsNumber();
 		if (slotNumber)
@@ -69,11 +69,11 @@ namespace GuGu {
 			}		
 		}
 	}
-	SlotBase* ViewportWidget::getSlot(uint32_t index)
+	SlotBase* ViewportWidget::getSlot(uint32_t index) const
 	{
 		return m_childWidget.get();
 	}
-	uint32_t ViewportWidget::getSlotsNumber()
+	uint32_t ViewportWidget::getSlotsNumber() const
 	{
 		return 1;
 	}

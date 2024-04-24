@@ -63,7 +63,7 @@ namespace GuGu {
 
 		return math::float2(maxSize.x, maxSize.y);
 	}
-	void Overlay::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray)
+	void Overlay::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) const
 	{
 		for (int32_t childIndex = 0; childIndex < m_childrens.size(); ++childIndex)
 		{
@@ -82,11 +82,11 @@ namespace GuGu {
 			}
 		}
 	}
-	SlotBase* Overlay::getSlot(uint32_t index)
+	SlotBase* Overlay::getSlot(uint32_t index) const
 	{
 		return m_childrens[index].get();
 	}
-	uint32_t Overlay::getSlotsNumber()
+	uint32_t Overlay::getSlotsNumber() const
 	{
 		return m_childrens.size();
 	}
