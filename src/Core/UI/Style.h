@@ -112,5 +112,31 @@ namespace GuGu {
 		ScrollBarStyle() = default;
 
 		virtual ~ScrollBarStyle();
+
+		//当 scroll bar 方向水平的时候，使用的 background image
+		std::shared_ptr<Brush> m_horizontalBackgroundImage;
+		ScrollBarStyle& setHorizontalBackgroundImage(std::shared_ptr<Brush> inHorizontalBackgroundImage) { m_horizontalBackgroundImage = inHorizontalBackgroundImage; return *this; }
+
+		//当 scroll bar 方向垂直的时候，使用的 background image
+		std::shared_ptr<Brush> m_verticalBackgroundImage;
+		ScrollBarStyle& setVerticalBackgroundImage(std::shared_ptr<Brush> inVerticalBackgroundImage) { m_verticalBackgroundImage = inVerticalBackgroundImage; return *this; }
+
+		std::shared_ptr<Brush> m_verticalTopSlotImage;
+		ScrollBarStyle& setVerticalTopSlotImage(std::shared_ptr<Brush> value) { m_verticalTopSlotImage = value; return *this; }
+
+		std::shared_ptr<Brush> m_horizontalTopSlotImage;
+		ScrollBarStyle& setHorizontalTopSlotImage(std::shared_ptr<Brush> value) { m_horizontalTopSlotImage = value; return *this; }
+
+		std::shared_ptr<Brush> m_verticalBottomSlotImage;
+		ScrollBarStyle& setVerticalBottomSlotImage(std::shared_ptr<Brush> value) { m_verticalBottomSlotImage = value; return *this; }
+
+		std::shared_ptr<Brush> m_horizontalBottomSlotImage;
+		ScrollBarStyle& setHorizontalBottomSlotImage(std::shared_ptr<Brush> value) { m_horizontalBottomSlotImage = value; return *this; }
+
+		std::shared_ptr<Brush> m_normalThumbImage;
+		ScrollBarStyle& setNormalThumbImage(std::shared_ptr<Brush> inNormalThumbImage) { m_normalThumbImage = inNormalThumbImage; return *this; }
+
+		float m_thickNess;
+		ScrollBarStyle& setThickness(float inThickness) { m_thickNess = inThickness; return *this; }
 	};
 }

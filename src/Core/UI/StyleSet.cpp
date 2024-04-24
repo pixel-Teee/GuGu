@@ -142,6 +142,10 @@ namespace GuGu {
 		std::shared_ptr<SpinBoxStyle> spinBoxStyle = std::make_shared<SpinBoxStyle>();
 		spinBoxStyle->setBackgroundBrush(spinBoxBackgroundBrushImage);
 		m_styles.insert({ "SpinBox", spinBoxStyle });
+
+		//scroll bar
+		std::shared_ptr<ScrollBarStyle> scrollBarStyle = std::make_shared<ScrollBarStyle>();
+		m_styles.insert({ "ScrollBar", scrollBarStyle });
 	}
 	StyleSet::~StyleSet()
 	{
