@@ -100,6 +100,7 @@ namespace GuGu {
 		//从 list top 顶部开始的view area 的 offset ，item heights
 		float m_firstLineScrollOffset = 0.0f;
 
+		//移动的数量
 		float m_overScrollAmount = 0.0f;
 
 		//水平如何对齐，只对 tile view 有关

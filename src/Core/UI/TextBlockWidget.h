@@ -24,7 +24,7 @@ namespace GuGu {
 		{
 			BuilderArguments()
 			{
-				mClip = WidgetClipping::Inherit;
+				mClip = WidgetClipping::ClipToBounds;
 			}
 
 			~BuilderArguments() = default;

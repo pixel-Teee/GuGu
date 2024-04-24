@@ -30,6 +30,8 @@ namespace GuGu {
 		}
 		m_widgetClipping = arguments.mClip;
 		m_visibilityAttribute = arguments.mVisibility;
+
+        //m_overScrollAmount = 40.0f;
     }
     math::float2 ListPanel::ComputeFixedSize(float inLayoutScaleMultiplier)
     {
@@ -104,7 +106,7 @@ namespace GuGu {
 					arrangedWidgetArray.pushWidget(childGeometry, m_childrens[itemIndex]->getChildWidget());
                     
                     dimensionsSoFar.m_lineAxis += localItemSize.m_lineAxis + itemPadding;
-                    if (dimensionsSoFar.m_lineAxis + localItemSize.m_lineAxis + itemPadding > allottedDimensions.m_lineAxis)
+                    if (dimensionsSoFar.m_lineAxis + localItemSize.m_lineAxis + itemPadding > allottedDimensions.m_lineAxis) //一行行摆放，如果超出区域，就起新行
                     {
                         dimensionsSoFar.m_lineAxis = 0;
                         dimensionsSoFar.m_scrollAxis += localItemSize.m_scrollAxis;
@@ -116,6 +118,8 @@ namespace GuGu {
             {
                 //这是一个普通的 list ，安排 items 沿着 scroll axis 在一行
                 const TableViewDimensions firstChildDimensions(m_orientation, m_childrens[0]->getChildWidget()->getFixedSize());
+
+                //over scroll amount 是移动的数量
                 dimensionsSoFar.m_scrollAxis = -std::floor(m_firstLineScrollOffset * firstChildDimensions.m_scrollAxis) - m_overScrollAmount;
 
                 for (int32_t itemIndex = 0; itemIndex < m_childrens.size(); ++itemIndex)
@@ -223,6 +227,7 @@ namespace GuGu {
         const TableViewDimensions allottedDimensions(m_orientation, allottedGeometry.getLocalSize());
         const TableViewDimensions itemDimensions = getDesiredItemDimensions();
 
+        //每行的个数
         const int32_t numItemsPerLine = itemDimensions.m_lineAxis > 0.0f ? std::floor(allottedDimensions.m_lineAxis / itemDimensions.m_lineAxis) : 0.0f;
 
         TableViewDimensions extraDimensions(m_orientation);
@@ -233,6 +238,7 @@ namespace GuGu {
                 listItemAlignment == ListItemAlignment::EvenlyWide ||
                 listItemAlignment == ListItemAlignment::EvenlySize)
             {
+                //获取额外的宽高 extra dimensions
                 extraDimensions.m_lineAxis = (allottedDimensions.m_lineAxis - numItemsPerLine * itemDimensions.m_lineAxis) / numItemsPerLine;
 
                 if (listItemAlignment == ListItemAlignment::EvenlySize)
