@@ -1,6 +1,6 @@
 #include <pch.h>
 
-#include "STableRow.h"
+#include "TableRow.h"
 
 namespace GuGu {
 	
