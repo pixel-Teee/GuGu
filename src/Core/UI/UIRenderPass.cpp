@@ -35,6 +35,7 @@
 #include "ScrollBar.h"
 #include "ListView.h"
 #include "TableRow.h"
+#include "Spacer.h"
 
 #include <Core/GuGuFile.h>
 #include <Window/Window.h>
@@ -1141,16 +1142,42 @@ namespace GuGu {
 						+ HorizontalBox::Slot()
 						.StretchWidth(0.9f)
 						(
-							WIDGET_ASSIGN_NEW(ListView<GuGuUtf8Str>, m_listView)
-							.ListItemSource(&m_uiData->nodeNames)
-							.onGenerateRowLambda([](GuGuUtf8Str item, const std::shared_ptr<class TableViewBase>& table)->std::shared_ptr<ITableRow> {
-								return WIDGET_NEW(TableRow<GuGuUtf8Str>, table)
-									.Content
-									(
-										WIDGET_NEW(TextBlockWidget)
-										.text(item)
-									);
-							})
+							WIDGET_NEW(VerticalBox)
+							+ VerticalBox::Slot()
+							.StretchHeight(0.1)
+							(
+								WIDGET_NEW(Border)
+								.verticalAlignment(VerticalAlignment::Stretch)
+								.horizontalAlignment(HorizontalAlignment::Stretch)
+								.brush(m_styles->getBrush("background"))
+								.Content
+								(
+									WIDGET_ASSIGN_NEW(ListView<GuGuUtf8Str>, m_listView)
+									.ListItemSource(&m_uiData->nodeNames)
+									.onGenerateRowLambda([](GuGuUtf8Str item, const std::shared_ptr<class TableViewBase>& table)->std::shared_ptr<ITableRow> {
+										static int32_t i = 0;
+										++i;
+										math::float4 color = (i % 2) ? math::float4(0.3f, 0.6f, 0.2f, 1.0f) : math::float4(0.3f, 0.6f, 0.2f, 0.7f);
+										return WIDGET_NEW(TableRow<GuGuUtf8Str>, table)
+											.Content
+											(
+												WIDGET_NEW(Border)
+												.Content(
+													WIDGET_NEW(TextBlockWidget)
+													.text(item)
+												)
+												.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
+												.BorderBackgroundColor(color)
+											);
+										})
+								)
+								.BorderBackgroundColor(math::float4(1.0f, 1.0f, 1.0f, 0.8f))
+							)
+							+ VerticalBox::Slot()
+							.StretchHeight(0.9)
+							(
+								WIDGET_NEW(Spacer)
+							)
 						)
 					)
 				)

@@ -85,7 +85,7 @@ namespace GuGu {
 			
 		//Load("asset/Robot.gltf", node, m_rootFileSystem);
 
-		Load("asset/monkey.gltf", node, m_rootFileSystem);
+		Load("asset/cubes.gltf", node, m_rootFileSystem);
 
 		//auto node2 = std::make_shared<SceneGraphNode>();
 		//Load("asset/gyroscope.gltf", node2, m_rootFileSystem);
