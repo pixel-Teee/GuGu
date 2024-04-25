@@ -4,6 +4,8 @@
 #include "StyleSet.h"
 
 namespace GuGu {
+	using OnUserScrolled = std::function<void(float)>;//scroll offset 在 0 和 1 之间
+
 	class ImageWidget;
 	class ScrollBarTrack;
 	class Spacer;
@@ -21,6 +23,7 @@ namespace GuGu {
 				, mthickNess()
 				, morientation(Orientation::Vertical)
 				, mpadding(Padding(2.0f))
+				, monUserScrolled()
 			{}
 
 			~BuilderArguments() = default;
@@ -32,6 +35,8 @@ namespace GuGu {
 			ARGUMENT_ATTRIBUTE(Padding, padding)
 
 			ARGUMENT_VALUE(Orientation, orientation)
+
+			UI_EVENT(OnUserScrolled, onUserScrolled)
 		};
 
 		void init(const BuilderArguments& arguments);
@@ -46,12 +51,15 @@ namespace GuGu {
 
 		//执行用户的 scrolled 委托
 		void executeOnUserScrolled(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent);
+
+		void setOnUserScrolled(const OnUserScrolled& inHandler);
 	protected:
 		std::shared_ptr<ImageWidget> m_topImage;
 		std::shared_ptr<ImageWidget> m_bottomImage;
 		std::shared_ptr<Border> m_dragThumb;
 		std::shared_ptr<Spacer> m_thicknessSpacer;
 		std::shared_ptr<ScrollBarTrack> m_track;
+		OnUserScrolled m_onUserScrolled;
 		Orientation m_orientation;
 
 		std::shared_ptr<Brush> m_normalThumbImage;

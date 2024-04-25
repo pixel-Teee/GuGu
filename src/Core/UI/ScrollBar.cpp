@@ -19,6 +19,7 @@ namespace GuGu {
 	void ScrollBar::init(const BuilderArguments& arguments)
 	{
 		m_orientation = arguments.morientation;
+		m_onUserScrolled = arguments.monUserScrolled;//滑动的回调
 		setStyle(arguments.mstyle.Get());
 
 		const Attribute<math::float2> thickNess = arguments.mthickNess.IsSet() ? arguments.mthickNess : math::float2(arguments.mstyle.Get()->m_thickNess, arguments.mstyle.Get()->m_thickNess);
@@ -146,7 +147,14 @@ namespace GuGu {
 		const float unclampedOffsetInTrack = trackGeometry.absoluteToLocal(inMouseEvent.m_screenSpacePosition)[axisId] - m_dragGrabOffset;
 		const float trackSizeBiasedByMinThumbSize = trackGeometry.getLocalSize()[axisId] - m_track->getMinThumbSize();
 		const float thumbOffsetInTrack = std::clamp(unclampedOffsetInTrack, 0.0f, trackSizeBiasedByMinThumbSize);
-		const float thumbOffset = thumbOffsetInTrack / trackSizeBiasedByMinThumbSize;
-
+		const float thumbOffset = thumbOffsetInTrack / trackSizeBiasedByMinThumbSize;//thumb offset 处于[0, 1]之间
+		if (m_onUserScrolled)
+		{
+			m_onUserScrolled(thumbOffset);
+		}
+	}
+	void ScrollBar::setOnUserScrolled(const OnUserScrolled& inHandler)
+	{
+		m_onUserScrolled = inHandler;
 	}
 }

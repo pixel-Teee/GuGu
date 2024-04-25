@@ -94,6 +94,8 @@ namespace GuGu{
 
         void setVisibility(Attribute<Visibility> inVisibility) { m_visibilityAttribute = inVisibility; }
 
+        WidgetClipping getClipping() const { return m_widgetClipping; }
+
         WidgetGeometry findChildGeometry(const WidgetGeometry& myGeometry, std::shared_ptr<Widget> widgetToFind) const;
 
         bool findChildGeometries(const WidgetGeometry& myGeometry, const std::set<std::shared_ptr<Widget>>& widgetsToFind, std::unordered_map<std::shared_ptr<Widget>, ArrangedWidget>& outResult) const;

@@ -10,4 +10,13 @@ namespace GuGu {
 	using OnIsTypedCharValid = std::function<bool(const GuGuUtf8Str)>;
 	using OnFloatValueChanged = std::function<void(float)>;
 	using OnTextCommitted = std::function<void(const GuGuUtf8Str&, TextCommit::Type)>;
+
+	class ITableRow;
+	class STableViewBase;
+	template<typename ArgumentType>
+	class WidgetDelegates
+	{
+	public:
+		using OnGenerateRow = std::function<std::shared_ptr<ITableRow>(ArgumentType, const std::shared_ptr<class STableViewBase>&)>;
+	};
 }

@@ -1,6 +1,12 @@
 #include <pch.h>
 
 #include "TableViewBase.h"
+#include "ListPanel.h"
+#include "BoxPanel.h"
+#include "Box.h"//box widget
+#include "ArrangedWidget.h"
+#include "ArrangedWidgetArray.h"
+#include "LayoutUtils.h"
 
 namespace GuGu {
 	TableViewDimensions::TableViewDimensions(Orientation inOrientation)
@@ -32,8 +38,186 @@ namespace GuGu {
         const std::shared_ptr<ScrollBar>& inScrollBar, 
         Orientation inScrollOrientation, 
         const OnTableViewScrolled& inOnTableViewScrolled, 
-        const ScrollBarStyle* inScrollBarStyle)
+        const Attribute<std::shared_ptr<ScrollBarStyle>> inScrollBarStyle)
     {
+        m_headerRow = inHeaderRow;
+
+        m_onTableViewScrolled = inOnTableViewScrolled;
+
+        //如果有 header row，那么就是垂直的，否则根据参数提供的方向来提供
+        m_orientation = inHeaderRow ? Orientation::Vertical : inScrollOrientation;
+
+        m_itemsPanel = WIDGET_NEW(ListPanel)
+            .Clip(getClipping())
+            .ItemWidth(inItemWidth)
+            .ItemHeight(inItemHeight)
+            .NumDesiredItems(this, &TableViewBase::getNumItemsBeingObserved)
+            .ItemAlignment(inItemAlignment.Get())
+            .ListOrientation(m_orientation);
+
+        std::shared_ptr<Widget> listAndScrollbar;
+        if (inScrollBar) //external scroll bar
+        {
+            //用户提供的 scroll bar
+            m_scrollBar = inScrollBar;
+
+            m_scrollBar->setOnUserScrolled(std::bind(&TableViewBase::scrollBarOnUserScrolled, this, std::placeholders::_1));
+
+            listAndScrollbar = m_itemsPanel;
+        }
+        else
+        {
+            m_scrollBar = WIDGET_NEW(ScrollBar)
+                .onUserScrolled(this, &TableViewBase::scrollBarOnUserScrolled)
+                .orientation(m_orientation)
+                .style(inScrollBarStyle.IsSet() ? inScrollBarStyle : StyleSet::getStyle()->template getStyle<ScrollBarStyle>("ScrollBar"));
+
+            const OptionalSize scrollBarSize(16.0f);
+
+            if (m_orientation == Orientation::Vertical)
+            {
+                listAndScrollbar = WIDGET_NEW(HorizontalBox)
+                    + HorizontalBox::Slot()
+                    .StretchWidth(1.0f)
+                    (
+                        m_itemsPanel
+                    )
+                    +HorizontalBox::Slot()
+                    .FixedWidth()
+                    (
+                        WIDGET_NEW(BoxWidget)
+                        .WidthOverride(scrollBarSize)
+                        .Content
+                        (
+                            m_scrollBar
+                        )
+                   );
+            }
+            else
+            {
+                listAndScrollbar = WIDGET_NEW(VerticalBox)
+                    + VerticalBox::Slot()
+                    .StretchHeight(1.0f)
+                    (
+                        m_itemsPanel
+                    )
+                    + VerticalBox::Slot()
+                    .FixedHeight()
+                    (
+                        WIDGET_NEW(BoxWidget)
+                        .HeightOverride(scrollBarSize)
+                        .Content
+                        (
+                            m_scrollBar
+                        )
+                    );
+            }
+        }
+
+        this->m_childWidget = std::make_shared<SingleChildSlot>();
+
+        if (inHeaderRow)
+        {
+            //todo ：我们需要关联 scroll bar, 如果我们创建了它
+
+			this->m_childWidget->setChildWidget
+			(
+				WIDGET_NEW(VerticalBox)
+                + VerticalBox::Slot()
+                .FixedHeight()
+                (
+                    inHeaderRow
+                )
+                + VerticalBox::Slot()
+                .StretchHeight(1)
+                (
+                    listAndScrollbar
+                )
+			);
+        }
+        else
+        {
+            this->m_childWidget->setChildWidget
+            (
+                listAndScrollbar
+            );
+        }
+    }
+
+    void TableViewBase::scrollBarOnUserScrolled(float inScrollOffsetFraction)
+    {
+        //滑动的 items 数量
+        const double clampedScrollOffsetInItems = std::clamp(inScrollOffsetFraction, 0.0f, 1.0f) * getNumItemsBeingObserved();
+
+        //todo ：完善这个函数
+    }
+
+    uint32_t TableViewBase::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
+    {
+		ArrangedWidgetArray arrangedWidgetArray(Visibility::Visible);//设置数组只接受可见的child widget
+		AllocationChildActualSpace(allocatedGeometry, arrangedWidgetArray);
+
+		uint32_t widgetNumbers = arrangedWidgetArray.getArrangedWidgetsNumber();//note:just one
+		//math::double2 size = math::double2(0.0, 0.0);
+		uint32_t maxLayer = 0;
+		for (size_t i = 0; i < widgetNumbers; ++i)
+		{
+			std::shared_ptr<ArrangedWidget> childWidget = arrangedWidgetArray.getArrangedWidget(i);
+			if (childWidget)
+			{
+				std::shared_ptr<Widget> widget = childWidget->getWidget();
+
+				maxLayer = std::max(maxLayer, widget->generateElement(paintArgs, cullingRect, elementList, childWidget->getWidgetGeometry(), layer + 1));
+			}
+		}
+
+		return maxLayer;
+    }
+
+    math::float2 TableViewBase::ComputeFixedSize(float inLayoutScaleMultiplier)
+    {
+		if (m_childWidget)
+		{
+			const Visibility childVisiblity = m_childWidget->getChildWidget()->getVisibility();
+			if (childVisiblity != Visibility::Collapsed)
+			{
+				return m_childWidget->getChildWidget()->getFixedSize() + m_childWidget->getPadding().getFixedSize();
+			}
+		}
+		return math::float2(0, 0);
+    }
+
+    void TableViewBase::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) const
+    {
+		//arrange single children
+		uint32_t slotNumber = getSlotsNumber();
+		//check this is one
+		//assert(slotNumber == 1);
+
+		if (slotNumber)
+		{
+			const Visibility childVisibility = getSlot(0)->getChildWidget()->getVisibility();
+
+			if (arrangedWidgetArray.accepts(childVisibility)) //数组的可见性是否接受widget的可见性
+			{
+				AlignmentArrangeResult xalignmentResult = AlignChild<Orientation::Horizontal>(*getSlot(0), allocatedGeometry.getLocalSize().x);
+				AlignmentArrangeResult yAlignmentResult = AlignChild<Orientation::Vertical>(*getSlot(0), allocatedGeometry.getLocalSize().y);
+
+				WidgetGeometry childGeometry = allocatedGeometry.getChildGeometry(math::float2(xalignmentResult.m_size, yAlignmentResult.m_size), math::float2(xalignmentResult.m_offset, yAlignmentResult.m_offset));
+
+				arrangedWidgetArray.pushWidget(childGeometry, getSlot(0)->getChildWidget());
+			}
+		}
+    }
+
+    SlotBase* TableViewBase::getSlot(uint32_t index) const
+    {
+        return m_childWidget.get();
+    }
+
+    uint32_t TableViewBase::getSlotsNumber() const
+    {
+        return 1;
     }
 
 }

@@ -55,6 +55,7 @@ namespace GuGu {
 		float m_lineAxis = 0.0f;
 	};
 
+	class ListPanel;
 	class TableViewBase : public Widget, public IScrollableWidget
 	{
 	public:
@@ -66,6 +67,39 @@ namespace GuGu {
 			const std::shared_ptr<ScrollBar>& inScrollBar,
 			Orientation inScrollOrientation,
 			const OnTableViewScrolled& inOnTableViewScrolled,
-			const ScrollBarStyle* inScrollBarStyle = nullptr);
+			const Attribute<std::shared_ptr<ScrollBarStyle>> inScrollBarStyle);
+
+		virtual int32_t getNumItemsBeingObserved() const = 0;
+
+		//当用户滑动的时候，通过 scroll bar 调用
+		//这个是被 scroll bar 调用的
+		void scrollBarOnUserScrolled(float inScrollOffsetFraction);
+
+		virtual uint32_t onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer) override;
+
+		virtual math::float2 ComputeFixedSize(float inLayoutScaleMultiplier) override;
+
+		virtual void AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) const override;
+
+		virtual SlotBase* getSlot(uint32_t index) const override;
+
+		virtual uint32_t getSlotsNumber() const override;
+	protected:
+		//列的头，描述这个 list 展示的列
+		std::shared_ptr<HeaderRow> m_headerRow;
+
+		//当 table view 被滑动的时候，调用的委托
+		OnTableViewScrolled m_onTableViewScrolled;
+
+		//list 的布局还有 scroll 的方向
+		Orientation m_orientation = Orientation::Vertical;
+
+		//持有 list 中可见的 widgets 的 panel
+		std::shared_ptr<ListPanel> m_itemsPanel;
+
+		//scroll bar widget
+		std::shared_ptr<ScrollBar> m_scrollBar;
+
+		std::shared_ptr<SingleChildSlot> m_childWidget;
 	};
 }

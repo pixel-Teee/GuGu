@@ -33,6 +33,7 @@
 #include "SpinBox.h"
 #include "ListPanel.h"
 #include "ScrollBar.h"
+#include "ListView.h"
 
 #include <Core/GuGuFile.h>
 #include <Window/Window.h>
@@ -1132,6 +1133,11 @@ namespace GuGu {
 						.StretchWidth(0.1f)
 						(
 							WIDGET_NEW(ScrollBar)
+						)
+						+ HorizontalBox::Slot()
+						.StretchWidth(0.1f)
+						(
+							WIDGET_NEW(ListView<std::shared_ptr<GuGuUtf8Str>>)
 						)
 					)
 				)
