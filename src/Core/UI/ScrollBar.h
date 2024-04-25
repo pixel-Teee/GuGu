@@ -53,6 +53,10 @@ namespace GuGu {
 		void executeOnUserScrolled(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent);
 
 		void setOnUserScrolled(const OnUserScrolled& inHandler);
+
+		void setState(float inOffsetFraction, float inThumbSizeFraction);
+
+		float distanceFromBottom() const;
 	protected:
 		std::shared_ptr<ImageWidget> m_topImage;
 		std::shared_ptr<ImageWidget> m_bottomImage;

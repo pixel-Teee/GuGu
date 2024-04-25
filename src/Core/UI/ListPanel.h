@@ -68,7 +68,7 @@ namespace GuGu {
 
 		virtual uint32_t getSlotsNumber() const override;
 
-		TableViewDimensions getDesiredItemDimensions() const const;
+		TableViewDimensions getDesiredItemDimensions() const ;
 
 		//返回应用到每个 tile item 的水平 padding
 		float getItemPadding(const WidgetGeometry& allottedGeometry, const ListItemAlignment listItemAlignment) const;
@@ -81,6 +81,13 @@ namespace GuGu {
 
 		static ListPanel::PaneSlot::SlotBuilderArguments Slot();
 
+		ListPanel::PaneSlot::SlotBuilderArguments addSlot(int32_t insertAtIndex = -1);
+
+		void setRefreshPending(bool isPendingRefresh);
+
+		bool isRefreshPending() const;
+
+		void clearItems();
 	protected:
 
 		bool shouldArrangeAsTiles() const;
@@ -111,5 +118,7 @@ namespace GuGu {
 
 		//这个 widget 希望的一行的数量，正交于scroll axis ，只对 tile view 有关
 		int32_t m_preferredNumLines = 1;
+
+		bool m_bIsRefreshPending = false;
 	};
 }

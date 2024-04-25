@@ -130,4 +130,30 @@ namespace GuGu {
 	{
 		return m_minThumbSize;
 	}
+	float ScrollBarTrack::distanceFromTop() const
+	{
+		return m_offsetFraction;
+	}
+	float ScrollBarTrack::distanceFromBottom() const
+	{
+		return 1.0f - (m_offsetFraction + m_thumbSizeFraction);
+	}
+	float ScrollBarTrack::getThumbSizeFraction() const
+	{
+		return m_thumbSizeFraction;
+	}
+	void ScrollBarTrack::setSizes(float inThumbOffsetFraction, float inThumbSizeFraction)
+	{
+		m_offsetFraction = inThumbOffsetFraction;
+		m_thumbSizeFraction = inThumbSizeFraction;
+
+		if (m_thumbSizeFraction == 0.0f && !m_bIsAlwaysVisible)
+		{
+			m_thumbSizeFraction = 1.0f;
+		}
+		else if (m_thumbSizeFraction > 1.0f && m_bIsAlwaysVisible)
+		{
+			m_thumbSizeFraction = 0.0f;
+		}
+	}
 }

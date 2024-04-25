@@ -12,11 +12,11 @@ namespace GuGu {
 	using OnTextCommitted = std::function<void(const GuGuUtf8Str&, TextCommit::Type)>;
 
 	class ITableRow;
-	class STableViewBase;
+	class TableViewBase;
 	template<typename ArgumentType>
 	class WidgetDelegates
 	{
 	public:
-		using OnGenerateRow = std::function<std::shared_ptr<ITableRow>(ArgumentType, const std::shared_ptr<class STableViewBase>&)>;
+		using OnGenerateRow = std::function<std::shared_ptr<ITableRow>(ArgumentType, const std::shared_ptr<class TableViewBase>&)>;
 	};
 }

@@ -17,17 +17,66 @@ namespace GuGu {
 		static const uint32_t ParamCount = sizeof...(Args);
 	};
 
-	template<typename WidgetType>
+	namespace RequiredArgs
+	{
+		struct T0RequiredArgs
+		{
+			T0RequiredArgs()
+			{
+
+			}
+
+			template<class WidgetType>
+			void callConstruct(const std::shared_ptr<WidgetType>& onWidget, const typename WidgetType::BuilderArguments& withNamedArgs) const
+			{
+				onWidget->init(withNamedArgs);
+			}
+		};
+
+		template<typename Arg0Type>
+		struct T1RequiredArgs
+		{
+			T1RequiredArgs(Arg0Type&& inArg0)
+				: m_arg0(inArg0)
+			{}
+
+			template<class WidgetType>
+			void callConstruct(const std::shared_ptr<WidgetType>& onWidget, const typename WidgetType::BuilderArguments& withNamedArgs) const
+			{
+				onWidget->init(withNamedArgs, std::forward<Arg0Type>(m_arg0));
+			}
+			Arg0Type& m_arg0;
+		};
+
+		inline T0RequiredArgs makeRequiredArgs() //这个inline很重要
+		{
+			return T0RequiredArgs();
+		}
+
+		template<typename Arg0Type>
+		T1RequiredArgs<Arg0Type&&> makeRequiredArgs(Arg0Type&& inArg0)
+		{
+			return T1RequiredArgs<Arg0Type&&>(std::forward<Arg0Type>(inArg0));
+		}
+	}
+
+	template<typename WidgetType, typename RequiredArgsPayloadType>
 	struct WidgetConstruct
 	{
-		WidgetConstruct() { m_widget = std::make_shared<WidgetType>(); }
+		WidgetConstruct(RequiredArgsPayloadType&& inRequiredArgs)
+			: m_requiredArgs(inRequiredArgs)	
+		{ 
+			m_widget = std::make_shared<WidgetType>(); 
+		}
 		~WidgetConstruct() = default;
 		std::shared_ptr<WidgetType> operator<<(const typename WidgetType::BuilderArguments& arguments)
 		{
-			m_widget->init(arguments);
+			//m_widget->init(arguments);
+			m_requiredArgs.callConstruct(m_widget, arguments);
 			return m_widget;
 		}
 		std::shared_ptr<WidgetType> m_widget;
+		RequiredArgsPayloadType& m_requiredArgs;
 	};
 #define ARGUMENT_MEMBER(Type, Name)\
 	BuilderArguments& Name(std::shared_ptr<Type> inValue) \
@@ -118,12 +167,17 @@ namespace GuGu {
 #define SLOT_CONTENT(SlotType, Name) \
 	std::shared_ptr<SlotType> m##Name;
 
-#define WIDGET_NEW(WidgetType) \
-	WidgetConstruct<WidgetType>() << WidgetType::BuilderArguments()
+#define WIDGET_NEW(WidgetType, ...) \
+	makeDecl<WidgetType>(RequiredArgs::makeRequiredArgs(__VA_ARGS__)) << WidgetType::BuilderArguments()
 
-#define WIDGET_ASSIGN_NEW(WidgetType, OutValue) \
-	OutValue = WidgetConstruct<WidgetType>() << WidgetType::BuilderArguments()
+#define WIDGET_ASSIGN_NEW(WidgetType, OutValue, ...) \
+	OutValue = makeDecl<WidgetType>(RequiredArgs::makeRequiredArgs(__VA_ARGS__)) << WidgetType::BuilderArguments()
 
+	template<typename WidgetType, typename RequiredArgsPayloadType>
+	WidgetConstruct<WidgetType, RequiredArgsPayloadType> makeDecl(RequiredArgsPayloadType&& inRequiredArgs)
+	{
+		return WidgetConstruct<WidgetType, RequiredArgsPayloadType>(std::forward<RequiredArgsPayloadType>(inRequiredArgs));
+	}
 
 	template<typename WidgetType>
 	struct Arguments

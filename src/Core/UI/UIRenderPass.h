@@ -4,6 +4,8 @@
 
 #include "AtlasTexture.h"
 
+#include "ListView.h"
+
 namespace GuGu {
 	class Brush;
 	class StyleSet;
@@ -107,6 +109,8 @@ namespace GuGu {
 		math::float4 m_textColor;
 
 		std::shared_ptr<UIData> m_uiData;
+
+		std::shared_ptr<ListView<GuGuUtf8Str>> m_listView;
 		//------test widget functionality------
 	};
 }

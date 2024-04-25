@@ -2,13 +2,15 @@
 
 #include "TableViewBase.h" //table view base
 #include "WidgetDelegates.h"
+#include "TableViewTypeTraits.h"
+#include "TableRow.h"
 
 namespace GuGu {
 	template<typename ItemType>
-	class ListView : public TableViewBase, ITypedTableView<ItemType>
+	class ListView : public TableViewBase, public ITypedTableView<ItemType>
 	{
 	public:
-
+		using NullableItemType = typename ListTypeTraits<ItemType>::NullableType;
 		using OnGenerateRow = typename WidgetDelegates<ItemType>::OnGenerateRow;
 
 		ListView(TableViewMode::Type inListMode = TableViewMode::List)
@@ -28,6 +30,7 @@ namespace GuGu {
 				: mstyle(StyleSet::getStyle()->template getStyle<ScrollBarStyle>("ScrollBar"))
 				, mitemHeight(16)
 				, morientation(Orientation::Vertical)
+				, mListItemSource()
 			{
 				this->mClip = WidgetClipping::ClipToBounds;
 			}
@@ -47,13 +50,17 @@ namespace GuGu {
 			ARGUMENT_VALUE(std::shared_ptr<ScrollBar>, externalScrollbar) //可以控制 list view 的外部的 scroll bar
 
 			ARGUMENT_VALUE(Orientation, orientation)
+
+			ARGUMENT_VALUE(const std::vector<ItemType>*, ListItemSource)
+
 		};
 
 		void init(const BuilderArguments& arguments)
 		{
 			m_widgetClipping = arguments.mClip;
 			//制作table view
-			m_onGenerateRow = arguments.monGenerateRow;
+			this->m_onGenerateRow = arguments.monGenerateRow;
+			this->m_itemsSource = arguments.mListItemSource;
 
 			constructChildren(0, arguments.mitemHeight, ListItemAlignment::LeftAligned, arguments.mheaderRow, arguments.mexternalScrollbar,
 				arguments.morientation, arguments.monListViewScrolled, arguments.mstyle);
@@ -77,12 +84,254 @@ namespace GuGu {
 		//是否这里有一个待处理的请求去滑动一个 item 到 view 里面
 		virtual ScrollIntoViewResult scrollIntoView(const WidgetGeometry& listViewGeometry) override
 		{
-			if (this->m_itemsSource != nullptr)
+			if (m_itemsSource && ListTypeTraits<ItemType>::isPtrValid(m_itemToScrollIntoView))
 			{
+				auto it = std::find(m_itemsSource->begin(), m_itemsSource->end(), ListTypeTraits<ItemType>::nullableItemTypeConverToItemType(m_itemToScrollIntoView));
 
+				if (it != m_itemsSource->end())
+				{
+					const int32_t indexOfItem = it - m_itemsSource->begin();
+
+					double numLiveWidgets = getNumLiveWidgets();//可以塞入屏幕的 widgets
+					if (numLiveWidgets == 0 && isPendingRefresh())
+					{
+						numLiveWidgets = m_lastGenerateResults.m_exactNumLinesOnScreen;
+						
+						if (numLiveWidgets == 0)
+						{
+							return ScrollIntoViewResult::Deferred;
+						}
+					}
+
+					//todo:add end inertial scrolling
+
+					const int32_t numFullEntriesInView = (int32_t)(std::floorf(m_currentScrollOffset + numLiveWidgets)
+						- std::ceil(m_currentScrollOffset));
+
+					//只滚动 item 到 view 里面，如果它本身不在可见的范围内
+					const double minDisplayedIndex = m_bNavigateOnScrollIntoView ? std::floorf(m_currentScrollOffset)
+						: std::ceil(m_currentScrollOffset);
+					const double maxDisplayedIndex = m_bNavigateOnScrollIntoView ? std::ceil(m_currentScrollOffset + numFullEntriesInView) :
+						std::floorf(m_currentScrollOffset + numFullEntriesInView);
+
+					//需要滚进去
+					if (indexOfItem < minDisplayedIndex || indexOfItem > maxDisplayedIndex)
+					{
+						//将 list view 的顶部滚动到item
+						double newScrollOffset = indexOfItem;
+
+						//将 list view 的这个item居中
+						newScrollOffset -= (numLiveWidgets / 2.0f);
+
+						//限制 list 的 top 和 bottom 的 offset
+						const double maxScrollOffset = std::max(0.0, (double)m_itemsSource->size() - numLiveWidgets);
+						newScrollOffset = std::clamp(newScrollOffset, 0.0, maxScrollOffset);
+
+						setScrollOffset(newScrollOffset);
+					}
+					else if (m_bNavigateOnScrollIntoView)
+					{
+						//todo ：完成这里的逻辑
+					}
+
+					requestLayoutRefresh();
+
+					m_itemToNotifyWhenInView = m_itemToScrollIntoView;
+				}
+
+				ListTypeTraits<ItemType>::resetPtr(m_itemToScrollIntoView);
+			}
+
+			if (ListTypeTraits<ItemType>::isPtrValid(m_itemToScrollIntoView))
+			{
+				//todo : 动画判断
+			}
+			else
+			{
+				return ScrollIntoViewResult::Failure;
 			}
 
 			return ScrollIntoViewResult::Success;
+			
+		}
+
+		virtual std::shared_ptr<ITableRow> generateNewWidget(ItemType inItem)
+		{
+			if (m_onGenerateRow)
+			{
+				return m_onGenerateRow(inItem, std::static_pointer_cast<TableViewBase>(shared_from_this()));
+			}
+			else
+			{
+				std::shared_ptr<TableRow<ItemType>> newListItemWidget =
+					WIDGET_NEW(TableRow<ItemType>, std::static_pointer_cast<TableViewBase>(shared_from_this()))
+					.Content
+					(
+						WIDGET_NEW(TextBlockWidget)
+						.text("OnGenerateWidget() not assigned")
+					);
+				return newListItemWidget;
+			}
+		}
+
+		float generateWidgetForItem(const ItemType& curItem, int32_t itemIndex, int32_t startIndex, float layoutScaleMultiplier)
+		{
+			std::shared_ptr<ITableRow> widgetForItem = m_widgetGenerator.getWidgetForItem(curItem);
+
+			if (!widgetForItem)
+			{
+				widgetForItem = this->generateNewWidget(curItem);
+			}
+
+			//给 table row 一个在 item 的索引，帮助 偶数/奇数 颜色
+			widgetForItem->setIndexInList(itemIndex);
+
+			m_widgetGenerator.onItemSeen(curItem, widgetForItem);
+
+			const std::shared_ptr<Widget> newlyGeneratedWidget = widgetForItem->asWidget();
+			newlyGeneratedWidget->prepass(layoutScaleMultiplier);
+
+			if (itemIndex >= startIndex)
+			{
+				this->appendWidget(widgetForItem);
+			}
+			else
+			{
+				this->insertWidget(widgetForItem);
+			}
+
+			const bool bIsVisible = newlyGeneratedWidget->getVisibility().isVisible();
+			TableViewDimensions generatedWidgetDimensions(this->m_orientation, bIsVisible ? newlyGeneratedWidget->getFixedSize() : math::float2(0.0f, 0.0f));
+			return generatedWidgetDimensions.m_scrollAxis;
+		}
+
+		virtual ReGenerateResults reGenerateItems(const WidgetGeometry& myGeometry) override
+		{
+			auto doubleFractional = [](double value)->double
+			{
+				return value - std::truncf(value);
+			};
+
+			//清除我们的 panel 的所有items
+			this->clearWidgets();
+
+			GenerationPassGuard generationPassGuard(m_widgetGenerator);
+
+			if (m_itemsSource && m_itemsSource->size() > 0)
+			{
+				//items 在 view 里面，包含分数 items
+				float itemsInView = 0.0f;
+
+				//到目前为止生成的 widgets 的总共长度 (高度对于垂直列表，宽度对于水平)
+				float lengthGeneratedSoFar = 0.0f;
+
+				//生成的 widgets 的长度，在 view 的边界内
+				float viewLengthUsedSoFar = 0.0f;
+
+				int32_t startIndex = std::clamp((int32_t)std::floor(m_currentScrollOffset), 0, (int32_t)m_itemsSource->size() - 1);
+
+				//第一个被生成的 item 的长度
+				float firstItemLength = 0.0f;
+
+				bool bHasFilledAvailableArea = false;
+				bool bAtEndOfList = false;
+
+				const float layoutScaleMultiplier = myGeometry.getAccumulateLayoutTransform().m_linear[0][0];//get scale
+				TableViewDimensions myDimensions(this->m_orientation, myGeometry.getLocalSize());
+
+				for (int32_t itemIndex = startIndex; !bHasFilledAvailableArea && itemIndex < m_itemsSource->size(); ++itemIndex)
+				{
+					const ItemType& curItem = (*m_itemsSource)[itemIndex];
+
+					if (!ListTypeTraits<ItemType>::isPtrValid(curItem))
+					{
+						continue;
+					}
+
+					const float itemLength = generateWidgetForItem(curItem, itemIndex, startIndex, layoutScaleMultiplier);
+
+					const bool bIsFirstItem = itemIndex == startIndex;
+
+					if (bIsFirstItem)
+					{
+						firstItemLength = itemLength;
+					}
+
+					//追踪在 view 里面的 items 的数量，包含分数部分
+					if(bIsFirstItem)
+					{
+						//第一个 item 可能不是完整的可见 (但是不能超过1)
+						//first item fraction scrolled into view 是 item 可见的百分比
+						const float firstItemFractionScrolledIntoView = 1.0f - (float)std::max(doubleFractional(m_currentScrollOffset), 0.0);
+
+						const float firstItemLengthScrolledIntoView = itemLength * firstItemFractionScrolledIntoView;
+
+						const float firstItemVisibleFraction = std::min(myDimensions.m_scrollAxis / firstItemLengthScrolledIntoView, firstItemFractionScrolledIntoView);
+
+						itemsInView += firstItemVisibleFraction;
+					}
+					else if (viewLengthUsedSoFar + itemLength > myDimensions.m_scrollAxis)
+					{
+						//最后一个 item 可能不是完整的可见
+						itemsInView += (myDimensions.m_scrollAxis - viewLengthUsedSoFar) / itemLength;
+					}
+					else
+					{
+						itemsInView += 1;
+					}
+
+					lengthGeneratedSoFar += itemLength;
+
+					viewLengthUsedSoFar += (bIsFirstItem) ? itemLength * itemsInView : itemLength;
+
+					bAtEndOfList = itemIndex >= m_itemsSource->size() - 1;
+
+					if (bIsFirstItem && viewLengthUsedSoFar >= myDimensions.m_scrollAxis)
+					{
+						bHasFilledAvailableArea = true;
+					}
+					else
+					{
+						const float floatPrecisionOffset = 0.001f;
+						bHasFilledAvailableArea = viewLengthUsedSoFar >= myDimensions.m_scrollAxis + floatPrecisionOffset;
+					}
+				}
+
+				//情况b
+				if (bAtEndOfList && !bHasFilledAvailableArea)
+				{
+					double newScrollOffsetForBackfill = static_cast<double>(startIndex) + (lengthGeneratedSoFar - myDimensions.m_scrollAxis) / firstItemLength;
+
+					for (int32_t itemIndex = startIndex - 1; lengthGeneratedSoFar < myDimensions.m_scrollAxis && itemIndex >= 0; --itemIndex)
+					{
+						const ItemType& curItem = (*m_itemsSource)[itemIndex];
+
+						if (ListTypeTraits<ItemType>::isPtrValid(curItem))
+						{
+							const float itemLength = generateWidgetForItem(curItem, itemIndex, startIndex, layoutScaleMultiplier);
+
+							if (lengthGeneratedSoFar + itemIndex > myDimensions.m_scrollAxis && itemIndex > 0.0f)
+							{
+								newScrollOffsetForBackfill = itemIndex + (lengthGeneratedSoFar + itemLength - myDimensions.m_scrollAxis) / itemLength;
+							}
+
+							lengthGeneratedSoFar += itemLength;
+						}
+					}
+
+					return ReGenerateResults(newScrollOffsetForBackfill, lengthGeneratedSoFar, m_itemsSource->size() - newScrollOffsetForBackfill, true);
+				}
+
+				return ReGenerateResults(m_currentScrollOffset, lengthGeneratedSoFar, itemsInView, true);
+			}
+
+			return ReGenerateResults(0.0f, 0.0f, 0.0f, false);
+		}
+
+		virtual void rebuildList()
+		{
+			m_widgetGenerator.clear();
+			requestListRefresh();
 		}
 	private:
 		friend class WidgetGenerator;
@@ -118,9 +367,13 @@ namespace GuGu {
 					inGeneratedWidget->initializeRow();
 				}
 
-				auto it = std::find(m_itemsToBeCleanedUp.begin(), m_itemsToBeCleanedUp.end(), inItem);
-				m_itemsToBeCleanedUp.erase(it);
-				m_itemsWithGeneratedWidgets.push_back(inItem);
+				auto it2 = std::find(m_itemsToBeCleanedUp.begin(), m_itemsToBeCleanedUp.end(), inItem);
+				if (it2 != m_itemsToBeCleanedUp.end())
+				{
+					m_itemsToBeCleanedUp.erase(it2);
+					m_itemsWithGeneratedWidgets.push_back(inItem);
+				}
+				
 			}
 
 			//被调用，在生成pass的开始
@@ -148,9 +401,9 @@ namespace GuGu {
 				{
 					ItemType itemToBeCleanedUp = m_itemsToBeCleanedUp[itemIndex];
 					auto findResult = m_itemsToWidgetMap.find(itemToBeCleanedUp);
-					if (findResult != nullptr)
+					if (findResult != m_itemsToWidgetMap.end())
 					{
-						const std::shared_ptr<ITableRow> widgetToCleanUp = findResult.second;
+						const std::shared_ptr<ITableRow> widgetToCleanUp = findResult->second;
 						m_itemsToWidgetMap.erase(findResult);
 
 						auto it = m_widgetMapToItem.find(widgetToCleanUp.get());
@@ -158,11 +411,11 @@ namespace GuGu {
 
 						if (m_ownerList != nullptr)
 						{
-							m_ownerList->resetRow();
+							widgetToCleanUp->resetRow();
 							//todo : 添加回调
 						}
 					}
-					//todo ：添加对指针的判断
+					//todo : 添加指针的判断
 				}
 
 				m_itemsToBeCleanedUp.clear();
@@ -198,6 +451,29 @@ namespace GuGu {
 		//是否 list view 支持键盘焦点
 		Attribute<bool> m_isFocusable;
 
-	
+		//当不为 null ，列表将尝试去滑动这个 item 在tick的时候
+		NullableItemType m_itemToScrollIntoView;
+
+		//当设置，列表将会通知这个 item 当它滑进 view 里面
+		NullableItemType m_itemToNotifyWhenInView;
+
+		bool m_bNavigateOnScrollIntoView = false;
+
+	private:
+		struct GenerationPassGuard
+		{
+			WidgetGenerator& m_generator;
+			GenerationPassGuard(WidgetGenerator& inGenerator)
+				: m_generator(inGenerator)
+			{
+				m_generator.onBeginGennerationPass();
+			}
+
+			~GenerationPassGuard()
+			{
+				m_generator.onEndGenerationPass();
+			}
+		};
 	};
+
 }

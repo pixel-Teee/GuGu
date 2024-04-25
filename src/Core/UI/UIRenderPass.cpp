@@ -34,6 +34,7 @@
 #include "ListPanel.h"
 #include "ScrollBar.h"
 #include "ListView.h"
+#include "TableRow.h"
 
 #include <Core/GuGuFile.h>
 #include <Window/Window.h>
@@ -376,6 +377,7 @@ namespace GuGu {
 	}
 	void UIRenderPass::Update(float fElapsedTimeSeconds)
 	{
+		m_listView->rebuildList();
 		//float mfps = Application::getApplication()->getmFps();
 		//uint32_t fps = Application::getApplication()->getFps();
 		//GuGuUtf8Str mfpsStr = u8"帧率的倒数\n一帧耗费时长:%.3f毫秒\n帧率:%dfps";
@@ -580,6 +582,8 @@ namespace GuGu {
 	}
 	std::shared_ptr<WindowWidget> UIRenderPass::createTestWindow()
 	{
+		static std::vector<GuGuUtf8Str> strVec = { u8"test", u8"你好" };
+
 		return WIDGET_ASSIGN_NEW(WindowWidget, m_uiRoot)
 			.Type(WindowWidget::NativeWindow)
 			.Content //fill and fill
@@ -1129,15 +1133,24 @@ namespace GuGu {
 						//		)
 						//	)
 						//)
+						//+ HorizontalBox::Slot()
+						//.StretchWidth(0.1f)
+						//(
+						//	WIDGET_NEW(ScrollBar)
+						//)
 						+ HorizontalBox::Slot()
-						.StretchWidth(0.1f)
+						.StretchWidth(0.9f)
 						(
-							WIDGET_NEW(ScrollBar)
-						)
-						+ HorizontalBox::Slot()
-						.StretchWidth(0.1f)
-						(
-							WIDGET_NEW(ListView<std::shared_ptr<GuGuUtf8Str>>)
+							WIDGET_ASSIGN_NEW(ListView<GuGuUtf8Str>, m_listView)
+							.ListItemSource(&m_uiData->nodeNames)
+							.onGenerateRowLambda([](GuGuUtf8Str item, const std::shared_ptr<class TableViewBase>& table)->std::shared_ptr<ITableRow> {
+								return WIDGET_NEW(TableRow<GuGuUtf8Str>, table)
+									.Content
+									(
+										WIDGET_NEW(TextBlockWidget)
+										.text(item)
+									);
+							})
 						)
 					)
 				)

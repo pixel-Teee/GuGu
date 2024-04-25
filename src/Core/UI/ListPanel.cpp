@@ -270,6 +270,27 @@ namespace GuGu {
     {
 		return PaneSlot::SlotBuilderArguments(std::make_shared<PaneSlot>());
     }
+    ListPanel::PaneSlot::SlotBuilderArguments ListPanel::addSlot(int32_t insertAtIndex)
+    {
+        std::shared_ptr<PaneSlot> slot = std::make_shared<PaneSlot>();
+        if (insertAtIndex == -1)
+            insertAtIndex = 0;
+        auto it = m_childrens.begin() + insertAtIndex;
+        m_childrens.insert(it, slot);//在指定位置插入 slot
+        return PaneSlot::SlotBuilderArguments::SlotBuilderArguments(slot);
+    }
+    void ListPanel::setRefreshPending(bool isPendingRefresh)
+    {
+        m_bIsRefreshPending = isPendingRefresh;
+    }
+    bool ListPanel::isRefreshPending() const
+    {
+        return m_bIsRefreshPending;
+    }
+    void ListPanel::clearItems()
+    {
+        m_childrens.clear();
+    }
     bool ListPanel::shouldArrangeAsTiles() const
     {
         TableViewDimensions desiredItemDimensions = getDesiredItemDimensions();

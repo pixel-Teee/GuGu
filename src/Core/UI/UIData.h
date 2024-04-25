@@ -2,7 +2,10 @@
 
 #include <Core/Math/MyMath.h>
 
+#include <Core/GuGuUtf8Str.h>
+
 namespace GuGu {
+	//class GuGuUtf8Str;
 	struct UIData
 	{
 		float metallic = 0.0f;
@@ -18,5 +21,7 @@ namespace GuGu {
 		float zWorldPos = 0.0f;
 
 		math::float3 color = math::float3(1.0f, 1.0f, 1.0f);
+
+		std::vector<GuGuUtf8Str> nodeNames;
 	};
 }

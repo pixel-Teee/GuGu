@@ -56,6 +56,7 @@ namespace GuGu {
 		float m_lineAxis = 0.0f;
 	};
 
+	class ITableRow;
 	class ListPanel;
 	class TableViewBase : public Widget, public IScrollableWidget
 	{
@@ -104,6 +105,56 @@ namespace GuGu {
 		};
 
 		virtual ScrollIntoViewResult scrollIntoView(const WidgetGeometry& listViewGeometry) = 0;
+
+		virtual float getNumLiveWidgets() const;
+
+		//这里是否有一个刷新请求
+		bool isPendingRefresh() const;
+
+		//设置这个 view 的 scroll offset (在 items)
+		void setScrollOffset(const float inScrollOffset);
+
+		//内部的请求 ，对于一个布局的更新，在下一次 tick
+		void requestLayoutRefresh();
+
+		double getTargetScrollOffset() const;
+
+		struct ReGenerateResults
+		{
+			ReGenerateResults(double inNewScrollOffset, double inLengthGenerated, double inItemsOnScreen,
+				bool atEndOfList)
+				: m_newScrollOffset(inNewScrollOffset)
+				, m_lengthOfGeneratedItems(inLengthGenerated)
+				, m_exactNumLinesOnScreen(inItemsOnScreen)
+				, m_bGeneratePastLastItem(atEndOfList)
+			{}
+
+			//我们实际使用的用户不渴望的 scroll offset
+			double m_newScrollOffset = 0;
+
+			//沿着 scroll axis 的 widgets 的总的 length ，去表示 items 的子集
+			double m_lengthOfGeneratedItems = 0;
+
+			//多少行适合塞进 screen ，包括 fractions
+			double m_exactNumLinesOnScreen = 0;
+
+			//当我们已经生成完毕后，为真
+			bool m_bGeneratePastLastItem = false;
+		};
+
+		virtual ReGenerateResults reGenerateItems(const WidgetGeometry& myGeometry) = 0;
+
+		void clearWidgets();
+
+		void appendWidget(const std::shared_ptr<ITableRow>& widgetToAppend);
+
+		void insertWidget(const std::shared_ptr<ITableRow>& widgetToAppend);
+
+		void requestListRefresh();
+
+		virtual void rebuildList() = 0;
+
+		const TableViewMode::Type m_tableViewMode;
 	protected:
 		TableViewBase(TableViewMode::Type inTableViewMode);
 
@@ -124,9 +175,20 @@ namespace GuGu {
 
 		std::shared_ptr<SingleChildSlot> m_childWidget;
 
-		const TableViewMode::Type m_tableViewMode;
-
 		//上一次刷新发生的时候，list 的 geometry
 		WidgetGeometry m_panelGeometryLastTick;
+
+		//items 的列表开始的 scroll offset
+		double m_currentScrollOffset = 0.0f;
+
+		double m_desiredScrollOffset = 0.0f;
+
+		//上一次重新生成 pass 的信息
+		ReGenerateResults m_lastGenerateResults;
+
+		bool b_wasAtEndOfList;
+	private:
+		bool m_bItemsNeedRefresh = false;
+		
 	};
 }

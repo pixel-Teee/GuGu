@@ -73,6 +73,14 @@ namespace GuGu {
 		TrackSizeInfo getTrackSizeInfo(const WidgetGeometry& inTrackGeometry) const;
 
 		float getMinThumbSize() const;
+
+		float distanceFromTop() const;
+
+		float distanceFromBottom() const;
+
+		float getThumbSizeFraction() const;
+
+		void setSizes(float inThumbOffsetFraction, float inThumbSizeFraction);
 	protected:
 
 		std::vector<std::shared_ptr<ScrollBarTrackSlot>> m_childrens;

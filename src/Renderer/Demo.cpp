@@ -93,6 +93,19 @@ namespace GuGu {
 		m_sceneGraph->SetRootNode(node);
 		//m_sceneGraph->Attach(node, node2);
 
+		std::vector<GuGuUtf8Str> nodeNames;
+		SceneGraphWalker walker(m_sceneGraph->GetRootNode().get());
+		while (walker)
+		{
+			auto current = walker.Get();
+			auto parent = current->GetParent();
+
+			//name
+			nodeNames.push_back(current->m_name);
+			walker.Next(true);
+		}
+		m_uiData->nodeNames = nodeNames;
+
 		//refresh scene graph
 		for (const auto& mesh : m_sceneGraph->GetMeshes())
 		{

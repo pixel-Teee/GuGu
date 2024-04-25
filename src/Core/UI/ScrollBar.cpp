@@ -157,4 +157,15 @@ namespace GuGu {
 	{
 		m_onUserScrolled = inHandler;
 	}
+	void ScrollBar::setState(float inOffsetFraction, float inThumbSizeFraction)
+	{
+		if (m_track->distanceFromTop() != inOffsetFraction)
+		{
+			m_track->setSizes(inOffsetFraction, inThumbSizeFraction);
+		}
+	}
+	float ScrollBar::distanceFromBottom() const
+	{
+		return m_track->distanceFromBottom();
+	}
 }

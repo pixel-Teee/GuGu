@@ -7,6 +7,7 @@
 #include "ArrangedWidget.h"
 #include "ArrangedWidgetArray.h"
 #include "LayoutUtils.h"
+#include "ITableRow.h"
 
 namespace GuGu {
 	TableViewDimensions::TableViewDimensions(Orientation inOrientation)
@@ -40,6 +41,8 @@ namespace GuGu {
         const OnTableViewScrolled& inOnTableViewScrolled, 
         const Attribute<std::shared_ptr<ScrollBarStyle>> inScrollBarStyle)
     {
+        m_bItemsNeedRefresh = true;
+
         m_headerRow = inHeaderRow;
 
         m_onTableViewScrolled = inOnTableViewScrolled;
@@ -225,13 +228,68 @@ namespace GuGu {
         if (m_itemsPanel)
         {
             WidgetGeometry panelGeometry = findChildGeometry(allocatedGeometry, m_itemsPanel);
-            //todo : 添加 items need refresh 的布尔标记
-            if (m_panelGeometryLastTick.getLocalSize().x != panelGeometry.getLocalSize().x || m_panelGeometryLastTick.getLocalSize().y != panelGeometry.getLocalSize().y)
+
+            if (m_bItemsNeedRefresh || m_panelGeometryLastTick.getLocalSize().x != panelGeometry.getLocalSize().x || m_panelGeometryLastTick.getLocalSize().y != panelGeometry.getLocalSize().y)
             {
                 m_panelGeometryLastTick = panelGeometry;
 
                 const int32_t numItemsPerLine = getNumItemsPerLine();
                 const ScrollIntoViewResult scrollInToViewResult = scrollIntoView(panelGeometry);
+
+                double targetScrollOffset = getTargetScrollOffset();
+
+                m_currentScrollOffset = targetScrollOffset;
+
+                const ReGenerateResults reGenerateResults = reGenerateItems(panelGeometry);
+                m_lastGenerateResults = reGenerateResults;
+
+                const int32_t numItemsBeingObserved = getNumItemsBeingObserved();
+                const int32_t numItemsLines = numItemsBeingObserved / numItemsPerLine;
+
+                const double initialDesiredOffset = m_desiredScrollOffset;
+                const bool bEnoughRoomForAllItems = reGenerateResults.m_exactNumLinesOnScreen >= numItemsLines;
+
+                if (bEnoughRoomForAllItems)
+                {
+                    setScrollOffset(0.0f);
+                    m_currentScrollOffset = targetScrollOffset - m_desiredScrollOffset;
+                }
+                else if (reGenerateResults.m_bGeneratePastLastItem)
+                {
+                    setScrollOffset(std::max(0.0, reGenerateResults.m_newScrollOffset));
+                    m_currentScrollOffset = targetScrollOffset - m_desiredScrollOffset;
+                }
+
+                //set first line scroll offset
+
+                //update scroll bar
+                if (numItemsBeingObserved > 0)
+                {
+                    if (reGenerateResults.m_exactNumLinesOnScreen < 1.0f)
+                    {
+                        const double visibleSizeFraction = allocatedGeometry.getLocalSize().y / reGenerateResults.m_lengthOfGeneratedItems;
+                        const double thumbSizeFraction = std::min(visibleSizeFraction, 1.0);
+                        const double offsetFraction = m_currentScrollOffset / numItemsBeingObserved;
+                        m_scrollBar->setState(offsetFraction, thumbSizeFraction);
+                    }
+                    else
+                    {
+                        const double thumbSizeFraction = reGenerateResults.m_exactNumLinesOnScreen / numItemsLines;
+						const double offsetFraction = m_currentScrollOffset / numItemsBeingObserved;
+						m_scrollBar->setState(offsetFraction, thumbSizeFraction);
+                    }
+                }
+                else
+				{
+                    const double thumbSizeFraction = 1;
+                    const double offsetFraction = 0;
+					m_scrollBar->setState(offsetFraction, thumbSizeFraction);
+                }
+
+                b_wasAtEndOfList = (m_scrollBar->distanceFromBottom() < (1.e-8f));
+
+                m_bItemsNeedRefresh = false;
+                m_itemsPanel->setRefreshPending(false);
             }
         }
     }
@@ -241,8 +299,74 @@ namespace GuGu {
         return 1;
     }
 
+    float TableViewBase::getNumLiveWidgets() const
+    {
+        return m_itemsPanel->getSlotsNumber();
+    }
+
+    bool TableViewBase::isPendingRefresh() const
+    {
+        return m_bItemsNeedRefresh || m_itemsPanel->isRefreshPending();
+    }
+
+    void TableViewBase::setScrollOffset(const float inScrollOffset)
+    {
+        const float inValidatedOffset = std::max(0.0f, inScrollOffset);
+        if (m_desiredScrollOffset != inValidatedOffset)
+        {
+            m_desiredScrollOffset = inValidatedOffset;
+            m_onTableViewScrolled(m_desiredScrollOffset);
+            requestLayoutRefresh();
+        }
+    }
+
+    void TableViewBase::requestLayoutRefresh()
+    {
+        if (!m_bItemsNeedRefresh)
+        {
+            m_bItemsNeedRefresh = true;
+        }
+
+        if (m_itemsPanel)
+        {
+            m_itemsPanel->setRefreshPending(true);
+        }
+    }
+
+    double TableViewBase::getTargetScrollOffset() const
+    {
+        return m_desiredScrollOffset;
+    }
+
+    void TableViewBase::clearWidgets()
+    {
+        m_itemsPanel->clearItems();
+    }
+
+    void TableViewBase::appendWidget(const std::shared_ptr<ITableRow>& widgetToAppend)
+    {
+        m_itemsPanel->addSlot()
+        (
+            widgetToAppend->asWidget()
+        );
+    }
+
+    void TableViewBase::insertWidget(const std::shared_ptr<ITableRow>& widgetToAppend)
+    {
+		m_itemsPanel->addSlot(0)
+		(
+			widgetToAppend->asWidget()
+		);
+    }
+
+    void TableViewBase::requestListRefresh()
+    {
+        requestLayoutRefresh();
+    }
+
     TableViewBase::TableViewBase(TableViewMode::Type inTableViewMode)
         : m_tableViewMode(inTableViewMode)
+        , m_lastGenerateResults(0, 0, 0, false)
     {
     }
 
