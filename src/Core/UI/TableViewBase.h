@@ -6,6 +6,7 @@
 #include "HeaderRow.h"
 #include "ScrollBar.h"
 #include "Style.h"
+#include "ITypedTableView.h"
 
 namespace GuGu {
 	using OnTableViewScrolled = std::function<void(double)>;//从 item 列表开始的 scroll offset
@@ -84,7 +85,28 @@ namespace GuGu {
 		virtual SlotBase* getSlot(uint32_t index) const override;
 
 		virtual uint32_t getSlotsNumber() const override;
+
+		virtual void Tick(const WidgetGeometry& allocatedGeometry, const double inCurrentTime, const float inDeltaTime) override;
+
+		//获取可以沿着 line axis 塞入的items 数量，默认是1，TileView 会有很多
+		virtual int32_t getNumItemsPerLine() const;
+
+		enum class ScrollIntoViewResult
+		{
+			//滑入一个 item 到 view
+			Success,
+
+			//没有足够的数据去滑入给定的 item 到 view ，延迟到下一次 tick
+			Deferred,
+
+			//滑入确切的 item 失败
+			Failure
+		};
+
+		virtual ScrollIntoViewResult scrollIntoView(const WidgetGeometry& listViewGeometry) = 0;
 	protected:
+		TableViewBase(TableViewMode::Type inTableViewMode);
+
 		//列的头，描述这个 list 展示的列
 		std::shared_ptr<HeaderRow> m_headerRow;
 
@@ -101,5 +123,10 @@ namespace GuGu {
 		std::shared_ptr<ScrollBar> m_scrollBar;
 
 		std::shared_ptr<SingleChildSlot> m_childWidget;
+
+		const TableViewMode::Type m_tableViewMode;
+
+		//上一次刷新发生的时候，list 的 geometry
+		WidgetGeometry m_panelGeometryLastTick;
 	};
 }

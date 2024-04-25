@@ -220,4 +220,30 @@ namespace GuGu {
         return 1;
     }
 
+    void TableViewBase::Tick(const WidgetGeometry& allocatedGeometry, const double inCurrentTime, const float inDeltaTime)
+    {
+        if (m_itemsPanel)
+        {
+            WidgetGeometry panelGeometry = findChildGeometry(allocatedGeometry, m_itemsPanel);
+            //todo : 添加 items need refresh 的布尔标记
+            if (m_panelGeometryLastTick.getLocalSize().x != panelGeometry.getLocalSize().x || m_panelGeometryLastTick.getLocalSize().y != panelGeometry.getLocalSize().y)
+            {
+                m_panelGeometryLastTick = panelGeometry;
+
+                const int32_t numItemsPerLine = getNumItemsPerLine();
+                const ScrollIntoViewResult scrollInToViewResult = scrollIntoView(panelGeometry);
+            }
+        }
+    }
+
+    int32_t TableViewBase::getNumItemsPerLine() const
+    {
+        return 1;
+    }
+
+    TableViewBase::TableViewBase(TableViewMode::Type inTableViewMode)
+        : m_tableViewMode(inTableViewMode)
+    {
+    }
+
 }
