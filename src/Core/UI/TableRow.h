@@ -3,9 +3,12 @@
 #include "Border.h"
 #include "ITableRow.h"
 #include "ITypedTableView.h"
+#include "TableViewBase.h"
 
 namespace GuGu {
 	class TableViewBase;
+    //class ListView;
+    template <typename ItemType> class ListView;
 	template<typename ItemType>
 	class TableRow : public ITableRow, public Border
 	{

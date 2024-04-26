@@ -378,7 +378,7 @@ namespace GuGu {
 	}
 	void UIRenderPass::Update(float fElapsedTimeSeconds)
 	{
-		m_listView->rebuildList();
+		//m_listView->rebuildList();
 		//float mfps = Application::getApplication()->getmFps();
 		//uint32_t fps = Application::getApplication()->getFps();
 		//GuGuUtf8Str mfpsStr = u8"帧率的倒数\n一帧耗费时长:%.3f毫秒\n帧率:%dfps";
@@ -1144,7 +1144,7 @@ namespace GuGu {
 						(
 							WIDGET_NEW(VerticalBox)
 							+ VerticalBox::Slot()
-							.StretchHeight(0.1)
+							.StretchHeight(0.2)
 							(
 								WIDGET_NEW(Border)
 								.verticalAlignment(VerticalAlignment::Stretch)
@@ -1155,9 +1155,9 @@ namespace GuGu {
 									WIDGET_ASSIGN_NEW(ListView<GuGuUtf8Str>, m_listView)
 									.ListItemSource(&m_uiData->nodeNames)
 									.onGenerateRowLambda([](GuGuUtf8Str item, const std::shared_ptr<class TableViewBase>& table)->std::shared_ptr<ITableRow> {
-										static int32_t i = 0;
-										++i;
-										math::float4 color = (i % 2) ? math::float4(0.3f, 0.6f, 0.2f, 1.0f) : math::float4(0.3f, 0.6f, 0.2f, 0.7f);
+										//static int32_t i = 0;
+										//++i;
+										math::float4 color = math::float4(0.3f, 0.6f, 0.2f, 1.0f);
 										return WIDGET_NEW(TableRow<GuGuUtf8Str>, table)
 											.Content
 											(

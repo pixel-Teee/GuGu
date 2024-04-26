@@ -168,10 +168,10 @@ namespace GuGu {
 	std::shared_ptr<SlotType> m##Name;
 
 #define WIDGET_NEW(WidgetType, ...) \
-	makeDecl<WidgetType>(RequiredArgs::makeRequiredArgs(__VA_ARGS__)) << WidgetType::BuilderArguments()
+	makeDecl<WidgetType>(RequiredArgs::makeRequiredArgs(__VA_ARGS__)) << typename WidgetType::BuilderArguments()
 
 #define WIDGET_ASSIGN_NEW(WidgetType, OutValue, ...) \
-	OutValue = makeDecl<WidgetType>(RequiredArgs::makeRequiredArgs(__VA_ARGS__)) << WidgetType::BuilderArguments()
+	OutValue = makeDecl<WidgetType>(RequiredArgs::makeRequiredArgs(__VA_ARGS__)) << typename WidgetType::BuilderArguments()
 
 	template<typename WidgetType, typename RequiredArgsPayloadType>
 	WidgetConstruct<WidgetType, RequiredArgsPayloadType> makeDecl(RequiredArgsPayloadType&& inRequiredArgs)

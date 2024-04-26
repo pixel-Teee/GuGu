@@ -20,6 +20,23 @@ namespace GuGu {
 		math::float2 m_bottomRight;
 
 		explicit ClippingZone(const WidgetGeometry& boundingGeometry);
+
+		explicit ClippingZone(const math::box2& axisAlignedRect);
+
+		void setShouldIntersectParent(bool bValue)
+		{
+			m_bIntersect = bValue;
+		}
+
+		bool getShouldIntersectParent() const
+		{
+			return m_bIntersect;
+		}
+
+		ClippingZone intersect(const ClippingZone& other) const;
+
+	private:
+		uint8_t m_bIntersect : 1;
 	};
 	class ClippingState
 	{
@@ -43,6 +60,8 @@ namespace GuGu {
 		void popClip();
 		void resetClippingState();
 		const ClippingState* getClippingState(uint32_t inClippingIndex) const;
+
+		const ClippingState* getPreviousClippingState(bool bWillIntersectWithParent) const;//获取之前的 clip state
 	private:
 		ClippingState createClippingState(const ClippingZone& inClipRect) const;
 

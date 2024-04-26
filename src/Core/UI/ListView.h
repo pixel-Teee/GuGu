@@ -4,6 +4,7 @@
 #include "WidgetDelegates.h"
 #include "TableViewTypeTraits.h"
 #include "TableRow.h"
+#include "TextBlockWidget.h"
 
 namespace GuGu {
 	template<typename ItemType>
@@ -19,7 +20,7 @@ namespace GuGu {
 			, m_isFocusable(true)
 			, m_widgetGenerator(this)
 		{
-
+			this->m_widgetClipping = WidgetClipping::ClipToBounds;
 		}
 
 		virtual ~ListView() {}
@@ -163,14 +164,15 @@ namespace GuGu {
 			}
 			else
 			{
-				std::shared_ptr<TableRow<ItemType>> newListItemWidget =
-					WIDGET_NEW(TableRow<ItemType>, std::static_pointer_cast<TableViewBase>(shared_from_this()))
-					.Content
-					(
-						WIDGET_NEW(TextBlockWidget)
-						.text("OnGenerateWidget() not assigned")
-					);
+				std::shared_ptr<TableRow<ItemType>> newListItemWidget;
+				WIDGET_ASSIGN_NEW(TableRow<ItemType>, newListItemWidget, std::static_pointer_cast<TableViewBase>(shared_from_this()))
+				.Content
+				(
+					WIDGET_NEW(TextBlockWidget)
+					.text("OnGenerateWidget() not assigned")
+				);
 				return newListItemWidget;
+                //return nullptr;
 			}
 		}
 

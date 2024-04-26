@@ -274,10 +274,10 @@ namespace GuGu {
     {
         std::shared_ptr<PaneSlot> slot = std::make_shared<PaneSlot>();
         if (insertAtIndex == -1)
-            insertAtIndex = 0;
+            insertAtIndex = m_childrens.size();
         auto it = m_childrens.begin() + insertAtIndex;
         m_childrens.insert(it, slot);//在指定位置插入 slot
-        return PaneSlot::SlotBuilderArguments::SlotBuilderArguments(slot);
+        return PaneSlot::SlotBuilderArguments(slot);
     }
     void ListPanel::setRefreshPending(bool isPendingRefresh)
     {

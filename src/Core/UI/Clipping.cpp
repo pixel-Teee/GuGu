@@ -4,6 +4,7 @@
 
 namespace GuGu {
 	ClippingZone::ClippingZone(const WidgetGeometry& boundingGeometry)
+		: m_bIntersect(true)
 	{
 		//m_topLeft = math::float2(boundingGeometry.getAbsolutePosition().x, boundingGeometry.getAbsolutePosition().y);
 		//m_topRight = math::float2(m_topLeft.x + boundingGeometry.getLocalSize().x, m_topLeft.y);
@@ -22,6 +23,39 @@ namespace GuGu {
 		//m_topRight = math::float2(200.0f, 0.0f);
 		//m_bottomLeft = math::float2(0.0f, 200.0f);
 		//m_bottomRight = math::float2(200.0f, 200.0f);
+	}
+	ClippingZone::ClippingZone(const math::box2& axisAlignedRect)
+		: m_bIntersect(true)
+	{
+		math::float2 corner[4];//left top, right top, bottom left, bottom right
+		axisAlignedRect.getCorners(corner);
+
+		m_topLeft = corner[0];
+		m_topRight = corner[1];
+		m_bottomLeft = corner[2];
+		m_bottomRight = corner[3];
+	}
+	ClippingZone ClippingZone::intersect(const ClippingZone& other) const
+	{
+		//todo:check axis aligned
+
+		math::box2 Intersected(
+			math::float2(std::max(m_topLeft.x, other.m_topLeft.x), std::max(m_topLeft.y, other.m_topLeft.y)),
+			math::float2(std::min(m_bottomRight.x, other.m_bottomRight.x), std::min(m_bottomRight.y, other.m_bottomRight.y))
+		);
+
+		math::float2 corner[4];//left top, right top, bottom left, bottom right
+		Intersected.getCorners(corner);
+
+		//bottom < top || right < left
+		if ((corner[2].y < corner[1].y) || (corner[1].x < corner[0].x))
+		{
+			return ClippingZone(math::box2(math::float2(0, 0), math::float2(0, 0)));
+		}
+		else
+		{
+			return ClippingZone(Intersected);
+		}
 	}
 	ClippingState::ClippingState()
 	{
@@ -69,11 +103,42 @@ namespace GuGu {
 			return &m_clippingStates[inClippingIndex];
 		return nullptr;
 	}
+	const ClippingState* ClippingManager::getPreviousClippingState(bool bWillIntersectWithParent) const
+	{
+		const ClippingState* previousClippingState = nullptr;
+
+		if (!bWillIntersectWithParent)
+		{
+			for (int32_t stackIndex = m_clippingStack.size() - 1; stackIndex >= 0; --stackIndex)
+			{
+				const ClippingState& clippingState = m_clippingStates[m_clippingStack[stackIndex]];
+
+				//todo:修复
+				break;
+			}
+		}
+		else if(m_clippingStack.size() > 0)
+		{
+			previousClippingState = &m_clippingStates[m_clippingStack.back()];//最后一个最近的
+		}
+
+		return previousClippingState;
+	}
 	ClippingState ClippingManager::createClippingState(const ClippingZone& inClipRect) const
 	{
+		const ClippingState* previousClippingState = getPreviousClippingState(inClipRect.getShouldIntersectParent());
+
 		ClippingState newClippingState;
 
-		newClippingState.m_scissorRect = inClipRect;
+		if (previousClippingState == nullptr)
+		{
+			//axis aligned
+			newClippingState.m_scissorRect = inClipRect;
+		}
+		else
+		{
+			newClippingState.m_scissorRect = previousClippingState->m_scissorRect->intersect(inClipRect);
+		}
 
 		return newClippingState;
 	}

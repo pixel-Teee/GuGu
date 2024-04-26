@@ -152,7 +152,7 @@ namespace GuGu {
         //滑动的 items 数量
         const double clampedScrollOffsetInItems = std::clamp(inScrollOffsetFraction, 0.0f, 1.0f) * getNumItemsBeingObserved();
 
-        //todo ：完善这个函数
+        scrollTo(clampedScrollOffsetInItems);
     }
 
     uint32_t TableViewBase::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
@@ -252,12 +252,12 @@ namespace GuGu {
                 if (bEnoughRoomForAllItems)
                 {
                     setScrollOffset(0.0f);
-                    m_currentScrollOffset = targetScrollOffset - m_desiredScrollOffset;
+                    m_currentScrollOffset = targetScrollOffset = m_desiredScrollOffset;
                 }
                 else if (reGenerateResults.m_bGeneratePastLastItem)
                 {
                     setScrollOffset(std::max(0.0, reGenerateResults.m_newScrollOffset));
-                    m_currentScrollOffset = targetScrollOffset - m_desiredScrollOffset;
+                    m_currentScrollOffset = targetScrollOffset = m_desiredScrollOffset;
                 }
 
                 //set first line scroll offset
@@ -315,7 +315,10 @@ namespace GuGu {
         if (m_desiredScrollOffset != inValidatedOffset)
         {
             m_desiredScrollOffset = inValidatedOffset;
-            m_onTableViewScrolled(m_desiredScrollOffset);
+            if (m_onTableViewScrolled)
+            {
+               m_onTableViewScrolled(m_desiredScrollOffset);
+            }
             requestLayoutRefresh();
         }
     }
@@ -362,6 +365,21 @@ namespace GuGu {
     void TableViewBase::requestListRefresh()
     {
         requestLayoutRefresh();
+    }
+
+    float TableViewBase::scrollTo(float inScrollOffset)
+    {
+        const float newScrollOffset = std::clamp(inScrollOffset, -10.0f, getNumItemsBeingObserved() + 10.0f);
+        float amountScrolled = std::abs(m_desiredScrollOffset - newScrollOffset);
+
+        setScrollOffset(newScrollOffset);
+
+        if (b_wasAtEndOfList && newScrollOffset >= m_desiredScrollOffset)
+        {
+            amountScrolled = 0;
+        }
+
+        return amountScrolled;
     }
 
     TableViewBase::TableViewBase(TableViewMode::Type inTableViewMode)

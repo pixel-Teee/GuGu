@@ -84,7 +84,7 @@ namespace GuGu{
 
         void prepass(float inLayoutScaleMultiplier);
 
-        math::box2 calculateCullingAndClippingRules(const WidgetGeometry& allottedGeometry, const math::box2 cullingRect, bool& bClipToBounds);
+        math::box2 calculateCullingAndClippingRules(const WidgetGeometry& allottedGeometry, const math::box2 cullingRect, bool& bClipToBounds, bool& bIntersectClipBounds);
 
         bool hasAnyFocus() const;
 

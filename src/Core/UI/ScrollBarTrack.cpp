@@ -14,7 +14,7 @@ namespace GuGu {
 	}
 	void ScrollBarTrack::init(const BuilderArguments& arguments)
 	{
-		m_offsetFraction = 0; //thunmb 的起始偏移所占的比例
+		m_offsetFraction = 0; //thumb 的起始偏移所占的比例
 		m_thumbSizeFraction = 1.0f;//thumb 的大小所占的比例
 		m_minThumbSize = 35.0f;
 		m_orientation = arguments.morientation;
@@ -24,6 +24,12 @@ namespace GuGu {
 		m_childrens.push_back(arguments.mThumbSlot);
 
 		m_bIsAlwaysVisible = true;
+
+		for (size_t i = 0; i < m_childrens.size(); ++i)
+		{
+			m_childrens[i]->m_parentWidget = shared_from_this();
+			m_childrens[i]->m_childWidget->setParentWidget(shared_from_this());
+		}
 	}
 	math::float2 ScrollBarTrack::ComputeFixedSize(float inLayoutScaleMultiplier)
 	{

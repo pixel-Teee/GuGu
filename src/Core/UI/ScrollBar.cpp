@@ -127,9 +127,12 @@ namespace GuGu {
 	{
 		if (this->hasMouseCapture())
 		{
-			if (math::isnear(inMouseEvent.getCursorDelta().x, 0) && math::isnear(inMouseEvent.getCursorDelta().y, 0))
+			if (!(math::isnear(inMouseEvent.getCursorDelta().x, 0) && math::isnear(inMouseEvent.getCursorDelta().y, 0)))
 			{
-				executeOnUserScrolled(myGeometry, inMouseEvent);
+				if (m_onUserScrolled)
+				{
+					executeOnUserScrolled(myGeometry, inMouseEvent);
+				}				
 				return Reply::Handled();
 			}
 		}

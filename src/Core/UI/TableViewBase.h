@@ -154,6 +154,9 @@ namespace GuGu {
 
 		virtual void rebuildList() = 0;
 
+		//滑动 view 到一个 offset
+		virtual float scrollTo(float inScrollOffset);
+
 		const TableViewMode::Type m_tableViewMode;
 	protected:
 		TableViewBase(TableViewMode::Type inTableViewMode);
