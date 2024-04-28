@@ -234,6 +234,7 @@ namespace GuGu {
                 m_panelGeometryLastTick = panelGeometry;
 
                 const int32_t numItemsPerLine = getNumItemsPerLine();
+                //可能存在将某个 item 滚进 panel 的请求，先处理这个
                 const ScrollIntoViewResult scrollInToViewResult = scrollIntoView(panelGeometry);
 
                 double targetScrollOffset = getTargetScrollOffset();
@@ -247,7 +248,7 @@ namespace GuGu {
                 const int32_t numItemsLines = numItemsBeingObserved / numItemsPerLine;
 
                 const double initialDesiredOffset = m_desiredScrollOffset;
-                const bool bEnoughRoomForAllItems = reGenerateResults.m_exactNumLinesOnScreen >= numItemsLines;
+                const bool bEnoughRoomForAllItems = reGenerateResults.m_exactNumLinesOnScreen >= numItemsLines;//有足够的空间显示所有控件
 
                 if (bEnoughRoomForAllItems)
                 {
@@ -261,8 +262,11 @@ namespace GuGu {
                 }
 
                 //set first line scroll offset
+                //这个很重要，设置起始的偏移
+                m_itemsPanel->setFirstLineScrollOffset(getFirstLineScrollOffset());
 
                 //update scroll bar
+                //更新 scroll bar
                 if (numItemsBeingObserved > 0)
                 {
                     if (reGenerateResults.m_exactNumLinesOnScreen < 1.0f)
@@ -270,6 +274,7 @@ namespace GuGu {
                         const double visibleSizeFraction = allocatedGeometry.getLocalSize().y / reGenerateResults.m_lengthOfGeneratedItems;
                         const double thumbSizeFraction = std::min(visibleSizeFraction, 1.0);
                         const double offsetFraction = m_currentScrollOffset / numItemsBeingObserved;
+                        //设置 thumb 的起始位置 和 thumb 大小 占整个 scroll bar 的百分比
                         m_scrollBar->setState(offsetFraction, thumbSizeFraction);
                     }
                     else
@@ -380,6 +385,12 @@ namespace GuGu {
         }
 
         return amountScrolled;
+    }
+
+    float TableViewBase::getFirstLineScrollOffset() const
+    {
+        const double firstLineScrollOffset = m_currentScrollOffset / getNumItemsPerLine();
+        return firstLineScrollOffset - (int64_t)firstLineScrollOffset;
     }
 
     TableViewBase::TableViewBase(TableViewMode::Type inTableViewMode)

@@ -88,6 +88,8 @@ namespace GuGu {
 		bool isRefreshPending() const;
 
 		void clearItems();
+
+		void setFirstLineScrollOffset(float inFirstLineScrollOffset);
 	protected:
 
 		bool shouldArrangeAsTiles() const;

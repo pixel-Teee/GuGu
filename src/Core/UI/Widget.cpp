@@ -36,7 +36,7 @@ namespace GuGu{
         if (bClipToBounds)
         {
 			ClippingZone clippingZone(allocatedGeometry);
-            clippingZone.setShouldIntersectParent(bIntersectClipBounds);//是否和父亲的 clip 相交，得到一个更小的 clip 区域
+			clippingZone.setShouldIntersectParent(bIntersectClipBounds);//是否和父亲的 clip 相交，得到一个更小的 clip 区域
 			elementList.pushClip(clippingZone);
 			//
 			//ClippingZone clippingZone(allocatedGeometry);

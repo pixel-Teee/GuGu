@@ -291,6 +291,10 @@ namespace GuGu {
     {
         m_childrens.clear();
     }
+    void ListPanel::setFirstLineScrollOffset(float inFirstLineScrollOffset)
+    {
+        m_firstLineScrollOffset = inFirstLineScrollOffset;
+    }
     bool ListPanel::shouldArrangeAsTiles() const
     {
         TableViewDimensions desiredItemDimensions = getDesiredItemDimensions();

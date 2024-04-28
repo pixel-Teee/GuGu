@@ -157,6 +157,9 @@ namespace GuGu {
 		//滑动 view 到一个 offset
 		virtual float scrollTo(float inScrollOffset);
 
+		//获取第一个 list item 的 offset
+		virtual float getFirstLineScrollOffset() const;
+
 		const TableViewMode::Type m_tableViewMode;
 	protected:
 		TableViewBase(TableViewMode::Type inTableViewMode);

@@ -162,7 +162,7 @@ namespace GuGu {
 	}
 	void ScrollBar::setState(float inOffsetFraction, float inThumbSizeFraction)
 	{
-		if (m_track->distanceFromTop() != inOffsetFraction)
+		if (m_track->distanceFromTop() != inOffsetFraction || m_track->getThumbSizeFraction() != inThumbSizeFraction)
 		{
 			m_track->setSizes(inOffsetFraction, inThumbSizeFraction);
 		}
