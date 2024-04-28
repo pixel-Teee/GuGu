@@ -387,7 +387,7 @@ namespace GuGu {
 	}
 	void UIRenderPass::Update(float fElapsedTimeSeconds)
 	{
-		m_listView->rebuildList();
+		//m_listView->rebuildList();
 		//float mfps = Application::getApplication()->getmFps();
 		//uint32_t fps = Application::getApplication()->getFps();
 		//GuGuUtf8Str mfpsStr = u8"帧率的倒数\n一帧耗费时长:%.3f毫秒\n帧率:%dfps";
