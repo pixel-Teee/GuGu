@@ -152,7 +152,7 @@ namespace GuGu {
 
 		void insertWidget(const std::shared_ptr<ITableRow>& widgetToAppend);
 
-		void requestListRefresh();
+		virtual void requestListRefresh();
 
 		virtual void rebuildList() = 0;
 

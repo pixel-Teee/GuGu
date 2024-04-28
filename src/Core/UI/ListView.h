@@ -376,6 +376,11 @@ namespace GuGu {
 		{
 			return false;
 		}
+
+		virtual void privateSetItemExpansion(ItemType theItem, bool bShouldBeExpanded) override
+		{
+
+		}
 	private:
 		friend class WidgetGenerator;
 

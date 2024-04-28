@@ -7,6 +7,7 @@
 namespace GuGu {
 	class Button;
 	class ITableRow;
+	class Brush;
 	//展开箭头
 	class ExpanderArrow : public Widget
 	{
@@ -45,6 +46,10 @@ namespace GuGu {
 		virtual uint32_t getSlotsNumber() const override;
 
 		Padding getExpanderPadding() const;
+
+		std::shared_ptr<Brush> getExpanderImage() const;
+
+		Reply onArrowClicked();
 	protected:
 		std::shared_ptr<SingleChildSlot> m_childWidget;
 

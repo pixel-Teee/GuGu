@@ -5,6 +5,7 @@
 #include <bitset>
 #include <set>
 #include <unordered_set>
+//#include "Clipping.h"
 
 namespace GuGu {
 	struct SparseItemInfo
@@ -53,6 +54,7 @@ namespace GuGu {
 		using NullableItemType = typename ListTypeTraits<ItemType>::NullableType;
 		using OnGenerateRow = typename WidgetDelegates<ItemType>::OnGenerateRow;
 		using OnGetChildren = typename WidgetDelegates<ItemType>::OnGetChildren;
+		using OnExpansionChanged = typename WidgetDelegates<ItemType>::OnExpansionChanged;
 		using ItemSet = std::unordered_set<ItemType>;
 		using SparseItemMap = std::unordered_map<ItemType, SparseItemInfo>;
 	public:
@@ -84,6 +86,8 @@ namespace GuGu {
 
 			UI_EVENT(OnGetChildren, onGetChildren)
 
+			UI_EVENT(OnExpansionChanged, onExpansionChanged)
+
 			UI_EVENT(OnTableViewScrolled, onTreeViewScrolled)
 
 			ARGUMENT_ATTRIBUTE(float, itemHeight)
@@ -99,19 +103,20 @@ namespace GuGu {
 
 		void init(const BuilderArguments& arguments)
 		{
-			m_widgetClipping = arguments.mClip;
+			Widget::m_widgetClipping = arguments.mClip;
 			//制作table view
 			this->m_onGenerateRow = arguments.monGenerateRow;
 			this->m_onGetChildren = arguments.monGetChildren;
 			this->m_treeItemsSource = arguments.mtreeItemSource;//利用这个 tree items source 去生成 list view 的 items source
+			this->m_onExpansionChanged = arguments.monExpansionChanged;
 
-			constructChildren(0, arguments.mitemHeight, ListItemAlignment::LeftAligned, arguments.mheaderRow, arguments.mexternalScrollbar,
+			TableViewBase::constructChildren(0, arguments.mitemHeight, ListItemAlignment::LeftAligned, arguments.mheaderRow, arguments.mexternalScrollbar,
 				arguments.morientation, arguments.monTreeViewScrolled, arguments.mstyle);
 
 			//todo:可能这里以后要简化
-			m_childWidget->m_parentWidget = shared_from_this();
-			m_childWidget->m_childWidget->setParentWidget(shared_from_this());
-			m_visibilityAttribute = arguments.mVisibility;
+			//Widget::m_childWidget->m_parentWidget = shared_from_this();
+			//Widget::m_childWidget->m_childWidget->setParentWidget(shared_from_this());
+			Widget::m_visibilityAttribute = arguments.mVisibility;
 		}
 
 		bool populateLinearizedItems(
@@ -145,11 +150,11 @@ namespace GuGu {
 
 				//如果 m_spareItemInfos 里面包含这个，则代表这个 item 不可见
 				auto it = m_spareItemInfos.find(curItem);
-				//const bool bIsExpanded = (it == m_spareItemInfos.end()) ? false : it->second.m_bIsExpanded;
-				//bool bHasExpandedChildren = (it == m_spareItemInfos.end()) ? false : it->second.m_bHasExpandedChildren;
+				const bool bIsExpanded = (it == m_spareItemInfos.end()) ? false : it->second.m_bIsExpanded;
+				bool bHasExpandedChildren = (it == m_spareItemInfos.end()) ? false : it->second.m_bHasExpandedChildren;
 
-				const bool bIsExpanded = true;
-				bool bHasExpandedChildren = true;
+				//const bool bIsExpanded = true;
+				//bool bHasExpandedChildren = true;
 
 				//添加这个 item 到 linearized list 还有更新选择的集合
 				if (bAddingItems)
@@ -266,7 +271,42 @@ namespace GuGu {
 			auto it = m_spareItemInfos.find(theItem);
 			if (it != m_spareItemInfos.end())
 				return it->second.m_bIsExpanded;
-			return nullptr;
+			return false;
+		}
+
+		virtual void privateSetItemExpansion(ItemType theItem, bool bShouldBeExpanded)
+		{
+			const auto sparseItemInfo = m_spareItemInfos.find(theItem);
+
+			bool bWasExpanded = false;
+
+			if (sparseItemInfo != m_spareItemInfos.end())
+			{
+				bWasExpanded = sparseItemInfo->second.m_bIsExpanded;
+				m_spareItemInfos.insert({ theItem, SparseItemInfo(bShouldBeExpanded, sparseItemInfo->second.m_bHasExpandedChildren) });
+			}
+			else if (bShouldBeExpanded)
+			{
+				m_spareItemInfos.insert({ theItem, SparseItemInfo(bShouldBeExpanded, false) });
+			}
+
+			if (bWasExpanded != bShouldBeExpanded)
+			{
+				if (m_onExpansionChanged)
+					m_onExpansionChanged(theItem, bShouldBeExpanded);//展开通知
+				requestTreeRefresh();
+			}
+		}
+
+		virtual void requestListRefresh() override
+		{
+			m_bTreeItemsAreDirty = true;
+			ListView<ItemType>::requestListRefresh();
+		}
+
+		void requestTreeRefresh()
+		{
+			requestListRefresh();
 		}
 	protected:
 		//被调用的委托，当我们需要去收集一个 item 的儿子的时候
@@ -281,6 +321,8 @@ namespace GuGu {
 		SparseItemMap m_spareItemInfos;
 
 		std::vector<ItemInfo> m_denseItemInfos;
+
+		OnExpansionChanged m_onExpansionChanged;
 	private:
 		//当 linearized items 需要被生成的时候，这个值为 true
 		bool m_bTreeItemsAreDirty = false;

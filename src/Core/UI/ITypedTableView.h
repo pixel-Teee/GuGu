@@ -31,5 +31,6 @@ namespace GuGu {
 
 		virtual bool privateIsItemExpanded(const ItemType& theItem) const = 0;
 
+		virtual void privateSetItemExpansion(ItemType theItem, bool bShouldBeExpanded) = 0;
 	};
 }

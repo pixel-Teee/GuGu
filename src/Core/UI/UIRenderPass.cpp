@@ -642,6 +642,10 @@ namespace GuGu {
 									return Reply::Unhandled();
 								}
 							)	
+							.Content
+							(
+								WIDGET_NEW(NullWidget)
+							)
 						)
 					)
 					+ VerticalBox::Slot()

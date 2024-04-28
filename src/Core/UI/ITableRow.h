@@ -24,5 +24,7 @@ namespace GuGu {
 		virtual int32_t doesItemHaveChildren() const = 0;
 
 		virtual bool isItemExpanded() const = 0;
+
+		virtual void toggleExpansion() = 0;
 	};
 }

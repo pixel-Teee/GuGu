@@ -20,5 +20,7 @@ namespace GuGu {
 		using OnGenerateRow = std::function<std::shared_ptr<ITableRow>(ArgumentType, const std::shared_ptr<class TableViewBase>&)>;
 
 		using OnGetChildren = std::function<void(ArgumentType, std::vector<ArgumentType>&)>;
+
+		using OnExpansionChanged = std::function<void(ArgumentType, bool)>;
 	};
 }

@@ -174,6 +174,17 @@ namespace GuGu {
 		noBorder->setPressedPadding(Padding(0, 0, 0, 0));
 
 		m_styles.insert({ "NoBorder", noBorder });
+
+		//tree arrow
+		std::shared_ptr<Brush> expandedArrow = std::make_shared<Brush>();
+		expandedArrow->m_tiling = false;
+		expandedArrow->m_texturePath = u8"asset/MinimumWindow/expandedArrow.png";//16x16
+		m_brushes.insert({ u8"expandedArrow", expandedArrow });
+
+		std::shared_ptr<Brush> expandedArrowCollapsed = std::make_shared<Brush>();
+		expandedArrowCollapsed->m_tiling = false;
+		expandedArrowCollapsed->m_texturePath = u8"asset/MinimumWindow/expandedArrowCollapsed.png";//16x16
+		m_brushes.insert({ u8"expandedArrowCollapsed", expandedArrowCollapsed });
 	}
 	StyleSet::~StyleSet()
 	{

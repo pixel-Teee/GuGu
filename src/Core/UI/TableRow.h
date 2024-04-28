@@ -5,6 +5,7 @@
 #include "ITypedTableView.h"
 #include "TableViewBase.h"
 #include "ExpanderArrow.h"
+#include "BoxPanel.h"
 
 namespace GuGu {
 	class TableViewBase;
@@ -152,6 +153,22 @@ namespace GuGu {
 
 			return false;
 		}
+
+		virtual void toggleExpansion() override
+		{
+			std::shared_ptr<ITypedTableView<ItemType>> ownerTable = m_ownerTablePtr.lock();
+
+			const bool bItemHasChildren = ownerTable->privateDoesItemHaveChildren(m_indexInList);
+
+			if (bItemHasChildren)
+			{
+				if (const ItemType* myItemPtr = getItemForThis(ownerTable))
+				{
+					const bool bIsItemExpanded = bItemHasChildren && m_ownerTablePtr.lock()->privateIsItemExpanded(*myItemPtr);
+					m_ownerTablePtr.lock()->privateSetItemExpansion(*myItemPtr, !bIsItemExpanded);
+				}
+			}
+		}
 	protected:
 		void initInternal(const BuilderArguments& inArgs, const std::shared_ptr<TableViewBase>& inOwnerTableView)
 		{
@@ -166,4 +183,5 @@ namespace GuGu {
 
 		SlotBase* m_innerContentSlot;
 	};
+
 }

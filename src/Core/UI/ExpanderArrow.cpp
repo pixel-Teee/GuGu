@@ -8,6 +8,7 @@
 #include "ITableRow.h"
 #include "StyleSet.h"
 #include "ElementList.h"
+#include "ImageWidget.h"
 
 namespace GuGu {
 	ExpanderArrow::ExpanderArrow()
@@ -29,6 +30,11 @@ namespace GuGu {
 			.verticalAlignment(VerticalAlignment::Center)
 			.horizontalAlignment(HorizontalAlignment::Center)
 			.buttonSyle(StyleSet::getStyle()->getStyle<ButtonStyle>("NoBorder"))
+			.Content(
+				WIDGET_NEW(ImageWidget)
+				.brush(this, &ExpanderArrow::getExpanderImage)
+			)
+			.Clicked(this, &ExpanderArrow::onArrowClicked)
 		);
 		m_childWidget->setPadding(Attribute<Padding>(this, &ExpanderArrow::getExpanderPadding));
 		m_childWidget->m_parentWidget = shared_from_this();
@@ -187,5 +193,26 @@ namespace GuGu {
 		const float indent = m_indentAmount.Get(10.0f);
 
 		return Padding(nestingDepth * indent, 0, 0, 0);
+	}
+	std::shared_ptr<Brush> ExpanderArrow::getExpanderImage() const
+	{
+		const bool bIsItemExpanded = m_ownerRowPtr.lock()->isItemExpanded();
+
+		GuGuUtf8Str resourceName;
+		if (bIsItemExpanded)
+		{
+			resourceName = "expandedArrow";
+		}
+		else
+		{
+			resourceName = "expandedArrowCollapsed";
+		}
+		
+		return StyleSet::getStyle()->getBrush(resourceName);
+	}
+	Reply ExpanderArrow::onArrowClicked()
+	{
+		m_ownerRowPtr.lock()->toggleExpansion();//展开
+		return Reply::Handled();
 	}
 }
