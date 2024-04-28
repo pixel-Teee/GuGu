@@ -5,6 +5,7 @@
 #include "Brush.h"
 #include "Attribute.h"
 #include "UIMacros.h"
+#include "StyleSet.h"
 
 namespace GuGu {
 	class Border : public Widget
@@ -16,8 +17,9 @@ namespace GuGu {
 
 		struct BuilderArguments : public Arguments<Border>
 		{
-			BuilderArguments():
-				mverticalAlignment(VerticalAlignment::Stretch)
+			BuilderArguments()
+				: mbrush(StyleSet::getStyle()->getBrush("background"))
+				, mverticalAlignment(VerticalAlignment::Stretch)
 				, mhorizontalAlignment(HorizontalAlignment::Stretch)
 				, mpadding(0.1f, 0.1f, 0.1f, 0.1f)
 				, mBorderBackgroundColor(math::float4(1.0f, 1.0f, 1.0f, 1.0f))

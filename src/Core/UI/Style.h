@@ -109,7 +109,7 @@ namespace GuGu {
 
 	struct ScrollBarStyle : public Style
 	{
-		ScrollBarStyle() = default;
+		ScrollBarStyle();
 
 		virtual ~ScrollBarStyle();
 

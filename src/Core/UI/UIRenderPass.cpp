@@ -43,6 +43,7 @@
 #include <Core/FileSystem/FileSystem.h>
 #include <Core/UI/UIData.h>
 #include <Core/Timer.h>
+#include <Renderer/CommonRenderPasses.h>
 
 namespace GuGu {
 
@@ -86,6 +87,8 @@ namespace GuGu {
 
 		std::shared_ptr <ShaderFactory> shaderFactory = std::make_shared<ShaderFactory>(
 			GetDevice(), m_rootFileSystem);
+
+		m_commonRenderPass = std::make_shared<CommonRenderPasses>(GetDevice(), shaderFactory);
 
 		std::vector<ShaderMacro> macros;
 		macros.push_back(ShaderMacro("UI_Default", "1"));
@@ -301,10 +304,16 @@ namespace GuGu {
 			modelConstant.shaderParam2 = m_elementList->getBatches()[i]->m_shaderParams.pixelParams2;
 			m_CommandList->writeBuffer(m_constantBuffers[i], &modelConstant, sizeof(modelConstant));
 
+			nvrhi::TextureHandle batchTexture = m_elementList->getBatches()[i]->m_texture;
+			if (batchTexture == nullptr)
+				batchTexture = m_commonRenderPass->m_whiteTexture;
+			else
+				batchTexture = m_elementList->getBatches()[i]->m_texture;
+
 			nvrhi::BindingSetDesc desc;
 			desc.bindings = {
 				nvrhi::BindingSetItem::ConstantBuffer(0, m_constantBuffers[i]),
-				nvrhi::BindingSetItem::Texture_SRV(0, m_elementList->getBatches()[i]->m_texture),
+				nvrhi::BindingSetItem::Texture_SRV(0, batchTexture),
 				nvrhi::BindingSetItem::Sampler(0, m_pointWrapSampler)
 			};
 
@@ -500,6 +509,8 @@ namespace GuGu {
 		for (size_t i = 0; i < brushs.size(); ++i)
 		{
 			const GuGuUtf8Str& texturePath = brushs[i]->m_texturePath;
+
+			if(texturePath == "") continue;//no resource
 
 			std::shared_ptr<TextureData> texture = std::make_shared<TextureData>();
 			texture->path = texturePath;

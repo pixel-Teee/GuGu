@@ -27,6 +27,8 @@ namespace GuGu {
 	class RootFileSystem;
 
 	struct UIData;
+
+	class CommonRenderPasses;
 	class UIRenderPass : public IRenderPass
 	{
 	public:
@@ -112,5 +114,7 @@ namespace GuGu {
 
 		std::shared_ptr<ListView<GuGuUtf8Str>> m_listView;
 		//------test widget functionality------
+
+		std::shared_ptr<CommonRenderPasses> m_commonRenderPass;
 	};
 }

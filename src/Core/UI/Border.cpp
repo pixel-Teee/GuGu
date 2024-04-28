@@ -32,8 +32,11 @@ namespace GuGu {
 		ArrangedWidgetArray arrangedWidgetArray(Visibility::Visible);
 		AllocationChildActualSpace(allocatedGeometry, arrangedWidgetArray);
 
-		ElementList::addBoxElement(elementList, allocatedGeometry, m_borderBackgroundColor.Get(), m_imageBursh.Get(), layer); //background
-
+		if(m_imageBursh.Get() != nullptr && m_imageBursh.Get()->m_drawAs != BrushDrawType::NoDrawType)
+		{
+			ElementList::addBoxElement(elementList, allocatedGeometry, m_borderBackgroundColor.Get(), m_imageBursh.Get(), layer); //background
+		}
+		
 		uint32_t widgetNumbers = arrangedWidgetArray.getArrangedWidgetsNumber();//note:just one
 		//math::double2 size = math::double2(0.0, 0.0);
 		uint32_t maxLayer = 0;

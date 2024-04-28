@@ -23,7 +23,10 @@ namespace GuGu {
 	}
 	uint32_t ImageWidget::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
-		ElementList::addBoxElement(elementList, allocatedGeometry, math::float4(1.0f, 1.0f, 1.0f, 1.0f), m_imageBursh.Get(), layer);
+		if (m_imageBursh.Get()->m_drawAs != BrushDrawType::NoDrawType)
+		{
+			ElementList::addBoxElement(elementList, allocatedGeometry, math::float4(1.0f, 1.0f, 1.0f, 1.0f), m_imageBursh.Get(), layer);
+		}		
 
 		return layer;
 	}

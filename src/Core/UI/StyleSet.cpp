@@ -156,6 +156,15 @@ namespace GuGu {
 		scrollBarStyle->setNormalThumbImage(normalThumbImage);
 		scrollBarStyle->setThickness(8.0f);
 		m_styles.insert({ "ScrollBar", scrollBarStyle });
+
+		//no appearance
+		std::shared_ptr<Brush> noResource = std::make_shared<Brush>();
+		noResource->m_tiling = false;
+		noResource->m_texturePath = "";
+		noResource->m_drawAs = BrushDrawType::NoDrawType;
+		noResource->m_actualSize = math::int2(0, 0);
+		noResource->m_margin = Padding(0.0f, 0.0f, 0.0f, 0.0f);
+		m_brushes.insert({ "NoBorder" , noResource });
 	}
 	StyleSet::~StyleSet()
 	{
