@@ -345,6 +345,37 @@ namespace GuGu {
 			m_widgetGenerator.clear();
 			requestListRefresh();
 		}
+
+		virtual const std::vector<int32_t>& privateGetWiresNeededByDepth(int32_t itemIndexInList) const override
+		{
+			return emptyBitArray;
+		}
+
+		virtual int32_t privateGetNestingDepth(int32_t itemIndexInList) const override
+		{
+			return 0;
+		}
+
+		virtual bool privateIsLastChild(int32_t itemIndexInList) const override
+		{
+			return false;
+		}
+
+		virtual int32_t privateDoesItemHaveChildren(int32_t itemIndexInList) const override
+		{
+			return false;
+		}
+
+		virtual const ItemType* privateItemFromWidget(const ITableRow* theWidget) const override
+		{
+			auto it = m_widgetGenerator.m_widgetMapToItem.find(theWidget);
+			return it == m_widgetGenerator.m_widgetMapToItem.end() ? nullptr : &(it->second);
+		}
+
+		virtual bool privateIsItemExpanded(const ItemType& theItem) const override
+		{
+			return false;
+		}
 	private:
 		friend class WidgetGenerator;
 

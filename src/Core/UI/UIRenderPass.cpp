@@ -1152,11 +1152,11 @@ namespace GuGu {
 						//	WIDGET_NEW(ScrollBar)
 						//)
 						+ HorizontalBox::Slot()
-						.StretchWidth(0.9f)
+						.StretchWidth(1.0f)
 						(
 							WIDGET_NEW(VerticalBox)
 							+ VerticalBox::Slot()
-							.StretchHeight(0.1)
+							.StretchHeight(0.4)
 							(
 								WIDGET_NEW(Border)
 								.verticalAlignment(VerticalAlignment::Stretch)

@@ -24,7 +24,7 @@ namespace GuGu {
 	}
 	Padding SlotBase::getPadding() const
 	{
-		return m_padding;
+		return m_padding.Get();
 	}
 	HorizontalAlignment SlotBase::getHorizontalAlignment() const
 	{
@@ -42,7 +42,7 @@ namespace GuGu {
 	{
 		m_verticalAlignment = verticalAlignment;
 	}
-	void SlotBase::setPadding(Padding newPadding)
+	void SlotBase::setPadding(Attribute<Padding> newPadding)
 	{
 		m_padding = newPadding;
 	}

@@ -27,13 +27,13 @@ namespace GuGu {
 
 		void setVerticalAlignment(VerticalAlignment verticalAlignment);
 
-		void setPadding(Padding newPadding);
+		void setPadding(Attribute<Padding> newPadding);
 
 		HorizontalAlignment m_horizontalAlignment;
 
 		VerticalAlignment m_verticalAlignment;
 
-		Padding m_padding;
+		Attribute<Padding> m_padding;
 
 		std::shared_ptr<Widget> m_childWidget;
 	};

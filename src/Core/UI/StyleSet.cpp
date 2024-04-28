@@ -165,6 +165,15 @@ namespace GuGu {
 		noResource->m_actualSize = math::int2(0, 0);
 		noResource->m_margin = Padding(0.0f, 0.0f, 0.0f, 0.0f);
 		m_brushes.insert({ "NoBorder" , noResource });
+
+		std::shared_ptr<ButtonStyle> noBorder = std::make_shared<ButtonStyle>();
+		noBorder->setNormal(noResource);
+		noBorder->setHovered(noResource);
+		noBorder->setDisabled(noResource);
+		noBorder->setPressed(noResource);
+		noBorder->setPressedPadding(Padding(0, 0, 0, 0));
+
+		m_styles.insert({ "NoBorder", noBorder });
 	}
 	StyleSet::~StyleSet()
 	{

@@ -4,6 +4,7 @@
 #include "ITableRow.h"
 #include "ITypedTableView.h"
 #include "TableViewBase.h"
+#include "ExpanderArrow.h"
 
 namespace GuGu {
 	class TableViewBase;
@@ -81,13 +82,14 @@ namespace GuGu {
 				std::shared_ptr<HorizontalBox> box;
 				this->m_childWidget->setChildWidget(
 					WIDGET_ASSIGN_NEW(HorizontalBox, box)
-					//+ HorizontalBox::Slot()
-					//.FixedWidth()
-					//.setHorizontalAlignment(HorizontalAlignment::Right)
-					//.setVerticalAlignment(VerticalAlignment::Stretch)
-					//(
-					//
-					//)
+					+ HorizontalBox::Slot()
+					.FixedWidth()
+					.setHorizontalAlignment(HorizontalAlignment::Right)
+					.setVerticalAlignment(VerticalAlignment::Stretch)
+					(
+						WIDGET_NEW(ExpanderArrow, std::static_pointer_cast<TableRow>(shared_from_this()))
+						.shouldDrawWires(true)
+					)
 					+ HorizontalBox::Slot()
 					.StretchWidth(1.0f)
 					.expose(innerContentSlotNativePtr)
@@ -101,6 +103,54 @@ namespace GuGu {
 
 				m_innerContentSlot = innerContentSlotNativePtr;
 			}
+		}
+
+		//这个很重要，通过这个函数，获取这个 item 所在的深度
+		virtual std::vector<int32_t> getWiresNeededByDepth() const override
+		{
+			return m_ownerTablePtr.lock()->privateGetWiresNeededByDepth(m_indexInList);
+		}
+
+		virtual int32_t getIndentLevel() const override
+		{
+			return m_ownerTablePtr.lock()->privateGetNestingDepth(m_indexInList);
+		}
+
+		virtual bool isLastChild() const override
+		{
+			return m_ownerTablePtr.lock()->privateIsLastChild(m_indexInList);
+		}
+
+		virtual int32_t doesItemHaveChildren() const override
+		{
+			return m_ownerTablePtr.lock()->privateDoesItemHaveChildren(m_indexInList);
+		}
+
+		const ItemType* getItemForThis(const std::shared_ptr<ITypedTableView<ItemType>>& ownerTable) const
+		{
+			const ItemType* myItemPtr = m_ownerTablePtr.lock()->privateItemFromWidget(this);
+			if (myItemPtr)
+			{
+				return myItemPtr;
+			}
+			else
+			{
+				return nullptr;
+			}
+
+			return nullptr;
+		}
+
+		virtual bool isItemExpanded() const override
+		{
+			std::shared_ptr<ITypedTableView<ItemType>> ownerTable = m_ownerTablePtr.lock();
+
+			if (const ItemType* myItemPtr = getItemForThis(ownerTable))
+			{
+				return ownerTable->privateIsItemExpanded(*myItemPtr);
+			}
+
+			return false;
 		}
 	protected:
 		void initInternal(const BuilderArguments& inArgs, const std::shared_ptr<TableViewBase>& inOwnerTableView)

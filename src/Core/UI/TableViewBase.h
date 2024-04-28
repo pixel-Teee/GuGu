@@ -56,6 +56,8 @@ namespace GuGu {
 		float m_lineAxis = 0.0f;
 	};
 
+	static const std::vector<int32_t> emptyBitArray = std::vector<int32_t>();
+
 	class ITableRow;
 	class ListPanel;
 	class TableViewBase : public Widget, public IScrollableWidget

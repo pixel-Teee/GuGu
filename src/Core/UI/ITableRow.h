@@ -14,5 +14,15 @@ namespace GuGu {
 		virtual void setIndexInList(int32_t inIndexInList) = 0;
 
 		virtual std::shared_ptr<Widget> asWidget() = 0;
+
+		virtual int32_t getIndentLevel() const = 0;
+
+		virtual std::vector<int32_t> getWiresNeededByDepth() const = 0;
+
+		virtual bool isLastChild() const = 0;
+
+		virtual int32_t doesItemHaveChildren() const = 0;
+
+		virtual bool isItemExpanded() const = 0;
 	};
 }

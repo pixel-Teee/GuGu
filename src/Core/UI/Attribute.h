@@ -36,7 +36,7 @@ namespace GuGu {
 		{}
 
 		template<class SourceType>
-		Attribute(SourceType* inUserObject, void (SourceType::*inConstMethodPtr)()const)
+		Attribute(SourceType* inUserObject, ObjectType (SourceType::*inConstMethodPtr)()const)
 			: m_value()
 			, m_bIsSet(true)
 			, m_getter(std::bind(inConstMethodPtr, inUserObject))

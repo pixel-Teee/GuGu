@@ -221,6 +221,53 @@ namespace GuGu {
 
 			ListView<ItemType>::Tick(allocatedGeometry, inCurrentTime, inDeltaTime);
 		}
+
+		virtual const std::vector<int32_t>& privateGetWiresNeededByDepth(int32_t itemIndexInList) const override
+		{
+			if (itemIndexInList >= 0 && itemIndexInList < m_denseItemInfos.size())
+			{
+				return m_denseItemInfos[itemIndexInList].m_needsVerticalWire;
+			}
+			return emptyBitArray;
+		}
+
+		virtual int32_t privateGetNestingDepth(int32_t itemIndexInList) const override
+		{
+			int32_t nestingLevel = 0;
+			if (itemIndexInList >= 0 && itemIndexInList < m_denseItemInfos.size())
+			{
+				nestingLevel = m_denseItemInfos[itemIndexInList].getNesingLevel();
+			}
+
+			return nestingLevel;
+		}
+
+		virtual bool privateIsLastChild(int32_t itemIndexInList) const override
+		{
+			if (itemIndexInList >= 0 && itemIndexInList < m_denseItemInfos.size())
+			{
+				return m_denseItemInfos[itemIndexInList].m_bIsLastChild;
+			}
+			return false;
+		}
+
+		virtual int32_t privateDoesItemHaveChildren(int32_t itemIndexInList) const override
+		{
+			bool bHasChildren = false;
+			if (itemIndexInList >= 0 && itemIndexInList < m_denseItemInfos.size())
+			{
+				return bHasChildren = m_denseItemInfos[itemIndexInList].m_bHasChildren;
+			}
+			return bHasChildren;
+		}
+
+		virtual bool privateIsItemExpanded(const ItemType& theItem) const override
+		{
+			auto it = m_spareItemInfos.find(theItem);
+			if (it != m_spareItemInfos.end())
+				return it->second.m_bIsExpanded;
+			return nullptr;
+		}
 	protected:
 		//被调用的委托，当我们需要去收集一个 item 的儿子的时候
 		OnGetChildren m_onGetChildren;
