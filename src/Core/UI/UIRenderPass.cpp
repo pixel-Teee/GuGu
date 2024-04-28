@@ -45,6 +45,7 @@
 #include <Core/UI/UIData.h>
 #include <Core/Timer.h>
 #include <Renderer/CommonRenderPasses.h>
+#include <Core/SceneGraph/SceneGraph.h>
 
 namespace GuGu {
 
@@ -922,10 +923,16 @@ namespace GuGu {
 									(
 										WIDGET_NEW(SpinBox<double>)
 										.onValueChangedLambda([&](float newValue) {
-											m_uiData->xWorldPos = newValue;
+											if (m_uiData->m_currentSelectItems) {
+												math::double3 newTranslation = m_uiData->m_currentSelectItems->getTranslation();
+												m_uiData->m_currentSelectItems->SetTranslation(math::double3(newValue, newTranslation.y, newTranslation.z));
+											}
 										})
 										.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
-											m_uiData->xWorldPos = newValue;
+											if (m_uiData->m_currentSelectItems) {
+												math::double3 newTranslation = m_uiData->m_currentSelectItems->getTranslation();
+												m_uiData->m_currentSelectItems->SetTranslation(math::double3(newValue, newTranslation.y, newTranslation.z));
+											}
 										})
 									)
 									+ HorizontalBox::Slot()
@@ -947,10 +954,16 @@ namespace GuGu {
 									(
 										WIDGET_NEW(SpinBox<double>)
 										.onValueChangedLambda([&](float newValue) {
-											m_uiData->yWorldPos = newValue;
+											if (m_uiData->m_currentSelectItems) {
+												math::double3 newTranslation = m_uiData->m_currentSelectItems->getTranslation();
+												m_uiData->m_currentSelectItems->SetTranslation(math::double3(newTranslation.x, newValue, newTranslation.z));
+											}				
 										})
 										.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
-											m_uiData->yWorldPos = newValue;
+											if (m_uiData->m_currentSelectItems) {
+												math::double3 newTranslation = m_uiData->m_currentSelectItems->getTranslation();
+												m_uiData->m_currentSelectItems->SetTranslation(math::double3(newTranslation.x, newValue, newTranslation.z));
+											}
 										})
 									)
 									+ HorizontalBox::Slot()
@@ -973,10 +986,16 @@ namespace GuGu {
 									(
 										WIDGET_NEW(SpinBox<double>)
 										.onValueChangedLambda([&](float newValue) {
-											m_uiData->zWorldPos = newValue;
+											if (m_uiData->m_currentSelectItems) {
+												math::double3 newTranslation = m_uiData->m_currentSelectItems->getTranslation();
+												m_uiData->m_currentSelectItems->SetTranslation(math::double3(newTranslation.x, newTranslation.y, newValue));
+											}
 										})
 										.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
-											m_uiData->zWorldPos = newValue;
+											if (m_uiData->m_currentSelectItems) {
+												math::double3 newTranslation = m_uiData->m_currentSelectItems->getTranslation();
+												m_uiData->m_currentSelectItems->SetTranslation(math::double3(newTranslation.x, newTranslation.y, newValue));
+											}
 										})
 									)
 								)
@@ -1187,8 +1206,15 @@ namespace GuGu {
 												.BorderBackgroundColor(color)
 											);
 										})
+									.onSelectionChanged(m_uiData->selectionChanged)
 								)
 								.BorderBackgroundColor(math::float4(1.0f, 1.0f, 1.0f, 0.8f))
+							)
+							+ VerticalBox::Slot()
+							.StretchHeight(0.9)
+							(
+								WIDGET_NEW(TextBlockWidget)
+								.text(this, &UIRenderPass::getSelectItem)
 							)
 							+ VerticalBox::Slot()
 							.StretchHeight(0.9)
@@ -1205,5 +1231,13 @@ namespace GuGu {
 				//	.orientation(Orientation::Vertical)
 				//)
 			);
+	}
+	GuGuUtf8Str UIRenderPass::getSelectItem() const
+	{
+		GuGuUtf8Str selectItem;
+		if (m_uiData->m_currentSelectItems)
+			selectItem = u8"选中了:" + m_uiData->m_currentSelectItems->GetName();
+
+		return selectItem;
 	}
 }

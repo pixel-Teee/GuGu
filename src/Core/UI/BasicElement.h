@@ -185,4 +185,18 @@ namespace GuGu {
 			RoundedBox
 		};
 	}
+
+	namespace SelectInfo
+	{
+		enum Type
+		{
+			OnKeyPress,
+
+			OnNavigation,
+
+			OnMouseClick,
+
+			Direct
+		};
+	}
 }

@@ -6,6 +6,8 @@
 #include "TableRow.h"
 #include "TextBlockWidget.h"
 
+#include <unordered_set>
+
 namespace GuGu {
 	template<typename ItemType>
 	class ListView : public TableViewBase, public ITypedTableView<ItemType>
@@ -13,6 +15,8 @@ namespace GuGu {
 	public:
 		using NullableItemType = typename ListTypeTraits<ItemType>::NullableType;
 		using OnGenerateRow = typename WidgetDelegates<ItemType>::OnGenerateRow;
+		using OnSelectionChanged = typename WidgetDelegates<NullableItemType>::OnSelectionChanged;
+		using ItemSet = std::unordered_set<ItemType>;
 
 		ListView(TableViewMode::Type inListMode = TableViewMode::List)
 			: TableViewBase(inListMode)
@@ -32,6 +36,7 @@ namespace GuGu {
 				, mitemHeight(16)
 				, morientation(Orientation::Vertical)
 				, mListItemSource()
+				, mselectionMode(SelectionMode::Single)
 			{
 				this->mClip = WidgetClipping::ClipToBounds;
 			}
@@ -39,6 +44,8 @@ namespace GuGu {
 			~BuilderArguments() = default;
 
 			ARGUMENT_ATTRIBUTE(std::shared_ptr<ScrollBarStyle>, style)
+
+			ARGUMENT_ATTRIBUTE(SelectionMode::Type, selectionMode)
 
 			UI_EVENT(OnGenerateRow, onGenerateRow)
 
@@ -62,6 +69,8 @@ namespace GuGu {
 			//制作table view
 			this->m_onGenerateRow = arguments.monGenerateRow;
 			this->m_itemsSource = arguments.mListItemSource;
+			this->m_onSelectionChanged = arguments.mselectionMode;
+			this->m_selectionMode = arguments.mselectionMode;
 
 			constructChildren(0, arguments.mitemHeight, ListItemAlignment::LeftAligned, arguments.mheaderRow, arguments.mexternalScrollbar,
 				arguments.morientation, arguments.monListViewScrolled, arguments.mstyle);
@@ -381,6 +390,56 @@ namespace GuGu {
 		{
 
 		}
+
+		virtual bool privateIsItemSelected(const ItemType& theItem) const override
+		{
+			return m_selectedItems.find(theItem) != m_selectedItems.end();
+		}
+
+		virtual void privateSetItemSelection(ItemType theItem, bool bShouldBeSelected, bool bWasUserDirected = false) override
+		{
+			if (m_selectionMode.Get() == SelectionMode::None)
+			{
+				return;
+			}
+
+			if (bShouldBeSelected)
+			{
+				m_selectedItems.insert(theItem);
+			}
+			else
+			{
+				auto it = m_selectedItems.find(theItem);
+				m_selectedItems.erase(it);
+			}
+		}
+
+		virtual void privateClearSelection() override
+		{
+			m_selectedItems.clear();
+		}
+
+		virtual void  privateSignalSelectionChanged(SelectInfo::Type selectInfo) override
+		{
+			if (m_selectionMode.Get() == SelectionMode::None)
+			{
+				return;
+			}
+
+			if (m_onSelectionChanged)
+			{
+				NullableItemType selectedItem = (m_selectedItems.size() > 0)
+					? (*typename ItemSet::iterator(m_selectedItems.begin()))
+					: ListTypeTraits<ItemType>::makeNullPtr();
+
+				m_onSelectionChanged(selectedItem, selectInfo);
+			}
+		}
+
+		virtual std::shared_ptr<Widget> asWidget() override
+		{
+			return shared_from_this();
+		}
 	private:
 		friend class WidgetGenerator;
 
@@ -506,7 +565,12 @@ namespace GuGu {
 		NullableItemType m_itemToNotifyWhenInView;
 
 		bool m_bNavigateOnScrollIntoView = false;
+		//选中的集合
+		ItemSet m_selectedItems;
 
+		Attribute<SelectionMode::Type> m_selectionMode;
+
+		OnSelectionChanged m_onSelectionChanged;
 	private:
 		struct GenerationPassGuard
 		{

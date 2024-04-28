@@ -22,5 +22,7 @@ namespace GuGu {
 		using OnGetChildren = std::function<void(ArgumentType, std::vector<ArgumentType>&)>;
 
 		using OnExpansionChanged = std::function<void(ArgumentType, bool)>;
+
+		using OnSelectionChanged = std::function<void(ArgumentType, SelectInfo::Type)>;
 	};
 }

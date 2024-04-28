@@ -116,5 +116,7 @@ namespace GuGu {
 		//------test widget functionality------
 
 		std::shared_ptr<CommonRenderPasses> m_commonRenderPass;
+
+		GuGuUtf8Str getSelectItem() const;
 	};
 }

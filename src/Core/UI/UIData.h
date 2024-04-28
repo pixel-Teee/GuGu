@@ -4,10 +4,13 @@
 
 #include <Core/GuGuUtf8Str.h>
 
+#include <Core/UI/BasicElement.h>
+
 #include <functional>
 
 namespace GuGu {
 	//class GuGuUtf8Str;
+	class SceneGraphNode;
 	struct UIData
 	{
 		float metallic = 0.0f;
@@ -28,5 +31,9 @@ namespace GuGu {
 		std::vector<GuGuUtf8Str> nodeNames;
 
 		std::function<void(GuGuUtf8Str, std::vector<GuGuUtf8Str>&)> getNodeChildrens;
+
+		std::function<void(GuGuUtf8Str, SelectInfo::Type)> selectionChanged;
+
+		std::shared_ptr<SceneGraphNode> m_currentSelectItems;
 	};
 }

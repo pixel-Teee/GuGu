@@ -55,6 +55,7 @@ namespace GuGu {
 		using OnGenerateRow = typename WidgetDelegates<ItemType>::OnGenerateRow;
 		using OnGetChildren = typename WidgetDelegates<ItemType>::OnGetChildren;
 		using OnExpansionChanged = typename WidgetDelegates<ItemType>::OnExpansionChanged;
+		using OnSelectionChanged = typename WidgetDelegates<ItemType>::OnSelectionChanged;
 		using ItemSet = std::unordered_set<ItemType>;
 		using SparseItemMap = std::unordered_map<ItemType, SparseItemInfo>;
 	public:
@@ -74,6 +75,7 @@ namespace GuGu {
 				, mitemHeight(16)
 				, morientation(Orientation::Vertical)
 				, mtreeItemSource()
+				, mselectionMode(SelectionMode::Single)
 			{
 				this->mClip = WidgetClipping::ClipToBounds;
 			}
@@ -89,6 +91,10 @@ namespace GuGu {
 			UI_EVENT(OnExpansionChanged, onExpansionChanged)
 
 			UI_EVENT(OnTableViewScrolled, onTreeViewScrolled)
+
+			UI_EVENT(OnSelectionChanged, onSelectionChanged)
+
+			ARGUMENT_ATTRIBUTE(SelectionMode::Type, selectionMode)
 
 			ARGUMENT_ATTRIBUTE(float, itemHeight)
 
@@ -109,6 +115,8 @@ namespace GuGu {
 			this->m_onGetChildren = arguments.monGetChildren;
 			this->m_treeItemsSource = arguments.mtreeItemSource;//利用这个 tree items source 去生成 list view 的 items source
 			this->m_onExpansionChanged = arguments.monExpansionChanged;
+			this->m_onSelectionChanged = arguments.monSelectionChanged;
+			this->m_selectionMode = arguments.mselectionMode;
 
 			TableViewBase::constructChildren(0, arguments.mitemHeight, ListItemAlignment::LeftAligned, arguments.mheaderRow, arguments.mexternalScrollbar,
 				arguments.morientation, arguments.monTreeViewScrolled, arguments.mstyle);
@@ -283,7 +291,8 @@ namespace GuGu {
 			if (sparseItemInfo != m_spareItemInfos.end())
 			{
 				bWasExpanded = sparseItemInfo->second.m_bIsExpanded;
-				m_spareItemInfos.insert({ theItem, SparseItemInfo(bShouldBeExpanded, sparseItemInfo->second.m_bHasExpandedChildren) });
+				//m_spareItemInfos.insert({ theItem, SparseItemInfo(bShouldBeExpanded, sparseItemInfo->second.m_bHasExpandedChildren) });
+				sparseItemInfo->second = SparseItemInfo(bShouldBeExpanded, sparseItemInfo->second.m_bHasExpandedChildren);
 			}
 			else if (bShouldBeExpanded)
 			{
@@ -307,6 +316,11 @@ namespace GuGu {
 		void requestTreeRefresh()
 		{
 			requestListRefresh();
+		}
+
+		virtual void  privateSignalSelectionChanged(SelectInfo::Type selectInfo) override
+		{
+			ListView<ItemType>::privateSignalSelectionChanged(selectInfo);
 		}
 	protected:
 		//被调用的委托，当我们需要去收集一个 item 的儿子的时候

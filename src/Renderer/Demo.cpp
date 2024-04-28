@@ -119,6 +119,8 @@ namespace GuGu {
 
 		m_uiData->getNodeChildrens = std::bind(&Demo::getNodeChildrens, this, std::placeholders::_1, std::placeholders::_2);
 
+		m_uiData->selectionChanged = std::bind(&Demo::selectionChanged, this, std::placeholders::_1, std::placeholders::_2);
+
 		//refresh scene graph
 		for (const auto& mesh : m_sceneGraph->GetMeshes())
 		{
@@ -830,7 +832,7 @@ namespace GuGu {
 				SceneGraphNode* node = meshInstance->GetNode();
 				ConstantBufferEntry modelConstants;
 				modelConstants.viewProjMatrix = viewProjMatrix;
-				modelConstants.worldMatrix = math::affineToHomogeneous(math::translation(math::float3(m_uiData->xWorldPos, m_uiData->yWorldPos, m_uiData->zWorldPos)));
+				modelConstants.worldMatrix = math::affineToHomogeneous(node->GetLocalToWorldTransformFloat());
 				//get the global matrix to fill constant buffer		
 				m_CommandList->writeBuffer(m_ConstantBuffers[index], &modelConstants, sizeof(modelConstants));
 		
@@ -1062,6 +1064,13 @@ namespace GuGu {
 				nodeChildrenNames.push_back(child->GetName());
 			}
 		}
+	}
+
+	void Demo::selectionChanged(GuGuUtf8Str item, SelectInfo::Type)
+	{
+		std::shared_ptr<SceneGraphNode> findNode = m_sceneGraph->findNode(item, m_sceneGraph->GetRootNode().get());//需要修复这个 find node 函数
+
+		m_uiData->m_currentSelectItems = findNode;
 	}
 
 }

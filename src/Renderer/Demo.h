@@ -3,6 +3,7 @@
 #include "DeviceManager.h"
 
 #include <Core/UI/UIData.h>
+#include <Core/UI/BasicElement.h>
 
 namespace GuGu {
 	class BindingCache;
@@ -13,6 +14,7 @@ namespace GuGu {
 	class SceneGraph;
 	class MeshGeometry;
 	class CommonRenderPasses;
+	class SceneGraphNode;
 	struct DrawItem
 	{
 		const MeshInfo* mesh;
@@ -136,5 +138,9 @@ namespace GuGu {
 		std::shared_ptr<UIData> m_uiData;
 
 		void getNodeChildrens(GuGuUtf8Str, std::vector<GuGuUtf8Str>&);
+
+		void selectionChanged(GuGuUtf8Str, SelectInfo::Type);
+
+		std::shared_ptr<SceneGraphNode> m_currentSelectItems;
 	};
 }

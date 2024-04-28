@@ -470,29 +470,18 @@ namespace GuGu {
 
     std::shared_ptr<SceneGraphNode> SceneGraph::findNode(GuGuUtf8Str name, SceneGraphNode* context) const
     {
-        SceneGraphNode* current = context;
-
-        if (name == current->m_name) return current->shared_from_this();
-
-        while (current)
-        {
-            SceneGraphNode* child;
-            for (child = current->GetFirstChild(); child; child = child->GetNextSibling())
-            {
-                if(child->GetName() == name)
-                    break;
-            }
-
-            if (child)
-            {
-                current = child;
-                break;
-            }
-
-            return nullptr;
-        }
-
-        return current->shared_from_this();
+		SceneGraphWalker walker(context);
+	    while (walker)
+	    {
+	    	auto current = walker.Get();
+	    	auto parent = current->GetParent();
+	    
+	    	//name
+            if (current->m_name == name)
+                return current->shared_from_this();
+	    	walker.Next(true);
+	    }
+        return nullptr;
     }
 
     void SceneGraph::RegisterLeaf(const std::shared_ptr<SceneGraphLeaf>& leaf)

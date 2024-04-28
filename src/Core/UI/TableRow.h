@@ -106,6 +106,44 @@ namespace GuGu {
 			}
 		}
 
+		virtual Reply OnMouseButtonDown(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent) override
+		{
+			std::shared_ptr<ITypedTableView<ItemType>> ownerTable = m_ownerTablePtr.lock();
+
+			const SelectionMode::Type selectionMode = SelectionMode::Type::Single;
+			if (selectionMode != SelectionMode::None)
+			{
+				if (const ItemType* myItemPtr = getItemForThis(ownerTable))
+				{
+					const ItemType& myItem = *myItemPtr;
+					const bool bIsSelected = ownerTable->privateIsItemSelected(myItem);
+
+					if (!bIsSelected)
+					{
+						ownerTable->privateClearSelection();
+						ownerTable->privateSetItemSelection(myItem, true, true);
+
+						ownerTable->privateSignalSelectionChanged(SelectInfo::Direct);
+					}
+
+					return Reply::Handled().setFocus(ownerTable->asWidget()).captureMouse(ownerTable->asWidget());
+				}
+			}
+
+			return Reply::Unhandled();
+		}
+
+		virtual Reply OnMouseButtonUp(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent) override
+		{
+			std::shared_ptr<ITypedTableView<ItemType>> ownerTable = m_ownerTablePtr.lock();
+
+			std::shared_ptr<TableViewBase> ownerTableViewBase = std::static_pointer_cast<ListView<ItemType>>(ownerTable);
+
+			Reply reply = Reply::Unhandled().releaseMouseCapture();
+
+			return reply;
+		}
+
 		//这个很重要，通过这个函数，获取这个 item 所在的深度
 		virtual std::vector<int32_t> getWiresNeededByDepth() const override
 		{
