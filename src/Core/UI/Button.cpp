@@ -56,17 +56,13 @@ namespace GuGu {
 	}
 	GuGu::math::float2 Button::ComputeFixedSize(float inLayoutScaleMultiplier)
 	{
-		if (m_childWidget)
+		if (m_childWidget->getChildWidget() == NullWidget::getNullWidget())
 		{
-			const Visibility childVisiblity = m_childWidget->getChildWidget()->getVisibility();
-			if (childVisiblity != Visibility::Collapsed)
-			{
-				return m_childWidget->getChildWidget()->getFixedSize() + m_childWidget->getPadding().getFixedSize();
-			}
+			return math::float2(m_imageBursh.Get()->m_actualSize.x, m_imageBursh.Get()->m_actualSize.y);
 		}	
 		else
 		{
-			return math::float2(m_imageBursh.Get()->m_actualSize.x, m_imageBursh.Get()->m_actualSize.y);
+			return Border::ComputeFixedSize(inLayoutScaleMultiplier);
 		}
 		return math::float2(0, 0);
 	}

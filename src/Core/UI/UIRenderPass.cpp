@@ -645,7 +645,7 @@ namespace GuGu {
 							)	
 							.Content
 							(
-								WIDGET_NEW(NullWidget)
+								NullWidget::getNullWidget()
 							)
 						)
 					)

@@ -28,4 +28,11 @@ namespace GuGu {
 	{
 		return 0;
 	}
+
+	std::shared_ptr<NullWidget> NullWidget::getNullWidget()
+	{
+		static std::shared_ptr<NullWidget> nullWidget = WIDGET_NEW(NullWidget);
+
+		return nullWidget;
+	}
 }

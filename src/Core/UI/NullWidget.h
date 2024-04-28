@@ -26,7 +26,12 @@ namespace GuGu {
 		virtual SlotBase* getSlot(uint32_t index) const override;
 
 		virtual uint32_t getSlotsNumber() const override;
-	private:
 
+		static std::shared_ptr<NullWidget> nullWidget;
+
+		static std::shared_ptr<NullWidget> getNullWidget();
+	private:
 	};
+
+	
 }
