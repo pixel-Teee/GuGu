@@ -4,6 +4,8 @@
 
 #include <Core/GuGuUtf8Str.h>
 
+#include <functional>
+
 namespace GuGu {
 	//class GuGuUtf8Str;
 	struct UIData
@@ -22,6 +24,9 @@ namespace GuGu {
 
 		math::float3 color = math::float3(1.0f, 1.0f, 1.0f);
 
+		//node name trees
 		std::vector<GuGuUtf8Str> nodeNames;
+
+		std::function<void(GuGuUtf8Str, std::vector<GuGuUtf8Str>&)> getNodeChildrens;
 	};
 }

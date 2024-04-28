@@ -275,6 +275,8 @@ namespace GuGu {
 		std::shared_ptr<SceneGraphNode> SetRootNode(const std::shared_ptr<SceneGraphNode>& root);
 		std::shared_ptr<SceneGraphNode> Attach(const std::shared_ptr<SceneGraphNode>& parent, const std::shared_ptr<SceneGraphNode>& child);
 		std::shared_ptr<SceneGraphNode> Detach(const std::shared_ptr<SceneGraphNode>& node);
+
+		std::shared_ptr<SceneGraphNode> findNode(GuGuUtf8Str name, SceneGraphNode* context = nullptr) const;
 		friend class SceneGraphNode;
 	protected:
 		virtual void RegisterLeaf(const std::shared_ptr<SceneGraphLeaf>& leaf);

@@ -93,18 +93,31 @@ namespace GuGu {
 		m_sceneGraph->SetRootNode(node);
 		//m_sceneGraph->Attach(node, node2);
 
-		std::vector<GuGuUtf8Str> nodeNames;
-		SceneGraphWalker walker(m_sceneGraph->GetRootNode().get());
-		while (walker)
-		{
-			auto current = walker.Get();
-			auto parent = current->GetParent();
+		//std::vector<GuGuUtf8Str> nodeNames;
+		//SceneGraphWalker walker(m_sceneGraph->GetRootNode().get());
+		//while (walker)
+		//{
+		//	auto current = walker.Get();
+		//	auto parent = current->GetParent();
+		//
+		//	//name
+		//	nodeNames.push_back(current->m_name);
+		//	walker.Next(true);
+		//}
+		m_uiData->nodeNames.push_back(m_sceneGraph->GetRootNode()->GetName());
+		//SceneGraphNode* current = node.get();
+		//if (current)
+		//{
+		//	m_uiData->nodeNames.push_back(current->GetName());
+		//	SceneGraphNode* brother = nullptr;
+		//	for (brother = current->GetNextSibling(); brother; brother = brother->GetNextSibling())
+		//	{
+		//		m_uiData->nodeNames.push_back(brother->GetName());
+		//	}
+		//}
 
-			//name
-			nodeNames.push_back(current->m_name);
-			walker.Next(true);
-		}
-		m_uiData->nodeNames = nodeNames;
+
+		m_uiData->getNodeChildrens = std::bind(&Demo::getNodeChildrens, this, std::placeholders::_1, std::placeholders::_2);
 
 		//refresh scene graph
 		for (const auto& mesh : m_sceneGraph->GetMeshes())
@@ -1035,6 +1048,20 @@ namespace GuGu {
 		fbDesc.setDepthAttachment(m_depthTarget, nvrhi::TextureSubresourceSet(0, 1, 0, 1));
 
 		m_frameBuffer = GetDevice()->createFramebuffer(fbDesc);
+	}
+
+	void Demo::getNodeChildrens(GuGuUtf8Str nodeName, std::vector<GuGuUtf8Str>& nodeChildrenNames)
+	{
+		std::shared_ptr<SceneGraphNode> findNode = m_sceneGraph->findNode(nodeName, m_sceneGraph->GetRootNode().get());//需要修复这个 find node 函数
+
+		if (findNode)
+		{
+			SceneGraphNode* child;
+			for (child = findNode->GetFirstChild(); child; child = child->GetNextSibling())
+			{
+				nodeChildrenNames.push_back(child->GetName());
+			}
+		}
 	}
 
 }

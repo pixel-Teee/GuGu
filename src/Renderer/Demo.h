@@ -134,5 +134,7 @@ namespace GuGu {
 		void initRenderTargetAndDepthTarget();
 
 		std::shared_ptr<UIData> m_uiData;
+
+		void getNodeChildrens(GuGuUtf8Str, std::vector<GuGuUtf8Str>&);
 	};
 }

@@ -137,9 +137,14 @@ namespace GuGu {
 	}
 #define UI_EVENT(Type, EventName)\
 	Type m##EventName;\
-	BuilderArguments& EventName##Lambda(Type&& inFunctor) \
+	BuilderArguments& EventName(Type& inFunctor) \
 	{\
 		m##EventName = inFunctor; \
+		return static_cast<BuilderArguments*>(this)->Me(); \
+	}\
+	BuilderArguments& EventName##Lambda(Type&& inFunctor) \
+	{\
+		m##EventName = std::move(inFunctor); \
 		return static_cast<BuilderArguments*>(this)->Me(); \
 	}\
 	template<class Class>\

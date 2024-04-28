@@ -70,6 +70,36 @@ namespace GuGu {
 			else
 			{
 				//tree view
+
+				//row is for tree view
+				HorizontalBox::HorizontalBoxSlot* innerContentSlotNativePtr = nullptr;
+
+				//rows in a tree view need a expander button and some indentation
+				this->m_childWidget = std::make_shared<SingleChildSlot>();
+				
+				//todo: 添加 expander arrow
+				std::shared_ptr<HorizontalBox> box;
+				this->m_childWidget->setChildWidget(
+					WIDGET_ASSIGN_NEW(HorizontalBox, box)
+					//+ HorizontalBox::Slot()
+					//.FixedWidth()
+					//.setHorizontalAlignment(HorizontalAlignment::Right)
+					//.setVerticalAlignment(VerticalAlignment::Stretch)
+					//(
+					//
+					//)
+					+ HorizontalBox::Slot()
+					.StretchWidth(1.0f)
+					.expose(innerContentSlotNativePtr)
+					.setPadding(inPadding.Get())
+					(
+						inContent
+					)
+				);
+
+				box->setParentWidget(shared_from_this());
+
+				m_innerContentSlot = innerContentSlotNativePtr;
 			}
 		}
 	protected:
@@ -83,5 +113,7 @@ namespace GuGu {
 		std::weak_ptr<ITypedTableView<ItemType>> m_ownerTablePtr;
 
 		std::weak_ptr<Widget> m_content;
+
+		SlotBase* m_innerContentSlot;
 	};
 }

@@ -49,7 +49,7 @@ namespace GuGu {
 
 		struct SlotBuilderArguments
 		{
-			SlotBuilderArguments(std::shared_ptr<Slot<SlotType>> inSlot)
+			SlotBuilderArguments(std::shared_ptr<SlotType> inSlot)
 				: m_slot(inSlot){}
 			virtual ~SlotBuilderArguments() {};
 
@@ -83,7 +83,15 @@ namespace GuGu {
 			{
 				return static_cast<typename SlotType::SlotBuilderArguments&>(*this);
 			}
-			std::shared_ptr<Slot<SlotType>> m_slot;
+
+			typename SlotType::SlotBuilderArguments& expose(SlotType*& outVarToInit)//slot type:horizontal box slot *&
+			{
+				outVarToInit = m_slot.get();
+				return Me();
+			}
+
+			std::shared_ptr<SlotType> m_slot;
+			//std::shared_ptr<Slot<SlotType>> m_slot;
 		};		
 
 		std::weak_ptr<Widget> m_parentWidget;

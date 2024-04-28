@@ -36,6 +36,7 @@
 #include "ListView.h"
 #include "TableRow.h"
 #include "Spacer.h"
+#include "TreeView.h"
 
 #include <Core/GuGuFile.h>
 #include <Window/Window.h>
@@ -1163,8 +1164,9 @@ namespace GuGu {
 								.brush(m_styles->getBrush("background"))
 								.Content
 								(
-									WIDGET_ASSIGN_NEW(ListView<GuGuUtf8Str>, m_listView)
-									.ListItemSource(&m_uiData->nodeNames)
+									WIDGET_ASSIGN_NEW(TreeView<GuGuUtf8Str>, m_listView)
+									.treeItemSource(&m_uiData->nodeNames)
+									.onGetChildren(m_uiData->getNodeChildrens)
 									.onGenerateRowLambda([](GuGuUtf8Str item, const std::shared_ptr<class TableViewBase>& table)->std::shared_ptr<ITableRow> {
 										//static int32_t i = 0;
 										//++i;
