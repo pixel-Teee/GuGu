@@ -1179,7 +1179,7 @@ namespace GuGu {
 						(
 							WIDGET_NEW(VerticalBox)
 							+ VerticalBox::Slot()
-							.StretchHeight(0.4)
+							.StretchHeight(2.0)
 							(
 								WIDGET_NEW(Border)
 								.verticalAlignment(VerticalAlignment::Stretch)
