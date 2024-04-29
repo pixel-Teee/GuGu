@@ -509,7 +509,8 @@ namespace GuGu {
 		m_gridPixelShader = shaderFactory->CreateShader("asset/shader/grid.hlsl", "main_ps", nullptr,
 			nvrhi::ShaderType::Pixel);
 		layoutDesc.bindings = {
-			nvrhi::BindingLayoutItem::ConstantBuffer(0)
+			nvrhi::BindingLayoutItem::ConstantBuffer(0),
+			nvrhi::BindingLayoutItem::ConstantBuffer(1)
 		};
 		m_gridBindingLayout = GetDevice()->createBindingLayout(layoutDesc);
 
@@ -521,8 +522,8 @@ namespace GuGu {
 						.setBufferIndex(0)
 						.setElementStride(sizeof(GridVertex)),
 				nvrhi::VertexAttributeDesc()
-						.setName("COLOR")
-						.setFormat(nvrhi::Format::RGB32_FLOAT)
+						.setName("TEXCOORD0")
+						.setFormat(nvrhi::Format::RG32_FLOAT)
 						.setOffset(0)
 						.setBufferIndex(1)
 						.setElementStride(sizeof(GridVertex)),
@@ -532,54 +533,26 @@ namespace GuGu {
 			m_gridVertexShader);
 		m_gridConstantBuffer = GetDevice()->createBuffer(
 			nvrhi::utils::CreateStaticConstantBufferDesc(
-				sizeof(ConstantBufferEntry), "ConstantBuffer")
+				sizeof(GridConstantBufferEntry), "ConstantBuffer")
 			.setInitialState(
 				nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
 					true));
 
-		math::float3 xAxis(4.0f, 0.0f, 0.0f);
-		math::float3 yAxis(0.0f, 0.0f, 4.0f);
+		m_gridPropertiesConstantBuffer = GetDevice()->createBuffer(
+			nvrhi::utils::CreateStaticConstantBufferDesc(
+				sizeof(GridProperties), "GridPropertiesConstantBuffer")
+			.setInitialState(
+				nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
+					true));
 
-		constexpr size_t divisions = 40;
-		for (size_t i = 0; i <= divisions; ++i)
-		{
-			float fPercent = float(i) / float(divisions);
-			fPercent = (fPercent * 2.0f) - 1.0f;
-
-			math::float3 scale = xAxis * fPercent;
-
-			GridVertex v1(scale - yAxis, math::float4(1.0f, 0.0f, 0.0f, 1.0f));
-			GridVertex v2(scale + yAxis, math::float4(1.0f, 0.0f, 0.0f, 1.0f));
-
-			m_gridVertices.push_back(v1);
-			m_gridVertices.push_back(v2);
-		}
-
-		GridVertex v1(math::float3(0.0, 0.0f, 0.0f) - yAxis, math::float4(1.0f, 0.0f, 0.0f, 1.0f));
-		GridVertex v2(math::float3(0.0, 0.0f, 0.0f) + yAxis, math::float4(1.0f, 0.0f, 0.0f, 1.0f));
-
-		m_gridVertices.push_back(v1);
-		m_gridVertices.push_back(v2);
-
-		for (size_t i = 0; i <= divisions; ++i)
-		{
-			float fPercent = float(i) / float(divisions);
-			fPercent = (fPercent * 2.0f) - 1.0f;
-
-			math::float3 scale = yAxis * fPercent;
-
-			GridVertex v1(scale - xAxis, math::float4(0.0f, 0.0f, 1.0f, 1.0f));
-			GridVertex v2(scale + xAxis, math::float4(0.0f, 0.0f, 1.0f, 1.0f));
-
-			m_gridVertices.push_back(v1);
-			m_gridVertices.push_back(v2);
-		}
-
-		GridVertex v3(math::float3(0.0, 0.0f, 0.0f) - xAxis, math::float4(0.0f, 0.0f, 1.0f, 1.0f));
-		GridVertex v4(math::float3(0.0, 0.0f, 0.0f) + xAxis, math::float4(0.0f, 0.0f, 1.0f, 1.0f));
-
-		m_gridVertices.push_back(v3);
-		m_gridVertices.push_back(v4);
+		m_gridVertices.push_back(GridVertex(math::float3(-500.0f, 0.0f, -500.0f), math::float2(0.0f, 0.0f)));
+		m_gridVertices.push_back(GridVertex(math::float3(-500.0f, 0.0f, 500.0f), math::float2(0.0f, 1.0f)));
+		m_gridVertices.push_back(GridVertex(math::float3(500.0f, 0.0f, -500.0f), math::float2(1.0f, 0.0f)));
+		
+		m_gridVertices.push_back(GridVertex(math::float3(-500.0f, 0.0f, 500.0f), math::float2(0.0f, 1.0f)));
+		m_gridVertices.push_back(GridVertex(math::float3(500.0f, 0.0f, 500.0f), math::float2(1.0f, 1.0f)));
+		m_gridVertices.push_back(GridVertex(math::float3(500.0f, 0.0f, -500.0f), math::float2(1.0f, 0.0f)));
+		
 
 		nvrhi::BufferDesc gridVertexbufferDesc;
 		gridVertexbufferDesc.isVertexBuffer = true;
@@ -661,9 +634,9 @@ namespace GuGu {
 			psoDesc.PS = m_gridPixelShader;
 			psoDesc.inputLayout = m_gridInputLayout;
 			psoDesc.bindingLayouts = { m_gridBindingLayout };
-			psoDesc.primType = nvrhi::PrimitiveType::LineList;
+			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
 			psoDesc.renderState.depthStencilState.depthTestEnable = true;
-			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
+			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
 			m_gridPipeline = GetDevice()->createGraphicsPipeline(psoDesc, m_frameBuffer);
 		}
 
@@ -952,6 +925,9 @@ namespace GuGu {
 			m_CommandList->drawIndexed(args);
 		}
 
+		GridProperties gridProperties;
+		m_CommandList->writeBuffer(m_gridPropertiesConstantBuffer, &gridProperties, sizeof(gridProperties));
+
 		//draw grid
 		if (!m_gridBindingSet)
 		{
@@ -959,6 +935,7 @@ namespace GuGu {
 			//nvrhi::BindingSetHandle bindingSet;
 			desc.bindings = {
 					nvrhi::BindingSetItem::ConstantBuffer(0, m_gridConstantBuffer),
+					nvrhi::BindingSetItem::ConstantBuffer(1, m_gridPropertiesConstantBuffer),
 			};
 			m_gridBindingSet = GetDevice()->createBindingSet(desc, m_gridBindingLayout);
 		}
@@ -967,12 +944,13 @@ namespace GuGu {
 
 		gridGraphicsState.vertexBuffers = {
 			{m_gridVertexBuffer, 0, offsetof(GridVertex, position)},
-			{m_gridVertexBuffer, 1, offsetof(GridVertex, color)}
+			{m_gridVertexBuffer, 1, offsetof(GridVertex, uv)}
 		};
 
-		ConstantBufferEntry modelConstants;
+		GridConstantBufferEntry modelConstants;
 		modelConstants.viewProjMatrix = viewProjMatrix;
 		modelConstants.worldMatrix = math::float4x4::identity();
+		modelConstants.camWorldPos = m_uiData->camPos;
 		//get the global matrix to fill constant buffer		
 		m_CommandList->writeBuffer(m_gridConstantBuffer, &modelConstants, sizeof(modelConstants));
 

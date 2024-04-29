@@ -79,23 +79,53 @@ namespace GuGu {
 		struct GridVertex
 		{
 			math::float3 position;
-			math::float3 color;
+			math::float2 uv;
 
-			GridVertex(math::float3 inPosition, math::float3 inColor)
+			GridVertex(math::float3 inPosition, math::float2 inUV)
 			{
 				position = inPosition;
-				color = inColor;
+				uv = inUV;
 			}
 		};
+
+		struct GridProperties
+		{
+			float _planeAxis = 1.0f;
+			float _majorGridDivisions = 10.0f;
+			float _axisLineWidth = 0.04f;
+			float _majorLineWidth = 0.02f;
+			float _minorLineWidth = 0.01f;
+			math::float3 pad0;
+			math::float4 _baseColor = math::float4(0.0f, 0.0f, 0.0f, 1.0f);
+			math::float4 _majorLineColor = math::float4(1.0f, 1.0f, 1.0f, 1.0f);
+			math::float4 _minorLineColor = math::float4(1.0f, 1.0f, 1.0f, 1.0f);
+			math::float4 _xAxisLineColor = math::float4(1.0f, 0.0f, 0.0f, 1.0f);
+			math::float4 _xAxisDashColor = math::float4(0.5f, 0.0f, 0.0f, 1.0f);
+			math::float4 _yAxisLineColor = math::float4(0.0f, 1.0f, 0.0f, 1.0f);;
+			math::float4 _yAxisDashColor = math::float4(0.0f, 0.5f, 0.0f, 1.0f);;
+			math::float4 _zAxisLineColor = math::float4(0.0f, 0.0f, 1.0f, 1.0f);;
+			math::float4 _zAxisDashColor = math::float4(0.0f, 0.0f, 0.5f, 1.0f);;
+			float _axisDashScale = 1.33;
+			math::float3 pad1;
+			math::float4 _axisCenterColor = math::float4(1.0f, 1.0f, 1.0f, 1.0f);
+		};
+
 		nvrhi::ShaderHandle m_gridVertexShader;
 		nvrhi::ShaderHandle m_gridPixelShader;
 		nvrhi::BufferHandle m_gridConstantBuffer;
+		nvrhi::BufferHandle m_gridPropertiesConstantBuffer;
 		nvrhi::InputLayoutHandle m_gridInputLayout;
 		nvrhi::BindingLayoutHandle m_gridBindingLayout;
 		nvrhi::BindingSetHandle m_gridBindingSet;
 		nvrhi::GraphicsPipelineHandle m_gridPipeline;
 		nvrhi::BufferHandle m_gridVertexBuffer;
 		std::vector<GridVertex> m_gridVertices;
+
+		struct GridConstantBufferEntry {
+			dm::float4x4 viewProjMatrix;
+			dm::float4x4 worldMatrix;
+			dm::float3 camWorldPos;
+		};
 		//------grid------
 
 		struct ConstantBufferEntry {
