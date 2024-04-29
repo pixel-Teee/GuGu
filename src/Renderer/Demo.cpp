@@ -925,8 +925,7 @@ namespace GuGu {
 			m_CommandList->drawIndexed(args);
 		}
 
-		GridProperties gridProperties;
-		m_CommandList->writeBuffer(m_gridPropertiesConstantBuffer, &gridProperties, sizeof(gridProperties));
+		m_CommandList->writeBuffer(m_gridPropertiesConstantBuffer, &m_uiData->m_gridProperties, sizeof(GridProperties));
 
 		//draw grid
 		if (!m_gridBindingSet)

@@ -11,6 +11,29 @@
 namespace GuGu {
 	//class GuGuUtf8Str;
 	class SceneGraphNode;
+
+	struct GridProperties
+	{
+		float _planeAxis = 1.0f;
+		float _majorGridDivisions = 10.0f;
+		float _axisLineWidth = 0.04f;
+		float _majorLineWidth = 0.02f;
+		float _minorLineWidth = 0.01f;
+		math::float3 pad0;
+		math::float4 _baseColor = math::float4(0.0f, 0.0f, 0.0f, 1.0f);
+		math::float4 _majorLineColor = math::float4(1.0f, 1.0f, 1.0f, 1.0f);
+		math::float4 _minorLineColor = math::float4(1.0f, 1.0f, 1.0f, 1.0f);
+		math::float4 _xAxisLineColor = math::float4(1.0f, 0.0f, 0.0f, 1.0f);
+		math::float4 _xAxisDashColor = math::float4(0.5f, 0.0f, 0.0f, 1.0f);
+		math::float4 _yAxisLineColor = math::float4(0.0f, 1.0f, 0.0f, 1.0f);;
+		math::float4 _yAxisDashColor = math::float4(0.0f, 0.5f, 0.0f, 1.0f);;
+		math::float4 _zAxisLineColor = math::float4(0.0f, 0.0f, 1.0f, 1.0f);;
+		math::float4 _zAxisDashColor = math::float4(0.0f, 0.0f, 0.5f, 1.0f);;
+		float _axisDashScale = 1.33;
+		math::float3 pad1;
+		math::float4 _axisCenterColor = math::float4(1.0f, 1.0f, 1.0f, 1.0f);
+	};
+
 	struct UIData
 	{
 		float metallic = 0.0f;
@@ -26,6 +49,8 @@ namespace GuGu {
 		float zWorldPos = 0.0f;
 
 		math::float3 color = math::float3(1.0f, 1.0f, 1.0f);
+
+		GridProperties m_gridProperties;
 
 		//node name trees
 		std::vector<GuGuUtf8Str> nodeNames;

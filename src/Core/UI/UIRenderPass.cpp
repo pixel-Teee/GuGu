@@ -1179,7 +1179,7 @@ namespace GuGu {
 						(
 							WIDGET_NEW(VerticalBox)
 							+ VerticalBox::Slot()
-							.StretchHeight(2.0)
+							.StretchHeight(0.45f)
 							(
 								WIDGET_NEW(Border)
 								.verticalAlignment(VerticalAlignment::Stretch)
@@ -1220,6 +1220,75 @@ namespace GuGu {
 							.StretchHeight(0.9)
 							(
 								WIDGET_NEW(Spacer)
+							)
+							+ VerticalBox::Slot()
+							.StretchHeight(0.9f)
+							(
+								WIDGET_NEW(HorizontalBox)
+								+ HorizontalBox::Slot()
+								.StretchWidth(0.35f)
+								(
+									WIDGET_NEW(TextBlockWidget)
+									.text(u8"axisLineWidth:")
+								)
+								.setVerticalAlignment(VerticalAlignment::Center)
+								+ HorizontalBox::Slot()
+								.StretchWidth(1.0f)
+								(
+									WIDGET_NEW(Slider)
+									.MaxValue(20.0f)
+									.MinValue(0.0f)
+									.OnValueChangedLambda([&](float inValue) {
+										m_uiData->m_gridProperties._axisLineWidth = inValue;
+										}
+									)
+								)
+							)
+							+ VerticalBox::Slot()
+							.StretchHeight(0.9f)
+							(
+								WIDGET_NEW(HorizontalBox)
+								+ HorizontalBox::Slot()
+								.StretchWidth(0.35f)
+								(
+									WIDGET_NEW(TextBlockWidget)
+									.text(u8"MajorLineWidth:")
+								)
+								.setVerticalAlignment(VerticalAlignment::Center)
+								+ HorizontalBox::Slot()
+								.StretchWidth(1.0f)
+								(
+									WIDGET_NEW(Slider)
+									.MaxValue(20.0f)
+									.MinValue(0.0f)
+									.OnValueChangedLambda([&](float inValue) {
+										m_uiData->m_gridProperties._majorLineWidth = inValue;
+										}
+									)
+								)
+							)
+							+ VerticalBox::Slot()
+							.StretchHeight(0.9f)
+							(
+								WIDGET_NEW(HorizontalBox)
+								+ HorizontalBox::Slot()
+								.StretchWidth(0.35f)
+								(
+									WIDGET_NEW(TextBlockWidget)
+									.text(u8"MinorLineWidth:")
+								)
+								.setVerticalAlignment(VerticalAlignment::Center)
+								+ HorizontalBox::Slot()
+								.StretchWidth(1.0f)
+								(
+									WIDGET_NEW(Slider)
+									.MaxValue(20.0f)
+									.MinValue(0.0f)
+									.OnValueChangedLambda([&](float inValue) {
+										m_uiData->m_gridProperties._minorLineWidth = inValue;
+										}
+									)
+								)
 							)
 						)
 					)

@@ -199,4 +199,36 @@ namespace GuGu {
 			Direct
 		};
 	}
+
+	//可能的放置枚举，对于 pop-up 菜单
+	enum MenuPlacement
+	{
+		//立马将 menu 放置在 anchor 下面
+		MenuPlacementBelowAnchor,
+
+		//立马将 menu 放置在 anchor 中间下面
+		MenuPlacementCenteredBelowAnchor,
+
+		MenuPlacementBelowRightAnchor,
+
+		MenuPlacementComboBox,
+
+		MenuPlacementComboBoxRight,
+
+		MenuPlacementMenuRight,
+
+		MenuPlacementAboveAnchor,
+
+		MenuPlacementCenteredAboveAnchor,
+
+		MenuPlacementAboveRightAnchor,
+
+		MenuPlacementMenuLeft,
+
+		MenuPlacementCenter,
+
+		MenuPlacementRightLeftCenter,
+
+		MenuPlacementMatchBottomLeft
+	};
 }
