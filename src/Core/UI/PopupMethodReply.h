@@ -24,6 +24,16 @@ namespace GuGu {
 		{
 			return PopupMethodReply(true, withMethod);
 		}
+
+		bool isSet() const
+		{
+			return isEventHandled();
+		}
+
+		PopupMethod getPopupMethod() const
+		{
+			return m_popupMethod;
+		}
 	private:
 		PopupMethodReply(bool bIsHandled, PopupMethod inMethod)
 			: TReplyBase<PopupMethodReply>(bIsHandled)
