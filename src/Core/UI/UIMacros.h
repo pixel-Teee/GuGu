@@ -137,7 +137,7 @@ namespace GuGu {
 	}
 #define UI_EVENT(Type, EventName)\
 	Type m##EventName;\
-	BuilderArguments& EventName(Type& inFunctor) \
+	BuilderArguments& EventName(const Type& inFunctor) \
 	{\
 		m##EventName = inFunctor; \
 		return static_cast<BuilderArguments*>(this)->Me(); \

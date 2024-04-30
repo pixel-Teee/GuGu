@@ -11,6 +11,8 @@
 
 #include <Window/Window.h>
 
+#include <Renderer/DeviceManager.h>//IRenderPass
+
 namespace GuGu {
 	WindowWidget::WindowWidget()
 		: m_defaultBrush(StyleSet::getStyle()->getBrush("CheckerBoard"))
@@ -214,5 +216,27 @@ namespace GuGu {
 	void WindowWidget::setCachedScreenPosition(math::float2 newPosition)
 	{
 		m_screenPosition = newPosition;
+	}
+	void WindowWidget::setCachedSize(math::float2 newSize)
+	{
+		//todo:调整 native window 窗口大小
+		m_size = newSize;
+	}
+	math::float2 WindowWidget::getPositionInScreen() const
+	{
+		return m_screenPosition;
+	}
+	WidgetGeometry WindowWidget::getWindowGeometryInScreen() const
+	{
+		//我们对于布局来缩放孩子，但是我们的像素边界是不改变的
+		//WidgetGeometry要求大小在局部空间，但是我们的大小存储在屏幕空间
+		//我们需要去转换大小到窗口的局部空间，对于widget geometry
+		
+		//首先得到一个 local to screen transform
+		math::affine2 localToScreen(math::float2x2::diagonal(m_nativeWindow->getDpiFactor()), m_screenPosition);
+
+		WidgetGeometry res = WidgetGeometry::makeRoot(math::inverse(localToScreen).transformVector(m_size), localToScreen);
+
+		return res;
 	}
 }

@@ -169,7 +169,8 @@ namespace GuGu{
 			if (childSlot)
 			{
 				std::shared_ptr<Widget> childWidget = childSlot->getChildWidget();
-                childWidget->prepass(inLayoutScaleMultiplier);
+                if(childWidget != nullptr)
+                    childWidget->prepass(inLayoutScaleMultiplier);
 			}
 		}
         cacheDesiredSize(inLayoutScaleMultiplier);

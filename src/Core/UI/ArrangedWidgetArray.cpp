@@ -46,6 +46,14 @@ namespace GuGu {
 	{
 		return m_widgets[index];
 	}
+	ArrangedWidget& ArrangedWidgetArray::back()
+	{
+		return *m_widgets.back();
+	}
+	ArrangedWidget& ArrangedWidgetArray::back() const
+	{
+		return *m_widgets.back();
+	}
 	bool ArrangedWidgetArray::accepts(Visibility inVisibility) const
 	{
 		return Visibility::doesVisibilityPassFilter(inVisibility, m_visibilityFilter);

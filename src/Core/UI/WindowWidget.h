@@ -58,6 +58,12 @@ namespace GuGu {
 
 		void setCachedScreenPosition(math::float2 newPosition);
 
+		void setCachedSize(math::float2 newSize);
+
+		math::float2 getPositionInScreen() const;
+
+		WidgetGeometry getWindowGeometryInScreen() const;
+
 		//static Slot::SlotBuilderArguments SingleSlot() { return Slot::SlotBuilderArguments(std::make_shared<Slot>()); };
 	private:
 		std::shared_ptr<Window> m_nativeWindow;
@@ -66,5 +72,7 @@ namespace GuGu {
 		std::shared_ptr<Brush> m_defaultBrush;//for window background
 
 		math::float2 m_screenPosition;//窗口的屏幕坐标
+
+		math::float2 m_size;//窗口在屏幕空间的内容区域的大小
 	};
 }

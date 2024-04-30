@@ -291,6 +291,47 @@ namespace GuGu{
 		return m_focusWidgetsPath.getLastWidget().lock();
 	}
 
+	bool Application::findPathToWidget(const std::vector<std::shared_ptr<WindowWidget>>& windowsToSearch, std::shared_ptr<Widget> inWidget, WidgetPath& outWidgetPath, Visibility visibilityFilter)
+	{
+		//迭代我们的顶层窗口
+		bool bFoundWidget = false;
+
+		for (int32_t windowIndex = 0; !bFoundWidget && windowIndex < windowsToSearch.size(); ++windowIndex)
+		{
+			std::shared_ptr<WindowWidget> curWindow = windowsToSearch[windowIndex];
+
+			ArrangedWidgetArray justWindow(visibilityFilter);
+			{
+				justWindow.pushWidget(curWindow->getWidgetGeometry(), curWindow);
+			}
+
+			WidgetPath pathToWidget(curWindow, justWindow);
+
+			//是否能获取得到一条路径从 curWindow 到 inWidget
+			if ((curWindow == inWidget) || pathToWidget.extendPathTo(inWidget, visibilityFilter))
+			{
+				outWidgetPath = pathToWidget;
+				bFoundWidget = true;
+			}
+		}
+
+		return bFoundWidget;
+	}
+
+	bool Application::generatePathToWidgetUnchecked(std::shared_ptr<Widget> inWidget, WidgetPath& outWidgetPath, Visibility visibilityFilter) const
+	{
+		UIRenderPass* uiRenderPass = m_renderer->getUIRenderPass();
+		std::shared_ptr<WindowWidget> windowWidget = uiRenderPass->getWindowWidget();//这里要修复
+		std::vector<std::shared_ptr<WindowWidget>> widgets;
+		widgets.push_back(windowWidget);
+		if (!findPathToWidget(widgets, inWidget, outWidgetPath, visibilityFilter))
+		{
+			return findPathToWidget(widgets, inWidget, outWidgetPath, visibilityFilter);
+		}
+
+		return true;
+	}
+
     bool Application::processMouseButtonDownEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
     {
 		if (!m_captorWidgetsPath.isEmpty())

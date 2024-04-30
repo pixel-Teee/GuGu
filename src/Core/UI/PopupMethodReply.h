@@ -20,6 +20,11 @@ namespace GuGu {
 			, m_popupMethod(PopupMethod::CreateNewWindow)
 		{}
 
+		static PopupMethodReply unHandled()
+		{
+			return PopupMethodReply(false, PopupMethod::CreateNewWindow);
+		}
+
 		static PopupMethodReply useMethod(PopupMethod withMethod)
 		{
 			return PopupMethodReply(true, withMethod);

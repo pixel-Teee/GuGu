@@ -27,10 +27,19 @@ namespace GuGu {
 
 		const std::shared_ptr<ArrangedWidget> operator[](size_t index) const;
 
+		ArrangedWidget& back();
+
+		ArrangedWidget& back() const;
+
 		bool accepts(Visibility inVisibility) const;
 
 		//从一堆widgets构造arranged widget array
 		static ArrangedWidgetArray hittestFromArray(const std::vector<std::shared_ptr<Widget>>& widgets, const WidgetGeometry& offsetGeometry);
+
+		void reverse()
+		{
+			std::reverse(m_widgets.begin(), m_widgets.end());
+		}
 	private:
 
 		std::vector<std::shared_ptr<ArrangedWidget>> m_widgets;

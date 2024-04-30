@@ -24,7 +24,8 @@ namespace GuGu {
 		m_childWidget->setPadding(arguments.mpadding);
 		m_widgetClipping = arguments.mClip;
 		m_childWidget->m_parentWidget = shared_from_this();
-		m_childWidget->m_childWidget->setParentWidget(shared_from_this());
+		if(m_childWidget->m_childWidget != nullptr)
+			m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 		m_visibilityAttribute = arguments.mVisibility;
 	}
 	uint32_t Border::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)

@@ -63,4 +63,7 @@ namespace GuGu {
 	ScrollBarStyle::~ScrollBarStyle()
 	{
 	}
+	ComboButtonStyle::ComboButtonStyle()
+	{
+	}
 }

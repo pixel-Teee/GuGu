@@ -6,6 +6,8 @@
 #include <Core/UI/Events.h>//ModifierKeysState depends on it
 #include <Core/UI/WidgetPath.h>
 
+//#include <memory>
+
 namespace GuGu {
 	class Widget;
 
@@ -17,6 +19,7 @@ namespace GuGu {
     struct KeyEvent;
 	class Reply;
 	class WidgetPath;
+	class WindowWidget;
 	class Application {
 	public:
 		Application();
@@ -80,6 +83,17 @@ namespace GuGu {
 		void setFocus(const std::shared_ptr<Widget>& widgetToFocus, const WidgetPath& widgetPath);
 
 		std::shared_ptr<Widget> getKeyboardFocusedWidget() const;
+
+		//true 表示找到
+		static bool findPathToWidget(const std::vector<std::shared_ptr<WindowWidget>>& windowsToSearch,
+			std::shared_ptr<Widget> inWidget,
+			WidgetPath& outWidgetPath,
+			Visibility visibilityFilter = Visibility::Visible);
+
+		//查找一个确切的 widget 并且生成一个完整的路径到它，这是一个比较慢的操作
+		//visibility filter 表示这个路径内必须有这个 visibility 的 widget
+		bool generatePathToWidgetUnchecked(std::shared_ptr<Widget> inWidget, WidgetPath& outWidgetPath,
+			Visibility visibilityFilter = Visibility::Visible) const;
 	protected:
 		std::shared_ptr<Renderer> m_renderer;
 

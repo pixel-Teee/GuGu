@@ -185,6 +185,17 @@ namespace GuGu {
 		expandedArrowCollapsed->m_tiling = false;
 		expandedArrowCollapsed->m_texturePath = u8"asset/MinimumWindow/expandedArrowCollapsed.png";//16x16
 		m_brushes.insert({ u8"expandedArrowCollapsed", expandedArrowCollapsed });
+
+		//combo button
+		std::shared_ptr<ButtonStyle> comboButtonButton = std::make_shared<ButtonStyle>();
+		comboButtonButton->setPressedPadding(Padding(8.0f, 2.0f, 8.0f, 0.0f));
+
+		std::shared_ptr<ComboButtonStyle> comboButtonStyle = std::make_shared<ComboButtonStyle>();
+		comboButtonStyle->setButtonStyle(comboButtonButton);
+		comboButtonStyle->setContentPadding(Padding(0.0f));
+		comboButtonStyle->setMenuBorderPadding(0.0f);
+		comboButtonStyle->setDownArrowImage(expandedArrow);
+		m_styles.insert({ "comboButton", comboButtonStyle });
 	}
 	StyleSet::~StyleSet()
 	{

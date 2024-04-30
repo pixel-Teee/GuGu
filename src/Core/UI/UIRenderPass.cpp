@@ -37,6 +37,7 @@
 #include "TableRow.h"
 #include "Spacer.h"
 #include "TreeView.h"
+#include "ComboButton.h"
 
 #include <Core/GuGuFile.h>
 #include <Window/Window.h>
@@ -404,6 +405,9 @@ namespace GuGu {
 		
 		math::int2 windowWidthAndHeight = math::int2(GetDeviceManager()->getDeviceCreationParameters().backBufferWidth, GetDeviceManager()->getDeviceCreationParameters().backBufferHeight);
 		
+		//设置窗口大小
+		m_uiRoot->setCachedSize(math::float2(windowWidthAndHeight.x, windowWidthAndHeight.y));
+
 		WidgetGeometry geometry = WidgetGeometry::makeRoot(math::float2(windowWidthAndHeight.x / m_uiRoot->getNativeWindow()->getDpiFactor(), windowWidthAndHeight.y / m_uiRoot->getNativeWindow()->getDpiFactor()),
 			math::affine2(math::float2x2::diagonal(m_uiRoot->getNativeWindow()->getDpiFactor()), 0.0f));
 		//geometry.setAbsoluteScale(m_uiRoot->getNativeWindow()->getDpiFactor());
@@ -1179,7 +1183,7 @@ namespace GuGu {
 						(
 							WIDGET_NEW(VerticalBox)
 							+ VerticalBox::Slot()
-							.StretchHeight(0.45f)
+							.StretchHeight(0.8f)
 							(
 								WIDGET_NEW(Border)
 								.verticalAlignment(VerticalAlignment::Stretch)
@@ -1288,6 +1292,20 @@ namespace GuGu {
 										m_uiData->m_gridProperties._minorLineWidth = inValue;
 										}
 									)
+								)
+							)
+							+ VerticalBox::Slot()
+							.StretchHeight(0.9)
+							(
+								WIDGET_NEW(ComboButton)
+								.onGetMenuContentLambda([this]() {
+									return WIDGET_NEW(ImageWidget)
+										.brush(m_styles->getBrush("checkedImage"));
+								})
+								.buttonContent
+								(
+									WIDGET_NEW(TextBlockWidget)
+									.text(u8"combobutton测试")
 								)
 							)
 						)

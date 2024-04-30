@@ -3,9 +3,15 @@
 #include "WidgetPath.h"
 #include "Widget.h"
 #include "ArrangedWidget.h"
+#include "WindowWidget.h"
 
 namespace GuGu {
 	WidgetPath::WidgetPath()
+	{
+	}
+	WidgetPath::WidgetPath(std::shared_ptr<WindowWidget> inTopLevelWindow, const ArrangedWidgetArray& inWidgetPath)
+		: m_widgets(inWidgetPath)
+		, m_offsetGeometry()
 	{
 	}
 	WidgetPath::WidgetPath(const std::vector<std::shared_ptr<Widget>>& widgets, const WidgetGeometry& offsetGeometry)
@@ -26,6 +32,64 @@ namespace GuGu {
 			bCopiedMarker = m_widgets[i]->getWidget() == markerWidget;
 		}
 		return newWidgetPath;
+	}
+	bool WidgetPath::searchForWidgetRecursively(const std::shared_ptr<Widget>& matcher, const ArrangedWidget& inCandidate, ArrangedWidgetArray& outReversedPath, Visibility visibilityFilter)
+	{	
+		ArrangedWidgetArray arrangedChildren(visibilityFilter);
+		inCandidate.getWidget()->AllocationChildActualSpace(inCandidate.getWidgetGeometry(), arrangedChildren);
+
+		for (int32_t childIndex = 0; childIndex < arrangedChildren.getArrangedWidgetsNumber(); ++childIndex)
+		{
+			const ArrangedWidget& someChild = *arrangedChildren.getArrangedWidget(childIndex);
+			if (matcher == someChild.getWidget())
+			{
+				outReversedPath.pushWidget(WidgetGeometry(), someChild.getWidget());
+				return true;
+			}
+			else if (searchForWidgetRecursively(matcher, someChild, outReversedPath, visibilityFilter))
+			{
+				outReversedPath.pushWidget(WidgetGeometry(), someChild.getWidget());
+				return true;
+			}
+		}
+
+		return false;	
+	}
+	ArrangedWidgetArray WidgetPath::generatePathToWidget(const std::shared_ptr<Widget>& matcher, const ArrangedWidget& fromWidget, Visibility visibility)
+	{
+
+		//从 from widget 找到一条到 matcher 的路径
+		ArrangedWidgetArray pathResult(visibility);
+
+		searchForWidgetRecursively(matcher, fromWidget, pathResult, visibility);
+
+		pathResult.reverse();
+
+		return pathResult;
+	}
+	bool WidgetPath::extendPathTo(const std::shared_ptr<Widget>& matcher, Visibility visibilityFilter)
+	{
+
+		const ArrangedWidget& lastWidget = m_widgets.back();
+
+		ArrangedWidgetArray extension = generatePathToWidget(matcher, lastWidget, visibilityFilter);
+
+		for (int32_t widgetIndex = 0; widgetIndex < extension.getArrangedWidgetsNumber(); ++widgetIndex)
+		{
+			m_widgets.pushWidget(WidgetGeometry(), extension.getArrangedWidget(widgetIndex)->getWidget());
+		}
+
+		return extension.getArrangedWidgetsNumber() > 0;//扩展成功，扩展到 matcher
+	}
+	bool WidgetPath::isValid() const
+	{
+		return m_widgets.getArrangedWidgetsNumber() > 0;
+	}
+	std::shared_ptr<WindowWidget> WidgetPath::getWindow() const
+	{
+		std::shared_ptr<WindowWidget> firstWidgetWindow = std::static_pointer_cast<WindowWidget>(m_widgets[0]->getWidget());
+
+		return firstWidgetWindow;
 	}
 	WeakWidgetPath::WeakWidgetPath(const WidgetPath& inWidgetPath)
 	{

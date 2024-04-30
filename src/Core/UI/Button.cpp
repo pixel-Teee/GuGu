@@ -26,7 +26,8 @@ namespace GuGu {
 
 		m_childWidget = arguments.mContent;	
 		m_childWidget->m_parentWidget = shared_from_this();
-		m_childWidget->m_childWidget->setParentWidget(shared_from_this());
+		if(m_childWidget->m_childWidget != NullWidget::getNullWidget())
+			m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 	}
 	uint32_t Button::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{

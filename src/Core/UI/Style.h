@@ -4,6 +4,7 @@
 
 #include "TextInfo.h"
 #include "BasicElement.h"
+#include "EnumAsByte.h"
 
 namespace GuGu {
 	struct Style
@@ -138,5 +139,47 @@ namespace GuGu {
 
 		float m_thickNess;
 		ScrollBarStyle& setThickness(float inThickness) { m_thickNess = inThickness; return *this; }
+	};
+
+	struct ComboButtonStyle : public Style
+	{
+		ComboButtonStyle();
+
+		virtual ~ComboButtonStyle() {}
+
+		std::shared_ptr<ButtonStyle> m_buttonStyle;
+		ComboButtonStyle& setButtonStyle(const std::shared_ptr<ButtonStyle>& inButtonStyle) { m_buttonStyle = inButtonStyle; return *this; }
+
+		//下箭头
+		std::shared_ptr<Brush> m_downArrowImage;
+		ComboButtonStyle& setDownArrowImage(const std::shared_ptr<Brush>& inDownArrowImage) { m_downArrowImage = inDownArrowImage; return *this; }
+
+		//shadow 应当偏移 down arrow 多少？
+		//0表示没有阴影
+		math::float2 m_shadowOffset;
+		ComboButtonStyle& setShadowOffset(const math::float2& inShadowOffset) { m_shadowOffset = inShadowOffset; return *this; }
+
+		//下箭头的颜色和透明度
+		math::float4 m_shadowColorAndOpacity;
+		ComboButtonStyle& setShadowColorAndOpacity(const math::float4& inShadowColorAndOpacity) { m_shadowColorAndOpacity = inShadowColorAndOpacity; return *this; }
+
+		//去添加一个 menu border 在 drop-down 内容
+		std::shared_ptr<Brush> m_menuBorderBrush;
+		ComboButtonStyle& setMenuBorderBrush(const std::shared_ptr<Brush>& inMenuBorderBrush) { m_menuBorderBrush = inMenuBorderBrush; return *this; }
+
+		//添加一个 menu border padding 在 drop-down 内容周围
+		Padding m_menuBorderPadding;
+		ComboButtonStyle& setMenuBorderPadding(const Padding& inMenuBorderPadding) { m_menuBorderPadding = inMenuBorderPadding; return *this; }
+
+		Padding m_contentPadding;
+		ComboButtonStyle& setContentPadding(const Padding& inContentPadding) { m_contentPadding = inContentPadding; return *this; }
+
+		//下箭头 padding
+		Padding m_downArrowPadding;
+		ComboButtonStyle& setDownArrowPadding(const Padding& inDownArrowPadding) { m_downArrowPadding = inDownArrowPadding; return *this; }
+
+		//下箭头垂直对齐
+		EnumAsByte<VerticalAlignment> m_downArrowAlign;
+		ComboButtonStyle& setDownArrowAlignment(const VerticalAlignment& inValign) { m_downArrowAlign = inValign; return *this; }
 	};
 }

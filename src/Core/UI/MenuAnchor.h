@@ -27,8 +27,8 @@ namespace GuGu {
 				, mmenuContent(WIDGET_NEW(TextBlockWidget).text("No Menu Content Assigned"))
 				, mplacement(MenuPlacementBelowAnchor)
 				, mfitInWindow(true)
-				, mshouldDeferPaintingAfterWindowContent(true)
-				, museApplicationMenuStack(true)
+				, mshouldDeferPaintingAfterWindowContent(false)//todo:这个暂时改为false，后续改为true，延迟绘制的能力还没添加
+				, museApplicationMenuStack(false)//todo:这个暂时改为false，后续改为true，
 				, misCollapsedByParent(false)
 				, mapplyWidgetStyleToMenu(true)
 			{}
@@ -74,6 +74,25 @@ namespace GuGu {
 	protected:
 		//返回真，如果 pop up 现在被打开，并且重复使用一个已经存在的窗口
 		bool isOpenAndReusingWindow() const;
+
+		//打开或者关闭 pop up
+		bool isOpen() const;
+
+		//打开或者关闭 pop up ，这个函数很重要
+		virtual void setIsOpen(bool inIsOpen, const bool bFocusMenu = true);
+
+		//当 pop up 打开的时候，调用这个，从 m_onGetMenuContent 里获取内容
+		virtual void setMenuContent(std::shared_ptr<Widget> inMenuContent);
+
+		//当关闭 pop up 的时候，就重置一些内容，做善后工作1
+		void resetPopupMenuContent();
+
+		static std::vector<std::weak_ptr<IMenu>> m_openApplicationMenus;
+
+		//IMenuHost的接口
+		virtual std::shared_ptr<WindowWidget> getMenuWindow() const override;//宿主窗口
+		virtual void onMenuDismissed() override;//当菜单消失的时候
+		virtual bool usingApplicationMenuStack() const override;//是否使用应用的菜单栈
 	protected:
 		struct PopupPlacement
 		{
@@ -156,7 +175,8 @@ namespace GuGu {
 			void init(std::shared_ptr<Widget> inParentWidget, const SlotBuilderArguments& builderArguments)
 			{
 				m_parentWidget = inParentWidget;
-				m_childWidget->setParentWidget(inParentWidget);
+				if(m_childWidget != nullptr)
+					m_childWidget->setParentWidget(inParentWidget);
 			}
 		};
 
