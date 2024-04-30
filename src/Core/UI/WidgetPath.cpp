@@ -104,7 +104,8 @@ namespace GuGu {
 	{
 		for (int32_t i = 0; i < m_widgets.size(); ++i)
 		{
-			widgetPath.m_widgets.pushWidget(m_widgets[i].lock()->getWidgetGeometry().getOffsetGeometry(m_offsetGeometry.getAbsolutePosition()), m_widgets[i].lock());
+			if(m_widgets[i].lock()) //todo:这里可能要修复一下，因为 widget 可能在某处引用计数为0
+				widgetPath.m_widgets.pushWidget(m_widgets[i].lock()->getWidgetGeometry().getOffsetGeometry(m_offsetGeometry.getAbsolutePosition()), m_widgets[i].lock());
 		}
 	}
 	std::weak_ptr<Widget> WeakWidgetPath::getLastWidget() const

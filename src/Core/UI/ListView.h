@@ -69,7 +69,6 @@ namespace GuGu {
 			//制作table view
 			this->m_onGenerateRow = arguments.monGenerateRow;
 			this->m_itemsSource = arguments.mListItemSource;
-			this->m_onSelectionChanged = arguments.mselectionMode;
 			this->m_selectionMode = arguments.mselectionMode;
 
 			constructChildren(0, arguments.mitemHeight, ListItemAlignment::LeftAligned, arguments.mheaderRow, arguments.mexternalScrollbar,

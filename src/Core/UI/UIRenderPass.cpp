@@ -38,6 +38,7 @@
 #include "Spacer.h"
 #include "TreeView.h"
 #include "ComboButton.h"
+#include "Box.h"
 
 #include <Core/GuGuFile.h>
 #include <Window/Window.h>
@@ -600,7 +601,7 @@ namespace GuGu {
 	}
 	std::shared_ptr<WindowWidget> UIRenderPass::createTestWindow()
 	{
-		static std::vector<GuGuUtf8Str> strVec = { u8"test", u8"你好" };
+		static std::vector<GuGuUtf8Str> strVec = { u8"test", u8"你好", u8"这是一个combo box", u8"这是一个combo button" };
 
 		return WIDGET_ASSIGN_NEW(WindowWidget, m_uiRoot)
 			.Type(WindowWidget::NativeWindow)
@@ -1230,8 +1231,24 @@ namespace GuGu {
 							(
 								WIDGET_NEW(ComboButton)
 								.onGetMenuContentLambda([this]() {
-									return WIDGET_NEW(ImageWidget)
-										.brush(m_styles->getBrush("biscuit"));
+									return WIDGET_NEW(BoxWidget)
+									.HeightOverride(80.0f)
+									.Content(
+										WIDGET_NEW(ListView<GuGuUtf8Str>)
+										.ListItemSource(&strVec)
+										.onGenerateRowLambda([](GuGuUtf8Str item, const std::shared_ptr<class TableViewBase>& table)->std::shared_ptr<ITableRow> {
+											return WIDGET_NEW(TableRow<GuGuUtf8Str>, table)
+												.Content(
+													WIDGET_NEW(Border)
+													.BorderBackgroundColor(math::float4(0.3f, 0.6f, 0.2f, 1.0f))
+													.Content
+													(
+														WIDGET_NEW(TextBlockWidget)
+														.text(item)
+													)
+												);
+											})	
+									);
 								})
 								.buttonContent
 								(
