@@ -1226,6 +1226,20 @@ namespace GuGu {
 								WIDGET_NEW(Spacer)
 							)
 							+ VerticalBox::Slot()
+							.StretchHeight(0.9)
+							(
+								WIDGET_NEW(ComboButton)
+								.onGetMenuContentLambda([this]() {
+									return WIDGET_NEW(ImageWidget)
+										.brush(m_styles->getBrush("biscuit"));
+								})
+								.buttonContent
+								(
+									WIDGET_NEW(TextBlockWidget)
+									.text(u8"combobutton测试")
+								)
+							)
+							+ VerticalBox::Slot()
 							.StretchHeight(0.9f)
 							(
 								WIDGET_NEW(HorizontalBox)
@@ -1292,20 +1306,6 @@ namespace GuGu {
 										m_uiData->m_gridProperties._minorLineWidth = inValue;
 										}
 									)
-								)
-							)
-							+ VerticalBox::Slot()
-							.StretchHeight(0.9)
-							(
-								WIDGET_NEW(ComboButton)
-								.onGetMenuContentLambda([this]() {
-									return WIDGET_NEW(ImageWidget)
-										.brush(m_styles->getBrush("checkedImage"));
-								})
-								.buttonContent
-								(
-									WIDGET_NEW(TextBlockWidget)
-									.text(u8"combobutton测试")
 								)
 							)
 						)

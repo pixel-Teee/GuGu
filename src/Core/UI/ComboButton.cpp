@@ -26,7 +26,7 @@ namespace GuGu {
 			MenuAnchor::BuilderArguments()
 			.placement(arguments.mmenuPlacement)//弹出窗放置的位置
 			.method(arguments.mmethod)//使用现有的窗口还是创建新窗口
-			.onGetMenuContent(arguments.monGetMenuContent)
+			.onGetMenuContent(arguments.monGetMenuContent)//菜单内容
 			.Content
 			(
 				//button and down arrow on the right
@@ -36,9 +36,10 @@ namespace GuGu {
 				WIDGET_NEW(Button)
 				.buttonSyle(ourButtonStyle)
 				.Clicked(this, &ComboButton::onButtonClicked)
-				.contentPadding(arguments.mcontentPadding.IsSet() ? arguments.mcontentPadding : arguments.mcomboButtonStyle.Get()->m_contentPadding) //添加 is focusable
+				.contentPadding(arguments.mcontentPadding.IsSet() ? arguments.mcontentPadding : arguments.mcomboButtonStyle.Get()->m_contentPadding) //todo:添加 is focusable
 				.Content
 				(
+					//按钮内容和下箭头
 					WIDGET_ASSIGN_NEW(HorizontalBox, hBox)
 					+ HorizontalBox::Slot()
 					.expose(m_buttonContentSlot)
@@ -46,7 +47,7 @@ namespace GuGu {
 					.setHorizontalAlignment(arguments.mhorizontalAlignment)
 					.setVerticalAlignment(arguments.mverticalAlignment)
 					(
-						arguments.mbuttonContent->m_childWidget
+						arguments.mbuttonContent->m_childWidget //按钮的内容
 					)
 					+ HorizontalBox::Slot()
 					.FixedWidth()
@@ -58,6 +59,7 @@ namespace GuGu {
 						//drop shadow
 						+ Overlay::Slot()
 						.setVerticalAlignment(VerticalAlignment::Top)
+						.setHorizontalAlignment(HorizontalAlignment::Stretch)
 						.setPadding(Padding(arguments.mcomboButtonStyle.Get()->m_shadowOffset.x, arguments.mcomboButtonStyle.Get()->m_shadowOffset.y, 0.0f, 0.0f))
 						(
 							WIDGET_NEW(ImageWidget)
@@ -66,9 +68,10 @@ namespace GuGu {
 						)
 						+ Overlay::Slot()
 						.setVerticalAlignment(VerticalAlignment::Top)
+						.setHorizontalAlignment(HorizontalAlignment::Stretch)
 						(
 							WIDGET_NEW(ImageWidget)
-							.visibility(arguments.mhasDownArrow && bHasDownArrowShadow ? Visibility::Visible : Visibility::Collapsed)
+							.visibility(arguments.mhasDownArrow ? Visibility::Visible : Visibility::Collapsed)
 							.brush(arguments.mcomboButtonStyle.Get()->m_downArrowImage)
 						)
 					)
@@ -80,7 +83,8 @@ namespace GuGu {
 	}
 	bool ComboButton::shouldOpenDueToClick() const
 	{
-		return !isOpen() && !m_bDismissedThisTick;
+		//todo:Add  && !m_bDismissedThisTick
+		return !isOpen();
 	}
 	void ComboButton::setMenuContent(std::shared_ptr<Widget> inMenuContent)
 	{

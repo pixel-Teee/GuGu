@@ -195,6 +195,7 @@ namespace GuGu {
 		comboButtonStyle->setContentPadding(Padding(0.0f));
 		comboButtonStyle->setMenuBorderPadding(0.0f);
 		comboButtonStyle->setDownArrowImage(expandedArrow);
+		comboButtonStyle->setDownArrowAlignment(VerticalAlignment::Center);
 		m_styles.insert({ "comboButton", comboButtonStyle });
 	}
 	StyleSet::~StyleSet()

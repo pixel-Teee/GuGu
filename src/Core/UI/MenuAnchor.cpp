@@ -122,7 +122,7 @@ namespace GuGu {
 
 			if (bHasArrangedAnchorContent)
 			{
-				layer = firstChild.getWidget()->generateElement(paintArgs, cullingRect, elementList, firstChild.getWidget()->getWidgetGeometry(), layer + 1);
+				layer = firstChild.getWidget()->generateElement(paintArgs, cullingRect, elementList, firstChild.getWidgetGeometry(), layer + 1);
 			}
 
 			const bool bIsOpen = isOpen();//是否打开菜单
@@ -207,7 +207,7 @@ namespace GuGu {
 	}
 	bool MenuAnchor::isOpen() const
 	{
-		return m_methodInUse.isSet() && m_popUpMenuPtr.expired() != 0;
+		return m_methodInUse.isSet() && m_popUpMenuPtr.lock() != nullptr;
 	}
 	void MenuAnchor::setIsOpen(bool inIsOpen, const bool bFocusMenu)
 	{
@@ -286,6 +286,9 @@ namespace GuGu {
 
 						m_popUpMenuPtr = m_ownedMenuPtr = newMenu;
 
+						m_childrens[1]->setChildWidget(menuContent);
+						menuContent->setParentWidget(shared_from_this());
+
 						if (bFocusMenu)
 						{
 							//todo:设置焦点
@@ -304,6 +307,8 @@ namespace GuGu {
 				{
 					//m_popUpMenuPtr.lock()->dismiss();
 				}
+
+				resetPopupMenuContent();
 			}
 		}
 	}

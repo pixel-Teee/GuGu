@@ -16,7 +16,9 @@ namespace GuGu {
 		class OverlaySlot : public Slot<OverlaySlot>
 		{
 		public:
-			OverlaySlot() {}
+			OverlaySlot()
+				: Slot<OverlaySlot>(HorizontalAlignment::Stretch, VerticalAlignment::Stretch, Padding(0.0f, 0.0f, 0.0f, 0.0f))
+			{}
 
 			virtual ~OverlaySlot() {}
 
