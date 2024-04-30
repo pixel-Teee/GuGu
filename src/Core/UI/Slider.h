@@ -61,6 +61,8 @@ namespace GuGu {
 		void commitValue(float newValue);
 
 		float positionToValue(const WidgetGeometry& geometry, const math::float2& absolutePosition);
+
+		virtual bool isInteractable() const override;
 	private:
 
 		//持有滑条的方向

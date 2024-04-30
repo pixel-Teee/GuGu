@@ -146,6 +146,10 @@ namespace GuGu {
 		//
 		return Reply::Unhandled().releaseMouseCapture();
 	}
+	bool CheckBox::isInteractable() const
+	{
+		return true;
+	}
 	SlotBase* CheckBox::getSlot(uint32_t index) const
 	{
 		return m_childWidget.get();

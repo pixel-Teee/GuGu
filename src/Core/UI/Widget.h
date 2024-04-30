@@ -66,6 +66,8 @@ namespace GuGu{
 
         virtual bool supportsKeyboardFocus() const;
 
+        virtual bool isInteractable() const;//碰撞检测会使用这个
+
 		virtual SlotBase* getSlot(uint32_t index) const;
 
 		virtual uint32_t getSlotsNumber() const;

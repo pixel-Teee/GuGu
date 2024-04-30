@@ -14,7 +14,9 @@ namespace GuGu {
 
 		struct BuilderArguments : public Arguments<Button>
 		{
-			BuilderArguments() = default;
+			BuilderArguments()
+				:misFocusable(true)
+			{}
 
 			~BuilderArguments() = default;
 
@@ -30,6 +32,8 @@ namespace GuGu {
 
 			ARGUMENT_MEMBER(ButtonStyle, buttonSyle)
 
+			ARGUMENT_VALUE(bool, isFocusable)
+
 			UI_EVENT(OnClicked, Clicked)
 		};
 
@@ -42,6 +46,10 @@ namespace GuGu {
 		virtual Reply OnMouseButtonDown(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent) override;
 
 		virtual Reply OnMouseButtonUp(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent) override;
+
+		virtual bool supportsKeyboardFocus() const override;
+
+		virtual bool isInteractable() const override;
 	private:
 		void Press();
 
@@ -54,5 +62,7 @@ namespace GuGu {
 		OnClicked m_clicked;
 
 		bool m_bIsPressed;
+
+		bool m_bIsFocusable;
 	};
 }

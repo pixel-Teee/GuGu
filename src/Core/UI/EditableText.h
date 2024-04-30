@@ -55,6 +55,8 @@ namespace GuGu {
 
 		virtual bool supportsKeyboardFocus() const override;
 
+		virtual bool isInteractable() const override;
+
 		virtual Reply OnFocusReceived(const WidgetGeometry& myGeometry) override;
 
 		virtual void OnFocusLost() override;

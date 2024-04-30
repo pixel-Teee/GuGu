@@ -127,6 +127,10 @@ namespace GuGu{
     {
         return false;
     }
+    bool Widget::isInteractable() const
+    {
+        return false;
+    }
     GuGu::SlotBase* Widget::getSlot(uint32_t index) const
 	{
 		return nullptr;

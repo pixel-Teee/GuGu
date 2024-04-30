@@ -37,6 +37,8 @@ namespace GuGu {
 
 		virtual Reply OnMouseButtonUp(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent) override;
 
+		virtual bool isInteractable() const override;
+
 		virtual SlotBase* getSlot(uint32_t index) const override;
 
 		virtual uint32_t getSlotsNumber() const override;

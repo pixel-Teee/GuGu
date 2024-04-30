@@ -83,6 +83,10 @@ namespace GuGu {
 	{
 		return true;
 	}
+	bool EditableText::isInteractable() const
+	{
+		return true;
+	}
 	Reply EditableText::OnFocusReceived(const WidgetGeometry& myGeometry)
 	{
 		m_editableTextLayout->handleFocusReceived();

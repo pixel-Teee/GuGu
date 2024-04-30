@@ -36,7 +36,8 @@ namespace GuGu {
 				WIDGET_NEW(Button)
 				.buttonSyle(ourButtonStyle)
 				.Clicked(this, &ComboButton::onButtonClicked)
-				.contentPadding(arguments.mcontentPadding.IsSet() ? arguments.mcontentPadding : arguments.mcomboButtonStyle.Get()->m_contentPadding) //todo:添加 is focusable
+				.contentPadding(arguments.mcontentPadding.IsSet() ? arguments.mcontentPadding : arguments.mcomboButtonStyle.Get()->m_contentPadding)
+				.isFocusable(arguments.misFocusable)
 				.Content
 				(
 					//按钮内容和下箭头

@@ -680,33 +680,37 @@ namespace GuGu{
         std::shared_ptr<Widget> collisionWidget;
         for (int32_t i = allWidgets.size() - 1; i > 0; --i)
         {
-            WidgetGeometry widgetGeometry = allWidgets[i]->getWidgetGeometry();
+			//is Hit Test visible 在原版里面是在添加进 hittest grid 的时候，进行过滤
+			if (allWidgets[i]->getVisibility().isHitTestVisible())
+			{
+				WidgetGeometry widgetGeometry = allWidgets[i]->getWidgetGeometry();
 
-            math::float2 localSize = widgetGeometry.getLocalSize();
-            math::affine2 transform = widgetGeometry.getAccumulateLayoutTransform();
+				math::float2 localSize = widgetGeometry.getLocalSize();
+				math::affine2 transform = widgetGeometry.getAccumulateLayoutTransform();
 
-            math::float2 topLeft = transform.transformPoint(math::float2(0.0f, 0.0f));
-            math::float2 topRight = transform.transformPoint(math::float2(localSize.x, 0.0f));
-            math::float2 bottomLeft = transform.transformPoint(math::float2(0.0f, localSize.y));
-            math::float2 bottomRight = transform.transformPoint(math::float2(localSize.x, localSize.y));
+				math::float2 topLeft = transform.transformPoint(math::float2(0.0f, 0.0f));
+				math::float2 topRight = transform.transformPoint(math::float2(localSize.x, 0.0f));
+				math::float2 bottomLeft = transform.transformPoint(math::float2(0.0f, localSize.y));
+				math::float2 bottomRight = transform.transformPoint(math::float2(localSize.x, localSize.y));
 
-            math::float2 points[4] = {
-                 topLeft,
-                 topRight,
-                 bottomRight,
-                 bottomLeft
-            };
+				math::float2 points[4] = {
+					 topLeft,
+					 topRight,
+					 bottomRight,
+					 bottomLeft
+				};
 
-            float a = math::cross(points[1] - points[0], cursorPosition - points[0]);
-            float b = math::cross(points[2] - points[1], cursorPosition - points[1]);
-            float c = math::cross(points[3] - points[2], cursorPosition - points[2]);
-            float d = math::cross(points[0] - points[3], cursorPosition - points[3]);
+				float a = math::cross(points[1] - points[0], cursorPosition - points[0]);
+				float b = math::cross(points[2] - points[1], cursorPosition - points[1]);
+				float c = math::cross(points[3] - points[2], cursorPosition - points[2]);
+				float d = math::cross(points[0] - points[3], cursorPosition - points[3]);
 
-            if ((a > 0 && b > 0 && c > 0 && d > 0) || (a < 0 && b < 0 && c < 0 && d < 0))
-            {
-                collisionWidget = allWidgets[i];
-                break;
-            }
+				if ((a > 0 && b > 0 && c > 0 && d > 0) || (a < 0 && b < 0 && c < 0 && d < 0))
+				{
+					collisionWidget = allWidgets[i];
+					break;
+				}
+			}           
         }
 
 		//GuGu_LOGD("%s", collisionWidget->getSlotsNumber())

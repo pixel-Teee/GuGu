@@ -21,6 +21,7 @@ namespace GuGu {
 		m_clicked = arguments.mClicked;
 		m_contentPadding = arguments.mcontentPadding;
 		m_imageBursh = m_buttonStyle->m_normal;
+		m_bIsFocusable = arguments.misFocusable;
 		m_widgetClipping = arguments.mClip;
 		m_visibilityAttribute = arguments.mVisibility;
 
@@ -87,6 +88,16 @@ namespace GuGu {
 	{
 		Release();
 		return Reply::Unhandled().releaseMouseCapture();
+	}
+
+	bool Button::supportsKeyboardFocus() const
+	{
+		return m_bIsFocusable;
+	}
+
+	bool Button::isInteractable() const
+	{
+		return true;
 	}
 
 	void Button::Press()

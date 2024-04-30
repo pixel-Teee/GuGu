@@ -205,4 +205,8 @@ namespace GuGu {
 
 		return relativeValue;
 	}
+	bool Slider::isInteractable() const
+	{
+		return true;
+	}
 }
