@@ -49,6 +49,8 @@ namespace GuGu {
 
 			UI_EVENT(OnGenerateRow, onGenerateRow)
 
+			UI_EVENT(OnSelectionChanged, onSelectionChanged)
+
 			UI_EVENT(OnTableViewScrolled, onListViewScrolled)
 
 			ARGUMENT_ATTRIBUTE(float, itemHeight)
@@ -70,6 +72,7 @@ namespace GuGu {
 			this->m_onGenerateRow = arguments.monGenerateRow;
 			this->m_itemsSource = arguments.mListItemSource;
 			this->m_selectionMode = arguments.mselectionMode;
+			this->m_onSelectionChanged = arguments.monSelectionChanged;
 
 			constructChildren(0, arguments.mitemHeight, ListItemAlignment::LeftAligned, arguments.mheaderRow, arguments.mexternalScrollbar,
 				arguments.morientation, arguments.monListViewScrolled, arguments.mstyle);
