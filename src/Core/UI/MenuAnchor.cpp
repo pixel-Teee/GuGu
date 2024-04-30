@@ -308,7 +308,7 @@ namespace GuGu {
 					//m_popUpMenuPtr.lock()->dismiss();
 				}
 
-				resetPopupMenuContent();
+				resetPopupMenuContent();//重置菜单
 			}
 		}
 	}
