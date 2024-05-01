@@ -39,6 +39,7 @@
 #include "TreeView.h"
 #include "ComboButton.h"
 #include "Box.h"
+#include "ComboBox.h"
 
 #include <Core/GuGuFile.h>
 #include <Window/Window.h>
@@ -1229,31 +1230,50 @@ namespace GuGu {
 							+ VerticalBox::Slot()
 							.StretchHeight(0.9)
 							(
-								WIDGET_NEW(ComboButton)
-								.onGetMenuContentLambda([this]() {
-									return WIDGET_NEW(BoxWidget)
-									.HeightOverride(80.0f)
-									.Content(
-										WIDGET_NEW(ListView<GuGuUtf8Str>)
-										.ListItemSource(&strVec)
-										.onGenerateRowLambda([](GuGuUtf8Str item, const std::shared_ptr<class TableViewBase>& table)->std::shared_ptr<ITableRow> {
-											return WIDGET_NEW(TableRow<GuGuUtf8Str>, table)
-												.Content(
-													WIDGET_NEW(Border)
-													.BorderBackgroundColor(math::float4(0.3f, 0.6f, 0.2f, 1.0f))
-													.Content
-													(
-														WIDGET_NEW(TextBlockWidget)
-														.text(item)
-													)
-												);
-											})	
-									);
+								//WIDGET_NEW(ComboButton)
+								//.onGetMenuContentLambda([this]() {
+								//	return WIDGET_NEW(BoxWidget)
+								//	.HeightOverride(80.0f)
+								//	.Content(
+								//		WIDGET_NEW(ListView<GuGuUtf8Str>)
+								//		.ListItemSource(&strVec)
+								//		.onGenerateRowLambda([](GuGuUtf8Str item, const std::shared_ptr<class TableViewBase>& table)->std::shared_ptr<ITableRow> {
+								//			return WIDGET_NEW(TableRow<GuGuUtf8Str>, table)
+								//				.Content(
+								//					WIDGET_NEW(Border)
+								//					.BorderBackgroundColor(math::float4(0.3f, 0.6f, 0.2f, 1.0f))
+								//					.Content
+								//					(
+								//						WIDGET_NEW(TextBlockWidget)
+								//						.text(item)
+								//					)
+								//				);
+								//			})	
+								//	);
+								//})
+								//.buttonContent
+								//(
+								//	WIDGET_NEW(TextBlockWidget)
+								//	.text(u8"combobutton测试")
+								//)
+								WIDGET_ASSIGN_NEW(ComboBox<GuGuUtf8Str>, m_comboBox)
+								.optionSource(&strVec)
+								.onGenerateWidgetLambda([&](GuGuUtf8Str inOption)->std::shared_ptr<Widget> {
+									return WIDGET_NEW(Border)
+										.BorderBackgroundColor(math::float4(0.3f, 0.6f, 0.2f, 1.0f))
+										.Content
+										(
+											WIDGET_NEW(TextBlockWidget)
+											.text(inOption)
+										);
 								})
-								.buttonContent
+								.initiallySelectedItem(u8"test")
+								.Content
 								(
 									WIDGET_NEW(TextBlockWidget)
-									.text(u8"combobutton测试")
+									.textLambda([&]()->GuGuUtf8Str {
+										return m_comboBox->getSelectedItem();
+									})
 								)
 							)
 							+ VerticalBox::Slot()

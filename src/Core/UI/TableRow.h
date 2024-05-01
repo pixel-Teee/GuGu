@@ -6,6 +6,7 @@
 #include "TableViewBase.h"
 #include "ExpanderArrow.h"
 #include "BoxPanel.h"
+#include "StyleSet.h"
 
 namespace GuGu {
 	class TableViewBase;
@@ -19,12 +20,15 @@ namespace GuGu {
 		{
 			BuilderArguments()
 				//: mContent()
-				: mpadding(Padding(0))
+				: mStyle(StyleSet::getStyle()->template getStyle<TableRowStyle>("tableView.Row"))
+				, mpadding(Padding(0))
 			{
 				//this->mClip = WidgetClipping::ClipToBounds;
 			}
 
 			~BuilderArguments() = default;
+
+			ARGUMENT_ATTRIBUTE(std::shared_ptr<TableRowStyle>, Style)
 
 			ARGUMENT_NAMED_SLOT(SingleChildSlot, Content)
 
@@ -210,6 +214,8 @@ namespace GuGu {
 	protected:
 		void initInternal(const BuilderArguments& inArgs, const std::shared_ptr<TableViewBase>& inOwnerTableView)
 		{
+			m_style = inArgs.mStyle.Get();
+
 			setOwnerTableView(inOwnerTableView);
 		}
 		//在 list 的相应的 data item 的索引
@@ -220,6 +226,8 @@ namespace GuGu {
 		std::weak_ptr<Widget> m_content;
 
 		SlotBase* m_innerContentSlot;
+
+		std::shared_ptr<TableRowStyle> m_style;
 	};
 
 }

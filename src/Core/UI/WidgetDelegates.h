@@ -26,7 +26,7 @@ namespace GuGu {
 
 		using OnSelectionChanged = std::function<void(ArgumentType, SelectInfo::Type)>;
 
-		
+		using OnGenerateWidget = std::function<std::shared_ptr<Widget>(ArgumentType)>;
 	};
 
 	//有时候一些 widgets 请求一些内容去显示，在这时候，它们依赖这个委托

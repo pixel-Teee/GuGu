@@ -442,6 +442,13 @@ namespace GuGu {
 		{
 			return shared_from_this();
 		}
+
+		//请求一个 item 滚进 view 里面
+		void requestScrollIntoView(ItemType itemToView)
+		{
+			m_itemToScrollIntoView = itemToView;
+			requestLayoutRefresh();
+		}
 	private:
 		friend class WidgetGenerator;
 

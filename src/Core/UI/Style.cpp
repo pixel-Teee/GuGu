@@ -66,4 +66,16 @@ namespace GuGu {
 	ComboButtonStyle::ComboButtonStyle()
 	{
 	}
+	TableRowStyle::TableRowStyle()
+	{
+	}
+	TableRowStyle::~TableRowStyle()
+	{
+	}
+	ComboBoxStyle::ComboBoxStyle()
+	{
+	}
+	ComboBoxStyle::~ComboBoxStyle()
+	{
+	}
 }

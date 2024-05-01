@@ -197,6 +197,15 @@ namespace GuGu {
 		comboButtonStyle->setDownArrowImage(expandedArrow);
 		comboButtonStyle->setDownArrowAlignment(VerticalAlignment::Center);
 		m_styles.insert({ "comboButton", comboButtonStyle });
+
+		//combo row
+		std::shared_ptr<TableRowStyle> comboRow = std::make_shared<TableRowStyle>();
+		m_styles.insert({ "comboBox.Row", comboRow});
+
+		//combo box
+		std::shared_ptr<ComboBoxStyle> comboBox = std::make_shared<ComboBoxStyle>();
+		comboBox->setComboButtonStyle(comboButtonStyle);
+		m_styles.insert({ "comboBox", comboBox });
 	}
 	StyleSet::~StyleSet()
 	{

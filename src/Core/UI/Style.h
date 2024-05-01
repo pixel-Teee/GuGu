@@ -182,4 +182,29 @@ namespace GuGu {
 		EnumAsByte<VerticalAlignment> m_downArrowAlign;
 		ComboButtonStyle& setDownArrowAlignment(const VerticalAlignment& inValign) { m_downArrowAlign = inValign; return *this; }
 	};
+
+	struct TableRowStyle : public Style
+	{
+		TableRowStyle();
+
+		virtual ~TableRowStyle();
+	};
+	
+	struct ComboBoxStyle : public Style
+	{
+		ComboBoxStyle();
+
+		virtual ~ComboBoxStyle();
+
+		std::shared_ptr<ComboButtonStyle> m_comboButtonStyle;
+		ComboBoxStyle& setComboButtonStyle(const std::shared_ptr<ComboButtonStyle> inComboButtonStyle) { m_comboButtonStyle = inComboButtonStyle; return *this; }
+
+		//按钮的内容 padding
+		Padding m_contentPadding;
+		ComboBoxStyle& setContentPadding(const Padding& inContentPadding) { m_contentPadding = inContentPadding; return *this; }
+
+		//菜单 row padding
+		Padding m_menuRowPadding;
+		ComboBoxStyle& setMenuRowPadding(const Padding& inMenuRowPadding) { m_menuRowPadding = inMenuRowPadding; return *this; }
+	};
 }

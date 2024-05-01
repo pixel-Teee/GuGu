@@ -5,6 +5,7 @@
 #include "AtlasTexture.h"
 
 #include "ListView.h"
+#include "ComboBox.h"
 
 namespace GuGu {
 	class Brush;
@@ -113,6 +114,8 @@ namespace GuGu {
 		std::shared_ptr<UIData> m_uiData;
 
 		std::shared_ptr<ListView<GuGuUtf8Str>> m_listView;
+
+		std::shared_ptr<ComboBox<GuGuUtf8Str>> m_comboBox;
 		//------test widget functionality------
 
 		std::shared_ptr<CommonRenderPasses> m_commonRenderPass;
