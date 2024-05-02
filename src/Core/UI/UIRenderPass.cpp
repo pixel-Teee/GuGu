@@ -423,6 +423,7 @@ namespace GuGu {
 		m_IndexBuffers.clear();	
 
 		//todo:要修复这个
+		//因为 list view 在 第一次 tick 的适合，会记录一个 item 是否有儿子，而此时还没收集完所有 widgets
 		static bool first = true;
 		if (first)
 		{
