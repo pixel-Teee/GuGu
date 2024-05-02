@@ -268,4 +268,17 @@ namespace GuGu {
 		m_widgetClipping = arguments.mClip;
 		m_visibilityAttribute = arguments.mVisibility;
 	}
+
+    VerticalBox::VerticalBoxSlot::SlotBuilderArguments
+    VerticalBox::insertSlot(int32_t insertAtIndex) {
+        {
+            std::shared_ptr<VerticalBox::VerticalBoxSlot> slot = std::make_shared<VerticalBox::VerticalBoxSlot>();
+            if (insertAtIndex == -1)
+                insertAtIndex = m_childrens.size();
+            auto it = m_childrens.begin() + insertAtIndex;
+            std::shared_ptr<BoxPanelSlot> boxPanelSlot = std::static_pointer_cast<BoxPanelSlot>(std::static_pointer_cast<SlotBase>(slot));
+            m_childrens.insert(it, boxPanelSlot);//在指定位置插入 slot
+            return VerticalBox::VerticalBoxSlot::SlotBuilderArguments(slot);
+        }
+    }
 }
