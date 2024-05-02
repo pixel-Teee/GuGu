@@ -7,6 +7,9 @@
 
 #include <Application/Application.h>
 
+#include <Renderer/Renderer.h>
+#include "UIRenderPass.h"//move this
+
 namespace GuGu{
 
     Widget::Widget()
@@ -52,6 +55,19 @@ namespace GuGu{
 			//ElementList::addSplineElement(elementList, WidgetGeometry(), math::float4(0.4f, 0.7f, 1.0f, 1.0f), clippingZone.m_topLeft, direction,
 			//	clippingZone.m_bottomRight, direction, 2.7f, layer);
         } 
+
+        UIRenderPass* uiRenderPass = Application::getApplication()->getRenderer()->getUIRenderPass();
+        if (getType() + getLocation() == uiRenderPass->getSelectUINode())
+        {
+			ClippingZone clippingZone(allocatedGeometry);
+            std::vector<math::float2> points;
+            points.push_back(clippingZone.m_topLeft);
+            points.push_back(clippingZone.m_topRight);
+            points.push_back(clippingZone.m_bottomRight);
+            points.push_back(clippingZone.m_bottomLeft);
+            points.push_back(clippingZone.m_topLeft);
+            ElementList::addLineElement(elementList, WidgetGeometry(), math::float4(0.56f, 0.93f, 0.56f, 1.0f), points, 0.02f, layer + 1);
+        }
 
 		//ClippingZone clippingZone(allocatedGeometry);
 		//std::vector<math::float2> points;
@@ -255,5 +271,19 @@ namespace GuGu{
                 curChild.getWidget()->findChildGeometries_helper(curChild.getWidgetGeometry(), widgetsToFind, outResult);
             }
         }
+    }
+    void Widget::setDebugInfo(const GuGuUtf8Str& typeString, const GuGuUtf8Str& inFile, int32_t onLine)
+    {
+        m_widgetType = typeString;
+        m_createLocation = inFile;
+        m_line = onLine;
+    }
+    GuGuUtf8Str Widget::getLocation() const
+    {
+        return GuGuUtf8Str(m_createLocation + std::to_string(m_line));
+    }
+    GuGuUtf8Str Widget::getType() const
+    {
+        return m_widgetType;
     }
 }

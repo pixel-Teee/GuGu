@@ -146,6 +146,11 @@ namespace GuGu {
 			{
 				const ItemType& curItem = inItemsSource[itemIndex];
 
+				//if (curItem.find("1302") != -1)
+				//{
+				//	GuGu_LOGD("1302");
+				//}
+
 				//找到这个 items 的儿子
 				std::vector<ItemType> childItems;
 				m_onGetChildren(inItemsSource[itemIndex], childItems);

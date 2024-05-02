@@ -53,6 +53,8 @@ namespace GuGu {
 		std::vector<std::shared_ptr<Widget>> getAllWidgets();
 
 		void setRenderTarget(nvrhi::TextureHandle renderTarget);
+
+		GuGuUtf8Str getSelectUINode() const;//debug use
 	private:
 		void loadStyleTextures();
 
@@ -93,6 +95,7 @@ namespace GuGu {
 		std::shared_ptr<WindowWidget> m_uiRoot;
 		std::shared_ptr<ViewportWidget> m_viewport;
 		std::vector<std::shared_ptr<Widget>> m_allWidgets;
+		std::vector<std::shared_ptr<Widget>> m_tempAllWidgetCopys;//for input test
 		std::shared_ptr<ElementList> m_elementList;
 		std::vector<nvrhi::BufferHandle> m_VertexBuffers;
 		std::vector<nvrhi::BufferHandle> m_IndexBuffers;
@@ -116,10 +119,22 @@ namespace GuGu {
 		std::shared_ptr<ListView<GuGuUtf8Str>> m_listView;
 
 		std::shared_ptr<ComboBox<GuGuUtf8Str>> m_comboBox;
+
+		std::shared_ptr<ListView<GuGuUtf8Str>> m_uiListView;
+
+		std::shared_ptr<VerticalBox> m_verticalBox;
+
+		std::vector<GuGuUtf8Str> m_uiNodeNames;
 		//------test widget functionality------
 
 		std::shared_ptr<CommonRenderPasses> m_commonRenderPass;
 
 		GuGuUtf8Str getSelectItem() const;
+
+		void getUIChildNode(GuGuUtf8Str, std::vector<GuGuUtf8Str>&);
+
+		void selectionChanged(GuGuUtf8Str item, SelectInfo::Type);
+
+		GuGuUtf8Str m_selectUINode;
 	};
 }

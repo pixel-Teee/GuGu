@@ -63,10 +63,11 @@ namespace GuGu {
 	template<typename WidgetType, typename RequiredArgsPayloadType>
 	struct WidgetConstruct
 	{
-		WidgetConstruct(RequiredArgsPayloadType&& inRequiredArgs)
+		WidgetConstruct(const GuGuUtf8Str& typeString, const GuGuUtf8Str& createLocation, int32_t onLine, RequiredArgsPayloadType&& inRequiredArgs)
 			: m_requiredArgs(inRequiredArgs)	
 		{ 
 			m_widget = std::make_shared<WidgetType>(); 
+			m_widget->setDebugInfo(typeString, createLocation, onLine);
 		}
 		~WidgetConstruct() = default;
 		std::shared_ptr<WidgetType> operator<<(const typename WidgetType::BuilderArguments& arguments)
@@ -173,15 +174,15 @@ namespace GuGu {
 	std::shared_ptr<SlotType> m##Name;
 
 #define WIDGET_NEW(WidgetType, ...) \
-	makeDecl<WidgetType>(RequiredArgs::makeRequiredArgs(__VA_ARGS__)) << typename WidgetType::BuilderArguments()
+	makeDecl<WidgetType>(#WidgetType, __FILE__, __LINE__, RequiredArgs::makeRequiredArgs(__VA_ARGS__)) << typename WidgetType::BuilderArguments()
 
 #define WIDGET_ASSIGN_NEW(WidgetType, OutValue, ...) \
-	OutValue = makeDecl<WidgetType>(RequiredArgs::makeRequiredArgs(__VA_ARGS__)) << typename WidgetType::BuilderArguments()
+	OutValue = makeDecl<WidgetType>(#WidgetType, __FILE__, __LINE__, RequiredArgs::makeRequiredArgs(__VA_ARGS__)) << typename WidgetType::BuilderArguments()
 
 	template<typename WidgetType, typename RequiredArgsPayloadType>
-	WidgetConstruct<WidgetType, RequiredArgsPayloadType> makeDecl(RequiredArgsPayloadType&& inRequiredArgs)
+	WidgetConstruct<WidgetType, RequiredArgsPayloadType> makeDecl(const GuGuUtf8Str& typeStr, const GuGuUtf8Str& createLocation, int32_t line, RequiredArgsPayloadType&& inRequiredArgs)
 	{
-		return WidgetConstruct<WidgetType, RequiredArgsPayloadType>(std::forward<RequiredArgsPayloadType>(inRequiredArgs));
+		return WidgetConstruct<WidgetType, RequiredArgsPayloadType>(typeStr, createLocation, line, std::forward<RequiredArgsPayloadType>(inRequiredArgs));
 	}
 
 	template<typename WidgetType>

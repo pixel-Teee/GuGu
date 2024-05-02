@@ -416,10 +416,46 @@ namespace GuGu {
 		//todo:fix this
 		//geometry.setLocalSize(math::float2(windowWidthAndHeight.x / m_uiRoot->getNativeWindow()->getDpiFactor(), windowWidthAndHeight.y / m_uiRoot->getNativeWindow()->getDpiFactor()));
 		generateWidgetElement(geometry);
+		m_tempAllWidgetCopys = m_allWidgets;
 		m_elementList->generateBatches();
 
 		m_VertexBuffers.clear();
-		m_IndexBuffers.clear();
+		m_IndexBuffers.clear();	
+
+		//todo:要修复这个
+		static bool first = true;
+		if (first)
+		{
+			first = false;
+			m_uiNodeNames.push_back(m_uiRoot->getType() + m_uiRoot->getLocation());
+
+			m_verticalBox->insertSlot(0)
+				(
+					WIDGET_ASSIGN_NEW(TreeView<GuGuUtf8Str>, m_uiListView)
+					.treeItemSource(&m_uiNodeNames)
+					.onGetChildren(this, &UIRenderPass::getUIChildNode)
+					.onGenerateRowLambda([](GuGuUtf8Str item, const std::shared_ptr<class TableViewBase>& table)->std::shared_ptr<ITableRow> {
+						//static int32_t i = 0;
+						//++i;
+						math::float4 color = math::float4(0.3f, 0.6f, 0.2f, 1.0f);
+						return WIDGET_NEW(TableRow<GuGuUtf8Str>, table)
+							.Content
+							(
+								WIDGET_NEW(TextBlockWidget)
+								.text(item)
+								//WIDGET_NEW(Border)
+								//.Content(
+								//	
+								//)
+								//.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
+								//.BorderBackgroundColor(color)
+							);
+						})
+					.onSelectionChanged(this, &UIRenderPass::selectionChanged)
+				).StretchHeight(2.0f);
+		}
+		
+
 		//generate vertex and index
 		
 		m_constantBuffers.clear();
@@ -604,7 +640,7 @@ namespace GuGu {
 	{
 		static std::vector<GuGuUtf8Str> strVec = { u8"test", u8"你好", u8"这是一个combo box", u8"这是一个combo button" };
 
-		return WIDGET_ASSIGN_NEW(WindowWidget, m_uiRoot)
+		WIDGET_ASSIGN_NEW(WindowWidget, m_uiRoot)
 			.Type(WindowWidget::NativeWindow)
 			.Content //fill and fill
 			(
@@ -660,7 +696,7 @@ namespace GuGu {
 					(
 						WIDGET_NEW(HorizontalBox)
 						+ HorizontalBox::Slot()
-						.StretchWidth(1.0f)
+						.StretchWidth(0.8f)
 						(
 							WIDGET_NEW(Border)
 							.verticalAlignment(VerticalAlignment::Center)
@@ -1183,7 +1219,7 @@ namespace GuGu {
 						+ HorizontalBox::Slot()
 						.StretchWidth(1.0f)
 						(
-							WIDGET_NEW(VerticalBox)
+							WIDGET_ASSIGN_NEW(VerticalBox, m_verticalBox)
 							+ VerticalBox::Slot()
 							.StretchHeight(0.8f)
 							(
@@ -1223,11 +1259,11 @@ namespace GuGu {
 								WIDGET_NEW(TextBlockWidget)
 								.text(this, &UIRenderPass::getSelectItem)
 							)
-							+ VerticalBox::Slot()
-							.StretchHeight(0.9)
-							(
-								WIDGET_NEW(Spacer)
-							)
+							//+ VerticalBox::Slot()
+							//.StretchHeight(0.9)
+							//(
+							//	WIDGET_NEW(Spacer)
+							//)
 							+ VerticalBox::Slot()
 							.StretchHeight(0.9)
 							(
@@ -1352,6 +1388,10 @@ namespace GuGu {
 				//	.orientation(Orientation::Vertical)
 				//)
 			);
+
+			//m_uiNodeNames.push_back(m_uiRoot->)
+
+		return m_uiRoot;
 	}
 	GuGuUtf8Str UIRenderPass::getSelectItem() const
 	{
@@ -1360,5 +1400,39 @@ namespace GuGu {
 			selectItem = u8"选中了:" + m_uiData->m_currentSelectItems->GetName();
 
 		return selectItem;
+	}
+	void UIRenderPass::getUIChildNode(GuGuUtf8Str item, std::vector<GuGuUtf8Str>& childs)
+	{
+		std::vector<std::shared_ptr<Widget>> allWidgets = m_tempAllWidgetCopys;
+		auto it = std::find_if(allWidgets.begin(), allWidgets.end(), [&](const std::shared_ptr<Widget>& widget)
+			{
+				return widget->getType() + widget->getLocation() == item;
+			});
+		if (it != allWidgets.end())
+		{
+			std::shared_ptr<Widget> itemWidget = *it;
+			//find child names
+			uint32_t widgetNumbers = itemWidget->getSlotsNumber();
+			math::float2 size = math::float2(0.0, 0.0);
+			for (size_t i = 0; i < widgetNumbers; ++i)
+			{
+				SlotBase* childSlot = itemWidget->getSlot(i);
+				if (childSlot)
+				{
+					std::shared_ptr<Widget> childWidget = childSlot->getChildWidget();
+					if (childWidget != nullptr)
+						childs.push_back(childWidget->getType() + childWidget->getLocation());
+				}
+			}
+		}		
+	}
+
+	void UIRenderPass::selectionChanged(GuGuUtf8Str item, SelectInfo::Type)
+	{
+		m_selectUINode = item;
+	}
+	GuGuUtf8Str UIRenderPass::getSelectUINode() const
+	{
+		return m_selectUINode;
 	}
 }

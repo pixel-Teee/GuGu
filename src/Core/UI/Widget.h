@@ -103,6 +103,12 @@ namespace GuGu{
         bool findChildGeometries(const WidgetGeometry& myGeometry, const std::set<std::shared_ptr<Widget>>& widgetsToFind, std::unordered_map<std::shared_ptr<Widget>, ArrangedWidget>& outResult) const;
 
         void findChildGeometries_helper(const WidgetGeometry& myGeometry, const std::set<std::shared_ptr<Widget>>& widgetsToFind, std::unordered_map<std::shared_ptr<Widget>, ArrangedWidget>& outResult) const;
+
+        void setDebugInfo(const GuGuUtf8Str& typeString, const GuGuUtf8Str& inFile, int32_t onLine);
+
+        GuGuUtf8Str getLocation() const;
+
+        GuGuUtf8Str getType() const;
     protected:
         std::weak_ptr<Widget> m_parentWidget;
         WidgetGeometry m_geometry;
@@ -110,5 +116,10 @@ namespace GuGu{
         uint32_t m_layer;
         WidgetClipping m_widgetClipping;
         Attribute<Visibility> m_visibilityAttribute;
+
+        //debug info
+        GuGuUtf8Str m_widgetType;
+        GuGuUtf8Str m_createLocation;
+        int32_t m_line;
     };
 }
