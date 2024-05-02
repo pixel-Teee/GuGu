@@ -13,6 +13,8 @@ namespace GuGu {
 
 		m_margin = Padding(0, 0, 0, 0);
 		//m_outlineSettings = BrushOutlineSettings(math::float4(1.0f, 1.0f, 1.0f, 1.0f), math::float4(1.0f, 1.0f, 1.0f, 1.0f), 2.0f);
+
+		m_tintColor = math::float4(1.0f, 1.0f, 1.0f, 1.0f);
 	}
 	Brush::~Brush()
 	{

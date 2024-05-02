@@ -25,7 +25,7 @@ namespace GuGu {
 	{
 		if (m_imageBursh.Get()->m_drawAs != BrushDrawType::NoDrawType)
 		{
-			ElementList::addBoxElement(elementList, allocatedGeometry, math::float4(1.0f, 1.0f, 1.0f, 1.0f), m_imageBursh.Get(), layer);
+			ElementList::addBoxElement(elementList, allocatedGeometry, m_imageBursh.Get()->m_tintColor, m_imageBursh.Get(), layer);
 		}		
 
 		return layer;

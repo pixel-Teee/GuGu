@@ -51,6 +51,9 @@ namespace GuGu {
 		virtual SlotBase* getSlot(uint32_t index) const override;
 
 		virtual uint32_t getSlotsNumber() const override;
+
+		//设置 border image 属性
+		void setBorderImage(Attribute<std::shared_ptr<Brush>> inBorderImage);
 	protected:
 		Attribute<std::shared_ptr<Brush>> m_imageBursh;
 

@@ -187,8 +187,12 @@ namespace GuGu {
 		m_brushes.insert({ u8"expandedArrowCollapsed", expandedArrowCollapsed });
 
 		//combo button
+		std::shared_ptr<Brush> comboButtonButtonBrush = std::make_shared<Brush>();
+		comboButtonButtonBrush->m_tintColor = math::float4(0.3f, 0.4f, 0.2f, 1.0f);
 		std::shared_ptr<ButtonStyle> comboButtonButton = std::make_shared<ButtonStyle>();
 		comboButtonButton->setPressedPadding(Padding(8.0f, 2.0f, 8.0f, 0.0f));
+		comboButtonButton->setNormal(comboButtonButtonBrush);
+		comboButtonButton->setPressed(comboButtonButtonBrush);
 
 		std::shared_ptr<ComboButtonStyle> comboButtonStyle = std::make_shared<ComboButtonStyle>();
 		comboButtonStyle->setButtonStyle(comboButtonButton);
@@ -199,8 +203,15 @@ namespace GuGu {
 		m_styles.insert({ "comboButton", comboButtonStyle });
 
 		//combo row
+		std::shared_ptr<Brush> eventRow = std::make_shared<Brush>();
+		eventRow->m_tintColor = math::float4(0.3f, 0.4f, 0.2f, 1.0f);
+		std::shared_ptr<Brush> oddRow = std::make_shared<Brush>();
+		oddRow->m_tintColor = math::float4(0.3f, 0.6f, 0.2f, 1.0f);
 		std::shared_ptr<TableRowStyle> comboRow = std::make_shared<TableRowStyle>();
+		comboRow->setEvenRowBackgroundBrush(eventRow);
+		comboRow->setOddRowBackgroundBrush(oddRow);
 		m_styles.insert({ "comboBox.Row", comboRow});
+		m_styles.insert({ "tableView.Row", comboRow });
 
 		//combo box
 		std::shared_ptr<ComboBoxStyle> comboBox = std::make_shared<ComboBoxStyle>();

@@ -1203,13 +1203,14 @@ namespace GuGu {
 										return WIDGET_NEW(TableRow<GuGuUtf8Str>, table)
 											.Content
 											(
-												WIDGET_NEW(Border)
-												.Content(
-													WIDGET_NEW(TextBlockWidget)
-													.text(item)
-												)
-												.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
-												.BorderBackgroundColor(color)
+												WIDGET_NEW(TextBlockWidget)
+												.text(item)
+												//WIDGET_NEW(Border)
+												//.Content(
+												//	
+												//)
+												//.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
+												//.BorderBackgroundColor(color)
 											);
 										})
 									.onSelectionChanged(m_uiData->selectionChanged)
@@ -1259,13 +1260,8 @@ namespace GuGu {
 								WIDGET_ASSIGN_NEW(ComboBox<GuGuUtf8Str>, m_comboBox)
 								.optionSource(&strVec)
 								.onGenerateWidgetLambda([&](GuGuUtf8Str inOption)->std::shared_ptr<Widget> {
-									return WIDGET_NEW(Border)
-										.BorderBackgroundColor(math::float4(0.3f, 0.6f, 0.2f, 1.0f))
-										.Content
-										(
-											WIDGET_NEW(TextBlockWidget)
-											.text(inOption)
-										);
+									return WIDGET_NEW(TextBlockWidget)
+										 .text(inOption);
 								})
 								.initiallySelectedItem(u8"test")
 								.Content

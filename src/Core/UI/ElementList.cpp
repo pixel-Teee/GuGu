@@ -30,8 +30,8 @@ namespace GuGu {
 	void ElementList::addBoxElement(ElementList& elementList, const WidgetGeometry& widgetGeometry, math::float4 color, std::shared_ptr<Brush> brush, uint32_t layer)
 	{
 		//cull
-		if (brush == nullptr)
-			return;
+		//if (brush == nullptr)
+		//	return;
 
 		Element::ElementType elementType = (brush->m_drawAs == BrushDrawType::Border) ? Element::ElementType::Border : ((brush->m_drawAs == BrushDrawType::RoundedBox) ? Element::ElementType::RoundedBox : Element::ElementType::Box);
 		

@@ -188,6 +188,15 @@ namespace GuGu {
 		TableRowStyle();
 
 		virtual ~TableRowStyle();
+
+		std::shared_ptr<Brush> m_evenRowBackgroundHoveredBrush;
+		TableRowStyle& setEvenRowBackgroundHoveredBrush(const std::shared_ptr<Brush> inEvenRowBackgroundBrush) { m_evenRowBackgroundHoveredBrush = inEvenRowBackgroundBrush; return *this; }
+
+		std::shared_ptr<Brush> m_evenRowBackgroundBrush;
+		TableRowStyle& setEvenRowBackgroundBrush(const std::shared_ptr<Brush> inEventRowBackgroundBrush) { m_evenRowBackgroundBrush = inEventRowBackgroundBrush; return *this; }
+
+		std::shared_ptr<Brush> m_oddRowBackrgoundBrush;
+		TableRowStyle& setOddRowBackgroundBrush(const std::shared_ptr<Brush> inOddRowBackgroundBrush) { m_oddRowBackrgoundBrush = inOddRowBackgroundBrush; return *this; }
 	};
 	
 	struct ComboBoxStyle : public Style

@@ -56,5 +56,6 @@ namespace GuGu {
 		bool m_tiling;
 		EnumAsByte<BrushDrawType::Type> m_drawAs;
 		BrushOutlineSettings m_outlineSettings;
+		math::float4 m_tintColor;
 	};
 }

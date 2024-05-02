@@ -14,6 +14,7 @@
 #include "ElementList.h"
 #include "ArrangedWidget.h"
 #include "ArrangedWidgetArray.h"
+#include "Brush.h"
 
 namespace GuGu {
 	
@@ -173,7 +174,7 @@ namespace GuGu {
 			ArrangedWidgetArray arrangedWidgetArray(Visibility::Visible);
 			AllocationChildActualSpace(allocatedGeometry, arrangedWidgetArray);
 
-			ElementList::addBoxElement(elementList, allocatedGeometry, math::float4(1.0f, 1.0f, 1.0f, 1.0f), m_spinBoxStyle->m_backgroundBrsuh, layer + 1); //background			
+			ElementList::addBoxElement(elementList, allocatedGeometry, m_spinBoxStyle->m_backgroundBrsuh->m_tintColor, m_spinBoxStyle->m_backgroundBrsuh, layer + 1); //background			
 
 			uint32_t widgetNumbers = arrangedWidgetArray.getArrangedWidgetsNumber();//note:just one
 			//math::double2 size = math::double2(0.0, 0.0);

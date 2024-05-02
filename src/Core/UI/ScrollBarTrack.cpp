@@ -16,7 +16,7 @@ namespace GuGu {
 	{
 		m_offsetFraction = 0; //thumb 的起始偏移所占的比例
 		m_thumbSizeFraction = 1.0f;//thumb 的大小所占的比例
-		m_minThumbSize = 35.0f;
+		m_minThumbSize = 20.0f;
 		m_orientation = arguments.morientation;
 
 		m_childrens.push_back(arguments.mTopSlot);

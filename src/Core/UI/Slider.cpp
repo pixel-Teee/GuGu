@@ -98,7 +98,7 @@ namespace GuGu {
 		auto thumbImage = getThumbImage();
 		ElementList::addBoxElement(elementList,
 			sliderGeometry.getChildGeometry(barSize, barTopLeft),
-			math::float4(1.0f),
+			barImage->m_tintColor,
 			barImage,
 			layer
 		);
@@ -108,7 +108,7 @@ namespace GuGu {
 		//绘制handle
 		ElementList::addBoxElement(elementList,
 			sliderGeometry.getChildGeometry(handleSize, handleTopLeftPoint),
-			math::float4(1.0f),
+			thumbImage->m_tintColor,
 			thumbImage,
 			layer
 		);

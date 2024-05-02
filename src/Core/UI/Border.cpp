@@ -9,6 +9,8 @@
 
 namespace GuGu {
 	Border::Border()
+		: m_borderBackgroundColor(math::float4(1.0f, 1.0f, 1.0f, 1.0f))
+		, m_imageBursh(StyleSet::getStyle()->getBrush("NoBorder"))
 	{
 	}
 	Border::~Border()
@@ -35,7 +37,7 @@ namespace GuGu {
 
 		if(m_imageBursh.Get() != nullptr && m_imageBursh.Get()->m_drawAs != BrushDrawType::NoDrawType)
 		{
-			ElementList::addBoxElement(elementList, allocatedGeometry, m_borderBackgroundColor.Get(), m_imageBursh.Get(), layer); //background
+			ElementList::addBoxElement(elementList, allocatedGeometry, m_imageBursh.Get()->m_tintColor * m_borderBackgroundColor.Get(), m_imageBursh.Get(), layer); //background
 		}
 		
 		uint32_t widgetNumbers = arrangedWidgetArray.getArrangedWidgetsNumber();//note:just one
@@ -93,7 +95,11 @@ namespace GuGu {
 		return m_childWidget.get();
 	}
 	uint32_t Border::getSlotsNumber() const 
-{
+	{
 		return 1;
+	}
+	void Border::setBorderImage(Attribute<std::shared_ptr<Brush>> inBorderImage)
+	{
+		m_imageBursh = inBorderImage;
 	}
 }

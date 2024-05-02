@@ -11,6 +11,7 @@ namespace GuGu {
 	}
 	void NullWidget::init(const BuilderArguments& arguments)
 	{
+		m_visibilityAttribute = Visibility::SelfHitTestInvisible;
 	}
 	uint32_t NullWidget::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{

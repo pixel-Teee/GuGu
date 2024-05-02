@@ -58,15 +58,16 @@ namespace GuGu {
 					(
 						WIDGET_NEW(Overlay)
 						//drop shadow
-						+ Overlay::Slot()
-						.setVerticalAlignment(VerticalAlignment::Top)
-						.setHorizontalAlignment(HorizontalAlignment::Stretch)
-						.setPadding(Padding(arguments.mcomboButtonStyle.Get()->m_shadowOffset.x, arguments.mcomboButtonStyle.Get()->m_shadowOffset.y, 0.0f, 0.0f))
-						(
-							WIDGET_NEW(ImageWidget)
-							.visibility(arguments.mhasDownArrow && bHasDownArrowShadow ? Visibility::Visible : Visibility::Collapsed)
-							.brush(arguments.mcomboButtonStyle.Get()->m_downArrowImage)//todo:add color and opacity
-						)
+						//+ Overlay::Slot()
+						//.setVerticalAlignment(VerticalAlignment::Top)
+						//.setHorizontalAlignment(HorizontalAlignment::Stretch)
+						//.setPadding(Padding(arguments.mcomboButtonStyle.Get()->m_shadowOffset.x, arguments.mcomboButtonStyle.Get()->m_shadowOffset.y, 0.0f, 0.0f))
+						//(
+						//	WIDGET_NEW(ImageWidget)
+						//	.visibility(arguments.mhasDownArrow && bHasDownArrowShadow ? Visibility::Visible : Visibility::Collapsed)
+						//	.brush(arguments.mcomboButtonStyle.Get()->m_downArrowImage)//todo:add color and opacity
+						//)
+						//todo:这里以后要修复，加入前景色判断
 						+ Overlay::Slot()
 						.setVerticalAlignment(VerticalAlignment::Top)
 						.setHorizontalAlignment(HorizontalAlignment::Stretch)

@@ -216,8 +216,31 @@ namespace GuGu {
 		{
 			m_style = inArgs.mStyle.Get();
 
+			setBorderImage(Attribute<std::shared_ptr<Brush>>(this, &TableRow::getBorder));
+
 			setOwnerTableView(inOwnerTableView);
 		}
+
+		virtual std::shared_ptr<Brush> getBorder() const
+		{
+			std::shared_ptr<ITypedTableView<ItemType>> ownerTable = m_ownerTablePtr.lock();
+
+			const bool bIsActive = true;//todo:这里要修复
+
+			const bool bItemHasChildren = ownerTable->privateDoesItemHaveChildren(m_indexInList);
+
+			if (const ItemType* myItemPtr = getItemForThis(ownerTable))
+			{
+				const bool bEvenEntryIndex = (m_indexInList % 2 == 0);//是否是偶数的索引，来更换样式
+				if (bEvenEntryIndex)
+					return m_style->m_evenRowBackgroundBrush;
+				else
+					return m_style->m_oddRowBackrgoundBrush;
+			}
+
+			return nullptr;
+		}
+
 		//在 list 的相应的 data item 的索引
 		int32_t m_indexInList;
 
