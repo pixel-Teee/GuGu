@@ -149,7 +149,7 @@ namespace GuGu {
 		const WidgetGeometry trackGeometry = findChildGeometry(myGeometry, m_track);//track bar 的 widget geometry
 		const float unclampedOffsetInTrack = trackGeometry.absoluteToLocal(inMouseEvent.m_screenSpacePosition)[axisId] - m_dragGrabOffset;
 		const float trackSizeBiasedByMinThumbSize = trackGeometry.getLocalSize()[axisId] - m_track->getMinThumbSize();
-		const float thumbOffsetInTrack = std::clamp(unclampedOffsetInTrack, 0.0f, trackSizeBiasedByMinThumbSize);
+		const float thumbOffsetInTrack = std::clamp(unclampedOffsetInTrack, 0.0f, std::max(trackSizeBiasedByMinThumbSize, 0.0f));
 		const float thumbOffset = thumbOffsetInTrack / trackSizeBiasedByMinThumbSize;//thumb offset 处于[0, 1]之间
 		if (m_onUserScrolled)
 		{

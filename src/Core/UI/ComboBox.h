@@ -3,6 +3,8 @@
 #include "TableRow.h"
 #include "ComboButton.h"
 #include "TableViewTypeTraits.h"//ListTypeTraits
+#include "Box.h"
+#include "NullWidget.h"
 
 namespace GuGu {
 	using OnComboBoxOpening = std::function<void()>;
@@ -45,7 +47,14 @@ namespace GuGu {
 
 		virtual Reply OnMouseButtonDown(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent) override
 		{
-			std::shared_ptr<ITypedTableView<OptionType>> ownerTable = m_ownerTablePtr.lock();
+			//基类的实际类型只有当类的模板实参确定了才能确定
+			//必须用 this 或有限定名字访问成员变成待决
+			//实例化点才会查找这个名字
+			//否则会在定义点查找，而定义点基类看不到
+			//定义点是模板定义的位置
+			//实例点，编译器会把实例化后的模板特化放在哪里
+			//不同的位置会影响名字查找的结果
+			std::shared_ptr<ITypedTableView<OptionType>> ownerTable = this->m_ownerTablePtr.lock();
 
 			const OptionType* myItem = ownerTable->privateItemFromWidget(this);
 			const bool bIsSelected = ownerTable->privateIsItemSelected(*myItem);
@@ -82,7 +91,7 @@ namespace GuGu {
 				, mItemStyle(StyleSet::getStyle()->template getStyle<TableRowStyle>("comboBox.Row"))
 				, mcontentPadding(mcomboBoxStyle.Get()->m_contentPadding)
 				, minitiallySelectedItem(listTypeTraits::makeNullPtr())
-				, mmaxListHeight(42.0f)
+				, mmaxListHeight(420.0f)
 				, mhasDownArrow(true)
 				, menableGamepadNavigationMode(false)
 				, misFocusable(true)

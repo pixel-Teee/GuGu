@@ -135,7 +135,7 @@ namespace GuGu {
 
 		if (currentMaxDesiredWidth.isSet())
 		{
-			currentWidth = std::max(currentWidth, currentMaxDesiredWidth.get());
+			currentWidth = std::min(currentWidth, currentMaxDesiredWidth.get());
 		}
 
 		return currentWidth;
@@ -156,7 +156,7 @@ namespace GuGu {
 
 		if (currentMaxDesiredHeight.isSet())
 		{
-			currentHeight = std::max(currentHeight, currentMaxDesiredHeight.get());
+			currentHeight = std::min(currentHeight, currentMaxDesiredHeight.get());
 		}
 
 		return currentHeight;

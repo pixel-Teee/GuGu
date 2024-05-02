@@ -1275,6 +1275,7 @@ namespace GuGu {
 										return m_comboBox->getSelectedItem();
 									})
 								)
+								.maxListHeight(60.0f)
 							)
 							+ VerticalBox::Slot()
 							.StretchHeight(0.9f)
