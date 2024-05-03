@@ -19,17 +19,22 @@ namespace GuGu{
     class ArrangedWidgetArray;
 	struct PaintArgs
 	{
-		PaintArgs(std::vector<std::shared_ptr<Widget>>& inWidgets, double inCurrentTime, double inDeltaTime)
+		PaintArgs(std::vector<std::shared_ptr<Widget>>& inWidgets, math::float2 inWindowOffset, double inCurrentTime, double inDeltaTime)
 			: m_allWidgets(inWidgets)
+            , m_windowOffset(inWindowOffset)
             , m_currentTime(inCurrentTime)
             , m_deltaTime(inDeltaTime)
 		{}
+
+        math::float2 getWindowToDesktopTransform() { return m_windowOffset; }
 
 		std::vector<std::shared_ptr<Widget>>& m_allWidgets;
 
         double m_currentTime;
         
         double m_deltaTime;
+
+        math::float2 m_windowOffset;
 	};
     class Widget : public std::enable_shared_from_this<Widget>
     {

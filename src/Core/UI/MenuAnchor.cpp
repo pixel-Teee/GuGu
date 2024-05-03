@@ -7,10 +7,27 @@
 #include "WidgetPath.h"
 #include "Menu.h"
 #include "NullWidget.h"
+#include "WindowWidget.h"
 
 #include <Application/Application.h>
 
 namespace GuGu {
+	math::box2 transformRect(const math::affine2& transform, const math::box2& rect)
+	{
+		math::float2 topLeftTransformed = transform.transformPoint(math::float2(rect.m_mins.x, rect.m_mins.y));
+		math::float2 bottomRightTransformed = transform.transformPoint(math::float2(rect.m_maxs.x, rect.m_maxs.y));
+
+		if (topLeftTransformed.x > bottomRightTransformed.x)
+		{
+			std::swap(topLeftTransformed.x, bottomRightTransformed.x);
+		}
+		if (topLeftTransformed.y > bottomRightTransformed.y)
+		{
+			std::swap(topLeftTransformed.y, bottomRightTransformed.y);
+		}
+		return math::box2(topLeftTransformed, bottomRightTransformed);
+	}
+
 	std::vector<std::weak_ptr<IMenu>> MenuAnchor::m_openApplicationMenus;
 
 	static math::float2 getMenuOffsetForPlacement(const WidgetGeometry& allottedGeometry, MenuPlacement placementMode, math::float2 popupSizeLocalSpace)
@@ -189,7 +206,7 @@ namespace GuGu {
 			const PopupPlacement localPlacement(allocatedGeometry, m_childrens[1]->getChildWidget()->getFixedSize(), m_placeMent.Get());
 			
 			WidgetGeometry childGeometry;
-			childGeometry = allocatedGeometry.getChildGeometry(localPlacement.m_localPopupSize, localPlacement.m_localPopupOffset);
+			childGeometry = allocatedGeometry.getChildGeometry(localPlacement.m_localPopupSize, m_localPopupPosition);
 			arrangedWidgetArray.pushWidget(childGeometry, getSlot(1)->getChildWidget());
 		}
 	}
@@ -200,6 +217,42 @@ namespace GuGu {
 	uint32_t MenuAnchor::getSlotsNumber() const
 	{
 		return m_childrens.size();
+	}
+	void MenuAnchor::Tick(const WidgetGeometry& allocatedGeometry, const double inCurrentTime, const float inDeltaTime)
+	{
+		std::shared_ptr<WindowWidget> popupWindow = m_popupWindowPtr.lock();
+
+		if (popupWindow && isOpenAndReusingWindow())
+		{
+			//理想情况下，做这个在 onArrangeChildren 函数里面，现在不行的原因是因为 onArrangeChildren
+			//可以在桌面空间和窗口空间被调用，并且我们不知道窗口的 geometry 的哪个版本去使用
+			//tick() 总是在桌面空间，那么 cache 这个方法，并且使用它在 onArrangeChildren 中
+			const PopupPlacement localPlacement(allocatedGeometry, m_childrens[1]->getChildWidget()->getFixedSize(), m_placeMent.Get());
+
+			math::float2 fittedPlacement;
+
+			if (m_bFitInWindow) //塞进窗口，不超出窗口区域
+			{
+				math::affine2 Affine = math::inverse(allocatedGeometry.getAccumulateLayoutTransform());
+				math::box2 windowClientRect = popupWindow->getClientRectInScreen();
+
+				//transform rect
+				const math::box2 windowRectLocalSpace = transformRect(Affine, windowClientRect);
+
+				fittedPlacement = computePopupFitInRect(localPlacement.m_anchorLocalSpace,
+					math::box2(localPlacement.m_localPopupOffset, localPlacement.m_localPopupOffset + localPlacement.m_localPopupSize),
+					localPlacement.m_orientation, windowRectLocalSpace);
+			}
+			else
+			{
+				fittedPlacement = localPlacement.m_localPopupOffset;
+			}
+
+			m_localPopupPosition = fittedPlacement;
+			m_screenPopupPosition = allocatedGeometry.getAccumulateLayoutTransform().transformPoint(m_localPopupPosition);
+		}
+
+		//添加 bDismissedThisTick
 	}
 	bool MenuAnchor::isOpenAndReusingWindow() const
 	{

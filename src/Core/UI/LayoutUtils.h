@@ -90,4 +90,16 @@ namespace GuGu {
 
 		return AlignmentArrangeResult(offset, size);
 	}
+	/*
+	* inAnchor 相对于 pop up 被创建的区域 (例如，combo box 的按钮部分)
+	* pop up rect (pop up) 被建议的区域，位置可能被调整
+	* orientation 我们尝试去展示 pop up 相对于 anchor 的上下或者左右？
+	* rect to fit 可用的区域对于展示这个 pop up ，我们想完整地包含它，而不裁剪
+	* 
+	* 返回一个最佳的在 rect to fit 的位置，那么就没有 pop up 的裁剪超出 rect to fit 的区域
+	*/
+	math::float2 computePopupFitInRect(const math::box2& inAnchor,
+		const math::box2& popupRect,
+		const Orientation& orientation,
+		const math::box2& rectToFit);
 }

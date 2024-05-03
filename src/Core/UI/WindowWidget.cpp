@@ -239,4 +239,8 @@ namespace GuGu {
 
 		return res;
 	}
+	math::box2 WindowWidget::getClientRectInScreen() const
+	{
+		return math::box2(math::float2(m_screenPosition), math::float2(m_screenPosition + m_size));
+	}
 }

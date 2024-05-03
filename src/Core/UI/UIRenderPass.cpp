@@ -632,7 +632,7 @@ namespace GuGu {
 	void UIRenderPass::generateWidgetElement(WidgetGeometry& allocatedWidgetGeometry)
 	{
 		m_allWidgets.clear();
-		PaintArgs paintArgs(m_allWidgets, Application::getApplication()->getTimer()->GetTotalTime(), Application::getApplication()->getTimer()->GetDeltaTime());
+		PaintArgs paintArgs(m_allWidgets, m_uiRoot->getPositionInScreen(), Application::getApplication()->getTimer()->GetTotalTime(), Application::getApplication()->getTimer()->GetDeltaTime());
 
 		math::box2 cullingRect(math::float2(0.0f, 0.0f), math::float2(allocatedWidgetGeometry.getLocalSize().x, allocatedWidgetGeometry.getLocalSize().y));
 		m_uiRoot->generateElement(paintArgs, cullingRect, *m_elementList, allocatedWidgetGeometry, 0);
@@ -1266,51 +1266,6 @@ namespace GuGu {
 							//	WIDGET_NEW(Spacer)
 							//)
 							+ VerticalBox::Slot()
-							.StretchHeight(0.9)
-							(
-								//WIDGET_NEW(ComboButton)
-								//.onGetMenuContentLambda([this]() {
-								//	return WIDGET_NEW(BoxWidget)
-								//	.HeightOverride(80.0f)
-								//	.Content(
-								//		WIDGET_NEW(ListView<GuGuUtf8Str>)
-								//		.ListItemSource(&strVec)
-								//		.onGenerateRowLambda([](GuGuUtf8Str item, const std::shared_ptr<class TableViewBase>& table)->std::shared_ptr<ITableRow> {
-								//			return WIDGET_NEW(TableRow<GuGuUtf8Str>, table)
-								//				.Content(
-								//					WIDGET_NEW(Border)
-								//					.BorderBackgroundColor(math::float4(0.3f, 0.6f, 0.2f, 1.0f))
-								//					.Content
-								//					(
-								//						WIDGET_NEW(TextBlockWidget)
-								//						.text(item)
-								//					)
-								//				);
-								//			})	
-								//	);
-								//})
-								//.buttonContent
-								//(
-								//	WIDGET_NEW(TextBlockWidget)
-								//	.text(u8"combobutton测试")
-								//)
-								WIDGET_ASSIGN_NEW(ComboBox<GuGuUtf8Str>, m_comboBox)
-								.optionSource(&strVec)
-								.onGenerateWidgetLambda([&](GuGuUtf8Str inOption)->std::shared_ptr<Widget> {
-									return WIDGET_NEW(TextBlockWidget)
-										 .text(inOption);
-								})
-								.initiallySelectedItem(u8"test")
-								.Content
-								(
-									WIDGET_NEW(TextBlockWidget)
-									.textLambda([&]()->GuGuUtf8Str {
-										return m_comboBox->getSelectedItem();
-									})
-								)
-								.maxListHeight(60.0f)
-							)
-							+ VerticalBox::Slot()
 							.StretchHeight(0.9f)
 							(
 								WIDGET_NEW(HorizontalBox)
@@ -1378,6 +1333,51 @@ namespace GuGu {
 										}
 									)
 								)
+							)
+							+ VerticalBox::Slot()
+							.StretchHeight(0.9)
+							(
+								//WIDGET_NEW(ComboButton)
+								//.onGetMenuContentLambda([this]() {
+								//	return WIDGET_NEW(BoxWidget)
+								//	.HeightOverride(80.0f)
+								//	.Content(
+								//		WIDGET_NEW(ListView<GuGuUtf8Str>)
+								//		.ListItemSource(&strVec)
+								//		.onGenerateRowLambda([](GuGuUtf8Str item, const std::shared_ptr<class TableViewBase>& table)->std::shared_ptr<ITableRow> {
+								//			return WIDGET_NEW(TableRow<GuGuUtf8Str>, table)
+								//				.Content(
+								//					WIDGET_NEW(Border)
+								//					.BorderBackgroundColor(math::float4(0.3f, 0.6f, 0.2f, 1.0f))
+								//					.Content
+								//					(
+								//						WIDGET_NEW(TextBlockWidget)
+								//						.text(item)
+								//					)
+								//				);
+								//			})	
+								//	);
+								//})
+								//.buttonContent
+								//(
+								//	WIDGET_NEW(TextBlockWidget)
+								//	.text(u8"combobutton测试")
+								//)
+								WIDGET_ASSIGN_NEW(ComboBox<GuGuUtf8Str>, m_comboBox)
+								.optionSource(&strVec)
+								.onGenerateWidgetLambda([&](GuGuUtf8Str inOption)->std::shared_ptr<Widget> {
+									return WIDGET_NEW(TextBlockWidget)
+										 .text(inOption);
+								})
+								.initiallySelectedItem(u8"test")
+								.Content
+								(
+									WIDGET_NEW(TextBlockWidget)
+									.textLambda([&]()->GuGuUtf8Str {
+										return m_comboBox->getSelectedItem();
+									})
+								)
+								.maxListHeight(60.0f)
 							)
 						)
 					)

@@ -26,7 +26,9 @@ namespace GuGu{
     {
         Widget* mutableThis = const_cast<Widget*>(this);
 
-        mutableThis->Tick(allocatedGeometry, paintArgs.m_currentTime, paintArgs.m_deltaTime);
+        WidgetGeometry desktopSpaceGeometry = allocatedGeometry;
+        desktopSpaceGeometry = desktopSpaceGeometry.getOffsetGeometry(paintArgs.getWindowToDesktopTransform());
+        mutableThis->Tick(desktopSpaceGeometry, paintArgs.m_currentTime, paintArgs.m_deltaTime);
 
 		paintArgs.m_allWidgets.push_back(shared_from_this());
 		m_geometry = allocatedGeometry;

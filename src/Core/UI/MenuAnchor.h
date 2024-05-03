@@ -71,6 +71,8 @@ namespace GuGu {
 		virtual SlotBase* getSlot(uint32_t index) const override;
 
 		virtual uint32_t getSlotsNumber() const override;
+
+		virtual void Tick(const WidgetGeometry& allocatedGeometry, const double inCurrentTime, const float inDeltaTime) override;
 	protected:
 		//返回真，如果 pop up 现在被打开，并且重复使用一个已经存在的窗口
 		bool isOpenAndReusingWindow() const;
