@@ -31,6 +31,12 @@ namespace GuGu {
 	class Reply : public TReplyBase<Reply>
 	{
 	public:
+		Reply()
+		: TReplyBase<Reply>(false)
+		{
+
+		}
+		
 		static Reply Handled()
 		{
 			return Reply(true);

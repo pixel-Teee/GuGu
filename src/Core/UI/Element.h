@@ -3,6 +3,15 @@
 #include "WidgetGeometry.h"
 
 namespace GuGu {
+	struct GradientStop //渐变点
+	{
+		math::float2 m_position;
+		math::float4 m_color;
+
+		GradientStop(const math::float2& inPosition, const math::float4& inColor)
+			: m_position(inPosition), m_color(inColor)
+		{}
+	};
 	//class ElementList;
 	class Element
 	{
@@ -16,7 +25,8 @@ namespace GuGu {
 			Viewport,
 			ShapedText,
 			RoundedBox,
-			Border
+			Border,
+			Gradient
 		};
 
 		Element();

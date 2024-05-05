@@ -110,6 +110,8 @@ namespace GuGu {
 			{
 				newColor.x = angle * 180.0f * (0.31830988618f);//INV_PI
 				newColor.y = std::min(relativeRadius, 1.0f);
+				newColor.z = 1.0f;//todo:移除这个
+				newColor.w = 0.4f;//todo:移除这个
 			}
 
 			if (m_onValueChanged)

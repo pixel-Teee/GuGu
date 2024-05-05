@@ -5,6 +5,7 @@
 #include <Core/GuGuUtf8Str.h>
 
 #include "BasicElement.h"
+#include "Reply.h"
 
 namespace GuGu {
 	using OnIsTypedCharValid = std::function<bool(const GuGuUtf8Str)>;
@@ -14,6 +15,8 @@ namespace GuGu {
 	class Widget;
 	class ITableRow;
 	class TableViewBase;
+	class WidgetGeometry;
+	struct PointerEvent;
 	template<typename ArgumentType>
 	class WidgetDelegates
 	{
@@ -37,4 +40,6 @@ namespace GuGu {
 
 	//当颜色改变的时候，进行通知
 	using OnLinearColorValueChanged = std::function<void(math::float4)>;
+
+	using PointerEventHandler = std::function<Reply(const WidgetGeometry&, const PointerEvent&)>;
 }

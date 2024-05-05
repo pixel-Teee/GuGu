@@ -228,6 +228,10 @@ namespace GuGu {
 		colorSelector->m_tiling = false;
 		colorSelector->m_texturePath = u8"asset/MinimumWindow/Circle.png";
 		m_brushes.insert({ u8"colorWheel.Selector", colorSelector });
+
+		//color block
+		//std::shared_ptr<Brush> colorBlock = std::make_shared<Brush>();
+		m_brushes.insert({ u8"colorPicker.AlphaBckground", checkerBoard });
 	}
 	StyleSet::~StyleSet()
 	{

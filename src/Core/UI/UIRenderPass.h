@@ -6,6 +6,7 @@
 
 #include "ListView.h"
 #include "ComboBox.h"
+#include "ColorWheel.h"
 
 namespace GuGu {
 	class Brush;
@@ -136,5 +137,10 @@ namespace GuGu {
 		void selectionChanged(GuGuUtf8Str item, SelectInfo::Type);
 
 		GuGuUtf8Str m_selectUINode;
+
+		std::shared_ptr<ColorWheel> m_colorWheel;
+		void setColor(math::float4 inColor);
+		math::float4 m_color = math::float4(0.0f, 0.0f, 1.0f, 1.0f);
+		math::float4 getColor() const;//for color block
 	};
 }

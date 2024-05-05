@@ -13,6 +13,7 @@
 #include "FontCache.h"
 #include "CharacterList.h"
 #include "LineBuilder.h"
+#include "GradientElement.h"
 
 namespace GuGu {
 	ElementList::ElementList()
@@ -92,6 +93,15 @@ namespace GuGu {
 		shapedTextElement->m_shapedTextSequence = shapedText;
 		elementList.m_elements.push_back(shapedTextElement);
 	}
+	void ElementList::addGradientElement(ElementList& elementList, const WidgetGeometry& widgetGeometry, std::vector<GradientStop> gradientStops, Orientation orientation, math::float4 cornerRadius, uint32_t layer)
+	{
+		std::shared_ptr<GradientElement> gradientElement = std::make_shared<GradientElement>(Element::ElementType::Gradient, widgetGeometry, layer);
+		gradientElement->setClipIndex(elementList.getClippintIndex());
+		gradientElement->m_gradientStops = gradientStops;
+		gradientElement->m_cornerRadius = cornerRadius;
+		gradientElement->m_orientation = orientation;
+		elementList.m_elements.push_back(gradientElement);
+	}
 	void ElementList::generateBatches()
 	{
 		std::stable_sort(m_elements.begin(), m_elements.end(), [=](const std::shared_ptr<Element>& lhs, const std::shared_ptr<Element>& rhs) {
@@ -134,6 +144,11 @@ namespace GuGu {
 				case Element::ElementType::ShapedText:
 				{
 					generateShapedTextBatch(m_elements[i]);
+					break;
+				}
+				case Element::ElementType::Gradient:
+				{
+					generateGradientBatch(m_elements[i]);
 					break;
 				}
 			}
@@ -625,6 +640,130 @@ namespace GuGu {
 		};
 
 		buildFontGeometry(color, element->m_layer);
+	}
+	void ElementList::generateGradientBatch(std::shared_ptr<Element> element)
+	{
+		std::shared_ptr<BatchData> boxBatch = std::make_shared<BatchData>();
+		boxBatch->shaderType = UIShaderType::Default;
+		boxBatch->m_layer = element->m_layer;
+		boxBatch->m_clippingState = getClippingState(element->m_clipIndex);
+
+		std::shared_ptr<GradientElement> gradientElement = std::static_pointer_cast<GradientElement>(element);
+		//math::double2 absolutePosition = boxElement->m_geometry.getAbsolutePosition();
+		math::affine2 transform = gradientElement->m_geometry.getAccumulateRenderTransform();
+		math::float2 localSize = gradientElement->m_geometry.getLocalSize();
+		//math::double2 localSize = math::double2(200.0f, 200.0f);
+
+		math::bool4 haveCorner = gradientElement->m_cornerRadius != math::float4(0.0f, 0.0f, 0.0f, 0.0f);
+		if (haveCorner.x || haveCorner.y || haveCorner.z || haveCorner.w)
+		{
+			ShaderParam shaderParam;
+			shaderParam.pixelParams = math::float4(0.0f, 0.0f, localSize.x, localSize.y);
+			shaderParam.pixelParams2 = gradientElement->m_cornerRadius;
+			boxBatch->shaderType = UIShaderType::RoundedBox;
+			boxBatch->m_shaderParams = shaderParam;
+		}
+
+		std::vector<GradientStop> gradientStops = gradientElement->m_gradientStops;
+
+		const GradientStop& firstStop = gradientStops[0];
+		const GradientStop& lastStop = gradientStops[gradientStops.size() - 1];
+
+		if (gradientElement->m_orientation == Orientation::Vertical)
+		{
+			if (0.0f < firstStop.m_position.x)
+			{
+				auto beg = gradientStops.begin();
+				gradientStops.insert(beg, GradientStop(math::float2(0.0f, 0.0f), firstStop.m_color));
+			}
+			
+			if(localSize.x > lastStop.m_position.x)
+			{
+				gradientStops.push_back(GradientStop(localSize, lastStop.m_color));
+			}
+		}
+		else
+		{
+			if (0.0f < firstStop.m_position.y)
+			{
+				auto beg = gradientStops.begin();
+				gradientStops.insert(beg, GradientStop(math::float2(0.0f, 0.0f), firstStop.m_color));
+			}
+
+			if (localSize.y > lastStop.m_position.y)
+			{
+				gradientStops.push_back(GradientStop(localSize, lastStop.m_color));
+			}
+		}
+
+		math::float2 topLeft = math::float2(0.0f, 0.0f);
+		math::float2 topRight = math::float2(localSize.x, 0.0f);
+		math::float2 bottomLeft = math::float2(0, localSize.y);
+		math::float2 bottomRight = math::float2(localSize.x, localSize.y);
+
+		for (int32_t stopIndex = 0; stopIndex < gradientStops.size(); ++stopIndex)
+		{
+			const uint32_t indexStart = boxBatch->m_vertices.size();
+
+			const GradientStop& curStop = gradientStops[stopIndex];
+
+			math::float2 startPt;
+			math::float2 endPt;
+
+			math::float2 startUV;
+			math::float2 endUV;
+
+			if (gradientElement->m_orientation == Orientation::Vertical)
+			{
+				startPt = topLeft;
+				endPt = bottomLeft;
+
+				startPt.x += curStop.m_position.x;
+				endPt.x += curStop.m_position.x;
+
+				startUV.x = startPt.x / topRight.x;
+				startUV.y = 0;
+
+				endUV.x = endPt.x / topRight.x;
+				endUV.y = 1.0;
+			}
+			else
+			{
+				startPt = topLeft;
+				endPt = topRight;
+
+				startPt.y += curStop.m_position.y;
+				endPt.y += curStop.m_position.y;
+
+				startUV.x = 0;
+				startUV.y = startPt.y / bottomLeft.y;
+
+				endUV.x = 1;
+				endUV.y = startPt.y / bottomLeft.y;
+			}
+
+			if (stopIndex == 0)
+			{
+				boxBatch->m_vertices.emplace_back(math::float4(startUV.x, startUV.y, 1.0f, 1.0f), transform.transformPoint(startPt), curStop.m_color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+				boxBatch->m_vertices.emplace_back(math::float4(endUV.x, endUV.y, 1.0f, 1.0f), transform.transformPoint(endPt), curStop.m_color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+			}
+			else
+			{
+				boxBatch->m_vertices.emplace_back(math::float4(startUV.x, startUV.y, 1.0f, 1.0f), transform.transformPoint(startPt), curStop.m_color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+				boxBatch->m_vertices.emplace_back(math::float4(endUV.x, endUV.y, 1.0f, 1.0f), transform.transformPoint(endPt), curStop.m_color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+				//boxBatch->m_vertices.emplace_back(math::float4(0.0f, 1.0f, 1.0f, 1.0f), transform.transformPoint(bottomLeft), curStop.m_color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+				//boxBatch->m_vertices.emplace_back(math::float4(1.0f, 0.0f, 1.0f, 1.0f), transform.transformPoint(topRight), curStop.m_color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+
+				boxBatch->m_indices.emplace_back(indexStart + 0);
+				boxBatch->m_indices.emplace_back(indexStart + 1);
+				boxBatch->m_indices.emplace_back(indexStart - 1);
+				boxBatch->m_indices.emplace_back(indexStart + 0);
+				boxBatch->m_indices.emplace_back(indexStart - 1);
+				boxBatch->m_indices.emplace_back(indexStart - 2);
+			}
+		}
+
+		m_batches.push_back(boxBatch);
 	}
 	void ElementList::buildShapedTextSequence(const ShapedTextBuildContext& context)
 	{

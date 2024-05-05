@@ -7,6 +7,7 @@
 
 #include "Clipping.h"
 #include "BasicElement.h"
+#include "Element.h"
 
 namespace GuGu {
 	class Brush;
@@ -91,6 +92,8 @@ namespace GuGu {
 
 		static void addShapedTextElement(ElementList& elementList, const WidgetGeometry& widgetGeometry, math::float4 color, std::shared_ptr<ShapedGlyphSequence> shapedText, uint32_t layer);
 
+		static void addGradientElement(ElementList& elementList, const WidgetGeometry& widgetGeometry, std::vector<GradientStop> gradientStops, Orientation orientation, math::float4 cornerRadius, uint32_t layer);
+
 		void generateBatches();
 
 		const std::vector<std::shared_ptr<BatchData>>& getBatches() const;
@@ -118,6 +121,8 @@ namespace GuGu {
 		void generateViewportBatch(std::shared_ptr<Element> element);
 
 		void generateShapedTextBatch(std::shared_ptr<Element> element);
+
+		void generateGradientBatch(std::shared_ptr<Element> element);
 
 		void buildShapedTextSequence(const ShapedTextBuildContext& context);
 

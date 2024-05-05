@@ -41,6 +41,7 @@
 #include "Box.h"
 #include "ComboBox.h"
 #include "ColorWheel.h"
+#include "ColorBlock.h"
 
 #include <Core/GuGuFile.h>
 #include <Window/Window.h>
@@ -242,7 +243,7 @@ namespace GuGu {
 			psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
 			psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
 			psoDesc.renderState.depthStencilState.depthTestEnable = false;
-			//psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;//todo:fix this
+			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;//todo:fix this
 
 			m_pipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
 		}
@@ -258,6 +259,7 @@ namespace GuGu {
 			psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
 			psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
 			psoDesc.renderState.depthStencilState.depthTestEnable = false;
+			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;//todo:fix this
 			m_FontPipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
 		}
 
@@ -273,6 +275,7 @@ namespace GuGu {
 			psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
 			psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
 			psoDesc.renderState.depthStencilState.depthTestEnable = false;
+			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;//todo:fix this
 			m_LinePipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
 		}
 
@@ -288,6 +291,7 @@ namespace GuGu {
 			psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
 			psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
 			psoDesc.renderState.depthStencilState.depthTestEnable = false;
+			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;//todo:fix this
 			m_roundedBoxPipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
 		}
 
@@ -1393,7 +1397,20 @@ namespace GuGu {
 								+ HorizontalBox::Slot()
 								.FixedWidth()
 								(
-									WIDGET_NEW(ColorWheel)
+									WIDGET_NEW(ColorBlock)
+									.Color(math::float4(0.4f, 1.0f, 1.0f, 0.2f))
+									.showBackgroundForAlpha(true)
+									.cornerRadius(math::float4(4.0f, 4.0f, 4.0f, 4.0f))
+									.alphaDisplayMode(ColorBlockAlphaDisplayMode::Separete)
+									.Color(this, &UIRenderPass::getColor)
+									.colorIsHsv(true)
+									//.Size(math::float2(260.0f, 16.0f))
+								)
+								+ HorizontalBox::Slot()
+								.FixedWidth()
+								(
+									WIDGET_ASSIGN_NEW(ColorWheel, m_colorWheel)
+									.OnValueChanged(this, &UIRenderPass::setColor)
 								)
 							)
 						)
@@ -1448,6 +1465,14 @@ namespace GuGu {
 	void UIRenderPass::selectionChanged(GuGuUtf8Str item, SelectInfo::Type)
 	{
 		m_selectUINode = item;
+	}
+	void UIRenderPass::setColor(math::float4 inColor)
+	{
+		m_color = inColor;
+	}
+	math::float4 UIRenderPass::getColor() const
+	{
+		return m_color;
 	}
 	GuGuUtf8Str UIRenderPass::getSelectUINode() const
 	{
