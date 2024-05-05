@@ -243,4 +243,14 @@ namespace GuGu {
 	{
 		return math::box2(math::float2(m_screenPosition), math::float2(m_screenPosition + m_size));
 	}
+	void WindowWidget::moveWindowTo(math::float2 newPosition)
+	{
+		if (m_nativeWindow)
+		{
+			math::float2 speculativeScreenPosition(int32_t(newPosition.x), int32_t(newPosition.y));
+			setCachedScreenPosition(speculativeScreenPosition);
+
+			m_nativeWindow->moveWindowTo(math::float2(speculativeScreenPosition.x, speculativeScreenPosition.y));
+		}
+	}
 }

@@ -1413,6 +1413,54 @@ namespace GuGu {
 									.OnValueChanged(this, &UIRenderPass::setColor)
 								)
 							)
+							//+ VerticalBox::Slot()
+							//.StretchHeight(0.6f)
+							//(
+							//	WIDGET_NEW(HorizontalBox)
+							//	+ HorizontalBox::Slot()
+							//	.StretchWidth(0.2f)
+							//	(
+							//		WIDGET_NEW(TextBlockWidget)
+							//		.text(u8"XPos:")
+							//	)
+							//	+ HorizontalBox::Slot()
+							//	.StretchWidth(0.8f)
+							//	(
+							//		WIDGET_NEW(SpinBox<double>)
+							//		.onValueChangedLambda([&](float newValue) {
+							//			math::float2 newPosition = m_uiRoot->getPositionInScreen();
+							//			m_uiRoot->moveWindowTo(math::float2(newValue, newPosition.y));
+							//		})
+							//		.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
+							//				math::float2 newPosition = m_uiRoot->getPositionInScreen();
+							//				m_uiRoot->moveWindowTo(math::float2(newValue, newPosition.y));
+							//		})
+							//	)
+							//)
+							//+ VerticalBox::Slot()
+							//.StretchHeight(0.6f)
+							//(
+							//	WIDGET_NEW(HorizontalBox)
+							//	+ HorizontalBox::Slot()
+							//	.StretchWidth(0.2f)
+							//	(
+							//		WIDGET_NEW(TextBlockWidget)
+							//		.text(u8"YPos:")
+							//	)
+							//	+ HorizontalBox::Slot()
+							//	.StretchWidth(0.8f)
+							//	(
+							//		WIDGET_NEW(SpinBox<double>)
+							//		.onValueChangedLambda([&](float newValue) {
+							//			math::float2 newPosition = m_uiRoot->getPositionInScreen();
+							//			m_uiRoot->moveWindowTo(math::float2(newPosition.x, newValue));
+							//		})
+							//		.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
+							//				math::float2 newPosition = m_uiRoot->getPositionInScreen();
+							//				m_uiRoot->moveWindowTo(math::float2(newPosition.x, newValue));
+							//		})
+							//	)
+							//)
 						)
 					)
 				)

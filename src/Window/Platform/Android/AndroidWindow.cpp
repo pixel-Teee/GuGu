@@ -37,4 +37,8 @@ namespace GuGu{
     ANativeWindow *AndroidWindow::getNativeHandle() const {
         return m_nativeWindow;
     }
+
+    void AndroidWindow::moveWindowTo(math::float2 newPosition) {
+
+    }
 }

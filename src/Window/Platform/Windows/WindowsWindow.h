@@ -19,6 +19,8 @@ namespace GuGu {
 		void setNativeApplicationHandleAndCmdShowToCreateWindow(HINSTANCE applicationHandle, int32_t cmdShow);
 
 		HWND getNativeWindowHandle();
+
+		virtual void moveWindowTo(math::float2 newPosition) override;
 	private:
 		HWND m_windowHandle;
 		HINSTANCE m_ownerApplicationHandle;

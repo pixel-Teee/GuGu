@@ -67,6 +67,8 @@ namespace GuGu {
 		//static Slot::SlotBuilderArguments SingleSlot() { return Slot::SlotBuilderArguments(std::make_shared<Slot>()); };
 
 		math::box2 getClientRectInScreen() const;
+
+		void moveWindowTo(math::float2 newPosition);
 	private:
 		std::shared_ptr<Window> m_nativeWindow;
 		std::shared_ptr<SingleChildSlot> m_childWidget;

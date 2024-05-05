@@ -15,6 +15,8 @@ namespace GuGu{
         void setNativeWindow(ANativeWindow* nativeWindow);
 
         ANativeWindow* getNativeHandle() const;
+
+        virtual void moveWindowTo(math::float2 newPosition) override;
     private:
         ANativeWindow* m_nativeWindow;
     };

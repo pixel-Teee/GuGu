@@ -94,4 +94,9 @@ namespace GuGu {
 		return m_windowHandle;
 	}
 
+	void WindowsWindow::moveWindowTo(math::float2 newPosition)
+	{
+		SetWindowPos(m_windowHandle, nullptr, newPosition.x, newPosition.y, 0, 0, SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOZORDER);
+	}
+
 }
