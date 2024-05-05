@@ -95,7 +95,7 @@ namespace GuGu {
 	{
 		const math::float2 localMouseCoordinate = myGeometry.absoluteToLocal(mouseEvent.m_screenSpacePosition);
 		const math::float2 relativePositionFromCenter = (2.0f * localMouseCoordinate - myGeometry.getLocalSize()) / (myGeometry.getLocalSize() - math::float2(m_selectorImage->m_actualSize.x, m_selectorImage->m_actualSize.y));
-		const float relativeRadius = math::square(relativePositionFromCenter.x * relativePositionFromCenter.x + relativePositionFromCenter.y * relativePositionFromCenter.y);//size
+		const float relativeRadius = std::sqrt(relativePositionFromCenter.x * relativePositionFromCenter.x + relativePositionFromCenter.y * relativePositionFromCenter.y);//size
 
 		if (relativeRadius <= 1.0f || bProcessWhenOutsideColorWheel)
 		{
