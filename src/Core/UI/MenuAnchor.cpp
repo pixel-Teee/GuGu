@@ -237,7 +237,7 @@ namespace GuGu {
 				math::box2 windowClientRect = popupWindow->getClientRectInScreen();
 
 				//transform rect
-				const math::box2 windowRectLocalSpace = transformRect(Affine, windowClientRect);
+				const math::box2 windowRectLocalSpace = transformRect(Affine, windowClientRect);//以当前 anchor 的左上角为原点的 window space 的局部空间
 
 				fittedPlacement = computePopupFitInRect(localPlacement.m_anchorLocalSpace,
 					math::box2(localPlacement.m_localPopupOffset, localPlacement.m_localPopupOffset + localPlacement.m_localPopupSize),

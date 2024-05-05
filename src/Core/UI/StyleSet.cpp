@@ -217,6 +217,17 @@ namespace GuGu {
 		std::shared_ptr<ComboBoxStyle> comboBox = std::make_shared<ComboBoxStyle>();
 		comboBox->setComboButtonStyle(comboButtonStyle);
 		m_styles.insert({ "comboBox", comboBox });
+
+		//color wheel
+		std::shared_ptr<Brush> colorWheel = std::make_shared<Brush>();
+		colorWheel->m_tiling = false;
+		colorWheel->m_texturePath = u8"asset/MinimumWindow/ColorWheel.png";
+		m_brushes.insert({ u8"colorWheel.HueValueCircle", colorWheel });
+
+		std::shared_ptr<Brush> colorSelector = std::make_shared<Brush>();
+		colorSelector->m_tiling = false;
+		colorSelector->m_texturePath = u8"asset/MinimumWindow/Circle.png";
+		m_brushes.insert({ u8"colorWheel.Selector", colorSelector });
 	}
 	StyleSet::~StyleSet()
 	{

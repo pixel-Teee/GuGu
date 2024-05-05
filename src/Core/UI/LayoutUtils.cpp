@@ -10,7 +10,7 @@ namespace GuGu {
     {
         //pop up rect 和 rect to fit 的相交区域
         math::box2 intersectionBox = popupRect & rectToFit;
-        const bool bAdjustmentNeeded = intersectionBox != popupRect;
+        const bool bAdjustmentNeeded = math::isnear(intersectionBox, popupRect);
 
         if (bAdjustmentNeeded)
         {

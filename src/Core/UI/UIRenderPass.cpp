@@ -40,6 +40,7 @@
 #include "ComboButton.h"
 #include "Box.h"
 #include "ComboBox.h"
+#include "ColorWheel.h"
 
 #include <Core/GuGuFile.h>
 #include <Window/Window.h>
@@ -639,7 +640,8 @@ namespace GuGu {
 	}
 	std::shared_ptr<WindowWidget> UIRenderPass::createTestWindow()
 	{
-		static std::vector<GuGuUtf8Str> strVec = { u8"test", u8"你好", u8"这是一个combo box", u8"这是一个combo button" };
+		static std::vector<GuGuUtf8Str> strVec = { u8"test", u8"你好", u8"这是一个combo box", u8"这是一个combo button",
+		u8"愉悦送走", u8"呼吸", u8"呼吸1", u8"呼吸2" };
 
 		WIDGET_ASSIGN_NEW(WindowWidget, m_uiRoot)
 			.Type(WindowWidget::NativeWindow)
@@ -1378,6 +1380,21 @@ namespace GuGu {
 									})
 								)
 								.maxListHeight(60.0f)
+							)
+							+ VerticalBox::Slot()
+							.FixedHeight()
+							(
+								WIDGET_NEW(HorizontalBox)
+								+ HorizontalBox::Slot()
+								.StretchWidth(1.0f)
+								(
+									WIDGET_NEW(Spacer)
+								)
+								+ HorizontalBox::Slot()
+								.FixedWidth()
+								(
+									WIDGET_NEW(ColorWheel)
+								)
 							)
 						)
 					)

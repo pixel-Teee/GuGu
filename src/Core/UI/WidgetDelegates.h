@@ -32,4 +32,9 @@ namespace GuGu {
 	//有时候一些 widgets 请求一些内容去显示，在这时候，它们依赖这个委托
 	//例如，一个 pop up 的内容通常被代码所驱动，因此，它们通常是未知的，直到 pop up 被打开，在这时，OnGetContent 被调用
 	using OnGetContent = std::function<std::shared_ptr<Widget>()>;
+
+	using SimpleDelegate = std::function<void()>;
+
+	//当颜色改变的时候，进行通知
+	using OnLinearColorValueChanged = std::function<void(math::float4)>;
 }
