@@ -13,6 +13,8 @@
 
 #include <Renderer/DeviceManager.h>//IRenderPass
 
+#include <Application/Application.h>
+
 namespace GuGu {
 	WindowWidget::WindowWidget()
 		: m_defaultBrush(StyleSet::getStyle()->getBrush("CheckerBoard"))
@@ -241,6 +243,11 @@ namespace GuGu {
 	}
 	math::box2 WindowWidget::getClientRectInScreen() const
 	{
+        if(Application::getApplication()->getGlobalPreRotate() == 90.0f || Application::getApplication()->getGlobalPreRotate() == 270.0f)
+        {
+            math::float2 newSize = math::float2(m_size.y, m_size.x);
+            return math::box2(math::float2(m_screenPosition), math::float2(m_screenPosition + newSize));
+        }
 		return math::box2(math::float2(m_screenPosition), math::float2(m_screenPosition + m_size));
 	}
 	void WindowWidget::moveWindowTo(math::float2 newPosition)
