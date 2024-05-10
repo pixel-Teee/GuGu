@@ -238,4 +238,71 @@ namespace GuGu {
 	private:
 		//todo:add color themes viewer
 	};
+
+	struct ColorPickerArgs
+	{
+		//新的颜色拾取器是否是模态对话框
+		bool m_bIsModal;
+
+		std::shared_ptr<Widget> m_parentWidget;
+
+		bool m_bUseAlpha;
+
+		bool m_bOnlyRefreshOnMouseUp;
+
+		bool m_bOnlyRefreshOnOk;
+
+		bool m_bExpandAdvancedSection;
+
+		bool m_bOpenAsMenu;
+
+		Attribute<float> m_displayGamma;
+
+		std::optional<bool> m_bSRGBOverride;
+
+		const std::vector<math::float4*>* m_colorArray;//FColor
+
+		const std::vector<math::float4*>* m_linearColorArray;//linear color
+
+		const std::vector<ColorChannels>* m_colorChannelsArray;
+
+		OnLinearColorValueChanged m_onColorCommitted;
+
+		OnLinearColorValueChanged m_preColorCommitted;
+
+		OnWindowClosed m_onColorPickerWindowClosed;
+
+		OnColorPickerCancelled m_onColorPickerCancelled;
+
+		SimpleDelegate m_onInteractivePickBegin;
+
+		SimpleDelegate m_onInteractivePickEnd;
+
+		math::float4 m_initialColorOverride;//linear color
+
+		std::shared_ptr<Widget> m_optionalOwningDetailsView;
+
+		ColorPickerArgs()
+			: m_bIsModal(false)
+			, m_parentWidget(nullptr)
+			, m_bUseAlpha(false)
+			, m_bOnlyRefreshOnMouseUp(false)
+			, m_bOnlyRefreshOnOk(false)
+			, m_bExpandAdvancedSection(true)
+			, m_bOpenAsMenu(false)
+			, m_displayGamma(2.2f)
+			, m_bSRGBOverride()
+			, m_colorArray(nullptr)
+			, m_linearColorArray(nullptr)
+			, m_colorChannelsArray(nullptr)
+			, m_onColorCommitted()
+			, m_preColorCommitted()
+			, m_onColorPickerWindowClosed()
+			, m_onColorPickerCancelled()
+			, m_onInteractivePickBegin()
+			, m_onInteractivePickEnd()
+			, m_initialColorOverride()
+			, m_optionalOwningDetailsView(nullptr)
+		{}
+	};
 }
