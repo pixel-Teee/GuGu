@@ -12,6 +12,10 @@ namespace GuGu {
 	class ArrangedWidgetArray;
 
 	class Window;
+
+	class WindowWidget;
+
+	using OnWindowClosed = std::function<void(const std::shared_ptr<WindowWidget>&)>;
 	
 	class WindowWidget : public Widget
 	{
