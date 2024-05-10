@@ -305,4 +305,8 @@ namespace GuGu {
 			, m_optionalOwningDetailsView(nullptr)
 		{}
 	};
+
+	bool openColorPicker(const ColorPickerArgs& args);
+
+	void destroyColorPicker();
 }

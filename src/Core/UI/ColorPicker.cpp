@@ -35,4 +35,14 @@ namespace GuGu {
     {
         return 0;
     }
+    bool openColorPicker(const ColorPickerArgs& args)
+    {
+		destroyColorPicker();
+		bool result = false;
+        return false;
+    }
+    void destroyColorPicker()
+    {
+       
+    }
 }
