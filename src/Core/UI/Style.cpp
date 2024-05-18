@@ -78,4 +78,10 @@ namespace GuGu {
 	ComboBoxStyle::~ComboBoxStyle()
 	{
 	}
+	ExpandableAreaStyle::ExpandableAreaStyle()
+	{
+	}
+	ExpandableAreaStyle::~ExpandableAreaStyle()
+	{
+	}
 }

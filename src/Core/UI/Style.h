@@ -216,4 +216,20 @@ namespace GuGu {
 		Padding m_menuRowPadding;
 		ComboBoxStyle& setMenuRowPadding(const Padding& inMenuRowPadding) { m_menuRowPadding = inMenuRowPadding; return *this; }
 	};
+
+	struct ExpandableAreaStyle : public Style
+	{
+		ExpandableAreaStyle();
+
+		virtual ~ExpandableAreaStyle();
+
+		std::shared_ptr<Brush> m_collapsedImage;
+		ExpandableAreaStyle& setCollapsedImage(const std::shared_ptr<Brush> inCollapsedImage) { m_collapsedImage = inCollapsedImage; return *this; }
+
+		std::shared_ptr<Brush> m_expandedImage;
+		ExpandableAreaStyle& setExpandedImage(const std::shared_ptr<Brush> inExpandedImage) { m_expandedImage = inExpandedImage; return *this; }
+
+		float m_rolloutAnimationSeconds;
+		ExpandableAreaStyle& setRolloutAnimationSeconds(float inLengthSeconds) { m_rolloutAnimationSeconds = inLengthSeconds; return *this; }
+	};
 }

@@ -42,4 +42,6 @@ namespace GuGu {
 	using OnLinearColorValueChanged = std::function<void(math::float4)>;
 
 	using PointerEventHandler = std::function<Reply(const WidgetGeometry&, const PointerEvent&)>;
+
+	using OnBooleanValueChanged = std::function<void(bool)>;
 }
