@@ -113,6 +113,8 @@ namespace GuGu {
 
 		//------test widget functionality------
 		std::shared_ptr<WindowWidget> createTestWindow();
+
+		std::shared_ptr<WindowWidget> createTest2Window();
 		math::float4 m_textColor;
 
 		std::shared_ptr<UIData> m_uiData;

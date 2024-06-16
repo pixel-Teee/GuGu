@@ -213,7 +213,7 @@ namespace GuGu {
 		//	);
 
 		createTestWindow();
-
+		//createTest2Window();
 		std::shared_ptr<Window> window = application->getWindow(0);
 		//m_uiRoot = std::make_shared<WindowWidget>();
 		m_uiRoot->assocateWithNativeWindow(window);//native window
@@ -429,37 +429,37 @@ namespace GuGu {
 
 		//todo:要修复这个
 		//因为 list view 在 第一次 tick 的适合，会记录一个 item 是否有儿子，而此时还没收集完所有 widgets
-		static bool first = true;
-		if (first)
-		{
-			first = false;
-			m_uiNodeNames.push_back(m_uiRoot->getType() + m_uiRoot->getLocation());
-
-			m_verticalBox->insertSlot(0)
-				(
-					WIDGET_ASSIGN_NEW(TreeView<GuGuUtf8Str>, m_uiListView)
-					.treeItemSource(&m_uiNodeNames)
-					.onGetChildren(this, &UIRenderPass::getUIChildNode)
-					.onGenerateRowLambda([](GuGuUtf8Str item, const std::shared_ptr<class TableViewBase>& table)->std::shared_ptr<ITableRow> {
-						//static int32_t i = 0;
-						//++i;
-						math::float4 color = math::float4(0.3f, 0.6f, 0.2f, 1.0f);
-						return WIDGET_NEW(TableRow<GuGuUtf8Str>, table)
-							.Content
-							(
-								WIDGET_NEW(TextBlockWidget)
-								.text(item)
-								//WIDGET_NEW(Border)
-								//.Content(
-								//	
-								//)
-								//.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
-								//.BorderBackgroundColor(color)
-							);
-						})
-					.onSelectionChanged(this, &UIRenderPass::selectionChanged)
-				).StretchHeight(2.0f);
-		}
+		//static bool first = true;
+		//if (first)
+		//{
+		//	first = false;
+		//	m_uiNodeNames.push_back(m_uiRoot->getType() + m_uiRoot->getLocation());
+		//
+		//	m_verticalBox->insertSlot(0)
+		//		(
+		//			WIDGET_ASSIGN_NEW(TreeView<GuGuUtf8Str>, m_uiListView)
+		//			.treeItemSource(&m_uiNodeNames)
+		//			.onGetChildren(this, &UIRenderPass::getUIChildNode)
+		//			.onGenerateRowLambda([](GuGuUtf8Str item, const std::shared_ptr<class TableViewBase>& table)->std::shared_ptr<ITableRow> {
+		//				//static int32_t i = 0;
+		//				//++i;
+		//				math::float4 color = math::float4(0.3f, 0.6f, 0.2f, 1.0f);
+		//				return WIDGET_NEW(TableRow<GuGuUtf8Str>, table)
+		//					.Content
+		//					(
+		//						WIDGET_NEW(TextBlockWidget)
+		//						.text(item)
+		//						//WIDGET_NEW(Border)
+		//						//.Content(
+		//						//	
+		//						//)
+		//						//.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
+		//						//.BorderBackgroundColor(color)
+		//					);
+		//				})
+		//			.onSelectionChanged(this, &UIRenderPass::selectionChanged)
+		//		).StretchHeight(2.0f);
+		//}
 		
 
 		//generate vertex and index
@@ -769,67 +769,6 @@ namespace GuGu {
 								//	)					
 								//	
 								//)
-								+ VerticalBox::Slot()
-								.FixedHeight()
-								(
-									WIDGET_NEW(HorizontalBox)
-									+ HorizontalBox::Slot()
-									.StretchWidth(0.2f)
-									(
-										WIDGET_NEW(TextBlockWidget)
-										.text(u8"金属度")
-									)
-									+ HorizontalBox::Slot()
-									.StretchWidth(1.0f)
-									(
-										WIDGET_NEW(Slider)
-										.MaxValue(1.0f)
-										.MinValue(0.0f)
-										.OnValueChangedLambda([&](float inValue) {
-												m_uiData->metallic = inValue;
-											}
-										)
-									)
-									//+ HorizontalBox::Slot()
-									//.FixedWidth()
-									//(
-									//	WIDGET_NEW(TextBlockWidget)
-									//	.text(u8"金属度")
-									//	)
-									//+ HorizontalBox::Slot()
-									//.StretchWidth(1.0f)
-									//(
-									//	WIDGET_NEW(Slider)
-									//	.MaxValue(1.0f)
-									//	.MinValue(0.0f)
-									//	.OnValueChangedLambda([&](float inValue) {
-									//		m_uiData->metallic = inValue;
-									//		}
-									//	)
-									//)
-								)
-								+ VerticalBox::Slot()
-								.FixedHeight()
-								(
-									WIDGET_NEW(HorizontalBox)
-									+ HorizontalBox::Slot()
-									.StretchWidth(0.2f)
-									(
-										WIDGET_NEW(TextBlockWidget)
-										.text(u8"粗糙度")
-									)
-									+ HorizontalBox::Slot()
-									.StretchWidth(1.0f)
-									(
-										WIDGET_NEW(Slider)
-										.MaxValue(1.0f)
-										.MinValue(0.0f)
-										.OnValueChangedLambda([&](float inValue) {
-												m_uiData->roughness = inValue;
-											}
-										)
-									)
-								)
 								//+ VerticalBox::Slot()
 								//.FixedHeight()
 								//(
@@ -838,216 +777,277 @@ namespace GuGu {
 								//	.StretchWidth(0.2f)
 								//	(
 								//		WIDGET_NEW(TextBlockWidget)
-								//		.text(u8"width")
+								//		.text(u8"金属度")
 								//	)
 								//	+ HorizontalBox::Slot()
 								//	.StretchWidth(1.0f)
 								//	(
 								//		WIDGET_NEW(Slider)
-								//		.MaxValue(15.0f)
+								//		.MaxValue(1.0f)
 								//		.MinValue(0.0f)
 								//		.OnValueChangedLambda([&](float inValue) {
-								//				StyleSet::getStyle()->getBrush("thumbImage")->m_outlineSettings.m_width = inValue;
+								//				m_uiData->metallic = inValue;
 								//			}
 								//		)
 								//	)
+								//	//+ HorizontalBox::Slot()
+								//	//.FixedWidth()
+								//	//(
+								//	//	WIDGET_NEW(TextBlockWidget)
+								//	//	.text(u8"金属度")
+								//	//	)
+								//	//+ HorizontalBox::Slot()
+								//	//.StretchWidth(1.0f)
+								//	//(
+								//	//	WIDGET_NEW(Slider)
+								//	//	.MaxValue(1.0f)
+								//	//	.MinValue(0.0f)
+								//	//	.OnValueChangedLambda([&](float inValue) {
+								//	//		m_uiData->metallic = inValue;
+								//	//		}
+								//	//	)
+								//	//)
+								//)
+								//+ VerticalBox::Slot()
+								//.FixedHeight()
+								//(
+								//	WIDGET_NEW(HorizontalBox)
 								//	+ HorizontalBox::Slot()
 								//	.StretchWidth(0.2f)
 								//	(
 								//		WIDGET_NEW(TextBlockWidget)
-								//		.text(u8"cornerRadius")
-								//		)
-								//	+ HorizontalBox::Slot()
-								//	.StretchWidth(1.0f)
-								//	(
-								//		WIDGET_NEW(Slider)
-								//		.MaxValue(200.0f)
-								//		.MinValue(0.0f)
-								//		.OnValueChangedLambda([&](float inValue) {
-								//			StyleSet::getStyle()->getBrush("thumbImage")->m_outlineSettings.m_cornerRadius = math::float4(inValue);
-								//			}
-								//		)
+								//		.text(u8"粗糙度")
 								//	)
 								//	+ HorizontalBox::Slot()
-								//	.StretchWidth(0.2f)
-								//	(
-								//		WIDGET_NEW(TextBlockWidget)
-								//		.text(u8"Padding")
-								//		)
-								//	+ HorizontalBox::Slot()
 								//	.StretchWidth(1.0f)
 								//	(
 								//		WIDGET_NEW(Slider)
-								//		.MaxValue(15.0f)
+								//		.MaxValue(1.0f)
 								//		.MinValue(0.0f)
 								//		.OnValueChangedLambda([&](float inValue) {
-								//			StyleSet::getStyle()->getBrush("thumbImage")->m_margin = Padding(inValue, inValue, inValue, inValue);
+								//				m_uiData->roughness = inValue;
 								//			}
 								//		)
 								//	)
 								//)
-								+ VerticalBox::Slot()
-								.FixedHeight()
-								(
-									WIDGET_NEW(HorizontalBox)
-									+ HorizontalBox::Slot()
-									.StretchWidth(0.2f)
-									(
-										WIDGET_NEW(TextBlockWidget)
-										.text(u8"dir")
-										)
-									+ HorizontalBox::Slot()
-									.StretchWidth(1.0f)
-									(
-										WIDGET_NEW(Slider)
-										.MaxValue(10.0f)
-										.MinValue(-10.0f)
-										.OnValueChangedLambda([&](float inValue) {
-											m_uiData->dir = inValue;
-											}
-										)
-									)
-								)
-								+ VerticalBox::Slot()
-								.FixedHeight()
-								(
-									WIDGET_NEW(HorizontalBox)
-									+ HorizontalBox::Slot()
-									.StretchWidth(0.2f)
-									(
-										WIDGET_NEW(TextBlockWidget)
-										.text(u8"pos")
-									)
-									+ HorizontalBox::Slot()
-									.StretchWidth(1.0f)
-									(
-										WIDGET_NEW(Slider)
-										.MaxValue(0.0f)
-										.MinValue(-40.0f)
-										.OnValueChangedLambda([&](float inValue) {
-											m_uiData->camPos = inValue;
-											}
-										)
-									)
-								)
-								+ VerticalBox::Slot()
-								.FixedHeight()
-								(
-									WIDGET_NEW(HorizontalBox)
-									+ HorizontalBox::Slot()
-									.StretchWidth(0.3f)
-									(
-										WIDGET_NEW(TextBlockWidget)
-										.text(u8"可编辑文本框:")
-										.Clip(WidgetClipping::ClipToBounds)
-									)
-									+ HorizontalBox::Slot()
-									.StretchWidth(1.0f)
-									(
-										WIDGET_NEW(EditableTextBox)
-										.Text("文本测试你")
-									)
-								)
-								+ VerticalBox::Slot()
-								.StretchHeight(0.1)
-								(
-									WIDGET_NEW(HorizontalBox)
-									+ HorizontalBox::Slot()
-									
-									.StretchWidth(1.0f)
-									(
-										WIDGET_NEW(Border)
-										.Content(
-											WIDGET_NEW(TextBlockWidget)
-											.text(u8"x:")
-											.Clip(WidgetClipping::ClipToBounds)
-										)
-										.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
-										.BorderBackgroundColor(math::float4(1.0f, 0.0f, 0.0f, 1.0f))
-										.horizontalAlignment(HorizontalAlignment::Center)
-										.verticalAlignment(VerticalAlignment::Center)
-									)
-									+ HorizontalBox::Slot()
-									.FixedWidth()
-									(
-										WIDGET_NEW(SpinBox<double>)
-										.onValueChangedLambda([&](float newValue) {
-											if (m_uiData->m_currentSelectItems) {
-												math::double3 newTranslation = m_uiData->m_currentSelectItems->getTranslation();
-												m_uiData->m_currentSelectItems->SetTranslation(math::double3(newValue, newTranslation.y, newTranslation.z));
-											}
-										})
-										.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
-											if (m_uiData->m_currentSelectItems) {
-												math::double3 newTranslation = m_uiData->m_currentSelectItems->getTranslation();
-												m_uiData->m_currentSelectItems->SetTranslation(math::double3(newValue, newTranslation.y, newTranslation.z));
-											}
-										})
-									)
-									+ HorizontalBox::Slot()
-									.StretchWidth(1.0f)
-									(
-										WIDGET_NEW(Border)
-										.Content(
-											WIDGET_NEW(TextBlockWidget)
-											.text(u8"y:")
-											.Clip(WidgetClipping::ClipToBounds)
-										)
-										.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
-										.BorderBackgroundColor(math::float4(0.0f, 1.0f, 0.0f, 1.0f))
-										.horizontalAlignment(HorizontalAlignment::Center)
-										.verticalAlignment(VerticalAlignment::Center)
-									)
-									+ HorizontalBox::Slot()
-									.FixedWidth()
-									(
-										WIDGET_NEW(SpinBox<double>)
-										.onValueChangedLambda([&](float newValue) {
-											if (m_uiData->m_currentSelectItems) {
-												math::double3 newTranslation = m_uiData->m_currentSelectItems->getTranslation();
-												m_uiData->m_currentSelectItems->SetTranslation(math::double3(newTranslation.x, newValue, newTranslation.z));
-											}				
-										})
-										.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
-											if (m_uiData->m_currentSelectItems) {
-												math::double3 newTranslation = m_uiData->m_currentSelectItems->getTranslation();
-												m_uiData->m_currentSelectItems->SetTranslation(math::double3(newTranslation.x, newValue, newTranslation.z));
-											}
-										})
-									)
-									+ HorizontalBox::Slot()
-									.StretchWidth(1.0f)
-									(
-										
-										WIDGET_NEW(Border)
-										.Content(
-											WIDGET_NEW(TextBlockWidget)
-											.text(u8"z:")
-											.Clip(WidgetClipping::ClipToBounds)
-										)
-										.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
-										.BorderBackgroundColor(math::float4(0.0f, 0.0f, 1.0f, 1.0f))
-										.horizontalAlignment(HorizontalAlignment::Center)
-										.verticalAlignment(VerticalAlignment::Center)
-									)
-									+ HorizontalBox::Slot()
-									.FixedWidth()
-									(
-										WIDGET_NEW(SpinBox<double>)
-										.onValueChangedLambda([&](float newValue) {
-											if (m_uiData->m_currentSelectItems) {
-												math::double3 newTranslation = m_uiData->m_currentSelectItems->getTranslation();
-												m_uiData->m_currentSelectItems->SetTranslation(math::double3(newTranslation.x, newTranslation.y, newValue));
-											}
-										})
-										.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
-											if (m_uiData->m_currentSelectItems) {
-												math::double3 newTranslation = m_uiData->m_currentSelectItems->getTranslation();
-												m_uiData->m_currentSelectItems->SetTranslation(math::double3(newTranslation.x, newTranslation.y, newValue));
-											}
-										})
-									)
-								)
+								////+ VerticalBox::Slot()
+								////.FixedHeight()
+								////(
+								////	WIDGET_NEW(HorizontalBox)
+								////	+ HorizontalBox::Slot()
+								////	.StretchWidth(0.2f)
+								////	(
+								////		WIDGET_NEW(TextBlockWidget)
+								////		.text(u8"width")
+								////	)
+								////	+ HorizontalBox::Slot()
+								////	.StretchWidth(1.0f)
+								////	(
+								////		WIDGET_NEW(Slider)
+								////		.MaxValue(15.0f)
+								////		.MinValue(0.0f)
+								////		.OnValueChangedLambda([&](float inValue) {
+								////				StyleSet::getStyle()->getBrush("thumbImage")->m_outlineSettings.m_width = inValue;
+								////			}
+								////		)
+								////	)
+								////	+ HorizontalBox::Slot()
+								////	.StretchWidth(0.2f)
+								////	(
+								////		WIDGET_NEW(TextBlockWidget)
+								////		.text(u8"cornerRadius")
+								////		)
+								////	+ HorizontalBox::Slot()
+								////	.StretchWidth(1.0f)
+								////	(
+								////		WIDGET_NEW(Slider)
+								////		.MaxValue(200.0f)
+								////		.MinValue(0.0f)
+								////		.OnValueChangedLambda([&](float inValue) {
+								////			StyleSet::getStyle()->getBrush("thumbImage")->m_outlineSettings.m_cornerRadius = math::float4(inValue);
+								////			}
+								////		)
+								////	)
+								////	+ HorizontalBox::Slot()
+								////	.StretchWidth(0.2f)
+								////	(
+								////		WIDGET_NEW(TextBlockWidget)
+								////		.text(u8"Padding")
+								////		)
+								////	+ HorizontalBox::Slot()
+								////	.StretchWidth(1.0f)
+								////	(
+								////		WIDGET_NEW(Slider)
+								////		.MaxValue(15.0f)
+								////		.MinValue(0.0f)
+								////		.OnValueChangedLambda([&](float inValue) {
+								////			StyleSet::getStyle()->getBrush("thumbImage")->m_margin = Padding(inValue, inValue, inValue, inValue);
+								////			}
+								////		)
+								////	)
+								////)
+								//+ VerticalBox::Slot()
+								//.FixedHeight()
+								//(
+								//	WIDGET_NEW(HorizontalBox)
+								//	+ HorizontalBox::Slot()
+								//	.StretchWidth(0.2f)
+								//	(
+								//		WIDGET_NEW(TextBlockWidget)
+								//		.text(u8"dir")
+								//		)
+								//	+ HorizontalBox::Slot()
+								//	.StretchWidth(1.0f)
+								//	(
+								//		WIDGET_NEW(Slider)
+								//		.MaxValue(10.0f)
+								//		.MinValue(-10.0f)
+								//		.OnValueChangedLambda([&](float inValue) {
+								//			m_uiData->dir = inValue;
+								//			}
+								//		)
+								//	)
+								//)
+								//+ VerticalBox::Slot()
+								//.FixedHeight()
+								//(
+								//	WIDGET_NEW(HorizontalBox)
+								//	+ HorizontalBox::Slot()
+								//	.StretchWidth(0.2f)
+								//	(
+								//		WIDGET_NEW(TextBlockWidget)
+								//		.text(u8"pos")
+								//	)
+								//	+ HorizontalBox::Slot()
+								//	.StretchWidth(1.0f)
+								//	(
+								//		WIDGET_NEW(Slider)
+								//		.MaxValue(0.0f)
+								//		.MinValue(-40.0f)
+								//		.OnValueChangedLambda([&](float inValue) {
+								//			m_uiData->camPos = inValue;
+								//			}
+								//		)
+								//	)
+								//)
+								//+ VerticalBox::Slot()
+								//.FixedHeight()
+								//(
+								//	WIDGET_NEW(HorizontalBox)
+								//	+ HorizontalBox::Slot()
+								//	.StretchWidth(0.3f)
+								//	(
+								//		WIDGET_NEW(TextBlockWidget)
+								//		.text(u8"可编辑文本框:")
+								//		.Clip(WidgetClipping::ClipToBounds)
+								//	)
+								//	+ HorizontalBox::Slot()
+								//	.StretchWidth(1.0f)
+								//	(
+								//		WIDGET_NEW(EditableTextBox)
+								//		.Text("文本测试你")
+								//	)
+								//)
+								//+ VerticalBox::Slot()
+								//.StretchHeight(0.1)
+								//(
+								//	WIDGET_NEW(HorizontalBox)
+								//	+ HorizontalBox::Slot()
+								//	
+								//	.StretchWidth(1.0f)
+								//	(
+								//		WIDGET_NEW(Border)
+								//		.Content(
+								//			WIDGET_NEW(TextBlockWidget)
+								//			.text(u8"x:")
+								//			.Clip(WidgetClipping::ClipToBounds)
+								//		)
+								//		.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
+								//		.BorderBackgroundColor(math::float4(1.0f, 0.0f, 0.0f, 1.0f))
+								//		.horizontalAlignment(HorizontalAlignment::Center)
+								//		.verticalAlignment(VerticalAlignment::Center)
+								//	)
+								//	+ HorizontalBox::Slot()
+								//	.FixedWidth()
+								//	(
+								//		WIDGET_NEW(SpinBox<double>)
+								//		.onValueChangedLambda([&](float newValue) {
+								//			if (m_uiData->m_currentSelectItems) {
+								//				math::double3 newTranslation = m_uiData->m_currentSelectItems->getTranslation();
+								//				m_uiData->m_currentSelectItems->SetTranslation(math::double3(newValue, newTranslation.y, newTranslation.z));
+								//			}
+								//		})
+								//		.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
+								//			if (m_uiData->m_currentSelectItems) {
+								//				math::double3 newTranslation = m_uiData->m_currentSelectItems->getTranslation();
+								//				m_uiData->m_currentSelectItems->SetTranslation(math::double3(newValue, newTranslation.y, newTranslation.z));
+								//			}
+								//		})
+								//	)
+								//	+ HorizontalBox::Slot()
+								//	.StretchWidth(1.0f)
+								//	(
+								//		WIDGET_NEW(Border)
+								//		.Content(
+								//			WIDGET_NEW(TextBlockWidget)
+								//			.text(u8"y:")
+								//			.Clip(WidgetClipping::ClipToBounds)
+								//		)
+								//		.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
+								//		.BorderBackgroundColor(math::float4(0.0f, 1.0f, 0.0f, 1.0f))
+								//		.horizontalAlignment(HorizontalAlignment::Center)
+								//		.verticalAlignment(VerticalAlignment::Center)
+								//	)
+								//	+ HorizontalBox::Slot()
+								//	.FixedWidth()
+								//	(
+								//		WIDGET_NEW(SpinBox<double>)
+								//		.onValueChangedLambda([&](float newValue) {
+								//			if (m_uiData->m_currentSelectItems) {
+								//				math::double3 newTranslation = m_uiData->m_currentSelectItems->getTranslation();
+								//				m_uiData->m_currentSelectItems->SetTranslation(math::double3(newTranslation.x, newValue, newTranslation.z));
+								//			}				
+								//		})
+								//		.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
+								//			if (m_uiData->m_currentSelectItems) {
+								//				math::double3 newTranslation = m_uiData->m_currentSelectItems->getTranslation();
+								//				m_uiData->m_currentSelectItems->SetTranslation(math::double3(newTranslation.x, newValue, newTranslation.z));
+								//			}
+								//		})
+								//	)
+								//	+ HorizontalBox::Slot()
+								//	.StretchWidth(1.0f)
+								//	(
+								//		
+								//		WIDGET_NEW(Border)
+								//		.Content(
+								//			WIDGET_NEW(TextBlockWidget)
+								//			.text(u8"z:")
+								//			.Clip(WidgetClipping::ClipToBounds)
+								//		)
+								//		.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
+								//		.BorderBackgroundColor(math::float4(0.0f, 0.0f, 1.0f, 1.0f))
+								//		.horizontalAlignment(HorizontalAlignment::Center)
+								//		.verticalAlignment(VerticalAlignment::Center)
+								//	)
+								//	+ HorizontalBox::Slot()
+								//	.FixedWidth()
+								//	(
+								//		WIDGET_NEW(SpinBox<double>)
+								//		.onValueChangedLambda([&](float newValue) {
+								//			if (m_uiData->m_currentSelectItems) {
+								//				math::double3 newTranslation = m_uiData->m_currentSelectItems->getTranslation();
+								//				m_uiData->m_currentSelectItems->SetTranslation(math::double3(newTranslation.x, newTranslation.y, newValue));
+								//			}
+								//		})
+								//		.onValueCommittedLambda([&](float newValue, TextCommit::Type) {
+								//			if (m_uiData->m_currentSelectItems) {
+								//				math::double3 newTranslation = m_uiData->m_currentSelectItems->getTranslation();
+								//				m_uiData->m_currentSelectItems->SetTranslation(math::double3(newTranslation.x, newTranslation.y, newValue));
+								//			}
+								//		})
+								//	)
+								//)
 								//+ VerticalBox::Slot()
 								//.StretchHeight(0.1)
 								//(
@@ -1230,35 +1230,36 @@ namespace GuGu {
 							+ VerticalBox::Slot()
 							.StretchHeight(0.8f)
 							(
-								WIDGET_NEW(Border)
-								.verticalAlignment(VerticalAlignment::Stretch)
-								.horizontalAlignment(HorizontalAlignment::Stretch)
-								.brush(m_styles->getBrush("background"))
-								.Content
-								(
-									WIDGET_ASSIGN_NEW(TreeView<GuGuUtf8Str>, m_listView)
-									.treeItemSource(&m_uiData->nodeNames)
-									.onGetChildren(m_uiData->getNodeChildrens)
-									.onGenerateRowLambda([](GuGuUtf8Str item, const std::shared_ptr<class TableViewBase>& table)->std::shared_ptr<ITableRow> {
-										//static int32_t i = 0;
-										//++i;
-										math::float4 color = math::float4(0.3f, 0.6f, 0.2f, 1.0f);
-										return WIDGET_NEW(TableRow<GuGuUtf8Str>, table)
-											.Content
-											(
-												WIDGET_NEW(TextBlockWidget)
-												.text(item)
-												//WIDGET_NEW(Border)
-												//.Content(
-												//	
-												//)
-												//.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
-												//.BorderBackgroundColor(color)
-											);
-										})
-									.onSelectionChanged(m_uiData->selectionChanged)
-								)
-								.BorderBackgroundColor(math::float4(1.0f, 1.0f, 1.0f, 0.8f))
+								//WIDGET_NEW(Border)
+								//.verticalAlignment(VerticalAlignment::Stretch)
+								//.horizontalAlignment(HorizontalAlignment::Stretch)
+								//.brush(m_styles->getBrush("background"))
+								//.Content
+								//(
+								//	WIDGET_ASSIGN_NEW(TreeView<GuGuUtf8Str>, m_listView)
+								//	.treeItemSource(&m_uiData->nodeNames)
+								//	.onGetChildren(m_uiData->getNodeChildrens)
+								//	.onGenerateRowLambda([](GuGuUtf8Str item, const std::shared_ptr<class TableViewBase>& table)->std::shared_ptr<ITableRow> {
+								//		//static int32_t i = 0;
+								//		//++i;
+								//		math::float4 color = math::float4(0.3f, 0.6f, 0.2f, 1.0f);
+								//		return WIDGET_NEW(TableRow<GuGuUtf8Str>, table)
+								//			.Content
+								//			(
+								//				WIDGET_NEW(TextBlockWidget)
+								//				.text(item)
+								//				//WIDGET_NEW(Border)
+								//				//.Content(
+								//				//	
+								//				//)
+								//				//.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
+								//				//.BorderBackgroundColor(color)
+								//			);
+								//		})
+								//	.onSelectionChanged(m_uiData->selectionChanged)
+								//)
+								//.BorderBackgroundColor(math::float4(1.0f, 1.0f, 1.0f, 0.8f))
+								NullWidget::getNullWidget()
 							)
 							+ VerticalBox::Slot()
 							.StretchHeight(0.9)
@@ -1369,21 +1370,22 @@ namespace GuGu {
 								//	WIDGET_NEW(TextBlockWidget)
 								//	.text(u8"combobutton测试")
 								//)
-								WIDGET_ASSIGN_NEW(ComboBox<GuGuUtf8Str>, m_comboBox)
-								.optionSource(&strVec)
-								.onGenerateWidgetLambda([&](GuGuUtf8Str inOption)->std::shared_ptr<Widget> {
-									return WIDGET_NEW(TextBlockWidget)
-										 .text(inOption);
-								})
-								.initiallySelectedItem(u8"test")
-								.Content
-								(
-									WIDGET_NEW(TextBlockWidget)
-									.textLambda([&]()->GuGuUtf8Str {
-										return m_comboBox->getSelectedItem();
-									})
-								)
-								.maxListHeight(60.0f)
+								//WIDGET_ASSIGN_NEW(ComboBox<GuGuUtf8Str>, m_comboBox)
+								//.optionSource(&strVec)
+								//.onGenerateWidgetLambda([&](GuGuUtf8Str inOption)->std::shared_ptr<Widget> {
+								//	return WIDGET_NEW(TextBlockWidget)
+								//		 .text(inOption);
+								//})
+								//.initiallySelectedItem(u8"test")
+								//.Content
+								//(
+								//	WIDGET_NEW(TextBlockWidget)
+								//	.textLambda([&]()->GuGuUtf8Str {
+								//		return m_comboBox->getSelectedItem();
+								//	})
+								//)
+								//.maxListHeight(60.0f)
+								NullWidget::getNullWidget()
 							)
 							+ VerticalBox::Slot()
 							.FixedHeight()
@@ -1474,6 +1476,50 @@ namespace GuGu {
 
 			//m_uiNodeNames.push_back(m_uiRoot->)
 
+		return m_uiRoot;
+	}
+	std::shared_ptr<WindowWidget> UIRenderPass::createTest2Window()
+	{
+		WIDGET_ASSIGN_NEW(WindowWidget, m_uiRoot)
+		.Content
+		(
+			WIDGET_NEW(VerticalBox)
+			+VerticalBox::Slot()
+			.FixedHeight()
+			(
+				WIDGET_NEW(TextBlockWidget)
+				.Clip(WidgetClipping::ClipToBounds)
+				.textLambda([&] {
+					float mfps = Application::getApplication()->getmFps();
+					uint32_t fps = Application::getApplication()->getFps();
+					GuGuUtf8Str fpsStr = u8"一帧耗费时长:%.3f毫秒\r\n帧率:%dfps";
+					fpsStr = strFormat(fpsStr, mfps, fps);
+					//GuGuUtf8Str str = u8"臂跳释阔孕\r\n型佩层愧茎\r\n橘代克屿牛\r\n炊间成羞蝴\r\n顾堆殿友岁\r\n火柜九体妇\r\n枯窑雄密般\r\n鞭宵醉始著\r\n复赚霸扰夺\r\n况说柄响附\r\n庄存叔劫屈\r\n健疯窜滥限\r\n追侵删榆容\r\n挺左丢帮器\r\n搜涂酬魂很\r\n配你御字栗\r\n勇尚沫葡吗\r\n菊庙侍引镜\r\n笔络没蜓页\r\n灾穿卵奴绕";
+					return fpsStr;
+					})
+				.textColorLambda([&] {
+						math::float4 color = m_textColor;
+						return color;
+				})
+			)
+			+ VerticalBox::Slot()
+			.StretchHeight(1.0f)
+			(
+				WIDGET_ASSIGN_NEW(ViewportWidget, m_viewport)
+				.Content(
+					WIDGET_NEW(Overlay)
+					+Overlay::Slot()
+					.setPadding(Padding(20.0f, 20.0f, 0.0f, 0.0f))
+					.setHorizontalAlignment(HorizontalAlignment::Left)
+					.setVerticalAlignment(VerticalAlignment::Top)
+					(
+						WIDGET_NEW(TextBlockWidget)
+						//.Clip(WidgetClipping::ClipToBounds)
+						.text("测试Overlay")
+					)			
+				)
+			)
+		);
 		return m_uiRoot;
 	}
 	GuGuUtf8Str UIRenderPass::getSelectItem() const
