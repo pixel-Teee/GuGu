@@ -38,4 +38,10 @@ namespace GuGu {
 	{
 		return m_deviceManager;
 	}
+	void Renderer::createSurface(std::shared_ptr<WindowWidget> windowWidget)
+	{
+	}
+	void Renderer::createSwapChain(std::shared_ptr<WindowWidget> windowWidget)
+	{
+	}
 }

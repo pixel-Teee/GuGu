@@ -17,6 +17,8 @@
 #endif
 
 #include <Core/Timer.h>
+#include <Core/UI/UIRenderPass.h>
+#include <Renderer/Renderer.h>
 
 namespace GuGu{
 
@@ -126,14 +128,18 @@ namespace GuGu{
         if(!CreateDevice())
             return false;
 
-        if(!CreateSwapChain())
-            return false;
+        //if(!CreateSwapChain())
+        //    return false;
 
         //todo:reset the back buffer size state to enforce a resize event
         m_deviceParams.backBufferWidth = 0;
         m_deviceParams.backBufferHeight = 0;
 
-        UpdateWindowSize();
+		std::shared_ptr<Application> application = Application::getApplication();
+		std::vector<std::shared_ptr<WindowWidget>> windowWidgets = application->getWidowWidgets();
+
+		for (size_t i = 0; i < windowWidgets.size(); ++i)
+			UpdateWindowSize(windowWidgets[i]);//主动获取大小来更新窗口的 swap chain 和 surface
 
         return true;
     }
@@ -149,7 +155,7 @@ namespace GuGu{
     }
 
     void DeviceManager::ShutDown() {
-        m_SwapChainFramebuffers.clear();
+        //m_SwapChainFramebuffers.clear();
 
         DestroyDeviceAndSwapChain();
 
@@ -186,7 +192,11 @@ namespace GuGu{
         //todo:record previous frame time stamp
 
         //note:android have bug
-        UpdateWindowSize();
+        std::shared_ptr<Application> application = Application::getApplication();
+        std::vector<std::shared_ptr<WindowWidget>> windowWidgets = application->getWidowWidgets();
+
+        for(size_t i = 0; i < windowWidgets.size(); ++i)
+            UpdateWindowSize(windowWidgets[i]);//主动获取大小来更新窗口的 swap chain 和 surface
 
         AnimateRenderPresent();
     }
@@ -196,34 +206,56 @@ namespace GuGu{
         return m_deviceParams;
     }
 
+    bool DeviceManager::CreateSwapChain(std::shared_ptr<WindowWidget> windowWidget)
+    {
+        return false;//由子类来实现
+    }
+
     void DeviceManager::AnimateRenderPresent() {
 
          std::shared_ptr<Application> application = Application::getApplication();
 
          Animate(application->getTimer()->GetDeltaTime());
 
-         Render();//todo:fix this
+         Render();//render passes
 
-         Present();
+         std::vector<std::shared_ptr<WindowWidget>> windowWidgets = application->getWidowWidgets();
+
+         //draw window widget
+         for (uint32_t i = 0; i < windowWidgets.size(); ++i)
+         {
+             BeginFrame(windowWidgets[i]);
+
+             //todo:call UIRenderPass render window widgets
+             UIRenderPass* uiRenderPass = application->getRenderer()->getUIRenderPass();
+
+             uiRenderPass->Update(application->getTimer()->GetDeltaTime(), windowWidgets[i]);
+
+             uiRenderPass->Render(windowWidgets[i]);
+
+             Present(windowWidgets[i]);
+         }
+
+		 //nvrhi::IFramebuffer* framebuffer = m_SwapChainFramebuffers[GetCurrentBackBufferIndex()];
+
+		 //todo:add begin frame
+		
+         //Present();
 
          GetDevice()->runGarbageCollection();
          ++m_FrameIndex;
     }
 
     void DeviceManager::Render() {
-        //todo:add begin frame
-        BeginFrame();
-
-        nvrhi::IFramebuffer* framebuffer = m_SwapChainFramebuffers[GetCurrentBackBufferIndex()];
 
         for(auto it : m_vRenderPasses)
         {
-            it->Render(framebuffer);
+            it->Render();
         }
     }
 
     void DeviceManager::BackBufferResizing() {
-        m_SwapChainFramebuffers.clear();
+        //m_SwapChainFramebuffers.clear();
 
         for(auto it : m_vRenderPasses)
         {
@@ -239,80 +271,36 @@ namespace GuGu{
                                   m_deviceParams.swapChainSampleCount);
         }
 
-        uint32_t backBufferCount = GetBackBufferCount();
-        m_SwapChainFramebuffers.resize(backBufferCount);
-        for (uint32_t index = 0; index < backBufferCount; index++)
-        {
-            m_SwapChainFramebuffers[index] = GetDevice()->createFramebuffer(
-                    nvrhi::FramebufferDesc().addColorAttachment(GetBackBuffer(index)));
-        }
+        //uint32_t backBufferCount = GetBackBufferCount();
+        //m_SwapChainFramebuffers.resize(backBufferCount);
+        //for (uint32_t index = 0; index < backBufferCount; index++)
+        //{
+        //    m_SwapChainFramebuffers[index] = GetDevice()->createFramebuffer(
+        //            nvrhi::FramebufferDesc().addColorAttachment(GetBackBuffer(index)));
+        //}
     }
 
-    void DeviceManager::UpdateWindowSize() {
-        int width = 0;
-        int height = 0;
-        //glfwGetWindowSize(m_Window, &width, &height);
-        bool needToRecreateSwapChain = false;
-#ifdef ANDROID
-        std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
-        std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
+    void DeviceManager::UpdateWindowSize(std::shared_ptr<WindowWidget> windowWidget) {
+       
+    }
 
-        height = ANativeWindow_getHeight(androidWindow->getNativeHandle());
-        width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
+    void DeviceManager::Present(std::shared_ptr<WindowWidget> inWindowWidget)
+    {
+    }
 
-        needToRecreateSwapChain = androidApplication->getNeedToRecreateSwapChainFlag();
-#else
-        std::shared_ptr<WindowsApplication> windowsApplication = WindowsApplication::getApplication();
-        std::shared_ptr<WindowsWindow> windowsWindow = windowsApplication->getPlatformWindows()[0]; //todo:fix this
+    bool DeviceManager::createWindowSurface(std::shared_ptr<WindowWidget> windowWidget)
+    {
+        return false;
+    }
 
-        RECT rect;
-        if (GetClientRect(windowsWindow->getNativeWindowHandle(), &rect))
-        {
-            width = rect.right - rect.left;
-            height = rect.bottom - rect.top;
-        }
+    std::shared_ptr<WindowWidget> DeviceManager::getWindowWidget() const
+    {
+        return m_mainWindow;
+    }
 
-#endif
-
-        if (width <= 0 || height <= 0)
-        {
-            // window is minimized
-            //m_windowVisible = false;
-#ifdef ANDROID
-            androidApplication->setFocused(false);
-#else
-#if WIN32
-            windowsApplication->setFocused(false);
-#endif
-#endif
-            return;
-        }
-
-        //m_windowVisible = true;
-        //androidApplication->setFocused(true);
-
-        if (int(m_deviceParams.backBufferWidth) != width ||
-            int(m_deviceParams.backBufferHeight) != height || needToRecreateSwapChain || m_orientationChanged) //todo:fix this
-        {
-#ifdef ANDROID
-            androidApplication->setNeedToRecreateSwapChain(false);
-#endif
-            // window is not minimized, and the size has changed
-
-            BackBufferResizing();
-
-
-            m_deviceParams.backBufferWidth = width;
-            m_deviceParams.backBufferHeight = height;
-
-            //m_deviceParams.vsyncEnabled = m_RequestedVSync;
-
-            ResizeSwapChain();
-            BackBufferResized();
-            m_orientationChanged = false;
-        }
-
-       // m_deviceParams.vsyncEnabled = m_RequestedVSync;
+    nvrhi::FramebufferHandle DeviceManager::getCurrentBackBuffer(std::shared_ptr<WindowWidget> windowWidget) const
+    {
+        return nullptr;
     }
 
     void DeviceManager::Animate(double elapsedTime) {

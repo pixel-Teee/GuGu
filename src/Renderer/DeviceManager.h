@@ -52,6 +52,7 @@ namespace GuGu{
 
     class GuGuUtf8Str;
     class IRenderPass;
+    class WindowWidget;
     class DeviceManager{
     public:
 
@@ -68,6 +69,18 @@ namespace GuGu{
         void RunMessageLoop();
 
         const DeviceCreationParameters& getDeviceCreationParameters() const;
+
+        virtual bool CreateSwapChain(std::shared_ptr<WindowWidget> windowWidget);
+
+        virtual void UpdateWindowSize(std::shared_ptr<WindowWidget> windowWidget);
+
+        virtual void Present(std::shared_ptr<WindowWidget> inWindowWidget);
+
+        virtual bool createWindowSurface(std::shared_ptr<WindowWidget> windowWidget);
+
+        std::shared_ptr<WindowWidget> getWindowWidget() const;
+
+        virtual nvrhi::FramebufferHandle getCurrentBackBuffer(std::shared_ptr<WindowWidget> windowWidget) const;
     private:
         static DeviceManager* CreateVK();
 
@@ -79,11 +92,11 @@ namespace GuGu{
 
         uint32_t m_FrameIndex = 0;
 
-        std::vector<nvrhi::FramebufferHandle> m_SwapChainFramebuffers;
+        //std::vector<nvrhi::FramebufferHandle> m_SwapChainFramebuffers;
 
         bool m_orientationChanged = false;
 
-        void UpdateWindowSize();
+        std::shared_ptr<WindowWidget> m_mainWindow;
 
         void BackBufferResizing();
         void BackBufferResized();
@@ -96,9 +109,9 @@ namespace GuGu{
         virtual bool CreateInstanceInternal() = 0;
         virtual void DestroyDeviceAndSwapChain() = 0;
         virtual bool CreateDevice() = 0;
-        virtual bool CreateSwapChain() = 0;
-        virtual void BeginFrame() = 0;
-        virtual void Present() = 0;
+        //virtual bool CreateSwapChain(std::shared_ptr<WindowWidget> windowWidget) = 0;
+        virtual void BeginFrame(std::shared_ptr<WindowWidget> inWindowWidget) = 0;
+        //virtual void Present() = 0;
         virtual void ResizeSwapChain() = 0;
     public:
         [[nodiscard]] virtual nvrhi::IDevice *GetDevice() const = 0;
@@ -122,7 +135,7 @@ namespace GuGu{
         explicit IRenderPass(DeviceManager* deviceManager) : m_DeviceManager(deviceManager){}
         virtual ~IRenderPass() = default;
 
-        virtual void Render(nvrhi::IFramebuffer* framebuffer) { }
+        virtual void Render() { }
         virtual void Update(float fElapsedTimeSeconds) { }
         virtual void BackBufferResizing() { }
         virtual void BackBufferResized(const uint32_t width, const uint32_t height, const uint32_t sampleCount) { }

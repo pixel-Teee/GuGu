@@ -13,6 +13,8 @@
 
 #include "windowsx.h"
 
+#include <Core/UI/WindowWidget.h>
+
 namespace GuGu {
 	std::shared_ptr<WindowsApplication> globalApplication;
 
@@ -76,12 +78,6 @@ namespace GuGu {
 		wc.lpszClassName = windowClassName;
 		//wc.hCursor = LoadCursor(applicationInstance, IDC_ARROW);
 		RegisterClass(&wc);
-
-		//test:create a window for test
-		std::shared_ptr<WindowsWindow> window = std::make_shared<WindowsWindow>();
-		window->setNativeApplicationHandleAndCmdShowToCreateWindow(m_applicationInstance, cmdShow);
-		window->ToGeneratePlatformWindow();
-		m_windows.push_back(window);
 	}
 
 	ModifierKeysState WindowsApplication::getModifierKeys() const
@@ -92,6 +88,28 @@ namespace GuGu {
 	void WindowsApplication::setModifierKeyState(ModifierKey::Type key, bool value)
 	{
 		m_modifierKeyState[key] = value;
+	}
+
+	void WindowsApplication::makeWindow(std::shared_ptr<WindowWidget> windowWidget)
+	{
+		std::shared_ptr<WindowsWindow> window = std::make_shared<WindowsWindow>();
+		//todo:这里 cmdShow 需要修复
+		window->setNativeApplicationHandleAndCmdShowToCreateWindow(m_applicationInstance, true);
+		window->ToGeneratePlatformWindow();
+		m_windows.push_back(window);
+		windowWidget->assocateWithNativeWindow(window);//关联
+		m_windowWidgets.push_back(windowWidget);
+	}
+
+	void WindowsApplication::showWindow(std::shared_ptr<WindowWidget> windowWidget)
+	{
+		//获取 UIRenderPass 
+		std::shared_ptr<Renderer> renderer = getRenderer();
+		//UIRenderPass* uiRenderPass = renderer->getUIRenderPass();
+		//uiRenderPass->showWindow(windowWidget);
+		//create swap chain and surface
+		renderer->createSurface(windowWidget);
+		renderer->createSwapChain(windowWidget);
 	}
 
 	static bool FolderExists(const GuGuUtf8Str& folderPath)

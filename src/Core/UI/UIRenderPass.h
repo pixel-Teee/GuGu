@@ -31,6 +31,7 @@ namespace GuGu {
 	struct UIData;
 
 	class CommonRenderPasses;
+
 	class UIRenderPass : public IRenderPass
 	{
 	public:
@@ -41,7 +42,11 @@ namespace GuGu {
 
 		bool Init(std::shared_ptr<UIData> uiData);
 
-		virtual void Render(nvrhi::IFramebuffer* framebuffer);
+		virtual void Render();
+
+		void Render(std::shared_ptr<WindowWidget> inWindowWidget);
+
+		void Update(float fElapsedTimeSeconds, std::shared_ptr<WindowWidget> inWindowWidget);
 
 		virtual void Update(float fElapsedTimeSeconds);
 		
@@ -51,11 +56,22 @@ namespace GuGu {
 
 		std::shared_ptr<WindowWidget> getWindowWidget();
 
+		std::vector<std::shared_ptr<WindowWidget>>& getWindowWidgets();
+
+		void addWindowWidget(std::shared_ptr<WindowWidget> inWindowWidget);
+
 		std::vector<std::shared_ptr<Widget>> getAllWidgets();
 
 		void setRenderTarget(nvrhi::TextureHandle renderTarget);
 
 		GuGuUtf8Str getSelectUINode() const;//debug use
+
+		//math::uint2 m_renderTargetSize;
+		//nvrhi::TextureHandle m_renderTarget;
+		//nvrhi::TextureHandle m_depthTarget;
+		//nvrhi::FramebufferHandle m_frameBuffer;
+		//
+		//void initRenderTargetAndDepthTarget();
 	private:
 		void loadStyleTextures();
 
@@ -82,10 +98,7 @@ namespace GuGu {
 		nvrhi::InputLayoutHandle m_inputLayout;
 		nvrhi::BindingLayoutHandle m_bindingLayout;
 		nvrhi::BindingSetHandle m_bindingSet;
-		nvrhi::GraphicsPipelineHandle m_pipeline;
-		nvrhi::GraphicsPipelineHandle m_FontPipeline;
-		nvrhi::GraphicsPipelineHandle m_LinePipeline;
-		nvrhi::GraphicsPipelineHandle m_roundedBoxPipeline;
+
 		struct ConstantBufferEntry {
 			dm::float4x4 viewProjMatrix;
 			dm::float4 shaderParam;
@@ -144,5 +157,17 @@ namespace GuGu {
 		void setColor(math::float4 inColor);
 		math::float4 m_color = math::float4(0.0f, 0.0f, 1.0f, 1.0f);
 		math::float4 getColor() const;//for color block
+
+		std::vector<std::shared_ptr<WindowWidget>> m_windows;//window widgets
+
+		struct UIPipeline
+		{
+			nvrhi::GraphicsPipelineHandle m_pipeline;
+			nvrhi::GraphicsPipelineHandle m_FontPipeline;
+			nvrhi::GraphicsPipelineHandle m_LinePipeline;
+			nvrhi::GraphicsPipelineHandle m_roundedBoxPipeline;
+		};
+
+		std::map<WindowWidget*, UIPipeline> m_UIPsos;
 	};
 }

@@ -37,7 +37,7 @@ namespace GuGu {
 
 		void BackBufferResizing() override;
 
-		void Render(nvrhi::IFramebuffer* framebuffer) override;
+		void Render() override;
 
 		void LoadScene(const GuGuUtf8Str& filePath);
 

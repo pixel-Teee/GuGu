@@ -94,6 +94,14 @@ namespace GuGu {
 		//visibility filter 表示这个路径内必须有这个 visibility 的 widget
 		bool generatePathToWidgetUnchecked(std::shared_ptr<Widget> inWidget, WidgetPath& outWidgetPath,
 			Visibility visibilityFilter = Visibility::Visible) const;
+
+		//去创建 window widget 相应的 native window
+		virtual void makeWindow(std::shared_ptr<WindowWidget> windowWidget);
+
+		//创建 window widget 相应的 swap chain 和 surface
+		virtual void showWindow(std::shared_ptr<WindowWidget> windowWidget);
+
+		std::vector<std::shared_ptr<WindowWidget>>& getWidowWidgets();
 	protected:
 		std::shared_ptr<Renderer> m_renderer;
 
@@ -101,6 +109,8 @@ namespace GuGu {
 
 		float fps = 0;//one seconds total frame
 		float mfps = 0;//one frame's time
+
+		std::vector<std::shared_ptr<WindowWidget>> m_windowWidgets;
 	private:
 		bool processMouseButtonDownEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent);
 

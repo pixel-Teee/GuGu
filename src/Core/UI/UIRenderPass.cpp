@@ -229,72 +229,255 @@ namespace GuGu {
 		//m_textBlockWidget->setText(text);
 		return true;
 	}
-	void UIRenderPass::Render(nvrhi::IFramebuffer* framebuffer)
+	void UIRenderPass::Render()
 	{
+		//逐窗口渲染
+
+		//const nvrhi::FramebufferInfoEx& fbinfo = framebuffer->getFramebufferInfo();
+		//if (!m_pipeline) {
+		//	nvrhi::GraphicsPipelineDesc psoDesc;
+		//	psoDesc.VS = m_vertexShader;
+		//	psoDesc.PS = m_pixelShader;
+		//	psoDesc.inputLayout = m_inputLayout;
+		//	psoDesc.bindingLayouts = { m_bindingLayout };
+		//	psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+		//	psoDesc.renderState.blendState.targets[0].setBlendEnable(true);
+		//	psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
+		//	psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
+		//	psoDesc.renderState.depthStencilState.depthTestEnable = false;
+		//	psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;//todo:fix this
+		//
+		//	m_pipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
+		//}
+		//
+		//if (!m_FontPipeline) {
+		//	nvrhi::GraphicsPipelineDesc psoDesc;
+		//	psoDesc.VS = m_vertexShader;
+		//	psoDesc.PS = m_pixelFontShader;
+		//	psoDesc.inputLayout = m_inputLayout;
+		//	psoDesc.bindingLayouts = { m_bindingLayout };
+		//	psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+		//	psoDesc.renderState.blendState.targets[0].setBlendEnable(true);
+		//	psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
+		//	psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
+		//	psoDesc.renderState.depthStencilState.depthTestEnable = false;
+		//	psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;//todo:fix this
+		//	m_FontPipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
+		//}
+		//
+		//if (!m_LinePipeline)
+		//{
+		//	nvrhi::GraphicsPipelineDesc psoDesc;
+		//	psoDesc.VS = m_vertexShader;
+		//	psoDesc.PS = m_lineShader;
+		//	psoDesc.inputLayout = m_inputLayout;
+		//	psoDesc.bindingLayouts = { m_bindingLayout };
+		//	psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+		//	psoDesc.renderState.blendState.targets[0].setBlendEnable(true);
+		//	psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
+		//	psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
+		//	psoDesc.renderState.depthStencilState.depthTestEnable = false;
+		//	psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;//todo:fix this
+		//	m_LinePipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
+		//}
+		//
+		//if (!m_roundedBoxPipeline)
+		//{
+		//	nvrhi::GraphicsPipelineDesc psoDesc;
+		//	psoDesc.VS = m_vertexShader;
+		//	psoDesc.PS = m_roundedBoxPixelShader;
+		//	psoDesc.inputLayout = m_inputLayout;
+		//	psoDesc.bindingLayouts = { m_bindingLayout };
+		//	psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+		//	psoDesc.renderState.blendState.targets[0].setBlendEnable(true);
+		//	psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
+		//	psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
+		//	psoDesc.renderState.depthStencilState.depthTestEnable = false;
+		//	psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;//todo:fix this
+		//	m_roundedBoxPipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
+		//}
+		//
+		//m_CommandList->open();
+		//
+		//math::float3 cameraPos = math::float3(0.0f, 0.0f, 0.0f);
+		//math::float3 cameraDir = normalize(math::float3(0.0f, 0.0f, 1.0f));
+		//math::float3 cameraUp = math::float3(0.0f, -1.0f, 0.0f);
+		//math::float3 cameraRight = normalize(cross(cameraDir, cameraUp));
+		//cameraUp = normalize(cross(cameraRight, cameraDir));
+		//math::affine3 worldToView = math::affine3::from_cols(cameraRight, cameraUp, cameraDir, 0.0f);
+		//worldToView = worldToView * math::rotation(math::normalize(math::float3(0.0f, 0.0f, 1.0f)), math::radians(Application::getApplication()->getGlobalPreRotate()));
+		//math::float4x4 projMatrix = math::orthoProjD3DStyle(0, fbinfo.width, 0, fbinfo.height, 0, 1);
+		//math::float4x4 vp = projMatrix * math::affineToHomogeneous(worldToView);
+		//for (size_t i = 0; i < m_IndexBuffers.size(); ++i)
+		//{
+		//	ConstantBufferEntry modelConstant;
+		//	modelConstant.viewProjMatrix = vp;
+		//	modelConstant.shaderParam = m_elementList->getBatches()[i]->m_shaderParams.pixelParams;
+		//	modelConstant.shaderParam2 = m_elementList->getBatches()[i]->m_shaderParams.pixelParams2;
+		//	m_CommandList->writeBuffer(m_constantBuffers[i], &modelConstant, sizeof(modelConstant));
+		//
+		//	nvrhi::TextureHandle batchTexture = m_elementList->getBatches()[i]->m_texture;
+		//	if (batchTexture == nullptr)
+		//		batchTexture = m_commonRenderPass->m_whiteTexture;
+		//	else
+		//		batchTexture = m_elementList->getBatches()[i]->m_texture;
+		//
+		//	nvrhi::BindingSetDesc desc;
+		//	desc.bindings = {
+		//		nvrhi::BindingSetItem::ConstantBuffer(0, m_constantBuffers[i]),
+		//		nvrhi::BindingSetItem::Texture_SRV(0, batchTexture),
+		//		nvrhi::BindingSetItem::Sampler(0, m_pointWrapSampler)
+		//	};
+		//
+		//	nvrhi::BindingSetHandle bindingSet;
+		//	bindingSet = GetDevice()->createBindingSet(desc, m_bindingLayout);
+		//
+		//	nvrhi::GraphicsState state;
+		//	// Pick the right binding set for this view.
+		//	state.bindings = { bindingSet };
+		//	state.indexBuffer = { m_IndexBuffers[i], nvrhi::Format::R32_UINT, 0};
+		//	// Bind the vertex buffers in reverse order to test the NVRHI implementation of binding slots
+		//	state.vertexBuffers = {
+		//		{ m_VertexBuffers[i], 1, offsetof(UIVertex, position)},
+		//		{ m_VertexBuffers[i], 0, offsetof(UIVertex, textureCoordinate)},
+		//		{ m_VertexBuffers[i], 2, offsetof(UIVertex, color)},
+		//		{ m_VertexBuffers[i], 3, offsetof(UIVertex, secondaryColor)}
+		//	};
+		//	if (m_elementList->getBatches()[i]->shaderType == UIShaderType::Default)
+		//		state.pipeline = m_pipeline;
+		//	else if (m_elementList->getBatches()[i]->shaderType == UIShaderType::Font)
+		//		state.pipeline = m_FontPipeline;
+		//	else if (m_elementList->getBatches()[i]->shaderType == UIShaderType::Line)
+		//		state.pipeline = m_LinePipeline;
+		//	else
+		//		state.pipeline = m_roundedBoxPipeline;
+		//	state.framebuffer = framebuffer;
+		//
+		//	//construct the viewport so that all viewports form a grid.
+		//	const float width = float(fbinfo.width);
+		//	const float height = float(fbinfo.height);
+		//
+		//	const nvrhi::Viewport viewport = nvrhi::Viewport(0, width, 0, height, 0.f, 1.f);
+		//	state.viewport.addViewport(viewport);
+		//	if (m_elementList->getBatches()[i]->m_clippingState != nullptr)
+		//	{
+		//		ClippingZone clipZone = m_elementList->getBatches()[i]->m_clippingState->m_scissorRect.value();
+		//        //math::affine2 globalPreRotate =  math::rotation(math::radians(Application::getApplication()->getGlobalPreRotate()));
+		//        math::float2 points[2] = {clipZone.m_topLeft, clipZone.m_bottomRight};
+		//        math::float2 pointsNew[2];
+		//        for(uint32_t i = 0; i < 2; ++i)
+		//        {
+		//            math::float4 tempPoint = math::float4(points[i].x, points[i].y, 0.0f, 1.0f) * vp;
+		//			tempPoint = math::float4(tempPoint.x / tempPoint.w, tempPoint.y / tempPoint.w, tempPoint.z / tempPoint.w, tempPoint.w / tempPoint.w);
+		//			pointsNew[i] = math::viewportMatrix(width, height) * tempPoint;//todo:fix this, this is platform specific viewport
+		//        }
+		//		math::float2 pointsNew2[2];
+		//		pointsNew2[0].x = std::min(pointsNew[0].x, pointsNew[1].x);
+		//		pointsNew2[1].x = std::max(pointsNew[0].x, pointsNew[1].x);
+		//		pointsNew2[0].y = std::min(pointsNew[0].y, pointsNew[1].y);
+		//		pointsNew2[1].y = std::max(pointsNew[0].y, pointsNew[1].y);
+		//
+		//        nvrhi::Rect clipScissor(pointsNew2[0].x, pointsNew2[1].x, pointsNew2[0].y, pointsNew2[1].y);
+		//		//nvrhi::Rect clipScissor(clipZone.m_topLeft.x, clipZone.m_topRight.x, clipZone.m_topRight.y, clipZone.m_bottomRight.y);
+		//		state.viewport.addScissorRect(clipScissor);//todo:add global pre rotate
+		//	}
+		//	else
+		//	{
+		//		state.viewport.addScissorRect(nvrhi::Rect(viewport));
+		//	}
+		//
+		//	// Update the pipeline, bindings, and other state.
+		//	m_CommandList->setGraphicsState(state);
+		//
+		//	// Draw the model.
+		//	nvrhi::DrawArguments args;
+		//	args.vertexCount = m_elementList->getBatches()[i]->m_indices.size();
+		//	m_CommandList->drawIndexed(args);
+		//}
+		//m_CommandList->close();
+		//GetDevice()->executeCommandList(m_CommandList);
+	}
+	void UIRenderPass::Render(std::shared_ptr<WindowWidget> inWindowWidget)
+	{
+		//每个窗口的所有framebuffer共享同个pso
+
+		DeviceManager* deviceManager = GetDeviceManager();
+		//get window widget framebuffer
+		nvrhi::FramebufferHandle framebuffer = deviceManager->getCurrentBackBuffer(inWindowWidget);
+
 		const nvrhi::FramebufferInfoEx& fbinfo = framebuffer->getFramebufferInfo();
-		if (!m_pipeline) {
-			nvrhi::GraphicsPipelineDesc psoDesc;
-			psoDesc.VS = m_vertexShader;
-			psoDesc.PS = m_pixelShader;
-			psoDesc.inputLayout = m_inputLayout;
-			psoDesc.bindingLayouts = { m_bindingLayout };
-			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
-			psoDesc.renderState.blendState.targets[0].setBlendEnable(true);
-			psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
-			psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
-			psoDesc.renderState.depthStencilState.depthTestEnable = false;
-			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;//todo:fix this
 
-			m_pipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
+		auto it = m_UIPsos.find(inWindowWidget.get());
+		if (it == m_UIPsos.end())
+		{	
+			UIPipeline uiPipeline;
+			{
+				nvrhi::GraphicsPipelineDesc psoDesc;
+				psoDesc.VS = m_vertexShader;
+				psoDesc.PS = m_pixelShader;
+				psoDesc.inputLayout = m_inputLayout;
+				psoDesc.bindingLayouts = { m_bindingLayout };
+				psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+				psoDesc.renderState.blendState.targets[0].setBlendEnable(true);
+				psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
+				psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
+				psoDesc.renderState.depthStencilState.depthTestEnable = false;
+				psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;//todo:fix this
+
+				uiPipeline.m_pipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
+			}
+
+		    {
+				nvrhi::GraphicsPipelineDesc psoDesc;
+				psoDesc.VS = m_vertexShader;
+				psoDesc.PS = m_pixelFontShader;
+				psoDesc.inputLayout = m_inputLayout;
+				psoDesc.bindingLayouts = { m_bindingLayout };
+				psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+				psoDesc.renderState.blendState.targets[0].setBlendEnable(true);
+				psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
+				psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
+				psoDesc.renderState.depthStencilState.depthTestEnable = false;
+				psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;//todo:fix this
+				uiPipeline.m_FontPipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
+			}
+
+			{
+				nvrhi::GraphicsPipelineDesc psoDesc;
+				psoDesc.VS = m_vertexShader;
+				psoDesc.PS = m_lineShader;
+				psoDesc.inputLayout = m_inputLayout;
+				psoDesc.bindingLayouts = { m_bindingLayout };
+				psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+				psoDesc.renderState.blendState.targets[0].setBlendEnable(true);
+				psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
+				psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
+				psoDesc.renderState.depthStencilState.depthTestEnable = false;
+				psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;//todo:fix this
+				uiPipeline.m_LinePipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
+			}
+
+			{
+				nvrhi::GraphicsPipelineDesc psoDesc;
+				psoDesc.VS = m_vertexShader;
+				psoDesc.PS = m_roundedBoxPixelShader;
+				psoDesc.inputLayout = m_inputLayout;
+				psoDesc.bindingLayouts = { m_bindingLayout };
+				psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+				psoDesc.renderState.blendState.targets[0].setBlendEnable(true);
+				psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
+				psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
+				psoDesc.renderState.depthStencilState.depthTestEnable = false;
+				psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;//todo:fix this
+				uiPipeline.m_roundedBoxPipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
+			}
+
+			m_UIPsos.insert({ inWindowWidget.get(), uiPipeline });
 		}
 
-		if (!m_FontPipeline) {
-			nvrhi::GraphicsPipelineDesc psoDesc;
-			psoDesc.VS = m_vertexShader;
-			psoDesc.PS = m_pixelFontShader;
-			psoDesc.inputLayout = m_inputLayout;
-			psoDesc.bindingLayouts = { m_bindingLayout };
-			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
-			psoDesc.renderState.blendState.targets[0].setBlendEnable(true);
-			psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
-			psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
-			psoDesc.renderState.depthStencilState.depthTestEnable = false;
-			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;//todo:fix this
-			m_FontPipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
-		}
-
-		if (!m_LinePipeline)
-		{
-			nvrhi::GraphicsPipelineDesc psoDesc;
-			psoDesc.VS = m_vertexShader;
-			psoDesc.PS = m_lineShader;
-			psoDesc.inputLayout = m_inputLayout;
-			psoDesc.bindingLayouts = { m_bindingLayout };
-			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
-			psoDesc.renderState.blendState.targets[0].setBlendEnable(true);
-			psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
-			psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
-			psoDesc.renderState.depthStencilState.depthTestEnable = false;
-			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;//todo:fix this
-			m_LinePipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
-		}
-
-		if (!m_roundedBoxPipeline)
-		{
-			nvrhi::GraphicsPipelineDesc psoDesc;
-			psoDesc.VS = m_vertexShader;
-			psoDesc.PS = m_roundedBoxPixelShader;
-			psoDesc.inputLayout = m_inputLayout;
-			psoDesc.bindingLayouts = { m_bindingLayout };
-			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
-			psoDesc.renderState.blendState.targets[0].setBlendEnable(true);
-			psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
-			psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
-			psoDesc.renderState.depthStencilState.depthTestEnable = false;
-			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;//todo:fix this
-			m_roundedBoxPipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
-		}
-
+		it = m_UIPsos.find(inWindowWidget.get());
+		assert(it != m_UIPsos.end());
+		
 		m_CommandList->open();
 
 		math::float3 cameraPos = math::float3(0.0f, 0.0f, 0.0f);
@@ -304,8 +487,8 @@ namespace GuGu {
 		cameraUp = normalize(cross(cameraRight, cameraDir));
 		math::affine3 worldToView = math::affine3::from_cols(cameraRight, cameraUp, cameraDir, 0.0f);
 		worldToView = worldToView * math::rotation(math::normalize(math::float3(0.0f, 0.0f, 1.0f)), math::radians(Application::getApplication()->getGlobalPreRotate()));
-        math::float4x4 projMatrix = math::orthoProjD3DStyle(0, fbinfo.width, 0, fbinfo.height, 0, 1);
-        math::float4x4 vp = projMatrix * math::affineToHomogeneous(worldToView);
+		math::float4x4 projMatrix = math::orthoProjD3DStyle(0, fbinfo.width, 0, fbinfo.height, 0, 1);
+		math::float4x4 vp = projMatrix * math::affineToHomogeneous(worldToView);
 		for (size_t i = 0; i < m_IndexBuffers.size(); ++i)
 		{
 			ConstantBufferEntry modelConstant;
@@ -333,7 +516,7 @@ namespace GuGu {
 			nvrhi::GraphicsState state;
 			// Pick the right binding set for this view.
 			state.bindings = { bindingSet };
-			state.indexBuffer = { m_IndexBuffers[i], nvrhi::Format::R32_UINT, 0};
+			state.indexBuffer = { m_IndexBuffers[i], nvrhi::Format::R32_UINT, 0 };
 			// Bind the vertex buffers in reverse order to test the NVRHI implementation of binding slots
 			state.vertexBuffers = {
 				{ m_VertexBuffers[i], 1, offsetof(UIVertex, position)},
@@ -342,13 +525,13 @@ namespace GuGu {
 				{ m_VertexBuffers[i], 3, offsetof(UIVertex, secondaryColor)}
 			};
 			if (m_elementList->getBatches()[i]->shaderType == UIShaderType::Default)
-				state.pipeline = m_pipeline;
+				state.pipeline = it->second.m_pipeline;
 			else if (m_elementList->getBatches()[i]->shaderType == UIShaderType::Font)
-				state.pipeline = m_FontPipeline;
+				state.pipeline = it->second.m_FontPipeline;
 			else if (m_elementList->getBatches()[i]->shaderType == UIShaderType::Line)
-				state.pipeline = m_LinePipeline;
+				state.pipeline = it->second.m_LinePipeline;
 			else
-				state.pipeline = m_roundedBoxPipeline;
+				state.pipeline = it->second.m_roundedBoxPipeline;
 			state.framebuffer = framebuffer;
 
 			//construct the viewport so that all viewports form a grid.
@@ -360,22 +543,22 @@ namespace GuGu {
 			if (m_elementList->getBatches()[i]->m_clippingState != nullptr)
 			{
 				ClippingZone clipZone = m_elementList->getBatches()[i]->m_clippingState->m_scissorRect.value();
-                //math::affine2 globalPreRotate =  math::rotation(math::radians(Application::getApplication()->getGlobalPreRotate()));
-                math::float2 points[2] = {clipZone.m_topLeft, clipZone.m_bottomRight};
-                math::float2 pointsNew[2];
-                for(uint32_t i = 0; i < 2; ++i)
-                {
-                    math::float4 tempPoint = math::float4(points[i].x, points[i].y, 0.0f, 1.0f) * vp;
+				//math::affine2 globalPreRotate =  math::rotation(math::radians(Application::getApplication()->getGlobalPreRotate()));
+				math::float2 points[2] = { clipZone.m_topLeft, clipZone.m_bottomRight };
+				math::float2 pointsNew[2];
+				for (uint32_t i = 0; i < 2; ++i)
+				{
+					math::float4 tempPoint = math::float4(points[i].x, points[i].y, 0.0f, 1.0f) * vp;
 					tempPoint = math::float4(tempPoint.x / tempPoint.w, tempPoint.y / tempPoint.w, tempPoint.z / tempPoint.w, tempPoint.w / tempPoint.w);
 					pointsNew[i] = math::viewportMatrix(width, height) * tempPoint;//todo:fix this, this is platform specific viewport
-                }
+				}
 				math::float2 pointsNew2[2];
 				pointsNew2[0].x = std::min(pointsNew[0].x, pointsNew[1].x);
 				pointsNew2[1].x = std::max(pointsNew[0].x, pointsNew[1].x);
 				pointsNew2[0].y = std::min(pointsNew[0].y, pointsNew[1].y);
 				pointsNew2[1].y = std::max(pointsNew[0].y, pointsNew[1].y);
 
-                nvrhi::Rect clipScissor(pointsNew2[0].x, pointsNew2[1].x, pointsNew2[0].y, pointsNew2[1].y);
+				nvrhi::Rect clipScissor(pointsNew2[0].x, pointsNew2[1].x, pointsNew2[0].y, pointsNew2[1].y);
 				//nvrhi::Rect clipScissor(clipZone.m_topLeft.x, clipZone.m_topRight.x, clipZone.m_topRight.y, clipZone.m_bottomRight.y);
 				state.viewport.addScissorRect(clipScissor);//todo:add global pre rotate
 			}
@@ -392,6 +575,106 @@ namespace GuGu {
 			args.vertexCount = m_elementList->getBatches()[i]->m_indices.size();
 			m_CommandList->drawIndexed(args);
 		}
+		m_CommandList->close();
+		GetDevice()->executeCommandList(m_CommandList);
+	}
+	void UIRenderPass::Update(float fElapsedTimeSeconds, std::shared_ptr<WindowWidget> inWindowWidget)
+	{
+		m_CommandList->open();
+		updateTextAtlasTexture();//batch will reference the font texture
+
+		calculateWidgetsFixedSize(inWindowWidget);
+
+		m_elementList->clear();
+
+		math::int2 windowWidthAndHeight = math::int2(GetDeviceManager()->getDeviceCreationParameters().backBufferWidth, GetDeviceManager()->getDeviceCreationParameters().backBufferHeight);
+
+		//设置窗口大小
+		inWindowWidget->setCachedSize(math::float2(windowWidthAndHeight.x, windowWidthAndHeight.y));
+
+		WidgetGeometry geometry = WidgetGeometry::makeRoot(math::float2(windowWidthAndHeight.x / inWindowWidget->getNativeWindow()->getDpiFactor(), windowWidthAndHeight.y / inWindowWidget->getNativeWindow()->getDpiFactor()),
+			math::affine2(math::float2x2::diagonal(inWindowWidget->getNativeWindow()->getDpiFactor()), 0.0f));
+		//geometry.setAbsoluteScale(m_uiRoot->getNativeWindow()->getDpiFactor());
+		//todo:fix this
+		//geometry.setLocalSize(math::float2(windowWidthAndHeight.x / m_uiRoot->getNativeWindow()->getDpiFactor(), windowWidthAndHeight.y / m_uiRoot->getNativeWindow()->getDpiFactor()));
+		generateWidgetElement(geometry);
+		m_tempAllWidgetCopys = m_allWidgets;
+		m_elementList->generateBatches();
+
+		m_VertexBuffers.clear();
+		m_IndexBuffers.clear();
+
+		//todo:要修复这个
+		//因为 list view 在 第一次 tick 的适合，会记录一个 item 是否有儿子，而此时还没收集完所有 widgets
+		//static bool first = true;
+		//if (first)
+		//{
+		//	first = false;
+		//	m_uiNodeNames.push_back(m_uiRoot->getType() + m_uiRoot->getLocation());
+		//
+		//	m_verticalBox->insertSlot(0)
+		//		(
+		//			WIDGET_ASSIGN_NEW(TreeView<GuGuUtf8Str>, m_uiListView)
+		//			.treeItemSource(&m_uiNodeNames)
+		//			.onGetChildren(this, &UIRenderPass::getUIChildNode)
+		//			.onGenerateRowLambda([](GuGuUtf8Str item, const std::shared_ptr<class TableViewBase>& table)->std::shared_ptr<ITableRow> {
+		//				//static int32_t i = 0;
+		//				//++i;
+		//				math::float4 color = math::float4(0.3f, 0.6f, 0.2f, 1.0f);
+		//				return WIDGET_NEW(TableRow<GuGuUtf8Str>, table)
+		//					.Content
+		//					(
+		//						WIDGET_NEW(TextBlockWidget)
+		//						.text(item)
+		//						//WIDGET_NEW(Border)
+		//						//.Content(
+		//						//	
+		//						//)
+		//						//.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
+		//						//.BorderBackgroundColor(color)
+		//					);
+		//				})
+		//			.onSelectionChanged(this, &UIRenderPass::selectionChanged)
+		//		).StretchHeight(2.0f);
+		//}
+
+
+		//generate vertex and index
+
+		m_constantBuffers.clear();
+		std::vector<std::shared_ptr<BatchData>> batches = m_elementList->getBatches();
+		for (size_t i = 0; i < batches.size(); ++i)
+		{
+			nvrhi::BufferDesc vertexBufferDesc;
+			vertexBufferDesc.byteSize = sizeof(UIVertex) * batches[i]->m_vertices.size();
+			vertexBufferDesc.isVertexBuffer = true;
+			vertexBufferDesc.debugName = "UIVertexBuffer";
+			vertexBufferDesc.initialState = nvrhi::ResourceStates::CopyDest;
+			m_VertexBuffers.push_back(GetDevice()->createBuffer(vertexBufferDesc));
+
+			m_CommandList->beginTrackingBufferState(m_VertexBuffers[i],
+				nvrhi::ResourceStates::CopyDest);
+			m_CommandList->writeBuffer(m_VertexBuffers[i], batches[i]->m_vertices.data(), sizeof(UIVertex) * batches[i]->m_vertices.size());
+			m_CommandList->setPermanentBufferState(m_VertexBuffers[i],
+				nvrhi::ResourceStates::VertexBuffer);//note:will call end tracking buffer state
+
+			nvrhi::BufferDesc indexBufferDesc;
+			indexBufferDesc.byteSize = sizeof(uint32_t) * batches[i]->m_indices.size();
+			indexBufferDesc.isIndexBuffer = true;
+			indexBufferDesc.debugName = "IndexBuffer";
+			indexBufferDesc.initialState = nvrhi::ResourceStates::CopyDest;
+			m_IndexBuffers.push_back(GetDevice()->createBuffer(indexBufferDesc));
+
+			m_CommandList->beginTrackingBufferState(m_IndexBuffers[i], nvrhi::ResourceStates::CopyDest);
+			m_CommandList->writeBuffer(m_IndexBuffers[i], batches[i]->m_indices.data(), sizeof(uint32_t) * batches[i]->m_indices.size());
+			m_CommandList->setPermanentBufferState(m_IndexBuffers[i],
+				nvrhi::ResourceStates::IndexBuffer);
+
+			m_constantBuffers.push_back(GetDevice()->createBuffer(
+				nvrhi::utils::CreateStaticConstantBufferDesc(
+					sizeof(ConstantBufferEntry), "ConstantBuffer").setInitialState(nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(true)));
+		}
+
 		m_CommandList->close();
 		GetDevice()->executeCommandList(m_CommandList);
 	}
@@ -503,7 +786,7 @@ namespace GuGu {
 	}
 	void UIRenderPass::BackBufferResizing()
 	{
-		m_pipeline = m_FontPipeline = nullptr;
+		//m_pipeline = m_FontPipeline = nullptr;
 	}
 	void UIRenderPass::BackBufferResized(const uint32_t width, const uint32_t height, const uint32_t sampleCount)
 	{
@@ -512,6 +795,16 @@ namespace GuGu {
 	std::shared_ptr<WindowWidget> UIRenderPass::getWindowWidget()
 	{
 		return m_uiRoot;//todo:fix this
+	}
+
+	std::vector<std::shared_ptr<WindowWidget>>& UIRenderPass::getWindowWidgets()
+	{
+		return m_windows;//window widgets
+	}
+
+	void UIRenderPass::addWindowWidget(std::shared_ptr<WindowWidget> inWindowWidget)
+	{
+		m_windows.push_back(inWindowWidget);
 	}
 
 	std::vector<std::shared_ptr<Widget>> UIRenderPass::getAllWidgets()

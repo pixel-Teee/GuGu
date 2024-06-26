@@ -332,6 +332,21 @@ namespace GuGu{
 		return true;
 	}
 
+	void Application::makeWindow(std::shared_ptr<WindowWidget> windowWidget)
+	{
+		//由子类来实现
+	}
+
+	void Application::showWindow(std::shared_ptr<WindowWidget> windowWidget)
+	{
+		//由子类来实现
+	}
+
+	std::vector<std::shared_ptr<WindowWidget>>& Application::getWidowWidgets()
+	{
+		return m_windowWidgets;
+	}
+
     bool Application::processMouseButtonDownEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
     {
 		if (!m_captorWidgetsPath.isEmpty())

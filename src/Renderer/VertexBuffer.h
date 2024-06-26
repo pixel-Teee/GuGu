@@ -90,7 +90,7 @@ namespace GuGu {
 
         void BackBufferResizing() override;
 
-        void Render(nvrhi::IFramebuffer* framebuffer) override;
+        void Render() override;
 
         nvrhi::TextureHandle getRenderTarget();
 

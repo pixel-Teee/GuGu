@@ -19,6 +19,11 @@
     #endif
 #endif
 
+#include <Core/UI/WindowWidget.h> //窗口控件
+#include <Core/UI/Button.h>
+#include <Core/UI/NullWidget.h>
+#include <Renderer/Renderer.h>
+
 namespace GuGu{
     struct VulkanExtensions
     {
@@ -123,6 +128,251 @@ namespace GuGu{
         createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
         createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
         createInfo.pfnUserCallback = debugCallback;
+    }
+
+    bool DeviceManager_VK::CreateSwapChain(std::shared_ptr<WindowWidget> windowWidget)
+    {
+		auto it = m_windowViewports.find(windowWidget.get());
+		assert(it != m_windowViewports.end());
+
+		m_SwapChainFormat.format = nvrhi::vulkan::convertFormat(m_deviceParams.swapChainFormat);
+		m_SwapChainFormat.colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+		//todo:add more logic
+
+		int32_t width = m_deviceParams.backBufferWidth;
+		int32_t height = m_deviceParams.backBufferHeight;
+
+		//std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
+		//std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
+		//
+		//int32_t height = ANativeWindow_getHeight(androidWindow->getNativeHandle());
+		//int32_t width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
+		VkSurfaceCapabilitiesKHR surfaceCapabilities;
+		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_VulkanPhysicalDevice, it->second.m_windowSurface, &surfaceCapabilities);
+		width = surfaceCapabilities.currentExtent.width;
+		height = surfaceCapabilities.currentExtent.height;
+		if (surfaceCapabilities.currentTransform & VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR ||
+			surfaceCapabilities.currentTransform & VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR) {
+			// swap to get identity width and height
+			surfaceCapabilities.currentExtent.height = width;
+			surfaceCapabilities.currentExtent.width = height;
+		}
+
+		m_displaySizeIdentity = surfaceCapabilities.currentExtent;
+		m_preTransform = surfaceCapabilities.currentTransform;
+
+		if (m_preTransform & VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR)
+			Application::getApplication()->setGlobalPreRotate(90.0f);
+		else if (m_preTransform & VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR) {
+			Application::getApplication()->setGlobalPreRotate(270.0f);
+		}
+		else if (m_preTransform & VK_SURFACE_TRANSFORM_ROTATE_180_BIT_KHR) {
+			Application::getApplication()->setGlobalPreRotate(180.0f);
+		}
+		else
+		{
+			Application::getApplication()->setGlobalPreRotate(0.0f);
+		}
+
+		VkExtent2D extent{};
+		extent.width = width;
+		extent.height = height;
+
+		std::unordered_set<uint32_t> uniqueQueues = {
+				(uint32_t)(m_GraphicsQueueFamily),
+				(uint32_t)(m_PresentQueueFamily)
+		};
+
+		std::vector<uint32_t> queues = setToVector(uniqueQueues);
+
+		const bool enableSwapChainSharing = queues.size() > 1;
+
+		VkSwapchainCreateInfoKHR swapchainCreateInfoKhr{};
+		swapchainCreateInfoKhr.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+		swapchainCreateInfoKhr.surface = it->second.m_windowSurface;
+		swapchainCreateInfoKhr.minImageCount = m_deviceParams.swapChainBufferCount;
+		swapchainCreateInfoKhr.imageFormat = m_SwapChainFormat.format;
+		swapchainCreateInfoKhr.imageColorSpace = m_SwapChainFormat.colorSpace;
+		swapchainCreateInfoKhr.imageExtent = extent;
+		swapchainCreateInfoKhr.imageArrayLayers = 1;
+		swapchainCreateInfoKhr.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+			VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+			VK_IMAGE_USAGE_SAMPLED_BIT;
+		swapchainCreateInfoKhr.imageSharingMode = enableSwapChainSharing ? VK_SHARING_MODE_CONCURRENT : VK_SHARING_MODE_EXCLUSIVE;
+		swapchainCreateInfoKhr.flags = m_SwapChainMutableFormatSupported ? VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR : 0;//note:this may be error
+		swapchainCreateInfoKhr.queueFamilyIndexCount = enableSwapChainSharing ? uint32_t(queues.size()) : 0;
+		swapchainCreateInfoKhr.pQueueFamilyIndices = enableSwapChainSharing ? queues.data() : nullptr;
+		swapchainCreateInfoKhr.preTransform = m_preTransform;
+#ifdef ANDROID
+		swapchainCreateInfoKhr.compositeAlpha = VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR;
+#else
+		swapchainCreateInfoKhr.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+#endif
+		swapchainCreateInfoKhr.presentMode = m_deviceParams.vsyncEnabled ? VK_PRESENT_MODE_FIFO_KHR : VK_PRESENT_MODE_IMMEDIATE_KHR;
+		swapchainCreateInfoKhr.clipped = true;
+
+
+
+		swapchainCreateInfoKhr.oldSwapchain = m_oldSwapChain;
+
+		std::vector<VkFormat> imageFormats = { m_SwapChainFormat.format };
+		switch (m_SwapChainFormat.format)
+		{
+		case VK_FORMAT_R8G8B8A8_UNORM:
+			imageFormats.push_back(VK_FORMAT_R8G8B8A8_SRGB);
+			break;
+		case VK_FORMAT_R8G8B8A8_SRGB:
+			imageFormats.push_back(VK_FORMAT_R8G8B8A8_UNORM);
+			break;
+		case VK_FORMAT_B8G8R8A8_UNORM:
+			imageFormats.push_back(VK_FORMAT_B8G8R8A8_SRGB);
+			break;
+		case VK_FORMAT_B8G8R8A8_SRGB:
+			imageFormats.push_back(VK_FORMAT_B8G8R8A8_UNORM);
+			break;
+		}
+
+		VkImageFormatListCreateInfo imageFormatListCreateInfo{};
+		imageFormatListCreateInfo.pViewFormats = imageFormats.data();
+
+		if (m_SwapChainMutableFormatSupported)
+			swapchainCreateInfoKhr.pNext = &imageFormatListCreateInfo;
+
+		VkResult res = vkCreateSwapchainKHR(m_VulkanDevice, &swapchainCreateInfoKhr, nullptr, &it->second.m_SwapChain);
+		if (res != VK_SUCCESS)
+		{
+			GuGu_LOGE("failed to create a vulkan swap chain, error code = %s", nvrhi::vulkan::resultToString(VkResult(res)));
+			return false;
+		}
+
+		//retrieve swap chain images
+		uint32_t swapChainImageCount = 0;
+		vkGetSwapchainImagesKHR(m_VulkanDevice, it->second.m_SwapChain, &swapChainImageCount, nullptr);
+		std::vector<VkImage> images(swapChainImageCount);
+		vkGetSwapchainImagesKHR(m_VulkanDevice, it->second.m_SwapChain, &swapChainImageCount, images.data());
+
+		for (auto image : images)
+		{
+			SwapChainImage sci;
+			sci.image = image;
+
+			//todo:remove these
+
+			nvrhi::TextureDesc textureDesc;
+			//textureDesc.width = m_deviceParams.backBufferWidth;
+			//textureDesc.height = m_deviceParams.backBufferHeight;
+			textureDesc.width = width;
+			textureDesc.height = height;
+			textureDesc.format = m_deviceParams.swapChainFormat;
+			textureDesc.debugName = "Swap chain image";
+			textureDesc.initialState = nvrhi::ResourceStates::Present;
+			textureDesc.keepInitialState = true;
+			textureDesc.isRenderTarget = true;
+
+			sci.rhiHandle = m_NvrhiDevice->createHandleForNativeTexture(nvrhi::ObjectTypes::VK_Image, nvrhi::Object(sci.image), textureDesc);
+			//m_SwapChainImages.push_back(sci);
+            it->second.m_swapChainImages.push_back(sci);
+		}
+
+		//m_SwapChainIndex = 0;
+
+        std::vector<VkSemaphore> presentSemaphores;
+        std::vector<VkSemaphore> renderFinishedSemaphores;
+        presentSemaphores.resize(m_deviceParams.maxFramesInFlight);
+        renderFinishedSemaphores.resize(m_deviceParams.maxFramesInFlight);
+		VkSemaphoreCreateInfo semaphoreCreateInfo{};
+		semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+		for (size_t i = 0; i < presentSemaphores.size(); ++i)
+		{
+			//todo:create present semaphore
+			vkCreateSemaphore(m_VulkanDevice, &semaphoreCreateInfo, nullptr, &presentSemaphores[i]);
+			vkCreateSemaphore(m_VulkanDevice, &semaphoreCreateInfo, nullptr, &renderFinishedSemaphores[i]);
+		}
+
+        it->second.m_presentSemaphores = presentSemaphores;
+        it->second.m_renderFinishedSemaphores = renderFinishedSemaphores;
+
+		return true;
+    }
+
+    void DeviceManager_VK::UpdateWindowSize(std::shared_ptr<WindowWidget> windowWidget)
+    {
+		int width = 0;
+		int height = 0;
+		//glfwGetWindowSize(m_Window, &width, &height);
+		bool needToRecreateSwapChain = false;
+#ifdef ANDROID
+		std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
+		std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
+
+		height = ANativeWindow_getHeight(androidWindow->getNativeHandle());
+		width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
+
+		needToRecreateSwapChain = androidApplication->getNeedToRecreateSwapChainFlag();
+#else
+		//get main window
+		std::shared_ptr<WindowsApplication> windowsApplication = WindowsApplication::getApplication();
+		//std::shared_ptr<WindowsWindow> windowsWindow = windowsApplication->getPlatformWindows()[0]; //todo:fix this
+
+		std::shared_ptr<WindowsWindow> nativeMainWindow = std::static_pointer_cast<WindowsWindow>(windowWidget->getNativeWindow());
+
+		RECT rect;
+		if (GetClientRect(nativeMainWindow->getNativeWindowHandle(), &rect))
+		{
+			width = rect.right - rect.left;
+			height = rect.bottom - rect.top;
+		}
+
+#endif
+
+		if (width <= 0 || height <= 0)
+		{
+			// window is minimized
+			//m_windowVisible = false;
+#ifdef ANDROID
+			androidApplication->setFocused(false);
+#else
+#if WIN32
+			windowsApplication->setFocused(false);
+#endif
+#endif
+		}
+
+		//m_windowVisible = true;
+		//androidApplication->setFocused(true);
+
+		if (int(m_deviceParams.backBufferWidth) != width ||
+			int(m_deviceParams.backBufferHeight) != height || needToRecreateSwapChain || m_orientationChanged) //todo:fix this
+		{
+#ifdef ANDROID
+			androidApplication->setNeedToRecreateSwapChain(false);
+#endif
+			// window is not minimized, and the size has changed
+
+			//BackBufferResizing();
+
+
+			m_deviceParams.backBufferWidth = width;
+			m_deviceParams.backBufferHeight = height;
+
+			//m_deviceParams.vsyncEnabled = m_RequestedVSync;
+
+			ResizeSwapChain(windowWidget);
+
+            auto it = m_windowViewports.find(windowWidget.get());
+            assert(it != m_windowViewports.end());
+			//BackBufferResized();
+            uint32_t backBufferCount = it->second.m_swapChainImages.size();
+            it->second.m_SwapChainFramebuffers.resize(backBufferCount);
+			for (uint32_t index = 0; index < backBufferCount; index++)
+			{
+                it->second.m_SwapChainFramebuffers[index] = GetDevice()->createFramebuffer(
+			            nvrhi::FramebufferDesc().addColorAttachment(it->second.m_swapChainImages[index].rhiHandle));
+			}
+			m_orientationChanged = false;
+		}
+  
+		return;
     }
 
     bool DeviceManager_VK::CreateInstanceInternal() {
@@ -303,13 +553,37 @@ namespace GuGu{
 #else
 
 #endif
+            //1.先创建 window widget
+            m_mainWindow = WIDGET_NEW(WindowWidget)
+                .Content
+                (
+					WIDGET_NEW(Button)
+					.buttonSyle(StyleSet::getStyle()->getStyle<ButtonStyle>("closeButton"))
+					.Content
+					(
+						NullWidget::getNullWidget()
+					)
+                );
 
-            createWindowSurface();
+            //2.调用 Application 的函数，去创建 window widget 相应的 native window
+            std::shared_ptr<Application> application = Application::getApplication();
+            //UIRenderPass* uiRenderPass = application->getRenderer()->getUIRenderPass();
+            application->makeWindow(m_mainWindow);
+
+            //3.创建window的交换链以及surface，交换链和surface存放在UIRenderPass的map里面，map 映射 window widget 以及相应的交换链和surface
+            //application->showWindow(mainWindow);//create window surface and swap chain
+
+            //uiRenderPass->addWindowWidget(mainWindow);
+            //createWindowSurface();
+
+            createWindowSurface(m_mainWindow);
         }
+
+        //swapchain 需要先创建 vulkan device ，而创建 vulkan device 则暂时先需要查询 surface 的能力
 
         pickPhysicalDevice();
         findQueueFamilies(m_VulkanPhysicalDevice);
-        createDevice();
+        createDevice();//这里会获取队列
 
         auto vecInstanceExt = stringSetToVector(enabledExtensions.instance);
         auto vecLayers = stringSetToVector(enabledExtensions.layers);
@@ -340,6 +614,10 @@ namespace GuGu{
 
         m_NvrhiDevice = nvrhi::vulkan::createDevice(deviceDesc);
 
+		CreateSwapChain(m_mainWindow);
+
+        m_BarrierCommandList = m_NvrhiDevice->createCommandList();
+
         //todo:add validation layer functionality
         return true;
     }
@@ -347,205 +625,211 @@ namespace GuGu{
 	bool DeviceManager_VK::createSwapChain() {
 		//destroySwapChain();
 
-		m_SwapChainFormat.format = nvrhi::vulkan::convertFormat(m_deviceParams.swapChainFormat);
-		m_SwapChainFormat.colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
-		//todo:add more logic
-
-        int32_t width = m_deviceParams.backBufferWidth;
-		int32_t height = m_deviceParams.backBufferHeight;
-		
-		//std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
-		//std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
-		//
-		//int32_t height = ANativeWindow_getHeight(androidWindow->getNativeHandle());
-		//int32_t width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
-        VkSurfaceCapabilitiesKHR surfaceCapabilities;
-        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_VulkanPhysicalDevice, m_windowSurface, &surfaceCapabilities);
-        width = surfaceCapabilities.currentExtent.width;
-        height = surfaceCapabilities.currentExtent.height;
-        if (surfaceCapabilities.currentTransform & VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR ||
-            surfaceCapabilities.currentTransform & VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR) {
-            // swap to get identity width and height
-            surfaceCapabilities.currentExtent.height = width;
-            surfaceCapabilities.currentExtent.width = height;
-        }
-
-        m_displaySizeIdentity = surfaceCapabilities.currentExtent;
-        m_preTransform = surfaceCapabilities.currentTransform;
-
-        if(m_preTransform & VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR)
-            Application::getApplication()->setGlobalPreRotate(90.0f);
-        else if (m_preTransform & VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR) {
-            Application::getApplication()->setGlobalPreRotate(270.0f);
-        }
-		else if (m_preTransform & VK_SURFACE_TRANSFORM_ROTATE_180_BIT_KHR) {
-            Application::getApplication()->setGlobalPreRotate(180.0f);
-		}
-        else
-        {
-            Application::getApplication()->setGlobalPreRotate(0.0f);
-        }
-
-		VkExtent2D extent{};
-		extent.width = width;
-		extent.height = height;
-
-		std::unordered_set<uint32_t> uniqueQueues = {
-				(uint32_t)(m_GraphicsQueueFamily),
-				(uint32_t)(m_PresentQueueFamily)
-		};
-
-		std::vector<uint32_t> queues = setToVector(uniqueQueues);
-
-		const bool enableSwapChainSharing = queues.size() > 1;
-
-		VkSwapchainCreateInfoKHR swapchainCreateInfoKhr{};
-		swapchainCreateInfoKhr.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-		swapchainCreateInfoKhr.surface = m_windowSurface;
-		swapchainCreateInfoKhr.minImageCount = m_deviceParams.swapChainBufferCount;
-		swapchainCreateInfoKhr.imageFormat = m_SwapChainFormat.format;
-		swapchainCreateInfoKhr.imageColorSpace = m_SwapChainFormat.colorSpace;
-		swapchainCreateInfoKhr.imageExtent = extent;
-		swapchainCreateInfoKhr.imageArrayLayers = 1;
-		swapchainCreateInfoKhr.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
-			VK_IMAGE_USAGE_TRANSFER_DST_BIT |
-			VK_IMAGE_USAGE_SAMPLED_BIT;
-		swapchainCreateInfoKhr.imageSharingMode = enableSwapChainSharing ? VK_SHARING_MODE_CONCURRENT : VK_SHARING_MODE_EXCLUSIVE;
-		swapchainCreateInfoKhr.flags = m_SwapChainMutableFormatSupported ? VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR : 0;//note:this may be error
-		swapchainCreateInfoKhr.queueFamilyIndexCount = enableSwapChainSharing ? uint32_t(queues.size()) : 0;
-		swapchainCreateInfoKhr.pQueueFamilyIndices = enableSwapChainSharing ? queues.data() : nullptr;
-		swapchainCreateInfoKhr.preTransform = m_preTransform;
-#ifdef ANDROID
-		swapchainCreateInfoKhr.compositeAlpha = VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR;
-#else
-		swapchainCreateInfoKhr.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
-#endif
-		swapchainCreateInfoKhr.presentMode = m_deviceParams.vsyncEnabled ? VK_PRESENT_MODE_FIFO_KHR : VK_PRESENT_MODE_IMMEDIATE_KHR;
-		swapchainCreateInfoKhr.clipped = true;
-		swapchainCreateInfoKhr.oldSwapchain = m_oldSwapChain;
-
-		std::vector<VkFormat> imageFormats = { m_SwapChainFormat.format };
-		switch (m_SwapChainFormat.format)
-		{
-		case VK_FORMAT_R8G8B8A8_UNORM:
-			imageFormats.push_back(VK_FORMAT_R8G8B8A8_SRGB);
-			break;
-		case VK_FORMAT_R8G8B8A8_SRGB:
-			imageFormats.push_back(VK_FORMAT_R8G8B8A8_UNORM);
-			break;
-		case VK_FORMAT_B8G8R8A8_UNORM:
-			imageFormats.push_back(VK_FORMAT_B8G8R8A8_SRGB);
-			break;
-		case VK_FORMAT_B8G8R8A8_SRGB:
-			imageFormats.push_back(VK_FORMAT_B8G8R8A8_UNORM);
-			break;
-		}
-
-		VkImageFormatListCreateInfo imageFormatListCreateInfo{};
-		imageFormatListCreateInfo.pViewFormats = imageFormats.data();
-
-		if (m_SwapChainMutableFormatSupported)
-			swapchainCreateInfoKhr.pNext = &imageFormatListCreateInfo;
-
-		VkResult res = vkCreateSwapchainKHR(m_VulkanDevice, &swapchainCreateInfoKhr, nullptr, &m_SwapChain);
-		if (res != VK_SUCCESS)
-		{
-			GuGu_LOGE("failed to create a vulkan swap chain, error code = %s", nvrhi::vulkan::resultToString(VkResult(res)));
-			return false;
-		}
-
-		//retrieve swap chain images
-		uint32_t swapChainImageCount = 0;
-		vkGetSwapchainImagesKHR(m_VulkanDevice, m_SwapChain, &swapChainImageCount, nullptr);
-		std::vector<VkImage> images(swapChainImageCount);
-		vkGetSwapchainImagesKHR(m_VulkanDevice, m_SwapChain, &swapChainImageCount, images.data());
-		for (auto image : images)
-		{
-			SwapChainImage sci;
-			sci.image = image;
-
-			//todo:remove these
-
-			nvrhi::TextureDesc textureDesc;
-			//textureDesc.width = m_deviceParams.backBufferWidth;
-			//textureDesc.height = m_deviceParams.backBufferHeight;
-			textureDesc.width = width;
-			textureDesc.height = height;
-			textureDesc.format = m_deviceParams.swapChainFormat;
-			textureDesc.debugName = "Swap chain image";
-			textureDesc.initialState = nvrhi::ResourceStates::Present;
-			textureDesc.keepInitialState = true;
-			textureDesc.isRenderTarget = true;
-
-			sci.rhiHandle = m_NvrhiDevice->createHandleForNativeTexture(nvrhi::ObjectTypes::VK_Image, nvrhi::Object(sci.image), textureDesc);
-			m_SwapChainImages.push_back(sci);
-		}
-
-		m_SwapChainIndex = 0;
+//		m_SwapChainFormat.format = nvrhi::vulkan::convertFormat(m_deviceParams.swapChainFormat);
+//		m_SwapChainFormat.colorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+//		todo:add more logic
+//
+//        int32_t width = m_deviceParams.backBufferWidth;
+//		int32_t height = m_deviceParams.backBufferHeight;
+//		
+//		std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
+//		std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
+//		
+//		int32_t height = ANativeWindow_getHeight(androidWindow->getNativeHandle());
+//		int32_t width = ANativeWindow_getWidth(androidWindow->getNativeHandle());
+//        VkSurfaceCapabilitiesKHR surfaceCapabilities;
+//        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_VulkanPhysicalDevice, m_windowSurface, &surfaceCapabilities);
+//        width = surfaceCapabilities.currentExtent.width;
+//        height = surfaceCapabilities.currentExtent.height;
+//        if (surfaceCapabilities.currentTransform & VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR ||
+//            surfaceCapabilities.currentTransform & VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR) {
+//             swap to get identity width and height
+//            surfaceCapabilities.currentExtent.height = width;
+//            surfaceCapabilities.currentExtent.width = height;
+//        }
+//
+//        m_displaySizeIdentity = surfaceCapabilities.currentExtent;
+//        m_preTransform = surfaceCapabilities.currentTransform;
+//
+//        if(m_preTransform & VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR)
+//            Application::getApplication()->setGlobalPreRotate(90.0f);
+//        else if (m_preTransform & VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR) {
+//            Application::getApplication()->setGlobalPreRotate(270.0f);
+//        }
+//		else if (m_preTransform & VK_SURFACE_TRANSFORM_ROTATE_180_BIT_KHR) {
+//            Application::getApplication()->setGlobalPreRotate(180.0f);
+//		}
+//        else
+//        {
+//            Application::getApplication()->setGlobalPreRotate(0.0f);
+//        }
+//
+//		VkExtent2D extent{};
+//		extent.width = width;
+//		extent.height = height;
+//
+//		std::unordered_set<uint32_t> uniqueQueues = {
+//				(uint32_t)(m_GraphicsQueueFamily),
+//				(uint32_t)(m_PresentQueueFamily)
+//		};
+//
+//		std::vector<uint32_t> queues = setToVector(uniqueQueues);
+//
+//		const bool enableSwapChainSharing = queues.size() > 1;
+//
+//		VkSwapchainCreateInfoKHR swapchainCreateInfoKhr{};
+//		swapchainCreateInfoKhr.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+//		swapchainCreateInfoKhr.surface = m_windowSurface;
+//		swapchainCreateInfoKhr.minImageCount = m_deviceParams.swapChainBufferCount;
+//		swapchainCreateInfoKhr.imageFormat = m_SwapChainFormat.format;
+//		swapchainCreateInfoKhr.imageColorSpace = m_SwapChainFormat.colorSpace;
+//		swapchainCreateInfoKhr.imageExtent = extent;
+//		swapchainCreateInfoKhr.imageArrayLayers = 1;
+//		swapchainCreateInfoKhr.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
+//			VK_IMAGE_USAGE_TRANSFER_DST_BIT |
+//			VK_IMAGE_USAGE_SAMPLED_BIT;
+//		swapchainCreateInfoKhr.imageSharingMode = enableSwapChainSharing ? VK_SHARING_MODE_CONCURRENT : VK_SHARING_MODE_EXCLUSIVE;
+//		swapchainCreateInfoKhr.flags = m_SwapChainMutableFormatSupported ? VK_SWAPCHAIN_CREATE_MUTABLE_FORMAT_BIT_KHR : 0;//note:this may be error
+//		swapchainCreateInfoKhr.queueFamilyIndexCount = enableSwapChainSharing ? uint32_t(queues.size()) : 0;
+//		swapchainCreateInfoKhr.pQueueFamilyIndices = enableSwapChainSharing ? queues.data() : nullptr;
+//		swapchainCreateInfoKhr.preTransform = m_preTransform;
+//#ifdef ANDROID
+//		swapchainCreateInfoKhr.compositeAlpha = VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR;
+//#else
+//		swapchainCreateInfoKhr.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+//#endif
+//		swapchainCreateInfoKhr.presentMode = m_deviceParams.vsyncEnabled ? VK_PRESENT_MODE_FIFO_KHR : VK_PRESENT_MODE_IMMEDIATE_KHR;
+//		swapchainCreateInfoKhr.clipped = true;
+//		swapchainCreateInfoKhr.oldSwapchain = m_oldSwapChain;
+//
+//		std::vector<VkFormat> imageFormats = { m_SwapChainFormat.format };
+//		switch (m_SwapChainFormat.format)
+//		{
+//		case VK_FORMAT_R8G8B8A8_UNORM:
+//			imageFormats.push_back(VK_FORMAT_R8G8B8A8_SRGB);
+//			break;
+//		case VK_FORMAT_R8G8B8A8_SRGB:
+//			imageFormats.push_back(VK_FORMAT_R8G8B8A8_UNORM);
+//			break;
+//		case VK_FORMAT_B8G8R8A8_UNORM:
+//			imageFormats.push_back(VK_FORMAT_B8G8R8A8_SRGB);
+//			break;
+//		case VK_FORMAT_B8G8R8A8_SRGB:
+//			imageFormats.push_back(VK_FORMAT_B8G8R8A8_UNORM);
+//			break;
+//		}
+//
+//		VkImageFormatListCreateInfo imageFormatListCreateInfo{};
+//		imageFormatListCreateInfo.pViewFormats = imageFormats.data();
+//
+//		if (m_SwapChainMutableFormatSupported)
+//			swapchainCreateInfoKhr.pNext = &imageFormatListCreateInfo;
+//
+//		VkResult res = vkCreateSwapchainKHR(m_VulkanDevice, &swapchainCreateInfoKhr, nullptr, &m_SwapChain);
+//		if (res != VK_SUCCESS)
+//		{
+//			GuGu_LOGE("failed to create a vulkan swap chain, error code = %s", nvrhi::vulkan::resultToString(VkResult(res)));
+//			return false;
+//		}
+//
+//		retrieve swap chain images
+//		uint32_t swapChainImageCount = 0;
+//		vkGetSwapchainImagesKHR(m_VulkanDevice, m_SwapChain, &swapChainImageCount, nullptr);
+//		std::vector<VkImage> images(swapChainImageCount);
+//		vkGetSwapchainImagesKHR(m_VulkanDevice, m_SwapChain, &swapChainImageCount, images.data());
+//		for (auto image : images)
+//		{
+//			SwapChainImage sci;
+//			sci.image = image;
+//
+//			todo:remove these
+//
+//			nvrhi::TextureDesc textureDesc;
+//			textureDesc.width = m_deviceParams.backBufferWidth;
+//			textureDesc.height = m_deviceParams.backBufferHeight;
+//			textureDesc.width = width;
+//			textureDesc.height = height;
+//			textureDesc.format = m_deviceParams.swapChainFormat;
+//			textureDesc.debugName = "Swap chain image";
+//			textureDesc.initialState = nvrhi::ResourceStates::Present;
+//			textureDesc.keepInitialState = true;
+//			textureDesc.isRenderTarget = true;
+//
+//			sci.rhiHandle = m_NvrhiDevice->createHandleForNativeTexture(nvrhi::ObjectTypes::VK_Image, nvrhi::Object(sci.image), textureDesc);
+//			m_SwapChainImages.push_back(sci);
+//		}
+//
+//		m_SwapChainIndex = 0;
 
 		return true;
 	}
 
 	void DeviceManager_VK::DestroyDeviceAndSwapChain() {
 		destroySwapChain();
-
-		for (size_t i = 0; i < m_PresentSemaphores.size(); ++i)
-		{
-			if (m_PresentSemaphores[i])
-			{
-				vkDestroySemaphore(m_VulkanDevice, m_PresentSemaphores[i], nullptr);//todo:fix this
-				m_PresentSemaphores[i] = VK_NULL_HANDLE;
-				vkDestroySemaphore(m_VulkanDevice, m_RenderFinishedSemaphores[i], nullptr);//todo:fix this
-				m_RenderFinishedSemaphores[i] = VK_NULL_HANDLE;
-			}
-		}
-
-		m_BarrierCommandList = nullptr;
-		m_NvrhiDevice = nullptr;
-		m_rendererString.clear();
-
-		if (m_VulkanDevice)
-		{
-			vkDestroyDevice(m_VulkanDevice, nullptr);
-			m_VulkanDevice = nullptr;
-		}
-		if (m_windowSurface)
-		{
-			vkDestroySurfaceKHR(m_VulkanInstance, m_windowSurface, nullptr);
-			m_windowSurface = VK_NULL_HANDLE;
-		}
-		if (m_debugMessenger)
-		{
-			DestroyDebugUtilsMessengerEXT(m_VulkanInstance, m_debugMessenger, nullptr);
-		}
-		if (m_VulkanInstance)
-		{
-			vkDestroyInstance(m_VulkanInstance, nullptr);
-			m_VulkanInstance = nullptr;
-		}
+		//
+		//for (size_t i = 0; i < m_PresentSemaphores.size(); ++i)
+		//{
+		//	if (m_PresentSemaphores[i])
+		//	{
+		//		vkDestroySemaphore(m_VulkanDevice, m_PresentSemaphores[i], nullptr);//todo:fix this
+		//		m_PresentSemaphores[i] = VK_NULL_HANDLE;
+		//		vkDestroySemaphore(m_VulkanDevice, m_RenderFinishedSemaphores[i], nullptr);//todo:fix this
+		//		m_RenderFinishedSemaphores[i] = VK_NULL_HANDLE;
+		//	}
+		//}
+		//
+		//m_BarrierCommandList = nullptr;
+		//m_NvrhiDevice = nullptr;
+		//m_rendererString.clear();
+		//
+		//if (m_VulkanDevice)
+		//{
+		//	vkDestroyDevice(m_VulkanDevice, nullptr);
+		//	m_VulkanDevice = nullptr;
+		//}
+		//if (m_windowSurface)
+		//{
+		//	vkDestroySurfaceKHR(m_VulkanInstance, m_windowSurface, nullptr);
+		//	m_windowSurface = VK_NULL_HANDLE;
+		//}
+		//if (m_debugMessenger)
+		//{
+		//	DestroyDebugUtilsMessengerEXT(m_VulkanInstance, m_debugMessenger, nullptr);
+		//}
+		//if (m_VulkanInstance)
+		//{
+		//	vkDestroyInstance(m_VulkanInstance, nullptr);
+		//	m_VulkanInstance = nullptr;
+		//}
 	}
 
-	void DeviceManager_VK::BeginFrame() {
+	void DeviceManager_VK::BeginFrame(std::shared_ptr<WindowWidget> inWindowWidget) {
 
-		VkResult result = vkAcquireNextImageKHR(m_VulkanDevice, m_SwapChain, std::numeric_limits<uint64_t>::max(), m_PresentSemaphores[m_framesIndexInFlight],
-			VK_NULL_HANDLE, &m_SwapChainIndex);
+        auto it = m_windowViewports.find(inWindowWidget.get());
+        assert(it != m_windowViewports.end());
+
+		VkResult result = vkAcquireNextImageKHR(m_VulkanDevice, it->second.m_SwapChain, std::numeric_limits<uint64_t>::max(), it->second.m_presentSemaphores[it->second.m_framesIndexInFlight],
+			VK_NULL_HANDLE, &it->second.m_SwapChainIndex);
 
         if(result == VK_SUBOPTIMAL_KHR)
         {
             m_orientationChanged = true;
-            UpdateWindowSize();
+            UpdateWindowSize(inWindowWidget);
         }
         else
         {
             assert(result == VK_SUCCESS);
         }
 
-		m_NvrhiDevice->queueWaitForSemaphore(nvrhi::CommandQueue::Graphics, m_PresentSemaphores[m_framesIndexInFlight], 0);
+		m_NvrhiDevice->queueWaitForSemaphore(nvrhi::CommandQueue::Graphics, it->second.m_presentSemaphores[it->second.m_framesIndexInFlight], 0);
 		//m_NvrhiDevice->queueSignalSemaphore(nvrhi::CommandQueue::Graphics, m_RenderFinishedSemaphores[m_framesIndexInFlight], 0);
 	}
 
-	void DeviceManager_VK::Present() {
-		m_NvrhiDevice->queueSignalSemaphore(nvrhi::CommandQueue::Graphics, m_RenderFinishedSemaphores[m_framesIndexInFlight], 0);
+	void DeviceManager_VK::Present(std::shared_ptr<WindowWidget> inWindowWidget) {
+		auto it = m_windowViewports.find(inWindowWidget.get());
+		assert(it != m_windowViewports.end());
+
+		m_NvrhiDevice->queueSignalSemaphore(nvrhi::CommandQueue::Graphics, it->second.m_renderFinishedSemaphores[it->second.m_framesIndexInFlight], 0);
 
 		m_BarrierCommandList->open(); // umm...
 		m_BarrierCommandList->close();
@@ -554,10 +838,10 @@ namespace GuGu{
 		VkPresentInfoKHR info = {};
 		info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 		info.waitSemaphoreCount = 1;
-		info.pWaitSemaphores = &m_RenderFinishedSemaphores[m_framesIndexInFlight];
+		info.pWaitSemaphores = &it->second.m_renderFinishedSemaphores[it->second.m_framesIndexInFlight];
 		info.swapchainCount = 1;
-		info.pSwapchains = &m_SwapChain;
-		info.pImageIndices = &m_SwapChainIndex;
+		info.pSwapchains = &it->second.m_SwapChain;
+		info.pImageIndices = &it->second.m_SwapChainIndex;
 
 		VkResult res = vkQueuePresentKHR(m_PresentQueue, &info);
 
@@ -614,21 +898,23 @@ namespace GuGu{
 			m_FramesInFlight.push(query);
 		}
 
-		m_framesIndexInFlight = (m_framesIndexInFlight + 1) % m_deviceParams.maxFramesInFlight;
+        it->second.m_framesIndexInFlight = (it->second.m_framesIndexInFlight + 1) % m_deviceParams.maxFramesInFlight;
 	}
 
 	nvrhi::ITexture* DeviceManager_VK::GetBackBuffer(uint32_t index) {
-		if (index < m_SwapChainImages.size())
-			return m_SwapChainImages[index].rhiHandle;
-		return nullptr;
+		//if (index < m_SwapChainImages.size())
+		//	return m_SwapChainImages[index].rhiHandle;
+		//return nullptr;
+        return nullptr;
 	}
 
 	uint32_t DeviceManager_VK::GetCurrentBackBufferIndex() {
-		return m_SwapChainIndex;
+        return 0;
 	}
 
 	uint32_t DeviceManager_VK::GetBackBufferCount() {
-		return uint32_t(m_SwapChainImages.size());
+		//return uint32_t(m_SwapChainImages.size());
+        return 0;
 	}
 
     void DeviceManager_VK::installDebugCallback() {
@@ -659,21 +945,73 @@ namespace GuGu{
         VK_CHECK(vkCreateAndroidSurfaceKHR(m_VulkanInstance, &create_info,
                                            nullptr /* pAllocator */, &m_windowSurface));
 #else 
-        #if WIN32
-        std::shared_ptr<WindowsApplication> windowsApplication = WindowsApplication::getApplication();
-        std::shared_ptr<WindowsWindow> windowsWindow = windowsApplication->getPlatformWindows()[0]; //todo:fix this
+        //#if WIN32
+        //std::shared_ptr<WindowsApplication> windowsApplication = WindowsApplication::getApplication();
+        //std::shared_ptr<WindowsWindow> windowsWindow = windowsApplication->getPlatformWindows()[0]; //todo:fix this
 
-        VkWin32SurfaceCreateInfoKHR create_info = {};
-        create_info.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
-        create_info.pNext = nullptr;
-        create_info.hwnd = windowsWindow->getNativeWindowHandle();
-        create_info.hinstance = GetModuleHandle(nullptr);
-        create_info.flags = 0;
-        VK_CHECK(vkCreateWin32SurfaceKHR(m_VulkanInstance, &create_info,
-            nullptr /* pAllocator */, &m_windowSurface));
-        #endif
+//        //VkWin32SurfaceCreateInfoKHR create_info = {};
+        //create_info.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+        //create_info.pNext = nullptr;
+        //create_info.hwnd = windowsWindow->getNativeWindowHandle();
+        //create_info.hinstance = GetModuleHandle(nullptr);
+        //create_info.flags = 0;
+        //VK_CHECK(vkCreateWin32SurfaceKHR(m_VulkanInstance, &create_info,
+        //    nullptr /* pAllocator */, &m_windowSurface));
+		//#endif
 #endif
         return true;//todo:fix this
+    }
+
+    bool DeviceManager_VK::createWindowSurface(std::shared_ptr<WindowWidget> windowWidget)
+    {
+#if ANDROID
+		std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
+		std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
+
+		const VkAndroidSurfaceCreateInfoKHR create_info{
+				.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR,
+				.pNext = nullptr,
+				.flags = 0,
+				.window = androidWindow->getNativeHandle() };
+
+		if (m_windowSurface != VK_NULL_HANDLE) {
+			vkDestroySurfaceKHR(m_VulkanInstance, m_windowSurface, nullptr);
+			m_windowSurface = VK_NULL_HANDLE;
+		}
+
+		VK_CHECK(vkCreateAndroidSurfaceKHR(m_VulkanInstance, &create_info,
+			nullptr /* pAllocator */, &m_windowSurface));
+#else 
+#if WIN32
+		VkWin32SurfaceCreateInfoKHR create_info = {};
+		create_info.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+		create_info.pNext = nullptr;
+        std::shared_ptr<WindowsWindow> nativeWindow = std::static_pointer_cast<WindowsWindow>(windowWidget->getNativeWindow());
+		create_info.hwnd = nativeWindow->getNativeWindowHandle();
+		create_info.hinstance = GetModuleHandle(nullptr);
+		create_info.flags = 0;
+        auto it = m_windowViewports.find(windowWidget.get());
+        if (it != m_windowViewports.end())
+        {
+            m_windowViewports.erase(it);
+        }
+        VkSurfaceKHR windowSurface;
+		VK_CHECK(vkCreateWin32SurfaceKHR(m_VulkanInstance, &create_info,
+			nullptr /* pAllocator */, &windowSurface));
+        WindowWidgetViewportInfo newWindowWidgetViewportInfo;
+        newWindowWidgetViewportInfo.m_windowSurface = windowSurface;
+        m_windowViewports.insert({ windowWidget.get(), newWindowWidgetViewportInfo });//create new window surface
+#endif
+#endif
+		return true;//todo:fix this
+    }
+
+    nvrhi::FramebufferHandle DeviceManager_VK::getCurrentBackBuffer(std::shared_ptr<WindowWidget> windowWidget) const
+    {
+        auto it = m_windowViewports.find(windowWidget.get());
+        assert(it != m_windowViewports.end());
+
+        return it->second.m_SwapChainFramebuffers[it->second.m_SwapChainIndex];
     }
 
     bool DeviceManager_VK::pickPhysicalDevice() {
@@ -765,22 +1103,25 @@ namespace GuGu{
                 deviceIsGood = false;
             }
 
-            if(m_windowSurface)
+            //随便找一个窗口
+            auto it = m_windowViewports.begin();
+            assert(it != m_windowViewports.end());
+            if(it->second.m_windowSurface)
             {
                 //check that this device supports our intended swap chain creation parameters
                 VkSurfaceCapabilitiesKHR surfaceCaps;
-                vkGetPhysicalDeviceSurfaceCapabilitiesKHR(dev, m_windowSurface, &surfaceCaps);
+                vkGetPhysicalDeviceSurfaceCapabilitiesKHR(dev, it->second.m_windowSurface, &surfaceCaps);
 
                 uint32_t surfaceFmtCount;
-                vkGetPhysicalDeviceSurfaceFormatsKHR(dev, m_windowSurface, &surfaceFmtCount, nullptr);
+                vkGetPhysicalDeviceSurfaceFormatsKHR(dev, it->second.m_windowSurface, &surfaceFmtCount, nullptr);
                 std::vector<VkSurfaceFormatKHR> surfaceFmts(surfaceFmtCount);
-                vkGetPhysicalDeviceSurfaceFormatsKHR(dev, m_windowSurface, &surfaceFmtCount, surfaceFmts.data());
+                vkGetPhysicalDeviceSurfaceFormatsKHR(dev, it->second.m_windowSurface, &surfaceFmtCount, surfaceFmts.data());
 
                 uint32_t presentModeCount;
                 //VkPresentModeKHR surfacePModes;
-                vkGetPhysicalDeviceSurfacePresentModesKHR(dev, m_windowSurface, &presentModeCount, nullptr);
+                vkGetPhysicalDeviceSurfacePresentModesKHR(dev, it->second.m_windowSurface, &presentModeCount, nullptr);
                 std::vector<VkPresentModeKHR> surfacePModes(presentModeCount);
-                vkGetPhysicalDeviceSurfacePresentModesKHR(dev, m_windowSurface, &presentModeCount, surfacePModes.data());
+                vkGetPhysicalDeviceSurfacePresentModesKHR(dev, it->second.m_windowSurface, &presentModeCount, surfacePModes.data());
 
                 if(surfaceCaps.minImageCount > m_deviceParams.swapChainBufferCount
                 || (surfaceCaps.maxImageCount < m_deviceParams.swapChainBufferCount && surfaceCaps.maxImageCount > 0))
@@ -838,7 +1179,7 @@ namespace GuGu{
 
                 //check that we can present from the graphics queue
                 uint32_t canPresent;
-                vkGetPhysicalDeviceSurfaceSupportKHR(dev, m_GraphicsQueueFamily, m_windowSurface, &canPresent);
+                vkGetPhysicalDeviceSurfaceSupportKHR(dev, m_GraphicsQueueFamily, it->second.m_windowSurface, &canPresent);
                 if(!canPresent)
                 {
                     errorStr.append(u8"\n");
@@ -877,6 +1218,8 @@ namespace GuGu{
     }
 
     bool DeviceManager_VK::findQueueFamilies(VkPhysicalDevice physicalDevice) {
+        auto it = m_windowViewports.begin();
+        assert(it != m_windowViewports.end());//随便找一个窗口
         uint32_t propCount = 0;
         vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &propCount, nullptr);
         std::vector<VkQueueFamilyProperties> props(propCount);
@@ -916,7 +1259,7 @@ namespace GuGu{
             if(m_PresentQueueFamily == -1)
             {
                 VkBool32 support = VK_FALSE;
-                vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, m_windowSurface, &support);
+                vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, i, it->second.m_windowSurface, &support);
                 if(queueFamily.queueCount > 0 &&
                         support == VK_TRUE)
                 {
@@ -1137,26 +1480,26 @@ namespace GuGu{
         return true;
     }
 
-    bool DeviceManager_VK::CreateSwapChain() {
-        createSwapChain();
-
-        //todo:create command list
-        m_BarrierCommandList = m_NvrhiDevice->createCommandList();
-
-        m_PresentSemaphores.resize(m_deviceParams.maxFramesInFlight);
-        m_RenderFinishedSemaphores.resize(m_deviceParams.maxFramesInFlight);
-        VkSemaphoreCreateInfo semaphoreCreateInfo{};
-        semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-        for(size_t i = 0; i < m_PresentSemaphores.size(); ++i)
-        {
-            //todo:create present semaphore
-
-            vkCreateSemaphore(m_VulkanDevice, &semaphoreCreateInfo, nullptr, &m_PresentSemaphores[i]);
-            vkCreateSemaphore(m_VulkanDevice, &semaphoreCreateInfo, nullptr, &m_RenderFinishedSemaphores[i]);
-        }
-
-        return true;
-    };
+    //bool DeviceManager_VK::CreateSwapChain() {
+    //    createSwapChain();
+    //
+    //    //todo:create command list
+    //    m_BarrierCommandList = m_NvrhiDevice->createCommandList();
+    //
+    //    m_PresentSemaphores.resize(m_deviceParams.maxFramesInFlight);
+    //    m_RenderFinishedSemaphores.resize(m_deviceParams.maxFramesInFlight);
+    //    VkSemaphoreCreateInfo semaphoreCreateInfo{};
+    //    semaphoreCreateInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+    //    for(size_t i = 0; i < m_PresentSemaphores.size(); ++i)
+    //    {
+    //        //todo:create present semaphore
+    //
+    //        vkCreateSemaphore(m_VulkanDevice, &semaphoreCreateInfo, nullptr, &m_PresentSemaphores[i]);
+    //        vkCreateSemaphore(m_VulkanDevice, &semaphoreCreateInfo, nullptr, &m_RenderFinishedSemaphores[i]);
+    //    }
+    //
+    //    return true;
+    //};
 
 	void DeviceManager_VK::destroySwapChain() {
 		if (m_VulkanDevice)
@@ -1164,12 +1507,12 @@ namespace GuGu{
 			vkDeviceWaitIdle(m_VulkanDevice);
 		}
 
-		if (m_SwapChain)
-		{
-			vkDestroySwapchainKHR(m_VulkanDevice, m_SwapChain, VK_NULL_HANDLE);//todo:fix this
-			m_SwapChain = VK_NULL_HANDLE;
-		}
-		m_SwapChainImages.clear();
+		//if (m_SwapChain)
+		//{
+		//	vkDestroySwapchainKHR(m_VulkanDevice, m_SwapChain, VK_NULL_HANDLE);//todo:fix this
+		//	m_SwapChain = VK_NULL_HANDLE;
+		//}
+		//m_SwapChainImages.clear();
 	}
 
     void DeviceManager_VK::destroyOldSwapChain() {
@@ -1177,12 +1520,34 @@ namespace GuGu{
         {
             vkDeviceWaitIdle(m_VulkanDevice);
         }
-        if (m_oldSwapChain)
+        //if (m_oldSwapChain)
+        //{
+        //    vkDestroySwapchainKHR(m_VulkanDevice, m_oldSwapChain, VK_NULL_HANDLE);//todo:fix this
+        //    m_oldSwapChain = VK_NULL_HANDLE;
+        //}
+        //m_OldSwapChainImages.clear();
+    }
+
+    void DeviceManager_VK::destroyOldSwapChain(std::shared_ptr<WindowWidget> inWindowWidget)
+    {
+		if (m_VulkanDevice)
+		{
+			vkDeviceWaitIdle(m_VulkanDevice);
+		}
+        auto it = m_windowViewports.find(inWindowWidget.get());
+        assert(it != m_windowViewports.end());
+        if (it->second.m_oldSwapChain)
         {
-            vkDestroySwapchainKHR(m_VulkanDevice, m_oldSwapChain, VK_NULL_HANDLE);//todo:fix this
-            m_oldSwapChain = VK_NULL_HANDLE;
+            vkDestroySwapchainKHR(m_VulkanDevice, it->second.m_oldSwapChain, VK_NULL_HANDLE);//todo:fix this
+            it->second.m_oldSwapChain = VK_NULL_HANDLE;
         }
-        m_OldSwapChainImages.clear();
+        it->second.m_oldSwapChainImages.clear();
+		//if (m_oldSwapChain)
+		//{
+		//    vkDestroySwapchainKHR(m_VulkanDevice, m_oldSwapChain, VK_NULL_HANDLE);//todo:fix this
+		//    m_oldSwapChain = VK_NULL_HANDLE;
+		//}
+		//m_OldSwapChainImages.clear();
     }
 
     DeviceManager *DeviceManager::CreateVK() {

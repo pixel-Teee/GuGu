@@ -571,6 +571,16 @@ namespace GuGu {
 		m_CommandList->close();
 		GetDevice()->executeCommandList(m_CommandList);
 
+		math::uint2 size = math::uint2(1280.0f, 960.0f);
+		if (!m_renderTarget || math::any(m_renderTargetSize != size))
+		{
+			m_renderTarget = nullptr;
+
+			m_renderTargetSize = size;
+
+			initRenderTargetAndDepthTarget();
+		}
+
 		return true;
 	}
 	void Demo::Update(float fElapsedTimeSeconds)
@@ -589,179 +599,170 @@ namespace GuGu {
 		m_Pipeline = nullptr;
 		m_SkinnedPipeline = nullptr;
 	}
-	void Demo::Render(nvrhi::IFramebuffer* framebuffer)
+	void Demo::Render()
 	{
-		const nvrhi::FramebufferInfoEx& fbinfo = framebuffer->getFramebufferInfo();
+		//const nvrhi::FramebufferInfoEx& fbinfo = framebuffer->getFramebufferInfo();
 
-		math::uint2 size = math::uint2(fbinfo.width, fbinfo.height);
-		if (!m_renderTarget || math::any(m_renderTargetSize != size))
-		{
-			m_renderTarget = nullptr;
 
-			m_renderTargetSize = size;
-
-			initRenderTargetAndDepthTarget();
-		}
-
-		if (!m_Pipeline) {
-			nvrhi::GraphicsPipelineDesc psoDesc;
-			psoDesc.VS = m_VertexShader;
-			psoDesc.PS = m_PixelShader;
-			psoDesc.inputLayout = m_InputLayout;
-			psoDesc.bindingLayouts = { m_BindingLayout };
-			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
-			psoDesc.renderState.depthStencilState.depthTestEnable = true;
-			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
-			m_Pipeline = GetDevice()->createGraphicsPipeline(psoDesc, m_frameBuffer);
-		}
-
-		if (!m_SkinnedPipeline) {
-			nvrhi::GraphicsPipelineDesc psoDesc;
-			psoDesc.VS = m_SkinnedVertexShader;
-			psoDesc.PS = m_PixelShader;
-			psoDesc.inputLayout = m_InputLayout;
-			psoDesc.bindingLayouts = { m_SkinnedBindingLayout };
-			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
-			psoDesc.renderState.depthStencilState.depthTestEnable = true;
-			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
-			m_SkinnedPipeline = GetDevice()->createGraphicsPipeline(psoDesc, m_frameBuffer);
-		}
-
-		if (!m_gridPipeline)
-		{
-			nvrhi::GraphicsPipelineDesc psoDesc;
-			psoDesc.VS = m_gridVertexShader;
-			psoDesc.PS = m_gridPixelShader;
-			psoDesc.inputLayout = m_gridInputLayout;
-			psoDesc.bindingLayouts = { m_gridBindingLayout };
-			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
-			psoDesc.renderState.depthStencilState.depthTestEnable = true;
-			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
-			m_gridPipeline = GetDevice()->createGraphicsPipeline(psoDesc, m_frameBuffer);
-		}
-
-		m_CommandList->open();
-
-		SceneGraphWalker walker(m_sceneGraph->GetRootNode().get());
-		while (walker)
-		{
-			auto current = walker.Get();
-			auto parent = current->GetParent();
-
-			current->UpdateLocalTransform();
-
-			if (parent)
-			{
-				current->m_GlobalTransform = current->m_HasLocalTransform
-					? current->m_LocalTransform * parent->m_GlobalTransform
-					: parent->m_GlobalTransform;
-			}
-			else
-			{
-				current->m_GlobalTransform = current->m_LocalTransform;
-			}
-			current->m_GlobalTransformFloat = dm::affine3(current->m_GlobalTransform);
-
-			walker.Next(true);
-		}
-
-		//note:update skinned meshes
-		std::vector<math::float4x4> jointMatrices;
-		for (const auto& skinnedInstance : m_sceneGraph->GetSkinnedMeshInstances())
-		{
-			jointMatrices.resize(skinnedInstance->joints.size());
-
-			math::daffine3 worldToRoot = inverse(skinnedInstance->GetNode()->GetLocalToWorldTransform());
-
-			for (size_t i = 0; i < skinnedInstance->joints.size(); ++i)
-			{
-				auto jointNode = skinnedInstance->joints[i].node.lock();
-
-				math::float4x4 jointMatrix = math::affineToHomogeneous(math::affine3(jointNode->GetLocalToWorldTransform() * worldToRoot));
-				jointMatrix = skinnedInstance->joints[i].inverseBindMatrix * jointMatrix;
-				jointMatrices[i] = jointMatrix;
-				//jointMatrices[i] = math::float4x4::identity();
-			}
-
-			m_CommandList->writeBuffer(skinnedInstance->jointBuffer, jointMatrices.data(), jointMatrices.size() * sizeof(math::float4x4));
-		}
-		nvrhi::utils::ClearColorAttachment(m_CommandList, framebuffer, 0, Color(0.0f, 0.0f, 0.0f, 1.0f));
-		nvrhi::utils::ClearColorAttachment(m_CommandList, m_frameBuffer, 0, Color(0.2f, 0.3f, 0.7f, 1.0f));
-		m_CommandList->clearDepthStencilTexture(m_depthTarget, nvrhi::AllSubresources, true, 1.0f, true, 0);
-
-		math::float3 cameraPos = math::float3(0.0f, 0.0f, m_uiData->camPos);
-		math::float3 cameraDir = normalize(math::float3(0.0f, m_uiData->dir, 1.0f) - cameraPos);
-		math::float3 cameraUp = math::float3(0.0f, 1.0f, 0.0f);
-		math::float3 cameraRight = normalize(cross(cameraUp, cameraDir));
-		cameraUp = normalize(cross(cameraDir, cameraRight));
-
-		math::affine3 worldToView = math::affine3::from_cols(cameraRight, cameraUp, cameraDir, -cameraPos);
-
-		//ConstantBufferEntry modelConstants;
-		math::affine3 viewMatrix =
-			math::yawPitchRoll(0.f, math::radians(-30.f), 0.f)
-			* math::translation(math::float3(0, 0, 2));
-		math::float4x4 projMatrix = math::perspProjD3DStyle(math::radians(45.f),
-			float(fbinfo.width) /
-			float(fbinfo.height), 1.0f, 400.0f
-			);
-		math::float4x4 viewProjMatrix = math::affineToHomogeneous(worldToView) * projMatrix;
-		//modelConstants.viewProjMatrix = viewProjMatrix;
-
-		Pass pass;
-		pass.camPos = cameraPos;//todo:这里是否是错误的？
-		m_CommandList->writeBuffer(m_PassBuffers, &pass, sizeof(pass));
-
-		Light light;
-		light.lightPositions[0] = math::float4(-10.0f, 10.0f, -10.0f, 0.0f);
-		light.lightPositions[1] = math::float4(10.0f, 10.0f, -10.0f, 0.0f);
-		light.lightPositions[2] = math::float4(-10.0f, -10.0f, -10.0f, 0.0f);
-		light.lightPositions[3] = math::float4(10.0f, -10.0f, -10.0f, 0.0f);
-		for (size_t i = 0; i < 4; ++i)
-		{
-			//light.lightPositions[i] = math::float4(10.0f, 10.0f, 10.0f, 0.0f);
-			//light.lightPositions[i].x += std::sin(Application::getApplication()->getTimer()->GetDeltaTime() * 5.0);
-			light.lightColors[i] = math::float4(900.0f, 900.0f, 900.0f, 1.0f);
-		}
-		m_CommandList->writeBuffer(m_LightBuffers, &light, sizeof(light));
-		// Upload all constant buffer slices at once.
-		//m_CommandList->writeBuffer(m_ConstantBuffer, &modelConstants, sizeof(modelConstants));
-		
-		nvrhi::GraphicsState state;
-		// Pick the right binding set for this view.
-		//state.bindings = { bindingSet };
-		//state.indexBuffer = { m_buffers->indexBuffer, nvrhi::Format::R32_UINT, 0 };
-		// Bind the vertex buffers in reverse order to test the NVRHI implementation of binding slots
-		//state.vertexBuffers = {
-		//		{m_buffers->vertexBuffer, 1, sizeof(math::float2)},
-		//		{m_buffers->vertexBuffer, 0, 0}
-		//};
-		//state.pipeline = m_Pipeline;
-		state.framebuffer = m_frameBuffer;
-
-		// Construct the viewport so that all viewports form a grid.
-		const float width = float(fbinfo.width);
-		const float height = float(fbinfo.height);
-		const float left = 0;
-		const float top = 0;
-
-		const nvrhi::Viewport viewport = nvrhi::Viewport(left, left + width, top,
-			top + height, 0.f, 1.f);
-		state.viewport.addViewportAndScissorRect(viewport);
-
-		nvrhi::GraphicsState gridGraphicsState;
-
-		gridGraphicsState.framebuffer = m_frameBuffer;
-
-		gridGraphicsState.viewport.addViewportAndScissorRect(viewport);
-
-		RenderView(state, gridGraphicsState, viewProjMatrix);
-
-		//blit to swap chain framebuffer
-		//m_commonRenderPass->BlitTexture(m_CommandList, framebuffer, m_renderTarget, m_bindingCache.get());
-		
-		m_CommandList->close();
-		GetDevice()->executeCommandList(m_CommandList);
+		//if (!m_Pipeline) {
+		//	nvrhi::GraphicsPipelineDesc psoDesc;
+		//	psoDesc.VS = m_VertexShader;
+		//	psoDesc.PS = m_PixelShader;
+		//	psoDesc.inputLayout = m_InputLayout;
+		//	psoDesc.bindingLayouts = { m_BindingLayout };
+		//	psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+		//	psoDesc.renderState.depthStencilState.depthTestEnable = true;
+		//	//psoDesc.renderState.rasterState.frontCounterClockwise = false;
+		//	m_Pipeline = GetDevice()->createGraphicsPipeline(psoDesc, m_frameBuffer);
+		//}
+		//
+		//if (!m_SkinnedPipeline) {
+		//	nvrhi::GraphicsPipelineDesc psoDesc;
+		//	psoDesc.VS = m_SkinnedVertexShader;
+		//	psoDesc.PS = m_PixelShader;
+		//	psoDesc.inputLayout = m_InputLayout;
+		//	psoDesc.bindingLayouts = { m_SkinnedBindingLayout };
+		//	psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+		//	psoDesc.renderState.depthStencilState.depthTestEnable = true;
+		//	//psoDesc.renderState.rasterState.frontCounterClockwise = false;
+		//	m_SkinnedPipeline = GetDevice()->createGraphicsPipeline(psoDesc, m_frameBuffer);
+		//}
+		//
+		//if (!m_gridPipeline)
+		//{
+		//	nvrhi::GraphicsPipelineDesc psoDesc;
+		//	psoDesc.VS = m_gridVertexShader;
+		//	psoDesc.PS = m_gridPixelShader;
+		//	psoDesc.inputLayout = m_gridInputLayout;
+		//	psoDesc.bindingLayouts = { m_gridBindingLayout };
+		//	psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+		//	psoDesc.renderState.depthStencilState.depthTestEnable = true;
+		//	psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
+		//	m_gridPipeline = GetDevice()->createGraphicsPipeline(psoDesc, m_frameBuffer);
+		//}
+		//
+		//m_CommandList->open();
+		//
+		//SceneGraphWalker walker(m_sceneGraph->GetRootNode().get());
+		//while (walker)
+		//{
+		//	auto current = walker.Get();
+		//	auto parent = current->GetParent();
+		//
+		//	current->UpdateLocalTransform();
+		//
+		//	if (parent)
+		//	{
+		//		current->m_GlobalTransform = current->m_HasLocalTransform
+		//			? current->m_LocalTransform * parent->m_GlobalTransform
+		//			: parent->m_GlobalTransform;
+		//	}
+		//	else
+		//	{
+		//		current->m_GlobalTransform = current->m_LocalTransform;
+		//	}
+		//	current->m_GlobalTransformFloat = dm::affine3(current->m_GlobalTransform);
+		//
+		//	walker.Next(true);
+		//}
+		//
+		////note:update skinned meshes
+		//std::vector<math::float4x4> jointMatrices;
+		//for (const auto& skinnedInstance : m_sceneGraph->GetSkinnedMeshInstances())
+		//{
+		//	jointMatrices.resize(skinnedInstance->joints.size());
+		//
+		//	math::daffine3 worldToRoot = inverse(skinnedInstance->GetNode()->GetLocalToWorldTransform());
+		//
+		//	for (size_t i = 0; i < skinnedInstance->joints.size(); ++i)
+		//	{
+		//		auto jointNode = skinnedInstance->joints[i].node.lock();
+		//
+		//		math::float4x4 jointMatrix = math::affineToHomogeneous(math::affine3(jointNode->GetLocalToWorldTransform() * worldToRoot));
+		//		jointMatrix = skinnedInstance->joints[i].inverseBindMatrix * jointMatrix;
+		//		jointMatrices[i] = jointMatrix;
+		//		//jointMatrices[i] = math::float4x4::identity();
+		//	}
+		//
+		//	m_CommandList->writeBuffer(skinnedInstance->jointBuffer, jointMatrices.data(), jointMatrices.size() * sizeof(math::float4x4));
+		//}
+		////nvrhi::utils::ClearColorAttachment(m_CommandList, framebuffer, 0, Color(0.0f, 0.0f, 0.0f, 1.0f));
+		////nvrhi::utils::ClearColorAttachment(m_CommandList, m_frameBuffer, 0, Color(0.2f, 0.3f, 0.7f, 1.0f));
+		//m_CommandList->clearDepthStencilTexture(m_depthTarget, nvrhi::AllSubresources, true, 1.0f, true, 0);
+		//
+		//math::float3 cameraPos = math::float3(0.0f, 0.0f, m_uiData->camPos);
+		//math::float3 cameraDir = normalize(math::float3(0.0f, m_uiData->dir, 1.0f) - cameraPos);
+		//math::float3 cameraUp = math::float3(0.0f, 1.0f, 0.0f);
+		//math::float3 cameraRight = normalize(cross(cameraUp, cameraDir));
+		//cameraUp = normalize(cross(cameraDir, cameraRight));
+		//
+		//math::affine3 worldToView = math::affine3::from_cols(cameraRight, cameraUp, cameraDir, -cameraPos);
+		//
+		////ConstantBufferEntry modelConstants;
+		//math::affine3 viewMatrix =
+		//	math::yawPitchRoll(0.f, math::radians(-30.f), 0.f)
+		//	* math::translation(math::float3(0, 0, 2));
+		//math::float4x4 projMatrix = math::perspProjD3DStyle(math::radians(45.f),
+		//	float(fbinfo.width) /
+		//	float(fbinfo.height), 1.0f, 400.0f
+		//);
+		//math::float4x4 viewProjMatrix = math::affineToHomogeneous(worldToView) * projMatrix;
+		////modelConstants.viewProjMatrix = viewProjMatrix;
+		//
+		//Pass pass;
+		//pass.camPos = cameraPos;//todo:这里是否是错误的？
+		//m_CommandList->writeBuffer(m_PassBuffers, &pass, sizeof(pass));
+		//
+		//Light light;
+		//light.lightPositions[0] = math::float4(-10.0f, 10.0f, -10.0f, 0.0f);
+		//light.lightPositions[1] = math::float4(10.0f, 10.0f, -10.0f, 0.0f);
+		//light.lightPositions[2] = math::float4(-10.0f, -10.0f, -10.0f, 0.0f);
+		//light.lightPositions[3] = math::float4(10.0f, -10.0f, -10.0f, 0.0f);
+		//for (size_t i = 0; i < 4; ++i)
+		//{
+		//	//light.lightPositions[i] = math::float4(10.0f, 10.0f, 10.0f, 0.0f);
+		//	//light.lightPositions[i].x += std::sin(Application::getApplication()->getTimer()->GetDeltaTime() * 5.0);
+		//	light.lightColors[i] = math::float4(900.0f, 900.0f, 900.0f, 1.0f);
+		//}
+		//m_CommandList->writeBuffer(m_LightBuffers, &light, sizeof(light));
+		//// Upload all constant buffer slices at once.
+		////m_CommandList->writeBuffer(m_ConstantBuffer, &modelConstants, sizeof(modelConstants));
+		//
+		//nvrhi::GraphicsState state;
+		//// Pick the right binding set for this view.
+		////state.bindings = { bindingSet };
+		////state.indexBuffer = { m_buffers->indexBuffer, nvrhi::Format::R32_UINT, 0 };
+		//// Bind the vertex buffers in reverse order to test the NVRHI implementation of binding slots
+		////state.vertexBuffers = {
+		////		{m_buffers->vertexBuffer, 1, sizeof(math::float2)},
+		////		{m_buffers->vertexBuffer, 0, 0}
+		////};
+		////state.pipeline = m_Pipeline;
+		//state.framebuffer = m_frameBuffer;
+		//
+		//// Construct the viewport so that all viewports form a grid.
+		//const float width = float(fbinfo.width);
+		//const float height = float(fbinfo.height);
+		//const float left = 0;
+		//const float top = 0;
+		//
+		//const nvrhi::Viewport viewport = nvrhi::Viewport(left, left + width, top,
+		//	top + height, 0.f, 1.f);
+		//state.viewport.addViewportAndScissorRect(viewport);
+		//
+		//nvrhi::GraphicsState gridGraphicsState;
+		//
+		//gridGraphicsState.framebuffer = m_frameBuffer;
+		//
+		//gridGraphicsState.viewport.addViewportAndScissorRect(viewport);
+		//
+		//RenderView(state, gridGraphicsState, viewProjMatrix);
+		//
+		////blit to swap chain framebuffer
+		////m_commonRenderPass->BlitTexture(m_CommandList, framebuffer, m_renderTarget, m_bindingCache.get());
+		//
+		//m_CommandList->close();
+		//GetDevice()->executeCommandList(m_CommandList);
 	}
 	void Demo::LoadScene(const GuGuUtf8Str& filePath)
 	{

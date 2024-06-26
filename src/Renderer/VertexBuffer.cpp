@@ -152,6 +152,15 @@ namespace GuGu {
 			}
 		}
 
+		if (!m_renderTarget)
+		{
+			m_renderTarget = nullptr;
+
+			m_renderTargetSize = math::uint2(1280.0f, 720.0f);
+
+			initRenderTargetAndDepthTarget();
+		}
+
 		return true;
 	}
 
@@ -164,17 +173,9 @@ namespace GuGu {
 		m_Pipeline = nullptr;
 	}
 
-	void VertexBuffer::Render(nvrhi::IFramebuffer* framebuffer){
-		const nvrhi::FramebufferInfoEx& fbinfo = framebuffer->getFramebufferInfo();
-		math::uint2 size = math::uint2(fbinfo.width, fbinfo.height);
-		if (!m_renderTarget || math::any(m_renderTargetSize != size))
-		{
-			m_renderTarget = nullptr;
-
-			m_renderTargetSize = size;
-
-			initRenderTargetAndDepthTarget();
-		}
+	void VertexBuffer::Render(){
+		//const nvrhi::FramebufferInfoEx& fbinfo = framebuffer->getFramebufferInfo();
+		math::uint2 size = math::uint2(1280.0f, 720.0f);
 
 		if (!m_Pipeline) {
 			nvrhi::GraphicsPipelineDesc psoDesc;
@@ -200,8 +201,8 @@ namespace GuGu {
 				* math::yawPitchRoll(0.f, math::radians(-30.f), 0.f)
 				* math::translation(math::float3(0, 0, 2));
 			math::float4x4 projMatrix = math::perspProjD3DStyle(math::radians(60.f),
-				float(fbinfo.width) /
-				float(fbinfo.height), 0.1f,
+				float(size.x) /
+				float(size.y), 0.1f,
 				10.f);
 			math::float4x4 viewProjMatrix = math::affineToHomogeneous(viewMatrix) * projMatrix;
 			modelConstants[viewIndex].viewProjMatrix = viewProjMatrix;
@@ -224,8 +225,8 @@ namespace GuGu {
 			state.framebuffer = m_frameBuffer;
 
 			// Construct the viewport so that all viewports form a grid.
-			const float width = float(fbinfo.width) * 0.5f;
-			const float height = float(fbinfo.height) * 0.5f;
+			const float width = float(size.x) * 0.5f;
+			const float height = float(size.y) * 0.5f;
 			const float left = width * float(viewIndex % 2);
 			const float top = height * float(viewIndex / 2);
 
@@ -244,30 +245,30 @@ namespace GuGu {
 
 		//if (!m_Pipeline)
 		//{
-		//    nvrhi::GraphicsPipelineDesc psoDesc;
-		//    psoDesc.VS = m_VertexShader;
-		//    psoDesc.PS = m_PixelShader;
-		//    psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
-		//    psoDesc.renderState.depthStencilState.depthTestEnable = false;
+		//	nvrhi::GraphicsPipelineDesc psoDesc;
+		//	psoDesc.VS = m_VertexShader;
+		//	psoDesc.PS = m_PixelShader;
+		//	psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+		//	psoDesc.renderState.depthStencilState.depthTestEnable = false;
 		//
-		//    m_Pipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
+		//	m_Pipeline = GetDevice()->createGraphicsPipeline(psoDesc, m_frameBuffer);
 		//}
 		//
 		//m_CommandList->open();
 		//
-		//nvrhi::utils::ClearColorAttachment(m_CommandList, framebuffer, 0, nvrhi::Color(0.f));
+		//nvrhi::utils::ClearColorAttachment(m_CommandList, m_frameBuffer, 0, Color(0.f));
 		//
 		//nvrhi::GraphicsState state;
 		//state.pipeline = m_Pipeline;
-		//state.framebuffer = framebuffer;
-		//state.viewport.addViewportAndScissorRect(framebuffer->getFramebufferInfo().getViewport());
+		//state.framebuffer = m_frameBuffer;
+		//state.viewport.addViewportAndScissorRect(m_frameBuffer->getFramebufferInfo().getViewport());
 		//
 		//m_CommandList->setGraphicsState(state);
 		//
 		//nvrhi::DrawArguments args;
 		//args.vertexCount = 3;
 		//m_CommandList->draw(args);
-		//
+
 		m_CommandList->close();
 		GetDevice()->executeCommandList(m_CommandList);
 	}

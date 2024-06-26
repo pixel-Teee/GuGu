@@ -17,5 +17,8 @@ namespace GuGu{
 
         virtual void onDestroy() override;
   
+        virtual void createSurface(std::shared_ptr<WindowWidget> windowWidget) override;
+
+        virtual void createSwapChain(std::shared_ptr<WindowWidget> windowWidget) override;
     };
 }

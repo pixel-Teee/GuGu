@@ -5,6 +5,7 @@ namespace GuGu {
 	class VertexBuffer;
 	class UIRenderPass;
 	class Demo;
+	class WindowWidget;
 	class Renderer {
 	public:
 		Renderer();
@@ -26,6 +27,9 @@ namespace GuGu {
 		VertexBuffer* getVertexBufferPass() const;
 
 		DeviceManager* getDeviceManager() const;
+
+		virtual void createSurface(std::shared_ptr<WindowWidget> windowWidget);
+		virtual void createSwapChain(std::shared_ptr<WindowWidget> windowWidget);
 	protected:
 		DeviceManager* m_deviceManager;//todo:remove this	
 
