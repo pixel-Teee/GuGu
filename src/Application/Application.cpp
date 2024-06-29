@@ -678,13 +678,23 @@ namespace GuGu{
     std::shared_ptr<Widget> Application::locateWidgetInWindow(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
     {
         UIRenderPass* uiRenderPass = m_renderer->getUIRenderPass();
-        std::shared_ptr<WindowWidget> windowWidget = uiRenderPass->getWindowWidget();
-        std::vector<std::shared_ptr<Widget>> allWidgets = uiRenderPass->getAllWidgets();
+		std::vector<std::shared_ptr<WindowWidget>> windowWidgets = uiRenderPass->getWindowWidgets();
+		//find window widget
+		std::shared_ptr<WindowWidget> windowWidget;
+		for (size_t i = 0; i < windowWidgets.size(); ++i)
+		{
+			if (windowWidgets[i]->getNativeWindow() == window)
+			{
+				windowWidget = windowWidgets[i];
+				break;
+			}
+		}
+        std::vector<std::shared_ptr<Widget>> allWidgets = uiRenderPass->getAllWidgets(windowWidget);
         //assert(windowWidget->getNativeWindow() == window);//todo:fix this
-        if(windowWidget->getNativeWindow() != window)
-        {
-            windowWidget->assocateWithNativeWindow(window);//todo:这里需要修复，不应该在这里设置native window 的
-        }
+        //if(windowWidget->getNativeWindow() != window)
+        //{
+        //    windowWidget->assocateWithNativeWindow(window);//todo:这里需要修复，不应该在这里设置native window 的
+        //}
 
         std::stable_sort(allWidgets.begin(), allWidgets.end(), [&](const std::shared_ptr<Widget>& lhs, const std::shared_ptr<Widget>& rhs)
             {

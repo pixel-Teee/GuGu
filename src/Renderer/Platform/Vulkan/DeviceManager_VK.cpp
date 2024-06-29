@@ -22,6 +22,7 @@
 #include <Core/UI/WindowWidget.h> //窗口控件
 #include <Core/UI/Button.h>
 #include <Core/UI/NullWidget.h>
+#include <Core/UI/TextBlockWidget.h>
 #include <Renderer/Renderer.h>
 
 namespace GuGu{
@@ -292,6 +293,16 @@ namespace GuGu{
         it->second.m_presentSemaphores = presentSemaphores;
         it->second.m_renderFinishedSemaphores = renderFinishedSemaphores;
 
+		//auto it = m_windowViewports.find(windowWidget.get());
+		//assert(it != m_windowViewports.end());
+		//BackBufferResized();
+		uint32_t backBufferCount = it->second.m_swapChainImages.size();
+		it->second.m_SwapChainFramebuffers.resize(backBufferCount);
+		for (uint32_t index = 0; index < backBufferCount; index++)
+		{
+			it->second.m_SwapChainFramebuffers[index] = GetDevice()->createFramebuffer(
+				nvrhi::FramebufferDesc().addColorAttachment(it->second.m_swapChainImages[index].rhiHandle));
+		}
 		return true;
     }
 
@@ -359,16 +370,6 @@ namespace GuGu{
 
 			ResizeSwapChain(windowWidget);
 
-            auto it = m_windowViewports.find(windowWidget.get());
-            assert(it != m_windowViewports.end());
-			//BackBufferResized();
-            uint32_t backBufferCount = it->second.m_swapChainImages.size();
-            it->second.m_SwapChainFramebuffers.resize(backBufferCount);
-			for (uint32_t index = 0; index < backBufferCount; index++)
-			{
-                it->second.m_SwapChainFramebuffers[index] = GetDevice()->createFramebuffer(
-			            nvrhi::FramebufferDesc().addColorAttachment(it->second.m_swapChainImages[index].rhiHandle));
-			}
 			m_orientationChanged = false;
 		}
   
@@ -563,6 +564,21 @@ namespace GuGu{
 					(
 						NullWidget::getNullWidget()
 					)
+                    .ClickedLambda([]()->Reply {
+                        //创建新窗口
+                        std::shared_ptr<WindowWidget> textWindow = WIDGET_NEW(WindowWidget)
+                        .Content
+                        (
+                            WIDGET_NEW(TextBlockWidget)
+                            .text(u8"你好")
+                        );
+                        std::shared_ptr<Application> application = Application::getApplication();
+                        application->makeWindow(textWindow);
+                        application->showWindow(textWindow);
+                        //todo:create framebuffers
+
+                        return Reply::Handled();
+                    })
                 );
 
             //2.调用 Application 的函数，去创建 window widget 相应的 native window

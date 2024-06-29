@@ -60,7 +60,7 @@ namespace GuGu {
 
 		void addWindowWidget(std::shared_ptr<WindowWidget> inWindowWidget);
 
-		std::vector<std::shared_ptr<Widget>> getAllWidgets();
+		std::vector<std::shared_ptr<Widget>> getAllWidgets(std::shared_ptr<WindowWidget> inWindowWidget);
 
 		void setRenderTarget(nvrhi::TextureHandle renderTarget);
 
@@ -108,7 +108,7 @@ namespace GuGu {
 
 		std::shared_ptr<WindowWidget> m_uiRoot;
 		std::shared_ptr<ViewportWidget> m_viewport;
-		std::vector<std::shared_ptr<Widget>> m_allWidgets;
+		std::map<WindowWidget*, std::vector<std::shared_ptr<Widget>>> m_allWidgets;
 		std::vector<std::shared_ptr<Widget>> m_tempAllWidgetCopys;//for input test
 		std::shared_ptr<ElementList> m_elementList;
 		std::vector<nvrhi::BufferHandle> m_VertexBuffers;
@@ -117,7 +117,7 @@ namespace GuGu {
 
 		void calculateWidgetsFixedSize(std::shared_ptr<WindowWidget> widget);
 
-		void generateWidgetElement(WidgetGeometry& allocatedWidgetGeometry);
+		void generateWidgetElement(WidgetGeometry& allocatedWidgetGeometry, std::shared_ptr<WindowWidget> window);
 
 		std::shared_ptr<TextBlockWidget> m_textBlockWidget;
 

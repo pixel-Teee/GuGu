@@ -212,11 +212,11 @@ namespace GuGu {
 		//		)
 		//	);
 
-		createTestWindow();
+		//createTestWindow();
 		//createTest2Window();
-		std::shared_ptr<Window> window = application->getWindow(0);
+		//std::shared_ptr<Window> window = application->getWindow(0);
 		//m_uiRoot = std::make_shared<WindowWidget>();
-		m_uiRoot->assocateWithNativeWindow(window);//native window
+		//m_uiRoot->assocateWithNativeWindow(window);//native window
 		m_elementList = std::make_shared<ElementList>();
 		//std::shared_ptr<ImageWidget> imageWidget = std::make_shared<ImageWidget>();
 		//m_textBlockWidget = std::make_shared<TextBlockWidget>();
@@ -597,8 +597,8 @@ namespace GuGu {
 		//geometry.setAbsoluteScale(m_uiRoot->getNativeWindow()->getDpiFactor());
 		//todo:fix this
 		//geometry.setLocalSize(math::float2(windowWidthAndHeight.x / m_uiRoot->getNativeWindow()->getDpiFactor(), windowWidthAndHeight.y / m_uiRoot->getNativeWindow()->getDpiFactor()));
-		generateWidgetElement(geometry);
-		m_tempAllWidgetCopys = m_allWidgets;
+		generateWidgetElement(geometry, inWindowWidget);
+		//m_tempAllWidgetCopys = m_allWidgets;
 		m_elementList->generateBatches();
 
 		m_VertexBuffers.clear();
@@ -703,8 +703,8 @@ namespace GuGu {
 		//geometry.setAbsoluteScale(m_uiRoot->getNativeWindow()->getDpiFactor());
 		//todo:fix this
 		//geometry.setLocalSize(math::float2(windowWidthAndHeight.x / m_uiRoot->getNativeWindow()->getDpiFactor(), windowWidthAndHeight.y / m_uiRoot->getNativeWindow()->getDpiFactor()));
-		generateWidgetElement(geometry);
-		m_tempAllWidgetCopys = m_allWidgets;
+		generateWidgetElement(geometry, nullptr);
+		//m_tempAllWidgetCopys = m_allWidgets;
 		m_elementList->generateBatches();
 
 		m_VertexBuffers.clear();
@@ -807,9 +807,9 @@ namespace GuGu {
 		m_windows.push_back(inWindowWidget);
 	}
 
-	std::vector<std::shared_ptr<Widget>> UIRenderPass::getAllWidgets()
+	std::vector<std::shared_ptr<Widget>> UIRenderPass::getAllWidgets(std::shared_ptr<WindowWidget> inWindowWidget)
 	{
-		return m_allWidgets;
+		return m_allWidgets[inWindowWidget.get()];
 	}
 
 	void UIRenderPass::setRenderTarget(nvrhi::TextureHandle renderTarget)
@@ -927,13 +927,13 @@ namespace GuGu {
 		windowWidget->prepass(windowWidget->getNativeWindow()->getDpiFactor());
 	}
 	//自上而下递归，分配实际空间
-	void UIRenderPass::generateWidgetElement(WidgetGeometry& allocatedWidgetGeometry)
+	void UIRenderPass::generateWidgetElement(WidgetGeometry& allocatedWidgetGeometry, std::shared_ptr<WindowWidget> window)
 	{
-		m_allWidgets.clear();
-		PaintArgs paintArgs(m_allWidgets, m_uiRoot->getPositionInScreen(), Application::getApplication()->getTimer()->GetTotalTime(), Application::getApplication()->getTimer()->GetDeltaTime());
+		m_allWidgets[window.get()].clear();
+		PaintArgs paintArgs(m_allWidgets[window.get()], window->getPositionInScreen(), Application::getApplication()->getTimer()->GetTotalTime(), Application::getApplication()->getTimer()->GetDeltaTime());
 
 		math::box2 cullingRect(math::float2(0.0f, 0.0f), math::float2(allocatedWidgetGeometry.getLocalSize().x, allocatedWidgetGeometry.getLocalSize().y));
-		m_uiRoot->generateElement(paintArgs, cullingRect, *m_elementList, allocatedWidgetGeometry, 0);
+		window->generateElement(paintArgs, cullingRect, *m_elementList, allocatedWidgetGeometry, 0);
 	}
 	std::shared_ptr<WindowWidget> UIRenderPass::createTestWindow()
 	{
