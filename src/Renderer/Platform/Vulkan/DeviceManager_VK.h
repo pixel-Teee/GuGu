@@ -73,7 +73,7 @@ namespace GuGu{
             }
         }
 
-        void ResizeSwapChain(std::shared_ptr<WindowWidget> windowWidget)
+        virtual void ResizeSwapChain(std::shared_ptr<WindowWidget> windowWidget) override
         {
             if (m_VulkanDevice)
             {

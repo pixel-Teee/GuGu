@@ -16,6 +16,16 @@ namespace GuGu {
 	class WindowWidget;
 
 	using OnWindowClosed = std::function<void(const std::shared_ptr<WindowWidget>&)>;
+
+	//窗口如何缩放
+	enum class SizingRule
+	{
+		FixedSize, //固定大小
+
+		AutoSized, //由内容的大小决定
+
+		UserSize //由用户决定
+	};
 	
 	class WindowWidget : public Widget
 	{
@@ -34,6 +44,7 @@ namespace GuGu {
 			BuilderArguments()
 				: mClientSize(math::float2(1280.0f, 720.0f))
 				, mScreenPosition(math::float2(0.0f, 0.0f))
+				, msizingRule(SizingRule::UserSize)
 			{}
 			~BuilderArguments() = default;
 
@@ -46,6 +57,8 @@ namespace GuGu {
 
 			//屏幕坐标
 			ARGUMENT_VALUE(math::float2, ScreenPosition)
+
+			ARGUMENT_VALUE(SizingRule, sizingRule)
 		};
 
 		void init(const BuilderArguments& arguments);
@@ -70,7 +83,7 @@ namespace GuGu {
 
 		void setCachedScreenPosition(math::float2 newPosition);
 
-		void setCachedSize(math::float2 newSize);
+		void resize(math::float2 newSize);
 
 		math::float2 getPositionInScreen() const;
 
@@ -81,6 +94,8 @@ namespace GuGu {
 		math::box2 getClientRectInScreen() const;
 
 		void moveWindowTo(math::float2 newPosition);
+
+		bool isAutoSized() const;
 	private:
 		std::shared_ptr<Window> m_nativeWindow;
 		std::shared_ptr<SingleChildSlot> m_childWidget;
@@ -89,6 +104,8 @@ namespace GuGu {
 
 		math::float2 m_screenPosition;//窗口的屏幕坐标
 
-		//math::float2 m_size;//窗口在屏幕空间的内容区域的大小
+		math::float2 m_size;//窗口在屏幕空间的内容区域的大小，只有窗口使用这个，不使用fixed size
+
+		SizingRule m_sizingRule;
 	};
 }

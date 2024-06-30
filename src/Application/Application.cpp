@@ -381,6 +381,11 @@ namespace GuGu{
 		return m_windowWidgets;
 	}
 
+	void Application::OnResizeChanged(std::shared_ptr<Window> inWindow)
+	{
+		m_renderer->requestResize(inWindow);
+	}
+
     bool Application::processMouseButtonDownEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
     {
 		if (!m_captorWidgetsPath.isEmpty())

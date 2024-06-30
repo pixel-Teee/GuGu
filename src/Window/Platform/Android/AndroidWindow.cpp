@@ -18,7 +18,7 @@ namespace GuGu{
         return std::make_shared<AndroidWindow>();
     }
 
-    void AndroidWindow::ToGeneratePlatformWindow() {
+    void AndroidWindow::ToGeneratePlatformWindow(std::shared_ptr<WindowWidget> inWindowWidget) {
         //android nothing to do
     }
 

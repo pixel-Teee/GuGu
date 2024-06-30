@@ -34,7 +34,9 @@ namespace GuGu {
 
 		m_screenPosition = arguments.mScreenPosition;
 		//set size
-		setCachedSize(arguments.mClientSize);
+		resize(arguments.mClientSize);
+
+		m_sizingRule = arguments.msizingRule;
 	}
 	uint32_t WindowWidget::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
@@ -188,17 +190,7 @@ namespace GuGu {
 	}
 	math::int2 WindowWidget::getViewportSize()
 	{
-		//todo:check this window type is native window
-		if (m_windowType == WindowType::NativeWindow)
-		{
-			std::shared_ptr<Window> window = m_nativeWindow;
-			if (window)
-			{
-				//math::int2 widthAndHeight = 
-				return math::int2(0, 0);
-			}
-		}
-		return math::int2(0, 0);
+		return math::int2(m_size.x, m_size.y);
 	}
 	void WindowWidget::setChildWidget(std::shared_ptr<Widget> widget)
 	{
@@ -211,9 +203,9 @@ namespace GuGu {
 	void WindowWidget::assocateWithNativeWindow(std::shared_ptr<Window> nativeWindow)
 	{
 		m_nativeWindow = nativeWindow;
-		if (m_fixedSize.x != 0.0 && m_fixedSize.y != 0.0f)
+		if (m_size.x != 0.0 && m_size.y != 0.0f)
 		{
-			m_nativeWindow->reshapeWindow(m_screenPosition, m_fixedSize);
+			m_nativeWindow->reshapeWindow(m_screenPosition, m_size);
 		}
 		m_windowType = WindowType::NativeWindow;
 		setCachedScreenPosition(nativeWindow->getWindowScreenSpacePosition());
@@ -227,12 +219,12 @@ namespace GuGu {
 	{
 		m_screenPosition = newPosition;
 	}
-	void WindowWidget::setCachedSize(math::float2 newSize)
+	void WindowWidget::resize(math::float2 newSize)
 	{
-		if ((m_fixedSize.x != newSize.x) || (m_fixedSize.y != newSize.y))
+		if ((m_size.x != newSize.x) || (m_size.y != newSize.y))
 		{
 			//todo:调整 native window 窗口大小
-			m_fixedSize = newSize;
+			m_size = newSize;
 
 			if (m_nativeWindow)
 			{
@@ -275,5 +267,9 @@ namespace GuGu {
 
 			m_nativeWindow->moveWindowTo(math::float2(speculativeScreenPosition.x, speculativeScreenPosition.y));
 		}
+	}
+	bool WindowWidget::isAutoSized() const
+	{
+		return m_sizingRule == SizingRule::AutoSized;//由内容决定大小
 	}
 }

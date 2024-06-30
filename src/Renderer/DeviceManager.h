@@ -81,6 +81,8 @@ namespace GuGu{
         std::shared_ptr<WindowWidget> getWindowWidget() const;
 
         virtual nvrhi::FramebufferHandle getCurrentBackBuffer(std::shared_ptr<WindowWidget> windowWidget) const;
+
+        virtual void ResizeSwapChain(std::shared_ptr<WindowWidget> windowWidget);
     private:
         static DeviceManager* CreateVK();
 

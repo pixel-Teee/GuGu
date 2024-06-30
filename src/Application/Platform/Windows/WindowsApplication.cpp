@@ -95,7 +95,7 @@ namespace GuGu {
 		std::shared_ptr<WindowsWindow> window = std::make_shared<WindowsWindow>();
 		//todo:这里 cmdShow 需要修复
 		window->setNativeApplicationHandleAndCmdShowToCreateWindow(m_applicationInstance, true);
-		window->ToGeneratePlatformWindow();
+		window->ToGeneratePlatformWindow(windowWidget);
 		m_windows.push_back(window);
 		windowWidget->assocateWithNativeWindow(window);//关联
 		m_windowWidgets.push_back(windowWidget);
@@ -325,6 +325,22 @@ namespace GuGu {
 
 				//from utf32 to utf8
 				globalApplication->onKeyChar(Character);
+				break;
+			}
+			case WM_SIZE:
+			{
+				//on size changed
+				std::shared_ptr<Window> window;
+				//find native window
+				std::vector<std::shared_ptr<WindowsWindow>> windows = globalApplication->getPlatformWindows();
+				for (int32_t i = 0; i < windows.size(); ++i)
+				{
+					if (windows[i]->getNativeWindowHandle() == hwnd)
+					{
+						window = windows[i];
+					}
+				}
+				globalApplication->OnResizeChanged(window);
 				break;
 			}
 			case WM_DESTROY:

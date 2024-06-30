@@ -2,6 +2,8 @@
 
 #include "WindowsWindow.h"
 
+#include <Core/UI/WindowWidget.h>
+
 namespace GuGu {
 	std::shared_ptr<Window> CreateWindowFactory()
 	{
@@ -17,15 +19,17 @@ namespace GuGu {
 	{
 	}
 
-	void WindowsWindow::ToGeneratePlatformWindow()
+	void WindowsWindow::ToGeneratePlatformWindow(std::shared_ptr<WindowWidget> inWindowWidget)
 	{
 		const wchar_t windowClassName[] = L"GuGuWindowClass";
 
 		int32_t screentWidth = GetSystemMetrics(SM_CXSCREEN);
 		int32_t screentHeight = GetSystemMetrics(SM_CYSCREEN);
 
-		int32_t x = (screentWidth - 1280) / 2;
-		int32_t y = (screentHeight - 720) / 2;
+		math::int2 windowWidthAndHeight = inWindowWidget->getViewportSize();
+
+		int32_t x = (screentWidth - windowWidthAndHeight.x) / 2;
+		int32_t y = (screentHeight - windowWidthAndHeight.y) / 2;
 
 		m_windowHandle = CreateWindowEx(
 			0,//optional window style
@@ -33,7 +37,7 @@ namespace GuGu {
 			L"GuGuWindow",//window title
 			WS_POPUP,
 
-			x, y, 1280, 720,//position and size
+			x, y, windowWidthAndHeight.x, windowWidthAndHeight.y,//position and size
 			nullptr,//parent window
 			nullptr,//menu
 			m_ownerApplicationHandle,//owner application handle
@@ -51,8 +55,8 @@ namespace GuGu {
 		borderHeight = (rcWindow.bottom - rcWindow.top)
 			- (rcClient.bottom - rcClient.top);
 
-		SetWindowPos(m_windowHandle, 0, 0, 0, borderWidth + 1280,
-			borderHeight + 720, SWP_NOMOVE | SWP_NOZORDER);
+		SetWindowPos(m_windowHandle, 0, 0, 0, borderWidth + windowWidthAndHeight.x,
+			borderHeight + windowWidthAndHeight.y, SWP_NOMOVE | SWP_NOZORDER);
 
 		//GuGu_LOGE(u8"create window error!");
 
@@ -101,8 +105,8 @@ namespace GuGu {
 
 	void WindowsWindow::reshapeWindow(math::float2 newPosition, math::float2 newSize)
 	{
-		//µ˜’˚windows windowµƒ¥∞ø⁄¥Û–°
-		::SetWindowPos(m_windowHandle, nullptr, newPosition.x, newPosition.y, newSize.x, newSize.y, SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOZORDER);
+		//Ë∞ÉÊï¥windows windowÁöÑÁ™óÂè£Â§ßÂ∞è
+		::SetWindowPos(m_windowHandle, nullptr, newPosition.x, newPosition.y, newSize.x, newSize.y, SWP_NOACTIVATE | SWP_NOZORDER);
 	}
 
 }

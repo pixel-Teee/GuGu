@@ -194,9 +194,10 @@ namespace GuGu{
         //note:android have bug
         std::shared_ptr<Application> application = Application::getApplication();
         std::vector<std::shared_ptr<WindowWidget>> windowWidgets = application->getWidowWidgets();
-
+#ifdef ANDROID
         for(size_t i = 0; i < windowWidgets.size(); ++i)
             UpdateWindowSize(windowWidgets[i]);//主动获取大小来更新窗口的 swap chain 和 surface
+#endif
 
         AnimateRenderPresent();
     }
@@ -224,12 +225,12 @@ namespace GuGu{
          //draw window widget
          for (uint32_t i = 0; i < windowWidgets.size(); ++i)
          {
-             BeginFrame(windowWidgets[i]);
-
              //todo:call UIRenderPass render window widgets
              UIRenderPass* uiRenderPass = application->getRenderer()->getUIRenderPass();
 
              uiRenderPass->Update(application->getTimer()->GetDeltaTime(), windowWidgets[i]);
+
+             BeginFrame(windowWidgets[i]);
 
              uiRenderPass->Render(windowWidgets[i]);
 
@@ -301,6 +302,10 @@ namespace GuGu{
     nvrhi::FramebufferHandle DeviceManager::getCurrentBackBuffer(std::shared_ptr<WindowWidget> windowWidget) const
     {
         return nullptr;
+    }
+
+    void DeviceManager::ResizeSwapChain(std::shared_ptr<WindowWidget> windowWidget)
+    {
     }
 
     void DeviceManager::Animate(double elapsedTime) {

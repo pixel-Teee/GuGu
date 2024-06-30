@@ -351,10 +351,10 @@ namespace GuGu{
 
 #if WIN32
         //对于windows来说，有很多窗口
-        math::float2 windowSize = windowWidget->getFixedSize();
+        math::int2 windowSize = windowWidget->getViewportSize();
         if ((windowSize.x != width) || (windowSize.y != height))
         {
-            windowWidget->setCachedSize(math::float2(width, height));
+            windowWidget->resize(math::float2(width, height));
             ResizeSwapChain(windowWidget);
         }
 #else
@@ -579,7 +579,8 @@ namespace GuGu{
                             WIDGET_NEW(TextBlockWidget)
                             .text(u8"你好")
                         )
-                        .ClientSize(math::float2(480.0f, 240.0f));
+                        .ClientSize(math::float2(480.0f, 240.0f))
+                        .sizingRule(SizingRule::AutoSized);
                         std::shared_ptr<Application> application = Application::getApplication();
                         application->makeWindow(textWindow);
                         application->showWindow(textWindow);
@@ -1138,92 +1139,92 @@ namespace GuGu{
             }
 
             //随便找一个窗口
-            auto it = m_windowViewports.begin();
-            assert(it != m_windowViewports.end());
-            if(it->second.m_windowSurface)
-            {
-                //check that this device supports our intended swap chain creation parameters
-                VkSurfaceCapabilitiesKHR surfaceCaps;
-                vkGetPhysicalDeviceSurfaceCapabilitiesKHR(dev, it->second.m_windowSurface, &surfaceCaps);
+			auto it = m_windowViewports.begin();
+			assert(it != m_windowViewports.end());
+			if (it->second.m_windowSurface)
+			{
+				//check that this device supports our intended swap chain creation parameters
+				VkSurfaceCapabilitiesKHR surfaceCaps;
+				vkGetPhysicalDeviceSurfaceCapabilitiesKHR(dev, it->second.m_windowSurface, &surfaceCaps);
 
-                uint32_t surfaceFmtCount;
-                vkGetPhysicalDeviceSurfaceFormatsKHR(dev, it->second.m_windowSurface, &surfaceFmtCount, nullptr);
-                std::vector<VkSurfaceFormatKHR> surfaceFmts(surfaceFmtCount);
-                vkGetPhysicalDeviceSurfaceFormatsKHR(dev, it->second.m_windowSurface, &surfaceFmtCount, surfaceFmts.data());
+				uint32_t surfaceFmtCount;
+				vkGetPhysicalDeviceSurfaceFormatsKHR(dev, it->second.m_windowSurface, &surfaceFmtCount, nullptr);
+				std::vector<VkSurfaceFormatKHR> surfaceFmts(surfaceFmtCount);
+				vkGetPhysicalDeviceSurfaceFormatsKHR(dev, it->second.m_windowSurface, &surfaceFmtCount, surfaceFmts.data());
 
-                uint32_t presentModeCount;
-                //VkPresentModeKHR surfacePModes;
-                vkGetPhysicalDeviceSurfacePresentModesKHR(dev, it->second.m_windowSurface, &presentModeCount, nullptr);
-                std::vector<VkPresentModeKHR> surfacePModes(presentModeCount);
-                vkGetPhysicalDeviceSurfacePresentModesKHR(dev, it->second.m_windowSurface, &presentModeCount, surfacePModes.data());
+				uint32_t presentModeCount;
+				//VkPresentModeKHR surfacePModes;
+				vkGetPhysicalDeviceSurfacePresentModesKHR(dev, it->second.m_windowSurface, &presentModeCount, nullptr);
+				std::vector<VkPresentModeKHR> surfacePModes(presentModeCount);
+				vkGetPhysicalDeviceSurfacePresentModesKHR(dev, it->second.m_windowSurface, &presentModeCount, surfacePModes.data());
 
-                if(surfaceCaps.minImageCount > m_deviceParams.swapChainBufferCount
-                || (surfaceCaps.maxImageCount < m_deviceParams.swapChainBufferCount && surfaceCaps.maxImageCount > 0))
-                {
-                    errorStr.append(u8"  - cannot support the requested swap chain image count:");
-                    errorStr.append(u8" requested ");
-                    std::string count = std::to_string(m_deviceParams.swapChainBufferCount);
-                    //GuGuUtf8Str swapChainBufferCount(count.c_str());
-                    errorStr.append(count);
-                    errorStr.append(u8", available ");
-                    std::string minImageCount = std::to_string(surfaceCaps.minImageCount);
-                    //GuGuUtf8Str minImageCount(minImageCount);
-                    errorStr.append(minImageCount);
-                    errorStr.append(u8" - ");
-                    std::string maxImageCount = std::to_string(surfaceCaps.maxImageCount);
-                    errorStr.append(maxImageCount);
-                    deviceIsGood = false;
-                }
+				if (surfaceCaps.minImageCount > m_deviceParams.swapChainBufferCount
+					|| (surfaceCaps.maxImageCount < m_deviceParams.swapChainBufferCount && surfaceCaps.maxImageCount > 0))
+				{
+					errorStr.append(u8"  - cannot support the requested swap chain image count:");
+					errorStr.append(u8" requested ");
+					std::string count = std::to_string(m_deviceParams.swapChainBufferCount);
+					//GuGuUtf8Str swapChainBufferCount(count.c_str());
+					errorStr.append(count);
+					errorStr.append(u8", available ");
+					std::string minImageCount = std::to_string(surfaceCaps.minImageCount);
+					//GuGuUtf8Str minImageCount(minImageCount);
+					errorStr.append(minImageCount);
+					errorStr.append(u8" - ");
+					std::string maxImageCount = std::to_string(surfaceCaps.maxImageCount);
+					errorStr.append(maxImageCount);
+					deviceIsGood = false;
+				}
 
-                if(surfaceCaps.minImageExtent.width > requestedExtent.width ||
-                        surfaceCaps.minImageExtent.height > requestedExtent.height ||
-                        surfaceCaps.maxImageExtent.width < requestedExtent.width ||
-                        surfaceCaps.maxImageExtent.height < requestedExtent.height)
-                {
-                    errorStr.append(u8"\n");
-                    errorStr.append(u8" - cannot supported the requested swap chain size:");
-                    errorStr.append(u8" requested ");
-                    std::string width = std::to_string(requestedExtent.width);
-                    std::string height = std::to_string(requestedExtent.height);
-                    std::string minImageExtentWidth = std::to_string(surfaceCaps.minImageExtent.width);
-                    std::string minImageExtentHeight = std::to_string(surfaceCaps.minImageExtent.height);
-                    std::string maxImageExtentWidth = std::to_string(surfaceCaps.maxImageExtent.width);
-                    std::string maxImageExtentHeight = std::to_string(surfaceCaps.maxImageExtent.height);
-                    std::string totalStr = width + u8"x" + height + u8", available " + minImageExtentWidth + u8"x" + minImageExtentHeight + u8" - " + maxImageExtentWidth + u8"x" + maxImageExtentHeight;
-                    errorStr.append(totalStr);
-                    deviceIsGood = false;
-                }
-                bool surfaceFormatPresent = false;
-                for(const VkSurfaceFormatKHR& surfaceFmt : surfaceFmts)
-                {
-                    if(surfaceFmt.format == VkFormat(requestedFormat))
-                    {
-                        surfaceFormatPresent = true;
-                        break;
-                    }
-                }
+				if (surfaceCaps.minImageExtent.width > requestedExtent.width ||
+					surfaceCaps.minImageExtent.height > requestedExtent.height ||
+					surfaceCaps.maxImageExtent.width < requestedExtent.width ||
+					surfaceCaps.maxImageExtent.height < requestedExtent.height)
+				{
+					errorStr.append(u8"\n");
+					errorStr.append(u8" - cannot supported the requested swap chain size:");
+					errorStr.append(u8" requested ");
+					std::string width = std::to_string(requestedExtent.width);
+					std::string height = std::to_string(requestedExtent.height);
+					std::string minImageExtentWidth = std::to_string(surfaceCaps.minImageExtent.width);
+					std::string minImageExtentHeight = std::to_string(surfaceCaps.minImageExtent.height);
+					std::string maxImageExtentWidth = std::to_string(surfaceCaps.maxImageExtent.width);
+					std::string maxImageExtentHeight = std::to_string(surfaceCaps.maxImageExtent.height);
+					std::string totalStr = width + u8"x" + height + u8", available " + minImageExtentWidth + u8"x" + minImageExtentHeight + u8" - " + maxImageExtentWidth + u8"x" + maxImageExtentHeight;
+					errorStr.append(totalStr);
+					deviceIsGood = false;
+				}
+				bool surfaceFormatPresent = false;
+				for (const VkSurfaceFormatKHR& surfaceFmt : surfaceFmts)
+				{
+					if (surfaceFmt.format == VkFormat(requestedFormat))
+					{
+						surfaceFormatPresent = true;
+						break;
+					}
+				}
 
-                if(!surfaceFormatPresent)
-                {
-                    //can't create a swap chain using the format requested
-                    errorStr.append(u8"\n");
-                    errorStr.append(u8" - does not support the requested swap chain format");
-                    deviceIsGood = false;
-                }
+				if (!surfaceFormatPresent)
+				{
+					//can't create a swap chain using the format requested
+					errorStr.append(u8"\n");
+					errorStr.append(u8" - does not support the requested swap chain format");
+					deviceIsGood = false;
+				}
 
-                //check that we can present from the graphics queue
-                uint32_t canPresent;
-                vkGetPhysicalDeviceSurfaceSupportKHR(dev, m_GraphicsQueueFamily, it->second.m_windowSurface, &canPresent);
-                if(!canPresent)
-                {
-                    errorStr.append(u8"\n");
-                    errorStr.append(u8" - cannot present");
-                    deviceIsGood = false;
-                }
-            }
+				//check that we can present from the graphics queue
+				uint32_t canPresent;
+				vkGetPhysicalDeviceSurfaceSupportKHR(dev, m_GraphicsQueueFamily, it->second.m_windowSurface, &canPresent);
+				if (!canPresent)
+				{
+					errorStr.append(u8"\n");
+					errorStr.append(u8" - cannot present");
+					deviceIsGood = false;
+				}
+			}
 
-            if(!deviceIsGood)
-                continue;
+			if (!deviceIsGood)
+				continue;
 
             if(prop.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
             {

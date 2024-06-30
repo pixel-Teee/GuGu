@@ -6,6 +6,7 @@ namespace GuGu {
 	class UIRenderPass;
 	class Demo;
 	class WindowWidget;
+	class Window;
 	class Renderer {
 	public:
 		Renderer();
@@ -19,6 +20,8 @@ namespace GuGu {
 		virtual void onDestroy();
 
         virtual void onResize(int32_t width, int32_t height);
+
+		virtual void requestResize(std::shared_ptr<Window> inWindow);
 
 		UIRenderPass* getUIRenderPass() const;
 

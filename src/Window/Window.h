@@ -3,10 +3,11 @@
 #include <Core/Math/MyMath.h>
 
 namespace GuGu {
+	class WindowWidget;
 	class Window
 	{
 	public:
-		virtual void ToGeneratePlatformWindow() = 0;
+		virtual void ToGeneratePlatformWindow(std::shared_ptr<WindowWidget> inWindowWidget) = 0;
 
 		virtual float getDpiFactor() = 0;
 

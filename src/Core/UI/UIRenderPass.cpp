@@ -587,7 +587,7 @@ namespace GuGu {
 
 		m_elementList->clear();
 
-		math::int2 windowWidthAndHeight = math::int2(inWindowWidget->getFixedSize().x, inWindowWidget->getFixedSize().y);
+		math::int2 windowWidthAndHeight = math::int2(inWindowWidget->getViewportSize().x, inWindowWidget->getViewportSize().y);
 
 		//设置窗口大小
 		//inWindowWidget->setCachedSize(math::float2(windowWidthAndHeight.x, windowWidthAndHeight.y));
@@ -696,7 +696,7 @@ namespace GuGu {
 		math::int2 windowWidthAndHeight = math::int2(GetDeviceManager()->getDeviceCreationParameters().backBufferWidth, GetDeviceManager()->getDeviceCreationParameters().backBufferHeight);
 		
 		//设置窗口大小
-		m_uiRoot->setCachedSize(math::float2(windowWidthAndHeight.x, windowWidthAndHeight.y));
+		m_uiRoot->resize(math::float2(windowWidthAndHeight.x, windowWidthAndHeight.y));
 
 		WidgetGeometry geometry = WidgetGeometry::makeRoot(math::float2(windowWidthAndHeight.x / m_uiRoot->getNativeWindow()->getDpiFactor(), windowWidthAndHeight.y / m_uiRoot->getNativeWindow()->getDpiFactor()),
 			math::affine2(math::float2x2::diagonal(m_uiRoot->getNativeWindow()->getDpiFactor()), 0.0f));
@@ -915,6 +915,11 @@ namespace GuGu {
 	void UIRenderPass::calculateWidgetsFixedSize(std::shared_ptr<WindowWidget> windowWidget)
 	{
 		windowWidget->prepass(windowWidget->getNativeWindow()->getDpiFactor());
+
+		if (windowWidget->isAutoSized())
+		{
+			windowWidget->resize(windowWidget->getFixedSize());//由内容大小决定窗口大小
+		}
 	}
 	//自上而下递归，分配实际空间
 	void UIRenderPass::generateWidgetElement(WidgetGeometry& allocatedWidgetGeometry, std::shared_ptr<WindowWidget> window)

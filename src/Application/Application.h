@@ -102,6 +102,8 @@ namespace GuGu {
 		virtual void showWindow(std::shared_ptr<WindowWidget> windowWidget);
 
 		std::vector<std::shared_ptr<WindowWidget>>& getWidowWidgets();
+
+		void OnResizeChanged(std::shared_ptr<Window> inWindow);
 	protected:
 		std::shared_ptr<Renderer> m_renderer;
 

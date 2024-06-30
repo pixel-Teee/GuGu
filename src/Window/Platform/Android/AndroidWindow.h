@@ -6,7 +6,7 @@ struct ANativeWindow;
 namespace GuGu{
     class AndroidWindow : public Window{
     public:
-        virtual void ToGeneratePlatformWindow() override;
+        virtual void ToGeneratePlatformWindow(std::shared_ptr<WindowWidget> inWindowWidget) override;
 
         virtual float getDpiFactor() override;
 
