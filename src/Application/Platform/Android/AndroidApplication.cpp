@@ -6,6 +6,8 @@
 #include <Window/Platform/Android/AndroidWindow.h>
 #include <Renderer/Platform/Vulkan/VulkanRenderer.h>
 
+#include <Core/UI/WindowWidget.h>
+
 namespace GuGu{
     std::shared_ptr<AndroidApplication> globalApplication;
     AndroidApplication::AndroidApplication()
@@ -77,6 +79,18 @@ namespace GuGu{
     void AndroidApplication::setAndroidNativeWindow(android_app *pApp) {
         m_window = std::make_shared<AndroidWindow>();//note:just one window
         m_window->setNativeWindow(pApp->window);
+        if(!m_windowWidgets.empty())
+        {
+            m_windowWidgets[0]->assocateWithNativeWindow(m_window);
+        }
+    }
+
+    void AndroidApplication::makeWindow(std::shared_ptr<WindowWidget> inWindowWidget) {
+        if(m_windowWidgets.empty())//android只能创建一个窗口
+        {
+            inWindowWidget->assocateWithNativeWindow(m_window);
+            m_windowWidgets.push_back(inWindowWidget);
+        }
     }
 
     GuGuUtf8Str Application::GetDirectoryWithExecutable() {

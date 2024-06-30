@@ -52,6 +52,10 @@ namespace GuGu{
         deviceParams.enableDebugRuntime = true;
         deviceParams.enableNvrhiValidationLayer = false;
 #endif
+#ifdef ANDROID //android无法开启debug runtime
+        deviceParams.enableDebugRuntime = true;
+        deviceParams.enableNvrhiValidationLayer = true;
+#endif
         GuGuUtf8Str windowTitle = "VulkanApp";
         if(!m_deviceManager->CreateWindowDeviceAndSwapChain(deviceParams, windowTitle))
         {

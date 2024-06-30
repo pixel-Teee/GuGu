@@ -689,6 +689,13 @@ namespace GuGu{
 				break;
 			}
 		}
+
+//        if(windowWidget == nullptr)
+//        {
+//            //android情况，由于进入前后台窗口重新创建了
+//            windowWidgets[0]->assocateWithNativeWindow(window);
+//            windowWidget = windowWidgets[0];
+//        }
         std::vector<std::shared_ptr<Widget>> allWidgets = uiRenderPass->getAllWidgets(windowWidget);
         //assert(windowWidget->getNativeWindow() == window);//todo:fix this
         //if(windowWidget->getNativeWindow() != window)

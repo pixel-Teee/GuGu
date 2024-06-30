@@ -944,22 +944,22 @@ namespace GuGu{
 
     bool DeviceManager_VK::createWindowSurface() {
 #if ANDROID
-        std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
-        std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
-
-        const VkAndroidSurfaceCreateInfoKHR create_info{
-                .sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR,
-                .pNext = nullptr,
-                .flags = 0,
-                .window = androidWindow->getNativeHandle()};
-
-        if(m_windowSurface != VK_NULL_HANDLE) {
-            vkDestroySurfaceKHR(m_VulkanInstance, m_windowSurface, nullptr);
-            m_windowSurface = VK_NULL_HANDLE;
-        }
-
-        VK_CHECK(vkCreateAndroidSurfaceKHR(m_VulkanInstance, &create_info,
-                                           nullptr /* pAllocator */, &m_windowSurface));
+        //std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
+        //std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
+//
+        //const VkAndroidSurfaceCreateInfoKHR create_info{
+        //        .sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR,
+        //        .pNext = nullptr,
+        //        .flags = 0,
+        //        .window = androidWindow->getNativeHandle()};
+//
+        //if(m_windowSurface != VK_NULL_HANDLE) {
+        //    vkDestroySurfaceKHR(m_VulkanInstance, m_windowSurface, nullptr);
+        //    m_windowSurface = VK_NULL_HANDLE;
+        //}
+//
+        //VK_CHECK(vkCreateAndroidSurfaceKHR(m_VulkanInstance, &create_info,
+        //                                   nullptr /* pAllocator */, &m_windowSurface));
 #else 
         //#if WIN32
         //std::shared_ptr<WindowsApplication> windowsApplication = WindowsApplication::getApplication();
@@ -981,8 +981,10 @@ namespace GuGu{
     bool DeviceManager_VK::createWindowSurface(std::shared_ptr<WindowWidget> windowWidget)
     {
 #if ANDROID
-		std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
-		std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
+		//std::shared_ptr<AndroidApplication> androidApplication = AndroidApplication::getApplication();
+		//std::shared_ptr<AndroidWindow> androidWindow = androidApplication->getPlatformWindow();
+
+        std::shared_ptr<AndroidWindow> androidWindow = std::static_pointer_cast<AndroidWindow>(windowWidget->getNativeWindow());
 
 		const VkAndroidSurfaceCreateInfoKHR create_info{
 				.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR,
@@ -990,13 +992,19 @@ namespace GuGu{
 				.flags = 0,
 				.window = androidWindow->getNativeHandle() };
 
-		if (m_windowSurface != VK_NULL_HANDLE) {
-			vkDestroySurfaceKHR(m_VulkanInstance, m_windowSurface, nullptr);
-			m_windowSurface = VK_NULL_HANDLE;
-		}
-
-		VK_CHECK(vkCreateAndroidSurfaceKHR(m_VulkanInstance, &create_info,
-			nullptr /* pAllocator */, &m_windowSurface));
+        auto it = m_windowViewports.find(windowWidget.get());
+        if (it != m_windowViewports.end())
+        {
+            vkDestroySurfaceKHR(m_VulkanInstance, it->second.m_windowSurface, nullptr);
+            it->second.m_windowSurface = VK_NULL_HANDLE;
+            m_windowViewports.erase(it);
+        }
+        VkSurfaceKHR windowSurface;
+        VK_CHECK(vkCreateAndroidSurfaceKHR(m_VulkanInstance, &create_info,
+                                           nullptr /* pAllocator */, &windowSurface));
+        WindowWidgetViewportInfo newWindowWidgetViewportInfo;
+        newWindowWidgetViewportInfo.m_windowSurface = windowSurface;
+        m_windowViewports.insert({ windowWidget.get(), newWindowWidgetViewportInfo });//create new window surface
 #else 
 #if WIN32
 		VkWin32SurfaceCreateInfoKHR create_info = {};
@@ -1009,6 +1017,8 @@ namespace GuGu{
         auto it = m_windowViewports.find(windowWidget.get());
         if (it != m_windowViewports.end())
         {
+            kDestroySurfaceKHR(m_VulkanInstance, it->second.m_windowSurface, nullptr);
+            it->second.m_windowSurface = VK_NULL_HANDLE;
             m_windowViewports.erase(it);
         }
         VkSurfaceKHR windowSurface;

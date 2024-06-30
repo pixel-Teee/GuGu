@@ -38,6 +38,8 @@ namespace GuGu{
         AAssetManager* getAssetManager() const;
 
         void setAndroidNativeWindow(android_app* pApp);
+
+        virtual void makeWindow(std::shared_ptr<WindowWidget> inWindowWidget) override;
     private:
         android_app* m_android_app;
 
