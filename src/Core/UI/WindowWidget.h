@@ -31,13 +31,21 @@ namespace GuGu {
 
 		struct BuilderArguments : public Arguments<WindowWidget>
 		{
-			BuilderArguments() = default;
-
+			BuilderArguments()
+				: mClientSize(math::float2(1280.0f, 720.0f))
+				, mScreenPosition(math::float2(0.0f, 0.0f))
+			{}
 			~BuilderArguments() = default;
 
 			ARGUMENT_VALUE(WindowType, Type)
 
 			ARGUMENT_NAMED_SLOT(SingleChildSlot, Content)
+
+			//窗口大小
+			ARGUMENT_VALUE(math::float2, ClientSize)
+
+			//屏幕坐标
+			ARGUMENT_VALUE(math::float2, ScreenPosition)
 		};
 
 		void init(const BuilderArguments& arguments);
@@ -81,6 +89,6 @@ namespace GuGu {
 
 		math::float2 m_screenPosition;//窗口的屏幕坐标
 
-		math::float2 m_size;//窗口在屏幕空间的内容区域的大小
+		//math::float2 m_size;//窗口在屏幕空间的内容区域的大小
 	};
 }

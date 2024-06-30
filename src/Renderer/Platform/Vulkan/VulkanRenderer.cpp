@@ -68,7 +68,7 @@ namespace GuGu{
 		m_vertexBuffer = new VertexBuffer(m_deviceManager);
 		m_demo = new Demo(m_deviceManager);
 
-        m_UIRenderPass->addWindowWidget(m_deviceManager->getWindowWidget());//main window widget
+        //m_UIRenderPass->addWindowWidget(m_deviceManager->getWindowWidget());//main window widget
 
 		if (m_demo->Init(uiData))
 		{

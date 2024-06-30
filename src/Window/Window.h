@@ -13,6 +13,8 @@ namespace GuGu {
 		virtual math::float2 getWindowScreenSpacePosition() = 0;
 
 		virtual void moveWindowTo(math::float2 newPosition) = 0;
+
+		virtual void reshapeWindow(math::float2 newPosition, math::float2 newSize) = 0;
 	};
 
 	std::shared_ptr<Window> CreateWindowFactory();

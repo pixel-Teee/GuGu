@@ -56,10 +56,6 @@ namespace GuGu {
 
 		std::shared_ptr<WindowWidget> getWindowWidget();
 
-		std::vector<std::shared_ptr<WindowWidget>>& getWindowWidgets();
-
-		void addWindowWidget(std::shared_ptr<WindowWidget> inWindowWidget);
-
 		std::vector<std::shared_ptr<Widget>> getAllWidgets(std::shared_ptr<WindowWidget> inWindowWidget);
 
 		void setRenderTarget(nvrhi::TextureHandle renderTarget);

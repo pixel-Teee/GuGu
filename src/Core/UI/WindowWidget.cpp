@@ -31,6 +31,10 @@ namespace GuGu {
 		m_childWidget->m_parentWidget = shared_from_this();
 		m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 		m_visibilityAttribute = arguments.mVisibility;
+
+		m_screenPosition = arguments.mScreenPosition;
+		//set size
+		setCachedSize(arguments.mClientSize);
 	}
 	uint32_t WindowWidget::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
@@ -207,6 +211,10 @@ namespace GuGu {
 	void WindowWidget::assocateWithNativeWindow(std::shared_ptr<Window> nativeWindow)
 	{
 		m_nativeWindow = nativeWindow;
+		if (m_fixedSize.x != 0.0 && m_fixedSize.y != 0.0f)
+		{
+			m_nativeWindow->reshapeWindow(m_screenPosition, m_fixedSize);
+		}
 		m_windowType = WindowType::NativeWindow;
 		setCachedScreenPosition(nativeWindow->getWindowScreenSpacePosition());
 	}	
@@ -221,8 +229,16 @@ namespace GuGu {
 	}
 	void WindowWidget::setCachedSize(math::float2 newSize)
 	{
-		//todo:调整 native window 窗口大小
-		m_size = newSize;
+		if ((m_fixedSize.x != newSize.x) || (m_fixedSize.y != newSize.y))
+		{
+			//todo:调整 native window 窗口大小
+			m_fixedSize = newSize;
+
+			if (m_nativeWindow)
+			{
+				m_nativeWindow->reshapeWindow(m_screenPosition, newSize);
+			}	
+		}	
 	}
 	math::float2 WindowWidget::getPositionInScreen() const
 	{
@@ -237,7 +253,7 @@ namespace GuGu {
 		//首先得到一个 local to screen transform
 		math::affine2 localToScreen(math::float2x2::diagonal(m_nativeWindow->getDpiFactor()), m_screenPosition);
 
-		WidgetGeometry res = WidgetGeometry::makeRoot(math::inverse(localToScreen).transformVector(m_size), localToScreen);
+		WidgetGeometry res = WidgetGeometry::makeRoot(math::inverse(localToScreen).transformVector(m_fixedSize), localToScreen);
 
 		return res;
 	}
@@ -245,10 +261,10 @@ namespace GuGu {
 	{
         if(Application::getApplication()->getGlobalPreRotate() == 90.0f || Application::getApplication()->getGlobalPreRotate() == 270.0f)
         {
-            math::float2 newSize = math::float2(m_size.y, m_size.x);
+            math::float2 newSize = math::float2(m_fixedSize.y, m_fixedSize.x);
             return math::box2(math::float2(m_screenPosition), math::float2(m_screenPosition + newSize));
         }
-		return math::box2(math::float2(m_screenPosition), math::float2(m_screenPosition + m_size));
+		return math::box2(math::float2(m_screenPosition), math::float2(m_screenPosition + m_fixedSize));
 	}
 	void WindowWidget::moveWindowTo(math::float2 newPosition)
 	{

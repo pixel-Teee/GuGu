@@ -41,4 +41,9 @@ namespace GuGu{
     void AndroidWindow::moveWindowTo(math::float2 newPosition) {
 
     }
+
+    void AndroidWindow::reshapeWindow(math::float2 newPosition, math::float2 newSize)
+    {
+
+    }
 }

@@ -587,10 +587,10 @@ namespace GuGu {
 
 		m_elementList->clear();
 
-		math::int2 windowWidthAndHeight = math::int2(GetDeviceManager()->getDeviceCreationParameters().backBufferWidth, GetDeviceManager()->getDeviceCreationParameters().backBufferHeight);
+		math::int2 windowWidthAndHeight = math::int2(inWindowWidget->getFixedSize().x, inWindowWidget->getFixedSize().y);
 
 		//设置窗口大小
-		inWindowWidget->setCachedSize(math::float2(windowWidthAndHeight.x, windowWidthAndHeight.y));
+		//inWindowWidget->setCachedSize(math::float2(windowWidthAndHeight.x, windowWidthAndHeight.y));
 
 		WidgetGeometry geometry = WidgetGeometry::makeRoot(math::float2(windowWidthAndHeight.x / inWindowWidget->getNativeWindow()->getDpiFactor(), windowWidthAndHeight.y / inWindowWidget->getNativeWindow()->getDpiFactor()),
 			math::affine2(math::float2x2::diagonal(inWindowWidget->getNativeWindow()->getDpiFactor()), 0.0f));
@@ -795,16 +795,6 @@ namespace GuGu {
 	std::shared_ptr<WindowWidget> UIRenderPass::getWindowWidget()
 	{
 		return m_uiRoot;//todo:fix this
-	}
-
-	std::vector<std::shared_ptr<WindowWidget>>& UIRenderPass::getWindowWidgets()
-	{
-		return m_windows;//window widgets
-	}
-
-	void UIRenderPass::addWindowWidget(std::shared_ptr<WindowWidget> inWindowWidget)
-	{
-		m_windows.push_back(inWindowWidget);
 	}
 
 	std::vector<std::shared_ptr<Widget>> UIRenderPass::getAllWidgets(std::shared_ptr<WindowWidget> inWindowWidget)

@@ -124,7 +124,7 @@ namespace GuGu {
 
 		std::shared_ptr<Widget> locateWidgetInWindow(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent);
 
-		math::float2 translateCursorPos(math::float2 cursorPos);
+		math::float2 translateCursorPos(math::float2 cursorPos, std::shared_ptr<WindowWidget> inWindowWidget);
 
 		bool m_alreadyExit;
 

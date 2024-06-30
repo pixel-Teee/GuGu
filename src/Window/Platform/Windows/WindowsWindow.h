@@ -21,6 +21,8 @@ namespace GuGu {
 		HWND getNativeWindowHandle();
 
 		virtual void moveWindowTo(math::float2 newPosition) override;
+
+		virtual void reshapeWindow(math::float2 newPosition, math::float2 newSize) override;
 	private:
 		HWND m_windowHandle;
 		HINSTANCE m_ownerApplicationHandle;

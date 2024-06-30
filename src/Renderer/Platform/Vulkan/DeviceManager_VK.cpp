@@ -349,15 +349,21 @@ namespace GuGu{
 #endif
 		}
 
-		//m_windowVisible = true;
-		//androidApplication->setFocused(true);
-
+#if WIN32
+        //对于windows来说，有很多窗口
+        math::float2 windowSize = windowWidget->getFixedSize();
+        if ((windowSize.x != width) || (windowSize.y != height))
+        {
+            windowWidget->setCachedSize(math::float2(width, height));
+            ResizeSwapChain(windowWidget);
+        }
+#else
+#ifdef ANDROID
 		if (int(m_deviceParams.backBufferWidth) != width ||
 			int(m_deviceParams.backBufferHeight) != height || needToRecreateSwapChain || m_orientationChanged) //todo:fix this
 		{
-#ifdef ANDROID
 			androidApplication->setNeedToRecreateSwapChain(false);
-#endif
+
 			// window is not minimized, and the size has changed
 
 			//BackBufferResizing();
@@ -371,8 +377,9 @@ namespace GuGu{
 			ResizeSwapChain(windowWidget);
 
 			m_orientationChanged = false;
-		}
-  
+	}
+#endif
+#endif
 		return;
     }
 
@@ -571,15 +578,16 @@ namespace GuGu{
                         (
                             WIDGET_NEW(TextBlockWidget)
                             .text(u8"你好")
-                        );
+                        )
+                        .ClientSize(math::float2(480.0f, 240.0f));
                         std::shared_ptr<Application> application = Application::getApplication();
                         application->makeWindow(textWindow);
                         application->showWindow(textWindow);
-                        //todo:create framebuffers
-
                         return Reply::Handled();
                     })
-                );
+                )
+                .ClientSize(math::float2(m_deviceParams.backBufferWidth, m_deviceParams.backBufferHeight))
+                .ScreenPosition(math::float2(0.0f, 0.0f));
 
             //2.调用 Application 的函数，去创建 window widget 相应的 native window
             std::shared_ptr<Application> application = Application::getApplication();
@@ -1017,7 +1025,7 @@ namespace GuGu{
         auto it = m_windowViewports.find(windowWidget.get());
         if (it != m_windowViewports.end())
         {
-            kDestroySurfaceKHR(m_VulkanInstance, it->second.m_windowSurface, nullptr);
+            vkDestroySurfaceKHR(m_VulkanInstance, it->second.m_windowSurface, nullptr);
             it->second.m_windowSurface = VK_NULL_HANDLE;
             m_windowViewports.erase(it);
         }

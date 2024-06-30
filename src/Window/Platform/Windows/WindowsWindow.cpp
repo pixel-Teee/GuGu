@@ -99,4 +99,10 @@ namespace GuGu {
 		SetWindowPos(m_windowHandle, nullptr, newPosition.x, newPosition.y, 0, 0, SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOZORDER);
 	}
 
+	void WindowsWindow::reshapeWindow(math::float2 newPosition, math::float2 newSize)
+	{
+		//调整windows window的窗口大小
+		::SetWindowPos(m_windowHandle, nullptr, newPosition.x, newPosition.y, newSize.x, newSize.y, SWP_NOACTIVATE | SWP_NOSIZE | SWP_NOZORDER);
+	}
+
 }

@@ -105,8 +105,20 @@ namespace GuGu{
 	{
 		//process mouse button down
 
+		//find window widget
+		//find window widget
+		std::shared_ptr<WindowWidget> windowWidget;
+		for (size_t i = 0; i < m_windowWidgets.size(); ++i)
+		{
+			if (m_windowWidgets[i]->getNativeWindow() == window)
+			{
+				windowWidget = m_windowWidgets[i];
+				break;
+			}
+		}
+
         //transfer cursorPos to local space
-        math::float2 translatedCursorPos = translateCursorPos(cursorPos);
+        math::float2 translatedCursorPos = translateCursorPos(cursorPos, windowWidget);
 
 
         PointerEvent mouseEvent(
@@ -120,7 +132,18 @@ namespace GuGu{
 
     bool Application::onMouseUp(const std::shared_ptr<Window>& window, math::float2 cursorPos)
     {
-        math::float2 translatedCursorPos = translateCursorPos(cursorPos);
+		//find window widget
+		std::shared_ptr<WindowWidget> windowWidget;
+		for (size_t i = 0; i < m_windowWidgets.size(); ++i)
+		{
+			if (m_windowWidgets[i]->getNativeWindow() == window)
+			{
+				windowWidget = m_windowWidgets[i];
+				break;
+			}
+		}
+
+        math::float2 translatedCursorPos = translateCursorPos(cursorPos, windowWidget);
 
 		PointerEvent mouseEvent(
             translatedCursorPos,
@@ -133,7 +156,18 @@ namespace GuGu{
 
     bool Application::onMouseMove(const std::shared_ptr<Window>& window, math::float2 cursorPos)
     {
-		math::float2 translatedCursorPos = translateCursorPos(cursorPos);
+		//find window widget
+		std::shared_ptr<WindowWidget> windowWidget;
+		for (size_t i = 0; i < m_windowWidgets.size(); ++i)
+		{
+			if (m_windowWidgets[i]->getNativeWindow() == window)
+			{
+				windowWidget = m_windowWidgets[i];
+				break;
+			}
+		}
+
+		math::float2 translatedCursorPos = translateCursorPos(cursorPos, windowWidget);
 
 		PointerEvent mouseEvent(
 			translatedCursorPos,
@@ -677,15 +711,14 @@ namespace GuGu{
 
     std::shared_ptr<Widget> Application::locateWidgetInWindow(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
     {
-        UIRenderPass* uiRenderPass = m_renderer->getUIRenderPass();
-		std::vector<std::shared_ptr<WindowWidget>> windowWidgets = uiRenderPass->getWindowWidgets();
+		UIRenderPass* uiRenderPass = m_renderer->getUIRenderPass();
 		//find window widget
 		std::shared_ptr<WindowWidget> windowWidget;
-		for (size_t i = 0; i < windowWidgets.size(); ++i)
+		for (size_t i = 0; i < m_windowWidgets.size(); ++i)
 		{
-			if (windowWidgets[i]->getNativeWindow() == window)
+			if (m_windowWidgets[i]->getNativeWindow() == window)
 			{
-				windowWidget = windowWidgets[i];
+				windowWidget = m_windowWidgets[i];
 				break;
 			}
 		}
@@ -749,11 +782,11 @@ namespace GuGu{
         return collisionWidget;
     }
 
-    math::float2 Application::translateCursorPos(math::float2 cursorPos)
+    math::float2 Application::translateCursorPos(math::float2 cursorPos, std::shared_ptr<WindowWidget> inWindowWidget)
     {
         DeviceManager* deviceManager = m_renderer->getDeviceManager();
-        uint32_t width = deviceManager->getDeviceCreationParameters().backBufferWidth;
-        uint32_t height = deviceManager->getDeviceCreationParameters().backBufferHeight;
+        uint32_t width = inWindowWidget->getFixedSize().x;
+        uint32_t height = inWindowWidget->getFixedSize().y;
 
         math::float4x4 viewport = math::viewportMatrix(width, height);
 		math::float3 cameraPos = math::float3(0.0f, 0.0f, 0.0f);
