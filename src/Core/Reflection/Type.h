@@ -26,10 +26,19 @@ namespace GuGu {
 			bool operator>=(const Type& rhs) const;
 			bool operator==(const Type& rhs) const;
 			bool operator!=(const Type& rhs) const;
+
+			//获取一个 invalid type 的实例
+			static const Type& Invalid(void);
+
+			//获取类型的内部 id
+			TypeID GetID(void) const;
+
+			//获取所有注册在主反射数据库的类型
+			static List GetTypes(void);
 		private:
 			//一个无符号整数
 			TypeID m_id;
-
+			//是否为数组
 			bool m_isArray;
 		};
 	}
