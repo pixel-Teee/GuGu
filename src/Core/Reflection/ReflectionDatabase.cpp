@@ -58,7 +58,7 @@ namespace GuGu {
 			if (search != ids.end())
 				return InvalidTypeID;
 
-			types.emplace_back(name);
+			types.emplace_back(name);//types的下标索引对应m_nextID
 
 			auto id = m_nextID++;
 

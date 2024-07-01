@@ -64,9 +64,9 @@ namespace GuGu {
 		}
 		Type::List Type::GetTypes(void)
 		{
-			auto count = gDatabase.types.size();
+			auto count = gDatabase.types.size();//vector<TypeData>
 
-			List types;
+			List types;//vector<Type>
 
 			for (TypeID i = 1; i < count; ++i)
 			{
