@@ -13,7 +13,7 @@ namespace GuGu {
 		struct TypeData
 		{
 			bool isEnum : 1; //是否为枚举类型
-			bool isPrimitive : 1; //是否为浮点
+			bool isPrimitive : 1; //是否为原子类型
 			bool isSigned : 1; //是否有符号
 			bool isFloatingPoint : 1; //是否为浮点数
 			bool isPointer : 1; //是否为指针

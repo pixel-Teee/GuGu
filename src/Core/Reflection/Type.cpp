@@ -75,6 +75,62 @@ namespace GuGu {
 
 			return types;
 		}
+		Type Type::GetFromName(const GuGuUtf8Str& name)
+		{
+			auto search = gDatabase.ids.find(name);//name to typeID
+
+			if (search == gDatabase.ids.end())
+				return Invalid();
+
+			return { search->second };
+		}
+		bool Type::IsValid(void) const
+		{
+			return m_id != InvalidTypeID;
+		}
+		bool Type::IsArray(void) const
+		{
+			return m_isArray;
+		}
+		bool Type::IsPrimitive(void) const
+		{
+			return gDatabase.types[m_id].isPrimitive;
+		}
+		bool Type::IsFloatingPoint(void) const
+		{
+			return gDatabase.types[m_id].isFloatingPoint;
+		}
+		bool Type::IsSigned(void) const
+		{
+			return gDatabase.types[m_id].isSigned;
+		}
+		bool Type::IsEnum(void) const
+		{
+			return gDatabase.types[m_id].isEnum;
+		}
+		bool Type::IsPointer(void) const
+		{
+			return gDatabase.types[m_id].isPointer;
+		}
+		bool Type::IsClass(void) const
+		{
+			return gDatabase.types[m_id].isClass;
+		}
+		GuGuUtf8Str Type::GetName() const
+		{
+			auto& name = gDatabase.types[m_id].name;
+
+			if (IsArray())
+				return "Array<" + name + ">";
+
+			return name;
+		}
+		Type Type::GetDecayedType(void) const
+		{
+			assert(false, "Type::GetDecayedType() not implemented");
+
+			return Type();
+		}
 	}
 }
 

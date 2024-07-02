@@ -4,7 +4,10 @@
 
 #include <vector>
 
+#include <Core/GuGuUtf8Str.h>
+
 namespace GuGu {
+	//class GuGuUtf8Str;
 	namespace meta
 	{
 		class Type
@@ -35,6 +38,35 @@ namespace GuGu {
 
 			//获取所有注册在主反射数据库的类型
 			static List GetTypes(void);
+
+			//获取一个类型，基于修饰的字符串名
+			//参数是类型的名称
+			static Type GetFromName(const GuGuUtf8Str& name);
+
+			//通过推导object的类型来获取类型
+			template<typename T>
+			static Type Get(T&& obj);
+
+			bool IsValid(void) const;
+
+			bool IsPrimitive(void) const;
+
+			bool IsFloatingPoint(void) const;//从TypeData查询类型数据
+
+			bool IsSigned(void) const;
+
+			bool IsEnum(void) const;
+
+			bool IsPointer(void) const;
+
+			bool IsClass(void) const;
+
+			bool IsArray(void) const;
+
+			//获取对于这个类型可读的名称
+			GuGuUtf8Str GetName() const;
+
+			Type GetDecayedType(void) const;
 		private:
 			//一个无符号整数
 			TypeID m_id;
@@ -43,3 +75,5 @@ namespace GuGu {
 		};
 	}
 }
+
+#include "Type.hpp"
