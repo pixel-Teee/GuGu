@@ -7,7 +7,7 @@ namespace GuGu {
 
 		const TypeID InvalidTypeID = 0;
 
-		//估计每个类型都要特化
+		//每个类型都要特化，以类型为索引，获取ID
 		template<typename T>
 		struct TypeIDs
 		{

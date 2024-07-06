@@ -3,6 +3,7 @@
 #include "ReflectionDatabase.h"
 
 #include "Type.h"
+#include "TypeInfo.h"
 
 //todo:这里修复
 #define REGISTER_NATIVE_TYPE(type)		\
@@ -62,7 +63,7 @@ namespace GuGu {
 
 			auto id = m_nextID++;
 
-			ids[name] = id;
+			ids[name] = id;//name to id
 
 			return id;
 		}

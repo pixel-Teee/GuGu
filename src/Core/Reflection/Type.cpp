@@ -7,7 +7,7 @@ namespace GuGu {
 	namespace meta {
 		namespace
 		{
-			//确认我们总是有 gDatabase 的一个引用
+		//确认我们总是有 gDatabase 的一个引用
 #define gDatabase ReflectionDatabase::Instance()
 		}
 		Type::Type(void)

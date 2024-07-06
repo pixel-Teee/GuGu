@@ -7,7 +7,6 @@
 
 #include "TypeID.h"
 #include "TypeData.h"
-#include "TypeInfo.h"
 
 namespace GuGu {
 	namespace meta

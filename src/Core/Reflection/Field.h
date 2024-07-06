@@ -6,7 +6,8 @@ namespace GuGu {
 	namespace meta {
 		class Field : public MetaContainer
 		{
-
+		public:
+			
 		};
 	}
 }

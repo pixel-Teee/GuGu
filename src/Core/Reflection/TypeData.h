@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Type.h"
+#include "Field.h"
 
 #include <Core/GuGuUtf8Str.h>
 
@@ -35,6 +36,7 @@ namespace GuGu {
 			//析构函数
 
 			//字段
+			std::vector<Field> fields;
 
 			//静态字段
 
