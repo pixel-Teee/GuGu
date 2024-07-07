@@ -2,6 +2,8 @@
 
 #include "TypeID.h"
 
+#include "TypeConfig.h"
+
 #include <vector>
 
 #include <Core/GuGuUtf8Str.h>

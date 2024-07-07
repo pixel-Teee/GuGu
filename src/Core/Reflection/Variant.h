@@ -2,6 +2,7 @@
 
 #include "Object.h"
 #include "VariantPolicy.h"
+#include "VariantBase.h"
 
 namespace GuGu {
 	namespace meta {
@@ -15,8 +16,17 @@ namespace GuGu {
 			template<typename T>
 			Variant(T* data, variant_policy::WrapObject, typename std::enable_if<std::is_base_of<Object, T>::value>::type* = nullptr);
 
+
+			template<typename T>
+			T& GetValue(void) const;
 		private:
 			bool m_isConst;
+
+			void* getPtr(void) const;
+
+			VariantBase* m_base;
 		};
 	}
 }
+
+#include "Variant.hpp"

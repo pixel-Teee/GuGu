@@ -127,7 +127,7 @@ namespace GuGu {
 		}
 		Type Type::GetDecayedType(void) const
 		{
-			assert(false, "Type::GetDecayedType() not implemented");
+			GuGu_LOGD("Type::GetDecayedType() not implemented");
 
 			return Type();
 		}
