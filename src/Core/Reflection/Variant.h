@@ -19,6 +19,10 @@ namespace GuGu {
 
 			template<typename T>
 			T& GetValue(void) const;
+
+			bool IsValid(void) const;
+			bool IsConst(void) const;
+			bool IsArray(void) const;
 		private:
 			bool m_isConst;
 

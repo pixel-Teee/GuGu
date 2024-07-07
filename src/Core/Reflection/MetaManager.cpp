@@ -4,6 +4,9 @@
 
 namespace GuGu {
 	namespace meta {
+		MetaManager::MetaManager(void)
+		{
+		}
 		MetaManager::MetaManager(const Initializer& properties)
 		{
 			for (auto& prop : properties)

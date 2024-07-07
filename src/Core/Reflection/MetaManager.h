@@ -21,6 +21,7 @@ namespace GuGu {
 
 			typedef std::vector<Variant> PropertyList;
 
+			MetaManager(void);
 			MetaManager(const Initializer& properties);//构造函数的初始化参数
 
 			~MetaManager(void);

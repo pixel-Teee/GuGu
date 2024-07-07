@@ -7,6 +7,18 @@ namespace GuGu {
 		Variant::Variant(void)
 		{
 		}
+		bool Variant::IsValid(void) const
+		{
+			return m_base != nullptr;
+		}
+		bool Variant::IsConst(void) const
+		{
+			return m_isConst;
+		}
+		bool Variant::IsArray(void) const
+		{
+			return m_base ? m_base->IsArray() : false;
+		}
 		void* Variant::getPtr(void) const
 		{
 			return m_base ? m_base->GetPtr() : nullptr;

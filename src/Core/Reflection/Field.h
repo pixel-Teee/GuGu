@@ -12,6 +12,7 @@ namespace GuGu {
 		class Field : public MetaContainer
 		{
 		public:
+			//调用setter，将参数value填入setter，获取得到instance
 			static bool SetValue(Variant& instance, const Variant& value, const Method& setter);
 
 			Field(void);
