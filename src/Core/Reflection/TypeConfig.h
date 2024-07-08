@@ -1,5 +1,6 @@
 #pragma once
 
+#include "TypeID.h"
 #include "MetaTraits.h"
 #include <type_traits>
 

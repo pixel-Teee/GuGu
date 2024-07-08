@@ -5,7 +5,13 @@
 namespace GuGu {
 	namespace meta {
 		Variant::Variant(void)
+			: m_isConst(true)
+			, m_base(nullptr)
 		{
+		}
+		Variant::~Variant(void)
+		{
+			delete m_base;
 		}
 		bool Variant::IsValid(void) const
 		{
