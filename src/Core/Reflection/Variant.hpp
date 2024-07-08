@@ -10,7 +10,6 @@ namespace GuGu {
 			: m_isConst(std::is_const<T>::value)
 
 		{
-
 		}
 
 		template<typename T>
@@ -32,6 +31,14 @@ namespace GuGu {
 			: m_isConst(std::is_pointer<T>::value && std::is_const<T>::value)
 			, m_base(new VariantContainer<CleanedType<T>>(data))
 		{
+		}
+
+		template<typename T>
+		Variant& Variant::operator=(T&& rhs)
+		{
+			Variant(static_cast<T&&>(rhs)).Swap(*this);
+
+			return *this;
 		}
 
 		template<typename T>
