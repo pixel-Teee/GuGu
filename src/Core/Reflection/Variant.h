@@ -114,3 +114,10 @@ namespace GuGu {
 }
 
 #include "Variant.hpp"
+
+#undef DISABLE_VARIANT
+#undef DISABLE_VARIANT_DECL
+#undef DISABLE_ARGUMENT
+#undef DISABLE_ARGUMENT_DECL
+#undef DISABLE_CONST
+#undef DISABLE_CONST_DECL
