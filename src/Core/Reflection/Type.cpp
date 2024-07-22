@@ -131,6 +131,11 @@ namespace GuGu {
 
 			return Type();
 		}
+		nlohmann::json Type::SerializeJson(const Variant& instance, bool invokeHook) const
+		{
+			nlohmann::json jsonObject{};
+			return jsonObject;
+		}
 	}
 }
 

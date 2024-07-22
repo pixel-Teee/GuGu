@@ -14,6 +14,7 @@ namespace GuGu {
 	//class GuGuUtf8Str;
 	namespace meta
 	{
+		class Variant;
 		class Type
 		{
 		public:
@@ -71,6 +72,11 @@ namespace GuGu {
 			GuGuUtf8Str GetName() const;
 
 			Type GetDecayedType(void) const;
+
+			template<typename ClassType>
+			static nlohmann::json SerializeJson(const ClassType& instance, bool invokeHook = true);
+
+			nlohmann::json SerializeJson(const Variant& instance, bool invokeHook = true) const;
 		private:
 			//一个无符号整数
 			TypeID m_id;

@@ -7,5 +7,17 @@ namespace GuGu {
 		{
 			return {typeof(T)};
 		}
+
+		template<typename ClassType>
+		nlohmann::json Type::SerializeJson(const ClassType& instance, bool invokeHook)
+		{
+			auto type = typeof(ClassType);//获取Type对象
+
+			assert(type.Invalid());
+
+			Variant variant = instance;//从instance构造variant
+
+			return type.SerializeJson(variant, invokeHook);
+		}
 	}
 }
