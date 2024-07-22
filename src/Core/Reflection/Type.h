@@ -8,6 +8,8 @@
 
 #include <Core/GuGuUtf8Str.h>
 
+#include "json.hpp" //json
+
 namespace GuGu {
 	//class GuGuUtf8Str;
 	namespace meta

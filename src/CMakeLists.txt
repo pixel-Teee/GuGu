@@ -25,7 +25,8 @@ file(GLOB SourceFile "main.cpp"
 "Core/Reflection/*.hpp"
 "gltf/*.h"
 "gltf/*.cpp"
-"pch.h")
+"pch.h"
+"../thirdParty/*.h")
 
 if(WIN32)
     message("[message]:this platform is windows!")
@@ -39,7 +40,7 @@ if(WIN32)
         list(APPEND SourceFile ${PlatformSourceFile})
         source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SourceFile})
         add_library(GuGu ${SourceFile})
-        target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer" PRIVATE "Core")
+        target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer" PRIVATE "Core" PRIVATE "../thirdParty/nlohmann")
         add_definitions(-DUSE_DX12)
     elseif(USE_VK)
         file(GLOB PlatformSourceFile "Window/Platform/Windows/*.h" "Window/Platform/Windows/*.cpp" "Application/Platform/Windows/*.h" "Application/Platform/Windows/*.cpp"
@@ -49,7 +50,7 @@ if(WIN32)
         list(APPEND SourceFile ${PlatformSourceFile})
         source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SourceFile})
         add_library(GuGu ${SourceFile})
-        target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer" PRIVATE "Core")
+        target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer" PRIVATE "Core" PRIVATE "../thirdParty/nlohmann")
         target_link_libraries(GuGu Vulkan::Vulkan freetype)
         add_definitions(-DUSE_VK)
     endif()
@@ -79,7 +80,7 @@ elseif(ANDROID)
     #message(${PlatformSourceFile})
     list(APPEND SourceFile ${PlatformSourceFile})
     add_library(GuGu STATIC ${SourceFile})
-    target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer" PRIVATE "Core")
+    target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer" PRIVATE "Core" PRIVATE "../thirdParty/nlohmann")
     add_definitions(-DVK_USE_PLATFORM_ANDROID_KHR=TRUE) #fix this
     add_definitions(-DUSE_VK)
     add_definitions(-D_DEBUG=TRUE)
