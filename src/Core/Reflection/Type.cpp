@@ -3,6 +3,8 @@
 #include "Type.h"
 #include "ReflectionDatabase.h"
 
+#include "ArrayWrapper.h"
+
 namespace GuGu {
 	namespace meta {
 		namespace
@@ -133,6 +135,16 @@ namespace GuGu {
 		}
 		nlohmann::json Type::SerializeJson(const Variant& instance, bool invokeHook) const
 		{
+			if (*this != instance.GetType())
+				GuGu_LOGE("Serializing incompatible variant instance.\n Got '%s', expected '%s'", instance.GetType().GetName().getStr(),
+					GetName().getStr());
+			if (m_isArray)
+			{
+				nlohmann::json array = nlohmann::json::array();
+
+				auto wrapper = instance.GetArray();
+				auto size = wrapper.Size();
+			}
 			nlohmann::json jsonObject{};
 			return jsonObject;
 		}
