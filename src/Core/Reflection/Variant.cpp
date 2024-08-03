@@ -72,6 +72,10 @@ namespace GuGu {
 		{
 			return m_base ? m_base->ToString() : GuGuUtf8Str();
 		}
+		nlohmann::json Variant::SerializeJson(void) const
+		{
+			return GetType().SerializeJson(*this);
+		}
 		Variant::Variant(const Variant& rhs)
 			: m_isConst(rhs.m_isConst)
 			, m_base(rhs.m_base ? rhs.m_base->Clone() : nullptr)

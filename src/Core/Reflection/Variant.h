@@ -5,6 +5,8 @@
 #include "VariantBase.h"
 #include "Argument.h"
 
+#include "json.hpp" //json
+
 #define DISABLE_VARIANT					 \
 	typename std::enable_if<			 \
 		!std::is_same<Variant, T>::value \
@@ -93,6 +95,7 @@ namespace GuGu {
 			GuGuUtf8Str ToString(void) const;
 
 			//todo:添加 serialize json
+			nlohmann::json SerializeJson(void) const;
 
 			template<typename T>
 			T& GetValue(void) const;

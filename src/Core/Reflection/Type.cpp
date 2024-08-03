@@ -144,9 +144,67 @@ namespace GuGu {
 
 				auto wrapper = instance.GetArray();
 				auto size = wrapper.Size();
+
+				for (size_t i = 0; i < size; ++i)
+				{
+					auto value = wrapper.GetValue(i);
+
+					array.emplace_back(
+						value.GetType().SerializeJson(value, invokeHook)
+					);
+				}
+
+				return array;
 			}
-			nlohmann::json jsonObject{};
-			return jsonObject;
+
+			if (*this == typeof(bool))
+			{
+				return { instance.ToBool() };
+			}
+
+			//auto& meta = GetMeta();
+			auto isEnum = IsEnum();
+
+			//number, or non-associative enum
+			if (IsPrimitive()) //todo:add get property serialize as number
+			{
+				if (IsFloatingPoint() || !IsSigned())
+				{
+					return { instance.ToDouble() };
+				}
+
+				return { instance.ToInt() };
+			}
+
+			//associative enum value
+			//if (isEnum)
+			//{
+			//	return GetEnum().GetKey(instance);
+			//}
+
+			if (*this == typeof(GuGuUtf8Str))
+			{
+				return { instance.ToString().getStr() }; //todo:fix this, return string
+			}
+
+			nlohmann::json object{};
+
+			auto& fields = gDatabase.types[m_id].fields;
+
+			for (auto& field : fields)
+			{
+				auto value = field.GetValue(instance);
+
+				auto json = value.SerializeJson();//todo:fix this
+
+				//TODO:add on serialize
+
+				object[field.GetName().getStr()] = json;//todo:fix this
+			}
+
+			//if(invokeHook)
+			//	instance.m_base->On
+			return object;
 		}
 	}
 }
