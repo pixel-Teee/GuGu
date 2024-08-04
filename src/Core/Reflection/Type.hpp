@@ -1,5 +1,9 @@
 #pragma once
 
+#include "Type.h"
+
+#include "Variant.h"
+
 namespace GuGu {
 	namespace meta {
 		template<typename T>

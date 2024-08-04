@@ -76,10 +76,11 @@ namespace GuGu {
 
 			Type GetDecayedType(void) const;
 
+            nlohmann::json SerializeJson(const Variant& instance, bool invokeHook = true) const;
+
 			template<typename ClassType>
 			static nlohmann::json SerializeJson(const ClassType& instance, bool invokeHook = true);
 
-			nlohmann::json SerializeJson(const Variant& instance, bool invokeHook = true) const;
 		private:
 			//一个无符号整数
 			TypeID m_id;

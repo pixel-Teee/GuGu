@@ -4,7 +4,7 @@
 
 #include "MetaTraits.h"
 
-#include "Type.h"
+//#include "Type.h"
 
 #include "Object.h"
 

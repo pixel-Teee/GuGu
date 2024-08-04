@@ -202,7 +202,7 @@ namespace GuGu {
 				auto json = value.SerializeJson();//todo:fix this
 
 				//TODO:add on serialize
-				value.m_base->OnSerialize(json.object());
+				value.m_base->OnSerialize(const_cast<nlohmann::json &>(json));
 
 				object[field.GetName().getStr()] = json;//todo:fix this
 			}

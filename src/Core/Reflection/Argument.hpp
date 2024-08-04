@@ -9,7 +9,7 @@ namespace GuGu {
 			, m_isArray(meta_traits::IsArray<T>::value)
 			, m_data(reinterpret_cast<const void*>(std::addressof(data)))
 		{
-			static_cast(!std::is_same<Argument, T>::value,
+			static_assert(!std::is_same<Argument, T>::value,
 				"cannot use argument as an argument");
 		}
 
@@ -19,8 +19,8 @@ namespace GuGu {
 			, m_isArray(meta_traits::IsArray<T>::value)
 			, m_data(reinterpret_cast<const void*>(std::addressof(data)))
 		{
-			static_cast(!std::is_same<Argument, T>::value,
-				"cannot use argument as an argument");
+            static_assert(!std::is_same<Argument, T>::value,
+                          "cannot use argument as an argument");
 		}
 
 		template<typename T>

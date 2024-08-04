@@ -1,5 +1,7 @@
-#include "VariantContainer.h"
+//#include "VariantContainer.h"
 #pragma once
+
+#include "Type.h"
 
 #define DEFAULT_TYPE_HANDLER_IMPL(typeName)														 \
 	template<typename T>																		 \
