@@ -1,3 +1,4 @@
+#include "VariantContainer.h"
 #pragma once
 
 #define DEFAULT_TYPE_HANDLER_IMPL(typeName)														 \
@@ -88,10 +89,39 @@ namespace GuGu {
 			return new VariantContainer<NonRefType>(m_value);
 		}
 
+		template<typename T>
+		inline void VariantContainer<T>::OnSerialize(nlohmann::json& output) const
+		{
+			onSerialize(output);
+		}
+
 		DEFAULT_TYPE_HANDLER_IMPL(int);
 		DEFAULT_TYPE_HANDLER_IMPL(bool);
 		DEFAULT_TYPE_HANDLER_IMPL(float);
 		DEFAULT_TYPE_HANDLER_IMPL(double);
+
+		template<typename T>
+		template<typename U>
+		inline void VariantContainer<T>::onSerialize(nlohmann::json& output,
+			typename std::enable_if<
+			!std::is_pointer<U>::value&& std::is_base_of<Object, U>::value
+			>::type*
+		) const
+		{
+			m_value.OnSerialize(output);
+		}
+
+		template<typename T>
+		template<typename U>
+		void VariantContainer<T>::onSerialize(
+			nlohmann::json& output,
+			typename std::enable_if<
+			std::is_pointer<U>::value || !std::is_base_of<Object, U>::value
+			>::type*
+		) const
+		{
+			// do nothing
+		}
 
 		template<typename T>
 		template<typename U>

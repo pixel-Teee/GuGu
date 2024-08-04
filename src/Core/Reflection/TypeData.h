@@ -2,6 +2,7 @@
 
 #include "Type.h"
 #include "Field.h"
+#include "Enum.h"
 
 #include <Core/GuGuUtf8Str.h>
 
@@ -25,7 +26,7 @@ namespace GuGu {
 			GuGuUtf8Str name;
 
 			//enum type
-			//Enum enumeration;
+			Enum enumeration;
 
 			//class type
 			Type::Set baseClasses; //基类

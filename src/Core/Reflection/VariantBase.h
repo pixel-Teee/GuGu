@@ -2,6 +2,8 @@
 
 #include <Core/GuGuUtf8Str.h>
 
+#include "json.hpp"
+
 namespace GuGu {
 	namespace meta {
 		class Type;
@@ -27,6 +29,7 @@ namespace GuGu {
 			virtual VariantBase* Clone(void) const = 0;
 
 			//todo:add on serialize and on deserialize
+			virtual void OnSerialize(nlohmann::json& output) const {}
 		};
 	}
 }

@@ -6,6 +6,8 @@
 
 #include "Type.h"
 
+#include "Object.h"
+
 //子类能够向基类转换，typeName是基类
 #define DEFAULT_TYPE_HANDLER(typeName)															\
 	template<typename U = T>																	\
@@ -43,6 +45,8 @@ namespace GuGu {
 
 			VariantBase* Clone(void) const override;
 
+			void OnSerialize(nlohmann::json& output) const override;
+
 		private:
 			friend class Variant;
 
@@ -56,6 +60,22 @@ namespace GuGu {
 
 			template<typename U = T>
 			GuGuUtf8Str getString(typename std::enable_if<std::is_arithmetic<U>::value>::type* = nullptr) const;
+
+			template<typename U = T>
+			void onSerialize(
+				nlohmann::json& output,
+				typename std::enable_if<
+				!std::is_pointer<U>::value&& std::is_base_of<Object, U>::value
+				>::type* = nullptr
+			) const;
+
+			template<typename U = T>
+			void onSerialize(
+				nlohmann::json& output,
+				typename std::enable_if<
+				std::is_pointer<U>::value || !std::is_base_of<Object, U>::value
+				>::type* = nullptr
+			) const;
 
 			T m_value;
 

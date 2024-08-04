@@ -86,6 +86,10 @@ namespace GuGu {
 
 			return { search->second };
 		}
+		const Enum& Type::GetEnum(void) const
+		{
+			return gDatabase.types[m_id].enumeration;
+		}
 		bool Type::IsValid(void) const
 		{
 			return m_id != InvalidTypeID;
@@ -142,12 +146,12 @@ namespace GuGu {
 			{
 				nlohmann::json array = nlohmann::json::array();
 
-				auto wrapper = instance.GetArray();
+				auto wrapper = instance.GetArray();//从 variant 获取 array
 				auto size = wrapper.Size();
 
 				for (size_t i = 0; i < size; ++i)
 				{
-					auto value = wrapper.GetValue(i);
+					auto value = wrapper.GetValue(i);//variant
 
 					array.emplace_back(
 						value.GetType().SerializeJson(value, invokeHook)
@@ -177,10 +181,10 @@ namespace GuGu {
 			}
 
 			//associative enum value
-			//if (isEnum)
-			//{
-			//	return GetEnum().GetKey(instance);
-			//}
+			if (isEnum)
+			{
+				return GetEnum().GetKey(instance).getStr();//str to json
+			}
 
 			if (*this == typeof(GuGuUtf8Str))
 			{
@@ -198,6 +202,7 @@ namespace GuGu {
 				auto json = value.SerializeJson();//todo:fix this
 
 				//TODO:add on serialize
+				value.m_base->OnSerialize(json.object());
 
 				object[field.GetName().getStr()] = json;//todo:fix this
 			}

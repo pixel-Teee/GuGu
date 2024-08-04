@@ -14,6 +14,7 @@ namespace GuGu {
 	//class GuGuUtf8Str;
 	namespace meta
 	{
+		class Enum;
 		class Variant;
 		class Type
 		{
@@ -51,6 +52,8 @@ namespace GuGu {
 			//通过推导object的类型来获取类型
 			template<typename T>
 			static Type Get(T&& obj);
+
+			const Enum& GetEnum(void) const;
 
 			bool IsValid(void) const;
 

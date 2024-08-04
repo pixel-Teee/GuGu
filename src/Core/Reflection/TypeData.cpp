@@ -11,6 +11,7 @@ namespace GuGu {
 			, isPointer(false)
 			, isClass(false)
 			//todo:添加enumeration的初始化
+			, enumeration(nullptr)
 		{
 		}
 		TypeData::TypeData(const GuGuUtf8Str& name)
@@ -19,6 +20,7 @@ namespace GuGu {
 			, isPointer(false)
 			, isClass(false)
 			, name(name)
+			, enumeration(nullptr)
 			//todo:添加enumeration的初始化
 		{
 		}
