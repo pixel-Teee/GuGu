@@ -21,7 +21,7 @@ namespace GuGu {
 			template<class ClassType, typename ReturnType, typename... ArgTypes>
 			Method(const GuGuUtf8Str& name, ReturnType(ClassType::* method)(ArgTypes...) const);
 
-			static const Method* Invalid(void);
+			static const Method& Invalid(void);
 
 			Type GetClassType(void) const;
 

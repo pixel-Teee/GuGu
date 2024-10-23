@@ -16,5 +16,26 @@ namespace GuGu {
 		{
 			TypeUnpacker<ArgTypes...>::Apply(m_signature);
 		}
+
+		template<class ClassType, typename ReturnType, typename ...ArgTypes>
+		Method::Method(
+			const GuGuUtf8Str& name,
+			ReturnType(ClassType::* method)(ArgTypes...) const
+		)
+			: Invokable(name)
+			, m_isConst(true)
+			, m_classType(typeof(ClassType))
+			, m_invoker(new MethodInvoker<ClassType, ReturnType, ArgTypes...>(method))
+		{
+			TypeUnpacker<ArgTypes...>::Apply(m_signature);
+		}
+
+		template<typename ...Args>
+		Variant Method::Invoke(Variant& instance, Args &&...args) const
+		{
+			ArgumentList arguments{ std::forward<Args>(args)... };
+
+			return Invoke(instance, arguments);
+		}
 	}
 }

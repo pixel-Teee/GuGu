@@ -319,6 +319,11 @@ namespace GuGu {
 		)
 		: m_value(value) { }
 
+		VariantContainer<GuGuUtf8Str>::VariantContainer(
+			const GuGuUtf8Str&& value
+		)
+			: m_value(std::move(value)) { }
+
 		Type VariantContainer<GuGuUtf8Str>::GetType(void) const
 		{
 			return typeof(GuGuUtf8Str);
@@ -370,6 +375,11 @@ namespace GuGu {
 		GuGuUtf8Str VariantContainer<GuGuUtf8Str>::ToString(void) const
 		{
 			return m_value;
+		}
+
+		double VariantContainer<GuGuUtf8Str>::ToDouble(void) const
+		{
+			return std::stod(m_value.getStr());
 		}
 
 		VariantBase* VariantContainer<GuGuUtf8Str>::Clone(void) const

@@ -24,5 +24,14 @@ namespace GuGu {
 			//todo:添加enumeration的初始化
 		{
 		}
+
+		const Field& TypeData::GetField(const std::string& name) const
+		{
+			for (auto& field : fields)
+				if (field.GetName() == name)
+					return field;
+
+			return Field::Invalid();
+		}
 	}
 }

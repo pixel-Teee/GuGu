@@ -47,6 +47,59 @@ namespace GuGu {
 
 			TypeData(void);
 			TypeData(const GuGuUtf8Str& name);
+
+			// Method Getter, Method Setter
+			template<typename ClassType, typename FieldType, typename GetterReturnType, typename SetterArgumentType>
+			void AddField(
+				const std::string& name,
+				GetterReturnType(ClassType::* methodGetter)(void),
+				void (ClassType::* methodSetter)(SetterArgumentType)
+			);
+
+			// Const Method Getter, Method Setter
+			template<typename ClassType, typename FieldType, typename GetterReturnType, typename SetterArgumentType>
+			void AddField(
+				const std::string& name,
+				GetterReturnType(ClassType::* methodGetter)(void) const,
+				void (ClassType::* methodSetter)(SetterArgumentType)
+			);
+
+
+			// Method Getter, Field Setter
+			template<typename ClassType, typename FieldType, typename GetterReturnType>
+			void AddField(
+				const std::string& name,
+				GetterReturnType(ClassType::* methodGetter)(void),
+				typename FieldSetter<ClassType, FieldType, false>::Signature fieldSetter
+			);
+
+			// Const Method Getter, Field Setter
+			template<typename ClassType, typename FieldType, typename GetterReturnType>
+			void AddField(
+				const std::string& name,
+				GetterReturnType(ClassType::* methodGetter)(void) const,
+				typename FieldSetter<ClassType, FieldType, false>::Signature fieldSetter
+			);
+
+			// Field Getter, Method Setter
+			template<typename ClassType, typename FieldType, typename SetterArgumentType>
+			void AddField(
+				const std::string& name,
+				typename FieldGetter<ClassType, FieldType, false>::Signature fieldGetter,
+				void (ClassType::* methodSetter)(SetterArgumentType)
+			);
+
+			// Field Getter, Field Setter
+			template<typename ClassType, typename FieldType>
+			void AddField(
+				const std::string& name,
+				typename FieldGetter<ClassType, FieldType, false>::Signature fieldGetter,
+				typename FieldSetter<ClassType, FieldType, false>::Signature fieldSetter
+			);
+
+			const Field& GetField(const std::string& name) const;
 		};
 	}
 }
+
+#include "TypeData.hpp"
