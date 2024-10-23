@@ -2,13 +2,14 @@
 
 #include "VariantContainer.h"
 #include "Variant.h"
+#include "ObjectWrapper.h"
 
 namespace GuGu {
 	namespace meta {
 		template<typename T>
 		Variant::Variant(T* data, variant_policy::WrapObject, typename std::enable_if<std::is_base_of<Object, T>::value>::type*)
 			: m_isConst(std::is_const<T>::value)
-			, m_base(new ObjectWrapper(static_cast<Object*>(const_cast<typename std::remove_const<T>::type*(data)>)))
+			, m_base(new ObjectWrapper(static_cast<Object*>(const_cast<typename std::remove_const<T>::type*>(data))))
 		{
 		}
 
