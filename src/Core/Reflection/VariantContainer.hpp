@@ -2,6 +2,7 @@
 #pragma once
 
 #include "Type.h"
+#include "VariantContainer.h"
 
 #define DEFAULT_TYPE_HANDLER_IMPL(typeName)														 \
 	template<typename T>																		 \
@@ -97,6 +98,12 @@ namespace GuGu {
 			onSerialize(output);
 		}
 
+		template<typename T>
+		inline void VariantContainer<T>::OnDeserialize(const nlohmann::json& input)
+		{
+			onDeserialize(input);
+		}
+
 		DEFAULT_TYPE_HANDLER_IMPL(int);
 		DEFAULT_TYPE_HANDLER_IMPL(bool);
 		DEFAULT_TYPE_HANDLER_IMPL(float);
@@ -145,6 +152,30 @@ namespace GuGu {
 		) const
 		{
 			return GuGuUtf8Str(std::to_string(m_value));
+		}
+
+		template<typename T>
+		template<typename U>
+		void VariantContainer<T>::onDeserialize(
+			const nlohmann::json& input,
+			typename std::enable_if<
+			!std::is_pointer<U>::value&& std::is_base_of<Object, U>::value
+			>::type*
+		)
+		{
+			m_value.OnDeserialize(input);
+		}
+
+		template<typename T>
+		template<typename U>
+		void VariantContainer<T>::onDeserialize(
+			const nlohmann::json& input,
+			typename std::enable_if<
+			std::is_pointer<U>::value || !std::is_base_of<Object, U>::value
+			>::type*
+		)
+		{
+			// do nothing
 		}
 	}
 }

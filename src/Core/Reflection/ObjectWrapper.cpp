@@ -51,5 +51,15 @@ namespace GuGu {
 			return new ObjectWrapper(m_object);
 		}
 
+		void ObjectWrapper::OnSerialize(nlohmann::json& output) const
+		{
+			m_object->OnSerialize(output);
+		}
+
+		void ObjectWrapper::OnDeserialize(const nlohmann::json& input)
+		{
+			m_object->OnDeserialize(output);
+		}
+
 	}
 }

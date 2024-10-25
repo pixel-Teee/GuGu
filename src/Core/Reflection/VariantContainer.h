@@ -46,9 +46,13 @@ namespace GuGu {
 			VariantBase* Clone(void) const override;
 
 			void OnSerialize(nlohmann::json& output) const override;
-
+			void OnDeserialize(const nlohmann::json& input) override;
 		private:
 			friend class Variant;
+
+			T m_value;
+
+			VariantContainer& operator=(const VariantContainer& rhs) = delete;
 
 			DEFAULT_TYPE_HANDLER(int);
 			DEFAULT_TYPE_HANDLER(bool);
@@ -77,9 +81,21 @@ namespace GuGu {
 				>::type* = nullptr
 			) const;
 
-			T m_value;
+			template<typename U = T>
+			void onDeserialize(
+				const nlohmann::json& input,
+				typename std::enable_if<
+				!std::is_pointer<U>::value&& std::is_base_of<Object, U>::value
+				>::type* = nullptr
+			);
 
-			VariantContainer& operator=(const VariantContainer& rhs) = delete;
+			template<typename U = T>
+			void onDeserialize(
+				const nlohmann::json& input,
+				typename std::enable_if<
+				std::is_pointer<U>::value || !std::is_base_of<Object, U>::value
+				>::type* = nullptr
+			);
 		};
 	}
 }

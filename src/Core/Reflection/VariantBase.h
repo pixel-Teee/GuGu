@@ -30,6 +30,7 @@ namespace GuGu {
 
 			//todo:add on serialize and on deserialize
 			virtual void OnSerialize(nlohmann::json& output) const {}
+			virtual void OnDeserialize(const nlohmann::json& input) {}
 		};
 	}
 }

@@ -207,8 +207,8 @@ namespace GuGu {
 				object[field.GetName().getStr()] = json;//todo:fix this
 			}
 
-			//if(invokeHook)
-			//	instance.m_base->On
+			if (invokeHook)
+				instance.m_base->OnSerialize(object);
 			return object;
 		}
 	}

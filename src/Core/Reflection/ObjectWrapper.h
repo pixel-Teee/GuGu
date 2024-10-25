@@ -21,6 +21,9 @@ namespace GuGu {
 			GuGuUtf8Str ToString(void) const override;
 
 			VariantBase* Clone(void) const override;
+
+			void OnSerialize(nlohmann::json& output) const override;
+			void OnDeserialize(const nlohmann::json& input) override;
 		private:
 			Object* m_object;
 		};
