@@ -7,7 +7,7 @@
 namespace GuGu {
 	namespace meta {
 		ArrayWrapper::ArrayWrapper(void)
-			: m_isConstant(true)
+			: m_isConst(true)
 			, m_base(nullptr)
 		{
 		}
@@ -17,21 +17,21 @@ namespace GuGu {
 		}
 		void ArrayWrapper::SetValue(size_t index, const Argument& value)
 		{
-			assert(!m_isConstant);
+			assert(!m_isConst);
 
 			if (m_base)
 				m_base->SetValue(index, value);
 		}
 		void ArrayWrapper::Insert(size_t index, const Argument& value)
 		{
-			assert(!m_isConstant);
+			assert(!m_isConst);
 
 			if (m_base)
 				m_base->Insert(index, value);
 		}
 		void ArrayWrapper::Remove(size_t index)
 		{
-			assert(!m_isConstant);
+			assert(!m_isConst);
 
 			if (m_base)
 				m_base->Remove(index);
@@ -46,7 +46,7 @@ namespace GuGu {
 		}
 		bool ArrayWrapper::IsConst(void) const
 		{
-			return m_isConstant;
+			return m_isConst;
 		}
 	}
 }

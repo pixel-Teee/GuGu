@@ -1,5 +1,7 @@
 #pragma once
 
+#include "json.hpp" //json
+
 //构造一个variant去包裹一个object
 #define ObjectVariant(object) GuGu::meta::Variant {object, GuGu::meta::variant_policy::WrapObject()}
 

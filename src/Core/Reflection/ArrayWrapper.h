@@ -28,9 +28,11 @@ namespace GuGu {
 			bool IsValid(void) const;
 			bool IsConst(void) const;
 		private:
-			bool m_isConstant;
+			bool m_isConst;
 
 			ArrayWrapperBase* m_base;
 		};
 	}
 }
+
+#include "ArrayWrapper.hpp"

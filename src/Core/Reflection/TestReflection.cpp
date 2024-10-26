@@ -51,6 +51,10 @@ namespace GuGu {
 				type.AddField<ComplexType, GuGuUtf8Str>("str", (meta::FieldGetter<ComplexType, GuGuUtf8Str, true>::Signature)&ComplexType::getterstr,
 					(meta::FieldSetter<ComplexType, GuGuUtf8Str, true>::Signature)
 					nullptr);
+
+				type.AddField<ComplexType, Array<int>>("counts", (meta::FieldGetter<ComplexType, Array<int>&, true>::SignatureConst)&ComplexType::gettercounts,
+					(meta::FieldSetter<ComplexType, Array<int>, true>::Signature)
+					nullptr);
 				
 				meta::TypeInfo<ComplexType>::Defined = true;
 			}
@@ -61,6 +65,10 @@ namespace GuGu {
 		test.b = 4;
 		test.c = 5;
 		test.str = "ddd";
+		test.counts.push_back(5);
+		test.counts.push_back(4);
+		test.counts.push_back(3);
+		test.counts.push_back(2);
 
 		GuGuUtf8Str res = meta::Variant(test).SerializeJson().dump();
 		GuGu_LOGD("%s", res.getStr());

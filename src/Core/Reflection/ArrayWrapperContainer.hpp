@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ArrayWrapperContainer.h"
+#include "Variant.h"
 
 namespace GuGu {
 	namespace meta {

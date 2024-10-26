@@ -25,3 +25,5 @@ namespace GuGu {
 		};
 	}
 }
+
+#include "ArrayWrapperContainer.hpp"

@@ -3,6 +3,7 @@
 #include "VariantContainer.h"
 #include "Variant.h"
 #include "ObjectWrapper.h"
+#include "ArrayVariantContainer.h"
 
 namespace GuGu {
 	namespace meta {
@@ -33,6 +34,48 @@ namespace GuGu {
 			, m_base(new VariantContainer<CleanedType<T>>(data))
 		{
 		}
+
+		///////////////////////////////////////////////////////////////////////
+
+		template<typename T>
+		Variant::Variant(Array<T>& rhs)
+			: m_isConst(false)
+			, m_base(new ArrayVariantContainer<T, meta_traits::ArrayByReference<T>>(rhs))
+		{
+
+		}
+
+		///////////////////////////////////////////////////////////////////////
+
+		template<typename T>
+		Variant::Variant(const Array<T>& rhs)
+			: m_isConst(true)
+			, m_base(new ArrayVariantContainer<T, const meta_traits::ArrayByReference<T>>(const_cast<const meta_traits::ArrayByReference<T>>(rhs)))
+		{
+
+		}
+
+		///////////////////////////////////////////////////////////////////////
+
+		template<typename T>
+		Variant::Variant(Array<T>&& rhs)
+			: m_isConst(false)
+			, m_base(new ArrayVariantContainer<T, meta_traits::ArrayByValue<T>>(rhs))
+		{
+
+		}
+
+		///////////////////////////////////////////////////////////////////////
+
+		template<typename T>
+		Variant::Variant(const Array<T>&& rhs)
+			: m_isConst(true)
+			, m_base(new ArrayVariantContainer<T, const meta_traits::ArrayByValue<T>>(rhs))
+		{
+
+		}
+
+		///////////////////////////////////////////////////////////////////////
 
 		template<typename T>
 		Variant& Variant::operator=(T&& rhs)
