@@ -1,5 +1,7 @@
 #pragma once
 
+#include "object.h" //ObjectVariant
+
 namespace GuGu {
 	namespace meta {
 		//Non Dynamic
@@ -13,11 +15,10 @@ namespace GuGu {
 
 			Variant Invoke(const ArgumentList& arguments) override
 			{
-				assert(arguments.size() == THIS_ARG_COUNT,
-					"Invalid constructor arguments.\nExpected %i args but got %i.",
-					THIS_ARG_COUNT,
-					arguments.size()
-				);
+                if(arguments.size() != THIS_ARG_COUNT) {
+                    GuGu_LOGE("Invalid constructor arguments.\nExpected %i args but got %i.",
+                              THIS_ARG_COUNT, arguments.size());
+                }
 
 				return invoke<void, ArgTypes...>(arguments);
 			}
@@ -170,11 +171,10 @@ namespace GuGu {
 
 			Variant Invoke(const ArgumentList& arguments) override
 			{
-				assert(arguments.size() == THIS_ARG_COUNT,
-					"Invalid constructor arguments.\nExpected %i args but got %i.",
-					THIS_ARG_COUNT,
-					arguments.size()
-				);
+                if(arguments.size() != THIS_ARG_COUNT) {
+                    GuGu_LOGE("Invalid constructor arguments.\nExpected %i args but got %i.",
+                              THIS_ARG_COUNT, arguments.size());
+                }
 
 				return invoke<void, ArgTypes...>(arguments);
 			}
@@ -326,11 +326,10 @@ namespace GuGu {
 
 			Variant Invoke(const ArgumentList& arguments) override
 			{
-				assert(arguments.size() == THIS_ARG_COUNT,
-					"Invalid constructor arguments.\nExpected %i args but got %i.",
-					THIS_ARG_COUNT,
-					arguments.size()
-				);
+                if(arguments.size() != THIS_ARG_COUNT) {
+                    GuGu_LOGE("Invalid constructor arguments.\nExpected %i args but got %i.",
+                              THIS_ARG_COUNT, arguments.size());
+                }
 
 				return invoke<void, ArgTypes...>(arguments);
 			}

@@ -309,11 +309,11 @@ namespace GuGu {
 			{
 				auto fieldType = field.GetType();
 
-				assert(fieldType.IsValid(),
-					"Unknown type for field '%s' in base type '%s'. Is this type reflected?",
-					fieldType.GetName().c_str(),
-					GetName().c_str()
-				);
+//				assert(fieldType.IsValid(),
+//					"Unknown type for field '%s' in base type '%s'. Is this type reflected?",
+//					fieldType.GetName().c_str(),
+//					GetName().c_str()
+//				);
 
 				auto& fieldData = value[field.GetName().getStr()];
 

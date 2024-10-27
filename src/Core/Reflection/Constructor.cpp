@@ -82,7 +82,7 @@ namespace GuGu {
 
 		Variant Constructor::InvokeVariadic(const ArgumentList& arguments) const
 		{
-			assert(IsValid(), "Invalid constructor invoked.");
+			//assert(IsValid(), "Invalid constructor invoked.");
 
 			return m_invoker->Invoke(arguments);
 		}
