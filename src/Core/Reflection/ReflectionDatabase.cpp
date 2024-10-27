@@ -19,7 +19,8 @@
 	REGISTER_NATIVE_TYPE(const type*)		\
 
 #define REGISTER_NATIVE_TYPE_VARIANTS_W_ARRAY(type) \
-	REGISTER_NATIVE_TYPE_VARIANTS(type)				
+	REGISTER_NATIVE_TYPE_VARIANTS(type)				\
+	types[typeidof(type)].SetArrayConstructor<type>(); \
 
 namespace GuGu {
 	namespace meta {
@@ -38,9 +39,11 @@ namespace GuGu {
 			REGISTER_NATIVE_TYPE_VARIANTS_W_ARRAY(double);
 			REGISTER_NATIVE_TYPE_VARIANTS_W_ARRAY(GuGuUtf8Str);
 
-			//auto& stringType = types[typeidof(GuGuUtf8Str)];
+			auto& stringType = types[typeidof(GuGuUtf8Str)];
 
-			//todo:显式地为字符串添加构造函数
+			//:显式地为字符串添加构造函数
+			stringType.AddConstructor<GuGuUtf8Str, false, false>();
+			stringType.AddConstructor<GuGuUtf8Str, false, true>();
 		}
 		ReflectionDatabase::~ReflectionDatabase()
 		{

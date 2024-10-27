@@ -29,9 +29,38 @@ namespace GuGu {
 			if (beingDefined)
 			{
 				//添加默认构造函数
+				addDefaultConstructor(data);
 
 				//应用平凡属性
 			}
+		}
+
+		template<typename T>
+		template<typename U>
+		void TypeInfo<T>::addDefaultConstructor(
+			TypeData& data,
+			typename std::enable_if<
+			!IsTriviallyDefaultConstructible(U)
+			>::type*
+		)
+		{
+			// do nothing
+		}
+
+		template<typename T>
+		template<typename U>
+		void TypeInfo<T>::addDefaultConstructor(
+			TypeData& data,
+			typename std::enable_if<
+			IsTriviallyDefaultConstructible(U)
+			>::type*
+		)
+		{
+			// add the good 'ol default constructor
+			data.AddConstructor<T, false, false>();
+
+			// add the good 'ol dynamic default constructor
+			data.AddConstructor<T, true, false>();
 		}
 	}
 }

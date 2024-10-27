@@ -3,6 +3,7 @@
 #include "TypeID.h"
 
 #include "TypeConfig.h"
+#include "InvokableConfig.h"
 
 #include <vector>
 
@@ -16,6 +17,7 @@ namespace GuGu {
 	{
 		class Enum;
 		class Variant;
+		class Constructor;
 		class Type
 		{
 		public:
@@ -76,11 +78,26 @@ namespace GuGu {
 
 			Type GetDecayedType(void) const;
 
+			Type GetArrayType(void) const;
+
+			const Constructor& GetArrayConstructor() const;
+
+			std::vector<Constructor> GetConstructos(void) const;
+
+			const Constructor& GetConstructor(const InvokableSignature& signature = InvokableSignature()) const;
+
             nlohmann::json SerializeJson(const Variant& instance, bool invokeHook = true) const;
 
 			template<typename ClassType>
 			static nlohmann::json SerializeJson(const ClassType& instance, bool invokeHook = true);
 
+			template<typename ClassType>
+			static ClassType DeserializeJson(const nlohmann::json& value);
+
+			Variant DeserializeJson(const nlohmann::json& value) const;
+			Variant DeserializeJson(const nlohmann::json& value, const Constructor& ctor) const;
+			//Variant DeserializeJson(const nlohmann::json& value, const )
+			void DeserializeJson(Variant& instance, const nlohmann::json& value) const;
 		private:
 			//一个无符号整数
 			TypeID m_id;

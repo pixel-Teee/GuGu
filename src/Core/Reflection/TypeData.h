@@ -3,6 +3,7 @@
 #include "Type.h"
 #include "Field.h"
 #include "Enum.h"
+#include "Constructor.h"
 
 #include <Core/GuGuUtf8Str.h>
 
@@ -33,6 +34,11 @@ namespace GuGu {
 			Type::Set derivedClasses; //派生类
 
 			//构造函数
+			Constructor arrayConstructor;
+
+			std::unordered_map<InvokableSignature, Constructor> constructors;
+
+			std::unordered_map<InvokableSignature, Constructor> dynamicConstructors;
 
 			//析构函数
 
@@ -47,6 +53,16 @@ namespace GuGu {
 
 			TypeData(void);
 			TypeData(const GuGuUtf8Str& name);
+
+			template<typename ClassType>
+			void SetArrayConstructor(void);
+
+			template<typename ClassType, bool IsDynamic, bool IsWrapped, typename ...Args>
+			void AddConstructor();
+
+			const Constructor& GetConstructor(
+				const InvokableSignature& signature
+			);
 
 			// Method Getter, Method Setter
 			template<typename ClassType, typename FieldType, typename GetterReturnType, typename SetterArgumentType>

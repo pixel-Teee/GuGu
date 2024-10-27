@@ -25,6 +25,16 @@ namespace GuGu {
 		{
 		}
 
+		const Constructor& TypeData::GetConstructor(const InvokableSignature& signature)
+		{
+			auto search = constructors.find(signature);
+
+			if (search == constructors.end())
+				return Constructor::Invalid();
+
+			return search->second;
+		}
+
 		const Field& TypeData::GetField(const std::string& name) const
 		{
 			for (auto& field : fields)

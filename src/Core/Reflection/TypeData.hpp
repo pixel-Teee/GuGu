@@ -1,7 +1,38 @@
+#include "TypeData.h"
 #pragma once
 
 namespace GuGu {
 	namespace meta {
+		template<typename ClassType>
+		void TypeData::SetArrayConstructor(void)
+		{
+			arrayConstructor = Constructor{
+				typeof(ClassType),
+				{},
+				new ConstructorInvoker<Array<ClassType>, false, false>(),
+				false
+			};
+		}
+		template<typename ClassType, bool IsDynamic, bool IsWrapped, typename ...Args>
+		void TypeData::AddConstructor()
+		{
+			InvokableSignature signature =
+				Invokable::CreateSignature<Args...>();
+
+			Constructor ctor{
+				typeof(ClassType),
+				signature,
+				new ConstructorInvoker<ClassType, IsDynamic, IsWrapped, Args...>(), //dynamic 表示构造出来的对象是堆上的，否则是栈上的
+				IsDynamic
+			};
+
+			//ctor.m_meta = meta;
+
+			if (IsDynamic)
+				dynamicConstructors.emplace(signature, ctor);
+			else
+				constructors.emplace(signature, ctor);
+		}
 		template<typename ClassType, typename FieldType, typename GetterReturnType, typename SetterArgumentType>
 		void TypeData::AddField(
 			const std::string& name,

@@ -23,5 +23,12 @@ namespace GuGu {
 
 			return type.SerializeJson(variant, invokeHook);
 		}
+		template<typename ClassType>
+		ClassType Type::DeserializeJson(const nlohmann::json& value)
+		{
+			auto type = typeof(ClassType);
+
+			return type.DeserializeJson(value).GetValue<ClassType>();
+		}
 	}
 }

@@ -4,6 +4,7 @@
 #include "ReflectionDatabase.h"
 
 #include "ArrayWrapper.h"
+#include "TypeCreator.h"
 
 namespace GuGu {
 	namespace meta {
@@ -137,6 +138,29 @@ namespace GuGu {
 
 			return Type();
 		}
+		Type Type::GetArrayType(void) const
+		{
+			return Type(m_id, false);
+		}
+		const Constructor& Type::GetArrayConstructor() const
+		{
+			return gDatabase.types[m_id].arrayConstructor;
+		}
+		std::vector<Constructor> Type::GetConstructos(void) const
+		{
+			auto& handle = gDatabase.types[m_id].constructors;
+
+			std::vector<Constructor> constructors;
+
+			for (auto& constructor : handle)
+				constructors.emplace_back(constructor.second);
+
+			return constructors;
+		}
+		const Constructor& Type::GetConstructor(const InvokableSignature& signature) const
+		{
+			return gDatabase.types[m_id].GetConstructor(signature);
+		}
 		nlohmann::json Type::SerializeJson(const Variant& instance, bool invokeHook) const
 		{
 			if (*this != instance.GetType())
@@ -163,7 +187,7 @@ namespace GuGu {
 
 			if (*this == typeof(bool))
 			{
-				return { instance.ToBool() };
+				return instance.ToBool();
 			}
 
 			//auto& meta = GetMeta();
@@ -174,10 +198,10 @@ namespace GuGu {
 			{
 				if (IsFloatingPoint() || !IsSigned())
 				{
-					return { instance.ToDouble() };
+					return instance.ToDouble();
 				}
 
-				return { instance.ToInt() };
+				return instance.ToInt();
 			}
 
 			//associative enum value
@@ -188,7 +212,7 @@ namespace GuGu {
 
 			if (*this == typeof(GuGuUtf8Str))
 			{
-				return { instance.ToString().getStr() };
+				return instance.ToString().getStr();
 			}
 
 			nlohmann::json object{};
@@ -209,6 +233,101 @@ namespace GuGu {
 			if (invokeHook)
 				instance.m_base->OnSerialize(object);
 			return object;
+		}
+		Variant Type::DeserializeJson(const nlohmann::json& value) const
+		{
+			auto& ctor = GetConstructor();//无参构造一个
+
+			return DeserializeJson(value, ctor);
+		}
+		Variant Type::DeserializeJson(const nlohmann::json& value, const Constructor& ctor) const
+		{
+			//数组类型需要特殊的情况
+			if (IsArray())
+			{
+				auto nonArrayType = GetArrayType();
+				auto arrayCtor = GetArrayConstructor();
+
+				auto instance = arrayCtor.Invoke();
+				auto wrapper = instance.GetArray();
+
+				size_t i = 0;
+				for (auto& item : value) //遍历json数组
+				{
+					wrapper.Insert(i++, nonArrayType.DeserializeJson(item, ctor));
+				}
+
+				return instance;
+			}
+			//处理所有原子类型
+			else if (IsPrimitive())
+			{
+				if (*this == typeof(int))
+					return { value.get<int>() };
+				else if (*this == typeof(unsigned int))
+					return { static_cast<unsigned int>(value.get<unsigned int>()) };
+				else if (*this == typeof(bool))
+					return { value.get<bool>() };
+				else if (*this == typeof(float))
+					return { static_cast<float>(value.get<float>()) };
+				else if (*this == typeof(double))
+					return { value.get<double>() };
+			}
+			else if (IsEnum())
+			{
+				// number literal
+				if (value.is_number())
+					return { value.get<int>() };
+
+				// associative value
+				auto enumValue = GetEnum().GetValue(value.get<std::string>());
+
+				// make sure we can find the key
+				if (enumValue.IsValid())
+					return enumValue;
+
+				// use the default value as we couldn't find the key
+				return TypeCreator::Create(*this);
+			}
+			else if (*this == typeof(GuGuUtf8Str))
+			{
+				return GuGuUtf8Str(value.get<std::string>());
+			}
+
+			auto instance = ctor.Invoke();
+
+			DeserializeJson(instance, value); //反序列化普通对象
+
+			return instance;
+		}
+
+		void Type::DeserializeJson(Variant& instance, const nlohmann::json& value) const
+		{
+			auto& fields = gDatabase.types[m_id].fields;
+
+			for (auto& field : fields)
+			{
+				auto fieldType = field.GetType();
+
+				assert(fieldType.IsValid(),
+					"Unknown type for field '%s' in base type '%s'. Is this type reflected?",
+					fieldType.GetName().c_str(),
+					GetName().c_str()
+				);
+
+				auto& fieldData = value[field.GetName().getStr()];
+
+				if (!fieldData.is_null())
+				{
+					auto fieldValue = fieldType.DeserializeJson(fieldData);
+
+					fieldValue.m_base->OnDeserialize(fieldData);
+
+					field.SetValue(instance, fieldValue);
+				}
+			}
+
+			instance.m_base->OnDeserialize(value);
 		}
 	}
 }
