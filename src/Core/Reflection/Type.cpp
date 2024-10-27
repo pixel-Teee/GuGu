@@ -146,7 +146,7 @@ namespace GuGu {
 			{
 				nlohmann::json array = nlohmann::json::array();
 
-				auto wrapper = instance.GetArray();//从 variant 获取 array
+				auto wrapper = instance.GetArray();//从 variant 获取 array, array wrapper
 				auto size = wrapper.Size();
 
 				for (size_t i = 0; i < size; ++i)
@@ -188,7 +188,7 @@ namespace GuGu {
 
 			if (*this == typeof(GuGuUtf8Str))
 			{
-				return { instance.ToString().getStr() }; //todo:fix this, return string
+				return { instance.ToString().getStr() };
 			}
 
 			nlohmann::json object{};
@@ -197,14 +197,13 @@ namespace GuGu {
 
 			for (auto& field : fields)
 			{
-				auto value = field.GetValue(instance);
+				auto value = field.GetValue(instance);//variant
 
-				auto json = value.SerializeJson();//todo:fix this
+				auto json = value.SerializeJson();
 
-				//TODO:add on serialize
 				value.m_base->OnSerialize(const_cast<nlohmann::json &>(json));
 
-				object[field.GetName().getStr()] = json;//todo:fix this
+				object[field.GetName().getStr()] = json;
 			}
 
 			if (invokeHook)

@@ -16,7 +16,6 @@ namespace GuGu {
 		double getterb() const { return b; }
 		float getterc() const { return c; }
 		GuGuUtf8Str getterstr() const { return str; }
-		//todo:add array
 		const Array<int>& gettercounts() const{ return counts; }
 	};
 	void testReflection();

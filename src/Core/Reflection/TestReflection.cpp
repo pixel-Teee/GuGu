@@ -35,24 +35,46 @@ namespace GuGu {
 			if (typeID != meta::InvalidTypeID && !meta::TypeInfo<ComplexType>::Defined)
 			{
 				auto& type = db.types[typeID];
+// 
+// 				type.AddField<ComplexType, int>("a", (meta::FieldGetter<ComplexType, int, true>::Signature)&ComplexType::gettera, 
+// 					(meta::FieldSetter<ComplexType, int, true>::Signature)
+// 					nullptr);
+// 
+// 				type.AddField<ComplexType, double>("b", (meta::FieldGetter<ComplexType, double, true>::Signature) & ComplexType::getterb,
+// 					(meta::FieldSetter<ComplexType, double, true>::Signature)
+// 					nullptr);
+// 
+// 				type.AddField<ComplexType, float>("c", (meta::FieldGetter<ComplexType, float, true>::Signature) & ComplexType::getterc,
+// 					(meta::FieldSetter<ComplexType, float, true>::Signature)
+// 					nullptr);
+// 
+// 				type.AddField<ComplexType, GuGuUtf8Str>("str", (meta::FieldGetter<ComplexType, GuGuUtf8Str, true>::Signature)&ComplexType::getterstr,
+// 					(meta::FieldSetter<ComplexType, GuGuUtf8Str, true>::Signature)
+// 					nullptr);
+// 
+// 				type.AddField<ComplexType, Array<int>>("counts", (meta::FieldGetter<ComplexType, Array<int>&, true>::SignatureConst)&ComplexType::gettercounts,
+// 					(meta::FieldSetter<ComplexType, Array<int>, true>::Signature)
+// 					nullptr);
 
-				type.AddField<ComplexType, int>("a", (meta::FieldGetter<ComplexType, int, true>::Signature)&ComplexType::gettera, 
+
+				//直接获取字段的注册方法
+				type.AddField<ComplexType, int>("a", (meta::FieldGetter<ComplexType, int, false>::Signature) & ComplexType::a,
 					(meta::FieldSetter<ComplexType, int, true>::Signature)
 					nullptr);
 
-				type.AddField<ComplexType, double>("b", (meta::FieldGetter<ComplexType, double, true>::Signature) & ComplexType::getterb,
+				type.AddField<ComplexType, double>("b", (meta::FieldGetter<ComplexType, double, false>::Signature) & ComplexType::b,
 					(meta::FieldSetter<ComplexType, double, true>::Signature)
 					nullptr);
 
-				type.AddField<ComplexType, float>("c", (meta::FieldGetter<ComplexType, float, true>::Signature) & ComplexType::getterc,
+				type.AddField<ComplexType, float>("c", (meta::FieldGetter<ComplexType, float, false>::Signature) & ComplexType::c,
 					(meta::FieldSetter<ComplexType, float, true>::Signature)
 					nullptr);
 
-				type.AddField<ComplexType, GuGuUtf8Str>("str", (meta::FieldGetter<ComplexType, GuGuUtf8Str, true>::Signature)&ComplexType::getterstr,
+				type.AddField<ComplexType, GuGuUtf8Str>("str", (meta::FieldGetter<ComplexType, GuGuUtf8Str, false>::Signature) & ComplexType::str,
 					(meta::FieldSetter<ComplexType, GuGuUtf8Str, true>::Signature)
 					nullptr);
 
-				type.AddField<ComplexType, Array<int>>("counts", (meta::FieldGetter<ComplexType, Array<int>&, true>::SignatureConst)&ComplexType::gettercounts,
+				type.AddField<ComplexType, Array<int>>("counts", (meta::FieldGetter<ComplexType, Array<int>, false>::Signature) & ComplexType::counts,
 					(meta::FieldSetter<ComplexType, Array<int>, true>::Signature)
 					nullptr);
 				

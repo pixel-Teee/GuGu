@@ -50,5 +50,33 @@ namespace GuGu {
 			}
 			SignatureConst m_method;
 		};
+
+		//getter from direct field
+		template<typename ClassType, typename FieldType>
+		class FieldGetter<ClassType, FieldType, false> : public FieldGetterBase
+		{
+		public:
+			typedef FieldType(ClassType::* Signature);
+
+			FieldGetter(Signature field)
+				: m_field(field) { }
+
+			Variant GetValue(const Variant& obj) override
+			{
+				auto& instance = obj.GetValue<ClassType>();
+
+				return instance.*m_field;
+			}
+
+			Variant GetValueReference(const Variant& obj) override
+			{
+				auto& instance = obj.GetValue<ClassType>();
+
+				return Variant{ instance.*m_field, variant_policy::NoCopy() };
+			}
+
+		private:
+			Signature m_field;
+		};
 	}
 }
