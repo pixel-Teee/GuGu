@@ -159,7 +159,7 @@ extern "C" {
 
 		//GuGu::InitArchive();
 
-		androidApplication->init();
+		androidApplication->init(nullptr);
 
 		androidApplication->Run();
 

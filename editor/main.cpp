@@ -165,7 +165,7 @@ void android_main(struct android_app *pApp) {
 
     //GuGu::InitArchive();
 
-    androidApplication->init();
+    androidApplication->init(nullptr);
 
     androidApplication->Run();
 

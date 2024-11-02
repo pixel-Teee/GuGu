@@ -6,6 +6,7 @@ struct android_app;
 struct AAssetManager;
 namespace GuGu{
     class AndroidWindow;
+    class WindowWidget;
     class AndroidApplication : public Application
     {
     public:
@@ -13,7 +14,7 @@ namespace GuGu{
 
         virtual ~AndroidApplication();
 
-        virtual void init() override;
+        virtual void init(std::shared_ptr<WindowWidget> inWindowWidget) override;
 
         virtual void pumpMessage() override;
         //virtual void resize(int32_t width, int32_t height) override;
