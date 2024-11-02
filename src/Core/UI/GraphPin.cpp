@@ -3,7 +3,7 @@
 #include "GraphPin.h"
 #include "BoxPanel.h"
 #include "ImageWidget.h"
-#include "StyleSet.h"
+#include "CoreStyle.h"
 
 namespace GuGu {
 	GraphPin::GraphPin()
@@ -17,7 +17,7 @@ namespace GuGu {
 	{
 		m_bIsInput = (arguments.mdirection == GraphPinDirection::Input);
 
-		std::shared_ptr<Widget> pinWidget = WIDGET_NEW(ImageWidget).brush(StyleSet::getStyle()->getBrush("graph.pin"));
+		std::shared_ptr<Widget> pinWidget = WIDGET_NEW(ImageWidget).brush(CoreStyle::getStyle()->getBrush("graph.pin"));
 
 		std::shared_ptr<HorizontalBox> pinContent;
 		if (m_bIsInput)

@@ -7,7 +7,7 @@
 #include "TextBlockWidget.h"
 #include "NumericTypeInterface.h"
 #include "Style.h"
-#include "StyleSet.h"
+#include "CoreStyle.h"
 #include "UIMacros.h"
 #include "BoxPanel.h"
 #include "LayoutUtils.h"
@@ -35,7 +35,7 @@ namespace GuGu {
 		struct BuilderArguments : public Arguments<SpinBox<NumericType>>
 		{
 			BuilderArguments()
-				: mStyle(StyleSet::getStyle()->template getStyle<SpinBoxStyle>("SpinBox"))
+				: mStyle(CoreStyle::getStyle()->template getStyle<SpinBoxStyle>("SpinBox"))
 				, mValue(0)
 				, mMinFractionDigits(defaultMinFractionalDigits)
 				, mMaxFractionDigits(defaultMaxFractionalDigits)

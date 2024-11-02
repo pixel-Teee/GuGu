@@ -26,6 +26,7 @@ namespace GuGu {
 	}
 	void WindowsApplication::init(std::shared_ptr<WindowWidget> inWindowWidget)
 	{
+		Application::init();
 		//create renderer
 #if USE_DX12
 		m_renderer = std::make_shared<D3D12Renderer>();

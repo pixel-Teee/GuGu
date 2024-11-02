@@ -32,7 +32,7 @@ namespace GuGu {
 		struct BuilderArguments : public Arguments<ListView>
 		{
 			BuilderArguments()
-				: mstyle(StyleSet::getStyle()->template getStyle<ScrollBarStyle>("ScrollBar"))
+				: mstyle(CoreStyle::getStyle()->template getStyle<ScrollBarStyle>("ScrollBar"))
 				, mitemHeight(16)
 				, morientation(Orientation::Vertical)
 				, mListItemSource()

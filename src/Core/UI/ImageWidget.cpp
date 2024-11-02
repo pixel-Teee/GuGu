@@ -3,12 +3,12 @@
 #include "ImageWidget.h"
 
 #include "Brush.h"
-#include "StyleSet.h"
+#include "CoreStyle.h"
 #include "ElementList.h"
 
 namespace GuGu {
 	ImageWidget::ImageWidget()
-		: m_imageBursh(StyleSet::getStyle()->getBrush("fun"))
+		: m_imageBursh(CoreStyle::getStyle()->getBrush("fun"))
 	{
 	}
 	ImageWidget::~ImageWidget()

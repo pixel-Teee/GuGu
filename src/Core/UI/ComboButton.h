@@ -3,7 +3,7 @@
 #include "MenuAnchor.h"
 #include "BoxPanel.h"
 #include "UIMacros.h"
-#include "StyleSet.h"
+#include "CoreStyle.h"
 
 namespace GuGu {
 	//一个按钮，当点击的时候，弹出一个 pop up
@@ -17,7 +17,7 @@ namespace GuGu {
 		struct BuilderArguments : public Arguments<ComboButton>
 		{
 			BuilderArguments()
-				: mcomboButtonStyle(StyleSet::getStyle()->template getStyle<ComboButtonStyle>("comboButton"))
+				: mcomboButtonStyle(CoreStyle::getStyle()->template getStyle<ComboButtonStyle>("comboButton"))
 				, mmenuPlacement(MenuPlacementComboBox)
 				, misFocusable(true)
 				, mhorizontalAlignment(HorizontalAlignment::Stretch)

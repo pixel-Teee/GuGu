@@ -3,13 +3,13 @@
 #include "IEditableTextWidget.h"
 #include "EditableText.h"
 #include "Style.h"
-#include "StyleSet.h"
+#include "CoreStyle.h"
 #include "PlainTextLayoutMarshaller.h"
 
 namespace GuGu {
 	void EditableText::init(const BuilderArguments& arguments)
 	{
-		TextBlockStyle textStyle = *(StyleSet::getStyle()->getStyle<TextBlockStyle>("normalText"));
+		TextBlockStyle textStyle = *(CoreStyle::getStyle()->getStyle<TextBlockStyle>("normalText"));
 
 		m_plainTextMarshaller = std::make_shared<PlainTextLayoutMarshaller>();
 

@@ -3,14 +3,14 @@
 #include "Slider.h"
 #include "Brush.h"
 #include "ElementList.h"
-#include "StyleSet.h"
+#include "CoreStyle.h"
 
 #include <Application/Application.h>
 #include <Core/Timer.h>
 
 namespace GuGu {
 	Slider::Slider()
-		: m_sliderStyle(StyleSet::getStyle()->getStyle<SliderStyle>("slider"))
+		: m_sliderStyle(CoreStyle::getStyle()->getStyle<SliderStyle>("slider"))
 	{
 		m_orientation = Orientation::Horizontal;
 		m_valueAttribute = 0.0f;

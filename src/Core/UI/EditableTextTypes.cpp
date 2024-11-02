@@ -4,7 +4,7 @@
 
 #include "ElementList.h"
 
-#include "StyleSet.h"
+#include "CoreStyle.h"
 
 #include <Core/Timer.h>
 #include <Application/Application.h>
@@ -55,7 +55,7 @@ namespace GuGu {
 		CursorLineHighlighter::CursorLineHighlighter(const CursorInfo* inCursorInfo)
 			: m_cursorInfo(inCursorInfo)
 		{
-			m_cursorBrush = StyleSet::getStyle()->getBrush(u8"selectionBackground");
+			m_cursorBrush = CoreStyle::getStyle()->getBrush(u8"selectionBackground");
 		}
 		int32_t CursorLineHighlighter::onPaint(const PaintArgs& args, const TextLayout::LineView& line, const float offsetX, const float inWidth, const TextBlockStyle& defaultStyle, const WidgetGeometry& allottedGeometry, const math::box2& cullingRect, ElementList& outDrawElements, int32_t layerId) const
 		{

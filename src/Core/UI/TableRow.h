@@ -6,7 +6,7 @@
 #include "TableViewBase.h"
 #include "ExpanderArrow.h"
 #include "BoxPanel.h"
-#include "StyleSet.h"
+#include "CoreStyle.h"
 
 namespace GuGu {
 	class TableViewBase;
@@ -20,7 +20,7 @@ namespace GuGu {
 		{
 			BuilderArguments()
 				//: mContent()
-				: mStyle(StyleSet::getStyle()->template getStyle<TableRowStyle>("tableView.Row"))
+				: mStyle(CoreStyle::getStyle()->template getStyle<TableRowStyle>("tableView.Row"))
 				, mpadding(Padding(0))
 			{
 				//this->mClip = WidgetClipping::ClipToBounds;

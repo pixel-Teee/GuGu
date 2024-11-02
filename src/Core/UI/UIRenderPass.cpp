@@ -8,7 +8,7 @@
 
 #include "Slot.h"
 #include "Brush.h"
-#include "StyleSet.h"
+#include "CoreStyle.h"
 #include "BasicElement.h"
 #include "ElementList.h"
 
@@ -51,6 +51,7 @@
 #include <Core/Timer.h>
 #include <Renderer/CommonRenderPasses.h>
 #include <Core/SceneGraph/SceneGraph.h>
+#include <Core/UI/StyleSetCenter.h>
 
 namespace GuGu {
 
@@ -79,7 +80,7 @@ namespace GuGu {
 		m_rootFileSystem->mount("asset", archiverFileSystem);
 #endif	
 		m_textureCache = std::make_shared<TextureCache>(GetDevice(), m_rootFileSystem);
-		m_styles = StyleSet::getStyle();
+		//m_styles = CoreStyle::getStyle();
 
 		m_atlasTexture = std::make_shared<AtlasTexture>(m_atlasSize, 4);
 		loadStyleTextures();
@@ -630,7 +631,7 @@ namespace GuGu {
 		//						//.Content(
 		//						//	
 		//						//)
-		//						//.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
+		//						//.brush(CoreStyle::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
 		//						//.BorderBackgroundColor(color)
 		//					);
 		//				})
@@ -736,7 +737,7 @@ namespace GuGu {
 		//						//.Content(
 		//						//	
 		//						//)
-		//						//.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
+		//						//.brush(CoreStyle::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
 		//						//.BorderBackgroundColor(color)
 		//					);
 		//				})
@@ -837,7 +838,13 @@ namespace GuGu {
 	void UIRenderPass::loadStyleTextures()
 	{
 		std::vector<std::shared_ptr<Brush>> brushs;
-		m_styles->getBrush(brushs);
+		//m_styles->getBrush(brushs);
+
+		std::vector<std::shared_ptr<StyleSet>> styleSets = StyleSetCenter::GetStyles();
+		for (auto& styleSet : styleSets)
+		{
+			styleSet->getBrush(brushs);
+		}
 
 		for (size_t i = 0; i < brushs.size(); ++i)
 		{
@@ -954,7 +961,7 @@ namespace GuGu {
 						(
 							WIDGET_NEW(ImageWidget)
 							//.Clip(WidgetClipping::ClipToBounds)
-							.brush(m_styles->getBrush("headerBackground"))
+							.brush(CoreStyle::getStyle()->getBrush("headerBackground"))
 						)
 						+ Overlay::Slot()
 						.setHorizontalAlignment(HorizontalAlignment::Right)
@@ -962,7 +969,7 @@ namespace GuGu {
 						.setPadding(Padding(0.0f, 0.0f, 10.0f, 0.0f))
 						(
 							WIDGET_NEW(Button)
-							.buttonSyle(m_styles->getStyle<ButtonStyle>("closeButton"))
+							.buttonSyle(CoreStyle::getStyle()->getStyle<ButtonStyle>("closeButton"))
 							//.contentPadding(Padding(10.0f, 10.0f, 10.0f, 10.0f))
 							//.Clip(WidgetClipping::ClipToBounds)
 							.ClickedLambda([&] {
@@ -996,7 +1003,7 @@ namespace GuGu {
 							WIDGET_NEW(Border)
 							.verticalAlignment(VerticalAlignment::Center)
 							.horizontalAlignment(HorizontalAlignment::Center)
-							.brush(m_styles->getBrush("background"))
+							.brush(CoreStyle::getStyle()->getBrush("background"))
 							//.Clip(WidgetClipping::ClipToBounds)
 							.Content
 							(
@@ -1135,7 +1142,7 @@ namespace GuGu {
 								////		.MaxValue(15.0f)
 								////		.MinValue(0.0f)
 								////		.OnValueChangedLambda([&](float inValue) {
-								////				StyleSet::getStyle()->getBrush("thumbImage")->m_outlineSettings.m_width = inValue;
+								////				CoreStyle::getStyle()->getBrush("thumbImage")->m_outlineSettings.m_width = inValue;
 								////			}
 								////		)
 								////	)
@@ -1152,7 +1159,7 @@ namespace GuGu {
 								////		.MaxValue(200.0f)
 								////		.MinValue(0.0f)
 								////		.OnValueChangedLambda([&](float inValue) {
-								////			StyleSet::getStyle()->getBrush("thumbImage")->m_outlineSettings.m_cornerRadius = math::float4(inValue);
+								////			CoreStyle::getStyle()->getBrush("thumbImage")->m_outlineSettings.m_cornerRadius = math::float4(inValue);
 								////			}
 								////		)
 								////	)
@@ -1169,7 +1176,7 @@ namespace GuGu {
 								////		.MaxValue(15.0f)
 								////		.MinValue(0.0f)
 								////		.OnValueChangedLambda([&](float inValue) {
-								////			StyleSet::getStyle()->getBrush("thumbImage")->m_margin = Padding(inValue, inValue, inValue, inValue);
+								////			CoreStyle::getStyle()->getBrush("thumbImage")->m_margin = Padding(inValue, inValue, inValue, inValue);
 								////			}
 								////		)
 								////	)
@@ -1250,7 +1257,7 @@ namespace GuGu {
 								//			.text(u8"x:")
 								//			.Clip(WidgetClipping::ClipToBounds)
 								//		)
-								//		.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
+								//		.brush(CoreStyle::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
 								//		.BorderBackgroundColor(math::float4(1.0f, 0.0f, 0.0f, 1.0f))
 								//		.horizontalAlignment(HorizontalAlignment::Center)
 								//		.verticalAlignment(VerticalAlignment::Center)
@@ -1281,7 +1288,7 @@ namespace GuGu {
 								//			.text(u8"y:")
 								//			.Clip(WidgetClipping::ClipToBounds)
 								//		)
-								//		.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
+								//		.brush(CoreStyle::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
 								//		.BorderBackgroundColor(math::float4(0.0f, 1.0f, 0.0f, 1.0f))
 								//		.horizontalAlignment(HorizontalAlignment::Center)
 								//		.verticalAlignment(VerticalAlignment::Center)
@@ -1313,7 +1320,7 @@ namespace GuGu {
 								//			.text(u8"z:")
 								//			.Clip(WidgetClipping::ClipToBounds)
 								//		)
-								//		.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
+								//		.brush(CoreStyle::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
 								//		.BorderBackgroundColor(math::float4(0.0f, 0.0f, 1.0f, 1.0f))
 								//		.horizontalAlignment(HorizontalAlignment::Center)
 								//		.verticalAlignment(VerticalAlignment::Center)
@@ -1350,7 +1357,7 @@ namespace GuGu {
 								//			.text(u8"R:")
 								//			.Clip(WidgetClipping::ClipToBounds)
 								//		)
-								//		.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
+								//		.brush(CoreStyle::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
 								//		.BorderBackgroundColor(math::float4(1.0f, 0.0f, 0.0f, 1.0f))
 								//	)
 								//	+ HorizontalBox::Slot()
@@ -1373,7 +1380,7 @@ namespace GuGu {
 								//			.text(u8"G:")
 								//			.Clip(WidgetClipping::ClipToBounds)
 								//		)
-								//		.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
+								//		.brush(CoreStyle::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
 								//		.BorderBackgroundColor(math::float4(0.0f, 1.0f, 0.0f, 1.0f))
 								//	)
 								//	+ HorizontalBox::Slot()
@@ -1397,7 +1404,7 @@ namespace GuGu {
 								//			.text(u8"B:")
 								//			.Clip(WidgetClipping::ClipToBounds)
 								//		)
-								//		.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
+								//		.brush(CoreStyle::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
 								//		.BorderBackgroundColor(math::float4(0.0f, 0.0f, 1.0f, 1.0f))
 								//	)
 								//	+ HorizontalBox::Slot()
@@ -1540,7 +1547,7 @@ namespace GuGu {
 								//				//.Content(
 								//				//	
 								//				//)
-								//				//.brush(StyleSet::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
+								//				//.brush(CoreStyle::getStyle()->getStyle<SliderStyle>("slider")->m_normalThumbImage)
 								//				//.BorderBackgroundColor(color)
 								//			);
 								//		})

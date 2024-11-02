@@ -5,7 +5,7 @@
 #include "TextBlockWidget.h"
 #include "BoxPanel.h"
 #include "Button.h"
-#include "StyleSet.h"
+#include "CoreStyle.h"
 #include "Style.h"
 #include "Border.h"
 
@@ -27,9 +27,9 @@ namespace GuGu {
 		}
 
 		const bool bBodyDiffers = arguments.mbodyBorderImage.Get() != nullptr || arguments.mbodyBorderBackgroundColor.IsSet();
-		const Attribute<std::shared_ptr<Brush>> fullBorderImage = bBodyDiffers ? StyleSet::getStyle()->getNoBrush() : arguments.mborderImage;
+		const Attribute<std::shared_ptr<Brush>> fullBorderImage = bBodyDiffers ? CoreStyle::getStyle()->getNoBrush() : arguments.mborderImage;
 		const Attribute<math::float4> fullBorderBackgroundColor = bBodyDiffers ? math::float4(0, 0, 0, 0) : arguments.mbodyBorderBackgroundColor;
-		const Attribute<std::shared_ptr<Brush>> titleBorderImage = !bBodyDiffers ? StyleSet::getStyle()->getNoBrush() : arguments.mborderImage;
+		const Attribute<std::shared_ptr<Brush>> titleBorderImage = !bBodyDiffers ? CoreStyle::getStyle()->getNoBrush() : arguments.mborderImage;
 		const Attribute<math::float4> m_titleBorderBackgroundColor = !bBodyDiffers ? math::float4(0, 0, 0, 0) : arguments.mborderBackgroundColor;
 
 		m_childWidget->setChildWidget(
@@ -50,7 +50,7 @@ namespace GuGu {
 					.Content
 					(
 						WIDGET_NEW(Button)
-						.buttonSyle(StyleSet::getStyle()->getStyle<ButtonStyle>("NoBorder"))
+						.buttonSyle(CoreStyle::getStyle()->getStyle<ButtonStyle>("NoBorder"))
 						.contentPadding(arguments.mHeaderPadding)
 						.Clicked(this, &ExpandableArea::onHeaderClicked)
 					)

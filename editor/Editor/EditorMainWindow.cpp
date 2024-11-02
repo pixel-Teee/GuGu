@@ -28,16 +28,15 @@ namespace GuGu {
 	}
 	std::shared_ptr<EditorMainWindow> CreateEditorMainWindow()
 	{
+		//register style set
+		//std::shared_ptr<StyleSet> editorStyleSet = std::make_shared<editorStyleSet>();
+
 		//1.先创建 window widget
 		return WIDGET_NEW(EditorMainWindow)
 			.Content
 			(
-				WIDGET_NEW(Button)
-				.buttonSyle(StyleSet::getStyle()->getStyle<ButtonStyle>("closeButton"))
-				.Content
-				(
-					NullWidget::getNullWidget()
-				)
+				NullWidget::getNullWidget()
+
 			)
 			//.ClientSize(math::float2(m_deviceParams.backBufferWidth, m_deviceParams.backBufferHeight))
 			.ClientSize(math::float2(1280.0f, 720.0f))

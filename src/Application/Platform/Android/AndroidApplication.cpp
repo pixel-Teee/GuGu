@@ -21,6 +21,7 @@ namespace GuGu{
     }
 
     void AndroidApplication::init(std::shared_ptr<WindowWidget> inWindowWidget) {
+        Application::init();
         //create renderer and init
         m_renderer = std::make_shared<VulkanRenderer>();
         m_renderer->init(inWindowWidget);

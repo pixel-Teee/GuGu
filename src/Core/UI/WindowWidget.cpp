@@ -3,7 +3,7 @@
 #include "WindowWidget.h"
 
 #include "Slot.h"
-#include "StyleSet.h"
+#include "CoreStyle.h"
 #include "ElementList.h"
 #include "LayoutUtils.h"
 #include "ArrangedWidget.h"
@@ -15,9 +15,11 @@
 
 #include <Application/Application.h>
 
+#include <Core/UI/CoreStyle.h>
+
 namespace GuGu {
 	WindowWidget::WindowWidget()
-		: m_defaultBrush(StyleSet::getStyle()->getBrush("CheckerBoard"))
+		: m_defaultBrush(CoreStyle::getStyle()->getBrush("CheckerBoard"))
 	{
 		m_windowType = WindowType::VirtualWindow;
 	}

@@ -10,7 +10,7 @@
 namespace GuGu {
 	Border::Border()
 		: m_borderBackgroundColor(math::float4(1.0f, 1.0f, 1.0f, 1.0f))
-		, m_imageBursh(StyleSet::getStyle()->getBrush("NoBorder"))
+		, m_imageBursh(CoreStyle::getStyle()->getBrush("NoBorder"))
 	{
 	}
 	Border::~Border()

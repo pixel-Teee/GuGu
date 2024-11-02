@@ -16,7 +16,7 @@ namespace GuGu {
 		{
 			BuilderArguments()
 				//: mContent()
-				: mStyle(StyleSet::getStyle()->template getStyle<TableRowStyle>("comboBox.Row"))
+				: mStyle(CoreStyle::getStyle()->template getStyle<TableRowStyle>("comboBox.Row"))
 				, mpadding(Padding(0))
 			{
 				//this->mClip = WidgetClipping::ClipToBounds;
@@ -87,8 +87,8 @@ namespace GuGu {
 		struct BuilderArguments : public Arguments<ComboBox>
 		{
 			BuilderArguments()
-				: mcomboBoxStyle(StyleSet::getStyle()->template getStyle<ComboBoxStyle>("comboBox"))
-				, mItemStyle(StyleSet::getStyle()->template getStyle<TableRowStyle>("comboBox.Row"))
+				: mcomboBoxStyle(CoreStyle::getStyle()->template getStyle<ComboBoxStyle>("comboBox"))
+				, mItemStyle(CoreStyle::getStyle()->template getStyle<TableRowStyle>("comboBox.Row"))
 				, mcontentPadding(mcomboBoxStyle.Get()->m_contentPadding)
 				, minitiallySelectedItem(listTypeTraits::makeNullPtr())
 				, mmaxListHeight(420.0f)

@@ -23,7 +23,7 @@ namespace GuGu {
 
 		void getBrush(std::vector<std::shared_ptr<Brush>>& brush);//useful for load texture
 
-		static std::shared_ptr<StyleSet> getStyle();
+		//static std::shared_ptr<StyleSet> getStyle();
 
 		//std::shared_ptr<TextInfo> getTextInfo(const GuGuUtf8Str& str);
 
@@ -36,7 +36,7 @@ namespace GuGu {
 		}
 
 		void clear();
-	private:
+	protected:
 		//nvrhi::DeviceHandle m_device;
 
 		std::unordered_map<GuGuUtf8Str, std::shared_ptr<Brush>> m_brushes;

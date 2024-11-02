@@ -4,14 +4,14 @@
 
 #include "FontCache.h"
 #include "Style.h"
-#include "StyleSet.h"
+#include "CoreStyle.h"
 #include "ElementList.h"
 #include "PlainTextLayoutMarshaller.h"
 
 namespace GuGu {
 	TextBlockWidget::TextBlockWidget()
 	{
-		m_textStyle = StyleSet::getStyle()->getStyle<TextBlockStyle>("normalText");
+		m_textStyle = CoreStyle::getStyle()->getStyle<TextBlockStyle>("normalText");
 
 		m_textLayoutCache = std::make_unique<TextBlockLayout>(this, *m_textStyle, PlainTextLayoutMarshaller::Create());
 	}

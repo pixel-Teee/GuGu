@@ -23,6 +23,7 @@
 #include <Core/UI/Button.h>
 #include <Core/UI/NullWidget.h>
 #include <Core/UI/TextBlockWidget.h>
+#include <Core/UI/CoreStyle.h>
 #include <Renderer/Renderer.h>
 
 namespace GuGu{
@@ -566,7 +567,7 @@ namespace GuGu{
                 .Content
                 (
 					WIDGET_NEW(Button)
-					.buttonSyle(StyleSet::getStyle()->getStyle<ButtonStyle>("closeButton"))
+					.buttonSyle(CoreStyle::getStyle()->getStyle<ButtonStyle>("closeButton"))
 					.Content
 					(
 						NullWidget::getNullWidget()
@@ -596,10 +597,12 @@ namespace GuGu{
             if (inWindowWidget != nullptr)
             {
                 application->makeWindow(inWindowWidget);
+                createWindowSurface(inWindowWidget);
             }
             else
             {
                 application->makeWindow(m_mainWindow);
+                createWindowSurface(m_mainWindow);
             }
             
 
@@ -609,7 +612,7 @@ namespace GuGu{
             //uiRenderPass->addWindowWidget(mainWindow);
             //createWindowSurface();
 
-            createWindowSurface(m_mainWindow);
+            
         }
 
         //swapchain 需要先创建 vulkan device ，而创建 vulkan device 则暂时先需要查询 surface 的能力
@@ -647,7 +650,10 @@ namespace GuGu{
 
         m_NvrhiDevice = nvrhi::vulkan::createDevice(deviceDesc);
 
-		CreateSwapChain(m_mainWindow);
+        if(inWindowWidget != nullptr)
+		    CreateSwapChain(inWindowWidget);
+        else
+            CreateSwapChain(m_mainWindow);
 
         m_BarrierCommandList = m_NvrhiDevice->createCommandList();
 

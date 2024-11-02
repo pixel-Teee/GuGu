@@ -10,6 +10,7 @@
 #include <Core/UI/WidgetPath.h>
 #include <Core/UI/ArrangedWidget.h>
 #include <Core/UI/ArrangedWidgetArray.h>
+#include <Core/UI/StyleSetCenter.h>
 #include <Window/Window.h>
 #include <Renderer/Demo.h>
 #include <Renderer/Renderer.h>
@@ -22,6 +23,9 @@ namespace GuGu{
         m_focused = true;
         m_timer = CreateTimerFactory();
         m_lastCursorPos = math::float2(0.0f, 0.0f);
+
+		std::shared_ptr<StyleSet> coreStyleSet = std::make_shared<CoreStyle>();
+		StyleSetCenter::RegisterStyleSet("CoreStyleSet", coreStyleSet);//register style
     }
 	void Application::init(std::shared_ptr<WindowWidget> inWindowWidget)
 	{

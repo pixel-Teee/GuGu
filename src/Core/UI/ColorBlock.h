@@ -5,7 +5,7 @@
 #include "UIMacros.h"
 #include "Attribute.h"
 #include "WidgetDelegates.h"
-#include "StyleSet.h"
+#include "CoreStyle.h"
 #include "Element.h"//GradientStop
 
 namespace GuGu {
@@ -32,7 +32,7 @@ namespace GuGu {
 		{
 			BuilderArguments() 
 				: mColor(math::float4(1.0f, 1.0f, 1.0f, 1.0f))
-				, mAlphaBackgroundBrush(StyleSet::getStyle()->getBrush("colorPicker.AlphaBckground"))
+				, mAlphaBackgroundBrush(CoreStyle::getStyle()->getBrush("colorPicker.AlphaBckground"))
 				, mcornerRadius(0.0f)
 				, mcolorIsHsv(false)
 				, mshowBackgroundForAlpha(false)

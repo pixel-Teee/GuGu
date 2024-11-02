@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Border.h"
-#include "StyleSet.h"
+#include "CoreStyle.h"
 
 namespace GuGu {
 	using OnUserScrolled = std::function<void(float)>;//scroll offset 在 0 和 1 之间
@@ -19,7 +19,7 @@ namespace GuGu {
 		struct BuilderArguments : public Arguments<ScrollBar>
 		{
 			BuilderArguments()
-				: mstyle(StyleSet::getStyle()->template getStyle<ScrollBarStyle>("ScrollBar"))
+				: mstyle(CoreStyle::getStyle()->template getStyle<ScrollBarStyle>("ScrollBar"))
 				, mthickNess()
 				, morientation(Orientation::Vertical)
 				, mpadding(Padding(2.0f))

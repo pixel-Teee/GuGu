@@ -3,13 +3,13 @@
 #include "EditableTextBox.h"
 #include "BoxPanel.h"
 #include "EditableText.h"
-#include "StyleSet.h"
+#include "CoreStyle.h"
 #include "box.h"
 
 namespace GuGu {
     EditableTextBox::EditableTextBox()
     {
-        m_style = StyleSet::getStyle()->getStyle<EditableTextBoxStyle>("EditableTextBox");
+        m_style = CoreStyle::getStyle()->getStyle<EditableTextBoxStyle>("EditableTextBox");
     }
     EditableTextBox::~EditableTextBox()
     {

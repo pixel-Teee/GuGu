@@ -6,7 +6,7 @@
 #include "LayoutUtils.h"
 #include "Button.h"
 #include "ITableRow.h"
-#include "StyleSet.h"
+#include "CoreStyle.h"
 #include "ElementList.h"
 #include "ImageWidget.h"
 
@@ -29,7 +29,7 @@ namespace GuGu {
 			WIDGET_ASSIGN_NEW(Button, m_expanderArrow)
 			.verticalAlignment(VerticalAlignment::Center)
 			.horizontalAlignment(HorizontalAlignment::Center)
-			.buttonSyle(StyleSet::getStyle()->getStyle<ButtonStyle>("NoBorder"))
+			.buttonSyle(CoreStyle::getStyle()->getStyle<ButtonStyle>("NoBorder"))
 			.Content(
 				WIDGET_NEW(ImageWidget)
 				.brush(this, &ExpanderArrow::getExpanderImage)
@@ -47,7 +47,7 @@ namespace GuGu {
 		static const float halfWireThickness = wireThickness / 2.0f;
 
 		const float indent = m_indentAmount.Get(10.0f);
-		const std::shared_ptr<Brush> verticalBarBrush = StyleSet::getStyle()->getNoBrush();
+		const std::shared_ptr<Brush> verticalBarBrush = CoreStyle::getStyle()->getNoBrush();
 
 		if (m_shouldDrawWires.Get() == true && verticalBarBrush != nullptr)
 		{
@@ -208,7 +208,7 @@ namespace GuGu {
 			resourceName = "expandedArrowCollapsed";
 		}
 		
-		return StyleSet::getStyle()->getBrush(resourceName);
+		return CoreStyle::getStyle()->getBrush(resourceName);
 	}
 	Reply ExpanderArrow::onArrowClicked()
 	{

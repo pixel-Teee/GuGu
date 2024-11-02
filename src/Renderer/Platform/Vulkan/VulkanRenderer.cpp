@@ -89,7 +89,7 @@ namespace GuGu{
     }
     void VulkanRenderer::onDestroy() {
         //static object need to destroy on this place
-        StyleSet::getStyle()->clear();
+        CoreStyle::getStyle()->clear();
         FontCache::getFontCache()->clear();
     }
     void VulkanRenderer::createSurface(std::shared_ptr<WindowWidget> windowWidget)

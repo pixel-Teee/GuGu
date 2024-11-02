@@ -11,11 +11,11 @@
 #include "LayoutUtils.h"
 
 #include "Style.h"
-#include "StyleSet.h"
+#include "CoreStyle.h"
 
 namespace GuGu {
 	CheckBox::CheckBox()
-		: m_checkBoxStyle(StyleSet::getStyle()->getStyle<CheckBoxStyle>("checkBox"))
+		: m_checkBoxStyle(CoreStyle::getStyle()->getStyle<CheckBoxStyle>("checkBox"))
 	{
 		m_isCheckboxChecked = CheckBoxState::Unchecked;
 		m_bIsPressed = false;
@@ -54,7 +54,7 @@ namespace GuGu {
 								.setVerticalAlignment(VerticalAlignment::Center)
 								(
 									WIDGET_NEW(Border)
-									.brush(StyleSet::getStyle()->getNoBrush())
+									.brush(CoreStyle::getStyle()->getNoBrush())
 									.Content					
 									(
 										arguments.mContent->getChildWidget() //todo:fix his
