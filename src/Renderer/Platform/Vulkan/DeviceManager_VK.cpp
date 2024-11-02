@@ -533,7 +533,7 @@ namespace GuGu{
         return true;
     }   
 
-    bool DeviceManager_VK::CreateDevice() {
+    bool DeviceManager_VK::CreateDevice(std::shared_ptr<WindowWidget> inWindowWidget) {
         if(m_deviceParams.enableDebugRuntime)
         {
             installDebugCallback();
@@ -593,7 +593,15 @@ namespace GuGu{
             //2.调用 Application 的函数，去创建 window widget 相应的 native window
             std::shared_ptr<Application> application = Application::getApplication();
             //UIRenderPass* uiRenderPass = application->getRenderer()->getUIRenderPass();
-            application->makeWindow(m_mainWindow);
+            if (inWindowWidget != nullptr)
+            {
+                application->makeWindow(inWindowWidget);
+            }
+            else
+            {
+                application->makeWindow(m_mainWindow);
+            }
+            
 
             //3.创建window的交换链以及surface，交换链和surface存放在UIRenderPass的map里面，map 映射 window widget 以及相应的交换链和surface
             //application->showWindow(mainWindow);//create window surface and swap chain

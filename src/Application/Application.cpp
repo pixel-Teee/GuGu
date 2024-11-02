@@ -23,7 +23,7 @@ namespace GuGu{
         m_timer = CreateTimerFactory();
         m_lastCursorPos = math::float2(0.0f, 0.0f);
     }
-	void Application::init()
+	void Application::init(std::shared_ptr<WindowWidget> inWindowWidget)
 	{
 	}
     void Application::Run()

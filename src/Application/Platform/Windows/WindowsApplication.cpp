@@ -24,7 +24,7 @@ namespace GuGu {
 	{
 		std::memset(m_modifierKeyState, 0, sizeof(m_modifierKeyState));
 	}
-	void WindowsApplication::init()
+	void WindowsApplication::init(std::shared_ptr<WindowWidget> inWindowWidget)
 	{
 		//create renderer
 #if USE_DX12
@@ -32,7 +32,7 @@ namespace GuGu {
 		m_renderer->init();
 #else
 		m_renderer = std::make_shared<VulkanRenderer>();
-		m_renderer->init();
+		m_renderer->init(inWindowWidget);
 #endif
 	}
 	void WindowsApplication::pumpMessage()

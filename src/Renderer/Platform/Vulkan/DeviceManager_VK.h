@@ -57,7 +57,7 @@ namespace GuGu{
         virtual nvrhi::FramebufferHandle getCurrentBackBuffer(std::shared_ptr<WindowWidget> windowWidget) const override;
     protected:
         bool CreateInstanceInternal() override;
-        bool CreateDevice() override;
+        bool CreateDevice(std::shared_ptr<WindowWidget> inWindowWidget) override;
 
         void DestroyDeviceAndSwapChain() override;
 

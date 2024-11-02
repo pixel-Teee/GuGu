@@ -58,7 +58,7 @@ namespace GuGu{
 
         static DeviceManager* Create(nvrhi::GraphicsAPI api);
 
-        bool CreateWindowDeviceAndSwapChain(const DeviceCreationParameters& params, GuGuUtf8Str& windowTitle);
+        bool CreateWindowDeviceAndSwapChain(const DeviceCreationParameters& params, GuGuUtf8Str& windowTitle, std::shared_ptr<WindowWidget> inWindowWidget);
 
         bool CreateInstance(const InstanceParameters& params);
 
@@ -110,7 +110,7 @@ namespace GuGu{
         //device-specific methods
         virtual bool CreateInstanceInternal() = 0;
         virtual void DestroyDeviceAndSwapChain() = 0;
-        virtual bool CreateDevice() = 0;
+        virtual bool CreateDevice(std::shared_ptr<WindowWidget> inWindowWidget) = 0;
         //virtual bool CreateSwapChain(std::shared_ptr<WindowWidget> windowWidget) = 0;
         virtual void BeginFrame(std::shared_ptr<WindowWidget> inWindowWidget) = 0;
         //virtual void Present() = 0;

@@ -12,7 +12,7 @@ namespace GuGu {
 	Renderer::~Renderer()
 	{
 	}
-	void Renderer::init()
+	void Renderer::init(std::shared_ptr<WindowWidget> inWindowWidget)
 	{
 		//nothing
 	}

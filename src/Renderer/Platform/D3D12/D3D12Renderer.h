@@ -4,6 +4,7 @@
 #include "CustomInclude.h"
 
 namespace GuGu {
+	class WindowWidget;
 	class D3D12Renderer : public Renderer
 	{
 	public:
@@ -11,7 +12,7 @@ namespace GuGu {
 
 		virtual ~D3D12Renderer();
 
-		virtual void init() override;
+		virtual void init(std::shared_ptr<WindowWidget> inWindowWidget) override;
 
 		virtual void onRender() override;
 

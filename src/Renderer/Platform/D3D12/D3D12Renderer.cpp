@@ -20,7 +20,7 @@ namespace GuGu {
 	D3D12Renderer::~D3D12Renderer()
 	{
 	}
-	void D3D12Renderer::init()
+	void D3D12Renderer::init(std::shared_ptr<WindowWidget> inWindowWidget)
 	{
 		//------create device and factory------
 		uint32_t dxgiFactoryFlags = 0;

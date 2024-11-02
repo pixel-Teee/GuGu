@@ -24,7 +24,7 @@ namespace GuGu {
 	public:
 		Application();
 
-		virtual void init();
+		virtual void init(std::shared_ptr<WindowWidget> inWindowWidget = nullptr);
 
 		void Run();
 

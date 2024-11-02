@@ -3,7 +3,7 @@
 #include "Renderer.h"
 
 namespace GuGu{
-
+    class WindowWidget;
     class VulkanRenderer : public Renderer
     {
     public:
@@ -11,7 +11,7 @@ namespace GuGu{
 
         virtual ~VulkanRenderer();
 
-        virtual void init() override;
+        virtual void init(std::shared_ptr<WindowWidget> inWindowWidget) override;
 
         virtual void onRender() override;
 

@@ -73,7 +73,7 @@ namespace GuGu{
     }
 
     bool DeviceManager::CreateWindowDeviceAndSwapChain(const DeviceCreationParameters &params,
-                                                       GuGuUtf8Str &windowTitle) {
+                                                       GuGuUtf8Str &windowTitle, std::shared_ptr<WindowWidget> inWindowWidget) {
         //todo:add dpi aware
 
         m_deviceParams = params;
@@ -125,7 +125,7 @@ namespace GuGu{
 
         //todo:add message call back handle
 
-        if(!CreateDevice())
+        if(!CreateDevice(inWindowWidget))
             return false;
 
         //if(!CreateSwapChain())

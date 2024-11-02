@@ -13,7 +13,7 @@ namespace GuGu {
 
 		virtual ~Renderer();
 
-		virtual void init();
+		virtual void init(std::shared_ptr<WindowWidget> inWindowWidget = nullptr);
 
 		virtual void onRender();
 

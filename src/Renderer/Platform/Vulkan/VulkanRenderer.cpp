@@ -38,7 +38,7 @@ namespace GuGu{
 		m_deviceManager->ShutDown();
 		delete m_deviceManager;
     }
-    void VulkanRenderer::init() {
+    void VulkanRenderer::init(std::shared_ptr<WindowWidget> inWindowWidget) {
 		std::shared_ptr<UIData> uiData = std::make_shared<UIData>();
 
         //CreateWindowDeviceAndSwapChain 创建窗口依赖 uirenderpass 先创建
@@ -57,7 +57,7 @@ namespace GuGu{
         deviceParams.enableNvrhiValidationLayer = true;
 #endif
         GuGuUtf8Str windowTitle = "VulkanApp";
-        if(!m_deviceManager->CreateWindowDeviceAndSwapChain(deviceParams, windowTitle))
+        if(!m_deviceManager->CreateWindowDeviceAndSwapChain(deviceParams, windowTitle, inWindowWidget))
         {
             GuGu_LOGE("cannot initialize a graphics device with the requested parameters");
             return;

@@ -13,7 +13,7 @@ namespace GuGu {
 	public:
 		WindowsApplication();
 
-		virtual void init() override;
+		virtual void init(std::shared_ptr<WindowWidget> inWindowWidget = nullptr) override;
 
 		virtual void pumpMessage() override;
 
