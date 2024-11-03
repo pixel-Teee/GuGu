@@ -804,6 +804,8 @@ namespace GuGu{
 	}
 
 	void DeviceManager_VK::DestroyDeviceAndSwapChain() {
+        m_windowViewports.clear();
+
 		destroySwapChain();
 		//
 		//for (size_t i = 0; i < m_PresentSemaphores.size(); ++i)

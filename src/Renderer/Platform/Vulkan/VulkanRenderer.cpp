@@ -34,7 +34,7 @@ namespace GuGu{
 		//m_deviceManager->RemoveRenderPass(m_UIRenderPass);
         delete m_vertexBuffer;
         delete m_UIRenderPass;
-        //delete m_demo;
+        delete m_demo;
 		m_deviceManager->ShutDown();
 		delete m_deviceManager;
     }
