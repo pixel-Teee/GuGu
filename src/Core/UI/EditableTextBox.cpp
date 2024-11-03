@@ -9,7 +9,7 @@
 namespace GuGu {
     EditableTextBox::EditableTextBox()
     {
-        m_style = CoreStyle::getStyle()->getStyle<EditableTextBoxStyle>("EditableTextBox");
+        m_style = CoreStyle::getStyleSet()->getStyle<EditableTextBoxStyle>("EditableTextBox");
     }
     EditableTextBox::~EditableTextBox()
     {

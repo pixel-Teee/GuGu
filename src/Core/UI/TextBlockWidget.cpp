@@ -11,7 +11,7 @@
 namespace GuGu {
 	TextBlockWidget::TextBlockWidget()
 	{
-		m_textStyle = CoreStyle::getStyle()->getStyle<TextBlockStyle>("normalText");
+		m_textStyle = CoreStyle::getStyleSet()->getStyle<TextBlockStyle>("normalText");
 
 		m_textLayoutCache = std::make_unique<TextBlockLayout>(this, *m_textStyle, PlainTextLayoutMarshaller::Create());
 	}

@@ -8,7 +8,7 @@
 
 namespace GuGu {
 	ImageWidget::ImageWidget()
-		: m_imageBursh(CoreStyle::getStyle()->getBrush("fun"))
+		: m_imageBursh(CoreStyle::getStyleSet()->getBrush("fun"))
 	{
 	}
 	ImageWidget::~ImageWidget()

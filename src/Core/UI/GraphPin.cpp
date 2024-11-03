@@ -17,7 +17,7 @@ namespace GuGu {
 	{
 		m_bIsInput = (arguments.mdirection == GraphPinDirection::Input);
 
-		std::shared_ptr<Widget> pinWidget = WIDGET_NEW(ImageWidget).brush(CoreStyle::getStyle()->getBrush("graph.pin"));
+		std::shared_ptr<Widget> pinWidget = WIDGET_NEW(ImageWidget).brush(CoreStyle::getStyleSet()->getBrush("graph.pin"));
 
 		std::shared_ptr<HorizontalBox> pinContent;
 		if (m_bIsInput)

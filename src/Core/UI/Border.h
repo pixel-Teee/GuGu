@@ -18,7 +18,7 @@ namespace GuGu {
 		struct BuilderArguments : public Arguments<Border>
 		{
 			BuilderArguments()
-				: mbrush(CoreStyle::getStyle()->getBrush("background"))
+				: mbrush(CoreStyle::getStyleSet()->getBrush("white"))
 				, mverticalAlignment(VerticalAlignment::Stretch)
 				, mhorizontalAlignment(HorizontalAlignment::Stretch)
 				, mpadding(0.1f, 0.1f, 0.1f, 0.1f)

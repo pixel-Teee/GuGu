@@ -27,9 +27,9 @@ namespace GuGu {
 		}
 
 		const bool bBodyDiffers = arguments.mbodyBorderImage.Get() != nullptr || arguments.mbodyBorderBackgroundColor.IsSet();
-		const Attribute<std::shared_ptr<Brush>> fullBorderImage = bBodyDiffers ? CoreStyle::getStyle()->getNoBrush() : arguments.mborderImage;
+		const Attribute<std::shared_ptr<Brush>> fullBorderImage = bBodyDiffers ? CoreStyle::getStyleSet()->getNoBrush() : arguments.mborderImage;
 		const Attribute<math::float4> fullBorderBackgroundColor = bBodyDiffers ? math::float4(0, 0, 0, 0) : arguments.mbodyBorderBackgroundColor;
-		const Attribute<std::shared_ptr<Brush>> titleBorderImage = !bBodyDiffers ? CoreStyle::getStyle()->getNoBrush() : arguments.mborderImage;
+		const Attribute<std::shared_ptr<Brush>> titleBorderImage = !bBodyDiffers ? CoreStyle::getStyleSet()->getNoBrush() : arguments.mborderImage;
 		const Attribute<math::float4> m_titleBorderBackgroundColor = !bBodyDiffers ? math::float4(0, 0, 0, 0) : arguments.mborderBackgroundColor;
 
 		m_childWidget->setChildWidget(
@@ -50,7 +50,7 @@ namespace GuGu {
 					.Content
 					(
 						WIDGET_NEW(Button)
-						.buttonSyle(CoreStyle::getStyle()->getStyle<ButtonStyle>("NoBorder"))
+						.buttonSyle(CoreStyle::getStyleSet()->getStyle<ButtonStyle>("NoBorder"))
 						.contentPadding(arguments.mHeaderPadding)
 						.Clicked(this, &ExpandableArea::onHeaderClicked)
 					)

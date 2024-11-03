@@ -17,6 +17,11 @@ namespace GuGu {
 		//	.setAllFilters(false)
 		//	.setAllAddressModes(nvrhi::SamplerAddressMode::Repeat);
 		//m_repeatSeampler = m_device->createSampler(repeatSamplerDesc);
+		std::shared_ptr<Brush> white = std::make_shared<Brush>();
+		white->m_tiling = true;
+		white->m_texturePath = u8"asset/white.png";
+		m_brushes.insert({ u8"white", white });
+
 		std::shared_ptr<Brush> checkerBoard = std::make_shared<Brush>();
 		checkerBoard->m_tiling = true;
 		checkerBoard->m_texturePath = u8"asset/CheckerBoard.png";
@@ -237,7 +242,7 @@ namespace GuGu {
 	CoreStyle::~CoreStyle()
 	{
 	}
-	std::shared_ptr<StyleSet> CoreStyle::getStyle()
+	std::shared_ptr<StyleSet> CoreStyle::getStyleSet()
 	{
 		//static std::shared_ptr<StyleSet> coreStyleSet = std::make_shared<CoreStyle>();
 		//return coreStyleSet;

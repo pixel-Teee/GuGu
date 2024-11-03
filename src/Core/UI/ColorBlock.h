@@ -32,7 +32,7 @@ namespace GuGu {
 		{
 			BuilderArguments() 
 				: mColor(math::float4(1.0f, 1.0f, 1.0f, 1.0f))
-				, mAlphaBackgroundBrush(CoreStyle::getStyle()->getBrush("colorPicker.AlphaBckground"))
+				, mAlphaBackgroundBrush(CoreStyle::getStyleSet()->getBrush("colorPicker.AlphaBckground"))
 				, mcornerRadius(0.0f)
 				, mcolorIsHsv(false)
 				, mshowBackgroundForAlpha(false)

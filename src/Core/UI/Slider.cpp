@@ -10,7 +10,7 @@
 
 namespace GuGu {
 	Slider::Slider()
-		: m_sliderStyle(CoreStyle::getStyle()->getStyle<SliderStyle>("slider"))
+		: m_sliderStyle(CoreStyle::getStyleSet()->getStyle<SliderStyle>("slider"))
 	{
 		m_orientation = Orientation::Horizontal;
 		m_valueAttribute = 0.0f;

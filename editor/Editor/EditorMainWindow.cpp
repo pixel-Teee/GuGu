@@ -5,6 +5,9 @@
 #include <Core/UI/Button.h>
 #include <Core/UI/NullWidget.h>
 
+#include "StyleSet/EditorStyleSet.h"
+#include <Core/UI/StyleSetCenter.h>
+
 namespace GuGu {
 	EditorMainWindow::EditorMainWindow()
 	{
@@ -29,17 +32,22 @@ namespace GuGu {
 	std::shared_ptr<EditorMainWindow> CreateEditorMainWindow()
 	{
 		//register style set
-		//std::shared_ptr<StyleSet> editorStyleSet = std::make_shared<editorStyleSet>();
+		std::shared_ptr<StyleSet> editorStyleSet = std::make_shared<EditorStyleSet>();
+		StyleSetCenter::RegisterStyleSet("EditorStyleSet", editorStyleSet);
 
 		//1.先创建 window widget
 		return WIDGET_NEW(EditorMainWindow)
 			.Content
 			(
-				NullWidget::getNullWidget()
-
+				WIDGET_NEW(Border)
+				.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("grayColor"))
+				.Content
+				(
+					NullWidget::getNullWidget()
+				)
 			)
 			//.ClientSize(math::float2(m_deviceParams.backBufferWidth, m_deviceParams.backBufferHeight))
-			.ClientSize(math::float2(1280.0f, 720.0f))
+			.ClientSize(math::float2(1280.0f, 720.0f)) //todo:fix this
 			.ScreenPosition(math::float2(0.0f, 0.0f));
 	}
 }

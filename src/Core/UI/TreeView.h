@@ -72,7 +72,7 @@ namespace GuGu {
 		struct BuilderArguments : public Arguments<TreeView>
 		{
 			BuilderArguments()
-				: mstyle(CoreStyle::getStyle()->template getStyle<ScrollBarStyle>("ScrollBar"))
+				: mstyle(CoreStyle::getStyleSet()->template getStyle<ScrollBarStyle>("ScrollBar"))
 				, mitemHeight(16)
 				, morientation(Orientation::Vertical)
 				, mtreeItemSource()

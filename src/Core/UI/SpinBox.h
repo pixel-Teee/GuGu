@@ -35,7 +35,7 @@ namespace GuGu {
 		struct BuilderArguments : public Arguments<SpinBox<NumericType>>
 		{
 			BuilderArguments()
-				: mStyle(CoreStyle::getStyle()->template getStyle<SpinBoxStyle>("SpinBox"))
+				: mStyle(CoreStyle::getStyleSet()->template getStyle<SpinBoxStyle>("SpinBox"))
 				, mValue(0)
 				, mMinFractionDigits(defaultMinFractionalDigits)
 				, mMaxFractionDigits(defaultMaxFractionalDigits)

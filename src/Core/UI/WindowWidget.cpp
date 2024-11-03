@@ -19,7 +19,7 @@
 
 namespace GuGu {
 	WindowWidget::WindowWidget()
-		: m_defaultBrush(CoreStyle::getStyle()->getBrush("CheckerBoard"))
+		: m_defaultBrush(CoreStyle::getStyleSet()->getBrush("CheckerBoard"))
 	{
 		m_windowType = WindowType::VirtualWindow;
 	}

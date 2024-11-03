@@ -73,7 +73,7 @@ namespace GuGu {
             m_scrollBar = WIDGET_NEW(ScrollBar)
                 .onUserScrolled(this, &TableViewBase::scrollBarOnUserScrolled)
                 .orientation(m_orientation)
-                .style(inScrollBarStyle.IsSet() ? inScrollBarStyle : CoreStyle::getStyle()->template getStyle<ScrollBarStyle>("ScrollBar"));
+                .style(inScrollBarStyle.IsSet() ? inScrollBarStyle : CoreStyle::getStyleSet()->template getStyle<ScrollBarStyle>("ScrollBar"));
 
             const OptionalSize scrollBarSize(16.0f);
 

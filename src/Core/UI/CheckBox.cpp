@@ -15,7 +15,7 @@
 
 namespace GuGu {
 	CheckBox::CheckBox()
-		: m_checkBoxStyle(CoreStyle::getStyle()->getStyle<CheckBoxStyle>("checkBox"))
+		: m_checkBoxStyle(CoreStyle::getStyleSet()->getStyle<CheckBoxStyle>("checkBox"))
 	{
 		m_isCheckboxChecked = CheckBoxState::Unchecked;
 		m_bIsPressed = false;
@@ -54,7 +54,7 @@ namespace GuGu {
 								.setVerticalAlignment(VerticalAlignment::Center)
 								(
 									WIDGET_NEW(Border)
-									.brush(CoreStyle::getStyle()->getNoBrush())
+									.brush(CoreStyle::getStyleSet()->getNoBrush())
 									.Content					
 									(
 										arguments.mContent->getChildWidget() //todo:fix his

@@ -29,7 +29,7 @@ namespace GuGu {
 			WIDGET_ASSIGN_NEW(Button, m_expanderArrow)
 			.verticalAlignment(VerticalAlignment::Center)
 			.horizontalAlignment(HorizontalAlignment::Center)
-			.buttonSyle(CoreStyle::getStyle()->getStyle<ButtonStyle>("NoBorder"))
+			.buttonSyle(CoreStyle::getStyleSet()->getStyle<ButtonStyle>("NoBorder"))
 			.Content(
 				WIDGET_NEW(ImageWidget)
 				.brush(this, &ExpanderArrow::getExpanderImage)
@@ -47,7 +47,7 @@ namespace GuGu {
 		static const float halfWireThickness = wireThickness / 2.0f;
 
 		const float indent = m_indentAmount.Get(10.0f);
-		const std::shared_ptr<Brush> verticalBarBrush = CoreStyle::getStyle()->getNoBrush();
+		const std::shared_ptr<Brush> verticalBarBrush = CoreStyle::getStyleSet()->getNoBrush();
 
 		if (m_shouldDrawWires.Get() == true && verticalBarBrush != nullptr)
 		{
@@ -208,7 +208,7 @@ namespace GuGu {
 			resourceName = "expandedArrowCollapsed";
 		}
 		
-		return CoreStyle::getStyle()->getBrush(resourceName);
+		return CoreStyle::getStyleSet()->getBrush(resourceName);
 	}
 	Reply ExpanderArrow::onArrowClicked()
 	{

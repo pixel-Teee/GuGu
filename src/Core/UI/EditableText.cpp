@@ -9,7 +9,7 @@
 namespace GuGu {
 	void EditableText::init(const BuilderArguments& arguments)
 	{
-		TextBlockStyle textStyle = *(CoreStyle::getStyle()->getStyle<TextBlockStyle>("normalText"));
+		TextBlockStyle textStyle = *(CoreStyle::getStyleSet()->getStyle<TextBlockStyle>("normalText"));
 
 		m_plainTextMarshaller = std::make_shared<PlainTextLayoutMarshaller>();
 

@@ -10,7 +10,7 @@ namespace GuGu {
 
 		virtual ~CoreStyle();
 
-		static std::shared_ptr<StyleSet> getStyle();
+		static std::shared_ptr<StyleSet> getStyleSet();
 	private:
 
 	};

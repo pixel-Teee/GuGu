@@ -567,7 +567,7 @@ namespace GuGu{
                 .Content
                 (
 					WIDGET_NEW(Button)
-					.buttonSyle(CoreStyle::getStyle()->getStyle<ButtonStyle>("closeButton"))
+					.buttonSyle(CoreStyle::getStyleSet()->getStyle<ButtonStyle>("closeButton"))
 					.Content
 					(
 						NullWidget::getNullWidget()

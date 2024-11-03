@@ -23,6 +23,8 @@ namespace GuGu {
 
 		void getBrush(std::vector<std::shared_ptr<Brush>>& brush);//useful for load texture
 
+		math::float4 getColor(const GuGuUtf8Str& colorName);
+
 		//static std::shared_ptr<StyleSet> getStyle();
 
 		//std::shared_ptr<TextInfo> getTextInfo(const GuGuUtf8Str& str);
@@ -44,5 +46,7 @@ namespace GuGu {
 		//nvrhi::SamplerHandle m_repeatSeampler;
 		//nvrhi::SamplerHandle m_defaultSeampler;
 		std::unordered_map<GuGuUtf8Str, std::shared_ptr<Style>> m_styles;
+
+		std::unordered_map<GuGuUtf8Str, math::float4> m_colors;
 	};
 }

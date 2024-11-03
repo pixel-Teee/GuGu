@@ -20,7 +20,7 @@ namespace GuGu {
 		{
 			BuilderArguments()
 				//: mContent()
-				: mStyle(CoreStyle::getStyle()->template getStyle<TableRowStyle>("tableView.Row"))
+				: mStyle(CoreStyle::getStyleSet()->template getStyle<TableRowStyle>("tableView.Row"))
 				, mpadding(Padding(0))
 			{
 				//this->mClip = WidgetClipping::ClipToBounds;

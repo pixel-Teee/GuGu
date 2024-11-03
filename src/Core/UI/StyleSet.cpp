@@ -31,6 +31,16 @@ namespace GuGu {
 			brush.push_back(it.second);
 		}
 	}
+	math::float4 StyleSet::getColor(const GuGuUtf8Str& colorName)
+	{
+		auto it = m_colors.find(colorName);
+		if (it != m_colors.end())
+			return it->second;
+
+		GuGu_LOGE("don't find color!");
+
+		return math::float4(1.0f, 1.0f, 1.0f, 1.0f);
+	}
 	//std::shared_ptr<StyleSet> StyleSet::getStyle()
 	//{
 	//	static std::shared_ptr<StyleSet> styleInsance = std::make_shared<StyleSet>();
@@ -40,5 +50,6 @@ namespace GuGu {
 	{
 		m_brushes.clear();
 		m_styles.clear();
+		m_colors.clear();
 	}
 }

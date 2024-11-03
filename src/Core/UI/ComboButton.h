@@ -17,7 +17,7 @@ namespace GuGu {
 		struct BuilderArguments : public Arguments<ComboButton>
 		{
 			BuilderArguments()
-				: mcomboButtonStyle(CoreStyle::getStyle()->template getStyle<ComboButtonStyle>("comboButton"))
+				: mcomboButtonStyle(CoreStyle::getStyleSet()->template getStyle<ComboButtonStyle>("comboButton"))
 				, mmenuPlacement(MenuPlacementComboBox)
 				, misFocusable(true)
 				, mhorizontalAlignment(HorizontalAlignment::Stretch)

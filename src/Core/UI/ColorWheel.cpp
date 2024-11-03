@@ -16,8 +16,8 @@ namespace GuGu {
 	}
 	void ColorWheel::init(const BuilderArguments& arguments)
 	{
-		m_image = CoreStyle::getStyle()->getBrush("colorWheel.HueValueCircle");
-		m_selectorImage = CoreStyle::getStyle()->getBrush("colorWheel.Selector");
+		m_image = CoreStyle::getStyleSet()->getBrush("colorWheel.HueValueCircle");
+		m_selectorImage = CoreStyle::getStyleSet()->getBrush("colorWheel.Selector");
 		m_selectedColor = arguments.mSelectedColor;
 
 		m_onMouseCaptureBegin = arguments.mOnMouseCaptureBegin;

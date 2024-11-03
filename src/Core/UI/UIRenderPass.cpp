@@ -961,7 +961,7 @@ namespace GuGu {
 						(
 							WIDGET_NEW(ImageWidget)
 							//.Clip(WidgetClipping::ClipToBounds)
-							.brush(CoreStyle::getStyle()->getBrush("headerBackground"))
+							.brush(CoreStyle::getStyleSet()->getBrush("headerBackground"))
 						)
 						+ Overlay::Slot()
 						.setHorizontalAlignment(HorizontalAlignment::Right)
@@ -969,7 +969,7 @@ namespace GuGu {
 						.setPadding(Padding(0.0f, 0.0f, 10.0f, 0.0f))
 						(
 							WIDGET_NEW(Button)
-							.buttonSyle(CoreStyle::getStyle()->getStyle<ButtonStyle>("closeButton"))
+							.buttonSyle(CoreStyle::getStyleSet()->getStyle<ButtonStyle>("closeButton"))
 							//.contentPadding(Padding(10.0f, 10.0f, 10.0f, 10.0f))
 							//.Clip(WidgetClipping::ClipToBounds)
 							.ClickedLambda([&] {
@@ -1003,7 +1003,7 @@ namespace GuGu {
 							WIDGET_NEW(Border)
 							.verticalAlignment(VerticalAlignment::Center)
 							.horizontalAlignment(HorizontalAlignment::Center)
-							.brush(CoreStyle::getStyle()->getBrush("background"))
+							.brush(CoreStyle::getStyleSet()->getBrush("background"))
 							//.Clip(WidgetClipping::ClipToBounds)
 							.Content
 							(
