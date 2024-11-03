@@ -21,7 +21,7 @@ namespace GuGu {
 				: mbrush(CoreStyle::getStyleSet()->getBrush("white"))
 				, mverticalAlignment(VerticalAlignment::Stretch)
 				, mhorizontalAlignment(HorizontalAlignment::Stretch)
-				, mpadding(0.1f, 0.1f, 0.1f, 0.1f)
+				, mpadding(0.0f, 0.0f, 0.0f, 0.0f)
 				, mBorderBackgroundColor(math::float4(1.0f, 1.0f, 1.0f, 1.0f))
 			{}
 
