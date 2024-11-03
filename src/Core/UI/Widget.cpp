@@ -126,6 +126,14 @@ namespace GuGu{
         //GuGu_LOGD("{%f, %f}", inMouseEvent.m_screenSpacePosition.x, inMouseEvent.m_screenSpacePosition.y);
         return Reply::Unhandled();
     }
+    void Widget::OnMouseEnter(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
+    {
+        m_hovered = true;
+    }
+    void Widget::OnMouseLeave(const PointerEvent& inMouseEvent)
+    {
+        m_hovered = false;
+    }
     Reply Widget::OnKeyChar(const WidgetGeometry& myGeometry, const CharacterEvent& inCharacterEvent)
     {
         return Reply::Unhandled();
@@ -287,5 +295,9 @@ namespace GuGu{
     GuGuUtf8Str Widget::getType() const
     {
         return m_widgetType;
+    }
+    bool Widget::IsHovered() const
+    {
+        return m_hovered;
     }
 }

@@ -90,6 +90,26 @@ namespace GuGu {
 		return Reply::Unhandled().releaseMouseCapture();
 	}
 
+	void Button::OnMouseEnter(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
+	{
+		const bool bWasHovered = IsHovered();
+
+		Border::OnMouseEnter(myGeometry, inMouseEvent);//设置悬浮状态
+		updateBorderImage();
+
+		if (!bWasHovered && IsHovered())
+		{
+			
+			//executeHoverStateChanged();
+		}
+	}
+
+	void Button::OnMouseLeave(const PointerEvent& inMouseEvent)
+	{
+		Border::OnMouseLeave(inMouseEvent);
+		updateBorderImage();
+	}
+
 	bool Button::supportsKeyboardFocus() const
 	{
 		return m_bIsFocusable;
@@ -98,6 +118,34 @@ namespace GuGu {
 	bool Button::isInteractable() const
 	{
 		return true;
+	}
+
+	void Button::executeHoverStateChanged()
+	{
+		if (IsHovered())
+		{
+			//todo:add OnHovered
+		}
+		else
+		{
+			//todo:add OnUnhovered
+		}
+	}
+
+	void Button::updateBorderImage()
+	{
+		if (m_bIsPressed)
+		{
+			setBorderImage(m_buttonStyle->m_pressed);
+		}
+		else if(IsHovered())
+		{
+			setBorderImage(m_buttonStyle->m_hovered);
+		}
+		else
+		{
+			setBorderImage(m_buttonStyle->m_normal);
+		}
 	}
 
 	void Button::Press()

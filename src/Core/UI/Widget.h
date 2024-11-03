@@ -61,6 +61,10 @@ namespace GuGu{
 
         virtual Reply OnMouseMove(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent);
 
+        virtual void OnMouseEnter(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent);
+
+        virtual void OnMouseLeave(const PointerEvent& inMouseEvent);
+
         virtual Reply OnKeyChar(const WidgetGeometry& myGeometry, const CharacterEvent& inCharacterEvent);
 
         virtual Reply OnKeyDown(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent);
@@ -114,6 +118,8 @@ namespace GuGu{
         GuGuUtf8Str getLocation() const;
 
         GuGuUtf8Str getType() const;
+
+		bool IsHovered() const;
     protected:
         std::weak_ptr<Widget> m_parentWidget;
         WidgetGeometry m_geometry;
@@ -126,5 +132,7 @@ namespace GuGu{
         GuGuUtf8Str m_widgetType;
         GuGuUtf8Str m_createLocation;
         int32_t m_line;
+
+		bool m_hovered;
     };
 }

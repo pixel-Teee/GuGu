@@ -27,6 +27,8 @@ namespace GuGu {
 			ARGUMENT_VALUE(std::optional<math::float2>, desiredSizeOverride)
 
 			ARGUMENT_NAMED_SLOT(SingleChildSlot, Content)
+
+			ARGUMENT_VALUE(math::float4, cornerRadius)
 		};
 
 		void init(const BuilderArguments& arguments);
@@ -51,5 +53,7 @@ namespace GuGu {
 		Orientation m_orientation;
 
 		std::shared_ptr<SingleChildSlot> m_childWidget;
+
+		math::float4 m_cornerRadius;
 	};
 }

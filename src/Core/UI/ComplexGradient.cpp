@@ -24,6 +24,7 @@ namespace GuGu {
 		m_gradientColors = arguments.mGradientColors;
 		m_bHasAlphaBackground = arguments.mhasAlphaBackground;
 		m_orientation = arguments.morientation;
+		m_cornerRadius = arguments.mcornerRadius;
 	}
 	uint32_t ComplexGradient::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
@@ -46,7 +47,7 @@ namespace GuGu {
 				allocatedGeometry, 
 				gradientStop, 
 				m_orientation,
-				math::float4(0.0f, 0.0f, 0.0f, 0.0f), layer + 1);
+				m_cornerRadius, layer + 1);
 		}
 
 		return layer + 1;

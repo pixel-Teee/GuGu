@@ -241,6 +241,7 @@ namespace GuGu{
 	{
 		if (reply.shouldReleaseMouse())
 		{
+			m_widgetsUnderPointerLastEvent = m_captorWidgetsPath;
 			m_captorWidgetsPath.clear();
 		}
 		std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
@@ -587,6 +588,38 @@ namespace GuGu{
 
     bool Application::processMouseMoveEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
     {
+		//------当前获取得到的控件路径------
+		std::shared_ptr<Widget> collisionWidget = locateWidgetInWindow(window, mouseEvent);
+
+		std::vector<std::shared_ptr<Widget>> widgets;
+		std::shared_ptr<Widget> currentWidget = collisionWidget;
+		while (currentWidget)
+		{
+			widgets.push_back(currentWidget);
+			currentWidget = currentWidget->getParentWidget();
+		}
+		std::reverse(widgets.begin(), widgets.end()); //构造widget path
+		WidgetGeometry windowOffsetGeometry;//窗口左上角坐标
+		windowOffsetGeometry.mAbsolutePosition = window->getWindowScreenSpacePosition();
+		WidgetPath widgetPath(widgets, windowOffsetGeometry);
+		//------当前获取得到的控件路径------
+
+		//------上一次事件处理的控件路径------
+		WeakWidgetPath lastWidgetsUnderPointer = m_widgetsUnderPointerLastEvent;
+		//------上一次事件处理的控件路径------
+
+		int32_t preViousUnderCusorWidgetNumber = m_widgetsUnderPointerLastEvent.m_widgets.size();
+		for (int32_t widgetIndex = preViousUnderCusorWidgetNumber - 1; widgetIndex >= 0; --widgetIndex)
+		{
+			const std::shared_ptr<Widget>& someWidgetPreviouslyUnderCursor = lastWidgetsUnderPointer.m_widgets[widgetIndex].lock();
+			if (someWidgetPreviouslyUnderCursor)
+			{
+				if (!widgetPath.containsWidget(someWidgetPreviouslyUnderCursor.get())) //不再交互
+				{
+					someWidgetPreviouslyUnderCursor->OnMouseLeave(mouseEvent);
+				}
+			}
+		}
 
 		if (!m_captorWidgetsPath.isEmpty())
 		{
@@ -594,6 +627,21 @@ namespace GuGu{
 			WidgetPath captorWidgetsPath;
 			m_captorWidgetsPath.toWidgetPath(captorWidgetsPath);
 			int32_t widgetNumber = captorWidgetsPath.m_widgets.getArrangedWidgetsNumber();
+
+			int32_t widgetUnderCusorWidgetNumber = widgetPath.m_widgets.getArrangedWidgetsNumber();
+			for (int32_t i = widgetUnderCusorWidgetNumber - 1; i >= 0; --i) //处理鼠标移入一个控件的事件
+			{
+				std::shared_ptr<Widget> widgetUnderCursor = widgetPath.m_widgets.getArrangedWidget(i)->getWidget();
+				if (!lastWidgetsUnderPointer.containsWidget(widgetUnderCursor.get()))
+				{
+					if (captorWidgetsPath.containsWidget(widgetUnderCursor.get()))
+					{
+						widgetPath.m_widgets.getArrangedWidget(i)->getWidget()->OnMouseEnter(widgetUnderCursor->getWidgetGeometry(), mouseEvent);
+						//processReply(reply, widgetPath);
+					}	
+				}
+			}
+
 			for (int32_t i = widgetNumber - 1; i >= 0; --i)
 			{
 				std::shared_ptr<Widget> widget = captorWidgetsPath.m_widgets.getArrangedWidget(i)->getWidget();
@@ -618,19 +666,16 @@ namespace GuGu{
 		}
 		else
 		{
-			std::shared_ptr<Widget> collisionWidget = locateWidgetInWindow(window, mouseEvent);
-
-			std::vector<std::shared_ptr<Widget>> widgets;
-			std::shared_ptr<Widget> currentWidget = collisionWidget;
-			while (currentWidget)
+			int32_t widgetUnderCusorWidgetNumber = widgetPath.m_widgets.getArrangedWidgetsNumber();
+			for (int32_t i = widgetUnderCusorWidgetNumber - 1; i >= 0; --i) //处理鼠标移入一个控件的事件
 			{
-				widgets.push_back(currentWidget);
-				currentWidget = currentWidget->getParentWidget();
+				std::shared_ptr<Widget> widgetUnderCursor = widgetPath.m_widgets.getArrangedWidget(i)->getWidget();
+				if (!lastWidgetsUnderPointer.containsWidget(widgetUnderCursor.get()))
+				{	
+					widgetPath.m_widgets.getArrangedWidget(i)->getWidget()->OnMouseEnter(widgetUnderCursor->getWidgetGeometry(), mouseEvent);
+					//processReply(reply, widgetPath);
+				}
 			}
-			std::reverse(widgets.begin(), widgets.end()); //构造widget path
-			WidgetGeometry windowOffsetGeometry;//窗口左上角坐标
-			windowOffsetGeometry.mAbsolutePosition = window->getWindowScreenSpacePosition();
-			WidgetPath widgetPath(widgets, windowOffsetGeometry);
 
 			//记录旧的焦点路径
 			WidgetPath oldFocusWidgetsPath;
@@ -679,6 +724,9 @@ namespace GuGu{
 		//	//}
 		//}
 		//GuGu_LOGD("(%f %f)", cursorPosition.x, cursorPosition.y);
+
+		//通知鼠标移动完成
+		m_widgetsUnderPointerLastEvent = WeakWidgetPath(widgetPath);
 		return true;
     }
 

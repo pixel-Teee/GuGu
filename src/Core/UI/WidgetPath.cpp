@@ -91,6 +91,18 @@ namespace GuGu {
 
 		return firstWidgetWindow;
 	}
+	bool WidgetPath::containsWidget(const Widget* widgetToFind) const
+	{
+		int32_t widgetNumber = m_widgets.getArrangedWidgetsNumber();
+		for (int32_t widgetIndex = 0; widgetIndex < widgetNumber; ++widgetIndex)
+		{
+			if (m_widgets[widgetIndex]->getWidget().get() == widgetToFind)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 	WeakWidgetPath::WeakWidgetPath(const WidgetPath& inWidgetPath)
 	{
 		int32_t widgetNumber = inWidgetPath.m_widgets.getArrangedWidgetsNumber();
@@ -119,5 +131,16 @@ namespace GuGu {
 	void WeakWidgetPath::clear()
 	{
 		m_widgets.clear();
+	}
+	bool WeakWidgetPath::containsWidget(const Widget* someWidget) const
+	{
+		for (int32_t widgetIndex = 0; widgetIndex < m_widgets.size(); ++widgetIndex)
+		{
+			if (m_widgets[widgetIndex].lock().get() == someWidget)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 }

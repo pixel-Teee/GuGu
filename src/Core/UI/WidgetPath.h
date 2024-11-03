@@ -32,6 +32,8 @@ namespace GuGu {
 		bool isValid() const;
 
 		std::shared_ptr<WindowWidget> getWindow() const;
+
+		bool containsWidget(const Widget* widgetToFind) const;
 		
 		ArrangedWidgetArray m_widgets;
 
@@ -50,7 +52,9 @@ namespace GuGu {
 		bool isEmpty() const;
 
 		void clear();
-	private:
+
+		bool containsWidget(const Widget* someWidget) const;
+	
 		std::vector<std::weak_ptr<Widget>> m_widgets;
 
 		WidgetGeometry m_offsetGeometry;

@@ -136,6 +136,9 @@ namespace GuGu {
 
 		float m_globalRotation = 0;
 
+		//上一次事件处理的控件路径，用于判断鼠标移动进一个按钮或者移出一个按钮
+		WeakWidgetPath m_widgetsUnderPointerLastEvent;
+
 		//std::weak_ptr<Widget> m_captorWidget;
 		WeakWidgetPath m_captorWidgetsPath;
 

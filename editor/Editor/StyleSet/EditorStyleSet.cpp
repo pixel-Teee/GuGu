@@ -3,9 +3,16 @@
 #include "EditorStyleSet.h"
 
 #include <Core/UI/StyleSetCenter.h>
+#include <Core/UI/Brush.h>
 
 namespace GuGu {
 #define ADD_COLOR(color) m_colors.insert({#color, color})
+#define ADD_IMAGE(texture) \
+	std::shared_ptr<Brush> texture = std::make_shared<Brush>(); \
+	texture->m_tiling = false;\
+	texture->m_texturePath = u8"asset/EditorAsset/"#texture".png"; \
+	m_brushes.insert({ u8#texture, texture });
+
 	EditorStyleSet::EditorStyleSet()
 	{
 		//register editor style set
@@ -59,6 +66,37 @@ namespace GuGu {
 		math::float4 lightBlueLevel2 = math::float4(0.42f, 0.65f, 0.83f, 1.0f);
 		ADD_COLOR(lightBlueLevel1);
 		ADD_COLOR(lightBlueLevel2);
+
+		//no appearance
+		std::shared_ptr<Brush> noResource = std::make_shared<Brush>();
+		noResource->m_tiling = false;
+		noResource->m_texturePath = "";
+		noResource->m_drawAs = BrushDrawType::NoDrawType;
+		noResource->m_actualSize = math::int2(0, 0);
+		noResource->m_margin = Padding(0.0f, 0.0f, 0.0f, 0.0f);
+		m_brushes.insert({ "NoBorder" , noResource });
+
+		ADD_IMAGE(CloseButton_Normal);
+		ADD_IMAGE(CloseButton_Hover);
+		ADD_IMAGE(CloseButton_Pressed);
+
+		std::shared_ptr<ButtonStyle> CloseButton = std::make_shared<ButtonStyle>();
+		CloseButton->setNormal(CloseButton_Normal);
+		CloseButton->setHovered(CloseButton_Hover);
+		CloseButton->setPressed(CloseButton_Pressed);
+		CloseButton->setDisabled(noResource);
+		m_styles.insert({ u8"CloseButton", CloseButton });
+
+		ADD_IMAGE(MinimizeButton_Normal);
+		ADD_IMAGE(MinimizeButton_Hover);
+		ADD_IMAGE(MinimizeButton_Pressed);
+
+		std::shared_ptr<ButtonStyle> MinimizeButton = std::make_shared<ButtonStyle>();
+		MinimizeButton->setNormal(MinimizeButton_Normal);
+		MinimizeButton->setHovered(MinimizeButton_Hover);
+		MinimizeButton->setPressed(MinimizeButton_Pressed);
+		MinimizeButton->setDisabled(noResource);
+		m_styles.insert({ u8"MinimizeButton", MinimizeButton });
 	}
 	EditorStyleSet::~EditorStyleSet()
 	{

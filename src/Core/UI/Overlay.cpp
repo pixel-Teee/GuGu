@@ -34,12 +34,19 @@ namespace GuGu {
 		for (uint32_t childIndex = 0; childIndex < widgetsNumber; ++childIndex)
 		{
 			std::shared_ptr<ArrangedWidget> childWidget = arrangedWidgetArray.getArrangedWidget(childIndex);
+
+			if (childIndex > 0)
+			{
+				++maxLayerId;
+			}
+
 			if (childWidget)
 			{
 				std::shared_ptr<Widget> widget = childWidget->getWidget();
 
-				const uint32_t curWidgetsMaxLayerId = childWidget->getWidget()->generateElement(paintArgs, cullingRect, elementList, childWidget->getWidgetGeometry(), layer);
-				maxLayerId = std::max(maxLayerId, curWidgetsMaxLayerId);
+				const uint32_t curWidgetsMaxLayerId = childWidget->getWidget()->generateElement(paintArgs, cullingRect, elementList, childWidget->getWidgetGeometry(), maxLayerId);
+				const int32_t overlaySlotPadding = 10;
+				maxLayerId = curWidgetsMaxLayerId + std::min(std::max(((int32_t)curWidgetsMaxLayerId - (int32_t)maxLayerId) / overlaySlotPadding, 1) * overlaySlotPadding, 100);
 			}
 		}
 

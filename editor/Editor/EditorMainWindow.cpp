@@ -62,6 +62,31 @@ namespace GuGu {
 						(
 							WIDGET_NEW(ComplexGradient)
 							.GradientColors(blueGradientBackground)
+							.cornerRadius(math::float4(10.0f, 10.0f, 10.0f, 10.0f))
+							.Content
+							(
+								NullWidget::getNullWidget()
+							)
+						)	
+						+ Overlay::Slot()
+						.setHorizontalAlignment(HorizontalAlignment::Right)
+						.setVerticalAlignment(VerticalAlignment::Center)
+						.setPadding(Padding(0.0f, 0.0f, 67.0f, 0.0f))
+						(
+							WIDGET_NEW(Button)
+							.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"MinimizeButton"))
+							.Content
+							(
+								NullWidget::getNullWidget()
+							)
+						)
+						+ Overlay::Slot()
+						.setHorizontalAlignment(HorizontalAlignment::Right)
+						.setVerticalAlignment(VerticalAlignment::Center)
+						.setPadding(Padding(0.0f, 0.0f, 7.0f, 0.0f))
+						(
+							WIDGET_NEW(Button)
+							.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"CloseButton"))
 							.Content
 							(
 								NullWidget::getNullWidget()
@@ -72,22 +97,71 @@ namespace GuGu {
 					.StretchHeight(0.58)
 					.setPadding(Padding(22.0f, 0.0f, 19.0f, 45.0f))
 					(
-						WIDGET_NEW(ComplexGradient)
-						.GradientColors(blueGradientBackground)
-						.Content
+						WIDGET_NEW(HorizontalBox)
+						+ HorizontalBox::Slot()
+						.StretchWidth(0.16f)
+						.setPadding(Padding(0.0f, 0.0f, 24.0f, 0.0f))
 						(
-							NullWidget::getNullWidget()
+							WIDGET_NEW(ComplexGradient)
+							.GradientColors(blueGradientBackground)
+							.cornerRadius(math::float4(10.0f, 10.0f, 10.0f, 10.0f))
+							.Content
+							(
+								NullWidget::getNullWidget()
+							)
+						)
+						+ HorizontalBox::Slot()
+						.StretchWidth(0.60f)
+						.setPadding(Padding(0.0f, 0.0f, 27.0f, 0.0f))
+						(
+							WIDGET_NEW(ComplexGradient)
+							.GradientColors(blueGradientBackground)
+							.cornerRadius(math::float4(10.0f, 10.0f, 10.0f, 10.0f))
+							.Content
+							(
+								NullWidget::getNullWidget()
+							)
+						)
+						+ HorizontalBox::Slot()
+						.StretchWidth(0.16f)
+						(
+							WIDGET_NEW(ComplexGradient)
+							.GradientColors(blueGradientBackground)
+							.cornerRadius(math::float4(10.0f, 10.0f, 10.0f, 10.0f))
+							.Content
+							(
+								NullWidget::getNullWidget()
+							)
 						)
 					)
 					+ VerticalBox::Slot() //下面区域
 					.StretchHeight(0.175)
 					.setPadding(Padding(21.0f, 0.0f, 19.0f, 18.0f))
 					(
-						WIDGET_NEW(ComplexGradient)
-						.GradientColors(blueGradientBackground)
-						.Content
+						WIDGET_NEW(HorizontalBox)
+						+ HorizontalBox::Slot()
+						.StretchWidth(0.16f)
+						.setPadding(Padding(0.0f, 0.0f, 25.0f, 0.0f))
 						(
-							NullWidget::getNullWidget()
+							WIDGET_NEW(ComplexGradient)
+							.GradientColors(blueGradientBackground)
+							.cornerRadius(math::float4(10.0f, 10.0f, 10.0f, 10.0f))
+							.Content
+							(
+								NullWidget::getNullWidget()
+							)
+						)
+						+ HorizontalBox::Slot()
+						.StretchWidth(0.78f)
+						.setPadding(Padding(0.0f, 0.0f, 0.0f, 0.0f))
+						(
+							WIDGET_NEW(ComplexGradient)
+							.GradientColors(blueGradientBackground)
+							.cornerRadius(math::float4(10.0f, 10.0f, 10.0f, 10.0f))
+							.Content
+							(
+								NullWidget::getNullWidget()
+							)
 						)
 					)
 				)

@@ -47,9 +47,17 @@ namespace GuGu {
 
 		virtual Reply OnMouseButtonUp(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent) override;
 
+		virtual void OnMouseEnter(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent) override;
+
+		virtual void OnMouseLeave(const PointerEvent& inMouseEvent) override;
+
 		virtual bool supportsKeyboardFocus() const override;
 
 		virtual bool isInteractable() const override;
+
+		void executeHoverStateChanged();
+
+		void updateBorderImage();
 	private:
 		void Press();
 
