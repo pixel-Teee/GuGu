@@ -38,7 +38,12 @@ namespace GuGu {
 	}
 	Reply EditorMainWindow::exitApplication()
 	{
-		Application::getApplication()->setExit(true);
+		//Application::getApplication()->setExit(true);
+		return Reply::Handled();
+	}
+	Reply EditorMainWindow::miniMizeWindow()
+	{
+		Application::getApplication()->miniMizeWindow(std::static_pointer_cast<WindowWidget>(shared_from_this()));
 		return Reply::Handled();
 	}
 	std::shared_ptr<EditorMainWindow> CreateEditorMainWindow()
@@ -54,6 +59,7 @@ namespace GuGu {
 
 		std::shared_ptr<Button> closeButton;
 		std::shared_ptr<EditorMainWindow> editorMainWindow;
+		std::shared_ptr<Button> minimizeButton;
 		//1.先创建 window widget
 		WIDGET_ASSIGN_NEW(EditorMainWindow, editorMainWindow)
 		.Content
@@ -83,7 +89,7 @@ namespace GuGu {
 					.setVerticalAlignment(VerticalAlignment::Center)
 					.setPadding(Padding(0.0f, 0.0f, 67.0f, 0.0f))
 					(
-						WIDGET_NEW(Button)
+						WIDGET_ASSIGN_NEW(Button, minimizeButton)
 						.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"MinimizeButton"))
 						.Content
 						(
@@ -181,6 +187,7 @@ namespace GuGu {
 		.ScreenPosition(math::float2(0.0f, 0.0f));
 
 		closeButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::exitApplication, editorMainWindow)));
+		minimizeButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::miniMizeWindow, editorMainWindow)));
 		return editorMainWindow;
 	}
 }

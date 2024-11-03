@@ -44,6 +44,8 @@ namespace GuGu {
 
         static std::shared_ptr<Application> getApplication();//this defined in the platform application file    
 
+		virtual void miniMizeWindow(std::shared_ptr<WindowWidget> windowWidget);
+
 		void calculateFrameStats();
 
 		virtual std::shared_ptr<Window> getWindow(uint32_t index);

@@ -47,6 +47,8 @@ namespace GuGu {
 		virtual void makeWindow(std::shared_ptr<WindowWidget> windowWidget) override;
 
 		virtual void showWindow(std::shared_ptr<WindowWidget> windowWidget) override;
+
+		virtual void miniMizeWindow(std::shared_ptr<WindowWidget> windowWidget) override;
 	private:
 		HINSTANCE m_applicationInstance;
 

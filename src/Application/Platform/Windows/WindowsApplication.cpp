@@ -67,6 +67,9 @@ namespace GuGu {
 	{
 		return globalApplication;
 	}
+	void Application::miniMizeWindow(std::shared_ptr<WindowWidget> windowWidget)
+	{
+	}
 	void WindowsApplication::setNativeApplicationHandleAndCmdShow(HINSTANCE applicationInstance, int32_t cmdShow)
 	{
 		m_applicationInstance = applicationInstance;
@@ -111,6 +114,12 @@ namespace GuGu {
 		//create swap chain and surface
 		renderer->createSurface(windowWidget);
 		renderer->createSwapChain(windowWidget);
+	}
+
+	void WindowsApplication::miniMizeWindow(std::shared_ptr<WindowWidget> windowWidget)
+	{
+		std::shared_ptr<WindowsWindow> windowsWindow = std::static_pointer_cast<WindowsWindow>(windowWidget->getNativeWindow());
+		ShowWindow(windowsWindow->getNativeWindowHandle(), SW_MINIMIZE);
 	}
 
 	static bool FolderExists(const GuGuUtf8Str& folderPath)

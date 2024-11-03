@@ -35,6 +35,8 @@ namespace GuGu {
 		void init(const BuilderArguments& arguments);
 
 		Reply exitApplication();
+
+		Reply miniMizeWindow();
 	private:
 	};
 

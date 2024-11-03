@@ -244,6 +244,10 @@ namespace GuGu{
 			m_widgetsUnderPointerLastEvent = m_captorWidgetsPath;
 			m_captorWidgetsPath.clear();
 		}
+
+		//释放之前的焦点路径
+		m_captorWidgetsPath.clear();
+
 		std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
 		if (mouseCaptor != nullptr)
 		{
