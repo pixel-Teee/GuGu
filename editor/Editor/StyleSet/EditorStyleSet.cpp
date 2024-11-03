@@ -11,7 +11,7 @@ namespace GuGu {
 	std::shared_ptr<Brush> texture = std::make_shared<Brush>(); \
 	texture->m_tiling = false;\
 	texture->m_texturePath = u8"asset/EditorAsset/"#texture".png"; \
-	m_brushes.insert({ u8#texture, texture });
+	m_brushes.insert({ u8""#texture"", texture });
 
 	EditorStyleSet::EditorStyleSet()
 	{
