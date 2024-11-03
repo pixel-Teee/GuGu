@@ -58,6 +58,8 @@ namespace GuGu {
 		void executeHoverStateChanged();
 
 		void updateBorderImage();
+
+		void setOnClicked(OnClicked inOnClicked);
 	private:
 		void Press();
 

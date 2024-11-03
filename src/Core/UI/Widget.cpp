@@ -16,6 +16,7 @@ namespace GuGu{
         : m_widgetClipping(WidgetClipping::Inherit)
     {
         m_layer = 0;
+        m_hovered = false;
     }
 
     Widget::~Widget() {

@@ -148,6 +148,11 @@ namespace GuGu {
 		}
 	}
 
+	void Button::setOnClicked(OnClicked inOnClicked)
+	{
+		m_clicked = inOnClicked;
+	}
+
 	void Button::Press()
 	{
 		if (!m_bIsPressed)
