@@ -29,6 +29,9 @@ namespace GuGu {
 		m_childWidget->m_parentWidget = shared_from_this();
 		if(m_childWidget->m_childWidget != NullWidget::getNullWidget())
 			m_childWidget->m_childWidget->setParentWidget(shared_from_this());
+
+		m_clickMethod = arguments.mClickMethod;
+		m_pressMethod = arguments.mPressMethod;
 	}
 	uint32_t Button::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
@@ -75,19 +78,68 @@ namespace GuGu {
 	Reply Button::OnMouseButtonDown(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent)
 	{
 		//update button state
+		Reply reply = Reply::Unhandled();
 		Press();
-		if (m_clicked)
+		if (m_clickMethod == ButtonClickMethod::MouseDown)
 		{
-			m_clicked();
+			if (m_clicked)
+			{
+				reply = m_clicked();
+			}
 		}
+		else
+		{
+			//捕获路径，为了鼠标松开事件
+			reply = Reply::Handled().captureMouse(shared_from_this());
+		}
+		
         GuGu_LOGD("%s", "click button");
-		return Reply::Unhandled().captureMouse(shared_from_this());
+		return reply;
 	}
 
 	Reply Button::OnMouseButtonUp(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent)
 	{
-		Release();
-		return Reply::Unhandled().releaseMouseCapture();
+		Reply reply = Reply::Unhandled();
+		const bool bMustBePressed = m_clickMethod == ButtonClickMethod::DownAndUp;
+		const bool bMeetsPressedRequirements = (!bMustBePressed || (m_bIsPressed && bMustBePressed));
+		if (bMeetsPressedRequirements)
+		{
+			Release();
+			if (m_clickMethod == ButtonClickMethod::MouseDown)
+			{
+
+			}
+			else
+			{
+				bool bEventOverButton = IsHovered();
+
+				if (bEventOverButton)
+				{
+					const bool bTriggerForMouseEvent = (m_clickMethod == ButtonClickMethod::MouseUp || hasMouseCapture());
+
+					if (bTriggerForMouseEvent)
+					{
+						if (m_clicked)
+						{
+							reply = m_clicked();
+						}
+					}
+				}
+			}
+
+			if (reply.isEventHandled() == false)
+			{
+				reply = Reply::Handled();
+			}
+		}
+
+		//如果用户的回调的reply没有请求captor，并且按钮始终有鼠标捕获，那么按钮的默认行为应该是去释放捕获
+		if (reply.getMouseCaptor() == nullptr && hasMouseCapture())
+		{
+			reply.releaseMouseCapture();
+		}
+		
+		return reply;
 	}
 
 	void Button::OnMouseEnter(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)

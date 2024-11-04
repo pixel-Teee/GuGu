@@ -246,8 +246,11 @@ namespace GuGu{
 		}
 
 		//释放之前的焦点路径
-		m_captorWidgetsPath.clear();
-
+		//if (m_captorWidgetsPath.isEmpty() == false)
+		//{
+		//	m_captorWidgetsPath.clear();
+		//}
+		
 		std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
 		if (mouseCaptor != nullptr)
 		{

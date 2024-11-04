@@ -38,7 +38,7 @@ namespace GuGu {
 	}
 	Reply EditorMainWindow::exitApplication()
 	{
-		//Application::getApplication()->setExit(true);
+		Application::getApplication()->setExit(true);
 		return Reply::Handled();
 	}
 	Reply EditorMainWindow::miniMizeWindow()

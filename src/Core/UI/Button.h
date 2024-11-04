@@ -15,7 +15,9 @@ namespace GuGu {
 		struct BuilderArguments : public Arguments<Button>
 		{
 			BuilderArguments()
-				:misFocusable(true)
+				: misFocusable(true)
+				, mClickMethod(ButtonClickMethod::Type::DownAndUp)
+				, mPressMethod(ButtonClickMethod::Type::DownAndUp)
 			{}
 
 			~BuilderArguments() = default;
@@ -35,6 +37,12 @@ namespace GuGu {
 			ARGUMENT_VALUE(bool, isFocusable)
 
 			UI_EVENT(OnClicked, Clicked)
+
+			//鼠标触发按钮回调的行为方式
+			ARGUMENT_VALUE(ButtonClickMethod::Type, ClickMethod)
+
+			//键盘触发按钮回调的行为方式
+			ARGUMENT_VALUE(ButtonClickMethod::Type, PressMethod)
 		};
 
 		void init(const BuilderArguments& arguments);
@@ -74,5 +82,8 @@ namespace GuGu {
 		bool m_bIsPressed;
 
 		bool m_bIsFocusable;
+
+		EnumAsByte<ButtonClickMethod::Type> m_clickMethod;
+		EnumAsByte<ButtonClickMethod::Type> m_pressMethod;
 	};
 }

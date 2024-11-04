@@ -5,6 +5,18 @@
 #include "Attribute.h"
 
 namespace GuGu {
+	namespace ButtonClickMethod
+	{
+		enum Type
+		{
+			//必须按下和释放按钮，才能触发回调
+			DownAndUp,
+
+			MouseDown,
+
+			MouseUp
+		};
+	}
 	struct OptionalSize
 	{
 	public:
