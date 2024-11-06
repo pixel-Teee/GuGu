@@ -38,10 +38,10 @@ namespace GuGu {
 
 			UI_EVENT(OnClicked, Clicked)
 
-			//Êó±ê´¥·¢°´Å¥»Øµ÷µÄĞĞÎª·½Ê½
+			//é¼ æ ‡è§¦å‘æŒ‰é’®å›è°ƒçš„è¡Œä¸ºæ–¹å¼
 			ARGUMENT_VALUE(ButtonClickMethod::Type, ClickMethod)
 
-			//¼üÅÌ´¥·¢°´Å¥»Øµ÷µÄĞĞÎª·½Ê½
+			//é”®ç›˜è§¦å‘æŒ‰é’®å›è°ƒçš„è¡Œä¸ºæ–¹å¼
 			ARGUMENT_VALUE(ButtonClickMethod::Type, PressMethod)
 		};
 
