@@ -23,6 +23,19 @@ namespace GuGu {
 
 		virtual void OnDeserialize(const nlohmann::json& input) override;
 
+		template<typename T>
+		std::shared_ptr<Component> getComponent() 
+		{
+			for (auto& component : m_components)
+			{ 
+				if (meta::Type::Get(component) == typeof(T))
+				{
+					return component;
+				}
+			}
+			return nullptr;
+		}
+
 	protected:
 		Array<std::shared_ptr<Component>> m_components;
 	};

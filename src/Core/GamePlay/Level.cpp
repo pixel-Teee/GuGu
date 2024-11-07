@@ -16,8 +16,10 @@ namespace GuGu {
 		{
 			m_objects[i]->Update(fElapsedTimeSeconds);
 		}
+
+		m_objects[0]->getComponent<Component>();
 	}
-	const std::vector<std::shared_ptr<meta::Object>>& Level::getGameObjects()
+	const std::vector<std::shared_ptr<GameObject>>& Level::getGameObjects()
 	{
 		return m_objects;
 	}

@@ -72,6 +72,9 @@ namespace GuGu{
     std::shared_ptr<Timer> Application::getTimer() {
         return m_timer;
     }
+    void Application::miniMizeWindow(std::shared_ptr<WindowWidget> windowWidget)
+    {
+    }
     void Application::calculateFrameStats()
     {
         static int32_t frameCnt = 0;

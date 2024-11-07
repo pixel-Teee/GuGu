@@ -67,9 +67,6 @@ namespace GuGu {
 	{
 		return globalApplication;
 	}
-	void Application::miniMizeWindow(std::shared_ptr<WindowWidget> windowWidget)
-	{
-	}
 	void WindowsApplication::setNativeApplicationHandleAndCmdShow(HINSTANCE applicationInstance, int32_t cmdShow)
 	{
 		m_applicationInstance = applicationInstance;

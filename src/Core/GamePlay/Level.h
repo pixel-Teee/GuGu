@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Reflection/Array.h"
-#include "Reflection/Object.h"
+#include "GameObject.h"
 
 namespace GuGu {
 	class Level {
@@ -12,8 +12,8 @@ namespace GuGu {
 
 		virtual void Update(float fElapsedTimeSeconds);
 
-		const std::vector<std::shared_ptr<meta::Object>>& getGameObjects();
+		const std::vector<std::shared_ptr<GameObject>>& getGameObjects();
 	private:
-		Array<std::shared_ptr<meta::Object>> m_objects;
+		Array<std::shared_ptr<GameObject>> m_objects;
 	};
 }
