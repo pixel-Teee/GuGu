@@ -14,6 +14,8 @@ namespace GuGu {
 		public:
 			virtual ~Object() {}
 
+			virtual void Update(float fElapsedTimeSeconds) = 0;
+
 			virtual Type GetType() const = 0;
 			virtual Object* Clone(void) const = 0;
 
