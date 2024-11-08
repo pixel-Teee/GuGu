@@ -24,13 +24,13 @@ namespace GuGu {
 		virtual void OnDeserialize(const nlohmann::json& input) override;
 
 		template<typename T>
-		std::shared_ptr<Component> getComponent() 
+		std::shared_ptr<T> getComponent() 
 		{
 			for (auto& component : m_components)
 			{ 
 				if (meta::Type::Get(component) == typeof(T))
 				{
-					return component;
+					return std::static_pointer_cast<T>(component);
 				}
 			}
 			return nullptr;
@@ -38,5 +38,9 @@ namespace GuGu {
 
 	protected:
 		Array<std::shared_ptr<Component>> m_components;
+
+		Array<std::shared_ptr<GameObject>> m_childrens;
+
+		GuGuUtf8Str m_name;
 	};
 }

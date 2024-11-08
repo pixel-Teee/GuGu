@@ -14,6 +14,6 @@ namespace GuGu {
 
 		const std::vector<std::shared_ptr<GameObject>>& getGameObjects();
 	private:
-		Array<std::shared_ptr<GameObject>> m_objects;
+		Array<std::shared_ptr<GameObject>> m_objects; //all game objects
 	};
 }

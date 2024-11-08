@@ -1,6 +1,7 @@
 #include <pch.h>
 
 #include "GameObject.h"
+#include "TransformComponent.h"
 
 namespace GuGu {
 	GameObject::GameObject()
@@ -11,10 +12,15 @@ namespace GuGu {
 	}
 	void GameObject::Update(float fElapsedTimeSeconds)
 	{
-		for (int32_t i = 0; i < m_components.size(); ++i)
-		{
-			m_components[i]->Update(fElapsedTimeSeconds);
-		}
+		//1.更新变化组件
+		getComponent<TransformComponent>()->Update(fElapsedTimeSeconds);
+		//2.更新材质组件
+		
+		//for (int32_t i = 0; i < m_components.size(); ++i)
+		//{
+		//	m_components[i]->Update(fElapsedTimeSeconds);
+		//}
+
 	}
 	meta::Type GameObject::GetType() const
 	{
