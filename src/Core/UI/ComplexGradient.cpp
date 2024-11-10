@@ -28,6 +28,7 @@ namespace GuGu {
 	}
 	uint32_t ComplexGradient::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
+		uint32_t maxLayer = 0;
 		//todo:add alpha background
 
 		const std::vector<math::float4>& colors = m_gradientColors;
@@ -50,7 +51,25 @@ namespace GuGu {
 				m_cornerRadius, layer + 1);
 		}
 
-		return layer + 1;
+		maxLayer = layer + 1;
+
+		ArrangedWidgetArray arrangedWidgetArray(Visibility::Visible);//设置数组只接受可见的child widget
+		AllocationChildActualSpace(allocatedGeometry, arrangedWidgetArray);
+
+		uint32_t widgetNumbers = arrangedWidgetArray.getArrangedWidgetsNumber();//note:just one
+		//math::double2 size = math::double2(0.0, 0.0);
+		
+		for (size_t i = 0; i < widgetNumbers; ++i)
+		{
+			std::shared_ptr<ArrangedWidget> childWidget = arrangedWidgetArray.getArrangedWidget(i);
+			if (childWidget)
+			{
+				std::shared_ptr<Widget> widget = childWidget->getWidget();
+
+				maxLayer = std::max(maxLayer, widget->generateElement(paintArgs, cullingRect, elementList, childWidget->getWidgetGeometry(), layer + 1));
+			}
+		}
+		return maxLayer;
 	}
 	math::float2 ComplexGradient::ComputeFixedSize(float inLayoutScaleMultiplier)
 	{

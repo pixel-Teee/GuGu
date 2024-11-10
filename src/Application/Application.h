@@ -8,6 +8,9 @@
 
 //#include <memory>
 
+// #include <Core/GamePlay/GameObject.h>
+// #include <Core/GamePlay/Level.h>
+
 namespace GuGu {
 	class Widget;
 
@@ -20,6 +23,7 @@ namespace GuGu {
 	class Reply;
 	class WidgetPath;
 	class WindowWidget;
+	class Level;
 	class Application {
 	public:
 		Application();
@@ -145,6 +149,8 @@ namespace GuGu {
 		WeakWidgetPath m_captorWidgetsPath;
 
 		WeakWidgetPath m_focusWidgetsPath;
+
+		std::shared_ptr<Level> m_currentLevel;
 	};
 	std::shared_ptr<Application> CreateApplicationFactory();
 }

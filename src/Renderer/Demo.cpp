@@ -20,6 +20,10 @@
 
 #include <gltf/gltfLoader.h>
 
+#include <Core/GamePlay/Level.h>
+#include <Core/GamePlay/GameObject.h>
+#include <Core/GamePlay/TransformComponent.h>
+
 namespace GuGu {
 	inline void AppendBufferRange(nvrhi::BufferRange& range, size_t size, uint64_t& currentBufferSize)
 	{
@@ -82,6 +86,13 @@ namespace GuGu {
 
 		m_sceneGraph = std::make_shared<SceneGraph>();
 		auto node = std::make_shared<SceneGraphNode>();
+
+		m_cubeConstantBuffer = GetDevice()->createBuffer(
+			nvrhi::utils::CreateStaticConstantBufferDesc(
+				sizeof(ConstantBufferEntry), "ConstantBuffer")
+			.setInitialState(
+				nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
+					true));
 			
 		//Load("asset/Robot.gltf", node, m_rootFileSystem);
 
@@ -772,6 +783,179 @@ namespace GuGu {
 	nvrhi::TextureHandle Demo::getRenderTarget()
 	{
 		return m_renderTarget;
+	}
+	void Demo::renderLevel(const std::shared_ptr<Level> inLevel)
+	{
+		if (!m_Pipeline) {
+			nvrhi::GraphicsPipelineDesc psoDesc;
+			psoDesc.VS = m_VertexShader; //opaque geometry
+			psoDesc.PS = m_PixelShader; //opaque geometry
+			psoDesc.inputLayout = m_InputLayout; //顶点属性
+			psoDesc.bindingLayouts = { m_BindingLayout }; //constant buffer 这些
+			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+			psoDesc.renderState.depthStencilState.depthTestEnable = true;
+			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
+			m_Pipeline = GetDevice()->createGraphicsPipeline(psoDesc, m_frameBuffer);
+		}
+
+		m_drawItems.clear();
+
+		m_CommandList->open();
+		
+		nvrhi::utils::ClearColorAttachment(m_CommandList, m_frameBuffer, 0, Color(0.2f, 0.3f, 0.7f, 1.0f));
+		m_CommandList->clearDepthStencilTexture(m_depthTarget, nvrhi::AllSubresources, true, 1.0f, true, 0);
+
+		math::float3 cameraPos = math::float3(0.0f, 0.0f, m_uiData->camPos);
+		math::float3 cameraDir = normalize(math::float3(0.0f, m_uiData->dir, 1.0f) - cameraPos);
+		math::float3 cameraUp = math::float3(0.0f, 1.0f, 0.0f);
+		math::float3 cameraRight = normalize(cross(cameraUp, cameraDir));
+		cameraUp = normalize(cross(cameraDir, cameraRight));
+
+		math::affine3 worldToView = math::affine3::from_cols(cameraRight, cameraUp, cameraDir, -cameraPos);
+
+		//ConstantBufferEntry modelConstants;
+		//math::affine3 viewMatrix =
+		//math::yawPitchRoll(0.f, math::radians(-30.f), 0.f)
+		//* math::translation(math::float3(0, 0, 2));
+		math::float4x4 projMatrix = math::perspProjD3DStyle(math::radians(45.f),
+			float(640) /
+			float(400), 1.0f, 400.0f
+		);
+		math::float4x4 viewProjMatrix = math::affineToHomogeneous(worldToView) * projMatrix;
+		//modelConstants.viewProjMatrix = viewProjMatrix;
+
+		Pass pass;
+		pass.camPos = cameraPos;
+		m_CommandList->writeBuffer(m_PassBuffers, &pass, sizeof(pass));
+
+		//draw level
+		const std::vector<std::shared_ptr<GameObject>>& gameObjects = inLevel->getGameObjects();
+		//暂时用cube代替绘制
+		for (size_t i = 0; i < gameObjects.size(); ++i)
+		{
+			std::shared_ptr<TransformComponent> transformComponent = gameObjects[i]->getComponent<TransformComponent>();
+			
+			const math::affine3& worldMatrix = transformComponent->GetLocalToWorldTransformFloat();
+
+			DrawItem drawItem;
+			drawItem.mesh = m_meshInfo.get();
+			drawItem.bufferGroup = m_meshInfo->buffers.get();
+			drawItem.meshGeometry = m_meshInfo->geometries[0].get();
+			drawItem.m_worldMatrix = m_cubeConstantBuffer;
+			//drawItem.m_pbrMaterial = m_PbrMaterialBuffers[index];
+			drawItem.m_isSkinned = false;
+			m_drawItems.push_back(drawItem);
+
+			//get the world matrix
+			ConstantBufferEntry modelConstants;
+			modelConstants.viewProjMatrix = viewProjMatrix;
+			modelConstants.worldMatrix = math::affineToHomogeneous(worldMatrix);
+			//get the global matrix to fill constant buffer		
+			m_CommandList->writeBuffer(m_cubeConstantBuffer, &modelConstants, sizeof(modelConstants));
+
+			//PbrMaterial pbrMaterial;
+			//pbrMaterial.albedo = m_uiData->color;
+			//pbrMaterial.metallic = m_uiData->metallic;;
+			//pbrMaterial.roughness = m_uiData->roughness;
+			//pbrMaterial.ao = 0.0f;
+			//m_CommandList->writeBuffer(m_PbrMaterialBuffers[index], &pbrMaterial, sizeof(pbrMaterial));
+			//++index;
+		}
+
+		nvrhi::GraphicsState graphicsState;
+		// Pick the right binding set for this view.
+		//state.bindings = { bindingSet };
+		//state.indexBuffer = { m_buffers->indexBuffer, nvrhi::Format::R32_UINT, 0 };
+		// Bind the vertex buffers in reverse order to test the NVRHI implementation of binding slots
+		//state.vertexBuffers = {
+		//		{m_buffers->vertexBuffer, 1, sizeof(math::float2)},
+		//		{m_buffers->vertexBuffer, 0, 0}
+		//};
+		graphicsState.pipeline = m_Pipeline;
+		graphicsState.framebuffer = m_frameBuffer;
+
+		// Construct the viewport so that all viewports form a grid.
+		const float width = float(1280.0f);
+		const float height = float(720.0f);
+		const float left = 0;
+		const float top = 0;
+
+		const nvrhi::Viewport viewport = nvrhi::Viewport(left, left + width, top,
+			top + height, 0.f, 1.f);
+		graphicsState.viewport.addViewportAndScissorRect(viewport);
+
+		for (size_t i = 0; i < m_drawItems.size(); ++i)
+		{
+			nvrhi::BindingSetDesc desc;
+
+			nvrhi::BindingSetHandle bindingSet;
+			if (!m_drawItems[i].m_isSkinned)
+			{
+				desc.bindings = {
+					nvrhi::BindingSetItem::ConstantBuffer(0, m_drawItems[i].m_worldMatrix),
+					nvrhi::BindingSetItem::ConstantBuffer(2, m_drawItems[i].m_pbrMaterial),
+					nvrhi::BindingSetItem::ConstantBuffer(3, m_LightBuffers),
+					nvrhi::BindingSetItem::ConstantBuffer(4, m_PassBuffers),
+					nvrhi::BindingSetItem::Texture_SRV(0, m_commonRenderPass->m_whiteTexture),
+					nvrhi::BindingSetItem::Sampler(0, m_pointWrapSampler)
+				};
+				bindingSet = GetDevice()->createBindingSet(desc, m_BindingLayout);
+			}
+			else
+			{
+				desc.bindings = {
+					nvrhi::BindingSetItem::ConstantBuffer(0, m_drawItems[i].m_worldMatrix),
+					nvrhi::BindingSetItem::ConstantBuffer(1, m_drawItems[i].m_skinnedMatrix),
+					nvrhi::BindingSetItem::ConstantBuffer(2, m_drawItems[i].m_pbrMaterial),
+					nvrhi::BindingSetItem::ConstantBuffer(3, m_LightBuffers),
+					nvrhi::BindingSetItem::ConstantBuffer(4, m_PassBuffers),
+					nvrhi::BindingSetItem::Texture_SRV(0, m_commonRenderPass->m_whiteTexture),
+					nvrhi::BindingSetItem::Sampler(0, m_pointWrapSampler)
+				};
+				bindingSet = GetDevice()->createBindingSet(desc, m_SkinnedBindingLayout);
+			}
+
+			graphicsState.bindings = { bindingSet };
+
+			if (!m_drawItems[i].bufferGroup->vertexBuffer)
+				continue;
+
+			graphicsState.vertexBuffers = {
+						{m_drawItems[i].bufferGroup->vertexBuffer, 0, m_drawItems[i].bufferGroup->getVertexBufferRange(VertexAttribute::Position).byteOffset},
+						{m_drawItems[i].bufferGroup->vertexBuffer, 1, m_drawItems[i].bufferGroup->getVertexBufferRange(VertexAttribute::TexCoord1).byteOffset},
+						{m_drawItems[i].bufferGroup->vertexBuffer, 2, m_drawItems[i].bufferGroup->getVertexBufferRange(VertexAttribute::Normal).byteOffset},
+						{m_drawItems[i].bufferGroup->vertexBuffer, 3, m_drawItems[i].bufferGroup->getVertexBufferRange(VertexAttribute::Tangent).byteOffset},
+						{m_drawItems[i].bufferGroup->vertexBuffer, 4, m_drawItems[i].bufferGroup->getVertexBufferRange(VertexAttribute::JointWeights).byteOffset},
+						{m_drawItems[i].bufferGroup->vertexBuffer, 5, m_drawItems[i].bufferGroup->getVertexBufferRange(VertexAttribute::JointIndices).byteOffset}
+			};
+
+			graphicsState.indexBuffer = {
+				m_drawItems[i].bufferGroup->indexBuffer, nvrhi::Format::R32_UINT, 0
+			};
+
+			if (!m_drawItems[i].m_isSkinned)
+			{
+				graphicsState.pipeline = m_Pipeline;
+			}
+			else
+			{
+				graphicsState.pipeline = m_SkinnedPipeline;
+			}
+
+			//update the pipeline, bindings, and other state.
+			m_CommandList->setGraphicsState(graphicsState);
+
+			// Draw the model.
+			nvrhi::DrawArguments args;
+			args.vertexCount = m_drawItems[i].meshGeometry->numIndices;
+			args.instanceCount = 1;
+			args.startVertexLocation = m_drawItems[i].mesh->vertexOffset + m_drawItems[i].meshGeometry->vertexOffsetInMesh;
+			args.startIndexLocation = m_drawItems[i].mesh->indexOffset + m_drawItems[i].meshGeometry->indexOffsetInMesh;
+			m_CommandList->drawIndexed(args);
+		}
+
+		m_CommandList->close();
+		GetDevice()->executeCommandList(m_CommandList);
 	}
 	void Demo::RenderView(nvrhi::GraphicsState& graphicsState, nvrhi::GraphicsState& gridGraphicsState, math::float4x4 viewProjMatrix)
 	{

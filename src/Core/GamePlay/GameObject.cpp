@@ -36,4 +36,8 @@ namespace GuGu {
 	void GameObject::OnDeserialize(const nlohmann::json& input)
 	{
 	}
+	void GameObject::addComponent(std::shared_ptr<Component> inComponent)
+	{
+		m_components.push_back(inComponent);
+	}
 }

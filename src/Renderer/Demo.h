@@ -15,6 +15,7 @@ namespace GuGu {
 	class MeshGeometry;
 	class CommonRenderPasses;
 	class SceneGraphNode;
+	class Level;
 	struct DrawItem
 	{
 		const MeshInfo* mesh;
@@ -42,6 +43,8 @@ namespace GuGu {
 		void LoadScene(const GuGuUtf8Str& filePath);
 
 		nvrhi::TextureHandle getRenderTarget();
+
+		void renderLevel(const std::shared_ptr<Level> inLevel);
 	private:
 		void RenderView(nvrhi::GraphicsState& graphicsState, nvrhi::GraphicsState& gridGraphicsState, math::float4x4 viewProjMatrix);
 
@@ -54,6 +57,7 @@ namespace GuGu {
 		std::shared_ptr<BufferGroup> m_buffers;
 		std::shared_ptr<MeshInfo> m_meshInfo;
 		std::shared_ptr<MeshInstance> m_meshInstance;
+		nvrhi::BufferHandle m_cubeConstantBuffer;
 		std::shared_ptr<SceneGraph> m_sceneGraph;
 
 		std::shared_ptr<SceneGraph> m_testGraph;

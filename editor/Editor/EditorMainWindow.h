@@ -2,7 +2,10 @@
 
 #include <Core/UI/WindowWidget.h> //window widget
 
+#include <Renderer/nvrhi.h> //render pass
+
 namespace GuGu {
+	class ViewportWidget;
 	class EditorMainWindow : public WindowWidget
 	{
 	public:
@@ -37,7 +40,11 @@ namespace GuGu {
 		Reply exitApplication();
 
 		Reply miniMizeWindow();
+
+		void setRenderTarget(nvrhi::TextureHandle renderTarget);
 	private:
+
+		std::shared_ptr<ViewportWidget> m_viewportWidget;
 	};
 
 	std::shared_ptr<EditorMainWindow> CreateEditorMainWindow();

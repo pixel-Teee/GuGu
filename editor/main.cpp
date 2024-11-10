@@ -15,8 +15,10 @@
 #include <memory>
 
 #include <Core/Reflection/TestReflection.h>
-
+#include <Renderer/Demo.h>
 #include "Editor/EditorMainWindow.h"
+
+#include <Renderer/Renderer.h>
 
 #ifdef WIN32
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nCmdShow)
@@ -43,6 +45,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
     std::shared_ptr<GuGu::EditorMainWindow> editorMainWindow = GuGu::CreateEditorMainWindow();
 
 	application->init(editorMainWindow);
+
+    editorMainWindow->setRenderTarget(application->getRenderer()->getDemoPass()->getRenderTarget());
+
 	application->Run();
 	return 0;
 }

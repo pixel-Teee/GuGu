@@ -16,6 +16,10 @@
 #include <Renderer/Renderer.h>
 #include <Renderer/VertexBuffer.h>
 
+#include <Core/GamePlay/Level.h>
+#include <Core/GamePlay/GameObject.h>
+#include <Core/GamePlay/TransformComponent.h>
+
 namespace GuGu{
     Application::Application()
     {
@@ -29,6 +33,12 @@ namespace GuGu{
     }
 	void Application::init(std::shared_ptr<WindowWidget> inWindowWidget)
 	{
+		//create level
+		m_currentLevel = std::make_shared<Level>();
+		std::shared_ptr<GameObject> gameObject = std::make_shared<GameObject>();
+		std::shared_ptr<TransformComponent> transformComponent = std::make_shared<TransformComponent>();
+		gameObject->addComponent(transformComponent);
+		m_currentLevel->addGameObject(gameObject);
 	}
     void Application::Run()
     {
@@ -42,8 +52,12 @@ namespace GuGu{
 
             if(m_focused)
             {
+				//1.更新关卡和里面的game object
+				m_currentLevel->Update(m_timer->GetDeltaTime());
                 UIRenderPass* uiRenderPass = m_renderer->getUIRenderPass();
                 Demo* demoPass = m_renderer->getDemoPass();
+				//demoPass->setLevel()
+				demoPass->renderLevel(m_currentLevel);
                 VertexBuffer* vertexBuffer = m_renderer->getVertexBufferPass();
                 uiRenderPass->setRenderTarget(demoPass->getRenderTarget());
                 m_renderer->onRender();

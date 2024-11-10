@@ -36,6 +36,8 @@ namespace GuGu {
 			return nullptr;
 		}
 
+		void addComponent(std::shared_ptr<Component> inComponent);
+
 	protected:
 		Array<std::shared_ptr<Component>> m_components;
 
