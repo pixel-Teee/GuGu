@@ -37,6 +37,7 @@ namespace GuGu{
 		m_currentLevel = std::make_shared<Level>();
 		std::shared_ptr<GameObject> gameObject = std::make_shared<GameObject>();
 		std::shared_ptr<TransformComponent> transformComponent = std::make_shared<TransformComponent>();
+		transformComponent->SetRotation(math::rotationQuat(math::double3(math::radians(60.0), math::radians(135.0), math::radians(40.0))));
 		gameObject->addComponent(transformComponent);
 		m_currentLevel->addGameObject(gameObject);
 	}

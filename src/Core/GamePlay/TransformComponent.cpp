@@ -36,6 +36,7 @@ namespace GuGu {
 		{
 			m_GlobalTransform = m_LocalTransform;
 		}
+		m_GlobalTransformFloat = math::affine3(m_GlobalTransform);
 	}
 	void TransformComponent::SetTransform(const math::double3* translation, const math::dquat* rotation, const math::double3* scaling)
 	{
