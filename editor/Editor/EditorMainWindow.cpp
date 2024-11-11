@@ -112,11 +112,17 @@ namespace GuGu {
 							.cornerRadius(math::float4(10.0f, 10.0f, 10.0f, 10.0f))
 							.Content
 							(
-								WIDGET_ASSIGN_NEW(ViewportWidget, m_viewportWidget)
+								WIDGET_NEW(Border)
+								.padding(Padding(20.0f, 52.0f, 20.0f, 20.0f))
+								.BorderBackgroundColor(math::float4(0.0f, 0.0f, 0.0f, 0.0f))
 								.Content
 								(
-									NullWidget::getNullWidget()
-								)
+									WIDGET_ASSIGN_NEW(ViewportWidget, m_viewportWidget)
+									.Content
+									(
+										NullWidget::getNullWidget()
+									)
+								)										
 							)
 						)
 						+ HorizontalBox::Slot()
