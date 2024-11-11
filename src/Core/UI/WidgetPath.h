@@ -34,6 +34,8 @@ namespace GuGu {
 		std::shared_ptr<WindowWidget> getWindow() const;
 
 		bool containsWidget(const Widget* widgetToFind) const;
+
+		std::shared_ptr<Widget> getLastWidget() const;
 		
 		ArrangedWidgetArray m_widgets;
 

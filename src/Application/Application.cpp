@@ -415,6 +415,24 @@ namespace GuGu{
 		m_renderer->requestResize(inWindow);
 	}
 
+	std::shared_ptr<IMenu> Application::pushMenu(const std::shared_ptr<Widget>& inParentWidget, const WidgetPath& inOwnerPath, const std::shared_ptr<Widget>& inContent, const math::float2& summonLocation, const bool bFocusImmediately, const math::float2& summonLocationSize, std::optional<PopupMethod> method, const bool bIsCollapsedByParent)
+	{
+		//调用者提供了一条完整的路径
+		if (inOwnerPath.isValid())
+		{
+			m_menuStack.push(inOwnerPath, inContent, summonLocation, bFocusImmediately, summonLocationSize, method, bIsCollapsedByParent);
+		}
+
+		//如果调用者没有提供一个有效的路径，我们需要生成一条
+		WidgetPath widgetPath;
+		if (generatePathToWidgetUnchecked(inParentWidget, widgetPath))
+		{
+			
+		}
+
+		return std::shared_ptr<IMenu>();
+	}
+
     bool Application::processMouseButtonDownEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
     {
 		if (!m_captorWidgetsPath.isEmpty())

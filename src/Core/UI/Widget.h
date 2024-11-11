@@ -7,6 +7,7 @@
 #include "WidgetGeometry.h"
 #include "Attribute.h"
 #include "ArrangedWidget.h"
+#include "PopupMethodReply.h"
 
 #include <Core/Math/MyMath.h>
 
@@ -68,6 +69,8 @@ namespace GuGu{
         virtual Reply OnKeyChar(const WidgetGeometry& myGeometry, const CharacterEvent& inCharacterEvent);
 
         virtual Reply OnKeyDown(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent);
+
+        virtual PopupMethodReply OnQueryPopupMethod() const;
 
         virtual void OnFocusLost();
 

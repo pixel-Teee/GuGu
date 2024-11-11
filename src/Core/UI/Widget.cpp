@@ -143,6 +143,10 @@ namespace GuGu{
     {
         return Reply::Unhandled();
     }
+    PopupMethodReply Widget::OnQueryPopupMethod() const
+    {
+        return PopupMethodReply::unHandled();
+    }
     void Widget::OnFocusLost()
     {
     }

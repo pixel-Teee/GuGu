@@ -322,7 +322,11 @@ namespace GuGu {
 					//普通的菜单被应用程序的 menu stack 函数所创建和管理
 					if (m_bUseApplicationMenuStack)
 					{
-
+						if (m_methodInUse.getPopupMethod() == PopupMethod::CreateNewWindow)
+						{
+							//打开pop-up
+							//std::shared_ptr<IMenu> newMenu = Application::getApplication()->pushMenu();
+						}
 					}
 					else
 					{

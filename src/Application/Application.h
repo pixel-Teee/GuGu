@@ -5,6 +5,8 @@
 
 #include <Core/UI/Events.h>//ModifierKeysState depends on it
 #include <Core/UI/WidgetPath.h>
+#include <Core/UI/PopupMethodReply.h>
+#include <Core/UI/MenuStack.h>
 
 //#include <memory>
 
@@ -24,6 +26,7 @@ namespace GuGu {
 	class WidgetPath;
 	class WindowWidget;
 	class Level;
+	class IMenu;
 	class Application {
 	public:
 		Application();
@@ -110,6 +113,17 @@ namespace GuGu {
 		std::vector<std::shared_ptr<WindowWidget>>& getWidowWidgets();
 
 		void OnResizeChanged(std::shared_ptr<Window> inWindow);
+
+		//parent widget (菜单的父控件)，通过查找父控件的 widget path 中是否有一个打开的菜单来决定新菜单的等级
+		//可选的完整的父亲的控件路径，如果提供的话，如果没提供的话，那么就会生成一条路径到InParentWidget
+		std::shared_ptr<IMenu> pushMenu(const std::shared_ptr<Widget>& inParentWidget,
+			const WidgetPath& inOwnerPath,
+			const std::shared_ptr<Widget>& inContent,
+			const math::float2& summonLocation,
+			const bool bFocusImmediately = true,
+			const math::float2& summonLocationSize = math::float2(0, 0),
+			std::optional<PopupMethod> method = std::optional<PopupMethod>(),
+			const bool bIsCollapsedByParent = true);
 	protected:
 		std::shared_ptr<Renderer> m_renderer;
 
@@ -151,6 +165,8 @@ namespace GuGu {
 		WeakWidgetPath m_focusWidgetsPath;
 
 		std::shared_ptr<Level> m_currentLevel;
+
+		MenuStack m_menuStack;
 	};
 	std::shared_ptr<Application> CreateApplicationFactory();
 }

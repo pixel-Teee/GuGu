@@ -103,6 +103,10 @@ namespace GuGu {
 		}
 		return false;
 	}
+	std::shared_ptr<Widget> WidgetPath::getLastWidget() const
+	{
+		return m_widgets[m_widgets.getArrangedWidgetsNumber() - 1]->getWidget();
+	}
 	WeakWidgetPath::WeakWidgetPath(const WidgetPath& inWidgetPath)
 	{
 		int32_t widgetNumber = inWidgetPath.m_widgets.getArrangedWidgetsNumber();
