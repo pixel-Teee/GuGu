@@ -47,5 +47,8 @@ namespace GuGu {
 
 		//栈中根菜单的父亲
 		std::weak_ptr<Widget> hostWidget;
+
+		//
+		std::shared_ptr<PopupLayer> m_hostPopupLayer;
 	};
 }

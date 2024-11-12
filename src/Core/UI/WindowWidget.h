@@ -6,6 +6,7 @@
 
 namespace GuGu {
 	//class Slot;
+	class Overlay;
 	class Brush;
 	class ElementList;
 	class WidgetGeometry;
@@ -27,6 +28,19 @@ namespace GuGu {
 		UserSize //由用户决定
 	};
 	
+	//简单的overlay layer去允许内容叠加在一个窗口或者类似的控件商
+	class OverlayPopupLayer : public PopupLayer
+	{
+	public:
+		OverlayPopupLayer(const std::shared_ptr<WindowWidget>& initHostWindow, const std::shared_ptr<Widget>& initPopupContent, std::shared_ptr<Overlay> initOverlay);
+
+		virtual void remove() override;
+		virtual math::box2 getAbsoluteClientRect() override;
+	private:
+		std::shared_ptr<WindowWidget> m_hostWindow;
+		std::shared_ptr<Overlay> m_overlay;
+	};
+
 	class WindowWidget : public Widget
 	{
 	public:

@@ -18,6 +18,7 @@ namespace GuGu {
 		public:
 			OverlaySlot()
 				: Slot<OverlaySlot>(HorizontalAlignment::Stretch, VerticalAlignment::Stretch, Padding(0.0f, 0.0f, 0.0f, 0.0f))
+				, m_zOrder(0)
 			{}
 
 			virtual ~OverlaySlot() {}
@@ -37,7 +38,9 @@ namespace GuGu {
 
 				virtual ~SlotBuilderArguments() {}
 			};
-		private:
+		
+			//大的会绘制在小的上面
+			int32_t m_zOrder;
 		};
 
 		struct BuilderArguments : public Arguments<Overlay>
@@ -61,6 +64,12 @@ namespace GuGu {
 		virtual uint32_t getSlotsNumber() const override;
 
 		static OverlaySlot::SlotBuilderArguments Slot();
+
+		OverlaySlot& addSlot(int32_t zOrder = -1);
+
+		void removeSlot(int32_t zOrder = -1);
+
+		bool removeSlot(std::shared_ptr<Widget> widget);
 	private:
 		std::vector<std::shared_ptr<OverlaySlot>> m_childrens;
 	};

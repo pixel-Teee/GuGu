@@ -16,6 +16,7 @@
 #include <Application/Application.h>
 
 #include <Core/UI/CoreStyle.h>
+#include <Core/UI/Overlay.h>
 
 namespace GuGu {
 	WindowWidget::WindowWidget()
@@ -273,5 +274,23 @@ namespace GuGu {
 	bool WindowWidget::isAutoSized() const
 	{
 		return m_sizingRule == SizingRule::AutoSized;//由内容决定大小
+	}
+	OverlayPopupLayer::OverlayPopupLayer(const std::shared_ptr<WindowWidget>& initHostWindow, const std::shared_ptr<Widget>& initPopupContent, std::shared_ptr<Overlay> initOverlay)
+		: PopupLayer(initHostWindow, initPopupContent)
+		, m_hostWindow(initHostWindow)
+		, m_overlay(initOverlay)
+	{
+		m_overlay->addSlot().setChildWidget
+		(
+			initPopupContent
+		);
+	}
+	void OverlayPopupLayer::remove()
+	{
+		m_overlay->removeSlot(getContent());
+	}
+	math::box2 OverlayPopupLayer::getAbsoluteClientRect()
+	{
+		return m_hostWindow->getClientRectInScreen();
 	}
 }

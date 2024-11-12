@@ -73,6 +73,7 @@ namespace GuGu {
 	void MenuStack::setHostPath(const WidgetPath& inOwnerPath)
 	{
 		//todo:添加 host window guard
+		
 
 		hostWindow = inOwnerPath.isValid() ? inOwnerPath.getWindow() : std::shared_ptr<WindowWidget>();
 		

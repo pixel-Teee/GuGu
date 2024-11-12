@@ -101,4 +101,65 @@ namespace GuGu {
 	{
 		return OverlaySlot::SlotBuilderArguments(std::make_shared<OverlaySlot>());
 	}
+	Overlay::OverlaySlot& Overlay::addSlot(int32_t zOrder)
+	{
+		std::shared_ptr<OverlaySlot> newSlot = std::make_shared<OverlaySlot>();
+		if (zOrder == -1)
+		{
+			zOrder = (m_childrens.size() == 0) ? 0 : (m_childrens[m_childrens.size() - 1]->m_zOrder + 1);
+
+			this->m_childrens.push_back(newSlot);
+		}
+		else
+		{
+			bool bFoundSlot = false;
+			int32_t curSlotIndex = 0;
+			for (; curSlotIndex < m_childrens.size(); ++curSlotIndex)
+			{
+				const OverlaySlot& curSlot = *m_childrens[curSlotIndex];
+				if (zOrder < curSlot.m_zOrder)
+				{
+					bFoundSlot = true;
+					break;
+				}
+			}
+
+			this->m_childrens.insert(m_childrens.begin() + curSlotIndex, newSlot);
+		}
+
+		newSlot->m_zOrder = zOrder;
+		return *newSlot;
+	}
+	void Overlay::removeSlot(int32_t zOrder)
+	{
+		if (zOrder != -1)
+		{
+			for (int32_t childIndex = 0; childIndex < m_childrens.size(); ++childIndex)
+			{
+				if (m_childrens[childIndex]->m_zOrder == zOrder)
+				{
+					m_childrens.erase(m_childrens.begin() + childIndex);
+					return;
+				}
+			}
+		}
+		else if (m_childrens.size() > 0)
+		{
+			m_childrens.pop_back();
+		}
+	}
+	bool Overlay::removeSlot(std::shared_ptr<Widget> widget)
+	{
+		for (int32_t curSlotIndex = 0; curSlotIndex < m_childrens.size(); ++curSlotIndex)
+		{
+			const OverlaySlot& curSlot = *m_childrens[curSlotIndex];
+			if (curSlot.getChildWidget() == widget)
+			{
+				m_childrens.erase(m_childrens.begin() + curSlotIndex);
+				break;
+				return true;
+			}
+		}
+		return false;
+	}
 }
