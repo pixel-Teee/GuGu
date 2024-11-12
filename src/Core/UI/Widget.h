@@ -13,6 +13,8 @@
 
 #include <unordered_map>
 
+#include <Core/Math/MyMath.h>
+
 namespace GuGu{
     class Widget;
     class SlotBase;
@@ -37,6 +39,24 @@ namespace GuGu{
 
         math::float2 m_windowOffset;
 	};
+    class PopupLayer : public std::enable_shared_from_this<PopupLayer>
+    {
+    public:
+        PopupLayer(const std::shared_ptr<Widget>& initHostWidget, const std::shared_ptr<Widget>& initPopupContent)
+            : m_hostWidget(initHostWidget)
+            , m_popupContent(initPopupContent)
+        {}
+
+        virtual ~PopupLayer() {}
+
+        virtual std::shared_ptr<Widget> getHost() { return m_hostWidget; }
+        virtual std::shared_ptr<Widget> getContent() { return m_popupContent; }
+        virtual math::box2 getAbsoluteClientRect() = 0;
+        virtual void remove() = 0;
+    private:
+        std::shared_ptr<Widget> m_hostWidget;
+        std::shared_ptr<Widget> m_popupContent;
+    };
     class Widget : public std::enable_shared_from_this<Widget>
     {
     public:
