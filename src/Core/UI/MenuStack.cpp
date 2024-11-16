@@ -148,6 +148,18 @@ namespace GuGu {
 	}
 	std::shared_ptr<IMenu> MenuStack::pushInternal(const std::shared_ptr<IMenu>& inParentMenu, const std::shared_ptr<Widget>& inContent, math::box2 anchor, const bool bFocusImmediately, const bool bIsCollapsedByParent)
 	{
+		PrePushArgs prePushArgs;
+		prePushArgs.m_content = inContent;
+		prePushArgs.m_anchor = anchor;
+		prePushArgs.m_bFocusImmediately = bFocusImmediately;
+		prePushArgs.m_bIsCollapsedByParent = bIsCollapsedByParent;
+
+		//pre-push stage
+		//决定正确的布局
+		//包裹内容
+		//其他通用的设置步骤
+		//const PrePushResults prePushResults = prePush(prePushArgs);
+
 		return nullptr;
 	}
 }

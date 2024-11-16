@@ -37,6 +37,25 @@ namespace GuGu {
 
 		std::shared_ptr<IMenu> pushInternal(const std::shared_ptr<IMenu>& inParentMenu, const std::shared_ptr<Widget>& inContent, math::box2 anchor, const bool bFocusImmediately, const bool bIsCollapsedByParent);
 	private:
+		struct PrePushArgs
+		{
+			PrePushArgs() {}
+
+			std::shared_ptr<Widget> m_content;
+			math::box2 m_anchor;
+			bool m_bFocusImmediately;
+			bool m_bIsCollapsedByParent;
+		};
+
+		struct PrePushResults
+		{
+			std::shared_ptr<Widget> m_warppedContent;
+			std::shared_ptr<Widget> m_widgetToFocus;
+			math::float2 m_expectedSetsMinWidth;
+			bool m_bFocusImmediately;
+			bool m_bIsCollapsedByParent;
+		};
+
 		//被整个栈当前使用的 popup method ，同一时间只有一个
 		PopupMethodReply m_activeMethod;
 

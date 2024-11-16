@@ -39,7 +39,7 @@ namespace GuGu {
 				virtual ~SlotBuilderArguments() {}
 			};
 		
-			//大的会绘制在小的上面
+			//澶х殑浼氱粯鍒跺湪灏忕殑涓婇潰
 			int32_t m_zOrder;
 		};
 
