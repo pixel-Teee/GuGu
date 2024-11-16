@@ -41,4 +41,12 @@ namespace GuGu {
 	{
 		//todo:implement this
 	}
+	std::shared_ptr<WindowWidget> MenuInWindow::getParentWindow() const
+	{
+		return m_window.lock();
+	}
+	void MenuInWindow::dismiss()
+	{
+		//todo:implement this
+	}
 }

@@ -35,4 +35,18 @@ namespace GuGu {
 	private:
 		std::weak_ptr<IMenuHost> m_menuHost;
 	};
+
+	class MenuInWindow : public MenuBase
+	{
+	public:
+		MenuInWindow(std::shared_ptr<WindowWidget> inWindow, std::shared_ptr<Widget> inContent, const bool bIsCollapsedByParent);
+		virtual ~MenuInWindow() {}
+
+		virtual PopupMethod getPopupMethod() const override { return PopupMethod::CreateNewWindow; }
+		virtual std::shared_ptr<WindowWidget> getParentWindow() const override;
+		virtual std::shared_ptr<WindowWidget> getOwnedWindow() const override { return getParentWindow(); }
+		virtual void dismiss() override;
+	private:
+		std::weak_ptr<WindowWidget> m_window;
+	};
 }
