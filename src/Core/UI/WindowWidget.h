@@ -87,6 +87,8 @@ namespace GuGu {
 
 		virtual uint32_t getSlotsNumber() const override;
 
+		virtual std::shared_ptr<PopupLayer> onVisualizePopup(const std::shared_ptr<Widget>& popupContent) override;
+
 		math::int2 getViewportSize();
 
 		void setChildWidget(std::shared_ptr<Widget> widget);
@@ -107,6 +109,8 @@ namespace GuGu {
 
 		math::box2 getClientRectInScreen() const;
 
+		math::affine2 getLocalToScreenTransform() const;
+
 		void moveWindowTo(math::float2 newPosition);
 
 		bool isAutoSized() const;
@@ -121,5 +125,11 @@ namespace GuGu {
 		math::float2 m_size;//窗口在屏幕空间的内容区域的大小，只有窗口使用这个，不使用fixed size
 
 		SizingRule m_sizingRule;
+
+		//window overlay widget
+		std::shared_ptr<Overlay> m_windowOverlay;
+
+		//提供给tooltips, drag-drop decorators 功能，那些不需要创建窗口的
+		std::shared_ptr<PopupLayer> m_popupLayer;
 	};
 }

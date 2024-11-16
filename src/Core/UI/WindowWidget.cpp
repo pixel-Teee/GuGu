@@ -30,9 +30,9 @@ namespace GuGu {
 	void WindowWidget::init(const BuilderArguments& arguments)
 	{
 		m_windowType = arguments.mType;
-		m_childWidget = arguments.mContent;
-		m_childWidget->m_parentWidget = shared_from_this();
-		m_childWidget->m_childWidget->setParentWidget(shared_from_this());
+		//m_childWidget = arguments.mContent;
+		//m_childWidget->m_parentWidget = shared_from_this();
+		//m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 		m_visibilityAttribute = arguments.mVisibility;
 
 		m_screenPosition = arguments.mScreenPosition;
@@ -40,6 +40,27 @@ namespace GuGu {
 		resize(arguments.mClientSize);
 
 		m_sizingRule = arguments.msizingRule;
+
+		if (arguments.mContent != nullptr)
+		{
+			m_childWidget = arguments.mContent;
+			m_childWidget->m_parentWidget = shared_from_this();
+			m_childWidget->m_childWidget->setParentWidget(shared_from_this());
+		}
+		else
+		{
+			//this->m_childWidget->setChildWidget(
+			//	WIDGET_ASSIGN_NEW(Overlay, m_windowOverlay)
+			//	//pop-up layer
+			//	+ Overlay::Slot()
+			//	(
+			//		WIDGET_ASSIGN_NEW(PopupLayer, m_popupLayer, std::static_pointer_cast<WindowWidget>(shared_from_this()))
+			//	)
+			//);
+
+			//todo:add popup layer widget
+		}
+		
 	}
 	uint32_t WindowWidget::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
@@ -191,6 +212,15 @@ namespace GuGu {
 		if (m_childWidget) return 1;
 		return 0;
 	}
+	std::shared_ptr<PopupLayer> WindowWidget::onVisualizePopup(const std::shared_ptr<Widget>& popupContent)
+	{
+		if (m_windowOverlay)
+		{
+			return std::make_shared<OverlayPopupLayer>(std::static_pointer_cast<WindowWidget>(shared_from_this()), popupContent, m_windowOverlay);
+		}
+
+		return nullptr;
+	}
 	math::int2 WindowWidget::getViewportSize()
 	{
 		return math::int2(m_size.x, m_size.y);
@@ -260,6 +290,12 @@ namespace GuGu {
             return math::box2(math::float2(m_screenPosition), math::float2(m_screenPosition + newSize));
         }
 		return math::box2(math::float2(m_screenPosition), math::float2(m_screenPosition + m_fixedSize));
+	}
+	math::affine2 WindowWidget::getLocalToScreenTransform() const
+	{
+		//diagonal 对角线
+		math::affine2 localToScreen(math::float2x2::diagonal(m_nativeWindow->getDpiFactor()), m_screenPosition);
+		return localToScreen;
 	}
 	void WindowWidget::moveWindowTo(math::float2 newPosition)
 	{

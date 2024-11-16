@@ -428,7 +428,7 @@ namespace GuGu{
 		WidgetPath widgetPath;
 		if (generatePathToWidgetUnchecked(inParentWidget, widgetPath))
 		{
-			
+			return m_menuStack.push(widgetPath, inContent, summonLocation, bFocusImmediately, summonLocationSize, method, bIsCollapsedByParent);
 		}
 
 		return std::shared_ptr<IMenu>();

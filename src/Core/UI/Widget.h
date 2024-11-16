@@ -90,6 +90,8 @@ namespace GuGu{
 
         virtual Reply OnKeyDown(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent);
 
+        virtual std::shared_ptr<PopupLayer> onVisualizePopup(const std::shared_ptr<Widget>& popupContent);
+
         virtual PopupMethodReply OnQueryPopupMethod() const;
 
         virtual void OnFocusLost();

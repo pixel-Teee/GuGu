@@ -10,6 +10,8 @@
 namespace GuGu {
 	class MenuBase;
 	class WidgetPath;
+	class PopupLayer;
+	class MenuPanel;
 	//打开的菜单的栈，栈中最后一个项表示最上面的菜单
 	//菜单被描述为IMenus，IMenus的实现可以控制菜单如何创建和表示(例如，在他们自己的窗口)
 	class MenuStack
@@ -32,6 +34,8 @@ namespace GuGu {
 		PopupMethodReply queryPopupMethod(const WidgetPath& pathToQuery);
 
 		void setHostPath(const WidgetPath& inOwnerPath);
+
+		std::shared_ptr<IMenu> pushInternal(const std::shared_ptr<IMenu>& inParentMenu, const std::shared_ptr<Widget>& inContent, math::box2 anchor, const bool bFocusImmediately, const bool bIsCollapsedByParent);
 	private:
 		//被整个栈当前使用的 popup method ，同一时间只有一个
 		PopupMethodReply m_activeMethod;
@@ -48,7 +52,10 @@ namespace GuGu {
 		//栈中根菜单的父亲
 		std::weak_ptr<Widget> hostWidget;
 
-		//
+		//包含我们的HostWindowPopupPanel的popup layer
 		std::shared_ptr<PopupLayer> m_hostPopupLayer;
+
+		//在栈中根菜单的父窗口，不是实际的菜单窗口，如果它从CreateNewWindow创建
+		std::shared_ptr<MenuPanel> m_hostWindowPopupPanel;
 	};
 }

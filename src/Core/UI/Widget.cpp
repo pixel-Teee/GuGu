@@ -143,6 +143,10 @@ namespace GuGu{
     {
         return Reply::Unhandled();
     }
+    std::shared_ptr<PopupLayer> Widget::onVisualizePopup(const std::shared_ptr<Widget>& popupContent)
+    {
+        return std::shared_ptr<PopupLayer>();
+    }
     PopupMethodReply Widget::OnQueryPopupMethod() const
     {
         return PopupMethodReply::unHandled();

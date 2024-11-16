@@ -5,8 +5,51 @@
 #include "ArrangedWidget.h"
 #include "Widget.h"
 #include "Menu.h"
+#include "Overlay.h"
+#include "WindowWidget.h"
 
 namespace GuGu {
+	class MenuPanel : public Overlay
+	{
+	public:
+		struct BuilderArguments : public Arguments<Overlay>
+		{
+			BuilderArguments() 
+			{
+				mVisibility = Visibility::SelfHitTestInvisible;
+			}	
+
+			~BuilderArguments() = default;
+		};
+
+		void init(const BuilderArguments& arguments)
+		{
+			Overlay::init(Overlay::BuilderArguments());
+		}
+
+		//逻辑菜单MenuBase
+		void pushMenu(std::shared_ptr<MenuBase> inMenu, const math::float2& inLocation)
+		{
+			std::shared_ptr<WindowWidget> parentWindow = inMenu->getParentWindow();
+
+			math::float2 panelInScreen = parentWindow->getClientRectInScreen().getCorner(0);//left top corner
+			math::float2 panelInWindow = math::inverse(parentWindow->getLocalToScreenTransform()).transformPoint(panelInScreen);
+			math::float2 locationInWindow = math::inverse(parentWindow->getLocalToScreenTransform()).transformPoint(inLocation);
+			math::float2 locationInPanel = locationInWindow - panelInWindow;
+
+			OverlaySlot& overlaySlot = addSlot();
+			overlaySlot.setHorizontalAlignment(HorizontalAlignment::Left);
+			overlaySlot.setVerticalAlignment(VerticalAlignment::Top);
+			overlaySlot.setPadding(Padding(locationInPanel.x, locationInPanel.y, 0, 0));
+			overlaySlot.setChildWidget(inMenu->getContent());
+		}
+
+		void onMenuClosed(std::shared_ptr<IMenu> inMenu)
+		{
+			removeSlot(inMenu->getContent());
+		}
+	};
+
 	std::shared_ptr<IMenu> MenuStack::push(const WidgetPath& inOwnerPath, const std::shared_ptr<Widget>& inContent, const math::float2& summonLocation, const bool bFocusImmediately, const math::float2& summonLocationSize, std::optional<PopupMethod> inMethod, const bool bIsCollapsedByParent)
 	{
 		//return std::shared_ptr<IMenu>();
@@ -33,7 +76,7 @@ namespace GuGu {
 			setHostPath(inOwnerPath);
 		}
 
-		return nullptr;
+		return pushInternal(parentMenu, inContent, anchor, bFocusImmediately, bIsCollapsedByParent);
 	}
 	bool MenuStack::hasMenus() const
 	{
@@ -73,7 +116,15 @@ namespace GuGu {
 	void MenuStack::setHostPath(const WidgetPath& inOwnerPath)
 	{
 		//todo:添加 host window guard
-		
+		if (m_hostPopupLayer)
+		{
+			if (!inOwnerPath.containsWidget(m_hostPopupLayer->getHost().get()))
+			{
+				m_hostPopupLayer->remove();
+				m_hostPopupLayer.reset();
+				m_hostWindowPopupPanel.reset();
+			}
+		}
 
 		hostWindow = inOwnerPath.isValid() ? inOwnerPath.getWindow() : std::shared_ptr<WindowWidget>();
 		
@@ -81,7 +132,22 @@ namespace GuGu {
 
 		if (hostWindow)
 		{
-
+			std::shared_ptr<MenuPanel> newHostWindowPopupPanel = WIDGET_NEW(MenuPanel);
+			int32_t widgetNumber = inOwnerPath.m_widgets.getArrangedWidgetsNumber() - 1;
+			for (int32_t i = widgetNumber - 1; i >= 0; --i)
+			{
+				const std::shared_ptr<Widget>& currentWidget = inOwnerPath.m_widgets[i]->getWidget();//window
+				m_hostPopupLayer = currentWidget->onVisualizePopup(newHostWindowPopupPanel);
+				if (m_hostPopupLayer)
+				{
+					m_hostWindowPopupPanel = newHostWindowPopupPanel;
+					break;
+				}
+			}
 		}
+	}
+	std::shared_ptr<IMenu> MenuStack::pushInternal(const std::shared_ptr<IMenu>& inParentMenu, const std::shared_ptr<Widget>& inContent, math::box2 anchor, const bool bFocusImmediately, const bool bIsCollapsedByParent)
+	{
+		return nullptr;
 	}
 }
