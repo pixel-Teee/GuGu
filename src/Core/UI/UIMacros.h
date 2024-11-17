@@ -174,10 +174,10 @@ namespace GuGu {
 	std::shared_ptr<SlotType> m##Name;
 
 #define WIDGET_NEW(WidgetType, ...) \
-	makeDecl<WidgetType>(#WidgetType, __FILE__, __LINE__, RequiredArgs::makeRequiredArgs(__VA_ARGS__)) << typename WidgetType::BuilderArguments()
+	makeDecl<WidgetType>(#WidgetType, __FILE__, __LINE__, RequiredArgs::makeRequiredArgs(__VA_ARGS__)) << WidgetType::BuilderArguments()
 
 #define WIDGET_ASSIGN_NEW(WidgetType, OutValue, ...) \
-	OutValue = makeDecl<WidgetType>(#WidgetType, __FILE__, __LINE__, RequiredArgs::makeRequiredArgs(__VA_ARGS__)) << typename WidgetType::BuilderArguments()
+	OutValue = makeDecl<WidgetType>(#WidgetType, __FILE__, __LINE__, RequiredArgs::makeRequiredArgs(__VA_ARGS__)) << WidgetType::BuilderArguments()
 
 	template<typename WidgetType, typename RequiredArgsPayloadType>
 	WidgetConstruct<WidgetType, RequiredArgsPayloadType> makeDecl(const GuGuUtf8Str& typeStr, const GuGuUtf8Str& createLocation, int32_t line, RequiredArgsPayloadType&& inRequiredArgs)
@@ -188,16 +188,17 @@ namespace GuGu {
 	template<typename WidgetType>
 	struct Arguments
 	{
-		typename WidgetType::BuilderArguments& Me()
+		typedef typename WidgetType::BuilderArguments WidgetArgsType;
+		WidgetArgsType& Me()
 		{
-			return *(static_cast<typename WidgetType::BuilderArguments*>(this));
+			return *(static_cast<WidgetArgsType*>(this));
 		}
 
-		typename WidgetType::BuilderArguments& Clip(WidgetClipping inValue) { //todo:fix this
+		WidgetArgsType& Clip(WidgetClipping inValue) { //todo:fix this
 			mClip = inValue; return Me();
 		} 
 
-		typename WidgetType::BuilderArguments& visibility(Visibility inVisibility)
+		WidgetArgsType& visibility(Visibility inVisibility)
 		{
 			mVisibility = inVisibility; return Me();
 		}

@@ -109,6 +109,8 @@ namespace GuGu {
 
 		math::box2 getClientRectInScreen() const;
 
+		math::float2 getClientSizeInScreen() const;
+
 		math::affine2 getLocalToScreenTransform() const;
 
 		void moveWindowTo(math::float2 newPosition);

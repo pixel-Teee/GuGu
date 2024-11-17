@@ -384,13 +384,13 @@ namespace GuGu{
 
 	bool Application::generatePathToWidgetUnchecked(std::shared_ptr<Widget> inWidget, WidgetPath& outWidgetPath, Visibility visibilityFilter) const
 	{
-		UIRenderPass* uiRenderPass = m_renderer->getUIRenderPass();
-		std::shared_ptr<WindowWidget> windowWidget = uiRenderPass->getWindowWidget();//这里要修复
-		std::vector<std::shared_ptr<WindowWidget>> widgets;
-		widgets.push_back(windowWidget);
-		if (!findPathToWidget(widgets, inWidget, outWidgetPath, visibilityFilter))
+// 		UIRenderPass* uiRenderPass = m_renderer->getUIRenderPass();
+// 		std::shared_ptr<WindowWidget> windowWidget = uiRenderPass->getWindowWidget();//这里要修复
+// 		std::vector<std::shared_ptr<WindowWidget>> widgets;
+// 		widgets.push_back(windowWidget);
+		if (!findPathToWidget(m_windowWidgets, inWidget, outWidgetPath, visibilityFilter))
 		{
-			return findPathToWidget(widgets, inWidget, outWidgetPath, visibilityFilter);
+			return findPathToWidget(m_windowWidgets, inWidget, outWidgetPath, visibilityFilter);
 		}
 
 		return true;
@@ -421,7 +421,7 @@ namespace GuGu{
 		//调用者提供了一条完整的路径
 		if (inOwnerPath.isValid())
 		{
-			m_menuStack.push(inOwnerPath, inContent, summonLocation, bFocusImmediately, summonLocationSize, method, bIsCollapsedByParent);
+			return m_menuStack.push(inOwnerPath, inContent, summonLocation, bFocusImmediately, summonLocationSize, method, bIsCollapsedByParent);
 		}
 
 		//如果调用者没有提供一个有效的路径，我们需要生成一条
@@ -432,6 +432,23 @@ namespace GuGu{
 		}
 
 		return std::shared_ptr<IMenu>();
+	}
+
+	math::float2 Application::calculatePopupWindowPosition(const math::box2& inAnchor, const math::float2& inSize, bool bAutoAdjustForDPIScale, const math::float2& inProposedPlacement, const Orientation orientation) const
+	{
+		math::float2 calculatedPopupWindowPosition(0, 0);
+
+		float dpiScale = 1.0f;
+
+		if (bAutoAdjustForDPIScale)
+		{
+			//dpiScale = PlatformMisc::getDpi
+			//todo:实现这里
+		}
+
+		math::float2 adjustedSize = inSize * dpiScale;
+
+		return calculatedPopupWindowPosition;
 	}
 
     bool Application::processMouseButtonDownEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)

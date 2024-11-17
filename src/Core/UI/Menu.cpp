@@ -41,6 +41,11 @@ namespace GuGu {
 	{
 		//todo:implement this
 	}
+	MenuInWindow::MenuInWindow(std::shared_ptr<WindowWidget> inWindow, std::shared_ptr<Widget> inContent, const bool bIsCollapsedByParent)
+		: MenuBase(inContent, bIsCollapsedByParent)
+		, m_window(inWindow)
+	{
+	}
 	std::shared_ptr<WindowWidget> MenuInWindow::getParentWindow() const
 	{
 		return m_window.lock();

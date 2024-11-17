@@ -43,12 +43,12 @@ namespace GuGu {
 			const ArrangedWidget& someChild = *arrangedChildren.getArrangedWidget(childIndex);
 			if (matcher == someChild.getWidget())
 			{
-				outReversedPath.pushWidget(WidgetGeometry(), someChild.getWidget());
+				outReversedPath.pushWidget(someChild.getWidgetGeometry(), someChild.getWidget());
 				return true;
 			}
 			else if (searchForWidgetRecursively(matcher, someChild, outReversedPath, visibilityFilter))
 			{
-				outReversedPath.pushWidget(WidgetGeometry(), someChild.getWidget());
+				outReversedPath.pushWidget(someChild.getWidgetGeometry(), someChild.getWidget());
 				return true;
 			}
 		}
@@ -76,7 +76,7 @@ namespace GuGu {
 
 		for (int32_t widgetIndex = 0; widgetIndex < extension.getArrangedWidgetsNumber(); ++widgetIndex)
 		{
-			m_widgets.pushWidget(WidgetGeometry(), extension.getArrangedWidget(widgetIndex)->getWidget());
+			m_widgets.pushWidget(extension.getArrangedWidget(widgetIndex)->getWidget()->getWidgetGeometry(), extension.getArrangedWidget(widgetIndex)->getWidget());
 		}
 
 		return extension.getArrangedWidgetsNumber() > 0;//扩展成功，扩展到 matcher

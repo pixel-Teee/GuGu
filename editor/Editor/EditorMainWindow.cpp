@@ -12,6 +12,7 @@
 #include <Core/UI/ColorBlock.h>
 #include <Core/UI/ComplexGradient.h>
 #include <Core/UI/Viewport.h>
+#include <Core/UI/MenuAnchor.h>
 
 #include <Application/Application.h>//用于退出
 
@@ -36,6 +37,7 @@ namespace GuGu {
 			//std::shared_ptr<EditorMainWindow> editorMainWindow;
 			std::shared_ptr<Button> minimizeButton;
 			//std::shared_ptr<ViewportWidget> viewportWidget;
+			std::shared_ptr<Button> testButton;
 
 			WindowWidget::init(
 			WindowWidget::BuilderArguments()
@@ -61,6 +63,31 @@ namespace GuGu {
 								NullWidget::getNullWidget()
 							)
 						)	
+						+ Overlay::Slot()
+						.setHorizontalAlignment(HorizontalAlignment::Right)
+						.setVerticalAlignment(VerticalAlignment::Center)
+						.setPadding(Padding(0.0f, 0.0f, 127.0f, 0.0f))
+						(
+							WIDGET_ASSIGN_NEW(Button, testButton)
+							.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"MinimizeButton")) //for test
+							.Content
+							(
+								NullWidget::getNullWidget()
+							)
+						)
+						+ Overlay::Slot()
+						.setHorizontalAlignment(HorizontalAlignment::Right)
+						.setVerticalAlignment(VerticalAlignment::Center)
+						.setPadding(Padding(0.0f, 0.0f, 127.0f, 0.0f))
+						(
+							WIDGET_ASSIGN_NEW(MenuAnchor, m_testMenuAnchor)
+							.method(PopupMethod::CreateNewWindow)
+							.useApplicationMenuStack(true)
+							.Content
+							(
+								NullWidget::getNullWidget()
+							)
+						)
 						+ Overlay::Slot()
 						.setHorizontalAlignment(HorizontalAlignment::Right)
 						.setVerticalAlignment(VerticalAlignment::Center)
@@ -175,6 +202,7 @@ namespace GuGu {
 
 			closeButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::exitApplication, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
 			minimizeButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::miniMizeWindow, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
+			testButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::testWindow, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
 		}
 		else
 		{
@@ -197,6 +225,18 @@ namespace GuGu {
 	Reply EditorMainWindow::miniMizeWindow()
 	{
 		Application::getApplication()->miniMizeWindow(std::static_pointer_cast<WindowWidget>(shared_from_this()));
+		return Reply::Handled();
+	}
+	Reply EditorMainWindow::testWindow()
+	{
+		//return Reply();
+		//open menu achor
+		m_testMenuAnchor->setMenuContent(
+			WIDGET_NEW(TextBlockWidget)
+			.text("this is menu")
+			.textColor(math::float4(1.0f, 1.0f, 1.0f, 1.0f))
+		);
+		m_testMenuAnchor->setIsOpen(true);
 		return Reply::Handled();
 	}
 	void EditorMainWindow::setRenderTarget(nvrhi::TextureHandle renderTarget)

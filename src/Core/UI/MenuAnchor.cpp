@@ -325,7 +325,7 @@ namespace GuGu {
 						if (m_methodInUse.getPopupMethod() == PopupMethod::CreateNewWindow)
 						{
 							//打开pop-up
-							//std::shared_ptr<IMenu> newMenu = Application::getApplication()->pushMenu();
+							std::shared_ptr<IMenu> newMenu = Application::getApplication()->pushMenu(shared_from_this(), myWidgetPath, menuContent, newPosition, bFocusMenu, newWindowSize, m_methodInUse.getPopupMethod(), m_bIsCollapsedByParent);
 						}
 					}
 					else

@@ -7,6 +7,9 @@
 #include "Menu.h"
 #include "Overlay.h"
 #include "WindowWidget.h"
+#include "Popup.h"
+#include <Window/Window.h>
+#include <Application/Application.h>
 
 namespace GuGu {
 	class MenuPanel : public Overlay
@@ -126,7 +129,7 @@ namespace GuGu {
 			}
 		}
 
-		hostWindow = inOwnerPath.isValid() ? inOwnerPath.getWindow() : std::shared_ptr<WindowWidget>();
+		hostWindow = inOwnerPath.isValid() ? inOwnerPath.getWindow() : std::shared_ptr<WindowWidget>();//后续 push internal 的时候用到，作为根菜单窗口的父窗口
 		
 		hostWidget = inOwnerPath.isValid() ? inOwnerPath.getLastWidget() : std::weak_ptr<Widget>();
 
@@ -158,8 +161,127 @@ namespace GuGu {
 		//决定正确的布局
 		//包裹内容
 		//其他通用的设置步骤
-		//const PrePushResults prePushResults = prePush(prePushArgs);
+		const PrePushResults prePushResults = prePush(prePushArgs);
 
+		//菜单对象创建过程
+		std::shared_ptr<MenuBase> outMenu = m_activeMethod.getPopupMethod() == PopupMethod::CreateNewWindow ?
+			pushNewWindow(inParentMenu, prePushResults)
+			: pushPopup(inParentMenu, prePushResults);
+
+		const bool bInInsertAfterDismiss = m_activeMethod.getPopupMethod() == PopupMethod::CreateNewWindow;
+		postPush(inParentMenu, outMenu, bInInsertAfterDismiss);
+
+		return outMenu;
+	}
+	MenuStack::PrePushResults MenuStack::prePush(const PrePushArgs& inArgs)
+	{
+		PrePushResults outResults;
+		outResults.m_bIsCollapsedByParent = inArgs.m_bIsCollapsedByParent;
+		outResults.m_bFocusImmediately = inArgs.m_bFocusImmediately;
+		if (inArgs.m_bFocusImmediately)
+		{
+			outResults.m_widgetToFocus = inArgs.m_content;
+		}
+
+		//计算最大可用的高度，对于菜单
+		float maxHeight;
+		const float applicationScale = hostWindow->getNativeWindow()->getDpiFactor();
+		if (m_activeMethod.getPopupMethod() == PopupMethod::CreateNewWindow)
+		{
+			//todo:修复这个
+			maxHeight = 0.8f * hostWindow->getClientSizeInScreen().y / applicationScale;
+		}
+		else
+		{
+			maxHeight = 0.8f * hostWindow->getClientSizeInScreen().y / applicationScale;
+		}
+		OptionalSize optionalMinWidth = OptionalSize();
+		OptionalSize optionalMinHeight = maxHeight;
+
+		std::shared_ptr<Widget> tempContent = WIDGET_NEW(Popup).Content(inArgs.m_content);
+
+		outResults.m_warppedContent = tempContent;
+
+		outResults.m_warppedContent->prepass(applicationScale);
+		outResults.m_expectedSize = outResults.m_warppedContent->getFixedSize() * applicationScale;
+
+		if (m_activeMethod.getPopupMethod() == PopupMethod::CreateNewWindow)
+		{
+			//已经缩放过
+			const bool bAutoAdjustForDPIScale = false;
+			//outResults.m_startLocation = Application::getApplication()->calculatePopupWindowPosition(inArgs.m_anchor, outResults.m_expectedSize, bAutoAdjustForDPIScale, math::float2(0, 0), Orientation::Vertical);
+			outResults.m_startLocation = inArgs.m_anchor.getCorner(0);//left top
+		}
+
+		if (inArgs.m_bFocusImmediately)
+		{
+			//todo:实现这里
+		}
+
+		return outResults;
+	}
+	std::shared_ptr<MenuBase> MenuStack::pushNewWindow(std::shared_ptr<IMenu> inParentMenu, const PrePushResults& inPrePushResults)
+	{
+		std::shared_ptr<WindowWidget> newMenuWindow = WIDGET_NEW(WindowWidget)
+		.ClientSize(inPrePushResults.m_expectedSize)
+		.ScreenPosition(inPrePushResults.m_startLocation)
+		.Content
+		(
+			inPrePushResults.m_warppedContent
+		);
+
+		std::shared_ptr<MenuInWindow> menu = std::make_shared<MenuInWindow>(newMenuWindow, inPrePushResults.m_warppedContent, inPrePushResults.m_bIsCollapsedByParent);
+		m_pendingNewMenu = menu;
+
+		std::shared_ptr<WindowWidget> parentWindow;
+		if (inParentMenu)
+		{
+			parentWindow = inParentMenu->getParentWindow();
+		}
+		else
+		{
+			parentWindow = hostWindow;
+		}
+
+		//add window as native child
+		//todo:修复这里
+		Application::getApplication()->makeWindow(newMenuWindow);
+		Application::getApplication()->showWindow(newMenuWindow);
+
+		m_pendingNewMenu.reset();
+
+		return menu;
+	}
+	std::shared_ptr<MenuBase> MenuStack::pushPopup(std::shared_ptr<IMenu> inParentMenu, const PrePushResults& inPrePushResults)
+	{
 		return nullptr;
+	}
+	void MenuStack::postPush(std::shared_ptr<IMenu> inParentMenu, std::shared_ptr<MenuBase> inMenu, bool bInInsertAfterDismiss)
+	{
+		int32_t insertIndex = 0;
+		if (inParentMenu)
+		{
+			int32_t parentIndex = -1;
+			for (size_t i = 0; i < m_stack.size(); ++i)
+			{
+				if (m_stack[i] == inParentMenu)
+				{
+					parentIndex = i;
+					break;
+				}
+			}
+
+			insertIndex = parentIndex + 1;
+		}
+
+		int32_t removingAtIndex = insertIndex;
+		if (!bInInsertAfterDismiss)
+		{
+			m_stack.insert(m_stack.begin() + insertIndex, inMenu);
+			m_cachedContentMap.insert({ inMenu->getContent(), inMenu });
+			removingAtIndex = insertIndex + 1;
+		}
+
+		//todo:实现后续逻辑
 	}
 }

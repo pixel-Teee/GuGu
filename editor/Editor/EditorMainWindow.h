@@ -5,6 +5,7 @@
 #include <Renderer/nvrhi.h> //render pass
 
 namespace GuGu {
+	class MenuAnchor;
 	class ViewportWidget;
 	class EditorMainWindow : public WindowWidget
 	{
@@ -41,10 +42,14 @@ namespace GuGu {
 
 		Reply miniMizeWindow();
 
+		Reply testWindow();
+
 		void setRenderTarget(nvrhi::TextureHandle renderTarget);
 	private:
 
 		std::shared_ptr<ViewportWidget> m_viewportWidget;
+
+		std::shared_ptr<MenuAnchor> m_testMenuAnchor;
 	};
 
 	std::shared_ptr<EditorMainWindow> CreateEditorMainWindow();

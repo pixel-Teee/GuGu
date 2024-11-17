@@ -51,10 +51,19 @@ namespace GuGu {
 		{
 			std::shared_ptr<Widget> m_warppedContent;
 			std::shared_ptr<Widget> m_widgetToFocus;
-			math::float2 m_expectedSetsMinWidth;
+			math::float2 m_startLocation;
+			math::float2 m_expectedSize;
 			bool m_bFocusImmediately;
 			bool m_bIsCollapsedByParent;
 		};
+
+		PrePushResults prePush(const PrePushArgs& inArgs);
+
+		std::shared_ptr<MenuBase> pushNewWindow(std::shared_ptr<IMenu> inParentMenu, const PrePushResults& inPrePushResults);
+
+		std::shared_ptr<MenuBase> pushPopup(std::shared_ptr<IMenu> inParentMenu, const PrePushResults& inPrePushResults);
+
+		void postPush(std::shared_ptr<IMenu> inParentMenu, std::shared_ptr<MenuBase> inMenu, bool bInInsertAfterDismiss = false);
 
 		//被整个栈当前使用的 popup method ，同一时间只有一个
 		PopupMethodReply m_activeMethod;
@@ -76,5 +85,7 @@ namespace GuGu {
 
 		//在栈中根菜单的父窗口，不是实际的菜单窗口，如果它从CreateNewWindow创建
 		std::shared_ptr<MenuPanel> m_hostWindowPopupPanel;
+
+		std::shared_ptr<MenuBase> m_pendingNewMenu;
 	};
 }

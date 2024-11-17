@@ -291,6 +291,10 @@ namespace GuGu {
         }
 		return math::box2(math::float2(m_screenPosition), math::float2(m_screenPosition + m_fixedSize));
 	}
+	math::float2 WindowWidget::getClientSizeInScreen() const
+	{
+		return getClientRectInScreen().diagonal();//size
+	}
 	math::affine2 WindowWidget::getLocalToScreenTransform() const
 	{
 		//diagonal 对角线

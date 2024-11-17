@@ -9,7 +9,8 @@ namespace GuGu {
 	{
 	public:
 		virtual std::shared_ptr<Widget> getContent() const override { return m_content; }
-
+		
+		virtual bool usingApplicationMenuStack() const override { return false; }
 	protected:
 		MenuBase(std::shared_ptr<Widget> inContent, const bool bCollapsedByParent);
 

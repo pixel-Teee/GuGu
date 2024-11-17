@@ -73,9 +73,6 @@ namespace GuGu {
 		virtual uint32_t getSlotsNumber() const override;
 
 		virtual void Tick(const WidgetGeometry& allocatedGeometry, const double inCurrentTime, const float inDeltaTime) override;
-	protected:
-		//返回真，如果 pop up 现在被打开，并且重复使用一个已经存在的窗口
-		bool isOpenAndReusingWindow() const;
 
 		//打开或者关闭 pop up
 		bool isOpen() const;
@@ -85,6 +82,9 @@ namespace GuGu {
 
 		//当 pop up 打开的时候，调用这个，从 m_onGetMenuContent 里获取内容
 		virtual void setMenuContent(std::shared_ptr<Widget> inMenuContent);
+	protected:
+		//返回真，如果 pop up 现在被打开，并且重复使用一个已经存在的窗口
+		bool isOpenAndReusingWindow() const;
 
 		//当关闭 pop up 的时候，就重置一些内容，做善后工作1
 		void resetPopupMenuContent();

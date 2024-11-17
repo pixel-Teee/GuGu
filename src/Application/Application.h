@@ -7,6 +7,7 @@
 #include <Core/UI/WidgetPath.h>
 #include <Core/UI/PopupMethodReply.h>
 #include <Core/UI/MenuStack.h>
+#include <Core/UI/BasicElement.h>
 
 //#include <memory>
 
@@ -124,6 +125,9 @@ namespace GuGu {
 			const math::float2& summonLocationSize = math::float2(0, 0),
 			std::optional<PopupMethod> method = std::optional<PopupMethod>(),
 			const bool bIsCollapsedByParent = true);
+
+		virtual math::float2 calculatePopupWindowPosition(const math::box2& inAnchor, const math::float2& inSize, bool bAutoAdjustForDPIScale = true,
+			const math::float2& inProposedPlacement = math::float2(0, 0), const Orientation orientation = Orientation::Vertical) const;
 	protected:
 		std::shared_ptr<Renderer> m_renderer;
 
