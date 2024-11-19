@@ -11,6 +11,7 @@ namespace GuGu {
 	class ElementList;
 	class WidgetGeometry;
 	class ArrangedWidgetArray;
+	class WindowActivateEvent;
 
 	class Window;
 
@@ -59,6 +60,7 @@ namespace GuGu {
 				: mClientSize(math::float2(1280.0f, 720.0f))
 				, mScreenPosition(math::float2(0.0f, 0.0f))
 				, msizingRule(SizingRule::UserSize)
+				, mFocusWhenFirstShown(true)
 			{}
 			~BuilderArguments() = default;
 
@@ -73,6 +75,9 @@ namespace GuGu {
 			ARGUMENT_VALUE(math::float2, ScreenPosition)
 
 			ARGUMENT_VALUE(SizingRule, sizingRule)
+
+			//当窗口显示的时候，是否立马获取焦点？
+			ARGUMENT_VALUE(bool, FocusWhenFirstShown)
 		};
 
 		void init(const BuilderArguments& arguments);
@@ -120,6 +125,14 @@ namespace GuGu {
 		void requestDestroyWindow();
 
 		void destroyNativeWindow();
+
+		virtual bool OnIsActivateChanged(const WindowActivateEvent& activateEvent);
+
+		virtual bool supportsKeyboardFocus() const;
+
+		void setWidgetToFocusOnActivate(std::shared_ptr<Widget> inWidget);
+
+		bool isFocusedInitially() const;
 	protected:
 		std::shared_ptr<Window> m_nativeWindow;
 		std::shared_ptr<SingleChildSlot> m_childWidget;
@@ -137,5 +150,12 @@ namespace GuGu {
 
 		//提供给tooltips, drag-drop decorators 功能，那些不需要创建窗口的
 		std::shared_ptr<PopupLayer> m_popupLayer;
+
+		//用于转移焦点的控件，当这个窗口变的激活，这个被用来恢复焦点到一个控件，在一个popup销毁后
+		std::weak_ptr<Widget> m_widgetToFocusOnActivate;
+
+		std::weak_ptr<Widget> m_widgetToFocusOnDeactivate;
+
+		bool m_bFocusWhenFirstShown;
 	};
 }

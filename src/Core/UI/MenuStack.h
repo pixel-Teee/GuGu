@@ -39,10 +39,10 @@ namespace GuGu {
 		void onMenuContentLostFocus(const WidgetPath& inFocussedPath);
 
 		//销毁菜单以及他的所有子菜单
-		void dimissFrom(const std::shared_ptr<IMenu>& inFromMenu);
+		void dismissFrom(const std::shared_ptr<IMenu>& inFromMenu);
 
 		//解散所有菜单栈
-		void dimissAll();
+		void dismissAll();
 
 		void dimissInternal(int32_t firstStackIndexToRemove);
 

@@ -102,6 +102,8 @@ namespace GuGu {
 
 		std::shared_ptr<Widget> getKeyboardFocusedWidget() const;
 
+		std::shared_ptr<Widget> getFocusedWidget() const;
+
 		//true 表示找到
 		static bool findPathToWidget(const std::vector<std::shared_ptr<WindowWidget>>& windowsToSearch,
 			std::shared_ptr<Widget> inWidget,
@@ -157,6 +159,8 @@ namespace GuGu {
 		bool processKeyCharEvent(const CharacterEvent& inCharacterEvent);
 
 		bool processKeyDownEvent(const KeyEvent& inKeyEvent);
+
+		bool processWindowActivatedEvent(const WindowActivateEvent& activateEvent);
 
 		std::shared_ptr<Widget> locateWidgetInWindow(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent);
 

@@ -6,6 +6,8 @@
 namespace GuGu {
 	MenuBase::MenuBase(std::shared_ptr<Widget> inContent, const bool bCollapsedByParent)
 		: m_content(inContent)
+		, m_bDismissing(false)
+		, m_bIsCollapsedByParent(bCollapsedByParent)
 	{
 	}
 	MenuInHostWidget::MenuInHostWidget(std::shared_ptr<IMenuHost> inHost, const std::shared_ptr<Widget>& inContent, const bool bIsCollapsedByParent)
@@ -66,7 +68,7 @@ namespace GuGu {
 		{
 			m_bDismissing = true;
 		
-			//¹Ø±Õ´°¿Ú
+			//å…³é—­çª—å£
 			std::shared_ptr<WindowWidget> windowLocked = m_window.lock();
 			if (windowLocked)
 			{

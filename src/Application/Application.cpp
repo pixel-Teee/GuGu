@@ -21,6 +21,28 @@
 #include <Core/GamePlay/TransformComponent.h>
 
 namespace GuGu{
+	WindowActivateEvent::ActivationType translationWindowActivationMessage(const WindowActivation activationType)
+	{
+		WindowActivateEvent::ActivationType result = WindowActivateEvent::Activate;
+
+		switch (activationType)
+		{
+		case WindowActivation::Activate:
+			result = WindowActivateEvent::Activate;
+			break;
+		case WindowActivation::ActivateByMouse:
+			result = WindowActivateEvent::ActivateByMouse;
+			break;
+		case WindowActivation::Deactivate:
+			result = WindowActivateEvent::Deactivate;
+			break;
+		default:
+			break;
+		}
+
+		return result;
+	}
+
     Application::Application()
     {
         m_alreadyExit = false;
@@ -216,9 +238,24 @@ namespace GuGu{
 		return processKeyDownEvent(keyEvent);
 	}
 
-	bool Application::onWindowActivationChanged(const std::shared_ptr<Window>& window, const WindowActivation)
+	bool Application::onWindowActivationChanged(const std::shared_ptr<Window>& window, const WindowActivation activationType)
 	{
-		return false;
+		//find window widget by platform windows
+		std::shared_ptr<WindowWidget> windowWidget;
+		for (size_t i = 0; i < m_windowWidgets.size(); ++i)
+		{
+			if (m_windowWidgets[i]->getNativeWindow() == window)
+			{
+				windowWidget = m_windowWidgets[i];
+				break;
+			}
+		}
+
+		WindowActivateEvent::ActivationType translatedActivationType = translationWindowActivationMessage(activationType);
+		WindowActivateEvent windowActivateEvent(translatedActivationType, windowWidget);
+
+		//todo:add process window activated event
+		return processWindowActivatedEvent(windowActivateEvent);
 	}
 
     std::shared_ptr<Widget> Application::getCaptorWidget() const
@@ -426,6 +463,11 @@ namespace GuGu{
 		if (m_focusWidgetsPath.isEmpty())
 			return nullptr;
 		return m_focusWidgetsPath.getLastWidget().lock();
+	}
+
+	std::shared_ptr<Widget> Application::getFocusedWidget() const
+	{
+		return m_focusWidgetsPath.isValid() ? m_focusWidgetsPath.getLastWidget().lock() : nullptr;
 	}
 
 	bool Application::findPathToWidget(const std::vector<std::shared_ptr<WindowWidget>>& windowsToSearch, std::shared_ptr<Widget> inWidget, WidgetPath& outWidgetPath, Visibility visibilityFilter)
@@ -918,6 +960,21 @@ namespace GuGu{
 		}
 
 		return true;
+	}
+
+	bool Application::processWindowActivatedEvent(const WindowActivateEvent& activateEvent)
+	{
+		//todo:继续实现这个函数
+		if (activateEvent.getActivationType() != WindowActivateEvent::Deactivate)
+		{
+			activateEvent.getAffectedWindow()->OnIsActivateChanged(activateEvent);
+		}
+		else
+		{
+			activateEvent.getAffectedWindow()->OnIsActivateChanged(activateEvent);
+		}
+
+		return false;
 	}
 
     std::shared_ptr<Widget> Application::locateWidgetInWindow(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)

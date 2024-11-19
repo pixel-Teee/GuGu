@@ -149,6 +149,7 @@ namespace GuGu{
         GuGuUtf8Str getType() const;
 
 		bool IsHovered() const;
+
     protected:
         std::weak_ptr<Widget> m_parentWidget;
         WidgetGeometry m_geometry;

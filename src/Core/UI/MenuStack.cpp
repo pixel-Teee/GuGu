@@ -206,6 +206,7 @@ namespace GuGu {
 	std::shared_ptr<IMenu> MenuStack::push(const WidgetPath& inOwnerPath, const std::shared_ptr<Widget>& inContent, const math::float2& summonLocation, const bool bFocusImmediately, const math::float2& summonLocationSize, std::optional<PopupMethod> inMethod, const bool bIsCollapsedByParent)
 	{
 		//return std::shared_ptr<IMenu>();
+		inOwnerPath.getWindow()->setWidgetToFocusOnActivate(Application::getApplication()->getKeyboardFocusedWidget());
 
 		math::box anchor(summonLocation, summonLocationSize);
 		std::shared_ptr<IMenu> parentMenu;
@@ -315,7 +316,7 @@ namespace GuGu {
 					{
 						if (m_stack[dimissIndex]->isCollapsedByParent())
 						{
-							dimissFrom(m_stack[dimissIndex]);
+							dismissFrom(m_stack[dimissIndex]);
 							break;
 						}
 					}
@@ -324,23 +325,23 @@ namespace GuGu {
 			else
 			{
 				//焦点已经移出到所有的菜单-折叠栈
-				dimissAll();
+				dismissAll();
 			}
 		}
 	}
-	void MenuStack::dimissFrom(const std::shared_ptr<IMenu>& inFromMenu)
+	void MenuStack::dismissFrom(const std::shared_ptr<IMenu>& inFromMenu)
 	{
 		auto it = std::find(m_stack.begin(), m_stack.end(), inFromMenu);
 		int32_t index = it - m_stack.begin();
 		if (index != -1)
 		{
-
+			dimissInternal(index);
 		}
 	}
-	void MenuStack::dimissAll()
-	{
+	void MenuStack::dismissAll()
+{
 		const int32_t topLevel = 0;
-
+		dimissInternal(topLevel);
 	}
 	void MenuStack::dimissInternal(int32_t firstStackIndexToRemove)
 	{
@@ -429,6 +430,7 @@ namespace GuGu {
 		std::shared_ptr<WindowWidget> newMenuWindow = WIDGET_NEW(WindowWidget)
 		.ClientSize(inPrePushResults.m_expectedSize)
 		.ScreenPosition(inPrePushResults.m_startLocation)
+		.FocusWhenFirstShown(inPrePushResults.m_bFocusImmediately)
 		.Content
 		(
 			inPrePushResults.m_warppedContent
@@ -486,7 +488,15 @@ namespace GuGu {
 			removingAtIndex = insertIndex + 1;
 		}
 
-		//todo:实现后续逻辑
+		if (bInInsertAfterDismiss)
+		{
+			if (insertIndex != m_stack.size())
+			{
+				//todo:Add this info
+			}
+			m_stack.push_back(inMenu);
+			m_cachedContentMap.insert({ inMenu->getContent(), inMenu });
+		}
 	}
 	std::shared_ptr<Widget> MenuStack::wrapContent(std::shared_ptr<Widget> inContent, OptionalSize optionalMinWidth, OptionalSize optionalMinHeight)
 	{

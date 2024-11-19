@@ -25,6 +25,8 @@ namespace GuGu {
 		virtual void reshapeWindow(math::float2 newPosition, math::float2 newSize) override;
 
 		virtual void destroy() override;
+
+		virtual void setWindowFocus() override;
 	private:
 		HWND m_windowHandle;
 		HINSTANCE m_ownerApplicationHandle;

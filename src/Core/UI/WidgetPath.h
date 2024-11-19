@@ -57,7 +57,7 @@ namespace GuGu {
 
 		bool containsWidget(const Widget* someWidget) const;
 
-		bool isValid() { return m_widgets.size() > 0; }
+		bool isValid() const { return m_widgets.size() > 0; }
 	
 		std::vector<std::weak_ptr<Widget>> m_widgets;
 

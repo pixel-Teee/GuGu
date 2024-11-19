@@ -18,6 +18,8 @@ namespace GuGu {
 		virtual void reshapeWindow(math::float2 newPosition, math::float2 newSize) = 0;
 
 		virtual void destroy() = 0;
+
+		virtual void setWindowFocus() = 0;
 	};
 
 	std::shared_ptr<Window> CreateWindowFactory();

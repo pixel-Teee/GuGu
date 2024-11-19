@@ -113,7 +113,8 @@ namespace GuGu {
 		//原先从键盘输入的键盘码在任何转换映射之前
 		uint32_t m_keyCode;
 	};
-	class Window;
+	//class Window;
+	class WindowWidget;
 	class WindowActivateEvent
 	{
 	public:
@@ -124,7 +125,7 @@ namespace GuGu {
 			Deactivate
 		};
 
-		WindowActivateEvent(ActivationType inActivationType, std::shared_ptr<Window> inAffectedWindow)
+		WindowActivateEvent(ActivationType inActivationType, std::shared_ptr<WindowWidget> inAffectedWindow)
 			:m_activationType(inActivationType),
 			 m_affectedWindow(inAffectedWindow)
 		{}
@@ -134,12 +135,12 @@ namespace GuGu {
 			return m_activationType;
 		}
 
-		std::shared_ptr<Window> getAffectedWindow() const
+		std::shared_ptr<WindowWidget> getAffectedWindow() const
 		{
 			return m_affectedWindow;
 		}
 	private:
 		ActivationType m_activationType;
-		std::shared_ptr<Window> m_affectedWindow;
+		std::shared_ptr<WindowWidget> m_affectedWindow;
 	};
 }

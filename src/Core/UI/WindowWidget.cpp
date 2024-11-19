@@ -30,6 +30,7 @@ namespace GuGu {
 	void WindowWidget::init(const BuilderArguments& arguments)
 	{
 		m_windowType = arguments.mType;
+		m_bFocusWhenFirstShown = arguments.mFocusWhenFirstShown;
 		//m_childWidget = arguments.mContent;
 		//m_childWidget->m_parentWidget = shared_from_this();
 		//m_childWidget->m_childWidget->setParentWidget(shared_from_this());
@@ -325,6 +326,55 @@ namespace GuGu {
 		{
 			m_nativeWindow->destroy();
 		}
+	}
+	bool WindowWidget::OnIsActivateChanged(const WindowActivateEvent& activateEvent)
+	{
+		const bool bWasDeactivated = activateEvent.getActivationType() == WindowActivateEvent::Deactivate;
+		if (bWasDeactivated)
+		{
+			m_widgetToFocusOnDeactivate.reset();
+
+			if (supportsKeyboardFocus())
+			{
+				m_widgetToFocusOnDeactivate = Application::getApplication()->getKeyboardFocusedWidget();
+				if (!m_widgetToFocusOnDeactivate.lock())
+				{
+					m_widgetToFocusOnDeactivate = Application::getApplication()->getFocusedWidget();
+				}
+			}
+		}
+		else
+		{
+			if (activateEvent.getActivationType() == WindowActivateEvent::Activate)
+			{
+				std::shared_ptr<Widget> lockedWidgetToFocus = m_widgetToFocusOnActivate.lock();
+				if (lockedWidgetToFocus)
+				{
+					std::vector<std::shared_ptr<WindowWidget>> windowWidgets;
+					windowWidgets.push_back(std::static_pointer_cast<WindowWidget>(shared_from_this()));
+
+					WidgetPath widgetToFocusPath;
+					if (Application::getApplication()->findPathToWidget(windowWidgets, lockedWidgetToFocus, widgetToFocusPath))
+					{
+						Application::getApplication()->setFocus(lockedWidgetToFocus, widgetToFocusPath);
+					}
+				}
+			}
+		}
+
+		return true;
+	}
+	bool WindowWidget::supportsKeyboardFocus() const
+	{
+		return true;//这里要区分是否是 tool tip 或者 cursor decorator
+	}
+	void WindowWidget::setWidgetToFocusOnActivate(std::shared_ptr<Widget> inWidget)
+	{
+		m_widgetToFocusOnActivate = inWidget;
+	}
+	bool WindowWidget::isFocusedInitially() const
+	{
+		return m_bFocusWhenFirstShown;
 	}
 	OverlayPopupLayer::OverlayPopupLayer(const std::shared_ptr<WindowWidget>& initHostWindow, const std::shared_ptr<Widget>& initPopupContent, std::shared_ptr<Overlay> initOverlay)
 		: PopupLayer(initHostWindow, initPopupContent)

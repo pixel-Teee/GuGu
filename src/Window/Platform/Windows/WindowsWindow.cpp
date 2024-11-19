@@ -114,4 +114,12 @@ namespace GuGu {
 		::DestroyWindow(m_windowHandle);
 	}
 
+	void WindowsWindow::setWindowFocus()
+	{
+		if (::GetFocus() != m_windowHandle)
+		{
+			::SetFocus(m_windowHandle);
+		}
+	}
+
 }

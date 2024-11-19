@@ -20,28 +20,6 @@ namespace GuGu {
 
 	LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-	WindowActivateEvent::ActivationType translationWindowActivationMessage(const WindowActivation activationType)
-	{
-		WindowActivateEvent::ActivationType result = WindowActivateEvent::Activate;
-
-		switch (activationType)
-		{
-		case WindowActivation::Activate:
-			result = WindowActivateEvent::Activate;
-			break;
-		case WindowActivation::ActivateByMouse:
-			result = WindowActivateEvent::ActivateByMouse;
-			break;
-		case WindowActivation::Deactivate:
-			result = WindowActivateEvent::Deactivate;
-			break;
-		default:
-			break;
-		}
-
-		return result;
-	}
-
 	WindowsApplication::WindowsApplication()
 	{
 		std::memset(m_modifierKeyState, 0, sizeof(m_modifierKeyState));
@@ -76,25 +54,6 @@ namespace GuGu {
 	{
 		//check index
 		return m_windows[index];
-	}
-	bool WindowsApplication::onWindowActivationChanged(const std::shared_ptr<Window>& window, const WindowActivation activationType)
-	{
-		//find window widget by platform windows
-		std::shared_ptr<WindowWidget> windowWidget;
-		for (size_t i = 0; i < m_windowWidgets.size(); ++i)
-		{
-			if (m_windowWidgets[i]->getNativeWindow() == window)
-			{
-				windowWidget = m_windowWidgets[i];
-				break;
-			}
-		}
-
-		WindowActivateEvent::ActivationType translatedActivationType = translationWindowActivationMessage(activationType);
-		WindowActivateEvent windowActivateEvent(translatedActivationType, window);
-
-		//todo:add process window activated event
-		return true;
 	}
 	std::vector<std::shared_ptr<WindowsWindow>> WindowsApplication::getPlatformWindows()
 	{
@@ -152,6 +111,12 @@ namespace GuGu {
 		//create swap chain and surface
 		renderer->createSurface(windowWidget);
 		renderer->createSwapChain(windowWidget);
+
+		//set window focus
+		if (windowWidget->supportsKeyboardFocus() && windowWidget->isFocusedInitially())
+		{
+			windowWidget->getNativeWindow()->setWindowFocus();
+		}
 	}
 
 	void WindowsApplication::miniMizeWindow(std::shared_ptr<WindowWidget> windowWidget)
@@ -415,7 +380,7 @@ namespace GuGu {
 				}
 				else if (LOWORD(wParam) & WA_CLICKACTIVE)
 				{
-					activationType = WindowActivation::ActivateByMouse;
+					activationType = WindowActivation::Activate; //todo:fix active by mouse
 				}
 				else
 				{
