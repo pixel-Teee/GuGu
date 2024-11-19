@@ -19,6 +19,8 @@ namespace GuGu {
 
 		virtual std::shared_ptr<Window> getWindow(uint32_t index) override;
 
+		virtual bool onWindowActivationChanged(const std::shared_ptr<Window>& window, const WindowActivation activationType);
+
 		std::vector<std::shared_ptr<WindowsWindow>> getPlatformWindows();
 
 		static std::shared_ptr<WindowsApplication> getApplication();

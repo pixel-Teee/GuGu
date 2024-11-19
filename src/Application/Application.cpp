@@ -216,6 +216,11 @@ namespace GuGu{
 		return processKeyDownEvent(keyEvent);
 	}
 
+	bool Application::onWindowActivationChanged(const std::shared_ptr<Window>& window, const WindowActivation)
+	{
+		return false;
+	}
+
     std::shared_ptr<Widget> Application::getCaptorWidget() const
     {
         if (!m_captorWidgetsPath.isEmpty())

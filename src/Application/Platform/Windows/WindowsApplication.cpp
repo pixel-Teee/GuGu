@@ -20,6 +20,28 @@ namespace GuGu {
 
 	LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+	WindowActivateEvent::ActivationType translationWindowActivationMessage(const WindowActivation activationType)
+	{
+		WindowActivateEvent::ActivationType result = WindowActivateEvent::Activate;
+
+		switch (activationType)
+		{
+		case WindowActivation::Activate:
+			result = WindowActivateEvent::Activate;
+			break;
+		case WindowActivation::ActivateByMouse:
+			result = WindowActivateEvent::ActivateByMouse;
+			break;
+		case WindowActivation::Deactivate:
+			result = WindowActivateEvent::Deactivate;
+			break;
+		default:
+			break;
+		}
+
+		return result;
+	}
+
 	WindowsApplication::WindowsApplication()
 	{
 		std::memset(m_modifierKeyState, 0, sizeof(m_modifierKeyState));
@@ -54,6 +76,25 @@ namespace GuGu {
 	{
 		//check index
 		return m_windows[index];
+	}
+	bool WindowsApplication::onWindowActivationChanged(const std::shared_ptr<Window>& window, const WindowActivation activationType)
+	{
+		//find window widget by platform windows
+		std::shared_ptr<WindowWidget> windowWidget;
+		for (size_t i = 0; i < m_windowWidgets.size(); ++i)
+		{
+			if (m_windowWidgets[i]->getNativeWindow() == window)
+			{
+				windowWidget = m_windowWidgets[i];
+				break;
+			}
+		}
+
+		WindowActivateEvent::ActivationType translatedActivationType = translationWindowActivationMessage(activationType);
+		WindowActivateEvent windowActivateEvent(translatedActivationType, window);
+
+		//todo:add process window activated event
+		return true;
 	}
 	std::vector<std::shared_ptr<WindowsWindow>> WindowsApplication::getPlatformWindows()
 	{
@@ -363,6 +404,39 @@ namespace GuGu {
 					DestroyWindow(windows[i]->getNativeWindowHandle());
 				}
 				globalApplication->setExit(true);
+				break;
+			}
+			case WM_ACTIVATE:
+			{
+				WindowActivation activationType;
+				if (LOWORD(wParam) & WA_ACTIVE)
+				{
+					activationType = WindowActivation::Activate;
+				}
+				else if (LOWORD(wParam) & WA_CLICKACTIVE)
+				{
+					activationType = WindowActivation::ActivateByMouse;
+				}
+				else
+				{
+					activationType = WindowActivation::Deactivate;
+				}
+				//todo:add update all modifier key states
+				std::shared_ptr<Window> window;
+				//find native window
+				std::vector<std::shared_ptr<WindowsWindow>> windows = globalApplication->getPlatformWindows();
+				for (int32_t i = 0; i < windows.size(); ++i)
+				{
+					if (windows[i]->getNativeWindowHandle() == hwnd)
+					{
+						window = windows[i];
+					}
+				}
+				if (window)
+				{
+					bool result = false;
+					result = globalApplication->onWindowActivationChanged(window, activationType);
+				}
 				break;
 			}
 		}

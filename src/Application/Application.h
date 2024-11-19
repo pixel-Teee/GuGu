@@ -15,6 +15,12 @@
 // #include <Core/GamePlay/Level.h>
 
 namespace GuGu {
+	enum class WindowActivation : uint8_t
+	{
+		Activate,
+		ActivateByMouse,
+		Deactivate
+	};
 	class Widget;
 
 	class Timer;
@@ -74,6 +80,8 @@ namespace GuGu {
 		virtual bool onKeyChar(const GuGuUtf8Str Character);
 
 		virtual bool onKeyDown(const int32_t keyCode, const uint32_t characterCode);
+
+		virtual bool onWindowActivationChanged(const std::shared_ptr<Window>& window, const WindowActivation);
 
 		std::shared_ptr<Widget> getCaptorWidget() const;
 
