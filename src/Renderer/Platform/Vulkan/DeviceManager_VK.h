@@ -55,6 +55,8 @@ namespace GuGu{
         virtual bool createWindowSurface(std::shared_ptr<WindowWidget> windowWidget) override;
 
         virtual nvrhi::FramebufferHandle getCurrentBackBuffer(std::shared_ptr<WindowWidget> windowWidget) const override;
+
+        virtual void onWindowDestroyed(const std::shared_ptr<WindowWidget>& inWindow) override;
     protected:
         bool CreateInstanceInternal() override;
         bool CreateDevice(std::shared_ptr<WindowWidget> inWindowWidget) override;

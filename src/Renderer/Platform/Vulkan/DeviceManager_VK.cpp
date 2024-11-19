@@ -1065,6 +1065,17 @@ namespace GuGu{
         return it->second.m_SwapChainFramebuffers[it->second.m_SwapChainIndex];
     }
 
+    void DeviceManager_VK::onWindowDestroyed(const std::shared_ptr<WindowWidget>& inWindow)
+    {
+		auto it = m_windowViewports.find(inWindow.get());
+		if (it != m_windowViewports.end())
+		{
+			vkDestroySurfaceKHR(m_VulkanInstance, it->second.m_windowSurface, nullptr);
+			it->second.m_windowSurface = VK_NULL_HANDLE;
+			m_windowViewports.erase(it);
+		}
+    }
+
     bool DeviceManager_VK::pickPhysicalDevice() {
         VkFormat requestedFormat = nvrhi::vulkan::convertFormat(m_deviceParams.swapChainFormat);
         VkExtent2D requestedExtent;

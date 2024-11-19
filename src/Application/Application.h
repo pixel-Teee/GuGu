@@ -115,6 +115,8 @@ namespace GuGu {
 
 		void OnResizeChanged(std::shared_ptr<Window> inWindow);
 
+		void requestDestroyWindow(std::shared_ptr<WindowWidget> windowToDestroy);
+
 		//parent widget (菜单的父控件)，通过查找父控件的 widget path 中是否有一个打开的菜单来决定新菜单的等级
 		//可选的完整的父亲的控件路径，如果提供的话，如果没提供的话，那么就会生成一条路径到InParentWidget
 		std::shared_ptr<IMenu> pushMenu(const std::shared_ptr<Widget>& inParentWidget,

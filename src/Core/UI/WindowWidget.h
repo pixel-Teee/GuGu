@@ -116,6 +116,10 @@ namespace GuGu {
 		void moveWindowTo(math::float2 newPosition);
 
 		bool isAutoSized() const;
+
+		void requestDestroyWindow();
+
+		void destroyNativeWindow();
 	protected:
 		std::shared_ptr<Window> m_nativeWindow;
 		std::shared_ptr<SingleChildSlot> m_childWidget;

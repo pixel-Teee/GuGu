@@ -143,6 +143,9 @@ namespace GuGu{
     {
         return Reply::Unhandled();
     }
+    void Widget::OnFocusChanging(const WeakWidgetPath& previousFocusPath, const WidgetPath& newWidgetPath)
+    {
+    }
     std::shared_ptr<PopupLayer> Widget::onVisualizePopup(const std::shared_ptr<Widget>& popupContent)
     {
         return std::shared_ptr<PopupLayer>();

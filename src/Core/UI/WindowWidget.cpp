@@ -315,6 +315,17 @@ namespace GuGu {
 	{
 		return m_sizingRule == SizingRule::AutoSized;//由内容决定大小
 	}
+	void WindowWidget::requestDestroyWindow()
+	{
+		Application::getApplication()->requestDestroyWindow(std::static_pointer_cast<WindowWidget>(shared_from_this()));
+	}
+	void WindowWidget::destroyNativeWindow()
+	{
+		if (m_nativeWindow)
+		{
+			m_nativeWindow->destroy();
+		}
+	}
 	OverlayPopupLayer::OverlayPopupLayer(const std::shared_ptr<WindowWidget>& initHostWindow, const std::shared_ptr<Widget>& initPopupContent, std::shared_ptr<Overlay> initOverlay)
 		: PopupLayer(initHostWindow, initPopupContent)
 		, m_hostWindow(initHostWindow)

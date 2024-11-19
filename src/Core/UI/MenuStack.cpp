@@ -8,6 +8,8 @@
 #include "Overlay.h"
 #include "WindowWidget.h"
 #include "Popup.h"
+#include "Box.h"
+#include "LayoutUtils.h"
 #include <Window/Window.h>
 #include <Application/Application.h>
 
@@ -52,6 +54,154 @@ namespace GuGu {
 			removeSlot(inMenu->getContent());
 		}
 	};
+
+	namespace MenuStackInternal
+	{
+		using MenuOnKeyDown = std::function<Reply(Key)>;
+		using OnMenuLostFocus = std::function<void(const WidgetPath&)>;
+		//这个控件用来包裹创建在 FMenuStack中的任何控件，去提供默认的键盘输入，焦点追踪，并且帮助我们去发现菜单在控件路径中
+		class MenunContentWrapper : public Widget
+		{
+		public:
+			struct BuilderArguments : public Arguments<MenunContentWrapper>
+			{
+				BuilderArguments()
+				{
+				}
+
+				~BuilderArguments() = default;
+
+				ARGUMENT_NAMED_SLOT(SingleChildSlot, MenuContent)
+				UI_EVENT(MenuOnKeyDown, onKeyDown)
+				UI_EVENT(OnMenuLostFocus, onMenuLostFocus)
+				ARGUMENT_VALUE(OptionalSize, OptionalMinMenuWidth)
+				ARGUMENT_VALUE(OptionalSize, OptionalMinMenuHeight)
+			};
+
+			void init(const BuilderArguments& arguments)
+			{
+				m_visibilityAttribute = arguments.mVisibility;
+
+				this->m_childWidget = std::make_shared<SingleChildSlot>();
+				this->m_childWidget->setChildWidget(
+					WIDGET_NEW(BoxWidget)
+					.MinDesiredWidth(arguments.mOptionalMinMenuWidth)
+					.MinDesiredHeight(arguments.mOptionalMinMenuHeight)
+					.Content(
+						arguments.mMenuContent->m_childWidget
+					)
+				);
+				//m_childWidget = arguments.mMenuContent;
+				m_childWidget->m_parentWidget = shared_from_this();
+				m_childWidget->m_childWidget->setParentWidget(shared_from_this());
+
+				m_onKeyDownDelegate = arguments.monKeyDown;
+				m_onMenuLostFocus = arguments.monMenuLostFocus;
+			}
+
+			virtual uint32_t onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer) override
+			{
+				ArrangedWidgetArray arrangedWidgetArray(Visibility::Visible);//设置数组只接受可见的child widget
+				AllocationChildActualSpace(allocatedGeometry, arrangedWidgetArray);
+
+				uint32_t widgetNumbers = arrangedWidgetArray.getArrangedWidgetsNumber();//note:just one
+				//math::double2 size = math::double2(0.0, 0.0);
+				uint32_t maxLayer = 0;
+				for (size_t i = 0; i < widgetNumbers; ++i)
+				{
+					std::shared_ptr<ArrangedWidget> childWidget = arrangedWidgetArray.getArrangedWidget(i);
+					if (childWidget)
+					{
+						std::shared_ptr<Widget> widget = childWidget->getWidget();
+
+						maxLayer = std::max(maxLayer, widget->generateElement(paintArgs, cullingRect, elementList, childWidget->getWidgetGeometry(), layer + 1));
+					}
+				}
+
+				return maxLayer;
+			}
+
+			virtual math::float2 ComputeFixedSize(float inLayoutScaleMultiplier) override
+			{
+				if (m_childWidget)
+				{
+					const Visibility childVisiblity = m_childWidget->getChildWidget()->getVisibility();
+					if (childVisiblity != Visibility::Collapsed)
+					{
+						return m_childWidget->getChildWidget()->getFixedSize() + m_childWidget->getPadding().getFixedSize();
+					}
+				}
+				return math::float2(0, 0);
+			}
+
+			virtual void AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) const override
+			{
+				//arrange single children
+				uint32_t slotNumber = getSlotsNumber();
+
+				if (slotNumber)
+				{
+					const Visibility childVisibility = getSlot(0)->getChildWidget()->getVisibility();
+
+					if (arrangedWidgetArray.accepts(childVisibility)) //数组的可见性是否接受widget的可见性
+					{
+						AlignmentArrangeResult xalignmentResult = AlignChild<Orientation::Horizontal>(*getSlot(0), allocatedGeometry.getLocalSize().x);
+						AlignmentArrangeResult yAlignmentResult = AlignChild<Orientation::Vertical>(*getSlot(0), allocatedGeometry.getLocalSize().y);
+
+						WidgetGeometry childGeometry = allocatedGeometry.getChildGeometry(math::float2(xalignmentResult.m_size, yAlignmentResult.m_size), math::float2(xalignmentResult.m_offset, yAlignmentResult.m_offset));
+
+						arrangedWidgetArray.pushWidget(childGeometry, getSlot(0)->getChildWidget());
+					}
+				}
+			}
+
+			virtual SlotBase* getSlot(uint32_t index) const override
+			{
+				return m_childWidget.get();
+			}
+
+			virtual uint32_t getSlotsNumber() const override
+			{
+				return 1;
+			}
+
+			virtual bool supportsKeyboardFocus() const override
+			{
+				return true;
+			}
+
+			virtual Reply OnKeyDown(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent) override
+			{
+				if (m_onKeyDownDelegate)
+				{
+					return m_onKeyDownDelegate(inKeyEvent.getKey());
+				}
+				return Reply::Unhandled();
+			}
+
+			virtual void OnFocusChanging(const WeakWidgetPath& previousFocusPath, const WidgetPath& newWidgetPath) override
+			{
+				if (m_onMenuLostFocus && previousFocusPath.containsWidget(shared_from_this().get()))
+				{
+					return m_onMenuLostFocus(newWidgetPath);
+				}
+			}
+		protected:
+			std::shared_ptr<SingleChildSlot> m_childWidget;
+
+			MenuOnKeyDown m_onKeyDownDelegate;
+
+			//去通知一个菜单已经失去焦点，需要去被关闭
+			OnMenuLostFocus m_onMenuLostFocus;
+		};
+
+		Reply OnMenuKeyDown(const Key key)
+		{
+			//if(key == Keys::e)
+
+			return Reply::Unhandled();
+		}
+	}
 
 	std::shared_ptr<IMenu> MenuStack::push(const WidgetPath& inOwnerPath, const std::shared_ptr<Widget>& inContent, const math::float2& summonLocation, const bool bFocusImmediately, const math::float2& summonLocationSize, std::optional<PopupMethod> inMethod, const bool bIsCollapsedByParent)
 	{
@@ -149,6 +299,60 @@ namespace GuGu {
 			}
 		}
 	}
+	void MenuStack::onMenuContentLostFocus(const WidgetPath& inFocussedPath)
+	{
+		if (hasMenus() && !m_pendingNewMenu)
+		{
+			std::shared_ptr<IMenu> focussedMenu = findMenuInWidgetPath(inFocussedPath);
+
+			if (focussedMenu)
+			{
+				auto it = std::find(m_stack.begin(), m_stack.end(), focussedMenu);
+				if (it != m_stack.end())
+				{
+					int32_t focussedIndex = it - m_stack.begin();
+					for (int32_t dimissIndex = focussedIndex + 1; dimissIndex < m_stack.size(); ++dimissIndex)
+					{
+						if (m_stack[dimissIndex]->isCollapsedByParent())
+						{
+							dimissFrom(m_stack[dimissIndex]);
+							break;
+						}
+					}
+				}
+			}
+			else
+			{
+				//焦点已经移出到所有的菜单-折叠栈
+				dimissAll();
+			}
+		}
+	}
+	void MenuStack::dimissFrom(const std::shared_ptr<IMenu>& inFromMenu)
+	{
+		auto it = std::find(m_stack.begin(), m_stack.end(), inFromMenu);
+		int32_t index = it - m_stack.begin();
+		if (index != -1)
+		{
+
+		}
+	}
+	void MenuStack::dimissAll()
+	{
+		const int32_t topLevel = 0;
+
+	}
+	void MenuStack::dimissInternal(int32_t firstStackIndexToRemove)
+	{
+		//倒序去销毁
+		for (int32_t stackIndex = m_stack.size() - 1; stackIndex >= firstStackIndexToRemove; --stackIndex)
+		{
+			if (stackIndex >= 0 && stackIndex < m_stack.size())
+			{
+				m_stack[stackIndex]->dismiss();
+			}
+		}
+	}
 	std::shared_ptr<IMenu> MenuStack::pushInternal(const std::shared_ptr<IMenu>& inParentMenu, const std::shared_ptr<Widget>& inContent, math::box2 anchor, const bool bFocusImmediately, const bool bIsCollapsedByParent)
 	{
 		PrePushArgs prePushArgs;
@@ -200,7 +404,7 @@ namespace GuGu {
 
 		std::shared_ptr<Widget> tempContent = WIDGET_NEW(Popup).Content(inArgs.m_content);
 
-		outResults.m_warppedContent = tempContent;
+		outResults.m_warppedContent = wrapContent(tempContent, optionalMinWidth, optionalMinHeight);
 
 		outResults.m_warppedContent->prepass(applicationScale);
 		outResults.m_expectedSize = outResults.m_warppedContent->getFixedSize() * applicationScale;
@@ -283,5 +487,16 @@ namespace GuGu {
 		}
 
 		//todo:实现后续逻辑
+	}
+	std::shared_ptr<Widget> MenuStack::wrapContent(std::shared_ptr<Widget> inContent, OptionalSize optionalMinWidth, OptionalSize optionalMinHeight)
+	{
+		return WIDGET_NEW(MenuStackInternal::MenunContentWrapper)
+			.onKeyDown(&MenuStackInternal::OnMenuKeyDown)
+			.onMenuLostFocus(this, &MenuStack::onMenuContentLostFocus)
+			.OptionalMinMenuWidth(optionalMinWidth)
+			.OptionalMinMenuHeight(optionalMinHeight)
+			.MenuContent(
+				inContent
+			);
 	}
 }

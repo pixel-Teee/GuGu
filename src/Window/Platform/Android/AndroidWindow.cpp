@@ -46,4 +46,8 @@ namespace GuGu{
     {
 
     }
+
+	void AndroidWindow::destroy() {
+
+	}
 }

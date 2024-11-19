@@ -109,4 +109,9 @@ namespace GuGu {
 		::SetWindowPos(m_windowHandle, nullptr, newPosition.x, newPosition.y, newSize.x, newSize.y, SWP_NOACTIVATE | SWP_NOZORDER);
 	}
 
+	void WindowsWindow::destroy()
+	{
+		::DestroyWindow(m_windowHandle);
+	}
+
 }

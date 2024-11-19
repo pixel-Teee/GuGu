@@ -19,6 +19,8 @@ namespace GuGu{
         virtual void moveWindowTo(math::float2 newPosition) override;
 
         virtual void reshapeWindow(math::float2 newPosition, math::float2 newSize) override;
+
+        virtual void destroy() override;
     private:
         ANativeWindow* m_nativeWindow;
     };

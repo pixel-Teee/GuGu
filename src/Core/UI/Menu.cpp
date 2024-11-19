@@ -40,6 +40,15 @@ namespace GuGu {
 	void MenuInHostWidget::dismiss()
 	{
 		//todo:implement this
+		if (!m_bDismissing)
+		{
+			m_bDismissing = true;
+			std::shared_ptr<IMenuHost> hostLocked = m_menuHost.lock();
+			if (hostLocked)
+			{
+				hostLocked->onMenuDismissed();
+			}
+		}
 	}
 	MenuInWindow::MenuInWindow(std::shared_ptr<WindowWidget> inWindow, std::shared_ptr<Widget> inContent, const bool bIsCollapsedByParent)
 		: MenuBase(inContent, bIsCollapsedByParent)
@@ -53,5 +62,16 @@ namespace GuGu {
 	void MenuInWindow::dismiss()
 	{
 		//todo:implement this
+		if (!m_bDismissing)
+		{
+			m_bDismissing = true;
+		
+			//¹Ø±Õ´°¿Ú
+			std::shared_ptr<WindowWidget> windowLocked = m_window.lock();
+			if (windowLocked)
+			{
+				windowLocked->requestDestroyWindow();
+			}
+		}
 	}
 }

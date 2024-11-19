@@ -4,6 +4,7 @@
 
 #include "IMenu.h"
 #include "PopupMethodReply.h"
+#include "BasicElement.h" //optional size
 
 #include <unordered_map>
 
@@ -35,6 +36,16 @@ namespace GuGu {
 
 		void setHostPath(const WidgetPath& inOwnerPath);
 
+		void onMenuContentLostFocus(const WidgetPath& inFocussedPath);
+
+		//销毁菜单以及他的所有子菜单
+		void dimissFrom(const std::shared_ptr<IMenu>& inFromMenu);
+
+		//解散所有菜单栈
+		void dimissAll();
+
+		void dimissInternal(int32_t firstStackIndexToRemove);
+
 		std::shared_ptr<IMenu> pushInternal(const std::shared_ptr<IMenu>& inParentMenu, const std::shared_ptr<Widget>& inContent, math::box2 anchor, const bool bFocusImmediately, const bool bIsCollapsedByParent);
 	private:
 		struct PrePushArgs
@@ -64,6 +75,8 @@ namespace GuGu {
 		std::shared_ptr<MenuBase> pushPopup(std::shared_ptr<IMenu> inParentMenu, const PrePushResults& inPrePushResults);
 
 		void postPush(std::shared_ptr<IMenu> inParentMenu, std::shared_ptr<MenuBase> inMenu, bool bInInsertAfterDismiss = false);
+
+		std::shared_ptr<Widget> wrapContent(std::shared_ptr<Widget> inContent, OptionalSize optionalMinWidth = OptionalSize(), OptionalSize optionalMinHeight = OptionalSize());
 
 		//被整个栈当前使用的 popup method ，同一时间只有一个
 		PopupMethodReply m_activeMethod;

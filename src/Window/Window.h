@@ -16,6 +16,8 @@ namespace GuGu {
 		virtual void moveWindowTo(math::float2 newPosition) = 0;
 
 		virtual void reshapeWindow(math::float2 newPosition, math::float2 newSize) = 0;
+
+		virtual void destroy() = 0;
 	};
 
 	std::shared_ptr<Window> CreateWindowFactory();

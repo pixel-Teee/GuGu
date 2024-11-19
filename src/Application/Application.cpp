@@ -289,63 +289,131 @@ namespace GuGu{
 
 	void Application::setFocus(const std::shared_ptr<Widget>& widgetToFocus, const WidgetPath& widgetPath)
 	{
-		//记录旧的焦点路径
-		WidgetPath oldFocusWidgetsPath;
-		m_focusWidgetsPath.toWidgetPath(oldFocusWidgetsPath);
+		WeakWidgetPath oldFocusedWidgetPath = m_focusWidgetsPath;
+		std::shared_ptr<Widget> oldFocusedWidget = oldFocusedWidgetPath.isEmpty() ? std::shared_ptr<Widget>() : oldFocusedWidgetPath.getLastWidget().lock();
 
-		std::shared_ptr<Widget> oldFocus;
-		if (oldFocusWidgetsPath.m_widgets.getArrangedWidgetsNumber() != 0)
-		{
-			oldFocus = oldFocusWidgetsPath.m_widgets[oldFocusWidgetsPath.m_widgets.getArrangedWidgetsNumber() - 1]->getWidget();
-		}
+		WidgetPath newFocusedWidgetPath;
+		std::shared_ptr<Widget> newFocusedWidget;
 
-		//set user focus(这里是设置用户焦点的代码逻辑)
-		//设置新的焦点控件
-		size_t widgetNumber = widgetPath.m_widgets.getArrangedWidgetsNumber();
-		for (int32_t i = widgetNumber - 1; i >= 0; --i)
+		if (widgetPath.isValid())
 		{
-			std::shared_ptr<Widget> widget = widgetPath.m_widgets[i]->getWidget();
-			if (widget->supportsKeyboardFocus())
+			int32_t widgetNumber = widgetPath.m_widgets.getArrangedWidgetsNumber();
+			for (int32_t widgetIndex = widgetNumber - 1; widgetIndex >= 0; --widgetIndex)
 			{
-				WidgetPath focusedWidgetPath;
-				focusedWidgetPath = widgetPath.pathDownTo(widget);
+				 const std::shared_ptr<ArrangedWidget>& widgetToFocus = widgetPath.m_widgets[widgetIndex];
 
-				if (widget == oldFocus) //focus 没变化，不调用onFocusLost和onFocusReceived等函数
-				{
-					return;
-				}
-
-				int32_t focusedWidgetNumber = focusedWidgetPath.m_widgets.getArrangedWidgetsNumber();
-				for (int32_t j = focusedWidgetNumber - 1; j >= 0; --j)
-				{
-					std::shared_ptr<Widget> widget = focusedWidgetPath.m_widgets[j]->getWidget();
-					m_focusWidgetsPath.clear();
-					m_focusWidgetsPath = focusedWidgetPath.pathDownTo(widget);
-					break;
-				}
-
-				if (oldFocusWidgetsPath.m_widgets.getArrangedWidgetsNumber() != 0)
-				{
-					//std::shared_ptr<Widget> oldFocus = oldFocusWidgetsPath.m_widgets[oldFocusWidgetsPath.m_widgets.getArrangedWidgetsNumber() - 1]->getWidget();
-					oldFocus->OnFocusLost();
-				}
-
-				if (focusedWidgetPath.m_widgets.getArrangedWidgetsNumber() != 0)
-				{
-					std::shared_ptr<Widget> newFocusWidget = focusedWidgetPath.m_widgets[focusedWidgetPath.m_widgets.getArrangedWidgetsNumber() - 1]->getWidget();
-					newFocusWidget->OnFocusReceived(newFocusWidget->getWidgetGeometry());
-				}
-
-				//std::shared_ptr<Widget> oldFocus = oldFocusWidgetsPath.m_widgets[oldFocusWidgetsPath.m_widgets.getArrangedWidgetsNumber() - 1]->getWidget();
-				//
-				//oldFocusWidgetsPath.m_widgets[oldFocusWidgetsPath.m_widgets.getArrangedWidgetsNumber() - 1]->getWidget()->OnFocusLost();
-				//
-				//std::shared_ptr<Widget> newFocusWidget = focusedWidgetPath.m_widgets[focusedWidgetPath.m_widgets.getArrangedWidgetsNumber() - 1]->getWidget();
-				//newFocusWidget->OnFocusReceived(newFocusWidget->getWidgetGeometry());
-
-				break;
+				 if (widgetToFocus->getWidget()->supportsKeyboardFocus())
+				 {
+					 if (widgetToFocus->getWidget() == oldFocusedWidget)
+					 {
+						 return; //todo:fix this
+					 }
+					 newFocusedWidget = widgetToFocus->getWidget();
+					 newFocusedWidgetPath = widgetPath.pathDownTo(newFocusedWidget);
+					 break;
+				 }
 			}
 		}
+
+		if (oldFocusedWidgetPath.isValid())
+		{
+			for (int32_t childIndex = 0; childIndex < oldFocusedWidgetPath.m_widgets.size(); ++childIndex)
+			{
+				std::shared_ptr<Widget> someWidget = oldFocusedWidgetPath.m_widgets[childIndex].lock();
+				if (someWidget)
+				{
+					someWidget->OnFocusChanging(oldFocusedWidgetPath, newFocusedWidgetPath);
+				}
+			}
+		}
+
+		if (newFocusedWidgetPath.isValid())
+		{
+			int32_t widgetNumber = newFocusedWidgetPath.m_widgets.getArrangedWidgetsNumber();
+			for (int32_t childIndex = 0; childIndex < widgetNumber; ++childIndex)
+			{
+				std::shared_ptr<Widget> someWidget = newFocusedWidgetPath.m_widgets[childIndex]->getWidget();
+				if (someWidget)
+				{
+					someWidget->OnFocusChanging(oldFocusedWidgetPath, newFocusedWidgetPath);
+				}
+			}
+		}
+
+		if (oldFocusedWidget)
+		{
+			oldFocusedWidget->OnFocusLost();
+		}
+
+		if (newFocusedWidget)
+		{
+			const ArrangedWidget& widgetToFocus = newFocusedWidgetPath.m_widgets.back();
+			Reply reply = newFocusedWidget->OnFocusReceived(widgetToFocus.getWidgetGeometry());
+			if (reply.isEventHandled())
+			{
+				processReply(reply, widgetPath);
+			}
+		}
+
+		m_focusWidgetsPath = newFocusedWidgetPath;
+
+		////记录旧的焦点路径
+		//WidgetPath oldFocusWidgetsPath;
+		//m_focusWidgetsPath.toWidgetPath(oldFocusWidgetsPath);
+		//
+		//std::shared_ptr<Widget> oldFocus;
+		//if (oldFocusWidgetsPath.m_widgets.getArrangedWidgetsNumber() != 0)
+		//{
+		//	oldFocus = oldFocusWidgetsPath.m_widgets[oldFocusWidgetsPath.m_widgets.getArrangedWidgetsNumber() - 1]->getWidget();
+		//}
+		//
+		////set user focus(这里是设置用户焦点的代码逻辑)
+		////设置新的焦点控件
+		//size_t widgetNumber = widgetPath.m_widgets.getArrangedWidgetsNumber();
+		//for (int32_t i = widgetNumber - 1; i >= 0; --i)
+		//{
+		//	std::shared_ptr<Widget> widget = widgetPath.m_widgets[i]->getWidget();
+		//	if (widget->supportsKeyboardFocus())
+		//	{
+		//		WidgetPath focusedWidgetPath;
+		//		focusedWidgetPath = widgetPath.pathDownTo(widget);
+		//
+		//		if (widget == oldFocus) //focus 没变化，不调用onFocusLost和onFocusReceived等函数
+		//		{
+		//			return;
+		//		}
+		//
+		//		int32_t focusedWidgetNumber = focusedWidgetPath.m_widgets.getArrangedWidgetsNumber();
+		//		for (int32_t j = focusedWidgetNumber - 1; j >= 0; --j)
+		//		{
+		//			std::shared_ptr<Widget> widget = focusedWidgetPath.m_widgets[j]->getWidget();
+		//			m_focusWidgetsPath.clear();
+		//			m_focusWidgetsPath = focusedWidgetPath.pathDownTo(widget);
+		//			break;
+		//		}
+		//
+		//		if (oldFocusWidgetsPath.m_widgets.getArrangedWidgetsNumber() != 0)
+		//		{
+		//			//std::shared_ptr<Widget> oldFocus = oldFocusWidgetsPath.m_widgets[oldFocusWidgetsPath.m_widgets.getArrangedWidgetsNumber() - 1]->getWidget();
+		//			oldFocus->OnFocusLost();
+		//		}
+		//
+		//		if (focusedWidgetPath.m_widgets.getArrangedWidgetsNumber() != 0)
+		//		{
+		//			std::shared_ptr<Widget> newFocusWidget = focusedWidgetPath.m_widgets[focusedWidgetPath.m_widgets.getArrangedWidgetsNumber() - 1]->getWidget();
+		//			newFocusWidget->OnFocusReceived(newFocusWidget->getWidgetGeometry());
+		//		}
+		//
+		//		//std::shared_ptr<Widget> oldFocus = oldFocusWidgetsPath.m_widgets[oldFocusWidgetsPath.m_widgets.getArrangedWidgetsNumber() - 1]->getWidget();
+		//		//
+		//		//oldFocusWidgetsPath.m_widgets[oldFocusWidgetsPath.m_widgets.getArrangedWidgetsNumber() - 1]->getWidget()->OnFocusLost();
+		//		//
+		//		//std::shared_ptr<Widget> newFocusWidget = focusedWidgetPath.m_widgets[focusedWidgetPath.m_widgets.getArrangedWidgetsNumber() - 1]->getWidget();
+		//		//newFocusWidget->OnFocusReceived(newFocusWidget->getWidgetGeometry());
+		//
+		//		break;
+		//	}
+		//}
 	}
 
 	std::shared_ptr<Widget> Application::getKeyboardFocusedWidget() const
@@ -414,6 +482,27 @@ namespace GuGu{
 	void Application::OnResizeChanged(std::shared_ptr<Window> inWindow)
 	{
 		m_renderer->requestResize(inWindow);
+	}
+
+	void Application::requestDestroyWindow(std::shared_ptr<WindowWidget> windowToDestroy)
+	{
+		//todo:call menu stack OnWindowDestroyed
+
+		//真正的销毁
+		m_renderer->onWindowDestroyed(windowToDestroy);
+
+		windowToDestroy->destroyNativeWindow();
+
+		auto it = std::find(m_windowWidgets.begin(), m_windowWidgets.end(), windowToDestroy);
+		if (it != m_windowWidgets.end())
+		{
+			m_windowWidgets.erase(it);
+		}
+		//没有窗口，则要退出应用程序
+		if (m_windowWidgets.size() == 0)
+		{
+			setExit(true);
+		}
 	}
 
 	std::shared_ptr<IMenu> Application::pushMenu(const std::shared_ptr<Widget>& inParentWidget, const WidgetPath& inOwnerPath, const std::shared_ptr<Widget>& inContent, const math::float2& summonLocation, const bool bFocusImmediately, const math::float2& summonLocationSize, std::optional<PopupMethod> method, const bool bIsCollapsedByParent)

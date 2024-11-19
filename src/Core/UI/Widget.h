@@ -57,6 +57,8 @@ namespace GuGu{
         std::shared_ptr<Widget> m_hostWidget;
         std::shared_ptr<Widget> m_popupContent;
     };
+    class WeakWidgetPath;
+    class WidgetPath;
     class Widget : public std::enable_shared_from_this<Widget>
     {
     public:
@@ -89,6 +91,8 @@ namespace GuGu{
         virtual Reply OnKeyChar(const WidgetGeometry& myGeometry, const CharacterEvent& inCharacterEvent);
 
         virtual Reply OnKeyDown(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent);
+
+        virtual void OnFocusChanging(const WeakWidgetPath& previousFocusPath, const WidgetPath& newWidgetPath);
 
         virtual std::shared_ptr<PopupLayer> onVisualizePopup(const std::shared_ptr<Widget>& popupContent);
 

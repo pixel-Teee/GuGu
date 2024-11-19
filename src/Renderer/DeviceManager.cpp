@@ -308,6 +308,10 @@ namespace GuGu{
     {
     }
 
+    void DeviceManager::onWindowDestroyed(const std::shared_ptr<WindowWidget>& inWindow)
+    {
+    }
+
     void DeviceManager::Animate(double elapsedTime) {
         for(auto it : m_vRenderPasses)
         {
