@@ -31,14 +31,17 @@ namespace GuGu {
 		int32_t x = (screentWidth - windowWidthAndHeight.x) / 2;
 		int32_t y = (screentHeight - windowWidthAndHeight.y) / 2;
 
+		std::shared_ptr<WindowWidget> parentWindow = inWindowWidget->getParentWindow().lock();
+
+		HWND parentWindowHandle = parentWindow ? std::static_pointer_cast<WindowsWindow>(parentWindow->getNativeWindow())->m_windowHandle : NULL;
+
 		m_windowHandle = CreateWindowEx(
 			0,//optional window style
 			windowClassName,//window class
 			L"GuGuWindow",//window title
-			WS_POPUP,
-
+			WS_POPUP | WS_VISIBLE,
 			x, y, windowWidthAndHeight.x, windowWidthAndHeight.y,//position and size
-			nullptr,//parent window
+			parentWindowHandle,//parent window
 			nullptr,//menu
 			m_ownerApplicationHandle,//owner application handle
 			nullptr
@@ -60,7 +63,7 @@ namespace GuGu {
 
 		//GuGu_LOGE(u8"create window error!");
 
-		ShowWindow(m_windowHandle, m_startCmdShow);
+		//ShowWindow(m_windowHandle, m_startCmdShow);
 
 		//------get dpi scale------
 		HDC Context = GetDC(nullptr);
@@ -121,5 +124,8 @@ namespace GuGu {
 			::SetFocus(m_windowHandle);
 		}
 	}
-
+	void WindowsWindow::show()
+	{
+		::ShowWindow(m_windowHandle, SW_SHOW);
+	}
 }

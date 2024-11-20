@@ -50,4 +50,9 @@ namespace GuGu{
 	void AndroidWindow::destroy() {
 
 	}
+
+    void AndroidWindow::show()
+    {
+
+    }
 }

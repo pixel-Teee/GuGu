@@ -96,10 +96,10 @@ namespace GuGu {
 		std::shared_ptr<WindowsWindow> window = std::make_shared<WindowsWindow>();
 		//todo:这里 cmdShow 需要修复
 		window->setNativeApplicationHandleAndCmdShowToCreateWindow(m_applicationInstance, true);
-		window->ToGeneratePlatformWindow(windowWidget);
 		m_windows.push_back(window);
 		windowWidget->assocateWithNativeWindow(window);//关联
 		m_windowWidgets.push_back(windowWidget);
+		window->ToGeneratePlatformWindow(windowWidget);
 	}
 
 	void WindowsApplication::showWindow(std::shared_ptr<WindowWidget> windowWidget)

@@ -20,6 +20,8 @@ namespace GuGu {
 		virtual void destroy() = 0;
 
 		virtual void setWindowFocus() = 0;
+
+		virtual void show() = 0;
 	};
 
 	std::shared_ptr<Window> CreateWindowFactory();

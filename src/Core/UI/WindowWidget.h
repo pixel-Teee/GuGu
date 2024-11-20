@@ -133,6 +133,10 @@ namespace GuGu {
 		void setWidgetToFocusOnActivate(std::shared_ptr<Widget> inWidget);
 
 		bool isFocusedInitially() const;
+
+		void setParentWindow(const std::shared_ptr<WindowWidget>& inParentWindow);
+
+		std::weak_ptr<WindowWidget> getParentWindow() const;
 	protected:
 		std::shared_ptr<Window> m_nativeWindow;
 		std::shared_ptr<SingleChildSlot> m_childWidget;
@@ -157,5 +161,7 @@ namespace GuGu {
 		std::weak_ptr<Widget> m_widgetToFocusOnDeactivate;
 
 		bool m_bFocusWhenFirstShown;
+
+		std::weak_ptr<WindowWidget> m_parentWindow;
 	};
 }

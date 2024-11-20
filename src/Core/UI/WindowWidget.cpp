@@ -376,6 +376,14 @@ namespace GuGu {
 	{
 		return m_bFocusWhenFirstShown;
 	}
+	void WindowWidget::setParentWindow(const std::shared_ptr<WindowWidget>& inParentWindow)
+	{
+		m_parentWindow = inParentWindow;
+	}
+	std::weak_ptr<WindowWidget> WindowWidget::getParentWindow() const
+	{
+		return m_parentWindow;
+	}
 	OverlayPopupLayer::OverlayPopupLayer(const std::shared_ptr<WindowWidget>& initHostWindow, const std::shared_ptr<Widget>& initPopupContent, std::shared_ptr<Overlay> initOverlay)
 		: PopupLayer(initHostWindow, initPopupContent)
 		, m_hostWindow(initHostWindow)

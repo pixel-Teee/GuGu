@@ -451,6 +451,7 @@ namespace GuGu {
 
 		//add window as native child
 		//todo:修复这里
+		newMenuWindow->setParentWindow(parentWindow);
 		Application::getApplication()->makeWindow(newMenuWindow);
 		Application::getApplication()->showWindow(newMenuWindow);
 

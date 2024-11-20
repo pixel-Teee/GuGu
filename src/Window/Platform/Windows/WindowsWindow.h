@@ -27,6 +27,8 @@ namespace GuGu {
 		virtual void destroy() override;
 
 		virtual void setWindowFocus() override;
+
+		virtual void show() override;
 	private:
 		HWND m_windowHandle;
 		HINSTANCE m_ownerApplicationHandle;
