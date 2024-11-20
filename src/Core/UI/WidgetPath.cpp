@@ -69,14 +69,14 @@ namespace GuGu {
 	}
 	bool WidgetPath::extendPathTo(const std::shared_ptr<Widget>& matcher, Visibility visibilityFilter)
 	{
-
 		const ArrangedWidget& lastWidget = m_widgets.back();
 
+		//生成一条 matcher 到 last widget 的路径
 		ArrangedWidgetArray extension = generatePathToWidget(matcher, lastWidget, visibilityFilter);
 
 		for (int32_t widgetIndex = 0; widgetIndex < extension.getArrangedWidgetsNumber(); ++widgetIndex)
 		{
-			m_widgets.pushWidget(extension.getArrangedWidget(widgetIndex)->getWidget()->getWidgetGeometry(), extension.getArrangedWidget(widgetIndex)->getWidget());
+			m_widgets.pushWidget(extension.getArrangedWidget(widgetIndex)->getWidgetGeometry(), extension.getArrangedWidget(widgetIndex)->getWidget());
 		}
 
 		return extension.getArrangedWidgetsNumber() > 0;//扩展成功，扩展到 matcher

@@ -78,7 +78,7 @@ namespace GuGu {
 						+ Overlay::Slot()
 						.setHorizontalAlignment(HorizontalAlignment::Right)
 						.setVerticalAlignment(VerticalAlignment::Center)
-						.setPadding(Padding(0.0f, 0.0f, 127.0f, 0.0f))
+						.setPadding(Padding(0.0f, -5.0f, 170.0f, 0.0f))
 						(
 							WIDGET_ASSIGN_NEW(MenuAnchor, m_testMenuAnchor)
 							.method(PopupMethod::CreateNewWindow)
@@ -253,7 +253,7 @@ namespace GuGu {
 		std::shared_ptr<EditorMainWindow> editorMainWindow = std::make_shared<EditorMainWindow>();
 
 		//1.先创建 window widget
-		WIDGET_ASSIGN_NEW(EditorMainWindow, editorMainWindow);
+		WIDGET_ASSIGN_NEW(EditorMainWindow, editorMainWindow).ScreenPosition(math::float2(200.0f, 200.0f));
 
 		return editorMainWindow;
 	}

@@ -61,7 +61,6 @@ namespace GuGu {
 
 			//todo:add popup layer widget
 		}
-		
 	}
 	uint32_t WindowWidget::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
@@ -265,6 +264,7 @@ namespace GuGu {
 				m_nativeWindow->reshapeWindow(m_screenPosition, newSize);
 			}	
 		}	
+		m_fixedSize = newSize;
 	}
 	math::float2 WindowWidget::getPositionInScreen() const
 	{
@@ -279,7 +279,7 @@ namespace GuGu {
 		//首先得到一个 local to screen transform
 		math::affine2 localToScreen(math::float2x2::diagonal(m_nativeWindow->getDpiFactor()), m_screenPosition);
 
-		WidgetGeometry res = WidgetGeometry::makeRoot(math::inverse(localToScreen).transformVector(m_fixedSize), localToScreen);
+		WidgetGeometry res = WidgetGeometry::makeRoot(math::inverse(localToScreen).transformVector(m_size), localToScreen);
 
 		return res;
 	}

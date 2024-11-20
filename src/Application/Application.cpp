@@ -481,7 +481,8 @@ namespace GuGu{
 
 			ArrangedWidgetArray justWindow(visibilityFilter);
 			{
-				justWindow.pushWidget(curWindow->getWidgetGeometry(), curWindow);
+				//注意这个geometry追加了窗口左上角的绝对位置
+				justWindow.pushWidget(curWindow->getWindowGeometryInScreen(), curWindow);
 			}
 
 			WidgetPath pathToWidget(curWindow, justWindow);
@@ -584,7 +585,28 @@ namespace GuGu{
 
 		math::float2 adjustedSize = inSize * dpiScale;
 
-		return calculatedPopupWindowPosition;
+		math::box2 anchorRect;
+		anchorRect.m_mins.x = inAnchor.m_mins.x;//left
+		anchorRect.m_mins.y = inAnchor.m_mins.y;//top
+		anchorRect.m_maxs.x = inAnchor.m_maxs.x;//right
+		anchorRect.m_maxs.y = inAnchor.m_maxs.y;//bottom
+
+		math::box2 workAreaFinderRect(anchorRect);
+		workAreaFinderRect.m_mins.x = anchorRect.m_mins.x + 1;
+		workAreaFinderRect.m_mins.y = anchorRect.m_mins.y + 1;
+		const math::box2 platformWorkArea = getWorkArea(workAreaFinderRect);
+
+		//todo:fix this
+		return math::float2(anchorRect.m_mins.x, anchorRect.m_maxs.y);
+	}
+
+	math::box2 Application::getWorkArea(const math::box2& currentWindow) const
+	{
+		//return math::box2(0);
+		math::box2 workArea;
+		workArea.m_mins = math::float2(0, 0);
+		workArea.m_maxs = math::float2(0, 0);
+		return workArea;
 	}
 
     bool Application::processMouseButtonDownEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)

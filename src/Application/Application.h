@@ -140,6 +140,8 @@ namespace GuGu {
 
 		virtual math::float2 calculatePopupWindowPosition(const math::box2& inAnchor, const math::float2& inSize, bool bAutoAdjustForDPIScale = true,
 			const math::float2& inProposedPlacement = math::float2(0, 0), const Orientation orientation = Orientation::Vertical) const;
+
+		virtual math::box2 getWorkArea(const math::box2& currentWindow) const;
 	protected:
 		std::shared_ptr<Renderer> m_renderer;
 

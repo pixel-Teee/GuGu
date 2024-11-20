@@ -126,6 +126,29 @@ namespace GuGu {
 		ShowWindow(windowsWindow->getNativeWindowHandle(), SW_MINIMIZE);
 	}
 
+	math::box2 WindowsApplication::getWorkArea(const math::box2& currentWindow) const
+	{
+		RECT windowsWindowDim;
+		windowsWindowDim.left = currentWindow.m_mins.x;
+		windowsWindowDim.top = currentWindow.m_mins.y;
+		windowsWindowDim.right = currentWindow.m_maxs.x;
+		windowsWindowDim.bottom = currentWindow.m_maxs.y;
+
+		HMONITOR hBestMonitor = MonitorFromRect(&windowsWindowDim, MONITOR_DEFAULTTONEAREST);
+
+		MONITORINFO MonitorInfo;
+		MonitorInfo.cbSize = sizeof(MonitorInfo);
+		GetMonitorInfo(hBestMonitor, &MonitorInfo);
+
+		math::box2 workArea;
+		workArea.m_mins.x = MonitorInfo.rcWork.left;
+		workArea.m_mins.y = MonitorInfo.rcWork.top;
+		workArea.m_maxs.x = MonitorInfo.rcWork.right;
+		workArea.m_maxs.x = MonitorInfo.rcWork.bottom;
+
+		return workArea;
+	}
+
 	static bool FolderExists(const GuGuUtf8Str& folderPath)
 	{
 		DWORD dwAttrib = GetFileAttributesA(folderPath.getStr());

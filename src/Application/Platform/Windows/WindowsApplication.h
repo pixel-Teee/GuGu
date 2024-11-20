@@ -51,6 +51,8 @@ namespace GuGu {
 		virtual void showWindow(std::shared_ptr<WindowWidget> windowWidget) override;
 
 		virtual void miniMizeWindow(std::shared_ptr<WindowWidget> windowWidget) override;
+
+		virtual math::box2 getWorkArea(const math::box2& currentWindow) const override;
 	private:
 		HINSTANCE m_applicationInstance;
 

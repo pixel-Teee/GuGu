@@ -208,7 +208,7 @@ namespace GuGu {
 		//return std::shared_ptr<IMenu>();
 		inOwnerPath.getWindow()->setWidgetToFocusOnActivate(Application::getApplication()->getKeyboardFocusedWidget());
 
-		math::box anchor(summonLocation, summonLocationSize);
+		math::box anchor(summonLocation, summonLocation + summonLocationSize);
 		std::shared_ptr<IMenu> parentMenu;
 
 		if (hasMenus())
@@ -414,8 +414,8 @@ namespace GuGu {
 		{
 			//已经缩放过
 			const bool bAutoAdjustForDPIScale = false;
-			//outResults.m_startLocation = Application::getApplication()->calculatePopupWindowPosition(inArgs.m_anchor, outResults.m_expectedSize, bAutoAdjustForDPIScale, math::float2(0, 0), Orientation::Vertical);
-			outResults.m_startLocation = inArgs.m_anchor.getCorner(0);//left top
+			outResults.m_startLocation = Application::getApplication()->calculatePopupWindowPosition(inArgs.m_anchor, outResults.m_expectedSize, bAutoAdjustForDPIScale, math::float2(0, 0), Orientation::Vertical);
+			//outResults.m_startLocation = inArgs.m_anchor.getCorner(0);//left top
 		}
 
 		if (inArgs.m_bFocusImmediately)
