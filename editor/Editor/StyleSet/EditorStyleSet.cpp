@@ -97,6 +97,33 @@ namespace GuGu {
 		MinimizeButton->setPressed(MinimizeButton_Pressed);
 		MinimizeButton->setDisabled(noResource);
 		m_styles.insert({ u8"MinimizeButton", MinimizeButton });
+
+		{
+			std::shared_ptr<Brush> normalBlueColor = std::make_shared<Brush>();
+			normalBlueColor->m_tiling = false;
+			normalBlueColor->m_texturePath = u8"asset/white.png";
+			normalBlueColor->m_tintColor = lightBlueLevel1;
+			normalBlueColor->m_outlineSettings.m_cornerRadius = math::float4(5.0f, 5.0f, 5.0f, 5.0f);
+			m_brushes.insert({ u8"normalBlueColor", normalBlueColor });
+			std::shared_ptr<Brush> normalHoveredColor = std::make_shared<Brush>();
+			normalHoveredColor->m_tiling = false;
+			normalHoveredColor->m_texturePath = u8"asset/white.png";
+			normalHoveredColor->m_tintColor = blueLevel3;
+			normalHoveredColor->m_outlineSettings.m_cornerRadius = math::float4(5.0f, 5.0f, 5.0f, 5.0f);
+			m_brushes.insert({ u8"normalHoveredColor", normalHoveredColor });
+			std::shared_ptr<Brush> normalPressedColor = std::make_shared<Brush>();
+			normalPressedColor->m_tiling = false;
+			normalPressedColor->m_texturePath = u8"asset/white.png";
+			normalPressedColor->m_tintColor = blueLevel6;
+			normalPressedColor->m_outlineSettings.m_cornerRadius = math::float4(5.0f, 5.0f, 5.0f, 5.0f);
+			m_brushes.insert({ u8"normalPressedColor", normalPressedColor });
+			std::shared_ptr<ButtonStyle> normalBlueButton = std::make_shared<ButtonStyle>();
+			normalBlueButton->setNormal(normalBlueColor);
+			normalBlueButton->setHovered(normalHoveredColor);
+			normalBlueButton->setPressed(normalPressedColor);
+			normalBlueButton->setDisabled(noResource);
+			m_styles.insert({ u8"normalBlueButton", normalBlueButton });
+		}
 	}
 	EditorStyleSet::~EditorStyleSet()
 	{

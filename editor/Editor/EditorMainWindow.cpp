@@ -13,6 +13,7 @@
 #include <Core/UI/ComplexGradient.h>
 #include <Core/UI/Viewport.h>
 #include <Core/UI/MenuAnchor.h>
+#include <Core/UI/Box.h>
 
 #include <Application/Application.h>//用于退出
 
@@ -37,7 +38,7 @@ namespace GuGu {
 			//std::shared_ptr<EditorMainWindow> editorMainWindow;
 			std::shared_ptr<Button> minimizeButton;
 			//std::shared_ptr<ViewportWidget> viewportWidget;
-			std::shared_ptr<Button> testButton;
+			std::shared_ptr<Button> fileButton;
 
 			WindowWidget::init(
 			WindowWidget::BuilderArguments()
@@ -47,10 +48,10 @@ namespace GuGu {
 				.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("grayColor"))
 				.Content
 				(
-					WIDGET_NEW(VerticalBox) //菜单栏
+					WIDGET_NEW(VerticalBox) //菜单栏1
 					+ VerticalBox::Slot()
 					.StretchHeight(0.06)
-					.setPadding(Padding(21.0f, 17.0f, 21.0f, 50.0f))
+					.setPadding(Padding(21.0f, 17.0f, 21.0f, 14.0f))
 					(
 						WIDGET_NEW(Overlay)
 						+ Overlay::Slot()
@@ -63,31 +64,6 @@ namespace GuGu {
 								NullWidget::getNullWidget()
 							)
 						)	
-						+ Overlay::Slot()
-						.setHorizontalAlignment(HorizontalAlignment::Right)
-						.setVerticalAlignment(VerticalAlignment::Center)
-						.setPadding(Padding(0.0f, 0.0f, 127.0f, 0.0f))
-						(
-							WIDGET_ASSIGN_NEW(Button, testButton)
-							.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"MinimizeButton")) //for test
-							.Content
-							(
-								NullWidget::getNullWidget()
-							)
-						)
-						+ Overlay::Slot()
-						.setHorizontalAlignment(HorizontalAlignment::Right)
-						.setVerticalAlignment(VerticalAlignment::Center)
-						.setPadding(Padding(0.0f, -5.0f, 170.0f, 0.0f))
-						(
-							WIDGET_ASSIGN_NEW(MenuAnchor, m_testMenuAnchor)
-							.method(PopupMethod::CreateNewWindow)
-							.useApplicationMenuStack(true)
-							.Content
-							(
-								NullWidget::getNullWidget()
-							)
-						)
 						+ Overlay::Slot()
 						.setHorizontalAlignment(HorizontalAlignment::Right)
 						.setVerticalAlignment(VerticalAlignment::Center)
@@ -111,6 +87,30 @@ namespace GuGu {
 							(
 								NullWidget::getNullWidget()
 							)
+						)
+					)
+					+ VerticalBox::Slot()
+					.FixedHeight()
+					.setPadding(Padding(21.0f, 0.0f, 21.0f, 11.0f))
+					(
+						WIDGET_NEW(HorizontalBox)
+						+ HorizontalBox::Slot()
+						.FixedWidth()
+						(
+							WIDGET_NEW(BoxWidget)
+							.HeightOverride(OptionalSize(27.0f))
+							.WidthOverride(OptionalSize(64.0f))
+							.Content
+							(
+								WIDGET_ASSIGN_NEW(Button, fileButton)
+								.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+								.Content
+								(
+									WIDGET_NEW(TextBlockWidget)
+									.text(u8"File")
+									.textColor(math::float4(0.21f, 0.23f, 0.21f))
+								)
+							)	
 						)
 					)
 					+ VerticalBox::Slot() //中间区域
@@ -202,7 +202,7 @@ namespace GuGu {
 
 			closeButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::exitApplication, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
 			minimizeButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::miniMizeWindow, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
-			testButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::testWindow, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
+			fileButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::openFileMenu, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
 		}
 		else
 		{
@@ -228,16 +228,16 @@ namespace GuGu {
 		Application::getApplication()->miniMizeWindow(std::static_pointer_cast<WindowWidget>(shared_from_this()));
 		return Reply::Handled();
 	}
-	Reply EditorMainWindow::testWindow()
+	Reply EditorMainWindow::openFileMenu()
 	{
 		//return Reply();
 		//open menu achor
-		m_testMenuAnchor->setMenuContent(
-			WIDGET_NEW(TextBlockWidget)
-			.text("this is menu")
-			.textColor(math::float4(1.0f, 1.0f, 1.0f, 1.0f))
-		);
-		m_testMenuAnchor->setIsOpen(true);
+		//m_testMenuAnchor->setMenuContent(
+		//	WIDGET_NEW(TextBlockWidget)
+		//	.text("this is menu")
+		//	.textColor(math::float4(1.0f, 1.0f, 1.0f, 1.0f))
+		//);
+		//m_testMenuAnchor->setIsOpen(true);
 		return Reply::Handled();
 	}
 	void EditorMainWindow::setRenderTarget(nvrhi::TextureHandle renderTarget)

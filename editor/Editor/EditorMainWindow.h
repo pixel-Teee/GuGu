@@ -42,14 +42,14 @@ namespace GuGu {
 
 		Reply miniMizeWindow();
 
-		Reply testWindow();
+		Reply openFileMenu();
 
 		void setRenderTarget(nvrhi::TextureHandle renderTarget);
 	private:
 
 		std::shared_ptr<ViewportWidget> m_viewportWidget;
 
-		std::shared_ptr<MenuAnchor> m_testMenuAnchor;
+		//std::shared_ptr<MenuAnchor> m_testMenuAnchor;
 	};
 
 	std::shared_ptr<EditorMainWindow> CreateEditorMainWindow();
