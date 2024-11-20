@@ -18,6 +18,8 @@ namespace GuGu {
 				: misFocusable(true)
 				, mClickMethod(ButtonClickMethod::Type::DownAndUp)
 				, mPressMethod(ButtonClickMethod::Type::DownAndUp)
+				, mhorizontalAlignment(HorizontalAlignment::Center)
+				, mverticalAlignment(VerticalAlignment::Center)
 			{}
 
 			~BuilderArguments() = default;

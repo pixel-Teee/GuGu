@@ -27,6 +27,9 @@ namespace GuGu {
 
 		m_childWidget = arguments.mContent;	
 		m_childWidget->m_parentWidget = shared_from_this();
+		m_childWidget->setHorizontalAlignment(arguments.mhorizontalAlignment);
+		m_childWidget->setVerticalAlignment(arguments.mverticalAlignment);
+		m_childWidget->setPadding(arguments.mcontentPadding);
 		if(m_childWidget->m_childWidget != NullWidget::getNullWidget())
 			m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 
