@@ -117,6 +117,7 @@ namespace GuGu {
 		{
 			windowWidget->getNativeWindow()->setWindowFocus();
 		}
+		windowWidget->getNativeWindow()->show();
 	}
 
 	void WindowsApplication::miniMizeWindow(std::shared_ptr<WindowWidget> windowWidget)
@@ -358,17 +359,17 @@ namespace GuGu {
 			}
 			case WM_DESTROY:
 			{
-				PostQuitMessage(0);
+				//PostQuitMessage(0);
 				break;
 			}
 			case WM_CLOSE:
 			{
-				std::vector<std::shared_ptr<WindowsWindow>> windows = globalApplication->getPlatformWindows();
-				for (int32_t i = 0; i < windows.size(); ++i)
-				{
-					DestroyWindow(windows[i]->getNativeWindowHandle());
-				}
-				globalApplication->setExit(true);
+				//std::vector<std::shared_ptr<WindowsWindow>> windows = globalApplication->getPlatformWindows();
+				//for (int32_t i = 0; i < windows.size(); ++i)
+				//{
+				//	DestroyWindow(windows[i]->getNativeWindowHandle());
+				//}
+				//globalApplication->setExit(true);
 				break;
 			}
 			case WM_ACTIVATE:
@@ -377,6 +378,7 @@ namespace GuGu {
 				if (LOWORD(wParam) & WA_ACTIVE)
 				{
 					activationType = WindowActivation::Activate;
+					GuGu_LOGD("%d", activationType);
 				}
 				else if (LOWORD(wParam) & WA_CLICKACTIVE)
 				{

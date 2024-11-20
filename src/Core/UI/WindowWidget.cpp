@@ -242,7 +242,7 @@ namespace GuGu {
 			m_nativeWindow->reshapeWindow(m_screenPosition, m_size);
 		}
 		m_windowType = WindowType::NativeWindow;
-		setCachedScreenPosition(nativeWindow->getWindowScreenSpacePosition());
+		//setCachedScreenPosition(nativeWindow->getWindowScreenSpacePosition());
 	}	
 	std::shared_ptr<Window> WindowWidget::getNativeWindow()
 	{

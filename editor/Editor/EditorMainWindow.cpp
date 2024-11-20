@@ -198,7 +198,7 @@ namespace GuGu {
 			)
 			//.ClientSize(math::float2(m_deviceParams.backBufferWidth, m_deviceParams.backBufferHeight))
 			.ClientSize(math::float2(1280.0f, 720.0f)) //todo:fix this
-			.ScreenPosition(math::float2(0.0f, 0.0f)));
+			.ScreenPosition(arguments.mScreenPosition));
 
 			closeButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::exitApplication, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
 			minimizeButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::miniMizeWindow, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));

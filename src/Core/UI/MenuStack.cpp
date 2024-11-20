@@ -439,6 +439,11 @@ namespace GuGu {
 		std::shared_ptr<MenuInWindow> menu = std::make_shared<MenuInWindow>(newMenuWindow, inPrePushResults.m_warppedContent, inPrePushResults.m_bIsCollapsedByParent);
 		m_pendingNewMenu = menu;
 
+		if (inPrePushResults.m_bFocusImmediately && inPrePushResults.m_widgetToFocus)
+		{
+			newMenuWindow->setWidgetToFocusOnActivate(inPrePushResults.m_widgetToFocus);//note:这个非常重要
+		}
+
 		std::shared_ptr<WindowWidget> parentWindow;
 		if (inParentMenu)
 		{

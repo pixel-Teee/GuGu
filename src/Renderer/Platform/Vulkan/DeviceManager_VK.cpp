@@ -650,10 +650,16 @@ namespace GuGu{
 
         m_NvrhiDevice = nvrhi::vulkan::createDevice(deviceDesc);
 
-        if(inWindowWidget != nullptr)
-		    CreateSwapChain(inWindowWidget);
+        if (inWindowWidget != nullptr)
+        {
+			CreateSwapChain(inWindowWidget);
+            inWindowWidget->getNativeWindow()->show();
+        }
         else
+        {
             CreateSwapChain(m_mainWindow);
+            m_mainWindow->getNativeWindow()->show();
+        }
 
         m_BarrierCommandList = m_NvrhiDevice->createCommandList();
 

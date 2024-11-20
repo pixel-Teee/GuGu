@@ -27,9 +27,12 @@ namespace GuGu {
 		int32_t screentHeight = GetSystemMetrics(SM_CYSCREEN);
 
 		math::int2 windowWidthAndHeight = inWindowWidget->getViewportSize();
+		math::float2 windowPosition = inWindowWidget->getPositionInScreen();
 
-		int32_t x = (screentWidth - windowWidthAndHeight.x) / 2;
-		int32_t y = (screentHeight - windowWidthAndHeight.y) / 2;
+		//int32_t x = (screentWidth - windowWidthAndHeight.x) / 2;
+		//int32_t y = (screentHeight - windowWidthAndHeight.y) / 2;
+		int32_t x = windowPosition.x;
+		int32_t y = windowPosition.y;
 
 		std::shared_ptr<WindowWidget> parentWindow = inWindowWidget->getParentWindow().lock();
 
@@ -39,7 +42,7 @@ namespace GuGu {
 			0,//optional window style
 			windowClassName,//window class
 			L"GuGuWindow",//window title
-			WS_POPUP | WS_VISIBLE,
+			WS_POPUP,
 			x, y, windowWidthAndHeight.x, windowWidthAndHeight.y,//position and size
 			parentWindowHandle,//parent window
 			nullptr,//menu
@@ -57,6 +60,8 @@ namespace GuGu {
 			- (rcClient.right - rcClient.left);
 		borderHeight = (rcWindow.bottom - rcWindow.top)
 			- (rcClient.bottom - rcClient.top);
+
+		//show();
 
 		SetWindowPos(m_windowHandle, 0, 0, 0, borderWidth + windowWidthAndHeight.x,
 			borderHeight + windowWidthAndHeight.y, SWP_NOMOVE | SWP_NOZORDER);
