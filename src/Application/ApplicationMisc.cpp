@@ -9,4 +9,7 @@ namespace GuGu {
 	void ApplicationMisc::ClipboardPaste(GuGuUtf8Str& str)
 	{
 	}
+	void ApplicationMisc::getSaveFilePathAndFileName(GuGuUtf8Str& filePath, GuGuUtf8Str& fileName)
+	{
+	}
 }

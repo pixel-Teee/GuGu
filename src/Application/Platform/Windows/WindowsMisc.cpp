@@ -64,4 +64,7 @@ namespace GuGu {
 			CloseClipboard();
 		}
 	}
+	void WindowsMisc::getSaveFilePathAndFileName(GuGuUtf8Str& filePath, GuGuUtf8Str& fileName)
+	{
+	}
 }

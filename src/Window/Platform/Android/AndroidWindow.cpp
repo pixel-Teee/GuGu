@@ -55,4 +55,8 @@ namespace GuGu{
     {
 
     }
+
+    void AndroidWindow::setWindowFocus() {
+
+    }
 }

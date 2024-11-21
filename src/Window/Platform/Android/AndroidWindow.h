@@ -23,6 +23,8 @@ namespace GuGu{
         virtual void destroy() override;
 
         virtual void show() override;
+
+        virtual void setWindowFocus() override;
     private:
         ANativeWindow* m_nativeWindow;
     };

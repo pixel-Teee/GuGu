@@ -89,4 +89,9 @@ namespace GuGu{
     void AndroidMisc::ClipboardPaste(GuGuUtf8Str &str) {
 
     }
+
+    void AndroidMisc::getSaveFilePathAndFileName(GuGuUtf8Str& filePath, GuGuUtf8Str& fileName)
+    {
+
+    }
 }
