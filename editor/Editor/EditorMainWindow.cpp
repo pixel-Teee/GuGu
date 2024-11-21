@@ -266,6 +266,18 @@ namespace GuGu {
 						.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
 					)
 				)
+				+ VerticalBox::Slot()
+				.FixedHeight()
+				(
+					WIDGET_NEW(Button)
+					.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+					.Content
+					(
+						WIDGET_NEW(TextBlockWidget)
+						.text(u8"open level")
+						.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+					)
+				)
 				//NullWidget::getNullWidget()
 			)
 		);
