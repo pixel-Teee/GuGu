@@ -17,6 +17,14 @@
 
 #include <Application/Application.h>//用于退出
 
+#ifdef WIN32
+#include <Application/Platform/Windows/WindowsMisc.h>
+#else
+#ifdef ANDROID
+#include <Application/Platform/Android/AndroidMisc.h>
+#endif
+#endif
+
 namespace GuGu {
 	EditorMainWindow::EditorMainWindow()
 	{
@@ -257,7 +265,7 @@ namespace GuGu {
 				+ VerticalBox::Slot()
 				.FixedHeight()
 				(
-					WIDGET_NEW(Button)
+					WIDGET_ASSIGN_NEW(Button, m_saveLevelButton)
 					.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
 					.Content
 					(
@@ -281,8 +289,16 @@ namespace GuGu {
 				//NullWidget::getNullWidget()
 			)
 		);
+		m_saveLevelButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::saveLevel, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
 		m_openFileMenuAnchor->setIsOpen(true);
 		return Reply::Handled();
+	}
+	Reply EditorMainWindow::saveLevel()
+	{
+		GuGuUtf8Str fileName;
+		GuGuUtf8Str filePath;
+		PlatformMisc::getSaveFilePathAndFileName(std::static_pointer_cast<WindowWidget>(shared_from_this()), filePath, fileName);
+		return Reply();
 	}
 	void EditorMainWindow::setRenderTarget(nvrhi::TextureHandle renderTarget)
 	{

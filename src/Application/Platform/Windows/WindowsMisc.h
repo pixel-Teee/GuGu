@@ -8,7 +8,7 @@ namespace GuGu {
 		static void ClipboardCopy(const GuGuUtf8Str& str);
 		static void ClipboardPaste(GuGuUtf8Str& str);
 
-		static void getSaveFilePathAndFileName(GuGuUtf8Str& filePath, GuGuUtf8Str& fileName);
+		static void getSaveFilePathAndFileName(std::shared_ptr<WindowWidget> ownerWindow, GuGuUtf8Str& filePath, GuGuUtf8Str& fileName);
 	};
 
 	typedef WindowsMisc PlatformMisc;

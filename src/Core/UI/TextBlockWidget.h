@@ -42,7 +42,7 @@ namespace GuGu {
 
 		void setText(GuGuUtf8Str& newText);
 	private:
-		//»ñÈ¡¼ÆËãµÄ text style £¬ÓÃÓÚ text marshaller
+		//è·å–è®¡ç®—çš„ text style ï¼Œç”¨äº text marshaller
 		TextBlockStyle getComputedTextStyle() const;
 
 		std::shared_ptr<TextBlockStyle> m_textStyle;

@@ -9,7 +9,7 @@ namespace GuGu {
 	void ApplicationMisc::ClipboardPaste(GuGuUtf8Str& str)
 	{
 	}
-	void ApplicationMisc::getSaveFilePathAndFileName(GuGuUtf8Str& filePath, GuGuUtf8Str& fileName)
+	void ApplicationMisc::getSaveFilePathAndFileName(std::shared_ptr<WindowWidget> ownerWindow, GuGuUtf8Str& filePath, GuGuUtf8Str& fileName)
 	{
 	}
 }
