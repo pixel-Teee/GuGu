@@ -48,6 +48,8 @@ namespace GuGu {
 	}
 	GuGu::math::float2 TextBlockWidget::ComputeFixedSize(float inLayoutScaleMultiplier)
 	{
+		TextBlockStyle computedTextStyle = getComputedTextStyle();
+
 		return m_textLayoutCache->ComputeFixedSize(
 			TextBlockLayout::WidgetDesiredSizeArgs(
 				m_text.Get(),
@@ -57,7 +59,7 @@ namespace GuGu {
 				false
 			),
 			inLayoutScaleMultiplier,
-			*m_textStyle
+			getComputedTextStyle()
 		);
 
 		//return FontCache::getFontCache()->measureText(m_text.Get(), *m_textStyle->m_textInfo, inLayoutScaleMultiplier);
@@ -65,5 +67,12 @@ namespace GuGu {
 	void TextBlockWidget::setText(GuGuUtf8Str& newText)
 	{
 		m_text = newText;
+	}
+	TextBlockStyle TextBlockWidget::getComputedTextStyle() const
+	{
+		TextBlockStyle computedStyle = *m_textStyle;
+		computedStyle.m_textColor = m_textColor.Get();
+
+		return computedStyle;
 	}
 }

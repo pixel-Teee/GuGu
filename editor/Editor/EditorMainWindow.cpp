@@ -97,20 +97,36 @@ namespace GuGu {
 						+ HorizontalBox::Slot()
 						.FixedWidth()
 						(
-							WIDGET_NEW(BoxWidget)
-							.HeightOverride(OptionalSize(27.0f))
-							.WidthOverride(OptionalSize(64.0f))
-							.Content
+							WIDGET_NEW(VerticalBox)
+							+ VerticalBox::Slot()
+							.FixedHeight()
 							(
-								WIDGET_ASSIGN_NEW(Button, fileButton)
-								.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+								WIDGET_NEW(BoxWidget)
+								.HeightOverride(OptionalSize(27.0f))
+								.WidthOverride(OptionalSize(64.0f))
 								.Content
 								(
-									WIDGET_NEW(TextBlockWidget)
-									.text(u8"File")
-									.textColor(math::float4(0.21f, 0.23f, 0.21f))
+									WIDGET_ASSIGN_NEW(Button, fileButton)
+									.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+									.Content
+									(
+										WIDGET_NEW(TextBlockWidget)
+										.text(u8"File")
+										.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+									)
 								)
-							)	
+							)
+							+ VerticalBox::Slot()
+							.FixedHeight()
+							(
+								WIDGET_ASSIGN_NEW(MenuAnchor, m_openFileMenuAnchor)
+								.useApplicationMenuStack(true)
+								.method(PopupMethod::CreateNewWindow)
+								.Content
+								(
+									NullWidget::getNullWidget()
+								)
+							)
 						)
 					)
 					+ VerticalBox::Slot() //中间区域
@@ -232,12 +248,28 @@ namespace GuGu {
 	{
 		//return Reply();
 		//open menu achor
-		//m_testMenuAnchor->setMenuContent(
-		//	WIDGET_NEW(TextBlockWidget)
-		//	.text("this is menu")
-		//	.textColor(math::float4(1.0f, 1.0f, 1.0f, 1.0f))
-		//);
-		//m_testMenuAnchor->setIsOpen(true);
+		m_openFileMenuAnchor->setMenuContent(
+			WIDGET_NEW(Border)
+			.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("beige4"))
+			.Content
+			(
+				WIDGET_NEW(VerticalBox)
+				+ VerticalBox::Slot()
+				.FixedHeight()
+				(
+					WIDGET_NEW(Button)
+					.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+					.Content
+					(
+						WIDGET_NEW(TextBlockWidget)
+						.text(u8"save level")
+						.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+					)
+				)
+				//NullWidget::getNullWidget()
+			)
+		);
+		m_openFileMenuAnchor->setIsOpen(true);
 		return Reply::Handled();
 	}
 	void EditorMainWindow::setRenderTarget(nvrhi::TextureHandle renderTarget)

@@ -103,7 +103,7 @@ namespace GuGu {
 
 		ElementList::addShapedTextElement(outDrawElements,
 			allottedGeometry.getChildGeometry(inverseScaleTransform.transformVector(Block->getSize()), inverseScaleTransform.transformPoint(Block->getLocationOffset())),
-			math::float4(1.0f, 1.0f, 1.0f, 1.0f),
+			m_style.m_textColor,
 			shapedText,
 			layerId + 1
 		);

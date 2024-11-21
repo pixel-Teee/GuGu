@@ -36,6 +36,8 @@ namespace GuGu {
 		m_textLayout->setMargin(inWidgetArgs.margin);
 		m_textLayout->setJustification(inWidgetArgs.justification);
 
+		m_textLayout->setDefaultTextStyle(inTextStyle);
+
 		updateTextLayout(inWidgetArgs.text);//使用marshaller来填充text layout
 
 		return m_textLayout->getSize();

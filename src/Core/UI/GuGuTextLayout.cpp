@@ -73,4 +73,8 @@ namespace GuGu {
 	{
 		return std::make_shared<TextRun>(RunInfo(), newText, m_defaultTextStyle, newRange);
 	}
+	void GuGuTextLayout::setDefaultTextStyle(TextBlockStyle inDefaultTextStyle)
+	{
+		m_defaultTextStyle = inDefaultTextStyle;
+	}
 }

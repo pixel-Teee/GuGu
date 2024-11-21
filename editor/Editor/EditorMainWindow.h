@@ -49,7 +49,7 @@ namespace GuGu {
 
 		std::shared_ptr<ViewportWidget> m_viewportWidget;
 
-		//std::shared_ptr<MenuAnchor> m_testMenuAnchor;
+		std::shared_ptr<MenuAnchor> m_openFileMenuAnchor;
 	};
 
 	std::shared_ptr<EditorMainWindow> CreateEditorMainWindow();

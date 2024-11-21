@@ -597,7 +597,7 @@ namespace GuGu{
 		const math::box2 platformWorkArea = getWorkArea(workAreaFinderRect);
 
 		//todo:fix this
-		return math::float2(anchorRect.m_mins.x, anchorRect.m_maxs.y);
+		return math::float2(anchorRect.m_mins.x, anchorRect.m_mins.y);
 	}
 
 	math::box2 Application::getWorkArea(const math::box2& currentWindow) const

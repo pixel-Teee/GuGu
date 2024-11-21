@@ -19,6 +19,8 @@ namespace GuGu {
 		virtual int32_t OnPaintHighlights(const PaintArgs& args, const TextLayout::LineView& lineView, const std::vector<LineViewHighlight>& hightlights, const TextBlockStyle& defaultTextStyle, const WidgetGeometry& allottedGeometry, const math::box2& cullingRect, ElementList& elementList, int32_t layerId) const;
 
 		virtual std::shared_ptr<IRun> createDefaultTextRun(const std::shared_ptr<GuGuUtf8Str>& newText, const TextRange& newRange) const override;
+
+		void setDefaultTextStyle(TextBlockStyle inDefaultTextStyle);
 	private:
 		TextBlockStyle m_defaultTextStyle;
 
