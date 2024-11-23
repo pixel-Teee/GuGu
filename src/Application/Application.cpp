@@ -609,6 +609,16 @@ namespace GuGu{
 		return workArea;
 	}
 
+	std::shared_ptr<Level> Application::getCurrentLevel()
+	{
+		return m_currentLevel;
+	}
+
+	const std::shared_ptr<Level> Application::getCurrentLevel() const
+	{
+		return m_currentLevel;
+	}
+
     bool Application::processMouseButtonDownEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
     {
 		if (!m_captorWidgetsPath.isEmpty())

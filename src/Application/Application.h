@@ -142,6 +142,11 @@ namespace GuGu {
 			const math::float2& inProposedPlacement = math::float2(0, 0), const Orientation orientation = Orientation::Vertical) const;
 
 		virtual math::box2 getWorkArea(const math::box2& currentWindow) const;
+
+		//------game play------
+		std::shared_ptr<Level> getCurrentLevel();
+		const std::shared_ptr<Level> getCurrentLevel() const;
+		//------game play------
 	protected:
 		std::shared_ptr<Renderer> m_renderer;
 
