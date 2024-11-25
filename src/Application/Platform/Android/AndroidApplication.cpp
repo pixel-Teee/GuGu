@@ -98,6 +98,10 @@ namespace GuGu{
         return GuGuUtf8Str();//nothing to do
     }
 
+	GuGuUtf8Str Application::GetExecutableFilePath() {
+        return GuGuUtf8Str();//nothing to do
+	}
+
     //void AndroidApplication::resize(int32_t width, int32_t height) {
     //    m_renderer->onResize(width, height);
     //}

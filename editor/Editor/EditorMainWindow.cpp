@@ -298,6 +298,8 @@ namespace GuGu {
 		GuGuUtf8Str fileName;
 		GuGuUtf8Str filePath;
 		PlatformMisc::getSaveFilePathAndFileName(std::static_pointer_cast<WindowWidget>(shared_from_this()), filePath, fileName);
+
+		GuGuUtf8Str executableFilePath = Application::GetExecutableFilePath();
 		return Reply();
 	}
 	void EditorMainWindow::setRenderTarget(nvrhi::TextureHandle renderTarget)

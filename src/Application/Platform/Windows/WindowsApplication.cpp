@@ -155,6 +155,35 @@ namespace GuGu {
 		return (dwAttrib != INVALID_FILE_ATTRIBUTES && (dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
 	}
 
+	GuGuUtf8Str Application::GetExecutableFilePath()
+	{
+		GuGuUtf8Str executableFilePath;
+#if WIN32
+		char path[260] = { 0 };
+		if (GetModuleFileNameA(nullptr, path, sizeof(path)) == 0)
+			return "";
+
+		GuGuUtf8Str tmpPath = path;
+		GuGuUtf8Str parentPath;
+		for (size_t i = 0; i < tmpPath.len(); ++i)
+		{
+			if (tmpPath[i] == "\\")
+			{
+				parentPath += "/";
+				//i += 2;
+				continue;
+			}
+			parentPath += tmpPath[i];
+		}
+		executableFilePath = parentPath.findLastOf("/") != -1 ? parentPath.substr(0, parentPath.findLastOf("/")) : "";
+		return executableFilePath;
+#else
+#ifdef ANDROID
+		return GuGuUtf8Str("");
+#endif
+#endif
+	}
+
 	GuGuUtf8Str Application::GetDirectoryWithExecutable()
 	{
 		//first:to find content folder, otherwise use executable folder
