@@ -72,6 +72,8 @@ namespace GuGu {
 
 		static GuGuUtf8Str GetExecutableFilePath();
 
+		static GuGuUtf8Str GetContentDirectoryWithExecutable();
+
 		//------input------
 		virtual bool onMouseDown(const std::shared_ptr<Window>& window, math::float2 cursorPos);
 

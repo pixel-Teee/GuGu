@@ -184,6 +184,49 @@ namespace GuGu {
 #endif
 	}
 
+	GuGuUtf8Str Application::GetContentDirectoryWithExecutable()
+	{
+		//first:to find content folder, otherwise use executable folder
+
+		char path[260] = { 0 };
+		if (GetModuleFileNameA(nullptr, path, sizeof(path)) == 0)
+			return "";
+
+		GuGuUtf8Str tmpPath = path;
+		GuGuUtf8Str parentPath;
+		for (size_t i = 0; i < tmpPath.len(); ++i)
+		{
+			if (tmpPath[i] == "\\")
+			{
+				parentPath += "/";
+				//i += 2;
+				continue;
+			}
+			parentPath += tmpPath[i];
+		}
+#if WIN32
+		GuGuUtf8Str executablePath = parentPath.findLastOf("/") != -1 ? parentPath.substr(0, parentPath.findLastOf("/")) : "";
+		GuGuUtf8Str contentPath = executablePath + "/../../../content";
+		if (FolderExists(contentPath))
+			return contentPath;
+		else
+		{
+			//if (parentPath.findLastOf("/") != -1)
+			//	return parentPath.substr(0, parentPath.findLastOf("/"));
+			//return "";
+			//create content path
+			::CreateDirectory(contentPath.getUtf16String().c_str(), NULL);
+			return contentPath;
+		}
+#else
+#ifdef ANDROID
+		if (parentPath.findLastOf("/") != -1)
+			return parentPath.substr(0, parentPath.findLastOf("/"));
+		return "";
+#endif
+#endif
+	}
+
 	GuGuUtf8Str Application::GetDirectoryWithExecutable()
 	{
 		//first:to find content folder, otherwise use executable folder
