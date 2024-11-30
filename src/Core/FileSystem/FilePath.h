@@ -12,6 +12,7 @@ namespace GuGu {
 
 		FilePath(GuGuUtf8Str&& filePath);
 
+		//to 和 from 必须都是 directory
 		static FilePath getRelativePath(const FilePath& to, const FilePath& from);
 
 		GuGuUtf8Str getStr() const;
