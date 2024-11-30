@@ -5,6 +5,8 @@
 #include <Core/UI/WindowWidget.h>
 #include <Window/Platform/Windows/WindowsWindow.h>
 #include <Windows.h>
+#include <Core/FileSystem/FilePath.h>
+#include <Application/Application.h>
 
 namespace GuGu {
 	//剪切板功能
@@ -87,8 +89,10 @@ namespace GuGu {
 			if (GetSaveFileName(&ofn))
 			{
 				//note:output file name
-				fileName = GuGuUtf8Str::fromUtf16ToUtf8(ofn.lpstrFile);
-				GuGu_LOGD("%s", fileName.getStr());
+				filePath = GuGuUtf8Str::fromUtf16ToUtf8(ofn.lpstrFile);
+				//filePath肯定是文件路径，但不是目录
+				FilePath relativeFilePath = FilePath::getRelativePath(filePath, Application::getApplication()->GetExecutableFilePath());
+				GuGu_LOGD("%s", relativeFilePath.getStr());
 			}
 			else
 			{

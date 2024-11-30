@@ -11,7 +11,14 @@ namespace GuGu {
 		FilePath(const GuGuUtf8Str& filePath);
 
 		FilePath(GuGuUtf8Str&& filePath);
+
 		static FilePath getRelativePath(const FilePath& to, const FilePath& from);
+
+		GuGuUtf8Str getStr() const;
+
+		bool isDir() const;
+
+		bool isFile() const;
 	private:
 		GuGuUtf8Str m_filePath;//absolute or relative path
 	};

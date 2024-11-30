@@ -380,9 +380,31 @@ namespace GuGu {
 		}
 		return -1;
 	}
-	size_t GuGuUtf8Str::findLastOf(const char* str, size_t pos) const
+	int32_t GuGuUtf8Str::findFirstOf(const char* str, int32_t pos) const
+	{
+		if (pos == -1) pos = 0;
+		if (pos >= m_totalByteCount) return -1;
+
+		int32_t substrByteCount = strlen(str);
+
+		int32_t startPos = 0;
+		for (int32_t i = 0; i < pos; ++i)
+			startPos += m_characterByteCount[i];
+
+		for (int32_t i = startPos; i < m_totalByteCount; ++i)
+		{
+			for (int32_t j = 0; j < substrByteCount; ++j)
+			{
+				if (m_str[i] == str[j])
+					return bytePosToCharacterPos(i);
+			}
+		}
+		return -1;
+	}
+	int32_t GuGuUtf8Str::findLastOf(const char* str, int32_t pos) const
 	{
 		if (pos == -1) pos = m_len - 1;
+		if (pos >= m_totalByteCount) return -1;
 
 		int32_t substrByteCount = strlen(str);
 
@@ -395,7 +417,7 @@ namespace GuGu {
 			for (int32_t j = 0; j < substrByteCount; ++j)
 			{
 				if (m_str[i] == str[j])
-					return i;
+					return bytePosToCharacterPos(i);
 			}
 		}
 		return -1;
@@ -589,6 +611,24 @@ namespace GuGu {
 		m_characterByteCount.clear();
 		m_totalByteCount = 0;
 		m_str[0] = '\0';
+	}
+	int32_t GuGuUtf8Str::bytePosToCharacterPos(int32_t bytePos) const
+	{
+		int32_t pos = 0;
+		for (size_t i = 0; i < m_characterByteCount.size(); ++i)
+		{
+			if (bytePos >= m_characterByteCount[i])
+			{
+				bytePos -= m_characterByteCount[i];
+				pos = pos + 1;
+			}
+			else
+			{
+				//pos = pos;
+				return pos;
+			}
+		}
+		return pos;
 	}
 	std::ostream& operator<<(std::ostream& out, const GuGuUtf8Str& str)
 	{

@@ -42,7 +42,9 @@ namespace GuGu {
 
 		size_t find(const char* str, size_t pos = 0) const;
 
-		size_t findLastOf(const char* str, size_t pos = -1) const;
+		int32_t findFirstOf(const char* str, int32_t pos = -1) const;
+
+		int32_t findLastOf(const char* str, int32_t pos = -1) const;
 
 		GuGuUtf8Str substr(size_t pos = 0, size_t len = -1) const;
 
@@ -69,6 +71,8 @@ namespace GuGu {
 		const char* getStr() const;
 
 		void clear();
+
+		int32_t bytePosToCharacterPos(int32_t bytePos) const;
 
 		friend std::ostream& operator<<(std::ostream& out, const GuGuUtf8Str& str);
     
