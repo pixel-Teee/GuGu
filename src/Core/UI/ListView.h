@@ -493,7 +493,7 @@ namespace GuGu {
 			}
 
 			//被调用，在生成pass的开始
-			void onBeginGennerationPass()
+			void onBeginGenerationPass()
 			{
 				m_itemsToBeCleanedUp = m_itemsWithGeneratedWidgets;
 				m_itemsWithGeneratedWidgets.clear();
@@ -587,7 +587,7 @@ namespace GuGu {
 			GenerationPassGuard(WidgetGenerator& inGenerator)
 				: m_generator(inGenerator)
 			{
-				m_generator.onBeginGennerationPass();
+				m_generator.onBeginGenerationPass();
 			}
 
 			~GenerationPassGuard()

@@ -218,6 +218,10 @@ namespace GuGu {
 
         return 0.0f;
     }
+    float ListPanel::getItemPadding(const WidgetGeometry& allottedGeometry)
+    {
+        return getItemPadding(allottedGeometry, m_itemAlignment.Get());
+    }
     TableViewDimensions ListPanel::getItemSize(const WidgetGeometry& allottedGeometry) const
     {
         return getItemSize(allottedGeometry, m_itemAlignment.Get());

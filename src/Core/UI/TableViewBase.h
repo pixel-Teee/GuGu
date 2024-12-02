@@ -148,6 +148,12 @@ namespace GuGu {
 
 		void clearWidgets();
 
+		float getItemWidth() const;
+
+		float getItemHeight() const;
+
+		math::float2 getItemSize() const;
+
 		void appendWidget(const std::shared_ptr<ITableRow>& widgetToAppend);
 
 		void insertWidget(const std::shared_ptr<ITableRow>& widgetToAppend);

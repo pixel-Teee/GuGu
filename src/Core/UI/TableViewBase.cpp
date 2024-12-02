@@ -351,6 +351,23 @@ namespace GuGu {
         m_itemsPanel->clearItems();
     }
 
+    float TableViewBase::getItemWidth() const
+    {
+        return getItemSize().x;
+    }
+
+    float TableViewBase::getItemHeight() const
+    {
+        return getItemSize().y;
+    }
+
+    math::float2 TableViewBase::getItemSize() const
+    {
+        TableViewDimensions itemDimensions = m_itemsPanel->getItemSize(m_panelGeometryLastTick);
+        itemDimensions.m_lineAxis += m_itemsPanel->getItemPadding(m_panelGeometryLastTick);
+        return itemDimensions.toVector2d();
+    }
+
     void TableViewBase::appendWidget(const std::shared_ptr<ITableRow>& widgetToAppend)
     {
         m_itemsPanel->addSlot()

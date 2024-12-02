@@ -73,6 +73,8 @@ namespace GuGu {
 		//返回应用到每个 tile item 的水平 padding
 		float getItemPadding(const WidgetGeometry& allottedGeometry, const ListItemAlignment listItemAlignment) const;
 
+		float getItemPadding(const WidgetGeometry& allottedGeometry);
+
 		TableViewDimensions getItemSize(const WidgetGeometry& allottedGeometry) const;
 		//返回 uniform item width ，当安排 children 的时候
 		TableViewDimensions getItemSize(const WidgetGeometry& allottedGeometry, const ListItemAlignment listItemAlignment) const;
