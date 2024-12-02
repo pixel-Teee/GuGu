@@ -242,7 +242,7 @@ namespace GuGu {
 			m_sizingRule = arguments.msizingRule;
 		}
 
-		std::shared_ptr<TileView<GuGuUtf8Str>> test = WIDGET_NEW(TileView<GuGuUtf8Str>);
+		//std::shared_ptr<TileView<GuGuUtf8Str>> test = WIDGET_NEW(TileView<GuGuUtf8Str>);
 	}
 	Reply EditorMainWindow::exitApplication()
 	{
