@@ -14,6 +14,7 @@
 #include <Core/UI/Viewport.h>
 #include <Core/UI/MenuAnchor.h>
 #include <Core/UI/Box.h>
+#include <Core/UI/TileView.h>
 
 #include <Application/Application.h>//用于退出
 
@@ -240,6 +241,8 @@ namespace GuGu {
 			resize(arguments.mClientSize);
 			m_sizingRule = arguments.msizingRule;
 		}
+
+		std::shared_ptr<TileView<GuGuUtf8Str>> test = WIDGET_NEW(TileView<GuGuUtf8Str>);
 	}
 	Reply EditorMainWindow::exitApplication()
 	{

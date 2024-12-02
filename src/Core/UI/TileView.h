@@ -14,6 +14,13 @@ namespace GuGu {
 		struct BuilderArguments : public Arguments<TileView>
 		{
 			BuilderArguments()
+				: mscrollBarStyle(CoreStyle::getStyleSet()->template getStyle<ScrollBarStyle>("ScrollBar"))
+				, mitemHeight(128)
+				, mitemWidth(128)
+				, mitemAlignment(ListItemAlignment::EvenlyDistributed)
+				, morientation(Orientation::Vertical)
+				, mListItemSource()
+				, mselectionMode(SelectionMode::Multi)
 			{
 				this->mClip = WidgetClipping::ClipToBounds;
 			}
@@ -52,12 +59,12 @@ namespace GuGu {
 			m_widgetClipping = arguments.mClip;
 
 			//制作table view
-			this->m_onGenerateRow = arguments.monGenerateRow;
+			this->m_onGenerateRow = arguments.monGenerateTile;
 			this->m_itemsSource = arguments.mListItemSource;
 			this->m_selectionMode = arguments.mselectionMode;
 			this->m_onSelectionChanged = arguments.monSelectionChanged;
 
-			constructChildren(arguments.mitemWidth, arguments.mitemHeight, arguments.mitemAlignment, std::shared_ptr<HeaderRow>() > , arguments.mexternalScrollbar,
+			constructChildren(arguments.mitemWidth, arguments.mitemHeight, arguments.mitemAlignment, std::shared_ptr<HeaderRow>(), arguments.mexternalScrollbar,
 				arguments.morientation, arguments.monTileViewScrolled, arguments.mscrollBarStyle);
 
 			//todo:可能这里以后要简化
@@ -99,7 +106,7 @@ namespace GuGu {
 				const double clampedScrollOffset = std::clamp(this->m_currentScrollOffset, 0.0, endOfListOffset);
 				const float layoutScaleMultiplier = myGeometry.getAccumulateLayoutTransform().m_linear[0][0];//scale
 
-				TableViewDimensions dimensionsUsedSoFar(this->morientation);
+				TableViewDimensions dimensionsUsedSoFar(this->m_orientation);
 
 				int32_t startIndex = std::max(0, int32_t(std::floor(clampedScrollOffset / numItemsPerLine)) * numItemsPerLine);
 
@@ -160,16 +167,43 @@ namespace GuGu {
 				this->m_widgetGenerator.onEndGenerationPass();
 
 				const float totalGeneratedLineAxisSize = std::ceil(numLinesShownOnScreen) * tileDimensions.m_scrollAxis;
-				return TableViewDimensions::ReGenerateResults(clampedScrollOffset, totalGeneratedLineAxisSize, numLinesShownOnScreen, bIsAtEndOfList && !bHasFilledAvailableArea);
+				return TableViewBase::ReGenerateResults(clampedScrollOffset, totalGeneratedLineAxisSize, numLinesShownOnScreen, bIsAtEndOfList && !bHasFilledAvailableArea);
 			}	
 
-			return TableViewDimensions::ReGenerateResults(0, 0, 0, false);
+			return TableViewBase::ReGenerateResults(0, 0, 0, false);
 		}
+
+		virtual int32_t getNumItemsBeingObserved() const override
+		{
+			const int32_t numItemsBeingObserved = this->m_itemsSource == nullptr ? 0 : this->m_itemsSource->size();
+			const int32_t numItemsPerLine = getNumItemsPerLine();
+
+			int32_t numEmptySpacesAtEnd = 0;
+			if (numItemsPerLine)
+			{
+				numEmptySpacesAtEnd = numItemsPerLine - (numItemsBeingObserved % numItemsPerLine);
+				if (numEmptySpacesAtEnd >= numItemsPerLine)
+				{
+					numEmptySpacesAtEnd = 0;
+				}
+			}
+
+			return numItemsBeingObserved + numEmptySpacesAtEnd;
+		}
+
 	protected:
 		TableViewDimensions getTileDimensions() const
 		{
 			return TableViewDimensions(this->m_orientation, this->getItemWidth(), this->getItemHeight());
 		}
-	private:
+		
+		virtual int32_t getNumItemsPerLine() const override
+		{
+			TableViewDimensions panelDimensions(this->m_orientation, this->m_panelGeometryLastTick.getLocalSize());
+			TableViewDimensions tileDimensions = getTileDimensions();
+
+			const int32_t numItemsPerLine = tileDimensions.m_lineAxis > 0 ? (int32_t)(std::floor(panelDimensions.m_lineAxis / tileDimensions.m_lineAxis)) : 1;
+			return std::max(1, numItemsPerLine);
+		}
 	};
 }
