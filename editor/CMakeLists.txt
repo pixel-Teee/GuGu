@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.15.0)
 
-file(GLOB SourceFile "main.cpp" "Editor/EditorMainWindow.*" "Editor/StyleSet/EditorStyleSet.*")
+file(GLOB SourceFile "main.cpp" "Editor/EditorMainWindow.*" "Editor/StyleSet/EditorStyleSet.*"
+"Editor/ContentBrowser/ContentBrowser.*")
 
 if(WIN32)
 	add_executable(Editor WIN32 ${SourceFile})
