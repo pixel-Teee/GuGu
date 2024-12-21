@@ -491,6 +491,28 @@ namespace GuGu {
 	{
 		return !(*this == rhs);
 	}
+	bool GuGuUtf8Str::operator<(const GuGuUtf8Str& rhs) const
+	{
+		GuGuUtf8Str a, b;
+		if (this->getTotalByteCount() > rhs.getTotalByteCount())
+		{
+			a = rhs;
+			b = *this;
+		}
+		else
+		{
+			a = *this;
+			b = rhs;
+		}
+		for (int32_t index = 0; index < a.getTotalByteCount(); ++index)
+		{
+			if (a.m_str[index] < b.m_str[index])
+				return true;
+		}
+		if (a.getTotalByteCount() < b.getTotalByteCount())
+			return true;
+		return false;
+	}
 	GuGuUtf8Str GuGuUtf8Str::operator[](size_t pos) const
 	{
 		assert(pos < m_len);

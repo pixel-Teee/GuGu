@@ -4,19 +4,21 @@
 #include <Core/UI/UIMacros.h>
 
 namespace GuGu {
-	class ContentBrowser : public CompoundWidget
+	//显示过滤的资产的 widget
+	class AssetView : public CompoundWidget
 	{
 	public:
-		struct BuilderArguments : public Arguments<ContentBrowser>
+		struct BuilderArguments : public Arguments<AssetView>
 		{
-			BuilderArguments(){}
+			BuilderArguments() {}
 
 			~BuilderArguments() = default;
 		};
 
 		void init(const BuilderArguments& arguments);
 
-		~ContentBrowser();
+		~AssetView();
 	private:
+
 	};
 }

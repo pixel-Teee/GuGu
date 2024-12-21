@@ -449,6 +449,17 @@ namespace GuGu {
 			m_itemToScrollIntoView = itemToView;
 			requestLayoutRefresh();
 		}
+
+		virtual std::vector<ItemType> getSelectedItems() const override
+		{
+			std::vector<ItemType> selectedItemArray;
+			selectedItemArray.resize(m_selectedItems.size());
+			for (typename ItemSet::const_iterator selectedItemIt(m_selectedItems.begin()); selectedItemIt != m_selectedItems.end(); ++selectedItemIt)
+			{
+				selectedItemArray.push_back(*selectedItemIt);
+			}
+			return selectedItemArray;
+		}
 	private:
 		friend class WidgetGenerator;
 

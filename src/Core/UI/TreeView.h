@@ -328,6 +328,7 @@ namespace GuGu {
 		{
 			ListView<ItemType>::privateSignalSelectionChanged(selectInfo);
 		}
+
 	protected:
 		//被调用的委托，当我们需要去收集一个 item 的儿子的时候
 		OnGetChildren m_onGetChildren;
