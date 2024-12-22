@@ -652,6 +652,24 @@ namespace GuGu {
 		}
 		return pos;
 	}
+
+	void GuGuUtf8Str::stringSplit(const char* split, std::vector<GuGuUtf8Str>& res) const
+	{
+		if (this->len() <= 0) return;
+		//在字符串末尾加入分隔符，方便截取
+		GuGuUtf8Str strs = *this + GuGuUtf8Str(split);
+		size_t pos = strs.find(split);
+
+		while (pos != -1)
+		{
+			GuGuUtf8Str temp = strs.substr(0, pos);
+			res.push_back(temp);
+
+			strs = strs.substr(pos + 1, strs.len());
+			pos = strs.find(split);
+		}
+	}
+
 	std::ostream& operator<<(std::ostream& out, const GuGuUtf8Str& str)
 	{
 		for (size_t i = 0; i < str.m_totalByteCount; ++i)

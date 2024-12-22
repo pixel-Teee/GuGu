@@ -33,6 +33,9 @@ namespace GuGu {
 		void treeExpansionChanged(std::shared_ptr<TreeItem> treeItem, bool bIsExpanded);
 
 		virtual std::shared_ptr<ITableRow> generateTreeRow(std::shared_ptr<TreeItem> treeItem, const std::shared_ptr<TableViewBase>& ownerTable);
+
+		//在树中选择与提供的路径最接近的匹配项
+		void setSelectedPaths(const std::vector<GuGuUtf8Str>& paths);
 	private:
 		//上一次被 on path selected 事件通知的路径，用于保留选择，当过滤文件夹的时候
 		std::set<GuGuUtf8Str> m_lastSelectedPaths;

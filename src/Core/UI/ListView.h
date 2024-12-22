@@ -460,6 +460,22 @@ namespace GuGu {
 			}
 			return selectedItemArray;
 		}
+
+		void clearSelection()
+		{
+			privateClearSelection();
+		}
+
+		void setItemSelection(const ItemType& inItem, bool bSelected, SelectInfo::Type selectInfo = SelectInfo::Direct)
+		{
+			if (m_selectionMode.Get() == SelectionMode::None)
+			{
+				return;
+			}
+
+			privateSetItemSelection(inItem, bSelected, selectInfo != SelectInfo::Direct);
+			privateSignalSelectionChanged(selectInfo);
+		}
 	private:
 		friend class WidgetGenerator;
 

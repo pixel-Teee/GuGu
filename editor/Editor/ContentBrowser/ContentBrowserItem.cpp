@@ -7,4 +7,8 @@ namespace GuGu {
 	{
 		return GuGuUtf8Str();
 	}
+	GuGuUtf8Str ContentBrowserItem::getItemName() const
+	{
+		return GuGuUtf8Str();
+	}
 }
