@@ -1,6 +1,6 @@
 #include <pch.h>
 
-#include "ResourcePtr.h"
+#include "ObjectPtr.h"
 
 namespace GuGu {
 
