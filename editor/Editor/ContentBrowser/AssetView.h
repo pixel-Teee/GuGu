@@ -34,5 +34,7 @@ namespace GuGu {
 		std::shared_ptr<AssetTileView> m_tileView;
 
 		AssetViewType::Type m_currentViewType;
+
+		std::vector<std::shared_ptr<AssetViewItem>> m_filteredAssetItems;
 	};
 }
