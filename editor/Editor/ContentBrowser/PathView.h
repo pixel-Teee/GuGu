@@ -36,6 +36,8 @@ namespace GuGu {
 
 		//在树中选择与提供的路径最接近的匹配项
 		void setSelectedPaths(const std::vector<GuGuUtf8Str>& paths);
+
+		void populate();
 	private:
 		//上一次被 on path selected 事件通知的路径，用于保留选择，当过滤文件夹的时候
 		std::set<GuGuUtf8Str> m_lastSelectedPaths;

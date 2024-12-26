@@ -3,6 +3,8 @@
 #include "PathView.h"
 #include "TreeItem.h"
 
+#include <Core/AssetManager/AssetManager.h>
+
 namespace GuGu {
 	void PathView::init(const BuilderArguments& arguments)
 	{
@@ -16,6 +18,9 @@ namespace GuGu {
 			.onSelectionChanged(this, &PathView::treeSelectionChanged)
 			.onGetChildren(this, &PathView::getChildrenForTree);
 		}
+
+		//填充路径
+		populate();
 	}
 	PathView::~PathView()
 	{
@@ -140,5 +145,9 @@ namespace GuGu {
 
 			}
 		}
+	}
+	void PathView::populate()
+	{
+		//AssetManager::getAssetManager().traverseDirectoryAndFile();
 	}
 }

@@ -64,7 +64,7 @@ namespace GuGu {
 
 		std::wstring getUtf16String() const;//useful for win32 api
 
-		static GuGuUtf8Str fromUtf16ToUtf8(wchar_t* str);
+		static GuGuUtf8Str fromUtf16ToUtf8(const wchar_t* str);
 
 		std::vector<uint32_t> getUnicode() const;
 

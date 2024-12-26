@@ -549,7 +549,7 @@ namespace GuGu {
 
 		return res;
 	}
-	GuGuUtf8Str GuGuUtf8Str::fromUtf16ToUtf8(wchar_t* str)
+	GuGuUtf8Str GuGuUtf8Str::fromUtf16ToUtf8(const wchar_t* str)
 	{
 		//从u16转换为u8
 		GuGuUtf8Str res;

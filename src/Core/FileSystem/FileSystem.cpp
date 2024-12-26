@@ -50,6 +50,11 @@ namespace GuGu {
 		return m_file->getCurrentFilePointerPos();
 	}
 
+	GuGuUtf8Str NativeFileSystem::getNativeFilePath() const
+	{
+		return m_nativePath;
+	}
+
 	//------archiver file system------
 	int32_t getInt(std::shared_ptr<FileSystem> in) {
 		unsigned char buffer[4];

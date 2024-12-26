@@ -48,6 +48,8 @@ namespace GuGu
 		virtual int32_t getFileSize() override;
 
 		virtual int32_t getCurrentFilePointerPos() override;
+
+		GuGuUtf8Str getNativeFilePath() const;
 	private:
 		std::shared_ptr<GuGuFile> m_file;
 
