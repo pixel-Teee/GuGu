@@ -15,6 +15,8 @@ namespace GuGu {
 		//to 和 from 必须都是 directory
 		static FilePath getRelativePath(const FilePath& to, const FilePath& from);
 
+		static GuGuUtf8Str getBaseFileName(const GuGuUtf8Str& folderPath);
+
 		GuGuUtf8Str getStr() const;
 
 		bool isDir() const;

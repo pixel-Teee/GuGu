@@ -54,6 +54,8 @@ namespace GuGu {
 
 		//设置 border image 属性
 		void setBorderImage(Attribute<std::shared_ptr<Brush>> inBorderImage);
+
+		void setContent(std::shared_ptr<Widget> inWidget);
 	protected:
 		Attribute<std::shared_ptr<Brush>> m_imageBursh;
 

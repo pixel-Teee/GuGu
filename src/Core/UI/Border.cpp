@@ -102,4 +102,10 @@ namespace GuGu {
 	{
 		m_imageBursh = inBorderImage;
 	}
+
+	void Border::setContent(std::shared_ptr<Widget> inWidget)
+	{
+		m_childWidget->setChildWidget(inWidget);
+	}
+
 }

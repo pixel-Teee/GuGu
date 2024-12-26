@@ -5,6 +5,8 @@
 
 #include <Core/AssetManager/AssetManager.h>
 
+#include <Core/UI/Box.h>
+
 namespace GuGu {
 	void PathView::init(const BuilderArguments& arguments)
 	{
@@ -21,7 +23,12 @@ namespace GuGu {
 
 		m_childWidget = std::make_shared<SingleChildSlot>();
 		m_childWidget->m_parentWidget = shared_from_this();
-		m_childWidget->m_childWidget = m_treeViewPtr;
+		m_childWidget->m_childWidget = WIDGET_NEW(BoxWidget)
+		.padding(Padding(4.0f, 4.0f, 4.0f, 4.0f))
+		.Content
+		(
+				m_treeViewPtr
+		);
 		m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 
 		//填充路径
