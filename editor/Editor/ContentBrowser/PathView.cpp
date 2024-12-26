@@ -19,6 +19,11 @@ namespace GuGu {
 			.onGetChildren(this, &PathView::getChildrenForTree);
 		}
 
+		m_childWidget = std::make_shared<SingleChildSlot>();
+		m_childWidget->m_parentWidget = shared_from_this();
+		m_childWidget->m_childWidget = m_treeViewPtr;
+		m_childWidget->m_childWidget->setParentWidget(shared_from_this());
+
 		//填充路径
 		populate();
 	}
@@ -45,20 +50,20 @@ namespace GuGu {
 				continue;
 			}
 			//保存选中的路径，用于过滤的时候，恢复过来
-			m_lastSelectedPaths.insert(item->getItem().getPath());
+			m_lastSelectedPaths.insert(item->m_folderPath);
 		}
 
-		if (m_itemSelectionChanged)
-		{
-			if (treeItem)
-			{
-				m_itemSelectionChanged(treeItem->getItem(), selectInfo);
-			}
-			else
-			{
-				m_itemSelectionChanged(ContentBrowserItem(), selectInfo);
-			}
-		}
+		//if (m_itemSelectionChanged)
+		//{
+		//	if (treeItem)
+		//	{
+		//		m_itemSelectionChanged(treeItem->getItem(), selectInfo);
+		//	}
+		//	else
+		//	{
+		//		m_itemSelectionChanged(ContentBrowserItem(), selectInfo);
+		//	}
+		//}
 	}
 	void PathView::treeExpansionChanged(std::shared_ptr<TreeItem> treeItem, bool bIsExpanded)
 	{
@@ -69,6 +74,7 @@ namespace GuGu {
 			.Content
 			(
 				WIDGET_NEW(TextBlockWidget)
+				.text(treeItem->m_folderName)
 			);
 	}
 	void PathView::setSelectedPaths(const std::vector<GuGuUtf8Str>& paths)
@@ -92,14 +98,14 @@ namespace GuGu {
 				path.stringSplit("/", pathItemList);//todo:空白字符串不加入数组
 			}
 
-			//------
+			//------pathItemList是一个将路径按/分割的每个目录
 			if (pathItemList.size())
 			{
 				std::vector<std::shared_ptr<TreeItem>> treeItems;
 
 				for (int32_t rootItemIndex = 0; rootItemIndex < m_treeRootItems.size(); ++rootItemIndex)
 				{
-					if (m_treeRootItems[rootItemIndex]->getItem().getItemName() == pathItemList[0])
+					if (m_treeRootItems[rootItemIndex]->m_folderPath == pathItemList[0])
 					{
 						//找到路径中第一个item
 						treeItems.push_back(m_treeRootItems[rootItemIndex]);
@@ -131,7 +137,7 @@ namespace GuGu {
 						m_treeViewPtr->setItemExpansion(treeItems[itemIndex], true);
 					}
 
-					m_lastSelectedPaths.insert(treeItems.back()->getItem().getPath());
+					m_lastSelectedPaths.insert(treeItems.back()->m_folderPath);
 					m_treeViewPtr->setItemSelection(treeItems.back(), true);
 					m_treeViewPtr->requestScrollIntoView(treeItems.back());
 				}
@@ -148,6 +154,117 @@ namespace GuGu {
 	}
 	void PathView::populate()
 	{
-		//AssetManager::getAssetManager().traverseDirectoryAndFile();
+		//AssetManager::getAssetManager().traverseDirectoryAndFile([](GuGuUtf8Str path, bool isDirectory) {
+		//			
+		//});
+		GuGuUtf8Str rootPath = AssetManager::getAssetManager().getRootPath();
+
+		addPath(rootPath);//content
+
+		std::vector<GuGuUtf8Str> allPathLists;
+		AssetManager::getAssetManager().traverseDirectoryAndFile([&](GuGuUtf8Str path, bool isDirectory) {
+			if (isDirectory)
+			{
+				allPathLists.push_back(path);
+			}
+		});
+
+		for (int32_t pathIndex = 0; pathIndex < allPathLists.size(); ++pathIndex)
+		{
+			const GuGuUtf8Str& path = allPathLists[pathIndex];
+			std::shared_ptr<TreeItem> item = addPath(path);
+			if (item)
+			{
+				//todo:实现这里的逻辑
+			}
+		}
+
+		m_treeViewPtr->requestTreeRefresh();
+	}
+	std::shared_ptr<TreeItem> PathView::addPath(const GuGuUtf8Str& path, bool bUserNamed)
+	{
+		if (!m_treeViewPtr)
+		{
+			return std::make_shared<TreeItem>();
+		}
+
+		std::vector<GuGuUtf8Str> pathItemList;
+		path.stringSplit("/", pathItemList);
+
+		if (pathItemList.size())
+		{
+			std::shared_ptr<TreeItem> currentItem;
+
+			//找到 pathItemList 中的根
+			for (int32_t rootItemIndex = 0; rootItemIndex < m_treeRootItems.size(); ++rootItemIndex)
+			{
+				if (m_treeRootItems[rootItemIndex]->m_folderName == pathItemList[0])
+				{
+					currentItem = m_treeRootItems[rootItemIndex];
+					break;
+				}
+			}
+
+			if (!currentItem)
+			{
+				currentItem = addRootItem(pathItemList[0]);
+			}
+
+			if (currentItem)
+			{
+				for (int32_t pathItemIndex = 1; pathItemIndex < pathItemList.size(); ++pathItemIndex)
+				{
+					const GuGuUtf8Str& pathItemName = pathItemList[pathItemIndex];
+					std::shared_ptr<TreeItem> childItem = currentItem->getChild(pathItemName);
+
+					if (!childItem)
+					{
+						const GuGuUtf8Str folderName = pathItemName;
+						const GuGuUtf8Str folderPath = currentItem->m_folderPath + "/" + pathItemName;
+
+						if (!bUserNamed)
+						{
+							//todo:实现这里
+						}
+
+						childItem = std::make_shared<TreeItem>(folderName, folderPath, currentItem, bUserNamed);
+						currentItem->m_children.push_back(childItem);
+						//todo:add TreeItem requestSortChildren
+						m_treeViewPtr->requestTreeRefresh();
+
+					}
+					else
+					{
+						childItem->m_folderPath = currentItem->m_folderPath + "/" + pathItemName;
+					}
+
+					currentItem = childItem;
+				}
+
+				//todo:增加 naming folder 逻辑
+			}
+
+			return currentItem;
+		}
+
+		return std::make_shared<TreeItem>();
+	}
+	std::shared_ptr<TreeItem> PathView::addRootItem(const GuGuUtf8Str& inFolderName)
+	{
+		for (int32_t rootItemIndex = 0; rootItemIndex < m_treeRootItems.size(); ++rootItemIndex)
+		{
+			if (m_treeRootItems[rootItemIndex]->m_folderName == inFolderName)
+			{
+				return m_treeRootItems[rootItemIndex];
+			}
+		}
+
+		std::shared_ptr<TreeItem> newItem = nullptr;
+
+		newItem = std::make_shared<TreeItem>(inFolderName, "/" + inFolderName, nullptr);
+		m_treeRootItems.push_back(newItem);
+		m_treeViewPtr->requestTreeRefresh();
+
+		return newItem;
 	}
 }

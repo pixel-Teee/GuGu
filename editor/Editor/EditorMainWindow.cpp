@@ -27,6 +27,7 @@
 #endif
 
 #include "ContentBrowser/ContentBrowser.h"
+#include "ContentBrowser/PathView.h"
 
 namespace GuGu {
 	EditorMainWindow::EditorMainWindow()
@@ -205,7 +206,7 @@ namespace GuGu {
 							.cornerRadius(math::float4(10.0f, 10.0f, 10.0f, 10.0f))
 							.Content
 							(
-								WIDGET_NEW(ContentBrowser)
+								WIDGET_NEW(PathView)
 							)
 						)
 						+ HorizontalBox::Slot()

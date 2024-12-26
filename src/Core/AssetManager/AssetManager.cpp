@@ -3,6 +3,7 @@
 #include "AssetManager.h"
 
 #include <Application/Application.h>
+#include <Core/FileSystem/FilePath.h>
 
 #ifdef WIN32 
 #include <windows.h>
@@ -29,11 +30,18 @@ namespace GuGu {
 	{
 		traverseDirectoryAndFile_private(m_nativeFileSystem->getNativeFilePath(), enumerateCallBack);
 	}
+
+	GuGuUtf8Str AssetManager::getRootPath() const
+	{
+		//return m_nativeFileSystem->getNativeFilePath();
+		return m_rootFileSystem->findMountPoint(m_nativeFileSystem);
+	}
+
 	//遍历目录
 	void AssetManager::traverseDirectoryAndFile_private(const GuGuUtf8Str& directory, std::function<void(GuGuUtf8Str, bool)> enumerateCallBack)
 	{
 #ifdef WIN32 
-		std::wstring searchDirectory = (directory + "\*").getUtf16String();
+		std::wstring searchDirectory = (directory + "/*").getUtf16String();
 
 		WIN32_FIND_DATA findData;
 		HANDLE hFind = FindFirstFile(searchDirectory.c_str(), &findData);
@@ -48,23 +56,26 @@ namespace GuGu {
 			const std::wstring& fileName = findData.cFileName;
 			if(fileName == L"." || fileName == L"..")
 				continue;
-			std::wstring fullPath = directory.getUtf16String() + L"\\" + fileName;
+			std::wstring fullPath = directory.getUtf16String() + L"/" + fileName;
 			GuGuUtf8Str utf8FullPath = GuGuUtf8Str::fromUtf16ToUtf8(fullPath.c_str());
+			GuGuUtf8Str utf8RelativePath = FilePath::getRelativePath(utf8FullPath + "/", m_nativeFileSystem->getNativeFilePath() + "/").getStr();
+
 			if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 			{	
-				GuGu_LOGD("directory %s\n", utf8FullPath.getStr());
+				GuGu_LOGD("directory %s\n", utf8RelativePath.getStr());
 				if (enumerateCallBack)
 				{
 					bool isDirectory = true;
-					enumerateCallBack(utf8FullPath, isDirectory);
+					//将绝对路径转换为相对路径
+					enumerateCallBack("content/" + utf8RelativePath, isDirectory);
 				}
 				traverseDirectoryAndFile_private(utf8FullPath, enumerateCallBack);
 			}
 			else
 			{
 				bool isDirectory = false; //isFile
-				enumerateCallBack(utf8FullPath, isDirectory);
-				GuGu_LOGE("File: %s\n", utf8FullPath.getStr());
+				enumerateCallBack("content/" + utf8RelativePath, isDirectory);
+				GuGu_LOGE("File: %s\n", utf8RelativePath.getStr());
 			}
 		} while (FindNextFile(hFind, &findData) != 0);
 

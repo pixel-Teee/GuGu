@@ -11,9 +11,5 @@ namespace GuGu {
 		}
 		return nullptr;
 	}
-	const ContentBrowserItem& TreeItem::getItem() const
-	{
-		return m_item;
-	}
 
 }

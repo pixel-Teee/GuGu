@@ -9,8 +9,8 @@
 namespace GuGu {
 	static void splitPath(const GuGuUtf8Str& inPath, std::vector<GuGuUtf8Str>& splitPath)
 	{
-		size_t start = 0;
-		size_t dirStep = 0;
+		int32_t start = 0;
+		int32_t dirStep = 0;
 		do {
 			dirStep = inPath.findFirstOf("\\/", start);
 			if (dirStep == -1)
@@ -23,6 +23,8 @@ namespace GuGu {
 				//splitPath.push_back()
 			}
 			start = dirStep + 1;
+			if(start >= inPath.len())
+				break;
 		} while (dirStep != -1);
 	}
 
@@ -72,7 +74,7 @@ namespace GuGu {
 
 		while (fromIt != fromEnd)
 		{
-			output += "..//";
+			output += "../";
 			++fromIt;
 		}
 
@@ -82,7 +84,7 @@ namespace GuGu {
 			++toIt;
 
 			if (toIt != toEnd)
-				output += "//";
+				output += "/";
 		}
 		return output;
 	}

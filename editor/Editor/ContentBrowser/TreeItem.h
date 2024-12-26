@@ -1,7 +1,9 @@
 #pragma once
 
 #include <vector>
-#include "ContentBrowserItem.h"
+//#include "ContentBrowserItem.h"
+
+#include <Core/GuGuUtf8Str.h>
 
 namespace GuGu {
 	class GuGuUtf8Str;
@@ -11,6 +13,19 @@ namespace GuGu {
 	public:
 		TreeItem() {}
 
+		GuGuUtf8Str m_folderName;
+		
+		GuGuUtf8Str m_folderPath;
+
+		//是否处于更名中
+		bool m_bNamingFolder;
+
+		TreeItem(GuGuUtf8Str inFolderName, GuGuUtf8Str inFolderPath, std::shared_ptr<TreeItem> inParent, bool inNamingFolder = false)
+			: m_folderName(inFolderName)
+			, m_folderPath(inFolderPath)
+			, m_bNamingFolder(inNamingFolder)
+		{}
+
 		std::shared_ptr<TreeItem> getChild(const GuGuUtf8Str& inChildForlderName) const;
 	
 		//这个 tree item 的孩子
@@ -18,11 +33,6 @@ namespace GuGu {
 
 		//这个 tree item 的父亲
 		std::weak_ptr<TreeItem> m_parent;
-
-		//获取底层的 content browser item
-		const ContentBrowserItem& getItem() const;
-
 	private:
-		ContentBrowserItem m_item;
 	};
 }

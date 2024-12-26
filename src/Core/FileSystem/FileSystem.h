@@ -117,9 +117,11 @@ namespace GuGu
 
 		virtual int32_t getCurrentFilePointerPos() override;
 
-	private:
+		GuGuUtf8Str findMountPoint(std::shared_ptr<FileSystem> fileSystem) const;
+
 		bool findMountPoint(const GuGuUtf8Str& path, GuGuUtf8Str* relativePath, std::shared_ptr<FileSystem>& pFs);
 
+	private:
 		std::vector<std::pair<GuGuUtf8Str, std::shared_ptr<FileSystem>>> m_mountPoints;
 
 		std::shared_ptr<FileSystem> m_currentOpenFileSystem;

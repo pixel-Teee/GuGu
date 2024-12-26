@@ -40,13 +40,13 @@ namespace GuGu {
 
 		GuGuUtf8Str& erase(size_t pos, size_t len);
 
-		size_t find(const char* str, size_t pos = 0) const;
+		int32_t find(const char* str, size_t pos = 0) const;
 
 		int32_t findFirstOf(const char* str, int32_t pos = -1) const;
 
 		int32_t findLastOf(const char* str, int32_t pos = -1) const;
 
-		GuGuUtf8Str substr(size_t pos = 0, size_t len = -1) const;
+		GuGuUtf8Str substr(int32_t pos = 0, int32_t len = -1) const;
 
 		GuGuUtf8Str& operator+=(const GuGuUtf8Str& rhs);
 

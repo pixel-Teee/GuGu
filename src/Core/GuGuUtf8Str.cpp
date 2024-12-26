@@ -341,7 +341,7 @@ namespace GuGu {
 
 		return *this;
 	}
-	size_t GuGuUtf8Str::find(const char* str, size_t pos) const //from pos to find str
+	int32_t GuGuUtf8Str::find(const char* str, size_t pos) const //from pos to find str
 	{
 		//bool haveFind = false;
 		int32_t substrByteCount = strlen(str);
@@ -422,7 +422,7 @@ namespace GuGu {
 		}
 		return -1;
 	}
-	GuGuUtf8Str GuGuUtf8Str::substr(size_t pos, size_t len) const
+	GuGuUtf8Str GuGuUtf8Str::substr(int32_t pos, int32_t len) const
 	{
 		if (pos == m_len) return GuGuUtf8Str();
 		else if (pos > m_len) return GuGuUtf8Str();
@@ -658,14 +658,14 @@ namespace GuGu {
 		if (this->len() <= 0) return;
 		//在字符串末尾加入分隔符，方便截取
 		GuGuUtf8Str strs = *this + GuGuUtf8Str(split);
-		size_t pos = strs.find(split);
+		int32_t pos = strs.find(split);
 
 		while (pos != -1)
 		{
 			GuGuUtf8Str temp = strs.substr(0, pos);
 			res.push_back(temp);
 
-			strs = strs.substr(pos + 1, strs.len());
+			strs = strs.substr(pos + 1, -1);
 			pos = strs.find(split);
 		}
 	}

@@ -258,6 +258,18 @@ namespace GuGu {
 		return m_currentOpenFileSystem->getCurrentFilePointerPos();
 	}
 
+	GuGuUtf8Str RootFileSystem::findMountPoint(std::shared_ptr<FileSystem> fileSystem) const
+	{
+		for (auto it : m_mountPoints)
+		{
+			if (it.second == fileSystem)
+			{
+				return it.first;
+			}
+		}
+		return "";
+	}
+
 	bool RootFileSystem::findMountPoint(const GuGuUtf8Str& path, GuGuUtf8Str* relativePath, std::shared_ptr<FileSystem>& pFs)
 	{
 		for (auto it : m_mountPoints)
