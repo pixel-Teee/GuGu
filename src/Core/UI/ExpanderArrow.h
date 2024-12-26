@@ -22,7 +22,9 @@ namespace GuGu {
 				: mindentAmount(10)
 				, mbaseIndentLevel(0)
 				, mshouldDrawWires(false)
-			{}
+			{
+				mVisibility = Visibility::SelfHitTestInvisible;
+			}
 
 			~BuilderArguments() = default;
 

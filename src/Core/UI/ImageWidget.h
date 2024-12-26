@@ -18,7 +18,9 @@ namespace GuGu {
 
 		struct BuilderArguments : public Arguments<ImageWidget>
 		{
-			BuilderArguments() = default;
+			BuilderArguments() {
+				mVisibility = Visibility::SelfHitTestInvisible;
+			}
 
 			~BuilderArguments() = default;
 

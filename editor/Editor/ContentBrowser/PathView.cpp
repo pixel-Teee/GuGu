@@ -75,6 +75,7 @@ namespace GuGu {
 			(
 				WIDGET_NEW(TextBlockWidget)
 				.text(treeItem->m_folderName)
+				.textColor(math::float4(1.0f, 1.0f, 1.0f, 1.0f))
 			);
 	}
 	void PathView::setSelectedPaths(const std::vector<GuGuUtf8Str>& paths)
