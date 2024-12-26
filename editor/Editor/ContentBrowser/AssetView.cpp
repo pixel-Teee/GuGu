@@ -46,6 +46,28 @@ namespace GuGu {
 	}
 	std::shared_ptr<AssetTileView> AssetView::createTileView()
 	{
-		return WIDGET_NEW(AssetTileView);
+		return WIDGET_NEW(AssetTileView)
+				.ListItemSource(&m_filteredAssetItems)
+				.onGenerateTile(this, &AssetView::makeTileViewWidget);
+	}
+	std::shared_ptr<ITableRow> AssetView::makeTileViewWidget(std::shared_ptr<AssetViewItem> assetItem, const std::shared_ptr<TableViewBase>& ownerTable)
+	{
+		if (!assetItem)
+		{
+			return WIDGET_NEW(TableRow<std::shared_ptr<AssetViewAsset>>, ownerTable);
+		}
+
+		if (assetItem->getType() == AssetItemType::Folder)
+		{
+			std::shared_ptr<TableRow<std::shared_ptr<AssetViewItem>>> tableRowWidget;
+
+			return tableRowWidget;
+		}
+		else
+		{
+			std::shared_ptr<AssetViewAsset> assetItemAsAsset = std::static_pointer_cast<AssetViewAsset>(assetItem);
+
+			return nullptr;
+		}
 	}
 }

@@ -101,7 +101,7 @@ namespace GuGu {
 		//normal blue button
 		{
 			std::shared_ptr<Brush> normalBlueColor = std::make_shared<Brush>();
-			normalBlueColor->m_tiling = true; //rounded box ÐèÒª (0.0f, 1.0f) µÄ uv
+			normalBlueColor->m_tiling = true; //rounded box éœ€è¦ (0.0f, 1.0f) çš„ uv
 			normalBlueColor->m_texturePath = u8"asset/white.png";
 			normalBlueColor->m_tintColor = lightBlueLevel1;
 			normalBlueColor->m_drawAs = BrushDrawType::Type::RoundedBox;

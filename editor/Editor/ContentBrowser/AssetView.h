@@ -6,8 +6,11 @@
 #include "ContentBrowserSingleton.h"
 
 namespace GuGu {
+	class ITableRow;
 	class Border;
 	class AssetTileView;
+	class AssetViewItem;
+	class TableViewBase;
 	//显示过滤的资产的 widget
 	class AssetView : public CompoundWidget
 	{
@@ -27,6 +30,8 @@ namespace GuGu {
 		void createCurrentView();
 
 		std::shared_ptr<AssetTileView> createTileView();
+
+		std::shared_ptr<ITableRow> makeTileViewWidget(std::shared_ptr<AssetViewItem> assetItem, const std::shared_ptr<TableViewBase>& ownerTable);
 	private:
 
 		std::shared_ptr<Border> m_viewContainer;
