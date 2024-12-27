@@ -40,6 +40,7 @@ namespace GuGu {
 		{
 		case AssetViewType::Tile:
 			m_tileView = createTileView();
+			break;
 		default:
 			break;
 		}
