@@ -25,7 +25,7 @@ elseif(ANDROID)
 endif()
 
 target_link_libraries(Editor PUBLIC GuGu)
-target_include_directories(Editor PUBLIC "../src")
+target_include_directories(Editor PUBLIC "../src" "../editor")
 target_precompile_headers(Editor PRIVATE "../src/pch.h")
 target_compile_features(Editor PRIVATE cxx_std_17)
 add_dependencies(Editor GuGu)

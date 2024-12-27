@@ -4,6 +4,8 @@
 #include <Core/UI/UIMacros.h>
 
 namespace GuGu {
+	class AssetView;
+	class PathView;
 	class ContentBrowser : public CompoundWidget
 	{
 	public:
@@ -18,5 +20,9 @@ namespace GuGu {
 
 		~ContentBrowser();
 	private:
+
+		std::shared_ptr<AssetView> m_assetView;
+
+		std::shared_ptr<PathView> m_pathView;
 	};
 }

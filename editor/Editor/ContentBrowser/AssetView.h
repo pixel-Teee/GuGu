@@ -32,7 +32,12 @@ namespace GuGu {
 		std::shared_ptr<AssetTileView> createTileView();
 
 		std::shared_ptr<ITableRow> makeTileViewWidget(std::shared_ptr<AssetViewItem> assetItem, const std::shared_ptr<TableViewBase>& ownerTable);
+
+		void setSourcesData(const GuGuUtf8Str& inSourcesData);
 	private:
+
+		GuGuUtf8Str m_soucesData;//当前所处于的文件夹
+
 
 		std::shared_ptr<Border> m_viewContainer;
 

@@ -18,6 +18,7 @@ namespace GuGu {
 		//create path view
 		std::shared_ptr<VerticalBox> verticalBox = WIDGET_NEW(VerticalBox)	
 		+ VerticalBox::Slot()
+		.FixedHeight()
 		(
 			//显示资产文件和文件夹的 tile view 挂在这个容器下
 			WIDGET_ASSIGN_NEW(Border, m_viewContainer)
@@ -69,5 +70,9 @@ namespace GuGu {
 
 			return nullptr;
 		}
+	}
+	void AssetView::setSourcesData(const GuGuUtf8Str& inSourcesData)
+	{
+		m_soucesData = inSourcesData;
 	}
 }

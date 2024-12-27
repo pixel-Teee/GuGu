@@ -196,31 +196,7 @@ namespace GuGu {
 					.StretchHeight(0.175)
 					.setPadding(Padding(21.0f, 0.0f, 19.0f, 18.0f))
 					(
-						WIDGET_NEW(HorizontalBox)
-						+ HorizontalBox::Slot()
-						.StretchWidth(0.16f)
-						.setPadding(Padding(0.0f, 0.0f, 25.0f, 0.0f))
-						(
-							WIDGET_NEW(ComplexGradient)
-							.GradientColors(blueGradientBackground)
-							.cornerRadius(math::float4(10.0f, 10.0f, 10.0f, 10.0f))
-							.Content
-							(
-								WIDGET_NEW(PathView)
-							)
-						)
-						+ HorizontalBox::Slot()
-						.StretchWidth(0.78f)
-						.setPadding(Padding(0.0f, 0.0f, 0.0f, 0.0f))
-						(
-							WIDGET_NEW(ComplexGradient)
-							.GradientColors(blueGradientBackground)
-							.cornerRadius(math::float4(10.0f, 10.0f, 10.0f, 10.0f))
-							.Content
-							(
-								NullWidget::getNullWidget()
-							)
-						)
+						WIDGET_NEW(ContentBrowser)
 					)
 				)
 			)
