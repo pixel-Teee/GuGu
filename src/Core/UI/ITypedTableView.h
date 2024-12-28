@@ -60,6 +60,8 @@ namespace GuGu {
 
 		virtual void privateSignalSelectionChanged(SelectInfo::Type selectInfo) = 0;
 
+		virtual bool privateIsItemHighlighted(const ItemType& theItem) const = 0;
+
 		virtual std::shared_ptr<Widget> asWidget() = 0;
 
 		virtual std::vector<ItemType> getSelectedItems() const = 0;

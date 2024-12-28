@@ -93,7 +93,7 @@ namespace GuGu {
 					.setVerticalAlignment(VerticalAlignment::Stretch)
 					(
 						WIDGET_NEW(ExpanderArrow, std::static_pointer_cast<TableRow>(shared_from_this()))
-						.shouldDrawWires(true)
+						//.shouldDrawWires(true)
 					)
 					+ HorizontalBox::Slot()
 					.StretchWidth(1.0f)
@@ -225,17 +225,64 @@ namespace GuGu {
 		{
 			std::shared_ptr<ITypedTableView<ItemType>> ownerTable = m_ownerTablePtr.lock();
 
-			const bool bIsActive = true;//todo:这里要修复
+			const bool bIsActive = ownerTable->asWidget()->hasKeyboardFocus();//有焦点
 
 			const bool bItemHasChildren = ownerTable->privateDoesItemHaveChildren(m_indexInList);
 
 			if (const ItemType* myItemPtr = getItemForThis(ownerTable))
 			{
+				const bool bIsSelected = ownerTable->privateIsItemSelected(*myItemPtr);
+				const bool bIsHighlighted = ownerTable->privateIsItemHighlighted(*myItemPtr);
+				
+				const bool bAllowSelection = true;//todo:修复这里
 				const bool bEvenEntryIndex = (m_indexInList % 2 == 0);//是否是偶数的索引，来更换样式
-				if (bEvenEntryIndex)
-					return m_style->m_evenRowBackgroundBrush;
+				
+				if (bIsSelected) //被选中
+				{
+					if (bIsActive) //被选中，并且有键盘焦点
+					{
+						return IsHovered()
+							? m_style->m_activeHoveredBrush
+							: m_style->m_activeBrush;
+					} 
+					else //被选中，没有键盘焦点
+					{
+						return IsHovered()
+							? m_style->m_inActiveHoveredBrush
+							: m_style->m_inactiveBrush;
+					}
+				}
+				else if(!bIsSelected && bIsHighlighted)
+				{
+					if (bIsActive) //有键盘焦点
+					{
+						return IsHovered()
+							? (bEvenEntryIndex ? m_style->m_evenRowBackgroundHoveredBrush : m_style->m_oddRowBackgroundHoveredBrush)
+							: m_style->m_activeHighlightedBrush; //有键盘焦点的高亮
+					}
+					else
+					{
+						return IsHovered()
+							? (bEvenEntryIndex ? m_style->m_evenRowBackgroundBrush : m_style->m_oddRowBackgroundBrush)
+							: m_style->m_inactiveHighlightedBrush; //无键盘焦点的高亮
+					}
+				}
 				else
-					return m_style->m_oddRowBackrgoundBrush;
+				{
+					if (bEvenEntryIndex)
+					{
+						return IsHovered()
+							? m_style->m_evenRowBackgroundHoveredBrush
+							: m_style->m_evenRowBackgroundBrush;
+					}
+					else
+					{
+						return IsHovered()
+							? m_style->m_oddRowBackgroundHoveredBrush
+							: m_style->m_oddRowBackgroundBrush;
+					}
+				}
+				
 			}
 
 			return nullptr;

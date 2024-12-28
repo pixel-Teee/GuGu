@@ -189,14 +189,49 @@ namespace GuGu {
 
 		virtual ~TableRowStyle();
 
+		//当一个row获得焦点的时候，被用作选择器
+		std::shared_ptr<Brush> m_selectorFocusedBrush;
+		TableRowStyle& setSelectorFocusedBrush(const std::shared_ptr<Brush> inSelectorFocusedBrush) { m_selectorFocusedBrush = inSelectorFocusedBrush; return *this; }
+
+		//当一个选中的row是激活并且悬浮的
+		std::shared_ptr<Brush> m_activeHoveredBrush;
+		TableRowStyle& setActiveHoveredBrush(const std::shared_ptr<Brush> inActiveHoveredBrush) { m_activeHoveredBrush = inActiveHoveredBrush; return *this; }
+
+		//当一个选中的row是激活的
+		std::shared_ptr<Brush> m_activeBrush;
+		TableRowStyle& setActiveBrush(const std::shared_ptr<Brush> inActiveBrush) { m_activeBrush = inActiveBrush; return *this; }
+
+		//当前一个选中的row是未激活并且悬浮的
+		std::shared_ptr<Brush> m_inActiveHoveredBrush;
+		TableRowStyle& setInactiveHoveredBrush(const std::shared_ptr<Brush> inInActiveHoveredBrush) { m_inActiveHoveredBrush = inInActiveHoveredBrush; return *this;}
+
+		//当一个选中的row是未激活的
+		std::shared_ptr<Brush> m_inactiveBrush;
+		TableRowStyle& setInactiveBrush(const std::shared_ptr<Brush>& inInactiveBrush) { m_inactiveBrush = inInactiveBrush; return *this; }
+
+		//偶数行悬浮
 		std::shared_ptr<Brush> m_evenRowBackgroundHoveredBrush;
 		TableRowStyle& setEvenRowBackgroundHoveredBrush(const std::shared_ptr<Brush> inEvenRowBackgroundBrush) { m_evenRowBackgroundHoveredBrush = inEvenRowBackgroundBrush; return *this; }
 
+		//偶数行正常
 		std::shared_ptr<Brush> m_evenRowBackgroundBrush;
 		TableRowStyle& setEvenRowBackgroundBrush(const std::shared_ptr<Brush> inEventRowBackgroundBrush) { m_evenRowBackgroundBrush = inEventRowBackgroundBrush; return *this; }
 
-		std::shared_ptr<Brush> m_oddRowBackrgoundBrush;
-		TableRowStyle& setOddRowBackgroundBrush(const std::shared_ptr<Brush> inOddRowBackgroundBrush) { m_oddRowBackrgoundBrush = inOddRowBackgroundBrush; return *this; }
+		//奇数行悬浮
+		std::shared_ptr<Brush> m_oddRowBackgroundHoveredBrush;
+		TableRowStyle& setOddRowBackgroundHoveredBrush(const std::shared_ptr<Brush> inOddRowBackgroundHoveredBrush) { m_oddRowBackgroundHoveredBrush = inOddRowBackgroundHoveredBrush; return *this; }
+
+		//奇数行正常
+		std::shared_ptr<Brush> m_oddRowBackgroundBrush;
+		TableRowStyle& setOddRowBackgroundBrush(const std::shared_ptr<Brush> inOddRowBackgroundBrush) { m_oddRowBackgroundBrush = inOddRowBackgroundBrush; return *this; }
+
+		//高亮行，获取焦点
+		std::shared_ptr<Brush> m_activeHighlightedBrush;
+		TableRowStyle& setActiveHighlightedBrush(const std::shared_ptr<Brush> inActiveHighlightedBrush) { m_activeHighlightedBrush = inActiveHighlightedBrush; return *this; }
+
+		//高亮行，没有获取焦点
+		std::shared_ptr<Brush> m_inactiveHighlightedBrush;
+		TableRowStyle& setInActiveHighlightedBrush(const std::shared_ptr<Brush> inInActiveHighlightedBrush) { m_inactiveHighlightedBrush = inInActiveHighlightedBrush; return *this; }
 	};
 	
 	struct ComboBoxStyle : public Style

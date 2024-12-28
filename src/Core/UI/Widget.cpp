@@ -181,6 +181,10 @@ namespace GuGu{
 {
         return m_fixedSize;
     }
+    bool Widget::hasKeyboardFocus() const
+    {
+        return Application::getApplication()->getKeyboardFocusedWidget().get() == this;
+    }
     std::shared_ptr<Widget> Widget::getParentWidget() const
     {
         return m_parentWidget.lock();

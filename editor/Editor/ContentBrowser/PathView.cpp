@@ -2,6 +2,7 @@
 
 #include "PathView.h"
 #include "TreeItem.h"
+#include "SourcesViewWidgets.h"
 
 #include <Core/AssetManager/AssetManager.h>
 
@@ -24,7 +25,7 @@ namespace GuGu {
 		m_childWidget = std::make_shared<SingleChildSlot>();
 		m_childWidget->m_parentWidget = shared_from_this();
 		m_childWidget->m_childWidget = WIDGET_NEW(BoxWidget)
-		.padding(Padding(4.0f, 4.0f, 4.0f, 4.0f))
+		.padding(Padding(14.0f, 14.0f, 14.0f, 14.0f))
 		.Content
 		(
 				m_treeViewPtr
@@ -80,9 +81,11 @@ namespace GuGu {
 		return WIDGET_NEW(TableRow<std::shared_ptr<TreeItem>>, ownerTable)
 			.Content
 			(
-				WIDGET_NEW(TextBlockWidget)
-				.text(treeItem->m_folderName)
-				.textColor(math::float4(1.0f, 1.0f, 1.0f, 1.0f))
+				//WIDGET_NEW(TextBlockWidget)
+				//.text(treeItem->m_folderName)
+				//.textColor(math::float4(1.0f, 1.0f, 1.0f, 1.0f))
+				WIDGET_NEW(AssetTreeItem)
+				.treeItem(treeItem)
 			);
 	}
 	void PathView::setSelectedPaths(const std::vector<GuGuUtf8Str>& paths)

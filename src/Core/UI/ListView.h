@@ -398,6 +398,11 @@ namespace GuGu {
 			return m_selectedItems.find(theItem) != m_selectedItems.end();
 		}
 
+		virtual bool privateIsItemHighlighted(const ItemType& theItem) const override
+		{
+			return m_highlightedItems.find(theItem) != m_highlightedItems.end();
+		}
+
 		virtual void privateSetItemSelection(ItemType theItem, bool bShouldBeSelected, bool bWasUserDirected = false) override
 		{
 			if (m_selectionMode.Get() == SelectionMode::None)
@@ -435,6 +440,18 @@ namespace GuGu {
 					: ListTypeTraits<ItemType>::makeNullPtr();
 
 				m_onSelectionChanged(selectedItem, selectInfo);
+			}
+		}
+
+		virtual void privateSetItemHighlighted(ItemType theItem, bool bShouldBeHighted)
+		{
+			if (bShouldBeHighted)
+			{
+				m_highlightedItems.insert(theItem);
+			}
+			else
+			{
+				m_highlightedItems.erase(theItem);
 			}
 		}
 
@@ -603,6 +620,9 @@ namespace GuGu {
 		bool m_bNavigateOnScrollIntoView = false;
 		//选中的集合
 		ItemSet m_selectedItems;
+
+		//高亮的集合
+		ItemSet m_highlightedItems;
 
 		Attribute<SelectionMode::Type> m_selectionMode;
 

@@ -131,6 +131,10 @@ namespace GuGu {
 			normalBlueButton->setDisabled(noResource);
 			m_styles.insert({ u8"normalBlueButton", normalBlueButton });
 		}
+
+		//path view
+		//open folder
+		ADD_IMAGE(OpenFolder);
 	}
 	EditorStyleSet::~EditorStyleSet()
 	{

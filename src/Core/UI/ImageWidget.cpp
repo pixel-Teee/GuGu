@@ -38,4 +38,6 @@ namespace GuGu {
 			return math::float2(0.0f, 0.0f);
 	}
 
+
+
 }

@@ -1,8 +1,12 @@
 #include <pch.h>
 
 #include "SourcesViewWidgets.h"
+#include <Editor/StyleSet/EditorStyleSet.h>
 
 #include <Core/UI/Border.h>
+#include <Core/UI/BoxPanel.h>
+#include <Core/UI/ImageWidget.h>
+#include <Core/UI/TextBlockWidget.h>
 
 namespace GuGu {
 	void AssetTreeItem::init(const BuilderArguments& arguments)
@@ -15,11 +19,50 @@ namespace GuGu {
 
 		m_childWidget->setChildWidget
 		(
-			WIDGET_NEW(Border)
-
+			//WIDGET_NEW(Border)
+			//.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("beige4"))
+			//.Content
+			//(
+				WIDGET_NEW(HorizontalBox)
+				+ HorizontalBox::Slot()
+				.FixedWidth()
+				.setVerticalAlignment(VerticalAlignment::Center)
+				(
+					//folder icon
+					WIDGET_NEW(ImageWidget)
+					.brush(this, &AssetTreeItem::getFolderIcon)
+				)
+				+ HorizontalBox::Slot()
+				.FixedWidth()
+				.setVerticalAlignment(VerticalAlignment::Center)
+				(
+					WIDGET_NEW(TextBlockWidget)
+					.text(this, &AssetTreeItem::getNameText)
+					.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+				)
+			//)
 		);
 	}
 	AssetTreeItem::~AssetTreeItem()
 	{
 	}
+
+	std::shared_ptr<GuGu::Brush> AssetTreeItem::getFolderIcon() const
+	{
+		return EditorStyleSet::getStyleSet()->getBrush("OpenFolder");
+	}
+
+	GuGuUtf8Str AssetTreeItem::getNameText() const
+	{
+		std::shared_ptr<TreeItem> treeItemLock = m_treeItem.lock();
+		if (treeItemLock)
+		{
+			return treeItemLock->m_folderName;
+		}
+		else
+		{
+			return GuGuUtf8Str("");
+		}
+	}
+
 }

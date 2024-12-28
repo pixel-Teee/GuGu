@@ -25,7 +25,7 @@ namespace GuGu {
 		.FixedHeight()
 		(
 			WIDGET_NEW(BoxWidget)
-			.padding(Padding(4.0f, 4.0f, 4.0f, 4.0f))
+			.padding(Padding(20.0f, 20.0f, 20.0f, 20.0f))
 			.Content
 			(
 				//显示资产文件和文件夹的 tile view 挂在这个容器下
@@ -60,7 +60,7 @@ namespace GuGu {
 		return WIDGET_NEW(AssetTileView)
 				.ListItemSource(&m_filteredAssetItems)
 				.onGenerateTile(this, &AssetView::makeTileViewWidget)
-				.itemHeight(40.0f);
+				.itemHeight(20.0f);
 	}
 	std::shared_ptr<ITableRow> AssetView::makeTileViewWidget(std::shared_ptr<AssetViewItem> assetItem, const std::shared_ptr<TableViewBase>& ownerTable)
 	{

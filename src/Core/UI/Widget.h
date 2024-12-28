@@ -112,6 +112,8 @@ namespace GuGu{
 
         virtual math::float2 getFixedSize() const;
 
+        virtual bool hasKeyboardFocus() const;
+
         std::shared_ptr<Widget> getParentWidget() const;
 
         void setParentWidget(std::shared_ptr<Widget> parentWidget);

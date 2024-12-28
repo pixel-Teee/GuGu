@@ -5,6 +5,7 @@
 #include "TreeItem.h"
 
 namespace GuGu {
+	class Brush;
 	class AssetTreeItem : public CompoundWidget
 	{
 	public:
@@ -21,6 +22,10 @@ namespace GuGu {
 		void init(const BuilderArguments& arguments);
 
 		virtual ~AssetTreeItem();
+
+		std::shared_ptr<Brush> getFolderIcon() const;
+
+		GuGuUtf8Str getNameText() const;
 	private:
 		//这个项的数据
 		std::weak_ptr<TreeItem> m_treeItem;
