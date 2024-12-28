@@ -33,7 +33,7 @@ namespace GuGu {
 		)
 		+ HorizontalBox::Slot()
 		.StretchWidth(0.78f)
-		.setPadding(Padding(0.0f, 0.0f, 0.0f, 0.0f))
+		.setPadding(Padding(0.0f, 0.0f, 25.0f, 0.0f))
 		(
 			WIDGET_NEW(ComplexGradient)
 			.GradientColors(blueGradientBackground)

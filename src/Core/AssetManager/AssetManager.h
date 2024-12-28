@@ -14,6 +14,8 @@ namespace GuGu {
 
 		static AssetManager& getAssetManager();
 
+		void getSubPaths(const GuGuUtf8Str& relativePath, std::function<void(GuGuUtf8Str, bool)> enumerateCallBack);
+
 		void traverseDirectoryAndFile(std::function<void(GuGuUtf8Str, bool)> enumerateCallBack);
 
 		GuGuUtf8Str getRootPath() const;

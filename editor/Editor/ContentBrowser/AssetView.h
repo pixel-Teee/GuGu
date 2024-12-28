@@ -34,10 +34,21 @@ namespace GuGu {
 		std::shared_ptr<ITableRow> makeTileViewWidget(std::shared_ptr<AssetViewItem> assetItem, const std::shared_ptr<TableViewBase>& ownerTable);
 
 		void setSourcesData(const GuGuUtf8Str& inSourcesData);
+
+		//重新生成文件夹，如果我们需要显示它们
+		void refreshFolders();
+
+		void refreshList();
+
+		AssetViewType::Type getCurrentViewType() const;
+
+		virtual void Tick(const WidgetGeometry& allocatedGeometry, const double inCurrentTime, const float inDeltaTime) override;
 	private:
 
 		GuGuUtf8Str m_soucesData;//当前所处于的文件夹
 
+		//当前view中显示的文件夹项
+		std::set<GuGuUtf8Str> m_folders;
 
 		std::shared_ptr<Border> m_viewContainer;
 

@@ -47,7 +47,10 @@ namespace GuGu {
 		AssetViewFolder(const GuGuUtf8Str& inPath)
 			: m_folderPath(inPath)
 		{
-			m_folderName = FilePath::getBaseFileName(m_folderPath);
+			GuGuUtf8Str splitPath = inPath;
+			if (inPath[inPath.len() - 1] != "/")
+				splitPath = inPath + "/";
+			m_folderName = FilePath::getBaseFileName(splitPath);
 		}
 
 		virtual AssetItemType::Type getType() const override
