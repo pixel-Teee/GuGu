@@ -9,6 +9,7 @@
 #include <Core/UI/Overlay.h>
 
 #include "AssetViewWidgets.h"
+#include <Editor/StyleSet/EditorStyleSet.h>
 
 #include <Core/AssetManager/AssetManager.h>
 
@@ -32,6 +33,7 @@ namespace GuGu {
 			(
 				//显示资产文件和文件夹的 tile view 挂在这个容器下
 				WIDGET_ASSIGN_NEW(Border, m_viewContainer)
+				.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("beige4"))
 			)			
 		);
 		createCurrentView();
