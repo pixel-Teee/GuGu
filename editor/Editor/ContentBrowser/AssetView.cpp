@@ -6,6 +6,7 @@
 #include <Core/UI/Border.h>
 #include <Core/UI/NullWidget.h>
 #include <Core/UI/Box.h>
+#include <Core/UI/Overlay.h>
 
 #include "AssetViewWidgets.h"
 
@@ -21,16 +22,17 @@ namespace GuGu {
 		//create path view
 		std::shared_ptr<VerticalBox> verticalBox = WIDGET_NEW(VerticalBox)	
 		+ VerticalBox::Slot()
-		//.setPadding(Padding(20.0f, 20.0f, 20.0f, 20.0f))
-		.FixedHeight()
+		.setPadding(Padding(14.0f, 14.0f, 14.0f, 14.0f))
+		.StretchHeight(1.0)
 		(
-			WIDGET_NEW(BoxWidget)
-			.padding(Padding(20.0f, 20.0f, 20.0f, 20.0f))
-			.Content
+			WIDGET_NEW(Overlay)
+			+ Overlay::Slot()
+			.setVerticalAlignment(VerticalAlignment::Stretch)
+			.setHorizontalAlignment(HorizontalAlignment::Stretch)
 			(
 				//显示资产文件和文件夹的 tile view 挂在这个容器下
 				WIDGET_ASSIGN_NEW(Border, m_viewContainer)
-			)		
+			)			
 		);
 		createCurrentView();
 
@@ -60,7 +62,7 @@ namespace GuGu {
 		return WIDGET_NEW(AssetTileView)
 				.ListItemSource(&m_filteredAssetItems)
 				.onGenerateTile(this, &AssetView::makeTileViewWidget)
-				.itemHeight(20.0f);
+				.itemHeight(40.0f);
 	}
 	std::shared_ptr<ITableRow> AssetView::makeTileViewWidget(std::shared_ptr<AssetViewItem> assetItem, const std::shared_ptr<TableViewBase>& ownerTable)
 	{

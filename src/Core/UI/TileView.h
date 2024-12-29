@@ -103,7 +103,7 @@ namespace GuGu {
 
 				const double linesPerScreen = allottedDimensions.m_scrollAxis / tileDimensions.m_scrollAxis;
 				const double endOfListOffset = numItemsPaddedToFillLastLine - numItemsPerLine * linesPerScreen;
-				const double clampedScrollOffset = std::clamp(this->m_currentScrollOffset, 0.0, endOfListOffset);
+				const double clampedScrollOffset = clamp(this->m_currentScrollOffset, 0.0, endOfListOffset);
 				const float layoutScaleMultiplier = myGeometry.getAccumulateLayoutTransform().m_linear[0][0];//scale
 
 				TableViewDimensions dimensionsUsedSoFar(this->m_orientation);

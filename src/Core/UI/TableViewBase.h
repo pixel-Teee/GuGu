@@ -31,6 +31,12 @@ namespace GuGu {
 		Fill
 	};
 
+	template<class T>
+	static T clamp(const T X, const T Min, const T Max)
+	{
+		return X < Min ? Min : X < Max ? X : Max;
+	}
+
 	//当计算table layout elements 的时候，抽象出X和Y的需求
 	struct TableViewDimensions
 	{
