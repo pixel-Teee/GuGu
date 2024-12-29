@@ -334,6 +334,11 @@ namespace GuGu {
 			privateSetItemExpansion(inItem, inShouldExpandItem);
 		}
 
+		bool isItemExpanded(const ItemType& inItem) const
+		{
+			return privateIsItemExpanded(inItem);
+		}
+
 	protected:
 		//被调用的委托，当我们需要去收集一个 item 的儿子的时候
 		OnGetChildren m_onGetChildren;

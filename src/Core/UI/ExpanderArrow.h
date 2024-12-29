@@ -52,6 +52,8 @@ namespace GuGu {
 		std::shared_ptr<Brush> getExpanderImage() const;
 
 		Reply onArrowClicked();
+
+		Visibility getExpanderVisibility() const;
 	protected:
 		std::shared_ptr<SingleChildSlot> m_childWidget;
 

@@ -133,8 +133,44 @@ namespace GuGu {
 		}
 
 		//path view
-		//open folder
+		//close folder
+		ADD_IMAGE(CloseFolder);
 		ADD_IMAGE(OpenFolder);
+
+		//table row style
+		{
+			std::shared_ptr<TableRowStyle> tableRowStyle = std::make_shared<TableRowStyle>();
+			std::shared_ptr<Brush> activeBrush = std::make_shared<Brush>();
+			activeBrush->m_tiling = false;
+			activeBrush->m_texturePath = u8"asset/white.png";
+			activeBrush->m_tintColor = beige8;
+			activeBrush->m_drawAs = BrushDrawType::Type::Image;
+			
+			tableRowStyle->setActiveBrush(activeBrush); //选中，并且有键盘焦点
+			tableRowStyle->setActiveHoveredBrush(activeBrush); //选中，并且有键盘焦点，并且悬浮
+			tableRowStyle->setInactiveBrush(activeBrush); //选中，没有键盘焦点
+			tableRowStyle->setInactiveHoveredBrush(activeBrush);  //选中，没有键盘焦点，并且悬浮
+
+			std::shared_ptr<Brush> evenRowBackgroundBrush = std::make_shared<Brush>();
+			evenRowBackgroundBrush->m_tiling = false;
+			evenRowBackgroundBrush->m_texturePath = u8"asset/white.png";
+			evenRowBackgroundBrush->m_tintColor = beige4;
+			evenRowBackgroundBrush->m_drawAs = BrushDrawType::Type::Image;
+
+			std::shared_ptr<Brush> oddRowBackgroundBrush = std::make_shared<Brush>();
+			oddRowBackgroundBrush->m_tiling = false;
+			oddRowBackgroundBrush->m_texturePath = u8"asset/white.png";
+			oddRowBackgroundBrush->m_tintColor = beige7;
+			oddRowBackgroundBrush->m_drawAs = BrushDrawType::Type::Image;
+
+			tableRowStyle->setEvenRowBackgroundBrush(evenRowBackgroundBrush);
+			tableRowStyle->setEvenRowBackgroundHoveredBrush(evenRowBackgroundBrush);
+
+			tableRowStyle->setOddRowBackgroundBrush(oddRowBackgroundBrush);
+			tableRowStyle->setOddRowBackgroundHoveredBrush(oddRowBackgroundBrush);
+
+			m_styles.insert({ u8"tablerow.beige", tableRowStyle });
+		}
 	}
 	EditorStyleSet::~EditorStyleSet()
 	{

@@ -12,7 +12,7 @@ namespace GuGu {
 	void AssetTreeItem::init(const BuilderArguments& arguments)
 	{
 		m_treeItem = arguments.mtreeItem;
-
+		m_isItemExpanded = arguments.misItemExpanded;
 		m_childWidget = std::make_shared<SingleChildSlot>();
 		m_childWidget->m_parentWidget = shared_from_this();
 		//m_childWidget->m_childWidget->setParentWidget(shared_from_this());
@@ -42,6 +42,11 @@ namespace GuGu {
 				)
 			//)
 		);
+
+		m_childWidget->m_childWidget->setParentWidget(shared_from_this());
+
+		m_folderOpenBrush = EditorStyleSet::getStyleSet()->getBrush("OpenFolder");
+		m_folderClosedBrush = EditorStyleSet::getStyleSet()->getBrush("CloseFolder");
 	}
 	AssetTreeItem::~AssetTreeItem()
 	{
@@ -49,7 +54,8 @@ namespace GuGu {
 
 	std::shared_ptr<GuGu::Brush> AssetTreeItem::getFolderIcon() const
 	{
-		return EditorStyleSet::getStyleSet()->getBrush("OpenFolder");
+		//return EditorStyleSet::getStyleSet()->getBrush("CloseFolder");
+		return (m_isItemExpanded.Get()) ? EditorStyleSet::getStyleSet()->getBrush("OpenFolder") : EditorStyleSet::getStyleSet()->getBrush("CloseFolder");
 	}
 
 	GuGuUtf8Str AssetTreeItem::getNameText() const

@@ -40,6 +40,8 @@ namespace GuGu {
 		virtual std::shared_ptr<TreeItem> addPath(const GuGuUtf8Str& path, bool bUserNamed = false);
 
 		std::shared_ptr<TreeItem> addRootItem(const GuGuUtf8Str& inFolderName);
+
+		bool isTreeItemExpanded(std::shared_ptr<TreeItem> treeItem) const;
 	private:
 		//上一次被 on path selected 事件通知的路径，用于保留选择，当过滤文件夹的时候
 		std::set<GuGuUtf8Str> m_lastSelectedPaths;

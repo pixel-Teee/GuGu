@@ -53,6 +53,12 @@ namespace GuGu {
 			return Create(std::bind(inConstMethodPtr, inObject));
 		}
 
+		template<typename SourceType, typename SourceTypeOrBase, typename Var1Type>
+		static Attribute CreateSP(const SourceType* inObject, ObjectType(SourceTypeOrBase::* inConstMethodPtr)(Var1Type)const, Var1Type value1) //weak ptr
+		{
+			return Create(std::bind(inConstMethodPtr, inObject, value1));
+		}
+
 		template<typename LambdaType>
 		static Attribute CreateLambda(LambdaType&& inCallable)
 		{

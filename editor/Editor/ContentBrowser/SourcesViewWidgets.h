@@ -17,6 +17,8 @@ namespace GuGu {
 
 			//这个item所表示的数据
 			ARGUMENT_VALUE(std::shared_ptr<TreeItem>, treeItem)
+
+			ARGUMENT_ATTRIBUTE(bool, isItemExpanded)
 		};
 
 		void init(const BuilderArguments& arguments);
@@ -31,5 +33,11 @@ namespace GuGu {
 		std::weak_ptr<TreeItem> m_treeItem;
 
 		std::shared_ptr<Widget> m_parentWidget;
+
+		//这个项是否有孩子，并且已经展开
+		Attribute<bool> m_isItemExpanded;
+
+		std::shared_ptr<Brush> m_folderOpenBrush;
+		std::shared_ptr<Brush> m_folderClosedBrush;
 	};
 }

@@ -29,6 +29,7 @@ namespace GuGu {
 			WIDGET_ASSIGN_NEW(Button, m_expanderArrow)
 			.verticalAlignment(VerticalAlignment::Center)
 			.horizontalAlignment(HorizontalAlignment::Center)
+			.visibility(Attribute<Visibility>::CreateSP(this, &ExpanderArrow::getExpanderVisibility)) //note:是否显示叶子节点的文件夹icon
 			.buttonSyle(CoreStyle::getStyleSet()->getStyle<ButtonStyle>("NoBorder"))
 			.Content(
 				WIDGET_NEW(ImageWidget)
@@ -214,5 +215,9 @@ namespace GuGu {
 	{
 		m_ownerRowPtr.lock()->toggleExpansion();//展开
 		return Reply::Handled();
+	}
+	Visibility ExpanderArrow::getExpanderVisibility() const
+	{
+		return m_ownerRowPtr.lock()->doesItemHaveChildren() ? Visibility::Visible : Visibility::Hidden;
 	}
 }

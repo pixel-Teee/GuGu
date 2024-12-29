@@ -252,7 +252,7 @@ namespace GuGu {
 							: m_style->m_inactiveBrush;
 					}
 				}
-				else if(!bIsSelected && bIsHighlighted)
+				else if(!bIsSelected && bIsHighlighted) //没被选中，但是有高光，相比于没高光的，普通状态不一样
 				{
 					if (bIsActive) //有键盘焦点
 					{
