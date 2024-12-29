@@ -5,6 +5,8 @@
 
 #include <Core/UI/TreeView.h>
 
+#include "ContentBrowserDelegates.h"
+
 namespace GuGu {
 	class TreeItem;
 	//文件夹的视图
@@ -16,6 +18,8 @@ namespace GuGu {
 			BuilderArguments() {}
 
 			~BuilderArguments() = default;
+
+			UI_EVENT(OnPathSelected, onPathSelected)
 		};
 
 		void init(const BuilderArguments& arguments);
@@ -51,5 +55,7 @@ namespace GuGu {
 
 		//树中文件夹的列表
 		std::vector<std::shared_ptr<TreeItem>> m_treeRootItems;
+
+		OnPathSelected m_onPathSelected;
 	};
 }

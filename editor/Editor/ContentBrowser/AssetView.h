@@ -43,6 +43,8 @@ namespace GuGu {
 		AssetViewType::Type getCurrentViewType() const;
 
 		virtual void Tick(const WidgetGeometry& allocatedGeometry, const double inCurrentTime, const float inDeltaTime) override;
+
+		void requestSlowFullListRefresh();
 	private:
 
 		GuGuUtf8Str m_soucesData;//当前所处于的文件夹
@@ -57,5 +59,7 @@ namespace GuGu {
 		AssetViewType::Type m_currentViewType;
 
 		std::vector<std::shared_ptr<AssetViewItem>> m_filteredAssetItems;
+
+		bool m_bslowFullListRefreshRequested = false;
 	};
 }

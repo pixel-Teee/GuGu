@@ -19,6 +19,8 @@ namespace GuGu {
 		void init(const BuilderArguments& arguments);
 
 		~ContentBrowser();
+
+		void pathSelected(const GuGuUtf8Str& folderPath);
 	private:
 
 		std::shared_ptr<AssetView> m_assetView;

@@ -13,6 +13,7 @@
 namespace GuGu {
 	void PathView::init(const BuilderArguments& arguments)
 	{
+		m_onPathSelected = arguments.monPathSelected;
 		if (!m_treeViewPtr)
 		{
 			WIDGET_ASSIGN_NEW(TreeView<std::shared_ptr<TreeItem>>, m_treeViewPtr)
@@ -30,7 +31,12 @@ namespace GuGu {
 		.padding(Padding(14.0f, 14.0f, 14.0f, 14.0f))
 		.Content
 		(
+			WIDGET_NEW(Border)
+			.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("beige4"))
+			.Content
+			(
 				m_treeViewPtr
+			)	
 		);
 		m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 
@@ -61,19 +67,21 @@ namespace GuGu {
 			}
 			//保存选中的路径，用于过滤的时候，恢复过来
 			m_lastSelectedPaths.insert(item->m_folderPath);
+
+			if (m_onPathSelected)
+			{
+				if (treeItem)
+				{
+					m_onPathSelected(treeItem->m_folderPath);
+				}
+				else
+				{
+					m_onPathSelected("");
+				}
+			}
 		}
 
-		//if (m_itemSelectionChanged)
-		//{
-		//	if (treeItem)
-		//	{
-		//		m_itemSelectionChanged(treeItem->getItem(), selectInfo);
-		//	}
-		//	else
-		//	{
-		//		m_itemSelectionChanged(ContentBrowserItem(), selectInfo);
-		//	}
-		//}
+
 	}
 	void PathView::treeExpansionChanged(std::shared_ptr<TreeItem> treeItem, bool bIsExpanded)
 	{

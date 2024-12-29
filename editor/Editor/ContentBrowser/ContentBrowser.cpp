@@ -29,6 +29,7 @@ namespace GuGu {
 			.Content
 			(
 				WIDGET_ASSIGN_NEW(PathView, m_pathView)
+				.onPathSelected(this, &ContentBrowser::pathSelected)
 			)
 		)
 		+ HorizontalBox::Slot()
@@ -55,5 +56,9 @@ namespace GuGu {
 	}
 	ContentBrowser::~ContentBrowser()
 	{
+	}
+	void ContentBrowser::pathSelected(const GuGuUtf8Str& folderPath)
+	{
+		m_assetView->setSourcesData(folderPath);
 	}
 }

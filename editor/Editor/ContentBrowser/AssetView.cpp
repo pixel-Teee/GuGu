@@ -93,42 +93,54 @@ namespace GuGu {
 	void AssetView::setSourcesData(const GuGuUtf8Str& inSourcesData)
 	{
 		m_soucesData = inSourcesData;
+		if (m_soucesData.len() > 0 && m_soucesData[0] == "/")
+		{
+			m_soucesData = m_soucesData.substr(1);
+		}
+		requestSlowFullListRefresh();
 	}
 	void AssetView::refreshFolders()
 	{
-		std::vector<GuGuUtf8Str> assetPathsToShow;
-		assetPathsToShow.push_back(m_soucesData);
-
-		GuGuUtf8Str searchPath = m_soucesData + "/";
-		searchPath = m_soucesData.substr(searchPath.findFirstOf("/"));
-		//获取当前文件夹下的子文件夹
-		std::vector<GuGuUtf8Str> subPaths;
-		AssetManager::getAssetManager().getSubPaths(searchPath, [&](GuGuUtf8Str path, bool isDirectory) {
-			if (isDirectory)
-			{
-				subPaths.push_back(path);
-			}
-		});
-
-		std::vector<GuGuUtf8Str> foldersToAdd;
-		for (const GuGuUtf8Str& subPath : subPaths)
+		if (m_bslowFullListRefreshRequested)
 		{
-			//m_folders.insert(subPath);//去重
-			if (m_folders.find(subPath) == m_folders.end())
-			{
-				foldersToAdd.push_back(subPath);
-			}
-		}
+			m_filteredAssetItems.clear();
 
-		if (foldersToAdd.size() > 0)
-		{
+			std::vector<GuGuUtf8Str> assetPathsToShow;
+			assetPathsToShow.push_back(m_soucesData);
+
+			GuGuUtf8Str searchPath = m_soucesData + "/";
+			searchPath = m_soucesData.substr(searchPath.findFirstOf("/"));
+			//获取当前文件夹下的子文件夹
+			std::vector<GuGuUtf8Str> subPaths;
+			AssetManager::getAssetManager().getSubPaths(searchPath, [&](GuGuUtf8Str path, bool isDirectory) {
+				if (isDirectory)
+				{
+					subPaths.push_back(path);
+				}
+				});
+
+			std::vector<GuGuUtf8Str> foldersToAdd;
+			for (const GuGuUtf8Str& subPath : subPaths)
+			{
+				//m_folders.insert(subPath);//去重
+				if (m_folders.find(subPath) == m_folders.end())
+				{
+					foldersToAdd.push_back(subPath);
+				}
+			}
+
+			//if (foldersToAdd.size() > 0)
+			//{
 			for (const GuGuUtf8Str& folderPath : foldersToAdd)
 			{
 				m_filteredAssetItems.push_back(std::make_shared<AssetViewFolder>(folderPath));
 			}
 
 			refreshList();
-		}
+			//}
+
+			m_bslowFullListRefreshRequested = false;
+		}	
 	}
 	void AssetView::refreshList()
 	{
@@ -147,5 +159,9 @@ namespace GuGu {
 	{
 		m_filteredAssetItems.clear();
 		this->refreshFolders();
+	}
+	void AssetView::requestSlowFullListRefresh()
+	{
+		m_bslowFullListRefreshRequested = true;
 	}
 }
