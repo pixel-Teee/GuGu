@@ -188,5 +188,7 @@ namespace GuGu {
 		bool m_bIsResizing;
 
 		float m_minSplitterChildLength;
+
+		std::shared_ptr<SplitterStyle> m_style;
 	};
 }

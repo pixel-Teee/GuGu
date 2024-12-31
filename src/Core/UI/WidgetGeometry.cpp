@@ -40,6 +40,11 @@ namespace GuGu {
 		return rect;
 	}
 
+	math::float2 WidgetGeometry::getLocalPosition() const
+	{
+		return mLocalPosition;
+	}
+
 	void WidgetGeometry::setAbsoluteScale(float scale)
 	{
 		mAbsoluteScale = scale;

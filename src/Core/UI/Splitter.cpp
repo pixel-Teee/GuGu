@@ -3,6 +3,8 @@
 #include "Splitter.h"
 #include "ArrangedWidget.h"
 #include "ArrangedWidgetArray.h"
+#include "ElementList.h"
+#include "Brush.h"
 
 namespace GuGu {
 	template<Orientation orientation>
@@ -84,6 +86,7 @@ namespace GuGu {
 		m_orientation = arguments.morientation;
 		m_hoveredHandleIndex = -1;
 		m_bIsResizing = false;
+		m_style = arguments.msplitterStyle;
 
 		m_minSplitterChildLength = arguments.mminimumSlotHeight;
 		m_childrens.resize(arguments.mSlots.size());
@@ -140,7 +143,7 @@ namespace GuGu {
 			}
 		}
 
-		int32_t widgetNumber = arrangedWidgetArray.getArrangedWidgetsNumber() - 1;
+		int32_t widgetNumber = arrangedWidgetArray.getArrangedWidgetsNumber();
 		for (int32_t childIndex = 0; childIndex < widgetNumber; ++childIndex)
 		{
 			const WidgetGeometry& geometryAfterSplitter = arrangedWidgetArray[std::clamp(childIndex + 1, 0, widgetNumber - 1)]->getWidgetGeometry();
@@ -164,11 +167,19 @@ namespace GuGu {
 			//悬浮不高亮柄
 			if (arrangedHoveredHandleIndex != childIndex)
 			{
-
+				ElementList::addBoxElement(elementList, 
+					geometryAfterSplitter.getChildGeometry(handleSize, handlePosition),
+					m_style->m_handleNormalBrush->m_tintColor, 
+					m_style->m_handleNormalBrush,
+					maxLayerId);
 			}
 			else //悬浮高亮柄
 			{
-
+				ElementList::addBoxElement(elementList,
+					geometryAfterSplitter.getChildGeometry(handleSize, handlePosition),
+					m_style->m_handleHighlightBrush->m_tintColor,
+					m_style->m_handleHighlightBrush,
+					maxLayerId);
 			}
 		}
 
@@ -189,7 +200,7 @@ namespace GuGu {
 
 		for (int32_t childeIndex = 0; childeIndex < m_childrens.size(); ++childeIndex)
 		{
-			arrangedWidgetArray.pushWidget(layoutChildren[childeIndex], m_childrens[childeIndex]->getChildWidget());
+			arrangedWidgetArray.pushWidget(allocatedGeometry.getChildGeometry(layoutChildren[childeIndex].getLocalSize(), layoutChildren[childeIndex].getLocalPosition()), m_childrens[childeIndex]->getChildWidget());
 		}
 	}
 
@@ -251,10 +262,10 @@ namespace GuGu {
 			const Visibility childVisibility = curSlot->getChildWidget()->getVisibility();
 
 			const math::float2 childOffset = m_orientation == Orientation::Horizontal ? math::float2(xOffset, 0) : math::float2(0, xOffset);
-			const math::float2 childSize = m_orientation == Orientation::Vertical ? math::float2(childSpace, allottedGeometry.mLocalSize.x) : math::float2(allottedGeometry.mLocalSize.x, childSpace);
+			const math::float2 childSize = m_orientation == Orientation::Horizontal ? math::float2(childSpace, allottedGeometry.mLocalSize.y) : math::float2(allottedGeometry.mLocalSize.x, childSpace);
 
 			//child size and child offset
-			result.push_back(WidgetGeometry::makeRoot(math::float2(childSize), math::affine2(math::float2x2::diagonal(1.0f), childOffset)));
+			result[childIndex] = WidgetGeometry::makeRoot(math::float2(childSize), math::affine2(math::float2x2::diagonal(1.0f), childOffset));
 
 			if (childVisibility != Visibility::Collapsed)
 			{
@@ -436,7 +447,7 @@ namespace GuGu {
 				}
 				else
 				{
-					prevChild.m_sizingRule = newPrevChildSize;
+					prevChild.m_sizeValue = newPrevChildSize;
 				}
 
 				for (int32_t slotIndex = 0; slotIndex < numSlotsAfterDragHandle; ++slotIndex)
