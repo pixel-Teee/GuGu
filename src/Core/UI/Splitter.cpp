@@ -144,7 +144,7 @@ namespace GuGu {
 		}
 
 		int32_t widgetNumber = arrangedWidgetArray.getArrangedWidgetsNumber();
-		for (int32_t childIndex = 0; childIndex < widgetNumber; ++childIndex)
+		for (int32_t childIndex = 0; childIndex < widgetNumber - 1; ++childIndex)
 		{
 			const WidgetGeometry& geometryAfterSplitter = arrangedWidgetArray[std::clamp(childIndex + 1, 0, widgetNumber - 1)]->getWidgetGeometry();
 
@@ -325,13 +325,13 @@ namespace GuGu {
 				? getHandleBeingResizedFromMousePosition<Orientation::Horizontal>(m_physicalSplitterHandleSize, m_hitDetectionSplitterHandleSize, localMousePosition, layoutChildren)
 				: getHandleBeingResizedFromMousePosition<Orientation::Vertical>(m_physicalSplitterHandleSize, m_hitDetectionSplitterHandleSize, localMousePosition, layoutChildren);
 				
-				if (m_hoveredHandleIndex != -1)
+			if (m_hoveredHandleIndex != -1)
+			{
+				if (findResizeableSlotBeforeHandle(m_hoveredHandleIndex, m_childrens) <= -1 || findResizeableSlotAfterHandle(m_hoveredHandleIndex, m_childrens) >= m_childrens.size())
 				{
-					if (findResizeableSlotBeforeHandle(m_hoveredHandleIndex, m_childrens) <= -1 || findResizeableSlotAfterHandle(m_hoveredHandleIndex, m_childrens) >= m_childrens.size())
-					{
-						m_hoveredHandleIndex = -1;
-					}
+					m_hoveredHandleIndex = -1;
 				}
+			}
 
 			return Reply::Unhandled();
 		}
