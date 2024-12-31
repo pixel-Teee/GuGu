@@ -161,7 +161,6 @@ namespace GuGu {
 	}
 	void AssetView::Tick(const WidgetGeometry& allocatedGeometry, const double inCurrentTime, const float inDeltaTime)
 	{
-		m_filteredAssetItems.clear();
 		this->refreshFolders();
 	}
 	void AssetView::requestSlowFullListRefresh()

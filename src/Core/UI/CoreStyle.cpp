@@ -242,7 +242,7 @@ namespace GuGu {
 		//splitter style
 		{
 			//gray color
-			math::float4 grayColor = math::float4(0.44f, 0.44f, 0.44f, 1.0f);
+			math::float4 grayColor = math::float4(0.33f, 0.33f, 0.35f, 1.0f);
 
 			//gray highlight color
 			math::float4 grayHightlightColor = math::float4(0.24f, 0.24f, 0.24f, 1.0f);
