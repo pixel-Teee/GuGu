@@ -61,6 +61,10 @@ namespace GuGu {
 		math::float4 grayColor = math::float4(0.33f, 0.33f, 0.35f, 1.0f);
 		ADD_COLOR(grayColor);
 
+		//gray highlight color
+		math::float4 grayHightlightColor = math::float4(0.24f, 0.24f, 0.24f, 1.0f);
+		ADD_COLOR(grayHightlightColor);
+
 		//light blue color series
 		math::float4 lightBlueLevel1 = math::float4(0.520f, 0.80f, 0.89f, 1.0f);
 		math::float4 lightBlueLevel2 = math::float4(0.42f, 0.65f, 0.83f, 1.0f);

@@ -5,6 +5,8 @@
 #include "UIMacros.h"
 #include "BasicElement.h"
 #include "WidgetDelegates.h"
+#include "StyleSet.h"
+#include "CoreStyle.h"
 
 namespace GuGu {
 	namespace SplitterResizeMode
@@ -60,10 +62,43 @@ namespace GuGu {
 
 			virtual ~SplitterSlot() {}
 
-			void init(std::shared_ptr<Widget> inParentWidget)
+			struct SlotBuilderArguments : public Slot<SplitterSlot>::SlotBuilderArguments
+			{
+				SlotBuilderArguments(std::shared_ptr<SplitterSlot> inSlot)
+					: Slot<SplitterSlot>::SlotBuilderArguments(inSlot) {}
+				virtual ~SlotBuilderArguments() {};
+
+				SlotBuilderArguments& value(const Attribute<float>& inValue)
+				{
+					m_sizeValue = inValue;
+					return Me();
+				}
+
+				SlotBuilderArguments& onSlotResized(const OnSlotResized& inHandler)
+				{
+					m_onSlotResizedHandler = inHandler;
+					return Me();
+				}
+
+				SlotBuilderArguments& sizeRule(const Attribute<SizeRule>& inSizeRule)
+				{
+					m_sizingRule = inSizeRule;
+					return Me();
+				}
+
+				Attribute<SizeRule> m_sizingRule;
+				Attribute<float> m_sizeValue;
+				OnSlotResized m_onSlotResizedHandler;
+			};
+
+			void init(std::shared_ptr<Widget> inParentWidget, SlotBuilderArguments& builderArguments)
 			{
 				m_parentWidget = inParentWidget;
 				m_childWidget->setParentWidget(inParentWidget);
+
+				m_sizeValue = builderArguments.m_sizeValue;
+				m_sizingRule = builderArguments.m_sizingRule;
+				m_onSlotResizedHandler = builderArguments.m_onSlotResizedHandler;
 			}
 
 			Attribute<SizeRule> m_sizingRule;
@@ -73,13 +108,22 @@ namespace GuGu {
 
 		struct BuilderArguments : public Arguments<Splitter>
 		{
-			BuilderArguments() = default;
+			BuilderArguments() 
+				: msplitterStyle(CoreStyle::getStyleSet()->getStyle<SplitterStyle>(u8"splitter"))
+				, morientation(Orientation::Horizontal)
+				, mresizeMode(SplitterResizeMode::FixedPosition)
+				, mphysicalSplitterHandleSize(5.0f)
+				, mhitDetectionSplitterHandleSize(5.0f)
+				, mminimumSlotHeight(20.0f)
+				, monSplitterFinishedResizing()
+			{}
 
 			~BuilderArguments() = default;
 
 			ARGUMENT_SLOT(SplitterSlot, Slots)
 
 			//style
+			ARGUMENT_MEMBER(SplitterStyle, splitterStyle)
 
 			ARGUMENT_VALUE(Orientation, orientation)
 
@@ -95,6 +139,8 @@ namespace GuGu {
 		};
 
 		void init(const BuilderArguments& arguments);
+
+		static SplitterSlot::SlotBuilderArguments Slot();
 
 		virtual uint32_t onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer) override;
 

@@ -267,4 +267,17 @@ namespace GuGu {
 		float m_rolloutAnimationSeconds;
 		ExpandableAreaStyle& setRolloutAnimationSeconds(float inLengthSeconds) { m_rolloutAnimationSeconds = inLengthSeconds; return *this; }
 	};
+
+	struct SplitterStyle : public Style
+	{
+		SplitterStyle() {}
+
+		virtual ~SplitterStyle() {}
+
+		std::shared_ptr<Brush> m_handleNormalBrush;
+		SplitterStyle& setHandleNormalBrush(const std::shared_ptr<Brush>& inHandleNormalBrush) { m_handleNormalBrush = inHandleNormalBrush; return *this; }
+
+		std::shared_ptr<Brush> m_handleHighlightBrush;
+		SplitterStyle& setHandleHighlightBrush(const std::shared_ptr<Brush>& inHandleHighlightBrush) { m_handleHighlightBrush = inHandleHighlightBrush; return *this; }
+	};
 }

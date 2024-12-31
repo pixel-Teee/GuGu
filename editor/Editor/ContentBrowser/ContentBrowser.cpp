@@ -5,6 +5,7 @@
 #include "AssetView.h"
 
 #include <Core/UI/ComplexGradient.h>
+#include <Core/UI/Splitter.h>
 
 #include <Editor/StyleSet/EditorStyleSet.h>
 
@@ -18,9 +19,9 @@ namespace GuGu {
 		m_childWidget = std::make_shared<SingleChildSlot>();
 		m_childWidget->m_parentWidget = shared_from_this();
 
-		m_childWidget->m_childWidget = WIDGET_NEW(HorizontalBox)
-		+ HorizontalBox::Slot()
-		.StretchWidth(0.16f)
+		m_childWidget->m_childWidget = WIDGET_NEW(Splitter)
+		+ Splitter::Slot()
+		.value(0.16f)
 		.setPadding(Padding(0.0f, 0.0f, 25.0f, 0.0f))
 		(
 			WIDGET_NEW(ComplexGradient)
@@ -32,8 +33,8 @@ namespace GuGu {
 				.onPathSelected(this, &ContentBrowser::pathSelected)
 			)
 		)
-		+ HorizontalBox::Slot()
-		.StretchWidth(0.78f)
+		+ Splitter::Slot()
+		.value(0.78f)
 		.setPadding(Padding(0.0f, 0.0f, 25.0f, 0.0f))
 		(
 			WIDGET_NEW(ComplexGradient)

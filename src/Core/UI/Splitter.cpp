@@ -91,11 +91,17 @@ namespace GuGu {
 		{
 			//m_childrens.push_back(arguments.mSlots[slotIndex]);
 			std::shared_ptr<Splitter::SplitterSlot> splitterSlot = std::static_pointer_cast<Splitter::SplitterSlot>(arguments.mSlots[slotIndex].m_slot);
-			splitterSlot->init(shared_from_this());
-			m_childrens.push_back(splitterSlot);
+			SplitterSlot::SlotBuilderArguments builderArguments = arguments.mSlots[slotIndex];
+			splitterSlot->init(shared_from_this(), builderArguments);
+			m_childrens[slotIndex] = splitterSlot;
 		}
 		m_widgetClipping = arguments.mClip;
 		m_visibilityAttribute = arguments.mVisibility;
+	}
+
+	Splitter::SplitterSlot::SlotBuilderArguments Splitter::Slot()
+	{
+		return Splitter::SplitterSlot::SlotBuilderArguments(std::make_shared<SplitterSlot>());
 	}
 
 	uint32_t Splitter::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)

@@ -238,6 +238,30 @@ namespace GuGu {
 		//color block
 		//std::shared_ptr<Brush> colorBlock = std::make_shared<Brush>();
 		m_brushes.insert({ u8"colorPicker.AlphaBckground", checkerBoard });
+
+		//splitter style
+		{
+			//gray color
+			math::float4 grayColor = math::float4(0.33f, 0.33f, 0.35f, 1.0f);
+
+			//gray highlight color
+			math::float4 grayHightlightColor = math::float4(0.24f, 0.24f, 0.24f, 1.0f);
+
+			std::shared_ptr<SplitterStyle> splitterStyle = std::make_shared<SplitterStyle>();
+			std::shared_ptr<Brush> normalBrush = std::make_shared<Brush>();
+			normalBrush->m_tiling = false;
+			normalBrush->m_texturePath = u8"asset/white.png";
+			normalBrush->m_tintColor = grayColor;
+			normalBrush->m_drawAs = BrushDrawType::Type::Image;
+
+			std::shared_ptr<Brush> highlightBrush = std::make_shared<Brush>();
+			highlightBrush->m_tiling = false;
+			highlightBrush->m_texturePath = u8"asset/white.png";
+			highlightBrush->m_tintColor = grayHightlightColor;
+			highlightBrush->m_drawAs = BrushDrawType::Type::Image;
+
+			m_styles.insert({ u8"splitter", splitterStyle });
+		}
 	}
 	CoreStyle::~CoreStyle()
 	{
