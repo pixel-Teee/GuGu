@@ -32,6 +32,14 @@ namespace GuGu {
 		return mAccumulateRenderTransform.transformVector(mLocalSize);
 	}
 
+	math::box2 WidgetGeometry::getAbsoluteRect() const
+	{
+		math::box2 rect;
+		rect.m_maxs = mAccumulateLayoutTransform.transformPoint(mLocalSize);
+		rect.m_mins = mAccumulateLayoutTransform.transformPoint(math::float2(0, 0));
+		return rect;
+	}
+
 	void WidgetGeometry::setAbsoluteScale(float scale)
 	{
 		mAbsoluteScale = scale;

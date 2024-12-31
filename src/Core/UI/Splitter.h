@@ -107,6 +107,26 @@ namespace GuGu {
 		virtual uint32_t getSlotsNumber() const override;
 
 		std::vector<WidgetGeometry> arrangedChildrenForLayout(const WidgetGeometry& allottedGeometry) const;
+
+		virtual Reply OnMouseButtonDown(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent) override;
+
+		virtual Reply OnMouseButtonUp(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent) override;
+
+		virtual Reply OnMouseMove(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent) override;
+
+		void handleResizingByMousePosition(Orientation orientation, const float physicalSplitterHandleSize, const SplitterResizeMode::Type resizeMode, int32_t draggedHandle, const math::float2& localMousePos, std::vector<std::shared_ptr<Splitter::SplitterSlot>>& children, const std::vector<WidgetGeometry>& childGeometries);
+
+		void handleResizingDelta(Orientation orientation, const float physicalSplitterHandleSize, const SplitterResizeMode::Type resizeMode, int32_t draggedHandle, float delta, std::vector<std::shared_ptr<Splitter::SplitterSlot>>& children, const std::vector<WidgetGeometry>& childGeometries);
+		void handleResizingBySize(Orientation orientation, const float physicalSplitterHandleSize, const SplitterResizeMode::Type resizeMode, int32_t draggedHandle, const math::float2& desiredSize, std::vector<std::shared_ptr<Splitter::SplitterSlot>>& children, const std::vector<WidgetGeometry>& childGeometries);
+
+		static int32_t findResizeableSlotBeforeHandle(int32_t draggedHandle, const std::vector<std::shared_ptr<SplitterSlot>>& children);
+		void findAllResizeableSlotsAfterHandle(int32_t draggedHandle, const std::vector<std::shared_ptr<SplitterSlot>>& children, std::vector<int32_t>& outSlotIndices);
+		int32_t findResizeableSlotAfterHandle(int32_t draggedHandle, const std::vector<std::shared_ptr<SplitterSlot>>& children);
+
+		float clampChild(float proposedSize);
+
+		template<Orientation orientation>
+		int32_t getHandleBeingResizedFromMousePosition(float inPhysicalSplitterHandleSize, float hitDetectionSplitterHandleSize, math::float2 localMousePos, const std::vector<WidgetGeometry>& childGeometries);
 	private:
 
 		Orientation m_orientation;

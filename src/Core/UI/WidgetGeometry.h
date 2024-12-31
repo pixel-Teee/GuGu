@@ -22,6 +22,8 @@ namespace GuGu {
 
 		math::float2 getAbsoluteSize() const;
 
+		math::box2 getAbsoluteRect() const;
+
 		math::affine2 getAccumulateLayoutTransform() const;
 
 		math::affine2 getAccumulateRenderTransform() const;

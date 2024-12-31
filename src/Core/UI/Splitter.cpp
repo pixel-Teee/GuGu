@@ -46,6 +46,30 @@ namespace GuGu {
 		return myDesiredSize;
 	}
 
+	template<Orientation orientation>
+	int32_t Splitter::getHandleBeingResizedFromMousePosition(float inPhysicalSplitterHandleSize, float hitDetectionSplitterHandleSize, math::float2 localMousePos, const std::vector<WidgetGeometry>& childGeometries)
+	{
+		const int32_t axisIndex = (orientation == Orientation::Horizontal) ? 0 : 1;
+		const float halfHitDetectionSplitterHandleSize = (hitDetectionSplitterHandleSize / 2);
+		const float halfPhysicalSplitterHandleSize = (inPhysicalSplitterHandleSize / 2);
+
+		for (int32_t childIndex = 1; childIndex < childGeometries.size(); ++childIndex)
+		{
+			math::box2 prevChildRect = childGeometries[childIndex - 1].getAbsoluteRect();
+			math::float2 nextChildOffset = childGeometries[childIndex].getAbsolutePosition();
+			//topleft + size
+			float prevBound = prevChildRect.getCorner(0)[axisIndex] + prevChildRect.diagonal()[axisIndex] - halfHitDetectionSplitterHandleSize + halfPhysicalSplitterHandleSize;
+			float nextBound = nextChildOffset[axisIndex] + halfHitDetectionSplitterHandleSize - halfPhysicalSplitterHandleSize;
+
+			if(localMousePos[axisIndex] > prevBound && localMousePos[axisIndex] < nextBound)
+			{
+				return childIndex - 1;
+			}
+		}
+
+		return -1;
+	}
+
 	Splitter::Splitter()
 	{
 	}
@@ -233,6 +257,250 @@ namespace GuGu {
 		}
 
 		return result;
+	}
+
+	Reply Splitter::OnMouseButtonDown(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
+	{
+		if (inMouseEvent.getEffectingButton() == Keys::LeftMouseButton && m_hoveredHandleIndex != -1)
+		{
+			m_bIsResizing = true;
+			return Reply::Handled().captureMouse(shared_from_this());
+		}
+		else
+		{
+			return Reply::Unhandled();
+		}
+	}
+
+	Reply Splitter::OnMouseButtonUp(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
+	{
+		if (inMouseEvent.getEffectingButton() == Keys::LeftMouseButton && m_bIsResizing == true)
+		{
+			m_bIsResizing = false;
+			return Reply::Handled().releaseMouseCapture();
+		}
+		else
+		{
+			return Reply::Unhandled();
+		}
+	}
+
+	Reply Splitter::OnMouseMove(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
+	{
+		const math::float2 localMousePosition = myGeometry.absoluteToLocal(inMouseEvent.m_screenSpacePosition);
+
+		std::vector<WidgetGeometry> layoutChildren = arrangedChildrenForLayout(myGeometry);
+
+		if (m_bIsResizing)
+		{
+			math::float2 cursorDelta = inMouseEvent.getCursorDelta();
+			if(cursorDelta.x != 0 || cursorDelta.y != 0)
+			{
+				handleResizingByMousePosition(m_orientation, m_physicalSplitterHandleSize, m_resizeMode, m_hoveredHandleIndex, localMousePosition, m_childrens, layoutChildren);
+			}
+
+			return Reply::Handled();
+		}
+		else
+		{
+			//检测哪一个柄我们当前悬浮
+			m_hoveredHandleIndex = (m_orientation == Orientation::Horizontal)
+				? getHandleBeingResizedFromMousePosition<Orientation::Horizontal>(m_physicalSplitterHandleSize, m_hitDetectionSplitterHandleSize, localMousePosition, layoutChildren)
+				: getHandleBeingResizedFromMousePosition<Orientation::Vertical>(m_physicalSplitterHandleSize, m_hitDetectionSplitterHandleSize, localMousePosition, layoutChildren);
+				
+				if (m_hoveredHandleIndex != -1)
+				{
+					if (findResizeableSlotBeforeHandle(m_hoveredHandleIndex, m_childrens) <= -1 || findResizeableSlotAfterHandle(m_hoveredHandleIndex, m_childrens) >= m_childrens.size())
+					{
+						m_hoveredHandleIndex = -1;
+					}
+				}
+
+			return Reply::Unhandled();
+		}
+	}
+
+	void Splitter::handleResizingByMousePosition(Orientation orientation, const float physicalSplitterHandleSize, const SplitterResizeMode::Type resizeMode, int32_t draggedHandle, const math::float2& localMousePos, std::vector<std::shared_ptr<Splitter::SplitterSlot>>& children, const std::vector<WidgetGeometry>& childGeometries)
+	{
+		const int32_t axisIndex = (orientation == Orientation::Horizontal) ? 0 : 1;
+
+		//算出鼠标位置距离柄的偏移
+		const float handlePos = childGeometries[draggedHandle + 1].getAbsolutePosition()[axisIndex] - physicalSplitterHandleSize;
+		float delta = localMousePos[axisIndex] - handlePos;
+
+		handleResizingDelta(orientation, physicalSplitterHandleSize, resizeMode, draggedHandle, delta, children, childGeometries);
+	}
+
+	void Splitter::handleResizingDelta(Orientation orientation, const float physicalSplitterHandleSize, const SplitterResizeMode::Type resizeMode, int32_t draggedHandle, float delta, std::vector<std::shared_ptr<Splitter::SplitterSlot>>& children, const std::vector<WidgetGeometry>& childGeometries)
+	{
+		const int32_t numChildren = children.size();
+		const int32_t axisIndex = (orientation == Orientation::Horizontal) ? 0 : 1;
+
+		std::vector<int32_t> slotsAfterDragHandleIndicies;
+		if (resizeMode == SplitterResizeMode::FixedPosition) 
+		{
+			const int32_t slotAfterDragHandle = findResizeableSlotAfterHandle(draggedHandle, children);
+
+			if (slotAfterDragHandle < numChildren)
+			{
+				slotsAfterDragHandleIndicies.push_back(slotAfterDragHandle);
+			}
+		}
+		else if (resizeMode == SplitterResizeMode::Fill || resizeMode == SplitterResizeMode::FixedSize)
+		{
+			findAllResizeableSlotsAfterHandle(draggedHandle, children, /*out*/slotsAfterDragHandleIndicies);
+		}
+
+		const int32_t numSlotsAfterDragHandle = slotsAfterDragHandleIndicies.size();
+		if (numSlotsAfterDragHandle)
+		{
+			struct SlotInfo
+			{
+				Splitter::SplitterSlot* slot;
+				const WidgetGeometry* geometry;
+				float newSize;
+			};
+
+			std::vector<SlotInfo> slotsAfterDragHandle;
+			for (int32_t slotIndex = 0; slotIndex < numSlotsAfterDragHandle; ++slotIndex)
+			{
+				SlotInfo slotInfo;
+
+				slotInfo.slot = children[slotsAfterDragHandleIndicies[slotIndex]].get();
+				slotInfo.geometry = &childGeometries[slotsAfterDragHandleIndicies[slotIndex]];
+				slotInfo.newSize = clampChild(slotInfo.geometry->getAbsoluteSize()[axisIndex]);
+
+				slotsAfterDragHandle.push_back(slotInfo);
+			}
+
+			const int32_t slotBeforeDragHandle = findResizeableSlotBeforeHandle(draggedHandle, children);
+			SplitterSlot& prevChild = *children[slotBeforeDragHandle];
+			const WidgetGeometry& prevChildGeom = childGeometries[slotBeforeDragHandle];
+
+			const float prevChildLength = prevChildGeom.getAbsoluteSize()[axisIndex];
+			float newPrevChildLength = clampChild(prevChildLength + delta);
+			delta = newPrevChildLength - prevChildLength;
+
+			float unUsedDelta = delta;
+
+			for (float distributionCount = 0; distributionCount < numSlotsAfterDragHandle && unUsedDelta != 0; ++distributionCount)
+			{
+				float dividedDelta = resizeMode != SplitterResizeMode::FixedSize ? unUsedDelta / numSlotsAfterDragHandle : unUsedDelta;
+
+				unUsedDelta = 0;
+
+				int32_t slotIndex = 0;
+
+				if (resizeMode == SplitterResizeMode::FixedSize)
+				{
+					slotIndex = numSlotsAfterDragHandle - 1;
+				}
+
+				for (; slotIndex < numSlotsAfterDragHandle; ++slotIndex)
+				{
+					SlotInfo& slotInfo = slotsAfterDragHandle[slotIndex];
+					float currentSize = slotInfo.newSize;
+					slotInfo.newSize = clampChild(currentSize - dividedDelta);
+
+					unUsedDelta += slotInfo.newSize - (currentSize - dividedDelta);
+				}
+			}
+
+			delta = delta - unUsedDelta;
+
+			newPrevChildLength = clampChild(prevChildLength + delta);
+
+			{
+				float totalLength = newPrevChildLength;
+				float totalStretchCoefficients = prevChild.m_sizeValue.Get();
+
+				for (int32_t slotIndex = 0; slotIndex < numSlotsAfterDragHandle; ++slotIndex)
+				{
+					SlotInfo slotInfo = slotsAfterDragHandle[slotIndex];
+
+					totalLength += slotInfo.newSize;
+					totalStretchCoefficients += slotInfo.slot->m_sizeValue.Get();
+				}
+
+				const float newPrevChildSize = (totalStretchCoefficients * newPrevChildLength / totalLength);
+
+				if (prevChild.m_onSlotResizedHandler)
+				{
+					prevChild.m_onSlotResizedHandler(newPrevChildSize);
+				}
+				else
+				{
+					prevChild.m_sizingRule = newPrevChildSize;
+				}
+
+				for (int32_t slotIndex = 0; slotIndex < numSlotsAfterDragHandle; ++slotIndex)
+				{
+					SlotInfo slotInfo = slotsAfterDragHandle[slotIndex];
+
+					const float newNextChildSize = (totalStretchCoefficients * slotInfo.newSize / totalLength);
+
+					if (slotInfo.slot->m_onSlotResizedHandler)
+					{
+						slotInfo.slot->m_onSlotResizedHandler(newNextChildSize);
+					}
+					else
+					{
+						slotInfo.slot->m_sizeValue = newNextChildSize;
+					}
+				}
+			}
+		}
+	}
+
+	void Splitter::handleResizingBySize(Orientation orientation, const float physicalSplitterHandleSize, const SplitterResizeMode::Type resizeMode, int32_t draggedHandle, const math::float2& desiredSize, std::vector<std::shared_ptr<Splitter::SplitterSlot>>& children, const std::vector<WidgetGeometry>& childGeometries)
+	{
+	}
+
+	int32_t Splitter::findResizeableSlotBeforeHandle(int32_t draggedHandle, const std::vector<std::shared_ptr<SplitterSlot>>& children)
+	{
+		int32_t slotBeforeDragHandle = draggedHandle;
+		while (slotBeforeDragHandle >= 0 && (children[slotBeforeDragHandle]->getChildWidget()->getVisibility() == Visibility::Collapsed || children[slotBeforeDragHandle]->m_sizingRule.Get() == Splitter::SizeToContent))
+		{
+			--slotBeforeDragHandle;
+		}
+
+		return slotBeforeDragHandle;
+	}
+
+	void Splitter::findAllResizeableSlotsAfterHandle(int32_t draggedHandle, const std::vector<std::shared_ptr<SplitterSlot>>& children, std::vector<int32_t>& outSlotIndices)
+	{
+		const int32_t numChildren = children.size();
+
+		for (int32_t slotIndex = draggedHandle + 1; slotIndex < numChildren; ++slotIndex)
+		{
+			if (children[slotIndex]->getChildWidget()->getVisibility() == Visibility::Collapsed || children[slotIndex]->m_sizingRule.Get() == Splitter::SizeToContent)
+			{
+				continue;
+			}
+
+			outSlotIndices.push_back(slotIndex);
+		}
+	}
+
+	int32_t Splitter::findResizeableSlotAfterHandle(int32_t draggedHandle, const std::vector<std::shared_ptr<SplitterSlot>>& children)
+	{
+		const int32_t numChildren = children.size();
+
+		int32_t slotAfterDragHandle = draggedHandle + 1;
+		{
+			//找到可以移动的槽
+			while (slotAfterDragHandle < numChildren && (children[slotAfterDragHandle]->getChildWidget()->getVisibility() == Visibility::Collapsed || children[slotAfterDragHandle]->m_sizingRule.Get() == Splitter::SizeToContent))
+			{
+				++slotAfterDragHandle;
+			}
+		}
+
+		return slotAfterDragHandle;
+	}
+
+	float Splitter::clampChild(float proposedSize)
+	{
+		return std::max(m_minSplitterChildLength, proposedSize);
 	}
 
 }

@@ -65,15 +65,23 @@ namespace GuGu {
 			: m_screenSpacePosition(inScreenSpacePosition)
 			, m_lastScreenSpacePosition(inLastScreenSpacePosition)
 			, m_cursorDelta(inScreenSpacePosition - inLastScreenSpacePosition)
+			, m_effectingButton(Keys::LeftMouseButton)
 		{}
 
 		math::float2 getCursorDelta() const
 		{
 			return m_cursorDelta;
 		}
+
+		Key getEffectingButton() const
+		{
+			return m_effectingButton;
+		}
+
 		math::float2 m_screenSpacePosition;
 		math::float2 m_lastScreenSpacePosition;
 		math::float2 m_cursorDelta;
+		Key m_effectingButton;
 	};
 
 	struct CharacterEvent : public InputEvent
