@@ -15,6 +15,7 @@
 #include <Core/UI/MenuAnchor.h>
 #include <Core/UI/Box.h>
 #include <Core/UI/TileView.h>
+#include <Core/UI/Splitter.h>
 
 #include <Application/Application.h>//用于退出
 
@@ -145,58 +146,69 @@ namespace GuGu {
 					.StretchHeight(0.58)
 					.setPadding(Padding(22.0f, 0.0f, 19.0f, 45.0f))
 					(
-						WIDGET_NEW(HorizontalBox)
-						+ HorizontalBox::Slot()
-						.StretchWidth(0.16f)
-						.setPadding(Padding(0.0f, 0.0f, 24.0f, 0.0f))
+						WIDGET_NEW(Splitter)
+						.orientation(Orientation::Vertical)
+						+ Splitter::Slot()
+						.value(0.58)
+						.sizeRule(Splitter::SizeRule::FractionOfParent)
 						(
-							WIDGET_NEW(ComplexGradient)
-							.GradientColors(blueGradientBackground)
-							.cornerRadius(math::float4(10.0f, 10.0f, 10.0f, 10.0f))
-							.Content
+							WIDGET_NEW(Splitter)
+							+ Splitter::Slot()
+							.value(0.16f)
+							.sizeRule(Splitter::SizeRule::FractionOfParent)
+							.setPadding(Padding(0.0f, 0.0f, 24.0f, 0.0f))
 							(
-								NullWidget::getNullWidget()
-							)
-						)
-						+ HorizontalBox::Slot()
-						.StretchWidth(0.60f)
-						.setPadding(Padding(0.0f, 0.0f, 27.0f, 0.0f))
-						(
-							WIDGET_NEW(ComplexGradient)
-							.GradientColors(blueGradientBackground)
-							.cornerRadius(math::float4(10.0f, 10.0f, 10.0f, 10.0f))
-							.Content
-							(
-								WIDGET_NEW(Border)
-								.padding(Padding(20.0f, 52.0f, 20.0f, 20.0f))
-								.BorderBackgroundColor(math::float4(0.0f, 0.0f, 0.0f, 0.0f))
+								WIDGET_NEW(ComplexGradient)
+								.GradientColors(blueGradientBackground)
+								.cornerRadius(math::float4(10.0f, 10.0f, 10.0f, 10.0f))
 								.Content
 								(
-									WIDGET_ASSIGN_NEW(ViewportWidget, m_viewportWidget)
+									NullWidget::getNullWidget()
+								)
+							)
+							+ Splitter::Slot()
+							.value(0.60f)
+							.sizeRule(Splitter::SizeRule::FractionOfParent)
+							.setPadding(Padding(0.0f, 0.0f, 27.0f, 0.0f))
+							(
+								WIDGET_NEW(ComplexGradient)
+								.GradientColors(blueGradientBackground)
+								.cornerRadius(math::float4(10.0f, 10.0f, 10.0f, 10.0f))
+								.Content
+								(
+									WIDGET_NEW(Border)
+									.padding(Padding(20.0f, 52.0f, 20.0f, 20.0f))
+									.BorderBackgroundColor(math::float4(0.0f, 0.0f, 0.0f, 0.0f))
 									.Content
 									(
-										NullWidget::getNullWidget()
-									)
-								)										
+										WIDGET_ASSIGN_NEW(ViewportWidget, m_viewportWidget)
+										.Content
+										(
+											NullWidget::getNullWidget()
+										)
+									)										
+								)
 							)
-						)
-						+ HorizontalBox::Slot()
-						.StretchWidth(0.16f)
-						(
-							WIDGET_NEW(ComplexGradient)
-							.GradientColors(blueGradientBackground)
-							.cornerRadius(math::float4(10.0f, 10.0f, 10.0f, 10.0f))
-							.Content
+							+ Splitter::Slot()
+							.sizeRule(Splitter::SizeRule::FractionOfParent)
+							.value(0.16f)
 							(
-								NullWidget::getNullWidget()
+								WIDGET_NEW(ComplexGradient)
+								.GradientColors(blueGradientBackground)
+								.cornerRadius(math::float4(10.0f, 10.0f, 10.0f, 10.0f))
+								.Content
+								(
+									NullWidget::getNullWidget()
+								)
 							)
+						)		
+						+ Splitter::Slot()
+						.value(0.16f)
+						.sizeRule(Splitter::SizeRule::FractionOfParent)
+						.setPadding(Padding(21.0f, 0.0f, 19.0f, 18.0f))
+						(
+							WIDGET_NEW(ContentBrowser)
 						)
-					)
-					+ VerticalBox::Slot() //下面区域
-					.StretchHeight(0.175)
-					.setPadding(Padding(21.0f, 0.0f, 19.0f, 18.0f))
-					(
-						WIDGET_NEW(ContentBrowser)
 					)
 				)
 			)
