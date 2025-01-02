@@ -194,10 +194,10 @@ namespace GuGu{
         //note:android have bug
         std::shared_ptr<Application> application = Application::getApplication();
         std::vector<std::shared_ptr<WindowWidget>> windowWidgets = application->getWidowWidgets();
-#ifdef ANDROID
+
         for(size_t i = 0; i < windowWidgets.size(); ++i)
             UpdateWindowSize(windowWidgets[i]);//主动获取大小来更新窗口的 swap chain 和 surface
-#endif
+
 
         AnimateRenderPresent();
     }
