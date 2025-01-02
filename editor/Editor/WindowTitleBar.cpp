@@ -90,7 +90,7 @@ namespace GuGu {
 	}
 	Reply WindowTitleBar::miniMizeWindow()
 	{
-		Application::getApplication()->miniMizeWindow(std::static_pointer_cast<WindowWidget>(shared_from_this()));
+		Application::getApplication()->miniMizeWindow(m_parentWindow.lock());
 		return Reply::Handled();
 	}
 	WindowZone::Type WindowTitleBar::getWindowZoneOverride() const
