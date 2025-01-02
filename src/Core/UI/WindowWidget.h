@@ -61,6 +61,7 @@ namespace GuGu {
 				, mScreenPosition(math::float2(0.0f, 0.0f))
 				, msizingRule(SizingRule::UserSize)
 				, mFocusWhenFirstShown(true)
+				, muserResizeBorder(Padding(5, 5, 5, 5))
 			{}
 			~BuilderArguments() = default;
 
@@ -78,6 +79,8 @@ namespace GuGu {
 
 			//当窗口显示的时候，是否立马获取焦点？
 			ARGUMENT_VALUE(bool, FocusWhenFirstShown)
+
+			ARGUMENT_VALUE(Padding, userResizeBorder)
 		};
 
 		void init(const BuilderArguments& arguments);
@@ -137,6 +140,8 @@ namespace GuGu {
 		void setParentWindow(const std::shared_ptr<WindowWidget>& inParentWindow);
 
 		std::weak_ptr<WindowWidget> getParentWindow() const;
+
+		WindowZone::Type getCurrentWindowZone(math::float2 localMousePosition);
 	protected:
 		std::shared_ptr<Window> m_nativeWindow;
 		std::shared_ptr<SingleChildSlot> m_childWidget;
@@ -163,5 +168,9 @@ namespace GuGu {
 		bool m_bFocusWhenFirstShown;
 
 		std::weak_ptr<WindowWidget> m_parentWindow;
+
+		Padding m_userResizeBorder;//用户可以被抓取的边界尺寸
+
+		WindowZone::Type m_windowZone;//鼠标现在悬浮的窗口区域
 	};
 }

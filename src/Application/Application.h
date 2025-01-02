@@ -21,6 +21,7 @@ namespace GuGu {
 		ActivateByMouse,
 		Deactivate
 	};
+
 	class Widget;
 
 	class Timer;
@@ -91,6 +92,8 @@ namespace GuGu {
 
 		virtual ModifierKeysState getModifierKeys() const { return ModifierKeysState(); }
 		//------input------
+
+		virtual WindowZone::Type getWindowZoneForPoint(const std::shared_ptr<Window>& window, const int32_t X, const int32_t Y);
 
 		bool hasAnyFocus(std::shared_ptr<const Widget> inWidget) const;
 

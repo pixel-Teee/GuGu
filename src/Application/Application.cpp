@@ -265,6 +265,11 @@ namespace GuGu{
         return nullptr;
     }
 
+	WindowZone::Type Application::getWindowZoneForPoint(const std::shared_ptr<Window>& window, const int32_t X, const int32_t Y)
+	{
+		return WindowZone::NontInWindow;
+	}
+
 	bool Application::hasAnyFocus(std::shared_ptr<const Widget> inWidget) const
 	{
 		//if(!m_focusWidgetsPath.empty())

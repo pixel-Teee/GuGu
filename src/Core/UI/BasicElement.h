@@ -97,6 +97,11 @@ namespace GuGu {
 		{
 			return 0.0f;
 		}
+
+		Padding operator * (float scale) const
+		{
+			return Padding(left * scale, top * scale, right * scale, bottom * scale);
+		}
 	};
 	template<>
 	inline float Padding::getTotalSpaceAlong<Orientation::Horizontal>() const { return left + right; }
@@ -243,4 +248,28 @@ namespace GuGu {
 
 		MenuPlacementMatchBottomLeft
 	};
+
+	namespace WindowZone
+	{
+		enum Type
+		{
+			NontInWindow = 0,
+			TopLeftBorder = 1,
+			TopBorder = 2,
+			TopRightBorder = 3,
+			LeftBorder = 4,
+			ClientArea = 5,
+			RightBorder = 6,
+			BottomLeftBorder = 7,
+			BottomBorder = 8,
+			BottomRightBorder = 9,
+			TitleBar = 10,
+			MinimizeButton = 11,
+			MaximizeButton = 12,
+			CloseButton = 13,
+			SysMenu = 14,
+
+			Unspecified = 0
+		};
+	}
 }

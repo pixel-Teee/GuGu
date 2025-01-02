@@ -37,6 +37,8 @@ namespace GuGu {
 		m_visibilityAttribute = arguments.mVisibility;
 
 		m_screenPosition = arguments.mScreenPosition;
+
+		m_userResizeBorder = arguments.muserResizeBorder;
 		//set size
 		resize(arguments.mClientSize);
 
@@ -383,6 +385,76 @@ namespace GuGu {
 	std::weak_ptr<WindowWidget> WindowWidget::getParentWindow() const
 	{
 		return m_parentWindow;
+	}
+	WindowZone::Type WindowWidget::getCurrentWindowZone(math::float2 localMousePosition)
+	{
+		const float windowDpiScale = m_nativeWindow->getDpiFactor();
+
+		const Padding dpiScaledResizeBorder = m_userResizeBorder * windowDpiScale;
+
+		if (localMousePosition.x >= 0 && localMousePosition.x < m_size.x &&
+			localMousePosition.y >= 0 && localMousePosition.y < m_size.y)
+		{
+			int32_t row = 1;
+			int32_t col = 1;
+
+			if (m_sizingRule == SizingRule::UserSize)
+			{
+				if (localMousePosition.x < (dpiScaledResizeBorder.left + 5))
+				{
+					col = 0;
+				}
+				else if (localMousePosition.x >= m_size.x - (dpiScaledResizeBorder.right + 5))
+				{
+					col = 2;
+				}
+
+				if (localMousePosition.y < (dpiScaledResizeBorder.top + 5))
+				{
+					row = 0;
+				}
+				else if (localMousePosition.y >= m_size.y - (dpiScaledResizeBorder.bottom + 5))
+				{
+					row = 2;
+				}
+
+				bool bInBorder = localMousePosition.x < dpiScaledResizeBorder.left ||
+					localMousePosition.x >= m_size.x - dpiScaledResizeBorder.right ||
+					localMousePosition.y < dpiScaledResizeBorder.top ||
+					localMousePosition.y >= m_size.y - dpiScaledResizeBorder.bottom;
+
+				if (!bInBorder)
+				{
+					row = 1;
+					col = 1;
+				}
+			}
+			static const WindowZone::Type typeZones[3][3] =
+			{
+				{WindowZone::TopLeftBorder,			WindowZone::TopBorder,		WindowZone::TopRightBorder},
+				{WindowZone::LeftBorder,			WindowZone::ClientArea,		WindowZone::RightBorder},
+				{WindowZone::BottomLeftBorder,		WindowZone::BottomBorder,	WindowZone::BottomRightBorder},
+			};
+
+			WindowZone::Type inZone = typeZones[row][col];
+
+			if (inZone == WindowZone::ClientArea)
+			{
+				//todo:完成这里的逻辑
+				m_windowZone = inZone;
+			}
+			//todo:判断菜单是否可见
+			else
+			{
+				m_windowZone = inZone;
+			}
+		}
+		else
+		{
+			m_windowZone = WindowZone::NontInWindow;
+		}
+		return m_windowZone;
+		
 	}
 	OverlayPopupLayer::OverlayPopupLayer(const std::shared_ptr<WindowWidget>& initHostWindow, const std::shared_ptr<Widget>& initPopupContent, std::shared_ptr<Overlay> initOverlay)
 		: PopupLayer(initHostWindow, initPopupContent)

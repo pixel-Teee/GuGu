@@ -149,6 +149,26 @@ namespace GuGu {
 		return workArea;
 	}
 
+	WindowZone::Type WindowsApplication::getWindowZoneForPoint(const std::shared_ptr<Window>& window, const int32_t X, const int32_t Y)
+	{
+		std::shared_ptr<WindowWidget> windowWidget;
+		for (size_t i = 0; i < m_windowWidgets.size(); ++i)
+		{
+			if (m_windowWidgets[i]->getNativeWindow() == window)
+			{
+				windowWidget = m_windowWidgets[i];
+				break;
+			}
+		}
+
+		if (windowWidget)
+		{
+			return windowWidget->getCurrentWindowZone(math::float2(X, Y));
+		}
+
+		return WindowZone::NontInWindow;
+	}
+
 	static bool FolderExists(const GuGuUtf8Str& folderPath)
 	{
 		DWORD dwAttrib = GetFileAttributesA(folderPath.getStr());
@@ -499,6 +519,35 @@ namespace GuGu {
 					bool result = false;
 					result = globalApplication->onWindowActivationChanged(window, activationType);
 				}
+				break;
+			}
+			case WM_NCHITTEST:
+			{
+				RECT rcWindow;
+				GetWindowRect(hwnd, &rcWindow);
+
+				const int32_t localMouseX = (int32_t)(short)(LOWORD(lParam)) - rcWindow.left;
+				const int32_t localMouseY = (int32_t)(short)(HIWORD(lParam)) - rcWindow.top;
+
+				//todo:判断这个是不是普通窗口
+				WindowZone::Type zone;
+				std::shared_ptr<Window> window;
+				//find native window
+				std::vector<std::shared_ptr<WindowsWindow>> windows = globalApplication->getPlatformWindows();
+				for (int32_t i = 0; i < windows.size(); ++i)
+				{
+					if (windows[i]->getNativeWindowHandle() == hwnd)
+					{
+						window = windows[i];
+					}
+				}
+				zone = globalApplication->getWindowZoneForPoint(window, localMouseX, localMouseY);
+
+				static const LRESULT results[] = { HTNOWHERE, HTTOPLEFT, HTTOP, HTTOPRIGHT, HTLEFT, HTCLIENT,
+				HTRIGHT, HTBOTTOMLEFT, HTBOTTOM, HTBOTTOMRIGHT,
+				HTCAPTION, HTMINBUTTON, HTMAXBUTTON, HTCLOSE, HTSYSMENU };
+
+				return results[zone];
 				break;
 			}
 		}
