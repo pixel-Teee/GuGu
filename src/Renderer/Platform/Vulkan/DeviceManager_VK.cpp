@@ -345,7 +345,7 @@ namespace GuGu{
 			androidApplication->setFocused(false);
 #else
 #if WIN32
-			windowsApplication->setFocused(false);
+			//windowsApplication->setFocused(false);
 #endif
 #endif
 		}

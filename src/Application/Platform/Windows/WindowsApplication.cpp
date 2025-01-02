@@ -576,7 +576,7 @@ namespace GuGu {
 					}
 				}
 				globalApplication->onMovedWindow(window, NewX, NewY);
-				return 0;
+				//return 0;
 				break;
 			}
 		}
