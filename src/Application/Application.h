@@ -88,6 +88,8 @@ namespace GuGu {
 
 		virtual bool onWindowActivationChanged(const std::shared_ptr<Window>& window, const WindowActivation);
 
+		virtual void onMovedWindow(const std::shared_ptr<Window>& window, const int32_t x, const int32_t y);
+
 		std::shared_ptr<Widget> getCaptorWidget() const;
 
 		virtual ModifierKeysState getModifierKeys() const { return ModifierKeysState(); }
@@ -154,6 +156,10 @@ namespace GuGu {
 		std::shared_ptr<Level> getCurrentLevel();
 		const std::shared_ptr<Level> getCurrentLevel() const;
 		//------game play------
+
+		std::shared_ptr<Widget> locateWidgetInWindow(const std::shared_ptr<Window>& window, const math::float2& screenSpacePosition);
+
+		virtual math::float2 getCursorPos() const;
 	protected:
 		std::shared_ptr<Renderer> m_renderer;
 
@@ -175,8 +181,6 @@ namespace GuGu {
 		bool processKeyDownEvent(const KeyEvent& inKeyEvent);
 
 		bool processWindowActivatedEvent(const WindowActivateEvent& activateEvent);
-
-		std::shared_ptr<Widget> locateWidgetInWindow(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent);
 
 		math::float2 translateCursorPos(math::float2 cursorPos, std::shared_ptr<WindowWidget> inWindowWidget);
 

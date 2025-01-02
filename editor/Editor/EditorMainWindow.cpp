@@ -29,6 +29,7 @@
 
 #include "ContentBrowser/ContentBrowser.h"
 #include "ContentBrowser/PathView.h"
+#include "WindowTitleBar.h"
 
 namespace GuGu {
 	EditorMainWindow::EditorMainWindow()
@@ -61,46 +62,12 @@ namespace GuGu {
 				.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("grayColor"))
 				.Content
 				(
-					WIDGET_NEW(VerticalBox) //菜单栏1
+					WIDGET_NEW(VerticalBox) //标题栏
 					+ VerticalBox::Slot()
 					.StretchHeight(0.06)
 					.setPadding(Padding(21.0f, 17.0f, 21.0f, 14.0f))
 					(
-						WIDGET_NEW(Overlay)
-						+ Overlay::Slot()
-						(
-							WIDGET_NEW(ComplexGradient)
-							.GradientColors(blueGradientBackground)
-							.cornerRadius(math::float4(10.0f, 10.0f, 10.0f, 10.0f))
-							.Content
-							(
-								NullWidget::getNullWidget()
-							)
-						)	
-						+ Overlay::Slot()
-						.setHorizontalAlignment(HorizontalAlignment::Right)
-						.setVerticalAlignment(VerticalAlignment::Center)
-						.setPadding(Padding(0.0f, 0.0f, 67.0f, 0.0f))
-						(
-							WIDGET_ASSIGN_NEW(Button, minimizeButton)
-							.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"MinimizeButton"))
-							.Content
-							(
-								NullWidget::getNullWidget()
-							)
-						)
-						+ Overlay::Slot()
-						.setHorizontalAlignment(HorizontalAlignment::Right)
-						.setVerticalAlignment(VerticalAlignment::Center)
-						.setPadding(Padding(0.0f, 0.0f, 7.0f, 0.0f))
-						(
-							WIDGET_ASSIGN_NEW(Button, closeButton)
-							.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"CloseButton"))
-							.Content
-							(
-								NullWidget::getNullWidget()
-							)
-						)
+						WIDGET_NEW(WindowTitleBar, std::static_pointer_cast<WindowWidget>(shared_from_this()))
 					)
 					+ VerticalBox::Slot()
 					.FixedHeight()
@@ -216,8 +183,6 @@ namespace GuGu {
 			.ClientSize(math::float2(1280.0f, 720.0f)) //todo:fix this
 			.ScreenPosition(arguments.mScreenPosition));
 
-			closeButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::exitApplication, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
-			minimizeButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::miniMizeWindow, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
 			fileButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::openFileMenu, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
 		}
 		else
@@ -235,17 +200,7 @@ namespace GuGu {
 
 		//std::shared_ptr<TileView<GuGuUtf8Str>> test = WIDGET_NEW(TileView<GuGuUtf8Str>);
 	}
-	Reply EditorMainWindow::exitApplication()
-	{
-		//Application::getApplication()->setExit(true);
-		this->requestDestroyWindow();
-		return Reply::Handled();
-	}
-	Reply EditorMainWindow::miniMizeWindow()
-	{
-		Application::getApplication()->miniMizeWindow(std::static_pointer_cast<WindowWidget>(shared_from_this()));
-		return Reply::Handled();
-	}
+
 	Reply EditorMainWindow::openFileMenu()
 	{
 		//return Reply();

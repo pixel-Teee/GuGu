@@ -172,5 +172,7 @@ namespace GuGu {
 		Padding m_userResizeBorder;//用户可以被抓取的边界尺寸
 
 		WindowZone::Type m_windowZone;//鼠标现在悬浮的窗口区域
+
+		float m_titleBarSize;
 	};
 }

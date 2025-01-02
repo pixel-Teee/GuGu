@@ -258,6 +258,24 @@ namespace GuGu{
 		return processWindowActivatedEvent(windowActivateEvent);
 	}
 
+	void Application::onMovedWindow(const std::shared_ptr<Window>& window, const int32_t x, const int32_t y)
+	{
+		std::shared_ptr<WindowWidget> windowWidget;
+		for (size_t i = 0; i < m_windowWidgets.size(); ++i)
+		{
+			if (m_windowWidgets[i]->getNativeWindow() == window)
+			{
+				windowWidget = m_windowWidgets[i];
+				break;
+			}
+		}
+
+		if (windowWidget)
+		{
+			windowWidget->setCachedScreenPosition(math::float2(x, y));
+		}
+	}
+
     std::shared_ptr<Widget> Application::getCaptorWidget() const
     {
         if (!m_captorWidgetsPath.isEmpty())
@@ -656,7 +674,7 @@ namespace GuGu{
 		}
 		else
         {
-			std::shared_ptr<Widget> collisionWidget = locateWidgetInWindow(window, mouseEvent);
+			std::shared_ptr<Widget> collisionWidget = locateWidgetInWindow(window, mouseEvent.m_screenSpacePosition);
 
 			std::vector<std::shared_ptr<Widget>> widgets;
 			std::shared_ptr<Widget> currentWidget = collisionWidget;
@@ -756,7 +774,7 @@ namespace GuGu{
 		}
 		else
 		{
-			std::shared_ptr<Widget> collisionWidget = locateWidgetInWindow(window, mouseEvent);
+			std::shared_ptr<Widget> collisionWidget = locateWidgetInWindow(window, mouseEvent.m_screenSpacePosition);
 
 			std::vector<std::shared_ptr<Widget>> widgets;
 			std::shared_ptr<Widget> currentWidget = collisionWidget;
@@ -822,7 +840,7 @@ namespace GuGu{
     bool Application::processMouseMoveEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
     {
 		//------当前获取得到的控件路径------
-		std::shared_ptr<Widget> collisionWidget = locateWidgetInWindow(window, mouseEvent);
+		std::shared_ptr<Widget> collisionWidget = locateWidgetInWindow(window, mouseEvent.m_screenSpacePosition);
 
 		std::vector<std::shared_ptr<Widget>> widgets;
 		std::shared_ptr<Widget> currentWidget = collisionWidget;
@@ -1014,7 +1032,7 @@ namespace GuGu{
 		return false;
 	}
 
-    std::shared_ptr<Widget> Application::locateWidgetInWindow(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
+    std::shared_ptr<Widget> Application::locateWidgetInWindow(const std::shared_ptr<Window>& window, const math::float2& screenSpacePosition)
     {
 		UIRenderPass* uiRenderPass = m_renderer->getUIRenderPass();
 		//find window widget
@@ -1046,7 +1064,7 @@ namespace GuGu{
                 return lhs->getLayer() < rhs->getLayer();
             });
 
-        math::float2 cursorPosition = mouseEvent.m_screenSpacePosition - window->getWindowScreenSpacePosition();
+        math::float2 cursorPosition = screenSpacePosition - window->getWindowScreenSpacePosition();
         std::shared_ptr<Widget> collisionWidget;
         for (int32_t i = allWidgets.size() - 1; i > 0; --i)
         {
@@ -1086,6 +1104,11 @@ namespace GuGu{
 		//GuGu_LOGD("%s", collisionWidget->getSlotsNumber())
         return collisionWidget;
     }
+
+	math::float2 Application::getCursorPos() const
+	{
+		return m_lastCursorPos;
+	}
 
     math::float2 Application::translateCursorPos(math::float2 cursorPos, std::shared_ptr<WindowWidget> inWindowWidget)
     {

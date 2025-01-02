@@ -8,6 +8,7 @@
 #include "Attribute.h"
 #include "ArrangedWidget.h"
 #include "PopupMethodReply.h"
+#include "BasicElement.h"
 
 #include <Core/Math/MyMath.h>
 
@@ -151,6 +152,8 @@ namespace GuGu{
         GuGuUtf8Str getType() const;
 
 		bool IsHovered() const;
+
+        virtual WindowZone::Type getWindowZoneOverride() const;
 
     protected:
         std::weak_ptr<Widget> m_parentWidget;

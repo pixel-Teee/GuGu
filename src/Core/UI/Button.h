@@ -20,7 +20,9 @@ namespace GuGu {
 				, mPressMethod(ButtonClickMethod::Type::DownAndUp)
 				, mhorizontalAlignment(HorizontalAlignment::Center)
 				, mverticalAlignment(VerticalAlignment::Center)
-			{}
+			{
+				mVisibility = Visibility::Visible;
+			}
 
 			~BuilderArguments() = default;
 

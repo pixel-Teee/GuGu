@@ -316,4 +316,8 @@ namespace GuGu{
     {
         return m_hovered;
     }
+    WindowZone::Type Widget::getWindowZoneOverride() const
+    {
+        return WindowZone::Unspecified;
+    }
 }

@@ -18,7 +18,7 @@ namespace GuGu {
 		m_childWidget = arguments.mContent;
 		m_childWidget->m_parentWidget = shared_from_this();
 		m_childWidget->m_childWidget->setParentWidget(shared_from_this());
-		m_visibilityAttribute = arguments.mVisibility;
+		m_visibilityAttribute = Visibility::SelfHitTestInvisible;
 
 		m_desiredSizeOverried = arguments.mdesiredSizeOverride;
 		m_gradientColors = arguments.mGradientColors;

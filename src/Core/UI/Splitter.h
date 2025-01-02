@@ -116,7 +116,9 @@ namespace GuGu {
 				, mhitDetectionSplitterHandleSize(5.0f)
 				, mminimumSlotHeight(20.0f)
 				, monSplitterFinishedResizing()
-			{}
+			{
+				mVisibility = Visibility::Visible;
+			}
 
 			~BuilderArguments() = default;
 

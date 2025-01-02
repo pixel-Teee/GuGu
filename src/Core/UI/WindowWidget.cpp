@@ -39,6 +39,8 @@ namespace GuGu {
 		m_screenPosition = arguments.mScreenPosition;
 
 		m_userResizeBorder = arguments.muserResizeBorder;
+
+		m_titleBarSize = 24.0f;//todo:修复这个
 		//set size
 		resize(arguments.mClientSize);
 
@@ -440,7 +442,23 @@ namespace GuGu {
 
 			if (inZone == WindowZone::ClientArea)
 			{
-				//todo:完成这里的逻辑
+				std::shared_ptr<Widget> collisionWidget = Application::getApplication()->locateWidgetInWindow(m_nativeWindow, Application::getApplication()->getCursorPos());
+				if (collisionWidget)
+				{
+					const WindowZone::Type zoneOverride = collisionWidget->getWindowZoneOverride();
+					if (zoneOverride != WindowZone::Unspecified)
+					{
+						inZone = zoneOverride;
+					}
+					else if (collisionWidget == shared_from_this())
+					{
+						if ((localMousePosition.y - dpiScaledResizeBorder.top) < m_titleBarSize * windowDpiScale)
+						{
+							inZone = WindowZone::TitleBar;
+						}
+					}
+				}
+
 				m_windowZone = inZone;
 			}
 			//todo:判断菜单是否可见

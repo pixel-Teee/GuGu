@@ -55,6 +55,8 @@ namespace GuGu {
 		virtual math::box2 getWorkArea(const math::box2& currentWindow) const override;
 
 		virtual WindowZone::Type getWindowZoneForPoint(const std::shared_ptr<Window>& window, const int32_t X, const int32_t Y) override;
+
+		virtual math::float2 getCursorPos() const override;
 	private:
 		HINSTANCE m_applicationInstance;
 

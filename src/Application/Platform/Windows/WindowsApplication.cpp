@@ -169,6 +169,16 @@ namespace GuGu {
 		return WindowZone::NontInWindow;
 	}
 
+	math::float2 WindowsApplication::getCursorPos() const
+	{
+#ifdef WIN32
+		POINT CursorPos;
+		::GetCursorPos(&CursorPos);
+
+		return math::float2(CursorPos.x, CursorPos.y);
+#endif
+	}
+
 	static bool FolderExists(const GuGuUtf8Str& folderPath)
 	{
 		DWORD dwAttrib = GetFileAttributesA(folderPath.getStr());
@@ -548,6 +558,25 @@ namespace GuGu {
 				HTCAPTION, HTMINBUTTON, HTMAXBUTTON, HTCLOSE, HTSYSMENU };
 
 				return results[zone];
+				break;
+			}
+			case WM_MOVE:
+			{
+				const int32_t NewX = (int)(short)(LOWORD(lParam));
+				const int32_t NewY = (int)(short)(HIWORD(lParam));
+				
+				std::shared_ptr<Window> window;
+				//find native window
+				std::vector<std::shared_ptr<WindowsWindow>> windows = globalApplication->getPlatformWindows();
+				for (int32_t i = 0; i < windows.size(); ++i)
+				{
+					if (windows[i]->getNativeWindowHandle() == hwnd)
+					{
+						window = windows[i];
+					}
+				}
+				globalApplication->onMovedWindow(window, NewX, NewY);
+				return 0;
 				break;
 			}
 		}

@@ -210,6 +210,6 @@ namespace GuGu {
 		}
 		WidgetClipping mClip = WidgetClipping::Inherit;
 
-		Attribute<Visibility> mVisibility = Visibility::Visible;
+		Attribute<Visibility> mVisibility = Visibility::SelfHitTestInvisible;
 	};
 }
