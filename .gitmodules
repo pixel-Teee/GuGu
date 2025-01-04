@@ -1,0 +1,3 @@
+[submodule "thirdParty/assimp"]
+	path = thirdParty/assimp
+	url = https://github.com/pixel-Teee/assimp.git
