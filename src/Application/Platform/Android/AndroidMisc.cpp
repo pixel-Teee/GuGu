@@ -51,7 +51,7 @@ namespace GuGu{
                             //find native window
                             std::shared_ptr<AndroidWindow> window = androidApplication->getPlatformWindow();
 
-                            androidApplication->onMouseDown(window, math::float2(x, y));
+                            androidApplication->onMouseDown(window, MouseButtons::Left, math::float2(x, y));
 
                             //GuGu_LOGD("(%f, %f)", x, y);
                         }
@@ -59,7 +59,7 @@ namespace GuGu{
                         {
                             std::shared_ptr<AndroidWindow> window = androidApplication->getPlatformWindow();
 
-                            androidApplication->onMouseUp(window, math::float2(x, y));
+                            androidApplication->onMouseUp(window, MouseButtons::Left, math::float2(x, y));
 
                             //GuGu_LOGD("(%f, %f)", x, y);
                         }
