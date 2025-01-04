@@ -174,7 +174,7 @@ namespace GuGu {
 						.sizeRule(Splitter::SizeRule::FractionOfParent)
 						//.setPadding(Padding(0.0f, 0.0f, 0.0f, 0.0f))
 						(
-							WIDGET_NEW(ContentBrowser)
+							WIDGET_NEW(ContentBrowser, std::static_pointer_cast<WindowWidget>(shared_from_this()))
 						)
 					)
 				)

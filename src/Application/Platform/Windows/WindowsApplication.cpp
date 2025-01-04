@@ -563,13 +563,25 @@ namespace GuGu {
 						window = windows[i];
 					}
 				}
-				zone = globalApplication->getWindowZoneForPoint(window, localMouseX, localMouseY);
-
+				std::shared_ptr<WindowWidget> windowWidget;
+				int32_t windowWidgetsNumber = globalApplication->getWidowWidgets().size();
+				for (int32_t i = 0; i < windowWidgetsNumber; ++i)
+				{
+					if (globalApplication->getWidowWidgets()[i]->getNativeWindow() == window)
+					{
+						windowWidget = globalApplication->getWidowWidgets()[i];
+						break;
+					}
+				}
 				static const LRESULT results[] = { HTNOWHERE, HTTOPLEFT, HTTOP, HTTOPRIGHT, HTLEFT, HTCLIENT,
-				HTRIGHT, HTBOTTOMLEFT, HTBOTTOM, HTBOTTOMRIGHT,
-				HTCAPTION, HTMINBUTTON, HTMAXBUTTON, HTCLOSE, HTSYSMENU };
-
-				return results[zone];
+					HTRIGHT, HTBOTTOMLEFT, HTBOTTOM, HTBOTTOMRIGHT,
+					HTCAPTION, HTMINBUTTON, HTMAXBUTTON, HTCLOSE, HTSYSMENU };
+				if (windowWidget->isRegularWindow())
+				{
+					zone = globalApplication->getWindowZoneForPoint(window, localMouseX, localMouseY);
+					return results[zone];
+				}
+				return results[WindowZone::ClientArea];
 				break;
 			}
 			case WM_MOVE:

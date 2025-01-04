@@ -22,7 +22,7 @@ namespace GuGu {
 	WindowWidget::WindowWidget()
 		: m_defaultBrush(CoreStyle::getStyleSet()->getBrush("CheckerBoard"))
 	{
-		m_windowType = WindowType::VirtualWindow;
+		m_windowType = WindowType::Normal;
 	}
 	WindowWidget::~WindowWidget()
 	{
@@ -35,6 +35,8 @@ namespace GuGu {
 		//m_childWidget->m_parentWidget = shared_from_this();
 		//m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 		m_visibilityAttribute = arguments.mVisibility;
+
+		m_bIsPopupWindow = arguments.mIsPopupWindow;
 
 		m_screenPosition = arguments.mScreenPosition;
 
@@ -71,7 +73,7 @@ namespace GuGu {
 		ArrangedWidgetArray arrangedWidgetArray(Visibility::Visible);//设置数组只接受可见的child widget
 		AllocationChildActualSpace(allocatedGeometry, arrangedWidgetArray);
 
-		if (m_windowType != WindowType::NativeWindow)
+		if (m_windowType != WindowType::Normal)
 		{
 			ElementList::addBoxElement(elementList, allocatedGeometry, math::float4(1.0f, 1.0f, 1.0f, 1.0f), m_defaultBrush, layer); //background
 		}
@@ -244,7 +246,7 @@ namespace GuGu {
 		{
 			m_nativeWindow->reshapeWindow(m_screenPosition, m_size);
 		}
-		m_windowType = WindowType::NativeWindow;
+		m_windowType = WindowType::Normal;
 		//setCachedScreenPosition(nativeWindow->getWindowScreenSpacePosition());
 	}	
 	std::shared_ptr<Window> WindowWidget::getNativeWindow()
@@ -473,6 +475,10 @@ namespace GuGu {
 		}
 		return m_windowZone;
 		
+	}
+	bool WindowWidget::isRegularWindow() const
+	{
+		return m_windowType != WindowType::ToolTip && !m_bIsPopupWindow;
 	}
 	OverlayPopupLayer::OverlayPopupLayer(const std::shared_ptr<WindowWidget>& initHostWindow, const std::shared_ptr<Widget>& initPopupContent, std::shared_ptr<Overlay> initOverlay)
 		: PopupLayer(initHostWindow, initPopupContent)

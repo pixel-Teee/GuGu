@@ -47,8 +47,9 @@ namespace GuGu {
 	public:
 		enum WindowType
 		{
-			VirtualWindow,
-			NativeWindow
+			Normal,
+			Menu,
+			ToolTip
 		};
 		WindowWidget();
 
@@ -62,6 +63,7 @@ namespace GuGu {
 				, msizingRule(SizingRule::UserSize)
 				, mFocusWhenFirstShown(true)
 				, muserResizeBorder(Padding(5, 5, 5, 5))
+				, mIsPopupWindow(false)
 			{}
 			~BuilderArguments() = default;
 
@@ -81,6 +83,8 @@ namespace GuGu {
 			ARGUMENT_VALUE(bool, FocusWhenFirstShown)
 
 			ARGUMENT_VALUE(Padding, userResizeBorder)
+
+			ARGUMENT_VALUE(bool, IsPopupWindow)
 		};
 
 		void init(const BuilderArguments& arguments);
@@ -142,6 +146,8 @@ namespace GuGu {
 		std::weak_ptr<WindowWidget> getParentWindow() const;
 
 		WindowZone::Type getCurrentWindowZone(math::float2 localMousePosition);
+
+		bool isRegularWindow() const;
 	protected:
 		std::shared_ptr<Window> m_nativeWindow;
 		std::shared_ptr<SingleChildSlot> m_childWidget;
@@ -174,5 +180,7 @@ namespace GuGu {
 		WindowZone::Type m_windowZone;//鼠标现在悬浮的窗口区域
 
 		float m_titleBarSize;
+
+		bool m_bIsPopupWindow;
 	};
 }

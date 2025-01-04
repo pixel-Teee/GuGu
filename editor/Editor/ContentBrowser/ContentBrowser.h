@@ -6,6 +6,7 @@
 namespace GuGu {
 	class AssetView;
 	class PathView;
+	class WindowWidget;
 	class ContentBrowser : public CompoundWidget
 	{
 	public:
@@ -16,7 +17,7 @@ namespace GuGu {
 			~BuilderArguments() = default;
 		};
 
-		void init(const BuilderArguments& arguments);
+		void init(const BuilderArguments& arguments, std::shared_ptr<WindowWidget> inParentWindow);
 
 		~ContentBrowser();
 
@@ -28,5 +29,7 @@ namespace GuGu {
 		std::shared_ptr<AssetView> m_assetView;
 
 		std::shared_ptr<PathView> m_pathView;
+
+		std::shared_ptr<WindowWidget> m_parentWindow;
 	};
 }

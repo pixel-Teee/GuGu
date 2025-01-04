@@ -10,8 +10,16 @@
 
 #include <Editor/StyleSet/EditorStyleSet.h>
 
+#ifdef WIN32
+#include <Application/Platform/Windows/WindowsMisc.h>
+#else
+#ifdef ANDROID
+#include <Application/Platform/Android/AndroidMisc.h>
+#endif
+#endif
+
 namespace GuGu {
-	void ContentBrowser::init(const BuilderArguments& arguments)
+	void ContentBrowser::init(const BuilderArguments& arguments, std::shared_ptr<WindowWidget> inParentWindow)
 	{
 		std::vector<math::float4> blueGradientBackground;
 		blueGradientBackground.push_back(EditorStyleSet::getStyleSet()->getColor("lightBlueLevel1"));
@@ -56,6 +64,8 @@ namespace GuGu {
 		selectedPaths.push_back(defaultPath);
 		m_pathView->setSelectedPaths(selectedPaths);
 		m_assetView->setSourcesData(defaultPath);
+
+		m_parentWindow = inParentWindow;
 	}
 	ContentBrowser::~ContentBrowser()
 	{
@@ -83,6 +93,13 @@ namespace GuGu {
 				.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
 			)
 		);
+		importModelButton->setOnClicked(
+			OnClicked([=]() {
+				GuGuUtf8Str fileName;
+				GuGuUtf8Str filePath;
+				PlatformMisc::getSaveFilePathAndFileName(m_parentWindow, filePath, fileName);
+				return Reply::Handled();
+			}));
 		return importModelButton;
 	}
 }

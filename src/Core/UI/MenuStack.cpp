@@ -431,6 +431,7 @@ namespace GuGu {
 		.ClientSize(inPrePushResults.m_expectedSize)
 		.ScreenPosition(inPrePushResults.m_startLocation)
 		.FocusWhenFirstShown(inPrePushResults.m_bFocusImmediately)
+		.IsPopupWindow(true)
 		.Content
 		(
 			inPrePushResults.m_warppedContent

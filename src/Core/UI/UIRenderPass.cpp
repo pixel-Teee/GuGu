@@ -943,7 +943,7 @@ namespace GuGu {
 		u8"愉悦送走", u8"呼吸", u8"呼吸1", u8"呼吸2" };
 
 		WIDGET_ASSIGN_NEW(WindowWidget, m_uiRoot)
-			.Type(WindowWidget::NativeWindow)
+			.Type(WindowWidget::Normal)
 			.Content //fill and fill
 			(
 				WIDGET_NEW(HorizontalBox)
