@@ -6,6 +6,7 @@
 
 #include <Core/UI/ComplexGradient.h>
 #include <Core/UI/Splitter.h>
+#include <Core/UI/Button.h>
 
 #include <Editor/StyleSet/EditorStyleSet.h>
 
@@ -43,6 +44,7 @@ namespace GuGu {
 			.Content
 			(
 				WIDGET_ASSIGN_NEW(AssetView, m_assetView)
+				.onGetAssetContextMenu(this, &ContentBrowser::onGetAssetContextMenu)
 			)
 		);
 
@@ -61,5 +63,26 @@ namespace GuGu {
 	void ContentBrowser::pathSelected(const GuGuUtf8Str& folderPath)
 	{
 		m_assetView->setSourcesData(folderPath);
+	}
+	std::shared_ptr<Widget> ContentBrowser::onGetAssetContextMenu()
+	{
+		GuGuUtf8Str sourcesData = m_assetView->getSourcesData();//当前所处于的文件夹
+
+		std::shared_ptr<Button> importModelButton;
+		std::shared_ptr<VerticalBox> menuContent;
+		WIDGET_NEW(VerticalBox)
+		+ VerticalBox::Slot()
+		.FixedHeight()
+		(
+			WIDGET_ASSIGN_NEW(Button, importModelButton)
+			.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+			.Content
+			(
+				WIDGET_NEW(TextBlockWidget)
+				.text(u8"Import Model")
+				.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+			)
+		);
+		return importModelButton;
 	}
 }

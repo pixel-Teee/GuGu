@@ -26,7 +26,7 @@ endif()
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SourceFile})
 target_link_libraries(Editor PUBLIC GuGu PRIVATE assimp)
-target_include_directories(Editor PUBLIC "../src" "../editor" "../thirdParty/assimp/include")
+target_include_directories(Editor PUBLIC "../src" "../editor" "../thirdParty/assimp/include" "../thirdParty/nlohmann")
 target_precompile_headers(Editor PRIVATE "../src/pch.h")
 target_compile_features(Editor PRIVATE cxx_std_17)
 add_dependencies(Editor GuGu)

@@ -20,6 +20,7 @@ namespace GuGu {
 		m_childWidget->m_parentWidget = shared_from_this();
 		//m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 		m_currentViewType = AssetViewType::Tile;
+		m_onGetAssetContextMenu = arguments.monGetAssetContextMenu;
 		//create path view
 		std::shared_ptr<VerticalBox> verticalBox = WIDGET_NEW(VerticalBox)	
 		+ VerticalBox::Slot()
@@ -64,7 +65,8 @@ namespace GuGu {
 		return WIDGET_NEW(AssetTileView)
 				.ListItemSource(&m_filteredAssetItems)
 				.onGenerateTile(this, &AssetView::makeTileViewWidget)
-				.itemHeight(40.0f);
+				.itemHeight(40.0f)
+				.onContextMenuOpening(this, &AssetView::onGetContextMenuContent);
 	}
 	std::shared_ptr<ITableRow> AssetView::makeTileViewWidget(std::shared_ptr<AssetViewItem> assetItem, const std::shared_ptr<TableViewBase>& ownerTable)
 	{
@@ -166,5 +168,46 @@ namespace GuGu {
 	void AssetView::requestSlowFullListRefresh()
 	{
 		m_bslowFullListRefreshRequested = true;
+	}
+	std::shared_ptr<Widget> AssetView::onGetContextMenuContent()
+	{
+		//todo:检查是否能够打开菜单栏
+
+		const std::vector<GuGuUtf8Str> selectedFolders = getSelectedFolders();
+		if (selectedFolders.size() > 0)
+		{
+
+		}
+		else
+		{
+			return m_onGetAssetContextMenu();//todo:传入选中的资产
+		}
+
+		return nullptr;
+	}
+	std::vector<GuGuUtf8Str> AssetView::getSelectedFolders() const
+	{
+		std::vector<std::shared_ptr<AssetViewItem>> selectedItems = getSelectedItems();
+		std::vector<GuGuUtf8Str> selectedFolders;
+		for (auto item : selectedItems)
+		{
+			if (item->getType() == AssetItemType::Folder)
+			{
+				selectedFolders.push_back(std::static_pointer_cast<AssetViewFolder>(item)->m_folderPath);
+			}
+		}
+		return selectedFolders;
+	}
+	std::vector<std::shared_ptr<AssetViewItem>> AssetView::getSelectedItems() const
+	{
+		switch (getCurrentViewType())
+		{
+		case AssetViewType::Tile: return m_tileView->getSelectedItems();
+		}
+		return std::vector<std::shared_ptr<AssetViewItem>>();
+	}
+	GuGuUtf8Str AssetView::getSourcesData() const
+	{
+		return m_soucesData;
 	}
 }

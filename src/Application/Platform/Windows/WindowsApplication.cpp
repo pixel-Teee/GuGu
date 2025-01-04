@@ -308,6 +308,8 @@ namespace GuGu {
 			case WM_LBUTTONDOWN:
 			case WM_LBUTTONUP:
 			case WM_MOUSEMOVE:
+			case WM_RBUTTONDOWN:
+			case WM_RBUTTONUP:
 			{
 				POINT cursorPoint;
 				cursorPoint.x = GET_X_LPARAM(lParam);
@@ -329,17 +331,27 @@ namespace GuGu {
 				{
 					case WM_LBUTTONDOWN:
 					{
-						globalApplication->onMouseDown(window, math::float2(cursorPoint.x, cursorPoint.y));
+						globalApplication->onMouseDown(window, MouseButtons::Type::Left, math::float2(cursorPoint.x, cursorPoint.y));
 						break;
 					}
 					case WM_LBUTTONUP:
 					{
-						globalApplication->onMouseUp(window, math::float2(cursorPoint.x, cursorPoint.y));
+						globalApplication->onMouseUp(window, MouseButtons::Type::Left, math::float2(cursorPoint.x, cursorPoint.y));
 						break;
 					}
 					case WM_MOUSEMOVE:
 					{
 						globalApplication->onMouseMove(window, math::float2(cursorPoint.x, cursorPoint.y));
+						break;
+					}
+					case WM_RBUTTONDOWN:
+					{
+						globalApplication->onMouseDown(window, MouseButtons::Type::Right, math::float2(cursorPoint.x, cursorPoint.y));
+						break;
+					}
+					case WM_RBUTTONUP:
+					{
+						globalApplication->onMouseUp(window, MouseButtons::Type::Right, math::float2(cursorPoint.x, cursorPoint.y));
 						break;
 					}
 				}

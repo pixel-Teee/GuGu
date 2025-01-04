@@ -4,6 +4,7 @@
 #include <Core/UI/UIMacros.h>
 
 #include "ContentBrowserSingleton.h"
+#include "ContentBrowserDelegates.h"
 
 namespace GuGu {
 	class ITableRow;
@@ -20,6 +21,8 @@ namespace GuGu {
 			BuilderArguments() {}
 
 			~BuilderArguments() = default;
+
+			UI_EVENT(OnGetAssetContextMenu, onGetAssetContextMenu)
 		};
 
 		void init(const BuilderArguments& arguments);
@@ -45,6 +48,14 @@ namespace GuGu {
 		virtual void Tick(const WidgetGeometry& allocatedGeometry, const double inCurrentTime, const float inDeltaTime) override;
 
 		void requestSlowFullListRefresh();
+
+		std::shared_ptr<Widget> onGetContextMenuContent();
+
+		std::vector<GuGuUtf8Str> getSelectedFolders() const;
+
+		std::vector<std::shared_ptr<AssetViewItem>> getSelectedItems() const;
+
+		GuGuUtf8Str getSourcesData() const;
 	private:
 
 		GuGuUtf8Str m_soucesData;//当前所处于的文件夹
@@ -61,5 +72,7 @@ namespace GuGu {
 		std::vector<std::shared_ptr<AssetViewItem>> m_filteredAssetItems;
 
 		bool m_bslowFullListRefreshRequested = false;
+
+		OnGetAssetContextMenu m_onGetAssetContextMenu;
 	};
 }

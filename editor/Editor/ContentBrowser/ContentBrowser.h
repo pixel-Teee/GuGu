@@ -21,6 +21,8 @@ namespace GuGu {
 		~ContentBrowser();
 
 		void pathSelected(const GuGuUtf8Str& folderPath);
+
+		std::shared_ptr<Widget> onGetAssetContextMenu();//todo:修复这个，增加选中资产
 	private:
 
 		std::shared_ptr<AssetView> m_assetView;

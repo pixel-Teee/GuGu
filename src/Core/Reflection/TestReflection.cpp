@@ -4,6 +4,8 @@
 #include "ReflectionDatabase.h"
 #include "TypeInfo.h"
 
+#include <Core/Model/StaticMesh.h>
+
 namespace GuGu {
 	void testReflection()
 	{
@@ -86,6 +88,25 @@ namespace GuGu {
 					& ComplexType::counts);
 				
 				meta::TypeInfo<ComplexType>::Defined = true;
+			}
+		}
+
+		{
+			auto typeID = typeidof(GStaticMesh);
+			if (typeID != meta::InvalidTypeID && !meta::TypeInfo<GStaticMesh>::Defined)
+			{
+				auto& type = db.types[typeID];
+
+				//array constructor
+				type.SetArrayConstructor<GuGu::Array<GStaticMesh>>();
+
+				type.AddConstructor<GStaticMesh, false, false>();
+
+				type.AddConstructor<GStaticMesh, true, false>();
+
+				meta::TypeInfo<GStaticMesh>::Defined = true;
+
+				//GStaticMesh使用自定义序列化
 			}
 		}
 

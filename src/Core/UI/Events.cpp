@@ -8,6 +8,10 @@ namespace GuGu {
 	const Key Keys::Left("Left");
 	const Key Keys::Right("Right");
 	const Key Keys::LeftMouseButton("LeftMouseButton");
+	const Key Keys::RightMouseButton("RightMouseButton");
+	const Key Keys::MiddleMouseButton("MiddleMouseButton");
+	const Key Keys::ThumbMouseButton("ThumbMouseButton");
+	const Key Keys::ThumbMouseButton2("ThumbMouseButton2");
 
 	const Key Keys::A("A");
 	const Key Keys::C("C");

@@ -23,6 +23,7 @@ namespace GuGu {
 				, mselectionMode(SelectionMode::Multi)
 			{
 				this->mClip = WidgetClipping::ClipToBounds;
+				this->mVisibility = Visibility::Visible;
 			}
 
 			~BuilderArguments() = default;
@@ -40,6 +41,8 @@ namespace GuGu {
 			ARGUMENT_ATTRIBUTE(ListItemAlignment, itemAlignment)
 
 			UI_EVENT(OnSelectionChanged, onSelectionChanged)
+
+			UI_EVENT(OnContextMenuOpening, onContextMenuOpening)
 
 			ARGUMENT_ATTRIBUTE(SelectionMode::Type, selectionMode)
 
@@ -63,6 +66,7 @@ namespace GuGu {
 			this->m_itemsSource = arguments.mListItemSource;
 			this->m_selectionMode = arguments.mselectionMode;
 			this->m_onSelectionChanged = arguments.monSelectionChanged;
+			this->m_onContextMenuOpening = arguments.monContextMenuOpening;
 
 			constructChildren(arguments.mitemWidth, arguments.mitemHeight, arguments.mitemAlignment, std::shared_ptr<HeaderRow>(), arguments.mexternalScrollbar,
 				arguments.morientation, arguments.monTileViewScrolled, arguments.mscrollBarStyle);

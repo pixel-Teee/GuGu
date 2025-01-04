@@ -8,6 +8,9 @@
 #include "ArrangedWidgetArray.h"
 #include "LayoutUtils.h"
 #include "ITableRow.h"
+#include "WidgetPath.h"
+
+#include <Application/Application.h>
 
 namespace GuGu {
 	TableViewDimensions::TableViewDimensions(Orientation inOrientation)
@@ -299,6 +302,20 @@ namespace GuGu {
         }
     }
 
+    Reply TableViewBase::OnMouseButtonUp(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
+    {
+        if (inMouseEvent.m_effectingButton == Keys::RightMouseButton)
+        {
+            onRightMouseButtonUp(inMouseEvent);
+
+            Reply reply = Reply::Handled().releaseMouseCapture();
+
+            return reply;
+        }
+
+        return Reply::Unhandled();
+    }
+
     int32_t TableViewBase::getNumItemsPerLine() const
     {
         return 1;
@@ -307,6 +324,22 @@ namespace GuGu {
     float TableViewBase::getNumLiveWidgets() const
     {
         return m_itemsPanel->getSlotsNumber();
+    }
+
+    void TableViewBase::onRightMouseButtonUp(const PointerEvent& mouseEvent)
+    {
+        const math::float2& summonLocation = mouseEvent.m_screenSpacePosition;
+        const bool bContextMenuOpeningBound = m_onContextMenuOpening.operator bool();
+        if (bContextMenuOpeningBound)
+        {
+            std::shared_ptr<Widget> menuContent = m_onContextMenuOpening();
+
+            if (menuContent)
+            {
+                WidgetPath widgetPath = WidgetPath();
+                Application::getApplication()->pushMenu(shared_from_this(), widgetPath, menuContent, summonLocation);
+            }
+        }
     }
 
     bool TableViewBase::isPendingRefresh() const

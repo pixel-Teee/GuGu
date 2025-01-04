@@ -44,4 +44,6 @@ namespace GuGu {
 	using PointerEventHandler = std::function<Reply(const WidgetGeometry&, const PointerEvent&)>;
 
 	using OnBooleanValueChanged = std::function<void(bool)>;
+
+	using OnContextMenuOpening = std::function<std::shared_ptr<Widget>(void)>;
 }

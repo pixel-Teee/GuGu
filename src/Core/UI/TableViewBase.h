@@ -7,6 +7,7 @@
 #include "ScrollBar.h"
 #include "Style.h"
 #include "ITypedTableView.h"
+#include "WidgetDelegates.h"
 
 namespace GuGu {
 	using OnTableViewScrolled = std::function<void(double)>;//从 item 列表开始的 scroll offset
@@ -97,6 +98,8 @@ namespace GuGu {
 
 		virtual void Tick(const WidgetGeometry& allocatedGeometry, const double inCurrentTime, const float inDeltaTime) override;
 
+		virtual Reply OnMouseButtonUp(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent) override;
+
 		//获取可以沿着 line axis 塞入的items 数量，默认是1，TileView 会有很多
 		virtual int32_t getNumItemsPerLine() const;
 
@@ -115,6 +118,8 @@ namespace GuGu {
 		virtual ScrollIntoViewResult scrollIntoView(const WidgetGeometry& listViewGeometry) = 0;
 
 		virtual float getNumLiveWidgets() const;
+
+		virtual void onRightMouseButtonUp(const PointerEvent& mouseEvent);
 
 		//这里是否有一个刷新请求
 		bool isPendingRefresh() const;
@@ -207,6 +212,8 @@ namespace GuGu {
 		ReGenerateResults m_lastGenerateResults;
 
 		bool b_wasAtEndOfList;
+
+		OnContextMenuOpening m_onContextMenuOpening;
 	private:
 		bool m_bItemsNeedRefresh = false;
 		

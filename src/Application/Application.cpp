@@ -145,7 +145,32 @@ namespace GuGu{
         return mfps;
     }
 
-	bool Application::onMouseDown(const std::shared_ptr<Window>& window, math::float2 cursorPos)
+	Key translateMouseButtonToKey(const MouseButtons::Type button)
+	{
+		Key key;
+		switch (button)
+		{
+		case MouseButtons::Left:
+			key = Keys::LeftMouseButton;
+			return key;
+		case MouseButtons::Right:
+			key = Keys::RightMouseButton;
+			return key;
+		case MouseButtons::Middle:
+			key = Keys::MiddleMouseButton;
+			return key;
+		case MouseButtons::Thumb01:
+			key = Keys::ThumbMouseButton;
+			return key;
+		case MouseButtons::Thumb02:
+			key = Keys::ThumbMouseButton2;
+			return key;
+		}
+
+		return key;
+	}
+
+	bool Application::onMouseDown(const std::shared_ptr<Window>& window, MouseButtons::Type mouseButton, math::float2 cursorPos)
 	{
 		//process mouse button down
 
@@ -167,14 +192,15 @@ namespace GuGu{
 
         PointerEvent mouseEvent(
             translatedCursorPos,
-            m_lastCursorPos
+            m_lastCursorPos,
+			translateMouseButtonToKey(mouseButton)
         );
         m_lastCursorPos = translatedCursorPos;
 
         return processMouseButtonDownEvent(window, mouseEvent);
 	}
 
-    bool Application::onMouseUp(const std::shared_ptr<Window>& window, math::float2 cursorPos)
+    bool Application::onMouseUp(const std::shared_ptr<Window>& window, MouseButtons::Type mouseButton, math::float2 cursorPos)
     {
 		//find window widget
 		std::shared_ptr<WindowWidget> windowWidget;
@@ -191,7 +217,8 @@ namespace GuGu{
 
 		PointerEvent mouseEvent(
             translatedCursorPos,
-			m_lastCursorPos
+			m_lastCursorPos,
+			translateMouseButtonToKey(mouseButton)
 		);
 		m_lastCursorPos = translatedCursorPos;
 

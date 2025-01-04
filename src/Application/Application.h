@@ -22,6 +22,18 @@ namespace GuGu {
 		Deactivate
 	};
 
+	namespace MouseButtons
+	{
+		enum Type
+		{
+			Left = 0,
+			Middle,
+			Right,
+			Thumb01,
+			Thumb02
+		};
+	}
+
 	class Widget;
 
 	class Timer;
@@ -76,9 +88,9 @@ namespace GuGu {
 		static GuGuUtf8Str GetContentDirectoryWithExecutable();
 
 		//------input------
-		virtual bool onMouseDown(const std::shared_ptr<Window>& window, math::float2 cursorPos);
+		virtual bool onMouseDown(const std::shared_ptr<Window>& window, MouseButtons::Type mouseButton, math::float2 cursorPos);
 
-		virtual bool onMouseUp(const std::shared_ptr<Window>& window, math::float2 cursorPos);
+		virtual bool onMouseUp(const std::shared_ptr<Window>& window, MouseButtons::Type mouseButton, math::float2 cursorPos);
 
 		virtual bool onMouseMove(const std::shared_ptr<Window>& window, math::float2 cursorPos);
 

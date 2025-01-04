@@ -61,11 +61,12 @@ namespace GuGu {
 	{
 	public:
 		PointerEvent(const math::float2& inScreenSpacePosition,
-			const math::float2& inLastScreenSpacePosition)
+			const math::float2& inLastScreenSpacePosition,
+			const Key& inKey = Keys::LeftMouseButton)
 			: m_screenSpacePosition(inScreenSpacePosition)
 			, m_lastScreenSpacePosition(inLastScreenSpacePosition)
 			, m_cursorDelta(inScreenSpacePosition - inLastScreenSpacePosition)
-			, m_effectingButton(Keys::LeftMouseButton)
+			, m_effectingButton(inKey)
 		{}
 
 		math::float2 getCursorDelta() const
