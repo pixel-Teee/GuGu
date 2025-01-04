@@ -79,20 +79,27 @@ namespace GuGu {
 		GuGuUtf8Str sourcesData = m_assetView->getSourcesData();//当前所处于的文件夹
 
 		std::shared_ptr<Button> importModelButton;
-		std::shared_ptr<VerticalBox> menuContent;
-		WIDGET_NEW(VerticalBox)
-		+ VerticalBox::Slot()
-		.FixedHeight()
+		std::shared_ptr<Widget> menuContent;
+		menuContent = 
+		WIDGET_NEW(Border)
+		.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("beige4"))
+		.Content
 		(
-			WIDGET_ASSIGN_NEW(Button, importModelButton)
-			.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
-			.Content
+			WIDGET_NEW(VerticalBox)
+			+ VerticalBox::Slot()
+			.FixedHeight()
 			(
-				WIDGET_NEW(TextBlockWidget)
-				.text(u8"Import Model")
-				.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+				WIDGET_ASSIGN_NEW(Button, importModelButton)
+				.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+				.Content
+				(
+					WIDGET_NEW(TextBlockWidget)
+					.text(u8"Import Model")
+					.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+				)
 			)
 		);
+
 		importModelButton->setOnClicked(
 			OnClicked([=]() {
 				GuGuUtf8Str fileName;
@@ -100,6 +107,6 @@ namespace GuGu {
 				PlatformMisc::getSaveFilePathAndFileName(m_parentWindow, filePath, fileName);
 				return Reply::Handled();
 			}));
-		return importModelButton;
+		return menuContent;
 	}
 }

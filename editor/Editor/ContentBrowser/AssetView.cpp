@@ -191,7 +191,7 @@ namespace GuGu {
 		std::vector<GuGuUtf8Str> selectedFolders;
 		for (auto item : selectedItems)
 		{
-			if (item->getType() == AssetItemType::Folder)
+			if (item && item->getType() == AssetItemType::Folder)
 			{
 				selectedFolders.push_back(std::static_pointer_cast<AssetViewFolder>(item)->m_folderPath);
 			}
