@@ -26,7 +26,7 @@ namespace GuGu {
 		(
 			WIDGET_NEW(ComplexGradient)
 			.GradientColors(blueGradientBackground)
-			.cornerRadius(math::float4(10.0f, 10.0f, 10.0f, 10.0f))
+			.cornerRadius(math::float4(5.0f, 5.0f, 5.0f, 5.0f))
 			.Content
 			(
 				WIDGET_ASSIGN_NEW(PathView, m_pathView)
@@ -39,7 +39,7 @@ namespace GuGu {
 		(
 			WIDGET_NEW(ComplexGradient)
 			.GradientColors(blueGradientBackground)
-			.cornerRadius(math::float4(10.0f, 10.0f, 10.0f, 10.0f))
+			.cornerRadius(math::float4(5.0f, 5.0f, 5.0f, 5.0f))
 			.Content
 			(
 				WIDGET_ASSIGN_NEW(AssetView, m_assetView)
