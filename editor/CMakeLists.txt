@@ -24,6 +24,7 @@ elseif(ANDROID)
     add_definitions(-D_DEBUG=TRUE)
 endif()
 
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SourceFile})
 target_link_libraries(Editor PUBLIC GuGu)
 target_include_directories(Editor PUBLIC "../src" "../editor")
 target_precompile_headers(Editor PRIVATE "../src/pch.h")
