@@ -21,9 +21,8 @@ namespace GuGu {
 
 		m_childWidget->m_childWidget = WIDGET_NEW(Splitter)
 		+ Splitter::Slot()
-		.value(0.16f)
+		.value(0.13f)
 		.sizeRule(Splitter::SizeRule::FractionOfParent)
-		.setPadding(Padding(0.0f, 0.0f, 25.0f, 0.0f))
 		(
 			WIDGET_NEW(ComplexGradient)
 			.GradientColors(blueGradientBackground)
@@ -35,9 +34,8 @@ namespace GuGu {
 			)
 		)
 		+ Splitter::Slot()
-		.value(0.78f)
+		.value(0.84f)
 		.sizeRule(Splitter::SizeRule::FractionOfParent)
-		.setPadding(Padding(0.0f, 0.0f, 25.0f, 0.0f))
 		(
 			WIDGET_NEW(ComplexGradient)
 			.GradientColors(blueGradientBackground)

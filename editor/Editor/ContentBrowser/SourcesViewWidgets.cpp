@@ -35,6 +35,7 @@ namespace GuGu {
 				+ HorizontalBox::Slot()
 				.FixedWidth()
 				.setVerticalAlignment(VerticalAlignment::Center)
+				.setPadding(Padding(5, 0, 0, 0))
 				(
 					WIDGET_NEW(TextBlockWidget)
 					.text(this, &AssetTreeItem::getNameText)

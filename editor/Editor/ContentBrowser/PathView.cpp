@@ -28,7 +28,7 @@ namespace GuGu {
 		m_childWidget = std::make_shared<SingleChildSlot>();
 		m_childWidget->m_parentWidget = shared_from_this();
 		m_childWidget->m_childWidget = WIDGET_NEW(BoxWidget)
-		.padding(Padding(14.0f, 14.0f, 14.0f, 14.0f))
+		.padding(Padding(10.0f, 10.0f, 10.0f, 10.0f))
 		.Content
 		(
 			WIDGET_NEW(Border)

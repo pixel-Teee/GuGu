@@ -41,7 +41,7 @@ namespace GuGu {
 		(
 			WIDGET_NEW(ComplexGradient)
 			.GradientColors(blueGradientBackground)
-			.cornerRadius(math::float4(10.0f, 10.0f, 10.0f, 10.0f))
+			.cornerRadius(math::float4(5.0f, 5.0f, 5.0f, 5.0f))
 			.Content
 			(
 				NullWidget::getNullWidget()

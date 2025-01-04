@@ -66,8 +66,8 @@ namespace GuGu {
 		ADD_COLOR(grayHightlightColor);
 
 		//light blue color series
-		math::float4 lightBlueLevel1 = math::float4(0.520f, 0.80f, 0.89f, 1.0f);
-		math::float4 lightBlueLevel2 = math::float4(0.42f, 0.65f, 0.83f, 1.0f);
+		math::float4 lightBlueLevel1 = math::float4(0.520f, 0.80f, 0.89f, 1.0f);//(132, 204, 226)
+		math::float4 lightBlueLevel2 = math::float4(0.42f, 0.65f, 0.83f, 1.0f);//(107, 165, 211)
 		ADD_COLOR(lightBlueLevel1);
 		ADD_COLOR(lightBlueLevel2);
 

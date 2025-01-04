@@ -64,14 +64,14 @@ namespace GuGu {
 				(
 					WIDGET_NEW(VerticalBox) //标题栏
 					+ VerticalBox::Slot()
-					.StretchHeight(0.06)
-					.setPadding(Padding(21.0f, 17.0f, 21.0f, 14.0f))
+					.StretchHeight(0.08)
+					.setPadding(Padding(10.0f, 8.0f, 10.0f, 5.0f))
 					(
 						WIDGET_NEW(WindowTitleBar, std::static_pointer_cast<WindowWidget>(shared_from_this()))
 					)
 					+ VerticalBox::Slot()
 					.FixedHeight()
-					.setPadding(Padding(21.0f, 0.0f, 21.0f, 11.0f))
+					.setPadding(Padding(10.0f, 0.0f, 10.0f, 5.0f))
 					(
 						WIDGET_NEW(HorizontalBox)
 						+ HorizontalBox::Slot()
@@ -82,8 +82,8 @@ namespace GuGu {
 							.FixedHeight()
 							(
 								WIDGET_NEW(BoxWidget)
-								.HeightOverride(OptionalSize(27.0f))
-								.WidthOverride(OptionalSize(64.0f))
+								.HeightOverride(OptionalSize(38.0f))
+								.WidthOverride(OptionalSize(40.0f))
 								.Content
 								(
 									WIDGET_ASSIGN_NEW(Button, fileButton)
@@ -109,42 +109,42 @@ namespace GuGu {
 							)
 						)
 					)
-					+ VerticalBox::Slot() //中间区域
-					.StretchHeight(0.58)
-					.setPadding(Padding(22.0f, 0.0f, 19.0f, 45.0f))
+					+ VerticalBox::Slot() //中间区域和下面区域
+					.StretchHeight(0.83)
+					.setPadding(Padding(10.0f, 0.0f, 10.0f, 10.0f))
 					(
 						WIDGET_NEW(Splitter)
 						.orientation(Orientation::Vertical)
 						+ Splitter::Slot()
-						.value(0.58)
+						.value(0.74)
 						.sizeRule(Splitter::SizeRule::FractionOfParent)
 						(
 							WIDGET_NEW(Splitter)
 							+ Splitter::Slot()
-							.value(0.16f)
+							.value(0.13f)
 							.sizeRule(Splitter::SizeRule::FractionOfParent)
-							.setPadding(Padding(0.0f, 0.0f, 24.0f, 0.0f))
+							.setPadding(Padding(0.0f, 0.0f, 0.0f, 0.0f))
 							(
 								WIDGET_NEW(ComplexGradient)
 								.GradientColors(blueGradientBackground)
-								.cornerRadius(math::float4(10.0f, 10.0f, 10.0f, 10.0f))
+								.cornerRadius(math::float4(5.0f, 5.0f, 5.0f, 5.0f))
 								.Content
 								(
 									NullWidget::getNullWidget()
 								)
 							)
 							+ Splitter::Slot()
-							.value(0.60f)
+							.value(0.70f)
 							.sizeRule(Splitter::SizeRule::FractionOfParent)
 							.setPadding(Padding(0.0f, 0.0f, 27.0f, 0.0f))
 							(
 								WIDGET_NEW(ComplexGradient)
 								.GradientColors(blueGradientBackground)
-								.cornerRadius(math::float4(10.0f, 10.0f, 10.0f, 10.0f))
+								.cornerRadius(math::float4(5.0f, 5.0f, 5.0f, 5.0f))
 								.Content
 								(
 									WIDGET_NEW(Border)
-									.padding(Padding(20.0f, 52.0f, 20.0f, 20.0f))
+									.padding(Padding(10.0f, 52.0f, 10.0f, 10.0f))
 									.BorderBackgroundColor(math::float4(0.0f, 0.0f, 0.0f, 0.0f))
 									.Content
 									(
@@ -158,11 +158,11 @@ namespace GuGu {
 							)
 							+ Splitter::Slot()
 							.sizeRule(Splitter::SizeRule::FractionOfParent)
-							.value(0.16f)
+							.value(0.14f)
 							(
 								WIDGET_NEW(ComplexGradient)
 								.GradientColors(blueGradientBackground)
-								.cornerRadius(math::float4(10.0f, 10.0f, 10.0f, 10.0f))
+								.cornerRadius(math::float4(5.0f, 5.0f, 5.0f, 5.0f))
 								.Content
 								(
 									NullWidget::getNullWidget()
@@ -170,9 +170,9 @@ namespace GuGu {
 							)
 						)		
 						+ Splitter::Slot()
-						.value(0.16f)
+						.value(0.24f)
 						.sizeRule(Splitter::SizeRule::FractionOfParent)
-						.setPadding(Padding(21.0f, 0.0f, 19.0f, 18.0f))
+						//.setPadding(Padding(0.0f, 0.0f, 0.0f, 0.0f))
 						(
 							WIDGET_NEW(ContentBrowser)
 						)
