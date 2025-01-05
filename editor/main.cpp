@@ -37,7 +37,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
 
     system("chcp 65001");//change code page to utf8
 	GuGu_LOGD("%s", str.getStr());
-    //GuGu::testReflection();
+    GuGu::testReflection();
 	std::shared_ptr<GuGu::Application> application = GuGu::CreateApplicationFactory();
 	std::shared_ptr<GuGu::WindowsApplication> windowsApplication = std::static_pointer_cast<GuGu::WindowsApplication>(application);
 	windowsApplication->setNativeApplicationHandleAndCmdShow(hInstance, nCmdShow);

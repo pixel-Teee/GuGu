@@ -92,6 +92,10 @@ namespace GuGu {
 		}
 
 		{
+			auto id = db.AllocateType("GStaticMesh");
+			auto& type = db.types[id];
+			meta::TypeInfo<GStaticMesh>::Register(id, type, true);
+
 			auto typeID = typeidof(GStaticMesh);
 			if (typeID != meta::InvalidTypeID && !meta::TypeInfo<GStaticMesh>::Defined)
 			{
@@ -107,23 +111,24 @@ namespace GuGu {
 				meta::TypeInfo<GStaticMesh>::Defined = true;
 
 				//GStaticMesh使用自定义序列化
+				meta::TypeInfo<GStaticMesh>::Defined = true;
 			}
 		}
 
-		ComplexType test;
-		test.a = 3;
-		test.b = 4;
-		test.c = 5;
-		test.str = "ddd";
-		test.counts.push_back(5);
-		test.counts.push_back(4);
-		test.counts.push_back(3);
-		test.counts.push_back(2);
-
-		GuGuUtf8Str res = meta::Variant(test).SerializeJson().dump();
-		GuGu_LOGD("%s", res.getStr());
-
-		ComplexType deserializedComplexType = meta::Type::DeserializeJson<ComplexType>(nlohmann::json::parse(res.getStr()));
-		GuGu_LOGD("%d", deserializedComplexType.gettera());
+		//ComplexType test;
+		//test.a = 3;
+		//test.b = 4;
+		//test.c = 5;
+		//test.str = "ddd";
+		//test.counts.push_back(5);
+		//test.counts.push_back(4);
+		//test.counts.push_back(3);
+		//test.counts.push_back(2);
+		//
+		//GuGuUtf8Str res = meta::Variant(test).SerializeJson().dump();
+		//GuGu_LOGD("%s", res.getStr());
+		//
+		//ComplexType deserializedComplexType = meta::Type::DeserializeJson<ComplexType>(nlohmann::json::parse(res.getStr()));
+		//GuGu_LOGD("%d", deserializedComplexType.gettera());
 	}
 }

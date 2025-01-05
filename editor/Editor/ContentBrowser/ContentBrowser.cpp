@@ -13,6 +13,8 @@
 
 #include <Editor/StyleSet/EditorStyleSet.h>
 
+#include <ModelImporter/ModelImporter.h>
+
 #ifdef WIN32
 #include <Application/Platform/Windows/WindowsMisc.h>
 #else
@@ -116,10 +118,8 @@ namespace GuGu {
 			)
 		);
 
-		GuGuUtf8Str fileName;
-		GuGuUtf8Str filePath;
 		importModelButton->setOnClicked(
-			OnClicked([=, &filePath, &fileName]() {
+			OnClicked([=]() {
 				GuGuUtf8Str initDir = sourcesData + "/";
 				GuGuUtf8Str filterStr = "FBX\0*.fbx\0OBJ\0*.obj\0";
 				std::vector<GuGuUtf8Str> filterArray;
@@ -129,11 +129,26 @@ namespace GuGu {
 				filterArray.push_back("*.obj\0");
 				initDir = sourcesData.substr(initDir.findFirstOf("/"));
 				initDir = AssetManager::getAssetManager().getActualPhysicalPath(initDir);
+				GuGuUtf8Str fileName;
+				GuGuUtf8Str filePath;
 				PlatformMisc::getSaveOrOpenFilePathAndFileName(m_parentWindow, initDir, filePath, fileName, filterArray);
 
 				//import model
+				ModelImporter modelImporter;
+				GuGuUtf8Str modelJson = modelImporter.loadModel(filePath);
 
-
+				GuGuUtf8Str noFileExtensionsFileName = fileName;
+				int32_t dotPos = noFileExtensionsFileName.findLastOf(".");
+				if (dotPos != -1)
+				{
+					noFileExtensionsFileName = noFileExtensionsFileName.substr(0, dotPos);
+				}
+				
+				GuGuUtf8Str outputFilePath = sourcesData + "/" + noFileExtensionsFileName + ".json";
+				//输出到目录
+				AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
+				AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)modelJson.getStr(), modelJson.getTotalByteCount());
+				AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
 				return Reply::Handled();
 			}));
 

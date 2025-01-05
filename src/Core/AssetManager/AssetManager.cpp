@@ -103,6 +103,11 @@ namespace GuGu {
 		}
 	}
 
+	std::shared_ptr<RootFileSystem> AssetManager::getRootFileSystem() const
+	{
+		return m_rootFileSystem;
+	}
+
 	//遍历目录
 	void AssetManager::traverseDirectoryAndFile_private(const GuGuUtf8Str& directory, std::function<void(GuGuUtf8Str, bool)> enumerateCallBack)
 	{

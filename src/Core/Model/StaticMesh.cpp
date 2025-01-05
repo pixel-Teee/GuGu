@@ -53,7 +53,7 @@ namespace GuGu {
 			output["normal"].emplace_back(m_normalData[i].y);
 			output["normal"].emplace_back(m_normalData[i].z);
 		}
-		output = object;
+		output["GStaticMesh"] = object;
 	}
 
 	void GStaticMesh::OnDeserialize(const nlohmann::json& input)
