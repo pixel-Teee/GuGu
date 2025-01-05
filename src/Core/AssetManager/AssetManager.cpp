@@ -91,6 +91,18 @@ namespace GuGu {
 		return m_rootFileSystem->findMountPoint(m_nativeFileSystem);
 	}
 
+	GuGuUtf8Str AssetManager::getActualPhysicalPath(const GuGuUtf8Str& relativePath)
+	{
+		if (relativePath != "")
+		{
+			return m_nativeFileSystem->getNativeFilePath() + "/" + relativePath;
+		}
+		else
+		{
+			return m_nativeFileSystem->getNativeFilePath();
+		}
+	}
+
 	//遍历目录
 	void AssetManager::traverseDirectoryAndFile_private(const GuGuUtf8Str& directory, std::function<void(GuGuUtf8Str, bool)> enumerateCallBack)
 	{

@@ -9,6 +9,8 @@
 #include <Core/UI/Button.h>
 #include <Core/UI/ImageWidget.h>
 
+#include <Core/AssetManager/AssetManager.h>
+
 #include <Editor/StyleSet/EditorStyleSet.h>
 
 #ifdef WIN32
@@ -114,13 +116,27 @@ namespace GuGu {
 			)
 		);
 
+		GuGuUtf8Str fileName;
+		GuGuUtf8Str filePath;
 		importModelButton->setOnClicked(
-			OnClicked([=]() {
-				GuGuUtf8Str fileName;
-				GuGuUtf8Str filePath;
-				PlatformMisc::getSaveFilePathAndFileName(m_parentWindow, filePath, fileName);
+			OnClicked([=, &filePath, &fileName]() {
+				GuGuUtf8Str initDir = sourcesData + "/";
+				GuGuUtf8Str filterStr = "FBX\0*.fbx\0OBJ\0*.obj\0";
+				std::vector<GuGuUtf8Str> filterArray;
+				filterArray.push_back("FBX(*.fbx)\0");
+				filterArray.push_back("*.fbx\0");
+				filterArray.push_back("OBJ(*.obj)\0");
+				filterArray.push_back("*.obj\0");
+				initDir = sourcesData.substr(initDir.findFirstOf("/"));
+				initDir = AssetManager::getAssetManager().getActualPhysicalPath(initDir);
+				PlatformMisc::getSaveOrOpenFilePathAndFileName(m_parentWindow, initDir, filePath, fileName, filterArray);
+
+				//import model
+
+
 				return Reply::Handled();
 			}));
+
 		return menuContent;
 	}
 }

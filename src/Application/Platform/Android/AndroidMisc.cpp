@@ -90,7 +90,7 @@ namespace GuGu{
 
     }
 
-    void AndroidMisc::getSaveFilePathAndFileName(std::shared_ptr<WindowWidget> ownerWindow, GuGuUtf8Str& filePath, GuGuUtf8Str& fileName)
+    void AndroidMisc::getSaveOrOpenFilePathAndFileName(std::shared_ptr<WindowWidget> ownerWindow, const GuGuUtf8Str& initDir, GuGuUtf8Str& filePath, GuGuUtf8Str& fileName, const std::vector<GuGuUtf8Str>& filterArray)
     {
 
     }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 namespace GuGu {
 	class GuGuUtf8Str;
 	class WindowWidget;
@@ -9,6 +11,6 @@ namespace GuGu {
 		static void ClipboardPaste(GuGuUtf8Str& str);
 
 		//save file
-		static void getSaveFilePathAndFileName(std::shared_ptr<WindowWidget> ownerWindow, GuGuUtf8Str& filePath, GuGuUtf8Str& fileName);
+		static void getSaveOrOpenFilePathAndFileName(std::shared_ptr<WindowWidget> ownerWindow, const GuGuUtf8Str& initDir, GuGuUtf8Str& filePath, GuGuUtf8Str& fileName, const std::vector<GuGuUtf8Str>& filterArray);
 	};
 }

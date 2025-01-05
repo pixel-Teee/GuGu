@@ -67,7 +67,7 @@ namespace GuGu {
 			CloseClipboard();
 		}
 	}
-	void WindowsMisc::getSaveFilePathAndFileName(std::shared_ptr<WindowWidget> ownerWindow, GuGuUtf8Str& filePath, GuGuUtf8Str& fileName)
+	void WindowsMisc::getSaveOrOpenFilePathAndFileName(std::shared_ptr<WindowWidget> ownerWindow, const GuGuUtf8Str& initDir, GuGuUtf8Str& filePath, GuGuUtf8Str& fileName, const std::vector<GuGuUtf8Str>& filterArray)
 	{
 		std::shared_ptr<WindowsWindow> platformWindow = std::static_pointer_cast<WindowsWindow>(ownerWindow->getNativeWindow());
 		if (platformWindow)
@@ -79,14 +79,37 @@ namespace GuGu {
 			ofn.hwndOwner = platformWindow->getNativeWindowHandle();
 			ofn.lpstrFile = szFile;//用户选择的文件名存储在这里
 			ofn.nMaxFile = sizeof(szFile);//最大文件路径长度
-			ofn.lpstrFilter = TEXT("All\0*.*\0Text\0*.TXT\0");//文件过滤器
-			ofn.nFilterIndex = 1;//默认选择第一个过滤器
+			std::wstring lpFilterStr;
+			int32_t numberCharacter = 0;
+			for (size_t i = 0; i < filterArray.size(); ++i)
+			{
+				numberCharacter += filterArray[i].getTotalByteCount() + 1;
+			}
+			lpFilterStr.resize(numberCharacter + 1);
+			numberCharacter = 0;
+			for (int32_t i = 0; i < filterArray.size(); ++i)
+			{
+				for (int32_t j = 0; j < filterArray[i].getTotalByteCount(); ++j)
+				{
+					lpFilterStr[numberCharacter++] = filterArray[i].getStr()[j];
+				}
+				lpFilterStr[numberCharacter++] = '\0';
+			}
+			lpFilterStr[numberCharacter++] = '\0';
+			
+			ofn.lpstrFilter = lpFilterStr.c_str();//文件过滤器
+			ofn.nFilterIndex = 2;//默认选择第一个过滤器
 			ofn.lpstrFileTitle = NULL;//文件标题指针，通常为NULL
 			ofn.nMaxFileTitle = 0;//文件标题的最大长度，通常为0
 			ofn.lpstrInitialDir = NULL;//初始目录，通常为NULL
 			ofn.Flags = OFN_SHOWHELP | OFN_OVERWRITEPROMPT;
+			std::wstring lpstrInitDir = initDir.getUtf16String();
+			//转换正斜杠到反斜杠，windows api 需要反斜杠
+			std::replace(lpstrInitDir.begin(), lpstrInitDir.end(), L'/', L'\\');
+			lpstrInitDir += '\\';
+			ofn.lpstrInitialDir = lpstrInitDir.c_str();
 
-			if (GetSaveFileName(&ofn))
+			if (GetOpenFileName(&ofn))
 			{
 				//note:output file name
 				filePath = GuGuUtf8Str::fromUtf16ToUtf8(ofn.lpstrFile);
