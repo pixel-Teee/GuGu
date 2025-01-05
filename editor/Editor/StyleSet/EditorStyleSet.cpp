@@ -217,6 +217,8 @@ namespace GuGu {
 
 			m_styles.insert({ u8"tablerow.assetview", tableRowStyle });
 		}
+
+		ADD_IMAGE(ImportModel_Icon)
 	}
 	EditorStyleSet::~EditorStyleSet()
 	{
