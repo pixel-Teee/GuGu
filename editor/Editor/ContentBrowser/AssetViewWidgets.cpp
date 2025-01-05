@@ -53,7 +53,7 @@ namespace GuGu {
         {
             //std::shared_ptr<AssetViewFolder> assetFolderItem = std::static_pointer_cast<AssetViewFolder>(m_assetItem);
 
-            std::shared_ptr<Brush> folderTintImage = EditorStyleSet::getStyleSet()->getBrush("CloseFolder");
+            std::shared_ptr<Brush> folderTintImage = EditorStyleSet::getStyleSet()->getBrush("CloseFolder_128x128");
             itemContentsOverlay->addSlot()
             .setChildWidget
             (
@@ -76,8 +76,8 @@ namespace GuGu {
             .setHorizontalAlignment(HorizontalAlignment::Center)
             (
                 WIDGET_NEW(BoxWidget)
-                .WidthOverride(this, &GAssetTileItem::getThumbnailBoxSize)
-                .HeightOverride(this, &GAssetTileItem::getThumbnailBoxSize)
+                .WidthOverride(this, &GAssetTileItem::getThumbnailBoxSize) //128
+                .HeightOverride(this, &GAssetTileItem::getThumbnailBoxSize) //128
                 .Content
                 (
                     WIDGET_NEW(Border)

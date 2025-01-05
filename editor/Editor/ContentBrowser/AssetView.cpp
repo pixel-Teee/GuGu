@@ -16,7 +16,7 @@
 namespace GuGu {
 	void AssetView::init(const BuilderArguments& arguments)
 	{
-		m_tileViewThumbnailSize = 20;
+		m_tileViewThumbnailSize = 128;
 
 		m_childWidget = std::make_shared<SingleChildSlot>();
 		m_childWidget->m_parentWidget = shared_from_this();
@@ -68,7 +68,7 @@ namespace GuGu {
 		return WIDGET_NEW(AssetTileView)
 				.ListItemSource(&m_filteredAssetItems)
 				.onGenerateTile(this, &AssetView::makeTileViewWidget)
-				.itemHeight(40.0f)
+				.itemHeight(156.0f)
 				.onContextMenuOpening(this, &AssetView::onGetContextMenuContent)
 				.onMouseButtonDoubleClick(this, &AssetView::onListMouseButtonDoubleClick);
 	}

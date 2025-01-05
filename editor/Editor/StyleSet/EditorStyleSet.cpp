@@ -141,6 +141,8 @@ namespace GuGu {
 		ADD_IMAGE(CloseFolder);
 		ADD_IMAGE(OpenFolder);
 
+		ADD_IMAGE(CloseFolder_128x128)
+
 		//table row style
 		{
 			std::shared_ptr<TableRowStyle> tableRowStyle = std::make_shared<TableRowStyle>();
