@@ -53,6 +53,7 @@ namespace GuGu {
 			(
 				WIDGET_ASSIGN_NEW(AssetView, m_assetView)
 				.onGetAssetContextMenu(this, &ContentBrowser::onGetAssetContextMenu)
+				.onPathSelected(this, &ContentBrowser::pathSelected)
 			)
 		);
 

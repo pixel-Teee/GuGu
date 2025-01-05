@@ -83,6 +83,8 @@ namespace GuGu{
 
         virtual Reply OnMouseButtonUp(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent);
 
+        virtual Reply OnMouseButtonDoubleClick(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent);
+
         virtual Reply OnMouseMove(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent);
 
         virtual void OnMouseEnter(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent);

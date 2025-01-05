@@ -23,6 +23,8 @@ namespace GuGu {
 			~BuilderArguments() = default;
 
 			UI_EVENT(OnGetAssetContextMenu, onGetAssetContextMenu)
+
+			UI_EVENT(OnPathSelected, onPathSelected)
 		};
 
 		void init(const BuilderArguments& arguments);
@@ -58,6 +60,8 @@ namespace GuGu {
 		GuGuUtf8Str getSourcesData() const;
 
 		float getTileViewItemWidth() const;
+
+		void onListMouseButtonDoubleClick(std::shared_ptr<AssetViewItem> assetItem);
 	private:
 
 		GuGuUtf8Str m_soucesData;//当前所处于的文件夹
@@ -78,5 +82,7 @@ namespace GuGu {
 		OnGetAssetContextMenu m_onGetAssetContextMenu;
 
 		int32_t m_tileViewThumbnailSize;
+
+		OnPathSelected m_onPathSelected;
 	};
 }

@@ -16,6 +16,7 @@ namespace GuGu {
 		using NullableItemType = typename ListTypeTraits<ItemType>::NullableType;
 		using OnGenerateRow = typename WidgetDelegates<ItemType>::OnGenerateRow;
 		using OnSelectionChanged = typename WidgetDelegates<NullableItemType>::OnSelectionChanged;
+		using OnMouseButtonDoubleClick = typename WidgetDelegates<ItemType>::OnMouseButtonDoubleClick;
 		using ItemSet = std::unordered_set<ItemType>;
 
 		ListView(TableViewMode::Type inListMode = TableViewMode::List)
@@ -53,6 +54,8 @@ namespace GuGu {
 
 			UI_EVENT(OnTableViewScrolled, onListViewScrolled)
 
+			UI_EVENT(OnMouseButtonDoubleClick, onMouseButtonDoubleClick)
+
 			ARGUMENT_ATTRIBUTE(float, itemHeight)
 
 			ARGUMENT_VALUE(std::shared_ptr<HeaderRow>, headerRow)
@@ -73,6 +76,7 @@ namespace GuGu {
 			this->m_itemsSource = arguments.mListItemSource;
 			this->m_selectionMode = arguments.mselectionMode;
 			this->m_onSelectionChanged = arguments.monSelectionChanged;
+			this->m_onDoubleClick = arguments.monMouseButtonDoubleClick;
 
 			constructChildren(0, arguments.mitemHeight, ListItemAlignment::LeftAligned, arguments.mheaderRow, arguments.mexternalScrollbar,
 				arguments.morientation, arguments.monListViewScrolled, arguments.mstyle);
@@ -426,6 +430,16 @@ namespace GuGu {
 			m_selectedItems.clear();
 		}
 
+		virtual bool privateOnItemDoubleClicked(ItemType theItem) override
+		{
+			if (m_onDoubleClick)
+			{
+				m_onDoubleClick(theItem);
+				return true;//handled
+			}
+			return false;//not handled
+		}
+
 		virtual void  privateSignalSelectionChanged(SelectInfo::Type selectInfo) override
 		{
 			if (m_selectionMode.Get() == SelectionMode::None)
@@ -604,6 +618,8 @@ namespace GuGu {
 
 		//当列表需要从一个数据 item 生成一个新的 widget 的时候，被调用的委托
 		OnGenerateRow m_onGenerateRow;
+
+		OnMouseButtonDoubleClick m_onDoubleClick;
 
 		//指向我们正在观察的数据项的数组的指针
 		const std::vector<ItemType>* m_itemsSource;

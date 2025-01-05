@@ -94,6 +94,8 @@ namespace GuGu {
 
 		virtual bool onMouseMove(const std::shared_ptr<Window>& window, math::float2 cursorPos);
 
+		virtual bool onMouseDoubleClick(const std::shared_ptr<Window>& window, MouseButtons::Type mouseButton, math::float2 cursorPos);
+
 		virtual bool onKeyChar(const GuGuUtf8Str Character);
 
 		virtual bool onKeyDown(const int32_t keyCode, const uint32_t characterCode);
@@ -193,6 +195,8 @@ namespace GuGu {
 		bool processKeyDownEvent(const KeyEvent& inKeyEvent);
 
 		bool processWindowActivatedEvent(const WindowActivateEvent& activateEvent);
+
+		bool processMouseButtonDoubleClickEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent);
 
 		math::float2 translateCursorPos(math::float2 cursorPos, std::shared_ptr<WindowWidget> inWindowWidget);
 

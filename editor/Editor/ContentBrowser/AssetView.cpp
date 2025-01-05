@@ -23,6 +23,7 @@ namespace GuGu {
 		//m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 		m_currentViewType = AssetViewType::Tile;
 		m_onGetAssetContextMenu = arguments.monGetAssetContextMenu;
+		m_onPathSelected = arguments.monPathSelected;
 		//create path view
 		std::shared_ptr<VerticalBox> verticalBox = WIDGET_NEW(VerticalBox)	
 		+ VerticalBox::Slot()
@@ -68,7 +69,8 @@ namespace GuGu {
 				.ListItemSource(&m_filteredAssetItems)
 				.onGenerateTile(this, &AssetView::makeTileViewWidget)
 				.itemHeight(40.0f)
-				.onContextMenuOpening(this, &AssetView::onGetContextMenuContent);
+				.onContextMenuOpening(this, &AssetView::onGetContextMenuContent)
+				.onMouseButtonDoubleClick(this, &AssetView::onListMouseButtonDoubleClick);
 	}
 	std::shared_ptr<ITableRow> AssetView::makeTileViewWidget(std::shared_ptr<AssetViewItem> assetItem, const std::shared_ptr<TableViewBase>& ownerTable)
 	{
@@ -223,4 +225,15 @@ namespace GuGu {
 	{
 		return m_tileViewThumbnailSize;
 	}
+
+	void AssetView::onListMouseButtonDoubleClick(std::shared_ptr<AssetViewItem> assetItem)
+	{
+		//todo:做更多检查
+		if (assetItem->getType() == AssetItemType::Folder)
+		{
+			m_onPathSelected(std::static_pointer_cast<AssetViewFolder>(assetItem)->m_folderPath);
+			return;
+		}
+	}
+
 }

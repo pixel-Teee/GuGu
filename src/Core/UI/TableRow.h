@@ -114,23 +114,26 @@ namespace GuGu {
 		{
 			std::shared_ptr<ITypedTableView<ItemType>> ownerTable = m_ownerTablePtr.lock();
 
-			const SelectionMode::Type selectionMode = SelectionMode::Type::Single;
-			if (selectionMode != SelectionMode::None)
+			if (inMouseEvent.m_effectingButton == Keys::LeftMouseButton)
 			{
-				if (const ItemType* myItemPtr = getItemForThis(ownerTable))
+				const SelectionMode::Type selectionMode = SelectionMode::Type::Single;
+				if (selectionMode != SelectionMode::None)
 				{
-					const ItemType& myItem = *myItemPtr;
-					const bool bIsSelected = ownerTable->privateIsItemSelected(myItem);
-
-					if (!bIsSelected)
+					if (const ItemType* myItemPtr = getItemForThis(ownerTable))
 					{
-						ownerTable->privateClearSelection();
-						ownerTable->privateSetItemSelection(myItem, true, true);
+						const ItemType& myItem = *myItemPtr;
+						const bool bIsSelected = ownerTable->privateIsItemSelected(myItem);
 
-						ownerTable->privateSignalSelectionChanged(SelectInfo::Direct);
+						if (!bIsSelected)
+						{
+							ownerTable->privateClearSelection();
+							ownerTable->privateSetItemSelection(myItem, true, true);
+
+							ownerTable->privateSignalSelectionChanged(SelectInfo::Direct);
+						}
+
+						return Reply::Handled().setFocus(ownerTable->asWidget()).captureMouse(ownerTable->asWidget());
 					}
-
-					return Reply::Handled().setFocus(ownerTable->asWidget()).captureMouse(ownerTable->asWidget());
 				}
 			}
 
@@ -146,6 +149,27 @@ namespace GuGu {
 			Reply reply = Reply::Unhandled().releaseMouseCapture();
 
 			return reply;
+		}
+
+		virtual Reply OnMouseButtonDoubleClick(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent) override
+		{
+			std::shared_ptr<ITypedTableView<ItemType>> ownerTable = m_ownerTablePtr.lock();
+
+			if (inMouseEvent.m_effectingButton == Keys::LeftMouseButton)
+			{
+				if (const ItemType* myItemPtr = getItemForThis(ownerTable))
+				{
+					const ItemType& myItem = *myItemPtr;
+					const bool bWasHandled = ownerTable->privateOnItemDoubleClicked(myItem);
+					if (!bWasHandled)
+					{
+						toggleExpansion();
+					}
+					return Reply::Handled();
+				}
+			}
+
+			return Reply::Unhandled();
 		}
 
 		//这个很重要，通过这个函数，获取这个 item 所在的深度

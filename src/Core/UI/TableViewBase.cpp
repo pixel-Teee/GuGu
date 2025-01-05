@@ -316,6 +316,15 @@ namespace GuGu {
         return Reply::Unhandled();
     }
 
+    Reply TableViewBase::OnMouseButtonDoubleClick(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
+    {
+        if (this->hasMouseCapture())
+        {
+            return Reply::Handled();
+        }
+        return Reply::Unhandled();
+    }
+
     int32_t TableViewBase::getNumItemsPerLine() const
     {
         return 1;

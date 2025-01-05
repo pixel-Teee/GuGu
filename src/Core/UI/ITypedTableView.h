@@ -62,6 +62,8 @@ namespace GuGu {
 
 		virtual bool privateIsItemHighlighted(const ItemType& theItem) const = 0;
 
+		virtual bool privateOnItemDoubleClicked(ItemType theItem) = 0;
+
 		virtual std::shared_ptr<Widget> asWidget() = 0;
 
 		virtual std::vector<ItemType> getSelectedItems() const = 0;

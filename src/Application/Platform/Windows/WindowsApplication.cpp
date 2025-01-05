@@ -74,6 +74,7 @@ namespace GuGu {
 		//register window class
 		const wchar_t windowClassName[] = L"GuGuWindowClass";
 		WNDCLASS wc = {};
+		wc.style = CS_DBLCLKS;
 		wc.lpfnWndProc = WindowProc;
 		wc.hInstance = applicationInstance;
 		wc.lpszClassName = windowClassName;
@@ -310,6 +311,9 @@ namespace GuGu {
 			case WM_MOUSEMOVE:
 			case WM_RBUTTONDOWN:
 			case WM_RBUTTONUP:
+			case WM_LBUTTONDBLCLK:
+			case WM_MBUTTONDBLCLK:
+			case WM_RBUTTONDBLCLK:
 			{
 				POINT cursorPoint;
 				cursorPoint.x = GET_X_LPARAM(lParam);
@@ -326,9 +330,15 @@ namespace GuGu {
 						window = windows[i];
 					}
 				}
+				bool bDoubleClick = false;
 				//GuGu_LOGD("%d %d", cursorPoint.x, cursorPoint.y);
 				switch (uMsg)
 				{
+					case WM_LBUTTONDBLCLK:
+					{
+						globalApplication->onMouseDoubleClick(window, MouseButtons::Type::Left, math::float2(cursorPoint.x, cursorPoint.y));
+						break;
+					}
 					case WM_LBUTTONDOWN:
 					{
 						globalApplication->onMouseDown(window, MouseButtons::Type::Left, math::float2(cursorPoint.x, cursorPoint.y));
@@ -342,6 +352,11 @@ namespace GuGu {
 					case WM_MOUSEMOVE:
 					{
 						globalApplication->onMouseMove(window, math::float2(cursorPoint.x, cursorPoint.y));
+						break;
+					}
+					case WM_RBUTTONDBLCLK:
+					{
+						globalApplication->onMouseDoubleClick(window, MouseButtons::Type::Right, math::float2(cursorPoint.x, cursorPoint.y));
 						break;
 					}
 					case WM_RBUTTONDOWN:

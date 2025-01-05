@@ -122,6 +122,10 @@ namespace GuGu{
     {
         return Reply::Unhandled();
     }
+    Reply Widget::OnMouseButtonDoubleClick(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
+    {
+        return Reply::Unhandled();
+    }
     Reply Widget::OnMouseMove(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
     {
         //GuGu_LOGD("{%f, %f}", inMouseEvent.m_screenSpacePosition.x, inMouseEvent.m_screenSpacePosition.y);

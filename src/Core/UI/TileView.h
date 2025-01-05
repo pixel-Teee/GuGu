@@ -44,6 +44,8 @@ namespace GuGu {
 
 			UI_EVENT(OnContextMenuOpening, onContextMenuOpening)
 
+			UI_EVENT(OnMouseButtonDoubleClick, onMouseButtonDoubleClick)
+
 			ARGUMENT_ATTRIBUTE(SelectionMode::Type, selectionMode)
 
 			ARGUMENT_VALUE(std::shared_ptr<ScrollBar>, externalScrollbar)
@@ -66,6 +68,7 @@ namespace GuGu {
 			this->m_itemsSource = arguments.mListItemSource;
 			this->m_selectionMode = arguments.mselectionMode;
 			this->m_onSelectionChanged = arguments.monSelectionChanged;
+			this->m_onDoubleClick = arguments.monMouseButtonDoubleClick;
 			this->m_onContextMenuOpening = arguments.monContextMenuOpening;
 
 			constructChildren(arguments.mitemWidth, arguments.mitemHeight, arguments.mitemAlignment, std::shared_ptr<HeaderRow>(), arguments.mexternalScrollbar,
