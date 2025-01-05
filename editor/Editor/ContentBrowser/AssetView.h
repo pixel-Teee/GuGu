@@ -56,6 +56,8 @@ namespace GuGu {
 		std::vector<std::shared_ptr<AssetViewItem>> getSelectedItems() const;
 
 		GuGuUtf8Str getSourcesData() const;
+
+		float getTileViewItemWidth() const;
 	private:
 
 		GuGuUtf8Str m_soucesData;//当前所处于的文件夹
@@ -74,5 +76,7 @@ namespace GuGu {
 		bool m_bslowFullListRefreshRequested = false;
 
 		OnGetAssetContextMenu m_onGetAssetContextMenu;
+
+		int32_t m_tileViewThumbnailSize;
 	};
 }

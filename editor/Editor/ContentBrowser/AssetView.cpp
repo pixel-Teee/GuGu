@@ -16,6 +16,8 @@
 namespace GuGu {
 	void AssetView::init(const BuilderArguments& arguments)
 	{
+		m_tileViewThumbnailSize = 20;
+
 		m_childWidget = std::make_shared<SingleChildSlot>();
 		m_childWidget->m_parentWidget = shared_from_this();
 		//m_childWidget->m_childWidget->setParentWidget(shared_from_this());
@@ -81,12 +83,19 @@ namespace GuGu {
 			std::shared_ptr<TableRow<std::shared_ptr<AssetViewItem>>> tableRowWidget;
 
 			WIDGET_ASSIGN_NEW(TableRow<std::shared_ptr<AssetViewItem>>, tableRowWidget, ownerTable)
-			.Content(			
-				WIDGET_NEW(TextBlockWidget)
-				.text(folderItem->m_folderName)	
-				.textColor(math::float4(1.0f, 1.0f, 1.0f, 1.0f))
+			.Style(EditorStyleSet::getStyleSet()->getStyle<TableRowStyle>(u8"tablerow.assetview"))
+			.Content
+			(
+				WIDGET_NEW(GAssetTileItem)
+				.assetItem(assetItem)
+				.itemWidth(this, &AssetView::getTileViewItemWidth)
 			);
 
+			//std::shared_ptr<GAssetTileItem> item = WIDGET_NEW(GAssetTileItem)
+			//	.assetItem(assetItem)
+			//	.itemWidth(this, &AssetView::getTileViewItemWidth);
+			//
+			//tableRowWidget->setContent(item);
 			return tableRowWidget;
 		}
 		else
@@ -209,5 +218,9 @@ namespace GuGu {
 	GuGuUtf8Str AssetView::getSourcesData() const
 	{
 		return m_soucesData;
+	}
+	float AssetView::getTileViewItemWidth() const
+	{
+		return m_tileViewThumbnailSize;
 	}
 }
