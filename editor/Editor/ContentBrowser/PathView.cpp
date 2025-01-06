@@ -284,7 +284,7 @@ namespace GuGu {
 
 		std::shared_ptr<TreeItem> newItem = nullptr;
 
-		newItem = std::make_shared<TreeItem>(inFolderName, "/" + inFolderName, nullptr);
+		newItem = std::make_shared<TreeItem>(inFolderName, inFolderName, nullptr);
 		m_treeRootItems.push_back(newItem);
 		m_treeViewPtr->requestTreeRefresh();
 

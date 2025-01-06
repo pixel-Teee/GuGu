@@ -58,7 +58,7 @@ namespace GuGu {
 			(
 				WIDGET_ASSIGN_NEW(AssetView, m_assetView)
 				.onGetAssetContextMenu(this, &ContentBrowser::onGetAssetContextMenu)
-				.onPathSelected(this, &ContentBrowser::pathSelected)
+				.onPathSelected(this, &ContentBrowser::folderEntered)
 			)
 		);
 
@@ -79,6 +79,14 @@ namespace GuGu {
 	void ContentBrowser::pathSelected(const GuGuUtf8Str& folderPath)
 	{
 		m_assetView->setSourcesData(folderPath);
+	}
+	void ContentBrowser::folderEntered(const GuGuUtf8Str& folderPath)
+	{
+		std::vector<GuGuUtf8Str> selectedPaths;
+		selectedPaths.push_back(folderPath);
+		m_pathView->setSelectedPaths(selectedPaths);
+
+		pathSelected(selectedPaths[0]);
 	}
 	std::shared_ptr<Widget> ContentBrowser::onGetAssetContextMenu()
 	{
