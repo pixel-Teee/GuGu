@@ -56,7 +56,7 @@ namespace GuGu {
 			typename SlotType::SlotBuilderArguments& operator()(std::shared_ptr<Widget> childWidget)
 			{
 				m_slot->setChildWidget(childWidget);
-				//childWidget->setParentWidget(m_parentWidget);
+				childWidget->setParentWidget(m_slot->m_parentWidget.lock());
 				//return static_cast<typename SlotType::SlotArguments&>(*this);
 				return Me();
 			}

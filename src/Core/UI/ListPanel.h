@@ -23,6 +23,12 @@ namespace GuGu {
 			PaneSlot() {}
 
 			virtual ~PaneSlot() = default;
+
+			void init(std::shared_ptr<Widget> inParentWidget, const SlotBuilderArguments& builderArguments)
+			{
+				m_parentWidget = inParentWidget;
+				m_childWidget->setParentWidget(inParentWidget);
+			}
 		};
 
 		struct BuilderArguments : public Arguments<ListPanel>

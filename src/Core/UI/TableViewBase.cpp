@@ -139,7 +139,7 @@ namespace GuGu {
                 (
                     listAndScrollbar
                 )
-			);
+			);			
         }
         else
         {
@@ -148,6 +148,8 @@ namespace GuGu {
                 listAndScrollbar
             );
         }
+		this->m_childWidget->m_parentWidget = shared_from_this();
+        this->m_childWidget->m_childWidget->setParentWidget(shared_from_this());
     }
 
     void TableViewBase::scrollBarOnUserScrolled(float inScrollOffsetFraction)

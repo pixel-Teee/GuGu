@@ -132,7 +132,7 @@ namespace GuGu {
 							ownerTable->privateSignalSelectionChanged(SelectInfo::Direct);
 						}
 
-						return Reply::Handled().setFocus(ownerTable->asWidget()).captureMouse(ownerTable->asWidget());
+						return Reply::Handled().setFocus(ownerTable->asWidget()).captureMouse(shared_from_this());
 					}
 				}
 			}

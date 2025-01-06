@@ -128,7 +128,7 @@ namespace GuGu {
 			assetPathsToShow.push_back(m_soucesData);
 
 			GuGuUtf8Str searchPath = m_soucesData + "/";
-			searchPath = m_soucesData.substr(searchPath.findFirstOf("/"));
+			searchPath = m_soucesData.substr(searchPath.findFirstOf("/") + 1);
 			//获取当前文件夹下的子文件夹
 			std::vector<GuGuUtf8Str> subPaths;
 			AssetManager::getAssetManager().getSubPaths(searchPath, [&](GuGuUtf8Str path, bool isDirectory) {

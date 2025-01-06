@@ -24,7 +24,7 @@ namespace GuGu {
 		{
 			std::shared_ptr<ListPanel::PaneSlot> slot = std::static_pointer_cast<ListPanel::PaneSlot>(arguments.mSlots[i].m_slot);
             PaneSlot::SlotBuilderArguments builderArguments = arguments.mSlots[i];
-			//slot->init(shared_from_this(), builderArguments);
+			slot->init(shared_from_this(), builderArguments);
 			//m_childrens[i] = std::reinterpret_pointer_cast<BoxPanelSlot>(boxSlot);
 			m_childrens[i] = std::static_pointer_cast<PaneSlot>(std::static_pointer_cast<SlotBase>(slot));
 		}
@@ -281,6 +281,7 @@ namespace GuGu {
             insertAtIndex = m_childrens.size();
         auto it = m_childrens.begin() + insertAtIndex;
         m_childrens.insert(it, slot);//在指定位置插入 slot
+        slot->m_parentWidget = shared_from_this();
         return PaneSlot::SlotBuilderArguments(slot);
     }
     void ListPanel::setRefreshPending(bool isPendingRefresh)

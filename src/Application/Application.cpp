@@ -744,6 +744,8 @@ namespace GuGu{
 					//{
 					//	m_captorWidgetsPath.clear();
 					//}
+					if (reply.isEventHandled())
+						break;
 				}
 			}
 		}
@@ -793,6 +795,9 @@ namespace GuGu{
 				//}
 
 				processReply(reply, widgetPath);
+
+				if (reply.isEventHandled())
+					break;
 			}
 
 			const bool bFocusedChangedByEventyHandler = previousFocusedWidget != getKeyboardFocusedWidget();
@@ -844,6 +849,8 @@ namespace GuGu{
 					//{
 					//	m_captorWidgetsPath.clear();
 					//}
+					if (reply.isEventHandled())
+						break;
 				}
 			}
 		}
@@ -895,6 +902,8 @@ namespace GuGu{
 				//}
 
 				processReply(reply, widgetPath);
+				if (reply.isEventHandled())
+					break;
 			}
 		}
 		
@@ -987,6 +996,8 @@ namespace GuGu{
 					//{
 					//	m_captorWidgetsPath.clear();
 					//}
+					if (reply.isEventHandled())
+						break;
 				}
 			}
 		}
@@ -1036,6 +1047,8 @@ namespace GuGu{
 				//}
 
 				processReply(reply, widgetPath);
+				if (reply.isEventHandled())
+					break;
 			}
 		}
 
@@ -1134,6 +1147,8 @@ namespace GuGu{
 		{
 			reply = widgetPath.m_widgets[i]->getWidget()->OnMouseButtonDoubleClick(widgetPath.m_widgets[i]->getWidgetGeometry(), mouseEvent);
 			processReply(reply, widgetPath);
+			if(reply.isEventHandled())
+				break;
 		}
 
 		return true; 
