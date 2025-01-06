@@ -62,6 +62,8 @@ namespace GuGu {
 		float getTileViewItemWidth() const;
 
 		void onListMouseButtonDoubleClick(std::shared_ptr<AssetViewItem> assetItem);
+
+		void clearSelection();
 	private:
 
 		GuGuUtf8Str m_soucesData;//当前所处于的文件夹

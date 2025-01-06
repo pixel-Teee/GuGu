@@ -115,6 +115,8 @@ namespace GuGu {
 			m_soucesData = m_soucesData.substr(1);
 		}
 		requestSlowFullListRefresh();
+		clearSelection();//这个很重要，因为进入下一级文件夹的时候，可能还选中着上一级文件夹中的文件夹
+		//右键菜单需要根据是否有选中文件夹，来弹出不同的菜单
 	}
 	void AssetView::refreshFolders()
 	{
@@ -233,6 +235,14 @@ namespace GuGu {
 		{
 			m_onPathSelected(std::static_pointer_cast<AssetViewFolder>(assetItem)->m_folderPath);
 			return;
+		}
+	}
+
+	void AssetView::clearSelection()
+	{
+		switch (getCurrentViewType())
+		{
+		case AssetViewType::Tile: m_tileView->clearSelection(); break;
 		}
 	}
 
