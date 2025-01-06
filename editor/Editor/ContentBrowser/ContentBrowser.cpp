@@ -136,7 +136,7 @@ namespace GuGu {
 				initDir = AssetManager::getAssetManager().getActualPhysicalPath(initDir);
 				GuGuUtf8Str fileName;
 				GuGuUtf8Str filePath;
-				PlatformMisc::getSaveOrOpenFilePathAndFileName(m_parentWindow, initDir, filePath, fileName, filterArray);
+				PlatformMisc::getOpenFilePathAndFileName(m_parentWindow, initDir, filePath, fileName, filterArray);
 
 				if (fileName != "")
 				{

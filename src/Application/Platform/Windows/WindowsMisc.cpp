@@ -67,7 +67,7 @@ namespace GuGu {
 			CloseClipboard();
 		}
 	}
-	void WindowsMisc::getSaveOrOpenFilePathAndFileName(std::shared_ptr<WindowWidget> ownerWindow, const GuGuUtf8Str& initDir, GuGuUtf8Str& filePath, GuGuUtf8Str& fileName, const std::vector<GuGuUtf8Str>& filterArray)
+	void WindowsMisc::getOpenFilePathAndFileName(std::shared_ptr<WindowWidget> ownerWindow, const GuGuUtf8Str& initDir, GuGuUtf8Str& filePath, GuGuUtf8Str& fileName, const std::vector<GuGuUtf8Str>& filterArray)
 	{
 		std::shared_ptr<WindowsWindow> platformWindow = std::static_pointer_cast<WindowsWindow>(ownerWindow->getNativeWindow());
 		if (platformWindow)

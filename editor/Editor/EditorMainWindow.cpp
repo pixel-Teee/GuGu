@@ -248,7 +248,7 @@ namespace GuGu {
 		GuGuUtf8Str filePath;
 		GuGuUtf8Str initDir;
 		std::vector<GuGuUtf8Str> filterStr;
-		PlatformMisc::getSaveOrOpenFilePathAndFileName(std::static_pointer_cast<WindowWidget>(shared_from_this()), initDir, filePath, fileName, filterStr);
+		PlatformMisc::getOpenFilePathAndFileName(std::static_pointer_cast<WindowWidget>(shared_from_this()), initDir, filePath, fileName, filterStr);
 
 		GuGuUtf8Str executableFilePath = Application::GetExecutableFilePath();
 		return Reply();
