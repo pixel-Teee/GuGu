@@ -88,32 +88,38 @@ namespace GuGu {
 		std::shared_ptr<Widget> menuContent;
 		menuContent = 
 		WIDGET_NEW(Border)
-		.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("beige4"))
+		.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("beige7"))
+		.padding(Padding(2.0f, 2.0f, 2.0f, 2.0f))
 		.Content
 		(
-			WIDGET_NEW(VerticalBox)
-			+ VerticalBox::Slot()
-			.FixedHeight()
+			WIDGET_NEW(Border)
+			.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("beige4"))
+			.Content
 			(
-				WIDGET_ASSIGN_NEW(Button, importModelButton)
-				.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
-				.Content
+				WIDGET_NEW(VerticalBox)
+				+ VerticalBox::Slot()
+				.FixedHeight()
 				(
-					WIDGET_NEW(HorizontalBox)
-					+ HorizontalBox::Slot()
-					.FixedWidth()
+					WIDGET_ASSIGN_NEW(Button, importModelButton)
+					.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+					.Content
 					(
-						WIDGET_NEW(ImageWidget)
-						.brush(EditorStyleSet::getStyleSet()->getBrush("ImportModel_Icon"))
+						WIDGET_NEW(HorizontalBox)
+						+ HorizontalBox::Slot()
+						.FixedWidth()
+						(
+							WIDGET_NEW(ImageWidget)
+							.brush(EditorStyleSet::getStyleSet()->getBrush("ImportModel_Icon"))
+						)
+						+ HorizontalBox::Slot()
+						.setPadding(Padding(5.0f, 0.0f, 5.0f, 0.0f))
+						.FixedWidth()
+						(
+							WIDGET_NEW(TextBlockWidget)
+							.text(u8"Import Model")
+							.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+						)	
 					)
-					+ HorizontalBox::Slot()
-					.setPadding(Padding(5.0f, 0.0f, 5.0f, 0.0f))
-					.FixedWidth()
-					(
-						WIDGET_NEW(TextBlockWidget)
-						.text(u8"Import Model")
-						.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
-					)	
 				)
 			)
 		);
