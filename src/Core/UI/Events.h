@@ -62,11 +62,13 @@ namespace GuGu {
 	public:
 		PointerEvent(const math::float2& inScreenSpacePosition,
 			const math::float2& inLastScreenSpacePosition,
-			const Key& inKey = Keys::LeftMouseButton)
+			const Key& inKey = Keys::LeftMouseButton,
+			float inWheelDelta = 0)
 			: m_screenSpacePosition(inScreenSpacePosition)
 			, m_lastScreenSpacePosition(inLastScreenSpacePosition)
 			, m_cursorDelta(inScreenSpacePosition - inLastScreenSpacePosition)
 			, m_effectingButton(inKey)
+			, m_wheelOrGestureDelta(inWheelDelta)
 		{}
 
 		math::float2 getCursorDelta() const
@@ -83,6 +85,7 @@ namespace GuGu {
 		math::float2 m_lastScreenSpacePosition;
 		math::float2 m_cursorDelta;
 		Key m_effectingButton;
+		float m_wheelOrGestureDelta;
 	};
 
 	struct CharacterEvent : public InputEvent

@@ -91,6 +91,8 @@ namespace GuGu{
 
         virtual void OnMouseLeave(const PointerEvent& inMouseEvent);
 
+        virtual Reply OnMouseWheel(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent);
+
         virtual Reply OnKeyChar(const WidgetGeometry& myGeometry, const CharacterEvent& inCharacterEvent);
 
         virtual Reply OnKeyDown(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent);

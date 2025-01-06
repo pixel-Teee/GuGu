@@ -327,6 +327,30 @@ namespace GuGu{
 		}
 	}
 
+	bool Application::onMouseWheel(const std::shared_ptr<Window>& window, const float delta, const math::float2 cursorPos)
+	{
+		std::shared_ptr<WindowWidget> windowWidget;
+		for (size_t i = 0; i < m_windowWidgets.size(); ++i)
+		{
+			if (m_windowWidgets[i]->getNativeWindow() == window)
+			{
+				windowWidget = m_windowWidgets[i];
+				break;
+			}
+		}
+
+		math::float2 translatedCursorPos = translateCursorPos(cursorPos, windowWidget);
+
+		PointerEvent mouseWheelEvent(
+			cursorPos,
+			m_lastCursorPos,
+			translateMouseButtonToKey(MouseButtons::Type::Left),
+			delta
+		);
+
+		return processMouseWheelEvent(window, mouseWheelEvent);
+	}
+
     std::shared_ptr<Widget> Application::getCaptorWidget() const
     {
         if (!m_captorWidgetsPath.isEmpty())
@@ -1113,6 +1137,38 @@ namespace GuGu{
 		}
 
 		return true; 
+	}
+
+	bool Application::processMouseWheelEvent(const std::shared_ptr<Window>& window, const PointerEvent& inWheelEvent)
+	{
+		std::shared_ptr<Widget> collisionWidget = locateWidgetInWindow(window, inWheelEvent.m_screenSpacePosition);
+
+		std::vector<std::shared_ptr<Widget>> widgets;
+		std::shared_ptr<Widget> currentWidget = collisionWidget;
+		while (currentWidget)
+		{
+			widgets.push_back(currentWidget);
+			currentWidget = currentWidget->getParentWidget();
+		}
+		std::reverse(widgets.begin(), widgets.end()); //构造widget path
+		WidgetGeometry windowOffsetGeometry;//窗口左上角坐标
+		windowOffsetGeometry.mAbsolutePosition = window->getWindowScreenSpacePosition();
+		WidgetPath widgetPath(widgets, windowOffsetGeometry);
+
+		//记录旧的焦点路径
+		WidgetPath oldFocusWidgetsPath;
+		m_focusWidgetsPath.toWidgetPath(oldFocusWidgetsPath);
+
+		//从碰撞到的widget开始派发事件
+		size_t widgetNumber = widgetPath.m_widgets.getArrangedWidgetsNumber();
+		Reply reply = Reply::Unhandled();
+		for (int32_t i = widgetNumber - 1; i >= 0; --i) //bubble policy
+		{
+			reply = widgetPath.m_widgets[i]->getWidget()->OnMouseWheel(widgetPath.m_widgets[i]->getWidgetGeometry(), inWheelEvent);
+			processReply(reply, widgetPath);
+		}
+
+		return true;
 	}
 
     std::shared_ptr<Widget> Application::locateWidgetInWindow(const std::shared_ptr<Window>& window, const math::float2& screenSpacePosition)

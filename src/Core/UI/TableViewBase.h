@@ -102,6 +102,8 @@ namespace GuGu {
 
 		virtual Reply OnMouseButtonDoubleClick(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent) override;
 
+		virtual Reply OnMouseWheel(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent) override;
+
 		//获取可以沿着 line axis 塞入的items 数量，默认是1，TileView 会有很多
 		virtual int32_t getNumItemsPerLine() const;
 

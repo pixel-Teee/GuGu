@@ -104,6 +104,8 @@ namespace GuGu {
 
 		virtual void onMovedWindow(const std::shared_ptr<Window>& window, const int32_t x, const int32_t y);
 
+		virtual bool onMouseWheel(const std::shared_ptr<Window>& window, const float delta, const math::float2 cursorPos);
+
 		std::shared_ptr<Widget> getCaptorWidget() const;
 
 		virtual ModifierKeysState getModifierKeys() const { return ModifierKeysState(); }
@@ -197,6 +199,8 @@ namespace GuGu {
 		bool processWindowActivatedEvent(const WindowActivateEvent& activateEvent);
 
 		bool processMouseButtonDoubleClickEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent);
+
+		bool processMouseWheelEvent(const std::shared_ptr<Window>& window, const PointerEvent& inWheelEvent);
 
 		math::float2 translateCursorPos(math::float2 cursorPos, std::shared_ptr<WindowWidget> inWindowWidget);
 

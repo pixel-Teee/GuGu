@@ -618,6 +618,31 @@ namespace GuGu {
 				//return 0;
 				break;
 			}
+			case WM_MOUSEWHEEL:
+			{
+				const float spinFactor = 1 / 120.0f;
+				const SHORT WheelDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+
+				POINT CursorPoint;
+				CursorPoint.x = GET_X_LPARAM(lParam);
+				CursorPoint.y = GET_Y_LPARAM(lParam);
+
+				const math::float2 CursorPos(CursorPoint.x, CursorPoint.y);
+
+				std::shared_ptr<Window> window;
+				//find native window
+				std::vector<std::shared_ptr<WindowsWindow>> windows = globalApplication->getPlatformWindows();
+				for (int32_t i = 0; i < windows.size(); ++i)
+				{
+					if (windows[i]->getNativeWindowHandle() == hwnd)
+					{
+						window = windows[i];
+					}
+				}
+
+				globalApplication->onMouseWheel(window, static_cast<float>(WheelDelta)* spinFactor, CursorPos);
+				break;
+			}
 		}
 		return DefWindowProc(hwnd, uMsg, wParam, lParam);
 	}

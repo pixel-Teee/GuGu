@@ -325,6 +325,18 @@ namespace GuGu {
         return Reply::Unhandled();
     }
 
+    Reply TableViewBase::OnMouseWheel(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
+    {
+        if (!inMouseEvent.isControlDown())
+        {
+            const float additionalOffset = (inMouseEvent.m_wheelOrGestureDelta >= 0.0f ? -1.0f : 1.0f) * getNumItemsPerLine();
+            const double newScrollOffset = std::max(0.0, m_desiredScrollOffset + additionalOffset);
+            this->scrollTo(newScrollOffset);
+            return Reply::Handled();
+        }
+        return Reply::Unhandled();
+    }
+
     int32_t TableViewBase::getNumItemsPerLine() const
     {
         return 1;

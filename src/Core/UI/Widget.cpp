@@ -139,6 +139,10 @@ namespace GuGu{
     {
         m_hovered = false;
     }
+    Reply Widget::OnMouseWheel(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
+    {
+        return Reply::Unhandled();
+    }
     Reply Widget::OnKeyChar(const WidgetGeometry& myGeometry, const CharacterEvent& inCharacterEvent)
     {
         return Reply::Unhandled();
