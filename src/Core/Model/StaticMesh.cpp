@@ -26,7 +26,6 @@ namespace GuGu {
 
 	void GStaticMesh::OnSerialize(nlohmann::json& output) const
 	{
-		nlohmann::json object{};
 		output["type"] = typeidof(GStaticMesh);
 		output["indexData"] = nlohmann::json::array();
 		for (size_t i = 0; i < m_indexData.size(); ++i)
@@ -53,7 +52,6 @@ namespace GuGu {
 			output["normal"].emplace_back(m_normalData[i].y);
 			output["normal"].emplace_back(m_normalData[i].z);
 		}
-		output["GStaticMesh"] = object;
 	}
 
 	void GStaticMesh::OnDeserialize(const nlohmann::json& input)
