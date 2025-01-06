@@ -127,7 +127,6 @@ namespace GuGu {
 		importModelButton->setOnClicked(
 			OnClicked([=]() {
 				GuGuUtf8Str initDir = sourcesData + "/";
-				GuGuUtf8Str filterStr = "FBX\0*.fbx\0OBJ\0*.obj\0";
 				std::vector<GuGuUtf8Str> filterArray;
 				filterArray.push_back("FBX(*.fbx)\0");
 				filterArray.push_back("*.fbx\0");
@@ -139,22 +138,25 @@ namespace GuGu {
 				GuGuUtf8Str filePath;
 				PlatformMisc::getSaveOrOpenFilePathAndFileName(m_parentWindow, initDir, filePath, fileName, filterArray);
 
-				//import model
-				ModelImporter modelImporter;
-				GuGuUtf8Str modelJson = modelImporter.loadModel(filePath);
-
-				GuGuUtf8Str noFileExtensionsFileName = fileName;
-				int32_t dotPos = noFileExtensionsFileName.findLastOf(".");
-				if (dotPos != -1)
+				if (fileName != "")
 				{
-					noFileExtensionsFileName = noFileExtensionsFileName.substr(0, dotPos);
-				}
-				
-				GuGuUtf8Str outputFilePath = sourcesData + "/" + noFileExtensionsFileName + ".json";
-				//输出到目录
-				AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
-				AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)modelJson.getStr(), modelJson.getTotalByteCount());
-				AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
+					//import model
+					ModelImporter modelImporter;
+					GuGuUtf8Str modelJson = modelImporter.loadModel(filePath);
+
+					GuGuUtf8Str noFileExtensionsFileName = fileName;
+					int32_t dotPos = noFileExtensionsFileName.findLastOf(".");
+					if (dotPos != -1)
+					{
+						noFileExtensionsFileName = noFileExtensionsFileName.substr(0, dotPos);
+					}
+
+					GuGuUtf8Str outputFilePath = sourcesData + "/" + noFileExtensionsFileName + ".json";
+					//输出到目录
+					AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
+					AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)modelJson.getStr(), modelJson.getTotalByteCount());
+					AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
+				}		
 				return Reply::Handled();
 			}));
 
