@@ -83,6 +83,24 @@ namespace GuGu {
 		return currentPosition.QuadPart;
 	}
 
+	bool WindowsGuGuFile::fileExists(const GuGuUtf8Str& filePath)
+	{
+		const std::wstring filePathUtf16 = filePath.getUtf16String();
+		DWORD attributes = GetFileAttributes(filePathUtf16.c_str());
+		return (attributes != INVALID_FILE_ATTRIBUTES);
+	}
+
+	bool WindowsGuGuFile::folderExists(const GuGuUtf8Str& folderPath)
+	{
+		const std::wstring folderPathUtf16 = folderPath.getUtf16String();
+		DWORD attributes = GetFileAttributes(folderPathUtf16.c_str());
+		if (attributes == INVALID_FILE_ATTRIBUTES) {
+			// 路径不存在或者无法访问
+			return false;
+		}
+		return (attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+	}
+
 	std::shared_ptr<GuGuFile> CreateFileFactory()
 	{
 		return std::make_shared<WindowsGuGuFile>();

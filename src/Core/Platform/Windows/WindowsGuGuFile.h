@@ -24,6 +24,10 @@ namespace GuGu {
 		virtual int32_t getFileSize() override;
 
 		virtual int32_t getCurrentFilePointerPos() override;
+
+		virtual bool fileExists(const GuGuUtf8Str& filePath) override;
+
+		virtual bool folderExists(const GuGuUtf8Str& folderPath) override;
 	private:
 
 		HANDLE m_fileHandle;

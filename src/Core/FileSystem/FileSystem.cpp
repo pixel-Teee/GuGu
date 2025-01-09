@@ -55,6 +55,16 @@ namespace GuGu {
 		return m_nativePath;
 	}
 
+	bool NativeFileSystem::fileExists(const GuGuUtf8Str& filePath)
+	{
+		return m_file->fileExists(filePath);
+	}
+
+	bool NativeFileSystem::folderExists(const GuGuUtf8Str& folderPath)
+	{
+		return m_file->folderExists(folderPath);
+	}
+
 	//------archiver file system------
 	int32_t getInt(std::shared_ptr<FileSystem> in) {
 		unsigned char buffer[4];
@@ -181,6 +191,16 @@ namespace GuGu {
 		return 0;
 	}
 
+	bool ArchiverFileSystem::fileExists(const GuGuUtf8Str& filePath)
+	{
+		return false;
+	}
+
+	bool ArchiverFileSystem::folderExists(const GuGuUtf8Str& folderPath)
+	{
+		return false;
+	}
+
 	//------root file system------
 	RootFileSystem::RootFileSystem()
 	{
@@ -293,6 +313,16 @@ namespace GuGu {
 		}
 
 		return false;
+	}
+
+	bool RootFileSystem::fileExists(const GuGuUtf8Str& filePath)
+	{
+		return m_currentOpenFileSystem->fileExists(filePath);
+	}
+
+	bool RootFileSystem::folderExists(const GuGuUtf8Str& folderPath)
+	{
+		return m_currentOpenFileSystem->folderExists(folderPath);
 	}
 
 	void CreateArchiveFiles(std::shared_ptr<RootFileSystem> rootFileSystem, std::shared_ptr<RootFileSystem> assetRootFileSystem, const std::vector<GuGuUtf8Str>& fileVirtualPaths, const GuGuUtf8Str& archiveVirtualPaths, const GuGuUtf8Str& mountPoint)

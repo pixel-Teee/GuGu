@@ -12,6 +12,9 @@
 namespace GuGu {
 	AssetManager::AssetManager()
 	{
+		//资产登记表
+		
+
 		GuGuUtf8Str contentDirectory = Application::GetContentDirectoryWithExecutable();
 
 		m_nativeFileSystem = std::make_shared<NativeFileSystem>(contentDirectory);

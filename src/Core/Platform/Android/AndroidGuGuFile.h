@@ -32,6 +32,10 @@ namespace GuGu{
         static void setInternalPath(const GuGuUtf8Str& internalDataPath, const GuGuUtf8Str& internalFilePath);
 
         static void setAssetManager(AAssetManager* assetManager);
+
+		virtual bool fileExists(const GuGuUtf8Str& filePath) override;
+
+		virtual bool folderExists(const GuGuUtf8Str& folderPath) override;
     private:
         static GuGuUtf8Str m_internalDataPath;
         static GuGuUtf8Str m_internalFilePath;

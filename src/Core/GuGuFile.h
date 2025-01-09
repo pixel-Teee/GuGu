@@ -35,6 +35,10 @@ namespace GuGu {
 		virtual int32_t getFileSize() = 0;
 
 		virtual int32_t getCurrentFilePointerPos() = 0;
+
+		virtual bool fileExists(const GuGuUtf8Str& filePath) = 0;
+
+		virtual bool folderExists(const GuGuUtf8Str& folderPath) = 0;
 	};
 
 	std::shared_ptr<GuGuFile> CreateFileFactory();

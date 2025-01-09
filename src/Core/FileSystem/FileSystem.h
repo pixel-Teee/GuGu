@@ -26,6 +26,10 @@ namespace GuGu
 		virtual int32_t getFileSize() = 0;
 
 		virtual int32_t getCurrentFilePointerPos() = 0;
+
+		virtual bool fileExists(const GuGuUtf8Str& filePath) = 0;
+
+		virtual bool folderExists(const GuGuUtf8Str& folderPath) = 0;
 	};
 	
 	class NativeFileSystem : public FileSystem
@@ -50,6 +54,10 @@ namespace GuGu
 		virtual int32_t getCurrentFilePointerPos() override;
 
 		GuGuUtf8Str getNativeFilePath() const;
+
+		virtual bool fileExists(const GuGuUtf8Str& filePath) override;
+
+		virtual bool folderExists(const GuGuUtf8Str& folderPath) override;
 	private:
 		std::shared_ptr<GuGuFile> m_file;
 
@@ -80,6 +88,10 @@ namespace GuGu
 		virtual int32_t getFileSize() override;
 
 		virtual int32_t getCurrentFilePointerPos() override;
+
+		virtual bool fileExists(const GuGuUtf8Str& filePath) override;
+
+		virtual bool folderExists(const GuGuUtf8Str& folderPath) override;
 
 	private:
 		std::shared_ptr<FileSystem> m_underlyingFileSystem;
@@ -120,6 +132,10 @@ namespace GuGu
 		GuGuUtf8Str findMountPoint(std::shared_ptr<FileSystem> fileSystem) const;
 
 		bool findMountPoint(const GuGuUtf8Str& path, GuGuUtf8Str* relativePath, std::shared_ptr<FileSystem>& pFs);
+
+		virtual bool fileExists(const GuGuUtf8Str& filePath) override;
+
+		virtual bool folderExists(const GuGuUtf8Str& folderPath) override;
 
 	private:
 		std::vector<std::pair<GuGuUtf8Str, std::shared_ptr<FileSystem>>> m_mountPoints;
