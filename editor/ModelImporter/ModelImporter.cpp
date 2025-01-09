@@ -20,7 +20,7 @@ namespace GuGu {
 	ModelImporter::~ModelImporter()
 	{
 	}
-	GuGuUtf8Str ModelImporter::loadModel(const GuGuUtf8Str& modelPhysicalFilePath)
+	nlohmann::json ModelImporter::loadModel(const GuGuUtf8Str& modelPhysicalFilePath)
 	{
 		//从文件的实际路径去加载模型
 		Assimp::Importer import;
@@ -63,7 +63,7 @@ namespace GuGu {
 		}
 
 		//序列化掉这个模型为json文件
-		GuGuUtf8Str staticMeshJson = meta::Variant(*m_currentLoadStaticMesh).SerializeJson().dump();
+		nlohmann::json staticMeshJson = meta::Variant(*m_currentLoadStaticMesh).SerializeJson();
 
 		return staticMeshJson;
 	}

@@ -18,11 +18,35 @@ namespace GuGu {
 		m_rootFileSystem = std::make_shared<RootFileSystem>();
 		m_rootFileSystem->mount("content", m_nativeFileSystem);
 
-		if (!m_rootFileSystem->fileExists(m_nativeFileSystem->getNativeFilePath() + "/AssetRgistry.json"))
+		if (!m_nativeFileSystem->fileExists(m_nativeFileSystem->getNativeFilePath() + "/AssetRgistry.json"))
 		{
 			//create this file
+			m_rootFileSystem->OpenFile("content/AssetRgistry.json", GuGuFile::FileMode::OnlyWrite);
+			nlohmann::json newAssetRegistry = nlohmann::json::object();
+			newAssetRegistry["AssetRegistry"] = nlohmann::json::array();
+			GuGuUtf8Str data = newAssetRegistry.dump();
+			m_rootFileSystem->WriteFile((void*)data.getStr(), data.getTotalByteCount());
+			m_rootFileSystem->CloseFile();
 		}
 		//加载这个文件，这个文件存储了文件路径和其对应的GUID
+		m_rootFileSystem->OpenFile("content/AssetRgistry.json", GuGuFile::FileMode::OnlyRead);
+		int32_t fileSize = m_rootFileSystem->getFileSize();
+		char* data = new char[fileSize + 1];
+		data[fileSize] = '\0';
+		int32_t numberOfBytesHaveReaded = 0;
+		m_rootFileSystem->ReadFile(data, fileSize, numberOfBytesHaveReaded);
+		m_rootFileSystem->CloseFile();
+		//fileContent to GuGuUtfStr
+		GuGuUtf8Str fileContent(data);
+		delete[] data;
+		m_assetRegistryJson = nlohmann::json::parse(fileContent.getStr());
+		nlohmann::json root = m_assetRegistryJson["AssetRegistry"];
+		for (const auto& item : root)
+		{
+			GGuid key = item.at("GUID").get<std::string>();
+			GuGuUtf8Str filePath = item.at("FilePath").get<std::string>();
+			m_guidToAssetMap.insert({ key, filePath });
+		}
 	}
 	AssetManager::~AssetManager()
 	{
@@ -112,6 +136,20 @@ namespace GuGu {
 	std::shared_ptr<RootFileSystem> AssetManager::getRootFileSystem() const
 	{
 		return m_rootFileSystem;
+	}
+
+	void AssetManager::registerAsset(const GuGuUtf8Str& guid, const GuGuUtf8Str& filePath)
+	{
+		m_guidToAssetMap.insert({ guid, filePath });
+		m_rootFileSystem->OpenFile("content/AssetRgistry.json", GuGuFile::FileMode::OnlyWrite);
+		
+		nlohmann::json newItem = nlohmann::json::object();
+		newItem["GUID"] = guid.getStr();
+		newItem["FilePath"] = filePath.getStr();
+		m_assetRegistryJson["AssetRegistry"].push_back(newItem);
+		GuGuUtf8Str jsonFileContent = m_assetRegistryJson.dump();
+		m_rootFileSystem->WriteFile((void*)jsonFileContent.getStr(), jsonFileContent.getTotalByteCount());
+		m_rootFileSystem->CloseFile();
 	}
 
 	//遍历目录

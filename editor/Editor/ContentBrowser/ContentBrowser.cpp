@@ -15,6 +15,8 @@
 
 #include <ModelImporter/ModelImporter.h>
 
+#include <Core/Guid.h>
+
 #ifdef WIN32
 #include <Application/Platform/Windows/WindowsMisc.h>
 #else
@@ -150,7 +152,12 @@ namespace GuGu {
 				{
 					//import model
 					ModelImporter modelImporter;
-					GuGuUtf8Str modelJson = modelImporter.loadModel(filePath);
+					nlohmann::json modelJson = modelImporter.loadModel(filePath);
+					GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
+					modelJson["GUID"] = guidStr.getStr();
+					GuGuUtf8Str fileContent = modelJson.dump();
+
+					AssetManager::getAssetManager().registerAsset(guidStr, filePath);
 
 					GuGuUtf8Str noFileExtensionsFileName = fileName;
 					int32_t dotPos = noFileExtensionsFileName.findLastOf(".");
@@ -162,7 +169,7 @@ namespace GuGu {
 					GuGuUtf8Str outputFilePath = sourcesData + "/" + noFileExtensionsFileName + ".json";
 					//输出到目录
 					AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
-					AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)modelJson.getStr(), modelJson.getTotalByteCount());
+					AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
 					AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
 				}		
 				return Reply::Handled();

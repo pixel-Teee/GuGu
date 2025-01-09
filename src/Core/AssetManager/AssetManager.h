@@ -2,6 +2,9 @@
 
 #include <Core/FileSystem/FileSystem.h>
 #include <functional>
+#include <Core/Guid.h>
+
+#include <json.hpp>
 
 namespace GuGu {
 	class RootFileSystem;
@@ -23,6 +26,8 @@ namespace GuGu {
 		GuGuUtf8Str getActualPhysicalPath(const GuGuUtf8Str& relativePath);
 
 		std::shared_ptr<RootFileSystem> getRootFileSystem() const;
+
+		void registerAsset(const GuGuUtf8Str& guid, const GuGuUtf8Str& filePath);
 	private:
 		//遍历目录和文件
 		void traverseDirectoryAndFile_private(const GuGuUtf8Str& directory, std::function<void(GuGuUtf8Str, bool)> enumerateCallBack);
@@ -30,5 +35,9 @@ namespace GuGu {
 		std::shared_ptr<RootFileSystem> m_rootFileSystem;
 
 		std::shared_ptr<NativeFileSystem> m_nativeFileSystem;
+
+		std::unordered_map<GGuid, GuGuUtf8Str> m_guidToAssetMap;
+
+		nlohmann::json m_assetRegistryJson;
 	};
 }

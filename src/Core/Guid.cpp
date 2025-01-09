@@ -20,6 +20,7 @@ namespace GuGu {
 	}
 	GGuid GGuid::generateGuid()
 	{
+		GuGuUtf8Str res;
 #if WIN32
 		char buf[64] = { 0 };
 		GUID guid;
@@ -30,7 +31,9 @@ namespace GuGu {
 				guid.Data4[0], guid.Data4[1], guid.Data4[2], guid.Data4[3],
 				guid.Data4[4], guid.Data4[5], guid.Data4[6], guid.Data4[7]);
 		}
+		res = buf;
 #endif
+		return res;
 	}
 	GuGuUtf8Str GGuid::getGuid() const
 	{

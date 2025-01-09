@@ -6,6 +6,8 @@
 
 #include <Core/GuGuUtf8Str.h>
 
+#include <json.hpp>
+
 namespace GuGu {
 	class GStaticMesh;
 	class ModelImporter
@@ -15,7 +17,7 @@ namespace GuGu {
 
 		virtual ~ModelImporter();
 
-		GuGuUtf8Str loadModel(const GuGuUtf8Str& modelPhysicalFilePath);
+		nlohmann::json loadModel(const GuGuUtf8Str& modelPhysicalFilePath);
 
 	private:
 		void processNode(aiNode* node, const aiScene* scene);
