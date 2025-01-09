@@ -12,14 +12,17 @@
 namespace GuGu {
 	AssetManager::AssetManager()
 	{
-		//资产登记表
-		
-
 		GuGuUtf8Str contentDirectory = Application::GetContentDirectoryWithExecutable();
 
 		m_nativeFileSystem = std::make_shared<NativeFileSystem>(contentDirectory);
 		m_rootFileSystem = std::make_shared<RootFileSystem>();
 		m_rootFileSystem->mount("content", m_nativeFileSystem);
+
+		if (!m_rootFileSystem->fileExists(m_nativeFileSystem->getNativeFilePath() + "/AssetRgistry.json"))
+		{
+			//create this file
+		}
+		//加载这个文件，这个文件存储了文件路径和其对应的GUID
 	}
 	AssetManager::~AssetManager()
 	{
