@@ -50,7 +50,7 @@ namespace GuGu {
 			GuGuUtf8Str splitPath = inPath;
 			if (inPath[inPath.len() - 1] != "/")
 				splitPath = inPath + "/";
-			m_folderName = FilePath::getBaseFileName(splitPath);
+			m_folderName = FilePath::getBaseFolderName(splitPath);
 		}
 
 		virtual AssetItemType::Type getType() const override

@@ -3,10 +3,18 @@
 #include <Core/FileSystem/FileSystem.h>
 #include <functional>
 #include <Core/Guid.h>
+#include <Core/Reflection/Type.h>
 
 #include <json.hpp>
 
 namespace GuGu {
+	struct AssetData
+	{
+		GuGuUtf8Str m_filePath;
+		GuGuUtf8Str m_fileName;
+		meta::Type m_assetType;
+	};
+
 	class RootFileSystem;
 	class AssetManager
 	{
@@ -27,7 +35,7 @@ namespace GuGu {
 
 		std::shared_ptr<RootFileSystem> getRootFileSystem() const;
 
-		void registerAsset(const GuGuUtf8Str& guid, const GuGuUtf8Str& filePath);
+		void registerAsset(const GuGuUtf8Str& guid, const GuGuUtf8Str& filePath, const GuGuUtf8Str& fileName, meta::Type assetType);
 	private:
 		//遍历目录和文件
 		void traverseDirectoryAndFile_private(const GuGuUtf8Str& directory, std::function<void(GuGuUtf8Str, bool)> enumerateCallBack);
@@ -36,7 +44,7 @@ namespace GuGu {
 
 		std::shared_ptr<NativeFileSystem> m_nativeFileSystem;
 
-		std::unordered_map<GGuid, GuGuUtf8Str> m_guidToAssetMap;
+		std::unordered_map<GGuid, AssetData> m_guidToAssetMap;
 
 		nlohmann::json m_assetRegistryJson;
 	};

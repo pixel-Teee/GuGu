@@ -45,7 +45,9 @@ namespace GuGu {
 		{
 			GGuid key = item.at("GUID").get<std::string>();
 			GuGuUtf8Str filePath = item.at("FilePath").get<std::string>();
-			m_guidToAssetMap.insert({ key, filePath });
+			GuGuUtf8Str fileName = item.at("FileName").get<std::string>();
+			uint32_t assetTypeId = item.at("AssetType").get<uint32_t>();
+			m_guidToAssetMap.insert({ key, {filePath, fileName, meta::Type(assetTypeId)}});
 		}
 	}
 	AssetManager::~AssetManager()
@@ -138,14 +140,16 @@ namespace GuGu {
 		return m_rootFileSystem;
 	}
 
-	void AssetManager::registerAsset(const GuGuUtf8Str& guid, const GuGuUtf8Str& filePath)
+	void AssetManager::registerAsset(const GuGuUtf8Str& guid, const GuGuUtf8Str& filePath, const GuGuUtf8Str& fileName, meta::Type assetType)
 	{
-		m_guidToAssetMap.insert({ guid, filePath });
+		m_guidToAssetMap.insert({ guid, {filePath, fileName, assetType.GetID()} });
 		m_rootFileSystem->OpenFile("content/AssetRgistry.json", GuGuFile::FileMode::OnlyWrite);
 		
 		nlohmann::json newItem = nlohmann::json::object();
 		newItem["GUID"] = guid.getStr();
-		newItem["FilePath"] = filePath.getStr();
+		newItem["FilePath"] = FilePath::getRelativePathForAsset(filePath, m_nativeFileSystem->getNativeFilePath() + "/").getStr().getStr();
+		newItem["FileName"] = fileName.getStr();
+		newItem["AssetType"] = assetType.GetID();
 		m_assetRegistryJson["AssetRegistry"].push_back(newItem);
 		GuGuUtf8Str jsonFileContent = m_assetRegistryJson.dump();
 		m_rootFileSystem->WriteFile((void*)jsonFileContent.getStr(), jsonFileContent.getTotalByteCount());
