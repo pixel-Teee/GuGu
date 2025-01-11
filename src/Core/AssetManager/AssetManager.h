@@ -7,13 +7,9 @@
 
 #include <json.hpp>
 
+#include "AssetData.h"
+
 namespace GuGu {
-	struct AssetData
-	{
-		GuGuUtf8Str m_filePath;
-		GuGuUtf8Str m_fileName;
-		meta::Type m_assetType;
-	};
 
 	class RootFileSystem;
 	class AssetManager
@@ -36,6 +32,12 @@ namespace GuGu {
 		std::shared_ptr<RootFileSystem> getRootFileSystem() const;
 
 		void registerAsset(const GuGuUtf8Str& guid, const GuGuUtf8Str& filePath, const GuGuUtf8Str& fileName, meta::Type assetType);
+
+		bool isInAssetRegistry(const GGuid& fileGuid) const;
+
+		bool isInAssetRegistry(const GuGuUtf8Str& filePath) const;
+
+		const AssetData& getAssetData(const GuGuUtf8Str& filePath) const;
 	private:
 		//遍历目录和文件
 		void traverseDirectoryAndFile_private(const GuGuUtf8Str& directory, std::function<void(GuGuUtf8Str, bool)> enumerateCallBack);

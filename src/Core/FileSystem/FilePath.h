@@ -20,6 +20,8 @@ namespace GuGu {
 
 		static GuGuUtf8Str getBaseFolderName(const GuGuUtf8Str& folderPath);
 
+		static GuGuUtf8Str getNonExtensionFileName(const GuGuUtf8Str& fileName);
+
 		GuGuUtf8Str getStr() const;
 
 		bool isDir() const;

@@ -40,6 +40,9 @@ namespace GuGu {
 
 		void setSourcesData(const GuGuUtf8Str& inSourcesData);
 
+		//重新生成资产
+		void refreshSourceItems();
+
 		//重新生成文件夹，如果我们需要显示它们
 		void refreshFolders();
 

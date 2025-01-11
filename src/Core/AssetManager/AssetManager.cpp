@@ -142,18 +142,46 @@ namespace GuGu {
 
 	void AssetManager::registerAsset(const GuGuUtf8Str& guid, const GuGuUtf8Str& filePath, const GuGuUtf8Str& fileName, meta::Type assetType)
 	{
-		m_guidToAssetMap.insert({ guid, {filePath, fileName, assetType.GetID()} });
+		GuGuUtf8Str relativePath = "content/" + FilePath::getRelativePathForAsset(filePath, m_nativeFileSystem->getNativeFilePath() + "/").getStr();
+		m_guidToAssetMap.insert({ guid, {relativePath, fileName, assetType.GetID()} });
 		m_rootFileSystem->OpenFile("content/AssetRgistry.json", GuGuFile::FileMode::OnlyWrite);
 		
 		nlohmann::json newItem = nlohmann::json::object();
 		newItem["GUID"] = guid.getStr();
-		newItem["FilePath"] = FilePath::getRelativePathForAsset(filePath, m_nativeFileSystem->getNativeFilePath() + "/").getStr().getStr();
+		newItem["FilePath"] = relativePath.getStr();
 		newItem["FileName"] = fileName.getStr();
 		newItem["AssetType"] = assetType.GetID();
 		m_assetRegistryJson["AssetRegistry"].push_back(newItem);
 		GuGuUtf8Str jsonFileContent = m_assetRegistryJson.dump();
 		m_rootFileSystem->WriteFile((void*)jsonFileContent.getStr(), jsonFileContent.getTotalByteCount());
 		m_rootFileSystem->CloseFile();
+	}
+
+	bool AssetManager::isInAssetRegistry(const GGuid& fileGuid) const
+	{
+		if (m_guidToAssetMap.find(fileGuid) == m_guidToAssetMap.end())
+			return false;
+		return true;
+	}
+
+	bool AssetManager::isInAssetRegistry(const GuGuUtf8Str& filePath) const
+	{
+		for (const auto& item : m_guidToAssetMap)
+		{
+			if (item.second.m_filePath == filePath)
+				return true;
+		}
+		return false;
+	}
+
+	const AssetData& AssetManager::getAssetData(const GuGuUtf8Str& filePath) const
+	{
+		for (const auto& item : m_guidToAssetMap)
+		{
+			if (item.second.m_filePath == filePath)
+				return item.second;
+		}
+		return AssetData();
 	}
 
 	//遍历目录

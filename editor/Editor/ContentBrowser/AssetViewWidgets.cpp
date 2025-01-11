@@ -8,6 +8,9 @@
 #include <Core/UI/BoxPanel.h>
 #include <Editor/StyleSet/EditorStyleSet.h>
 
+#include <Core/Model/StaticMesh.h> //GStaticMesh
+#include <Core/Reflection/Type.h>
+
 namespace GuGu {
     void GAssetViewItem::init(const BuilderArguments& arguments)
     {
@@ -32,7 +35,8 @@ namespace GuGu {
             }
             else
             {
-                return GuGuUtf8Str();
+                GuGuUtf8Str noExtensionFileName = FilePath::getNonExtensionFileName(std::static_pointer_cast<AssetViewAsset>(m_assetItem)->m_data.m_fileName);
+                return noExtensionFileName;
             }
         }
 
@@ -62,8 +66,22 @@ namespace GuGu {
             );
         }
         else
-        {
+		{
+            std::shared_ptr<AssetViewAsset> assetViewAsset = std::static_pointer_cast<AssetViewAsset>(m_assetItem);
 
+            if (assetViewAsset)
+            {
+                if (assetViewAsset->m_data.m_assetType.GetID() == meta::TypeIDs<GStaticMesh>::ID)
+                {
+					std::shared_ptr<Brush> assetImage = EditorStyleSet::getStyleSet()->getBrush("MeshAssetIcon");
+					itemContentsOverlay->addSlot()
+						.setChildWidget
+						(
+							WIDGET_NEW(ImageWidget)
+							.brush(assetImage)
+						);
+                }	
+            }	
         }
 
         std::shared_ptr<Border> border = WIDGET_NEW(Border)
@@ -76,8 +94,8 @@ namespace GuGu {
             .setHorizontalAlignment(HorizontalAlignment::Center)
             (
                 WIDGET_NEW(BoxWidget)
-                .WidthOverride(this, &GAssetTileItem::getThumbnailBoxSize) //128
-                .HeightOverride(this, &GAssetTileItem::getThumbnailBoxSize) //128
+                .WidthOverride(this, &GAssetTileItem::getThumbnailBoxSize) //64
+                .HeightOverride(this, &GAssetTileItem::getThumbnailBoxSize) //64
                 .Content
                 (
                     WIDGET_NEW(Border)

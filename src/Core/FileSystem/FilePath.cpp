@@ -170,6 +170,15 @@ namespace GuGu {
 			return folderDirs.back();
 		return "";
 	}
+	GuGuUtf8Str FilePath::getNonExtensionFileName(const GuGuUtf8Str& fileName)
+	{
+		int32_t dotPos = fileName.findLastOf(".");
+		if (dotPos != -1)
+		{
+			return fileName.substr(0, dotPos);
+		}
+		return fileName;
+	}
 	GuGuUtf8Str FilePath::getStr() const
 	{
 		return m_filePath;

@@ -2,6 +2,7 @@
 
 #include <Core/GuGuUtf8Str.h>
 #include <Core/FileSystem/FilePath.h>
+#include <Core/AssetManager/AssetData.h>
 
 namespace GuGu {
 	namespace AssetItemType
@@ -28,7 +29,13 @@ namespace GuGu {
 
 	struct AssetViewAsset : public AssetViewItem
 	{
-		AssetViewAsset() {}
+		AssetData m_data;
+
+		explicit AssetViewAsset(const AssetData& inAssetData)
+			: m_data(inAssetData)
+		{
+
+		}
 
 		virtual ~AssetViewAsset() {}
 
@@ -58,4 +65,5 @@ namespace GuGu {
 			return AssetItemType::Folder;
 		}
 	};
+
 }

@@ -157,14 +157,21 @@ namespace GuGu {
 					modelJson["GUID"] = guidStr.getStr();
 					GuGuUtf8Str fileContent = modelJson.dump();
 
-					AssetManager::getAssetManager().registerAsset(guidStr, filePath, fileName, meta::Type(meta::TypeIDs<GStaticMesh>().ID));
-
 					GuGuUtf8Str noFileExtensionsFileName = fileName;
 					int32_t dotPos = noFileExtensionsFileName.findLastOf(".");
 					if (dotPos != -1)
 					{
 						noFileExtensionsFileName = noFileExtensionsFileName.substr(0, dotPos);
 					}
+
+					GuGuUtf8Str registerFilePath = filePath;
+					dotPos = filePath.findLastOf(".");
+					if (dotPos != -1)
+					{
+						registerFilePath = filePath.substr(0, dotPos);
+					}					
+
+					AssetManager::getAssetManager().registerAsset(guidStr, registerFilePath + ".json", noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GStaticMesh>().ID));
 
 					GuGuUtf8Str outputFilePath = sourcesData + "/" + noFileExtensionsFileName + ".json";
 					//输出到目录

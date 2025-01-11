@@ -219,6 +219,7 @@ namespace GuGu {
 		}
 
 		ADD_IMAGE(ImportModel_Icon)
+		ADD_IMAGE(MeshAssetIcon)
 	}
 	EditorStyleSet::~EditorStyleSet()
 	{

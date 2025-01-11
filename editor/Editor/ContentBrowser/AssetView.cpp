@@ -16,7 +16,7 @@
 namespace GuGu {
 	void AssetView::init(const BuilderArguments& arguments)
 	{
-		m_tileViewThumbnailSize = 128;
+		m_tileViewThumbnailSize = 64;
 
 		m_childWidget = std::make_shared<SingleChildSlot>();
 		m_childWidget->m_parentWidget = shared_from_this();
@@ -68,7 +68,7 @@ namespace GuGu {
 		return WIDGET_NEW(AssetTileView)
 				.ListItemSource(&m_filteredAssetItems)
 				.onGenerateTile(this, &AssetView::makeTileViewWidget)
-				.itemHeight(156.0f)
+				.itemHeight(92.0f)
 				.onContextMenuOpening(this, &AssetView::onGetContextMenuContent)
 				.onMouseButtonDoubleClick(this, &AssetView::onListMouseButtonDoubleClick);
 	}
@@ -104,6 +104,22 @@ namespace GuGu {
 		{
 			std::shared_ptr<AssetViewAsset> assetItemAsAsset = std::static_pointer_cast<AssetViewAsset>(assetItem);
 
+			if (assetItemAsAsset)
+			{
+				std::shared_ptr<TableRow<std::shared_ptr<AssetViewItem>>> tableRowWidget;
+
+				WIDGET_ASSIGN_NEW(TableRow<std::shared_ptr<AssetViewItem>>, tableRowWidget, ownerTable)
+				.Style(EditorStyleSet::getStyleSet()->getStyle<TableRowStyle>(u8"tablerow.assetview"))
+				.Content
+				(
+					WIDGET_NEW(GAssetTileItem)
+					.assetItem(assetItem)
+					.itemWidth(this, &AssetView::getTileViewItemWidth)
+				);
+
+				return tableRowWidget;
+			}
+
 			return nullptr;
 		}
 	}
@@ -118,48 +134,64 @@ namespace GuGu {
 		clearSelection();//这个很重要，因为进入下一级文件夹的时候，可能还选中着上一级文件夹中的文件夹
 		//右键菜单需要根据是否有选中文件夹，来弹出不同的菜单
 	}
+	void AssetView::refreshSourceItems()
+	{
+		m_filteredAssetItems.clear();
+
+		GuGuUtf8Str searchPath = m_soucesData + "/";
+		searchPath = m_soucesData.substr(searchPath.findFirstOf("/") + 1);
+		std::vector<AssetData> assetItems;
+		AssetManager::getAssetManager().getSubPaths(searchPath, [&](GuGuUtf8Str path, bool isDirectory) {
+			if (!isDirectory)
+			{
+				//check is asset
+				if (AssetManager::getAssetManager().isInAssetRegistry(path))
+				{
+					assetItems.push_back(AssetManager::getAssetManager().getAssetData(path));
+				}
+			}
+		});
+
+		for (const AssetData& assetData : assetItems)
+		{
+			m_filteredAssetItems.push_back(std::make_shared<AssetViewAsset>(assetData));
+		}
+	}
 	void AssetView::refreshFolders()
 	{
-		if (m_bslowFullListRefreshRequested)
+		std::vector<GuGuUtf8Str> assetPathsToShow;
+		assetPathsToShow.push_back(m_soucesData);
+
+		GuGuUtf8Str searchPath = m_soucesData + "/";
+		searchPath = m_soucesData.substr(searchPath.findFirstOf("/") + 1);
+		//获取当前文件夹下的子文件夹
+		std::vector<GuGuUtf8Str> subPaths;
+		AssetManager::getAssetManager().getSubPaths(searchPath, [&](GuGuUtf8Str path, bool isDirectory) {
+			if (isDirectory)
+			{
+				subPaths.push_back(path);
+			}
+		});
+
+		std::vector<GuGuUtf8Str> foldersToAdd;
+		for (const GuGuUtf8Str& subPath : subPaths)
 		{
-			m_filteredAssetItems.clear();
-
-			std::vector<GuGuUtf8Str> assetPathsToShow;
-			assetPathsToShow.push_back(m_soucesData);
-
-			GuGuUtf8Str searchPath = m_soucesData + "/";
-			searchPath = m_soucesData.substr(searchPath.findFirstOf("/") + 1);
-			//获取当前文件夹下的子文件夹
-			std::vector<GuGuUtf8Str> subPaths;
-			AssetManager::getAssetManager().getSubPaths(searchPath, [&](GuGuUtf8Str path, bool isDirectory) {
-				if (isDirectory)
-				{
-					subPaths.push_back(path);
-				}
-				});
-
-			std::vector<GuGuUtf8Str> foldersToAdd;
-			for (const GuGuUtf8Str& subPath : subPaths)
+			//m_folders.insert(subPath);//去重
+			if (m_folders.find(subPath) == m_folders.end())
 			{
-				//m_folders.insert(subPath);//去重
-				if (m_folders.find(subPath) == m_folders.end())
-				{
-					foldersToAdd.push_back(subPath);
-				}
+				foldersToAdd.push_back(subPath);
 			}
+		}
 
-			//if (foldersToAdd.size() > 0)
-			//{
-			for (const GuGuUtf8Str& folderPath : foldersToAdd)
-			{
-				m_filteredAssetItems.push_back(std::make_shared<AssetViewFolder>(folderPath));
-			}
+		//if (foldersToAdd.size() > 0)
+		//{
+		for (const GuGuUtf8Str& folderPath : foldersToAdd)
+		{
+			m_filteredAssetItems.push_back(std::make_shared<AssetViewFolder>(folderPath));
+		}
 
-			refreshList();
-			//}
-
-			m_bslowFullListRefreshRequested = false;
-		}	
+		refreshList();
+		//}
 	}
 	void AssetView::refreshList()
 	{
@@ -176,7 +208,12 @@ namespace GuGu {
 	}
 	void AssetView::Tick(const WidgetGeometry& allocatedGeometry, const double inCurrentTime, const float inDeltaTime)
 	{
-		this->refreshFolders();
+		if (m_bslowFullListRefreshRequested)
+		{
+			this->refreshSourceItems();
+			this->refreshFolders();
+			m_bslowFullListRefreshRequested = false;
+		}	
 	}
 	void AssetView::requestSlowFullListRefresh()
 	{
