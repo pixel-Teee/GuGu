@@ -59,4 +59,8 @@ namespace GuGu{
     void AndroidWindow::setWindowFocus() {
 
     }
+
+    void AndroidWindow::hide() {
+
+    }
 }

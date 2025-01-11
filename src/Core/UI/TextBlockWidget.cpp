@@ -24,6 +24,7 @@ namespace GuGu {
 		m_textColor = arguments.mtextColor;
 		m_widgetClipping = arguments.mClip;
 		m_visibilityAttribute = arguments.mVisibility;
+		m_font = arguments.mtextInfo;
 	}
 
 	uint32_t TextBlockWidget::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
@@ -68,9 +69,14 @@ namespace GuGu {
 	{
 		m_text = newText;
 	}
+	std::shared_ptr<TextInfo> TextBlockWidget::getFont() const
+	{
+		return m_font.IsSet() ? m_font.Get() : m_textStyle->m_textInfo;
+	}
 	TextBlockStyle TextBlockWidget::getComputedTextStyle() const
 	{
 		TextBlockStyle computedStyle = *m_textStyle;
+		computedStyle.m_textInfo = getFont();
 		computedStyle.m_textColor = m_textColor.Get();
 
 		return computedStyle;

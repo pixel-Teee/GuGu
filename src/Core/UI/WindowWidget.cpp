@@ -52,7 +52,10 @@ namespace GuGu {
 		{
 			m_childWidget = arguments.mContent;
 			m_childWidget->m_parentWidget = shared_from_this();
-			m_childWidget->m_childWidget->setParentWidget(shared_from_this());
+			if (m_childWidget->m_childWidget != nullptr)
+			{
+				m_childWidget->m_childWidget->setParentWidget(shared_from_this());
+			}	
 		}
 		else
 		{
@@ -479,6 +482,15 @@ namespace GuGu {
 	bool WindowWidget::isRegularWindow() const
 	{
 		return m_windowType != WindowType::ToolTip && !m_bIsPopupWindow;
+	}
+	void WindowWidget::hideWindow()
+	{
+		m_nativeWindow->hide();
+	}
+	void WindowWidget::setContent(const std::shared_ptr<Widget>& inWidget)
+	{
+		m_childWidget->setChildWidget(inWidget);
+		m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 	}
 	OverlayPopupLayer::OverlayPopupLayer(const std::shared_ptr<WindowWidget>& initHostWindow, const std::shared_ptr<Widget>& initPopupContent, std::shared_ptr<Overlay> initOverlay)
 		: PopupLayer(initHostWindow, initPopupContent)

@@ -8,6 +8,7 @@
 #include <Core/UI/PopupMethodReply.h>
 #include <Core/UI/MenuStack.h>
 #include <Core/UI/BasicElement.h>
+#include <Core/UI/WidgetPath.h>
 
 //#include <memory>
 
@@ -35,7 +36,7 @@ namespace GuGu {
 	}
 
 	class Widget;
-
+	class IToolTip;
 	class Timer;
 	class Window;
 	class Renderer;
@@ -176,6 +177,37 @@ namespace GuGu {
 		std::shared_ptr<Widget> locateWidgetInWindow(const std::shared_ptr<Window>& window, const math::float2& screenSpacePosition);
 
 		virtual math::float2 getCursorPos() const;
+
+		std::shared_ptr<IToolTip> makeToolTip(const Attribute<GuGuUtf8Str>& toolTipText);
+
+		std::shared_ptr<IToolTip> makeToolTip(const GuGuUtf8Str& toolTipText);
+
+		void updateToolTip(const MenuStack& menuStack, bool bCanSpawnNewToolTip);
+
+		WidgetPath locateWidgetUnderMouse(math::float2 screenSpaceMouseCoordinate, const std::vector<std::shared_ptr<WindowWidget>>& windows);
+
+		struct ActiveTooltipInfo
+		{
+			void reset();
+
+			std::weak_ptr<IToolTip> m_toolTip;
+
+			std::weak_ptr<Widget> m_tooltipVisualizer;
+
+			std::weak_ptr<Widget> m_sourceWidget;
+
+			math::float2 m_desiredLocation = math::float2(0, 0);
+
+			double m_summoTime = 0.0;
+		};
+
+		ActiveTooltipInfo m_activeTooltipInfo;
+
+		void closeTooltip();
+
+		void showTooltip(const std::shared_ptr<IToolTip>& inTooltip, const math::float2& inLocation);
+
+		std::shared_ptr<WindowWidget> getOrCreateTooltipWindow();
 	protected:
 		std::shared_ptr<Renderer> m_renderer;
 
@@ -223,6 +255,8 @@ namespace GuGu {
 		std::shared_ptr<Level> m_currentLevel;
 
 		MenuStack m_menuStack;
+
+		std::weak_ptr<WindowWidget> m_toolTipWindowPtr;
 	};
 	std::shared_ptr<Application> CreateApplicationFactory();
 }

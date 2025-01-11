@@ -60,6 +60,7 @@ namespace GuGu{
     };
     class WeakWidgetPath;
     class WidgetPath;
+    class IToolTip;
     class Widget : public std::enable_shared_from_this<Widget>
     {
     public:
@@ -159,6 +160,14 @@ namespace GuGu{
 
         virtual WindowZone::Type getWindowZoneOverride() const;
 
+        void setToolTipText(const Attribute<GuGuUtf8Str>& toolTipText);
+
+        void setToolTipText(const GuGuUtf8Str& toolTipText);
+
+        void setToolTip(const std::shared_ptr<IToolTip>& inToolTip);
+
+        std::shared_ptr<IToolTip> getToolTip() const;
+
     protected:
         std::weak_ptr<Widget> m_parentWidget;
         WidgetGeometry m_geometry;
@@ -173,5 +182,7 @@ namespace GuGu{
         int32_t m_line;
 
 		bool m_hovered;
+
+        std::shared_ptr<IToolTip> m_toolTip;
     };
 }

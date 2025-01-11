@@ -7,10 +7,10 @@
 #include <Core/UI/ImageWidget.h>
 #include <Core/UI/WindowWidget.h>
 #include <Core/UI/UIRenderPass.h>
-#include <Core/UI/WidgetPath.h>
 #include <Core/UI/ArrangedWidget.h>
 #include <Core/UI/ArrangedWidgetArray.h>
 #include <Core/UI/StyleSetCenter.h>
+#include <Core/UI/ToolTip.h>
 #include <Window/Window.h>
 #include <Renderer/Demo.h>
 #include <Renderer/Renderer.h>
@@ -717,7 +717,54 @@ namespace GuGu{
 		return m_currentLevel;
 	}
 
-    bool Application::processMouseButtonDownEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
+	void Application::closeTooltip()
+	{
+		m_activeTooltipInfo.reset();
+
+		std::shared_ptr<WindowWidget> tooltipWindow = m_toolTipWindowPtr.lock();
+		if (tooltipWindow)
+		{
+			tooltipWindow->hideWindow();
+		}
+	}
+
+	void Application::showTooltip(const std::shared_ptr<IToolTip>& inTooltip, const math::float2& inLocation)
+	{
+		closeTooltip();
+
+		m_activeTooltipInfo.m_toolTip = inTooltip;
+
+		std::shared_ptr<WindowWidget> tooltipWindow = getOrCreateTooltipWindow();
+		tooltipWindow->setContent(
+			inTooltip->asWidget()
+		);//todo:修复这里
+
+		//todo:prepass
+		tooltipWindow->prepass(tooltipWindow->getNativeWindow()->getDpiFactor());
+
+		m_activeTooltipInfo.m_desiredLocation = inLocation;
+		tooltipWindow->moveWindowTo(m_activeTooltipInfo.m_desiredLocation);
+		showWindow(tooltipWindow);
+	}
+
+	std::shared_ptr<WindowWidget> Application::getOrCreateTooltipWindow()
+	{
+		if (m_toolTipWindowPtr.lock())
+		{
+			return m_toolTipWindowPtr.lock();
+		}
+
+		std::shared_ptr<WindowWidget> newTooltipWindow = WIDGET_NEW(WindowWidget)
+			.ClientSize(math::float2(512.0f, 256.0f))
+			.ScreenPosition(0.0)
+			.sizingRule(SizingRule::AutoSized)
+			.IsPopupWindow(true);
+		m_toolTipWindowPtr = newTooltipWindow;
+		makeWindow(newTooltipWindow);	
+		return newTooltipWindow;
+	}
+
+	bool Application::processMouseButtonDownEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
     {
 		if (!m_captorWidgetsPath.isEmpty())
 		{
@@ -923,6 +970,8 @@ namespace GuGu{
 
     bool Application::processMouseMoveEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
     {
+		updateToolTip(m_menuStack, true);
+
 		//------当前获取得到的控件路径------
 		std::shared_ptr<Widget> collisionWidget = locateWidgetInWindow(window, mouseEvent.m_screenSpacePosition);
 
@@ -1292,7 +1341,127 @@ namespace GuGu{
         return newCursor;
     }
 
-    //void Application::resize(int32_t width, int32_t height) {
+	std::shared_ptr<IToolTip> Application::makeToolTip(const Attribute<GuGuUtf8Str>& toolTipText)
+	{
+		return WIDGET_NEW(ToolTip)
+			.text(toolTipText);
+	}
+	std::shared_ptr<IToolTip> Application::makeToolTip(const GuGuUtf8Str& toolTipText)
+	{
+		return WIDGET_NEW(ToolTip)
+			.text(toolTipText);
+	}
+
+	void Application::updateToolTip(const MenuStack& menuStack, bool bCanSpawnNewToolTip)
+	{
+		WidgetPath widgetsToQueryForToolTip;
+
+		WidgetPath widgetsUnderCursor = locateWidgetUnderMouse(getCursorPos(), m_windowWidgets);
+		if (widgetsUnderCursor.isValid())
+		{
+			widgetsToQueryForToolTip = widgetsUnderCursor;
+		}
+
+		std::shared_ptr<IToolTip> newToolTip;
+		std::shared_ptr<Widget> widgetProvidingNewToolTip;
+		int32_t widgetNumber = widgetsToQueryForToolTip.m_widgets.getArrangedWidgetsNumber() - 1;
+		for (int32_t widgetIndex = widgetNumber; widgetIndex >= 0; --widgetIndex)
+		{
+			std::shared_ptr<ArrangedWidget> arrangedWidget = widgetsToQueryForToolTip.m_widgets.getArrangedWidget(widgetIndex);
+			const std::shared_ptr<Widget>& curWidget = arrangedWidget->getWidget();
+
+			if (!newToolTip)
+			{
+				std::shared_ptr<IToolTip> widgetToolTip = curWidget->getToolTip();
+				if (widgetToolTip && !widgetToolTip->isEmpty())
+				{
+					widgetProvidingNewToolTip = curWidget;
+					newToolTip = widgetToolTip;
+				}
+			}
+		}
+
+		std::shared_ptr<IToolTip> activeToolTip = m_activeTooltipInfo.m_toolTip.lock();
+		const bool bTooltipChanged = newToolTip != activeToolTip;
+		if (bTooltipChanged)
+		{
+			if (newToolTip)
+			{
+				newToolTip->onOpening();
+			}
+		}
+
+		math::float2 desiredLocation = m_activeTooltipInfo.m_desiredLocation;
+		if (newToolTip && newToolTip != activeToolTip)
+		{
+			desiredLocation = m_lastCursorPos + math::float2(12.0f, 8.0f);
+		}
+
+		if (m_toolTipWindowPtr.lock())
+		{
+			//计算合适的弹出位置
+		}
+
+		if (bTooltipChanged)
+		{
+			if (newToolTip)
+			{
+				closeTooltip();
+
+				if (bCanSpawnNewToolTip && newToolTip)
+				{
+					showTooltip(newToolTip, desiredLocation);
+					m_activeTooltipInfo.m_sourceWidget = widgetProvidingNewToolTip;
+				}
+			}
+		}
+	}
+
+	WidgetPath Application::locateWidgetUnderMouse(math::float2 screenSpaceMouseCoordinate, const std::vector<std::shared_ptr<WindowWidget>>& windows)
+	{
+		for (int32_t windowIndex = windows.size() - 1; windowIndex >= 0; --windowIndex)
+		{
+			const std::shared_ptr<WindowWidget>& window = windows[windowIndex];
+
+			//todo:检查是否处于最小化，或者可见
+			std::shared_ptr<Widget> collisionWidget = locateWidgetInWindow(window->getNativeWindow(), screenSpaceMouseCoordinate);
+
+			if (collisionWidget)
+			{
+				std::vector<std::shared_ptr<Widget>> widgets;
+				std::shared_ptr<Widget> currentWidget = collisionWidget;
+				while (currentWidget)
+				{
+					widgets.push_back(currentWidget);
+					currentWidget = currentWidget->getParentWidget();
+				}
+				std::reverse(widgets.begin(), widgets.end()); //构造widget path
+				WidgetGeometry windowOffsetGeometry;//窗口左上角坐标
+				windowOffsetGeometry.mAbsolutePosition = window->getNativeWindow()->getWindowScreenSpacePosition();
+				WidgetPath widgetPath(widgets, windowOffsetGeometry);
+				return widgetPath;
+			}		
+		}
+		return WidgetPath();
+	}
+
+	void Application::ActiveTooltipInfo::reset()
+	{
+		if (m_sourceWidget.lock())
+		{
+			//
+		}
+
+		if (m_toolTip.lock())
+		{
+			m_toolTip.lock()->onClosed();
+		}
+
+		m_toolTip.reset();
+		m_sourceWidget.reset();
+	}
+
+	//void Application::resize(int32_t width, int32_t height) {
 //
     //}
 }

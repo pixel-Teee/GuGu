@@ -148,6 +148,10 @@ namespace GuGu {
 		WindowZone::Type getCurrentWindowZone(math::float2 localMousePosition);
 
 		bool isRegularWindow() const;
+
+		void hideWindow();
+
+		void setContent(const std::shared_ptr<Widget>& inWidget);
 	protected:
 		std::shared_ptr<Window> m_nativeWindow;
 		std::shared_ptr<SingleChildSlot> m_childWidget;

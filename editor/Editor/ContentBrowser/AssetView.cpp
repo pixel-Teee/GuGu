@@ -93,6 +93,8 @@ namespace GuGu {
 				.itemWidth(this, &AssetView::getTileViewItemWidth)
 			);
 
+			tableRowWidget->setToolTipText(folderItem->m_folderName);
+
 			//std::shared_ptr<GAssetTileItem> item = WIDGET_NEW(GAssetTileItem)
 			//	.assetItem(assetItem)
 			//	.itemWidth(this, &AssetView::getTileViewItemWidth);

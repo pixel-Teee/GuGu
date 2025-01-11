@@ -21,7 +21,7 @@ namespace GuGu {
 				: mbrush(CoreStyle::getStyleSet()->getBrush("white"))
 				, mverticalAlignment(VerticalAlignment::Stretch)
 				, mhorizontalAlignment(HorizontalAlignment::Stretch)
-				, mpadding(0.0f, 0.0f, 0.0f, 0.0f)
+				, mpadding(Padding(0.0f, 0.0f, 0.0f, 0.0f))
 				, mBorderBackgroundColor(math::float4(1.0f, 1.0f, 1.0f, 1.0f))
 			{}
 
@@ -35,7 +35,7 @@ namespace GuGu {
 			
 			ARGUMENT_VALUE(HorizontalAlignment, horizontalAlignment)
 			
-			ARGUMENT_VALUE(Padding, padding)
+			ARGUMENT_ATTRIBUTE(Padding, padding)
 
 			ARGUMENT_ATTRIBUTE(math::float4, BorderBackgroundColor)
 		};

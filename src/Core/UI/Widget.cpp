@@ -4,6 +4,7 @@
 #include "Slot.h"
 #include "ElementList.h"
 #include "ArrangedWidget.h"
+#include "ToolTip.h"
 
 #include <Application/Application.h>
 
@@ -328,4 +329,22 @@ namespace GuGu{
     {
         return WindowZone::Unspecified;
     }
+    void Widget::setToolTipText(const Attribute<GuGuUtf8Str>& toolTipText)
+    {
+        m_toolTip = Application::getApplication()->makeToolTip(toolTipText);
+    }
+    void Widget::setToolTipText(const GuGuUtf8Str& toolTipText)
+    {
+        m_toolTip = Application::getApplication()->makeToolTip(toolTipText);
+    }
+    void Widget::setToolTip(const std::shared_ptr<IToolTip>& inToolTip)
+    {
+        m_toolTip = inToolTip;
+    }
+
+    std::shared_ptr<IToolTip> Widget::getToolTip() const
+    {
+        return m_toolTip;
+    }
+
 }

@@ -133,4 +133,8 @@ namespace GuGu {
 	{
 		::ShowWindow(m_windowHandle, SW_SHOW);
 	}
+	void WindowsWindow::hide()
+	{
+		::ShowWindow(m_windowHandle, SW_HIDE);
+	}
 }
