@@ -43,7 +43,7 @@ namespace GuGu {
 		nlohmann::json root = m_assetRegistryJson["AssetRegistry"];
 		for (const auto& item : root)
 		{
-			GGuid key = item.at("GUID").get<std::string>();
+			GGuid key = GuGuUtf8Str(item.at("GUID").get<std::string>());
 			GuGuUtf8Str filePath = item.at("FilePath").get<std::string>();
 			GuGuUtf8Str fileName = item.at("FileName").get<std::string>();
 			uint32_t assetTypeId = item.at("AssetType").get<uint32_t>();

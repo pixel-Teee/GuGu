@@ -163,7 +163,7 @@ namespace GuGu {
 	}
 	GuGuUtf8Str FilePath::getBaseFolderName(const GuGuUtf8Str& folderPath)
 	{
-		//获取一个文件夹路径的文件名
+		//鑾峰彇涓�涓枃浠跺す璺緞鐨勬枃浠跺悕
 		std::vector<GuGuUtf8Str> folderDirs;
 		splitPath(folderPath, folderDirs);
 		if (folderDirs.size() > 0)

@@ -95,7 +95,7 @@ namespace GuGu {
 		const std::wstring folderPathUtf16 = folderPath.getUtf16String();
 		DWORD attributes = GetFileAttributes(folderPathUtf16.c_str());
 		if (attributes == INVALID_FILE_ATTRIBUTES) {
-			// Â·¾¶²»´æÔÚ»òÕßÎŞ·¨·ÃÎÊ
+			// è·¯å¾„ä¸å­˜åœ¨æˆ–è€…æ— æ³•è®¿é—®
 			return false;
 		}
 		return (attributes & FILE_ATTRIBUTE_DIRECTORY) != 0;

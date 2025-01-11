@@ -1,9 +1,10 @@
 #pragma once
 
 #include "BasicElement.h"
+#include "Widget.h"
 
 namespace GuGu {
-	class Widget;
+	//class Widget;
 	class SlotBase
 	{
 	public:
