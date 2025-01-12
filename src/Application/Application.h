@@ -126,7 +126,7 @@ namespace GuGu {
 
 		float getGlobalPreRotate() const;
 
-		void processReply(const Reply& theReply, const WidgetPath& widgetPath);
+		void processReply(const Reply& theReply, const WidgetPath& widgetPath, const PointerEvent* inMouseEvent = nullptr);
 
 		void setFocus(const std::shared_ptr<Widget>& widgetToFocus, const WidgetPath& widgetPath);
 
@@ -189,6 +189,21 @@ namespace GuGu {
 		void updateToolTip(const MenuStack& menuStack, bool bCanSpawnNewToolTip);
 
 		WidgetPath locateWidgetUnderMouse(math::float2 screenSpaceMouseCoordinate, const std::vector<std::shared_ptr<WindowWidget>>& windows);
+
+		struct DragDetectionState
+		{
+			DragDetectionState(const WidgetPath& pathToWidget, Key dragButton, const math::float2& startLocation)
+				: m_detectDragForWidget(pathToWidget)
+				, m_dragStartLocation(startLocation)
+				, m_triggerButton(dragButton)
+			{}
+
+			//如果非空，一个小控件请求我们检测此小控件中触发的拖动，并发送一个OnDragDetected的事件
+			WeakWidgetPath m_detectDragForWidget;
+
+			math::float2 m_dragStartLocation = math::float2(0, 0);
+			Key m_triggerButton = Keys::Invalid;
+		};
 
 		struct ActiveTooltipInfo
 		{
@@ -257,6 +272,8 @@ namespace GuGu {
 		WeakWidgetPath m_captorWidgetsPath;
 
 		WeakWidgetPath m_focusWidgetsPath;
+
+		DragDetectionState m_dragstates;
 
 		std::shared_ptr<Level> m_currentLevel;
 

@@ -65,4 +65,6 @@ namespace GuGu {
 	const Key Keys::RightAlt("RightAlt");
 	const Key Keys::LeftCommand("LeftCommand");
 	const Key Keys::RightCommand("RightCommand");
+
+	const Key Keys::Invalid("Invalid");
 }

@@ -84,6 +84,8 @@ namespace GuGu {
 		static const Key RightAlt;
 		static const Key LeftCommand;
 		static const Key RightCommand;
+
+		static const Key Invalid;
 	};
 	struct InputKeyManager
 	{

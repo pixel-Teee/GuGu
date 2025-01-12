@@ -403,7 +403,7 @@ namespace GuGu{
         return m_globalRotation;
     }
 
-	void Application::processReply(const Reply& reply, const WidgetPath& widgetPath)
+	void Application::processReply(const Reply& reply, const WidgetPath& widgetPath, const PointerEvent* inMouseEvent)
 	{
 		if (reply.shouldReleaseMouse())
 		{
@@ -417,15 +417,22 @@ namespace GuGu{
 		//	m_captorWidgetsPath.clear();
 		//}
 		
-		std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
-		if (mouseCaptor != nullptr)
+		std::shared_ptr<Widget> requestedMouseCaptor = reply.getMouseCaptor();
+		if (requestedMouseCaptor != nullptr)
 		{
 			//m_captorWidget = mouseCaptor;
 			//m_captorWidgetsPath.clear();
 			//for (int32_t j = i; j < widgets.size(); ++j)
 			//	m_captorWidgetsPath.push_back(widgets[i]);
-			m_captorWidgetsPath = widgetPath.pathDownTo(mouseCaptor);
+			m_captorWidgetsPath = widgetPath.pathDownTo(requestedMouseCaptor);
 		}
+
+		if (reply.getDetectDragRequest())
+		{
+			assert(inMouseEvent != nullptr);
+			m_dragstates = DragDetectionState(widgetPath.pathDownTo(reply.getDetectDragRequest()), reply.getDetectDragRequestButton(), inMouseEvent->m_screenSpacePosition);
+		}
+
 		std::shared_ptr<Widget> requestedFocusRecepient = reply.getFocusRecepient();
 		if (requestedFocusRecepient) //请求焦点的控件是有效的
 		{		

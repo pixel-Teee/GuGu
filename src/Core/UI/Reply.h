@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <Application/InputTypes.h>
 
 namespace GuGu {
 	class Widget;
@@ -61,6 +62,18 @@ namespace GuGu {
 			return Me();
 		}
 
+		Reply& detectDrag(const std::shared_ptr<Widget>& detectDragInMe, Key mouseButton)
+		{
+			this->m_detectDragForWidget = detectDragInMe;
+			this->m_detectDragForMouseButton = mouseButton;
+			return Me();
+		}
+
+		//返回检测拖拽的控件
+		std::shared_ptr<Widget> getDetectDragRequest() const { return m_detectDragForWidget.lock(); }
+
+		Key getDetectDragRequestButton() const { return m_detectDragForMouseButton; }
+
 		std::shared_ptr<Widget> getMouseCaptor() const
 		{
 			return m_mouseCaptor.lock();
@@ -85,6 +98,9 @@ namespace GuGu {
 		bool m_bReleaseMouseCapture = false;
 
 		uint32_t m_bSetUserFocus : 1;
+
+		std::weak_ptr<Widget> m_detectDragForWidget;
+		Key m_detectDragForMouseButton;
 	};
 
 	using OnClicked = std::function<Reply()>;
