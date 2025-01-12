@@ -294,6 +294,10 @@ namespace GuGu{
         return false;
     }
 
+    void DeviceManager::destroyOldSwapChain(std::shared_ptr<WindowWidget> inWindowWidget)
+    {
+    }
+
     std::shared_ptr<WindowWidget> DeviceManager::getWindowWidget() const
     {
         return m_mainWindow;

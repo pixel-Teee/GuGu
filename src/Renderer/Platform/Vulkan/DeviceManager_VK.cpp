@@ -1603,13 +1603,15 @@ namespace GuGu{
 			vkDeviceWaitIdle(m_VulkanDevice);
 		}
         auto it = m_windowViewports.find(inWindowWidget.get());
-        assert(it != m_windowViewports.end());
-        if (it->second.m_oldSwapChain)
+        if (it != m_windowViewports.end())
         {
-            vkDestroySwapchainKHR(m_VulkanDevice, it->second.m_oldSwapChain, VK_NULL_HANDLE);//todo:fix this
-            it->second.m_oldSwapChain = VK_NULL_HANDLE;
+			if (it->second.m_oldSwapChain)
+			{
+				vkDestroySwapchainKHR(m_VulkanDevice, it->second.m_oldSwapChain, VK_NULL_HANDLE);//todo:fix this
+				it->second.m_oldSwapChain = VK_NULL_HANDLE;
+			}
+			it->second.m_oldSwapChainImages.clear();
         }
-        it->second.m_oldSwapChainImages.clear();
 		//if (m_oldSwapChain)
 		//{
 		//    vkDestroySwapchainKHR(m_VulkanDevice, m_oldSwapChain, VK_NULL_HANDLE);//todo:fix this

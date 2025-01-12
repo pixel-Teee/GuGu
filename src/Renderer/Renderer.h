@@ -33,6 +33,8 @@ namespace GuGu {
 
 		virtual void createSurface(std::shared_ptr<WindowWidget> windowWidget);
 		virtual void createSwapChain(std::shared_ptr<WindowWidget> windowWidget);
+		virtual void destoryOldSwapChain(std::shared_ptr<WindowWidget> windowWidget);
+		virtual void resizeSwapChain(std::shared_ptr<WindowWidget> windowWidget);
 
 		void onWindowDestroyed(const std::shared_ptr<WindowWidget>& inWindow);
 	protected:

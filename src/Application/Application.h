@@ -52,6 +52,8 @@ namespace GuGu {
 	public:
 		Application();
 
+		virtual ~Application();
+
 		virtual void init(std::shared_ptr<WindowWidget> inWindowWidget = nullptr);
 
 		void Run();
@@ -77,6 +79,8 @@ namespace GuGu {
 		void calculateFrameStats();
 
 		virtual std::shared_ptr<Window> getWindow(uint32_t index);
+
+		const std::vector<std::shared_ptr<WindowWidget>>& getWindows() const;
 
 		float getFps() const;
 
@@ -208,6 +212,8 @@ namespace GuGu {
 		void showTooltip(const std::shared_ptr<IToolTip>& inTooltip, const math::float2& inLocation);
 
 		std::shared_ptr<WindowWidget> getOrCreateTooltipWindow();
+
+		void resetTooltipWindow();
 	protected:
 		std::shared_ptr<Renderer> m_renderer;
 

@@ -61,6 +61,13 @@ namespace GuGu {
 	void Renderer::createSwapChain(std::shared_ptr<WindowWidget> windowWidget)
 	{
 	}
+	void Renderer::destoryOldSwapChain(std::shared_ptr<WindowWidget> windowWidget)
+	{
+	
+	}
+	void Renderer::resizeSwapChain(std::shared_ptr<WindowWidget> windowWidget)
+	{
+	}
 	void Renderer::onWindowDestroyed(const std::shared_ptr<WindowWidget>& inWindow)
 	{
 		m_deviceManager->onWindowDestroyed(inWindow);

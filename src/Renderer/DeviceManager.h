@@ -78,6 +78,8 @@ namespace GuGu{
 
         virtual bool createWindowSurface(std::shared_ptr<WindowWidget> windowWidget);
 
+        virtual void destroyOldSwapChain(std::shared_ptr<WindowWidget> inWindowWidget);
+
         std::shared_ptr<WindowWidget> getWindowWidget() const;
 
         virtual nvrhi::FramebufferHandle getCurrentBackBuffer(std::shared_ptr<WindowWidget> windowWidget) const;

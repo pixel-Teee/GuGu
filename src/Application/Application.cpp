@@ -53,6 +53,9 @@ namespace GuGu{
 		std::shared_ptr<StyleSet> coreStyleSet = std::make_shared<CoreStyle>();
 		StyleSetCenter::RegisterStyleSet("CoreStyleSet", coreStyleSet);//register style
     }
+	Application::~Application()
+	{
+	}
 	void Application::init(std::shared_ptr<WindowWidget> inWindowWidget)
 	{
 		//create level
@@ -135,7 +138,12 @@ namespace GuGu{
         return nullptr;
     }
 
-    float Application::getFps() const
+	const std::vector<std::shared_ptr<GuGu::WindowWidget>>& Application::getWindows() const
+	{
+		return m_windowWidgets;
+	}
+
+	float Application::getFps() const
     {
         return fps;
     }
@@ -762,6 +770,15 @@ namespace GuGu{
 		m_toolTipWindowPtr = newTooltipWindow;
 		makeWindow(newTooltipWindow);	
 		return newTooltipWindow;
+	}
+
+	void Application::resetTooltipWindow()
+	{
+		if (m_toolTipWindowPtr.lock())
+		{
+			m_toolTipWindowPtr.lock()->requestDestroyWindow();
+		}	
+		m_toolTipWindowPtr.reset();
 	}
 
 	bool Application::processMouseButtonDownEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)

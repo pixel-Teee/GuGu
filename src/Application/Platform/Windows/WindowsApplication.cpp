@@ -110,8 +110,7 @@ namespace GuGu {
 		//UIRenderPass* uiRenderPass = renderer->getUIRenderPass();
 		//uiRenderPass->showWindow(windowWidget);
 		//create swap chain and surface
-		renderer->createSurface(windowWidget);
-		renderer->createSwapChain(windowWidget);
+		renderer->resizeSwapChain(windowWidget);
 
 		//set window focus
 		if (windowWidget->supportsKeyboardFocus() && windowWidget->isFocusedInitially())

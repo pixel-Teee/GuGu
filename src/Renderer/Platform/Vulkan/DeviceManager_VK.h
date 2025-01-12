@@ -54,6 +54,8 @@ namespace GuGu{
 
         virtual bool createWindowSurface(std::shared_ptr<WindowWidget> windowWidget) override;
 
+        virtual void destroyOldSwapChain(std::shared_ptr<WindowWidget> inWindowWidget) override;
+
         virtual nvrhi::FramebufferHandle getCurrentBackBuffer(std::shared_ptr<WindowWidget> windowWidget) const override;
 
         virtual void onWindowDestroyed(const std::shared_ptr<WindowWidget>& inWindow) override;
@@ -80,9 +82,12 @@ namespace GuGu{
             if (m_VulkanDevice)
             {
 				auto it = m_windowViewports.find(windowWidget.get());
-				assert(it != m_windowViewports.end());
-                it->second.m_oldSwapChain = it->second.m_SwapChain;
-                std::swap(it->second.m_oldSwapChainImages, it->second.m_swapChainImages);
+                if (it != m_windowViewports.end())
+                {
+					//assert(it != m_windowViewports.end());
+					it->second.m_oldSwapChain = it->second.m_SwapChain;
+					std::swap(it->second.m_oldSwapChainImages, it->second.m_swapChainImages);
+                }
 
                 destroyOldSwapChain(windowWidget);
                 createWindowSurface(windowWidget);
@@ -107,7 +112,6 @@ namespace GuGu{
         bool createSwapChain();
         void destroySwapChain();
         void destroyOldSwapChain();
-        void destroyOldSwapChain(std::shared_ptr<WindowWidget> inWindowWidget);
 
         GuGuUtf8Str m_rendererString;//device name
 

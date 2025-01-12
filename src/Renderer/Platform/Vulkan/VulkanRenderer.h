@@ -20,5 +20,9 @@ namespace GuGu{
         virtual void createSurface(std::shared_ptr<WindowWidget> windowWidget) override;
 
         virtual void createSwapChain(std::shared_ptr<WindowWidget> windowWidget) override;
+
+        virtual void destoryOldSwapChain(std::shared_ptr<WindowWidget> windowWidget) override;
+
+        virtual void resizeSwapChain(std::shared_ptr<WindowWidget> windowWidget) override;
     };
 }

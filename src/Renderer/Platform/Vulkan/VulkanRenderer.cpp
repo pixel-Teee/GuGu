@@ -101,4 +101,12 @@ namespace GuGu{
         //'m_deviceManager->CreateSwapChain();
         m_deviceManager->CreateSwapChain(windowWidget);
     }
+    void VulkanRenderer::destoryOldSwapChain(std::shared_ptr<WindowWidget> windowWidget)
+    {
+        m_deviceManager->destroyOldSwapChain(windowWidget);
+    }
+    void VulkanRenderer::resizeSwapChain(std::shared_ptr<WindowWidget> windowWidget)
+    {
+        m_deviceManager->ResizeSwapChain(windowWidget);
+    }
 }

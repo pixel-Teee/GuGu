@@ -83,9 +83,11 @@ namespace GuGu {
 
 	Reply WindowTitleBar::exitApplication()
 	{
+		Application::getApplication()->resetTooltipWindow();
 		//Application::getApplication()->setExit(true);
 		std::shared_ptr<WindowWidget> parentWindow = m_parentWindow.lock();
 		parentWindow->requestDestroyWindow();
+
 		return Reply::Handled();
 	}
 	Reply WindowTitleBar::miniMizeWindow()
