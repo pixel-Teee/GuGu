@@ -23,5 +23,7 @@ namespace GuGu {
 
 		//关闭这个 tool tip
 		virtual void onClosed() = 0;
+
+		virtual bool isInteractive() = 0;
 	};
 }

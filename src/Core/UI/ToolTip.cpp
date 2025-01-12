@@ -13,6 +13,7 @@ namespace GuGu {
 		m_colorAndOpacity = arguments.mcolorAndOpacity;
 		m_textMargin = arguments.mtextPadding;
 		m_borderImage = arguments.mborderImage;
+		m_bIsInteractive = arguments.misInteractive;
 
 		m_childWidget = std::make_shared<SingleChildSlot>();
 		m_childWidget->m_parentWidget = shared_from_this();
@@ -92,6 +93,11 @@ namespace GuGu {
 	void ToolTip::onClosed()
 	{
 		
+	}
+
+	bool ToolTip::isInteractive()
+	{
+		return m_bIsInteractive.Get();
 	}
 
 }

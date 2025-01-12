@@ -12,7 +12,9 @@ namespace GuGu {
 	public:
 		struct BuilderArguments : public Arguments<ToolTip>
 		{
-			BuilderArguments() {}
+			BuilderArguments() 
+				: misInteractive(false)
+			{}
 
 			~BuilderArguments() = default;
 
@@ -45,6 +47,8 @@ namespace GuGu {
 
 		void onClosed() override;
 
+		bool isInteractive() override;
+
 	private:
 		Attribute<GuGuUtf8Str> m_textContent;
 
@@ -60,5 +64,7 @@ namespace GuGu {
 		Attribute<Padding> m_textMargin;
 
 		Attribute<std::shared_ptr<Brush>> m_borderImage;
+
+		Attribute<bool> m_bIsInteractive;
 	};
 }

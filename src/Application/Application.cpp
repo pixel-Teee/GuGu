@@ -1421,7 +1421,7 @@ namespace GuGu{
 
 		if (bTooltipChanged)
 		{
-			if (newToolTip)
+			if (newToolTip || (activeToolTip && !activeToolTip->isInteractive()))
 			{
 				closeTooltip();
 
