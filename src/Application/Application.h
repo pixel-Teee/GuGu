@@ -192,6 +192,8 @@ namespace GuGu {
 
 		struct DragDetectionState
 		{
+			DragDetectionState() {}
+
 			DragDetectionState(const WidgetPath& pathToWidget, Key dragButton, const math::float2& startLocation)
 				: m_detectDragForWidget(pathToWidget)
 				, m_dragStartLocation(startLocation)
