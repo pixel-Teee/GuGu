@@ -58,16 +58,22 @@ namespace GuGu {
 				WIDGET_NEW(TextBlockWidget)
 				.text(m_textContent)
 				.textInfo(m_font)
-				.textColor(math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+				.textColor(math::float4(0.19f, 0.16f, 0.13f, 1.0f)); //beige9
 
 			m_childWidget->setChildWidget(
 				WIDGET_NEW(Border)
-				.brush(m_borderImage)
-				.padding(Padding(11.0f))
+				.BorderBackgroundColor(math::float4(0.65f, 0.56f, 0.45f, 1.0f)) //beige7
+				.padding(Padding(2.0f))
 				.Content
 				(
-					m_toolTipContent
-				)
+					WIDGET_NEW(Border)
+					.BorderBackgroundColor(math::float4(0.79f, 0.74f, 0.68f, 1.0f)) //beige4
+					//.padding(Padding(11.0f))
+					.Content
+					(
+						m_toolTipContent
+					)
+				)	
 			);
 		}
 		m_childWidget->m_childWidget->setParentWidget(shared_from_this());

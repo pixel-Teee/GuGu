@@ -119,7 +119,11 @@ namespace GuGu {
 					.itemWidth(this, &AssetView::getTileViewItemWidth)
 				);
 
-				return tableRowWidget;
+				GuGuUtf8Str assetType = meta::Type(assetItemAsAsset->m_data.m_assetType).GetName();
+				GuGuUtf8Str tooltip = "filePath:" + assetItemAsAsset->m_data.m_filePath + "\r\n" + "assetType:" + assetType;
+				tableRowWidget->setToolTipText(tooltip);
+
+				return tableRowWidget;		
 			}
 
 			return nullptr;
