@@ -1125,18 +1125,6 @@ namespace GuGu{
 			}
 		}
 
-
-		//if (collisionWidget)
-		//{
-		//    collisionWidget->OnMouseButtonDown(collisionWidget->getWidgetGeometry(), mouseEvent);
-		//	//std::shared_ptr<ImageWidget> imageWidget = std::dynamic_pointer_cast<ImageWidget>(collisionWidget);
-		//	//if (imageWidget)
-		//	//{
-		//	//    GuGu_LOGD("%s", u8"image widget");
-		//	//}
-		//}
-		//GuGu_LOGD("(%f %f)", cursorPosition.x, cursorPosition.y);
-
 		//通知鼠标移动完成
 		m_widgetsUnderPointerLastEvent = WeakWidgetPath(widgetPath);
 		return true;
