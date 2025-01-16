@@ -152,6 +152,21 @@ namespace GuGu{
     {
         return Reply::Unhandled();
     }
+    Reply Widget::OnDragDetected(const WidgetGeometry& myGeometry, const PointerEvent& mouseEvent)
+    {
+        return Reply::Unhandled();
+    }
+    void Widget::OnDragEnter(const WidgetGeometry& myGeometry, const DragDropEvent& dragDropEvent)
+    {
+        
+    }
+    Reply Widget::OnDragOver(const WidgetGeometry& myGeometry, const DragDropEvent& dragDropEvent)
+    {
+        return Reply::Unhandled();
+    }
+    void Widget::OnDragLeave(const DragDropEvent& dragDropEvent)
+    {
+    }
     void Widget::OnFocusChanging(const WeakWidgetPath& previousFocusPath, const WidgetPath& newWidgetPath)
     {
     }

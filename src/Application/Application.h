@@ -34,7 +34,7 @@ namespace GuGu {
 			Thumb02
 		};
 	}
-
+	class DragDropOperation;
 	class Widget;
 	class IToolTip;
 	class Timer;
@@ -275,7 +275,11 @@ namespace GuGu {
 
 		WeakWidgetPath m_focusWidgetsPath;
 
-		DragDetectionState m_dragstates;
+		float m_dragTriggerDistance;
+
+		std::shared_ptr<DragDetectionState> m_dragstate;
+
+		std::shared_ptr<DragDropOperation> m_dragDropContent;
 
 		std::shared_ptr<Level> m_currentLevel;
 

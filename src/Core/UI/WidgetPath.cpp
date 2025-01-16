@@ -107,6 +107,16 @@ namespace GuGu {
 	{
 		return m_widgets[m_widgets.getArrangedWidgetsNumber() - 1]->getWidget();
 	}
+	ArrangedWidget WidgetPath::findArrangedWidgetAndCursor(std::shared_ptr<Widget> widgetToFind) const
+	{
+		int32_t widgetNumber = m_widgets.getArrangedWidgetsNumber();
+		for (int32_t i = 0; i < widgetNumber; ++i)
+		{
+			if(m_widgets[i]->getWidget() == widgetToFind)
+				return *m_widgets[i];
+		}
+		return ArrangedWidget(WidgetGeometry(), nullptr);
+	}
 	WeakWidgetPath::WeakWidgetPath(const WidgetPath& inWidgetPath)
 	{
 		int32_t widgetNumber = inWidgetPath.m_widgets.getArrangedWidgetsNumber();

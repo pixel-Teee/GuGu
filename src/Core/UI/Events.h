@@ -88,6 +88,27 @@ namespace GuGu {
 		float m_wheelOrGestureDelta;
 	};
 
+	class DragDropOperation;
+	struct DragDropEvent : public PointerEvent
+	{
+	public:
+		DragDropEvent(const PointerEvent& inMouseEvent, const std::shared_ptr<DragDropOperation> inContent)
+		: PointerEvent(inMouseEvent)
+		, m_content(inContent)
+		{}
+
+		std::shared_ptr<DragDropOperation> getOperation() const
+		{
+			return m_content;
+		}
+
+		template<typename OperationType>
+		std::shared_ptr<OperationType> getOperationAs() const;
+
+	private:
+		std::shared_ptr<DragDropOperation> m_content;
+	};
+
 	struct CharacterEvent : public InputEvent
 	{
 		CharacterEvent(const GuGuUtf8Str inCharacter)
@@ -155,4 +176,18 @@ namespace GuGu {
 		ActivationType m_activationType;
 		std::shared_ptr<WindowWidget> m_affectedWindow;
 	};
+
+
+	template<typename OperationType>
+	std::shared_ptr<OperationType> DragDropEvent::getOperationAs() const
+	{
+		if (m_content && m_content->isOfType<OperationType>())
+		{
+			return std::static_pointer_cast<OperationType>();
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
 }

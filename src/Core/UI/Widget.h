@@ -98,6 +98,14 @@ namespace GuGu{
 
         virtual Reply OnKeyDown(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent);
 
+        virtual Reply OnDragDetected(const WidgetGeometry& myGeometry, const PointerEvent& mouseEvent);
+
+        virtual void OnDragEnter(const WidgetGeometry& myGeometry, const DragDropEvent& dragDropEvent);
+
+        virtual Reply OnDragOver(const WidgetGeometry& myGeometry, const DragDropEvent& dragDropEvent);
+
+        virtual void OnDragLeave(const DragDropEvent& dragDropEvent);
+
         virtual void OnFocusChanging(const WeakWidgetPath& previousFocusPath, const WidgetPath& newWidgetPath);
 
         virtual std::shared_ptr<PopupLayer> onVisualizePopup(const std::shared_ptr<Widget>& popupContent);

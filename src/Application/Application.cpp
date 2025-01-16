@@ -49,6 +49,7 @@ namespace GuGu{
         m_focused = true;
         m_timer = CreateTimerFactory();
         m_lastCursorPos = math::float2(0.0f, 0.0f);
+		m_dragTriggerDistance = 5;
 
 		std::shared_ptr<StyleSet> coreStyleSet = std::make_shared<CoreStyle>();
 		StyleSetCenter::RegisterStyleSet("CoreStyleSet", coreStyleSet);//register style
@@ -405,7 +406,10 @@ namespace GuGu{
 
 	void Application::processReply(const Reply& reply, const WidgetPath& widgetPath, const PointerEvent* inMouseEvent)
 	{
-		if (reply.shouldReleaseMouse())
+		const std::shared_ptr<DragDropOperation> replyDragDropContent = reply.getDragDropContent();
+		const bool bStartingDragDrop = replyDragDropContent != nullptr;
+
+		if (reply.shouldReleaseMouse() || bStartingDragDrop)
 		{
 			m_widgetsUnderPointerLastEvent = m_captorWidgetsPath;
 			m_captorWidgetsPath.clear();
@@ -416,6 +420,10 @@ namespace GuGu{
 		//{
 		//	m_captorWidgetsPath.clear();
 		//}
+		if (bStartingDragDrop)
+		{
+			m_dragDropContent = replyDragDropContent;//将 reply 的 drag drop content 放到自己身上
+		}
 		
 		std::shared_ptr<Widget> requestedMouseCaptor = reply.getMouseCaptor();
 		if (requestedMouseCaptor != nullptr)
@@ -430,7 +438,7 @@ namespace GuGu{
 		if (reply.getDetectDragRequest())
 		{
 			assert(inMouseEvent != nullptr);
-			m_dragstates = DragDetectionState(widgetPath.pathDownTo(reply.getDetectDragRequest()), reply.getDetectDragRequestButton(), inMouseEvent->m_screenSpacePosition);
+			m_dragstate = std::make_shared<DragDetectionState>(widgetPath.pathDownTo(reply.getDetectDragRequest()), reply.getDetectDragRequestButton(), inMouseEvent->m_screenSpacePosition);
 		}
 
 		std::shared_ptr<Widget> requestedFocusRecepient = reply.getFocusRecepient();
@@ -1016,6 +1024,38 @@ namespace GuGu{
 		WeakWidgetPath lastWidgetsUnderPointer = m_widgetsUnderPointerLastEvent;
 		//------上一次事件处理的控件路径------
 
+		bool bShouldStartDetectingDrag = m_dragDropContent == nullptr;
+
+		WidgetPath dragDetectionPath;
+		{
+			if (m_dragstate != nullptr)
+			{
+				math::float2 dragDelta = m_dragstate->m_dragStartLocation - mouseEvent.m_screenSpacePosition;
+				if (math::lengthSquared(dragDelta) > m_dragTriggerDistance * m_dragTriggerDistance)
+				{
+					
+					m_dragstate->m_detectDragForWidget.toWidgetPath(dragDetectionPath);
+					if (dragDetectionPath.isValid())
+					{
+						m_dragstate = nullptr;//reset drag detection
+					}
+				}
+			}
+
+			//处理拖动
+			if (dragDetectionPath.isValid())
+			{
+				ArrangedWidget detectDragForMe = dragDetectionPath.findArrangedWidgetAndCursor(dragDetectionPath.getLastWidget());
+
+				lastWidgetsUnderPointer = dragDetectionPath;
+
+				const Reply reply = detectDragForMe.getWidget()->OnDragDetected(detectDragForMe.getWidgetGeometry(), mouseEvent);
+				processReply(reply, dragDetectionPath); //获取drag drop operation
+			}
+		}
+
+		DragDropEvent dragDropEvent(mouseEvent, m_dragDropContent);
+		const bool bIsDragDroppintAffected = m_dragDropContent != nullptr;
 		int32_t preViousUnderCusorWidgetNumber = m_widgetsUnderPointerLastEvent.m_widgets.size();
 		for (int32_t widgetIndex = preViousUnderCusorWidgetNumber - 1; widgetIndex >= 0; --widgetIndex)
 		{
@@ -1024,7 +1064,14 @@ namespace GuGu{
 			{
 				if (!widgetPath.containsWidget(someWidgetPreviouslyUnderCursor.get())) //不再交互
 				{
-					someWidgetPreviouslyUnderCursor->OnMouseLeave(mouseEvent);
+					if (bIsDragDroppintAffected)
+					{
+						someWidgetPreviouslyUnderCursor->OnDragLeave(dragDropEvent);
+					}
+					else
+					{
+						someWidgetPreviouslyUnderCursor->OnMouseLeave(mouseEvent);
+					}			
 				}
 			}
 		}
@@ -1076,16 +1123,35 @@ namespace GuGu{
 		}
 		else
 		{
-			int32_t widgetUnderCusorWidgetNumber = widgetPath.m_widgets.getArrangedWidgetsNumber();
-			for (int32_t i = widgetUnderCusorWidgetNumber - 1; i >= 0; --i) //处理鼠标移入一个控件的事件
+			const bool bIsDragDroppintAffected = m_dragDropContent != nullptr;
+
+			if (bIsDragDroppintAffected)
 			{
-				std::shared_ptr<Widget> widgetUnderCursor = widgetPath.m_widgets.getArrangedWidget(i)->getWidget();
-				if (!lastWidgetsUnderPointer.containsWidget(widgetUnderCursor.get()))
-				{	
-					widgetPath.m_widgets.getArrangedWidget(i)->getWidget()->OnMouseEnter(widgetUnderCursor->getWidgetGeometry(), mouseEvent);
-					//processReply(reply, widgetPath);
+				DragDropEvent dragDropEvent(mouseEvent, m_dragDropContent);
+				int32_t widgetUnderCusorWidgetNumber = widgetPath.m_widgets.getArrangedWidgetsNumber();
+				for (int32_t i = widgetUnderCusorWidgetNumber - 1; i >= 0; --i) //处理鼠标移入一个控件的事件
+				{
+					std::shared_ptr<Widget> widgetUnderCursor = widgetPath.m_widgets.getArrangedWidget(i)->getWidget();
+					if (!lastWidgetsUnderPointer.containsWidget(widgetUnderCursor.get()))
+					{
+						widgetPath.m_widgets.getArrangedWidget(i)->getWidget()->OnDragEnter(widgetUnderCursor->getWidgetGeometry(), dragDropEvent);
+						//processReply(reply, widgetPath);
+					}
 				}
 			}
+			else
+			{
+				int32_t widgetUnderCusorWidgetNumber = widgetPath.m_widgets.getArrangedWidgetsNumber();
+				for (int32_t i = widgetUnderCusorWidgetNumber - 1; i >= 0; --i) //处理鼠标移入一个控件的事件
+				{
+					std::shared_ptr<Widget> widgetUnderCursor = widgetPath.m_widgets.getArrangedWidget(i)->getWidget();
+					if (!lastWidgetsUnderPointer.containsWidget(widgetUnderCursor.get()))
+					{
+						widgetPath.m_widgets.getArrangedWidget(i)->getWidget()->OnMouseEnter(widgetUnderCursor->getWidgetGeometry(), mouseEvent);
+						//processReply(reply, widgetPath);
+					}
+				}
+			}	
 
 			//记录旧的焦点路径
 			WidgetPath oldFocusWidgetsPath;
@@ -1093,36 +1159,33 @@ namespace GuGu{
 
 			//widgets 第一个是 window
 
-			//从碰撞到的widget开始派发事件
-			size_t widgetNumber = widgetPath.m_widgets.getArrangedWidgetsNumber();
-			for (int32_t i = widgetNumber - 1; i >= 0; --i) //bubble policy
+			if (bIsDragDroppintAffected)
 			{
-				Reply reply = widgetPath.m_widgets[i]->getWidget()->OnMouseMove(widgetPath.m_widgets[i]->getWidgetGeometry(), mouseEvent);
+				DragDropEvent dragDropEvent(mouseEvent, m_dragDropContent);
+				//从碰撞到的widget开始派发事件
+				size_t widgetNumber = widgetPath.m_widgets.getArrangedWidgetsNumber();
+				for (int32_t i = widgetNumber - 1; i >= 0; --i) //bubble policy
+				{
+					Reply reply = widgetPath.m_widgets[i]->getWidget()->OnDragOver(widgetPath.m_widgets[i]->getWidgetGeometry(), dragDropEvent);
 
-				//std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
-				//if (mouseCaptor != nullptr)
-				//{
-				//	//m_captorWidget = mouseCaptor;
-				//	m_captorWidgetsPath.clear();
-				//	for (int32_t j = i; j < widgets.size(); ++j)
-				//		m_captorWidgetsPath.push_back(widgets[i]);
-				//}
-				//if (reply.shouldReleaseMouse())
-				//{
-				//	m_captorWidgetsPath.clear();
-				//}
-				//std::shared_ptr<Widget> requestedFocusRecepient = reply.getFocusRecepient();
-				//if (requestedFocusRecepient)
-				//{
-				//	m_focusWidgetsPath.clear();
-				//	for (int32_t j = i; j < widgets.size(); ++j)
-				//		m_focusWidgetsPath.push_back(widgets[j]);
-				//}
-
-				processReply(reply, widgetPath);
-				if (reply.isEventHandled())
-					break;
+					processReply(reply, widgetPath);
+					if (reply.isEventHandled())
+						break;
+				}
 			}
+			else
+			{
+				//从碰撞到的widget开始派发事件
+				size_t widgetNumber = widgetPath.m_widgets.getArrangedWidgetsNumber();
+				for (int32_t i = widgetNumber - 1; i >= 0; --i) //bubble policy
+				{
+					Reply reply = widgetPath.m_widgets[i]->getWidget()->OnMouseMove(widgetPath.m_widgets[i]->getWidgetGeometry(), mouseEvent);
+
+					processReply(reply, widgetPath);
+					if (reply.isEventHandled())
+						break;
+				}
+			}	
 		}
 
 		//通知鼠标移动完成

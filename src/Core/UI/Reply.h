@@ -28,7 +28,7 @@ namespace GuGu {
 			return static_cast<ReplyType&>(*this);
 		}
 	};
-
+	class DragDropOperation;
 	class Reply : public TReplyBase<Reply>
 	{
 	public:
@@ -87,6 +87,8 @@ namespace GuGu {
 		Reply& setFocus(std::shared_ptr<Widget> giveMeFocus);
 
 		std::shared_ptr<Widget> getFocusRecepient() const { return m_focusRecipient.lock(); }
+
+		std::shared_ptr<DragDropOperation> getDragDropContent() const { return m_dragDropContent; }
 	private:
 		Reply(bool bIsHandled) : TReplyBase<Reply>(bIsHandled)
 		{}
@@ -101,6 +103,8 @@ namespace GuGu {
 
 		std::weak_ptr<Widget> m_detectDragForWidget;
 		Key m_detectDragForMouseButton;
+
+		std::shared_ptr<DragDropOperation> m_dragDropContent;
 	};
 
 	using OnClicked = std::function<Reply()>;
