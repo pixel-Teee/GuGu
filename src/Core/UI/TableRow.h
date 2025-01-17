@@ -7,6 +7,7 @@
 #include "ExpanderArrow.h"
 #include "BoxPanel.h"
 #include "CoreStyle.h"
+#include "WidgetDelegates.h"
 
 namespace GuGu {
 	class TableViewBase;
@@ -33,6 +34,8 @@ namespace GuGu {
 			ARGUMENT_NAMED_SLOT(SingleChildSlot, Content)
 
 			ARGUMENT_ATTRIBUTE(Padding, padding)
+
+			UI_EVENT(GOnDragDetected, onDragDetected)
 		};
 
 		void init(const typename TableRow<ItemType>::BuilderArguments& arguments, const std::shared_ptr<TableViewBase>& inOwnerTableView)
@@ -132,7 +135,8 @@ namespace GuGu {
 							ownerTable->privateSignalSelectionChanged(SelectInfo::Direct);
 						}
 
-						return Reply::Handled().setFocus(ownerTable->asWidget()).captureMouse(shared_from_this());
+						return Reply::Handled().setFocus(ownerTable->asWidget()).captureMouse(shared_from_this())
+						.detectDrag(shared_from_this(), Keys::LeftMouseButton);
 					}
 				}
 			}
@@ -235,10 +239,29 @@ namespace GuGu {
 				}
 			}
 		}
+
+		virtual Reply OnDragDetected(const WidgetGeometry& myGeometry, const PointerEvent& mouseEvent) override
+		{
+			if (hasMouseCapture())
+			{
+
+			}
+			
+			if (m_onDragDectedHandler)
+			{
+				return m_onDragDectedHandler(myGeometry, mouseEvent);
+			}
+			else
+			{
+				return Reply::Unhandled();
+			}
+		}
 	protected:
 		void initInternal(const BuilderArguments& inArgs, const std::shared_ptr<TableViewBase>& inOwnerTableView)
 		{
 			m_style = inArgs.mStyle.Get();
+
+			m_onDragDectedHandler = inArgs.monDragDetected;
 
 			setBorderImage(Attribute<std::shared_ptr<Brush>>(this, &TableRow::getBorder));
 
@@ -322,6 +345,8 @@ namespace GuGu {
 		SlotBase* m_innerContentSlot;
 
 		std::shared_ptr<TableRowStyle> m_style;
+
+		GOnDragDetected m_onDragDectedHandler;
 	};
 
 }

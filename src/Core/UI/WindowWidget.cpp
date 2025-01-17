@@ -492,6 +492,15 @@ namespace GuGu {
 		m_childWidget->setChildWidget(inWidget);
 		m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 	}
+	std::shared_ptr<WindowWidget> WindowWidget::makeCursorDecorator()
+	{
+		std::shared_ptr<WindowWidget> newWindow = WIDGET_NEW(WindowWidget)
+			.Type(WindowType::CursorDecorator)
+			.IsPopupWindow(true)
+			.sizingRule(SizingRule::AutoSized)
+			.FocusWhenFirstShown(false);
+		return newWindow;
+	}
 	OverlayPopupLayer::OverlayPopupLayer(const std::shared_ptr<WindowWidget>& initHostWindow, const std::shared_ptr<Widget>& initPopupContent, std::shared_ptr<Overlay> initOverlay)
 		: PopupLayer(initHostWindow, initPopupContent)
 		, m_hostWindow(initHostWindow)

@@ -122,6 +122,8 @@ namespace GuGu {
 
 		bool doesWidgetHaveMouseCapture(std::shared_ptr<const Widget> inWidget) const;
 
+		bool hasCapture() const;
+
 		void setGlobalPreRotate(float rotation);
 
 		float getGlobalPreRotate() const;
@@ -286,6 +288,8 @@ namespace GuGu {
 		MenuStack m_menuStack;
 
 		std::weak_ptr<WindowWidget> m_toolTipWindowPtr;
+
+		std::weak_ptr<WindowWidget> m_dragDropWindowPtr;
 	};
 	std::shared_ptr<Application> CreateApplicationFactory();
 }

@@ -131,8 +131,20 @@ namespace GuGu {
 		m##Name = Attribute<Type>::CreateSP(inObject, inConstMethodPtr);\
 		return static_cast<BuilderArguments*>(this)->Me();\
 	}\
+	template<class Class>\
+	BuilderArguments& Name(const Class* inObject, Type(Class::*inConstMethodPtr)()const) \
+	{\
+		m##Name = Attribute<Type>::CreateSP(inObject, inConstMethodPtr);\
+		return static_cast<BuilderArguments*>(this)->Me();\
+	}\
 	template<class Class, typename Var1Type>\
 	BuilderArguments& Name(Class* inObject, Type(Class::*inConstMethodPtr)(Var1Type)const, Var1Type value1) \
+	{\
+		m##Name = Attribute<Type>::CreateSP(inObject, inConstMethodPtr, value1);\
+		return static_cast<BuilderArguments*>(this)->Me();\
+	}\
+	template<class Class, typename Var1Type>\
+	BuilderArguments& Name(const Class* inObject, Type(Class::*inConstMethodPtr)(Var1Type)const, Var1Type value1) \
 	{\
 		m##Name = Attribute<Type>::CreateSP(inObject, inConstMethodPtr, value1);\
 		return static_cast<BuilderArguments*>(this)->Me();\

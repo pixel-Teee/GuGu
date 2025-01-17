@@ -48,4 +48,6 @@ namespace GuGu {
 	using OnBooleanValueChanged = std::function<void(bool)>;
 
 	using OnContextMenuOpening = std::function<std::shared_ptr<Widget>(void)>;
+
+	using GOnDragDetected = std::function<Reply(const WidgetGeometry&, const PointerEvent&)>;
 }

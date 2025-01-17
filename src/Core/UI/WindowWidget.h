@@ -49,7 +49,8 @@ namespace GuGu {
 		{
 			Normal,
 			Menu,
-			ToolTip
+			ToolTip,
+			CursorDecorator
 		};
 		WindowWidget();
 
@@ -152,6 +153,8 @@ namespace GuGu {
 		void hideWindow();
 
 		void setContent(const std::shared_ptr<Widget>& inWidget);
+
+		static std::shared_ptr<WindowWidget> makeCursorDecorator();
 	protected:
 		std::shared_ptr<Window> m_nativeWindow;
 		std::shared_ptr<SingleChildSlot> m_childWidget;

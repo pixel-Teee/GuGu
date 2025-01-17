@@ -7,7 +7,7 @@
 #include <Core/UI/NullWidget.h>
 #include <Core/UI/Box.h>
 #include <Core/UI/Overlay.h>
-
+#include <Core/UI/AssetDragDrop.h>
 #include "AssetViewWidgets.h"
 #include <Editor/StyleSet/EditorStyleSet.h>
 
@@ -117,7 +117,8 @@ namespace GuGu {
 					WIDGET_NEW(GAssetTileItem)
 					.assetItem(assetItem)
 					.itemWidth(this, &AssetView::getTileViewItemWidth)
-				);
+				)
+				.onDragDetected(this, &AssetView::onDraggingAssetItem);
 
 				GuGuUtf8Str assetType = meta::Type(assetItemAsAsset->m_data.m_assetType).GetName();
 				GuGuUtf8Str tooltip = "filePath:" + assetItemAsAsset->m_data.m_filePath + "\r\n" + "assetType:" + assetType;
@@ -287,6 +288,37 @@ namespace GuGu {
 		{
 		case AssetViewType::Tile: m_tileView->clearSelection(); break;
 		}
+	}
+
+	Reply AssetView::onDraggingAssetItem(const WidgetGeometry& myGeometry, const PointerEvent& mouseEvent)
+	{
+		std::vector<AssetData> draggedAssets;
+		std::vector<GuGuUtf8Str> draggedAssetPaths;
+
+		std::vector<AssetData> assetDataList = getSelectedAssets();
+		for (const AssetData& assetData : assetDataList)
+		{
+			draggedAssets.push_back(assetData);
+		}
+
+		if (draggedAssets.size() > 0)
+		{
+			return Reply::Handled().beginDragDrop(AssetDragDrop::New(draggedAssets, draggedAssetPaths));
+		}
+	}
+
+	std::vector<AssetData> AssetView::getSelectedAssets() const
+	{
+		std::vector<std::shared_ptr<AssetViewItem>> selectedItems = getSelectedItems();
+		std::vector<AssetData> selectedAssets;
+		for (auto itemIt : selectedItems)
+		{
+			if (itemIt != nullptr && itemIt->getType() != AssetItemType::Folder)
+			{
+				selectedAssets.push_back(std::static_pointer_cast<AssetViewAsset>(itemIt)->m_data);
+			}
+		}
+		return selectedAssets;
 	}
 
 }

@@ -1,13 +1,13 @@
 #pragma once
 
-#include "DragDropOperation.h"
+#include "DecoratedDragDrop.h"
 #include <Core/AssetManager/AssetData.h> //asset data
 
 namespace GuGu {
-	class AssetDragDrop : public DragDropOperation
+	class AssetDragDrop : public DecoratedDragDropOp
 	{
 	public:
-		DRAG_DROP_OPERATOR_TYPE(AssetDragDrop, DragDropOperation)
+		DRAG_DROP_OPERATOR_TYPE(AssetDragDrop, DecoratedDragDropOp)
 
 		AssetDragDrop() {}
 		
@@ -23,7 +23,10 @@ namespace GuGu {
 			return m_assetPaths;
 		}
 
-		static std::shared_ptr<AssetDragDrop> New(const GuGuUtf8Str& inAssetPath);//´´½¨´°¿Ú£¬´´½¨ operation
+		//ä½œä¸ºç”Ÿæˆçª—å£çš„å†…å®¹
+		virtual std::shared_ptr<Widget> getDefaultDecorator() const override;
+
+		static std::shared_ptr<AssetDragDrop> New(const GuGuUtf8Str& inAssetPath);//åˆ›å»ºçª—å£ï¼Œåˆ›å»º operation
 
 		static std::shared_ptr<AssetDragDrop> New(std::vector<AssetData> inAssetData, std::vector<GuGuUtf8Str> inAssetPaths);
 	private:

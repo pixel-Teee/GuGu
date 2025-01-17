@@ -11,6 +11,7 @@
 #include <Core/UI/ArrangedWidgetArray.h>
 #include <Core/UI/StyleSetCenter.h>
 #include <Core/UI/ToolTip.h>
+#include <Core/UI/DragDropOperation.h>
 #include <Window/Window.h>
 #include <Renderer/Demo.h>
 #include <Renderer/Renderer.h>
@@ -392,6 +393,11 @@ namespace GuGu{
 		if (!m_captorWidgetsPath.isEmpty())
 			return m_captorWidgetsPath.getLastWidget().lock() == inWidget;
 		return false;
+	}
+
+	bool Application::hasCapture() const
+	{
+		return m_captorWidgetsPath.isValid();
 	}
 
 	void Application::setGlobalPreRotate(float rotation)
@@ -873,7 +879,7 @@ namespace GuGu{
 				//		m_focusWidgetsPath.push_back(widgets[j]);
 				//}
 
-				processReply(reply, widgetPath);
+				processReply(reply, widgetPath, &mouseEvent);
 
 				if (reply.isEventHandled())
 					break;
@@ -980,6 +986,15 @@ namespace GuGu{
 				processReply(reply, widgetPath);
 				if (reply.isEventHandled())
 					break;
+			}
+		}
+
+		//通知鼠标松开
+		if (!hasCapture())
+		{
+			if (localDragDropContent)
+			{
+				localDragDropContent->onDrop(true, mouseEvent);
 			}
 		}
 
@@ -1176,6 +1191,24 @@ namespace GuGu{
 
 		//通知鼠标移动完成
 		m_widgetsUnderPointerLastEvent = WeakWidgetPath(widgetPath);
+		if (m_dragDropContent)
+		{
+			DragDropEvent dragDropEvent(mouseEvent, m_dragDropContent);
+			m_dragDropContent->onDragged(dragDropEvent);
+
+			if (widgetPath.isValid())
+			{
+				m_dragDropWindowPtr = widgetPath.getWindow();
+			}
+			else
+			{
+				m_dragDropWindowPtr.reset();
+			}
+		}
+		else
+		{
+			m_dragDropWindowPtr.reset();
+		}
 		return true;
     }
 

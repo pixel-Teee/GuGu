@@ -5,6 +5,7 @@
 
 #include "ContentBrowserSingleton.h"
 #include "ContentBrowserDelegates.h"
+#include <Core/AssetManager/AssetData.h>
 
 namespace GuGu {
 	class ITableRow;
@@ -67,6 +68,10 @@ namespace GuGu {
 		void onListMouseButtonDoubleClick(std::shared_ptr<AssetViewItem> assetItem);
 
 		void clearSelection();
+
+		Reply onDraggingAssetItem(const WidgetGeometry& myGeometry, const PointerEvent& mouseEvent);
+
+		std::vector<AssetData> getSelectedAssets() const;
 	private:
 
 		GuGuUtf8Str m_soucesData;//当前所处于的文件夹
