@@ -89,6 +89,10 @@ namespace GuGu {
 		std::shared_ptr<Widget> getFocusRecepient() const { return m_focusRecipient.lock(); }
 
 		std::shared_ptr<DragDropOperation> getDragDropContent() const { return m_dragDropContent; }
+
+		Reply& beginDragDrop(std::shared_ptr<DragDropOperation> inDragDropContent);
+
+		Reply& endDragDrop();
 	private:
 		Reply(bool bIsHandled) : TReplyBase<Reply>(bIsHandled)
 		{}
@@ -105,6 +109,7 @@ namespace GuGu {
 		Key m_detectDragForMouseButton;
 
 		std::shared_ptr<DragDropOperation> m_dragDropContent;
+		uint32_t m_bEndDragDrop : 1;
 	};
 
 	using OnClicked = std::function<Reply()>;

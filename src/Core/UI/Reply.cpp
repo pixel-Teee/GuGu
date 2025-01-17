@@ -9,4 +9,14 @@ namespace GuGu {
         this->m_focusRecipient = giveMeFocus;
         return Me();
     }
+    Reply& Reply::beginDragDrop(std::shared_ptr<DragDropOperation> inDragDropContent)
+    {
+		this->m_dragDropContent = inDragDropContent;
+		return Me();
+    }
+    Reply& Reply::endDragDrop()
+    {
+        this->m_bEndDragDrop = true;
+        return Me();
+    }
 }

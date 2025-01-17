@@ -903,6 +903,10 @@ namespace GuGu{
 
     bool Application::processMouseButtonUpEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
     {
+		Reply reply = Reply::Unhandled();
+		const bool bIsDragDropping = m_dragDropContent != nullptr;
+		std::shared_ptr<DragDropOperation> localDragDropContent;
+
 		if (!m_captorWidgetsPath.isEmpty())
 		{
 			//std::vector<std::weak_ptr<Widget>> captorWidgetsPath = m_captorWidgetsPath;
@@ -935,6 +939,12 @@ namespace GuGu{
 		}
 		else
 		{
+			if (bIsDragDropping)
+			{
+				localDragDropContent = m_dragDropContent;
+				m_dragDropContent = nullptr;
+			}
+
 			std::shared_ptr<Widget> collisionWidget = locateWidgetInWindow(window, mouseEvent.m_screenSpacePosition);
 
 			std::vector<std::shared_ptr<Widget>> widgets;
@@ -958,45 +968,21 @@ namespace GuGu{
 			Reply reply = Reply::Unhandled();
 			for (int32_t i = widgetNumber - 1; i >= 0; --i) //bubble policy
 			{
-				reply = widgetPath.m_widgets[i]->getWidget()->OnMouseButtonUp(widgetPath.m_widgets[i]->getWidgetGeometry(), mouseEvent);
-
-				//std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
-				//if (mouseCaptor != nullptr)
-				//{
-				//	//m_captorWidget = mouseCaptor;
-				//	m_captorWidgetsPath.clear();
-				//	for (int32_t j = i; j < widgets.size(); ++j)
-				//		m_captorWidgetsPath.push_back(widgets[i]);
-				//}
-				//if (reply.shouldReleaseMouse())
-				//{
-				//	m_captorWidgetsPath.clear();
-				//}
-				//std::shared_ptr<Widget> requestedFocusRecepient = reply.getFocusRecepient();
-				//if (requestedFocusRecepient)
-				//{
-				//	m_focusWidgetsPath.clear();
-				//	for (int32_t j = i; j < widgets.size(); ++j)
-				//		m_focusWidgetsPath.push_back(widgets[j]);
-				//}
-
+				if (bIsDragDropping)
+				{
+					reply = widgetPath.m_widgets[i]->getWidget()->OnDrop(widgetPath.m_widgets[i]->getWidgetGeometry(), DragDropEvent(mouseEvent, localDragDropContent));
+				}
+				else
+				{
+					reply = widgetPath.m_widgets[i]->getWidget()->OnMouseButtonUp(widgetPath.m_widgets[i]->getWidgetGeometry(), mouseEvent);
+				}
+				
 				processReply(reply, widgetPath);
 				if (reply.isEventHandled())
 					break;
 			}
 		}
-		
 
-		//if (collisionWidget)
-		//{
-		//    collisionWidget->OnMouseButtonDown(collisionWidget->getWidgetGeometry(), mouseEvent);
-		//	//std::shared_ptr<ImageWidget> imageWidget = std::dynamic_pointer_cast<ImageWidget>(collisionWidget);
-		//	//if (imageWidget)
-		//	//{
-		//	//    GuGu_LOGD("%s", u8"image widget");
-		//	//}
-		//}
-		//GuGu_LOGD("(%f %f)", cursorPosition.x, cursorPosition.y);
 		return true;
     }
 

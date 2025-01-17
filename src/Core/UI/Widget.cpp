@@ -167,6 +167,10 @@ namespace GuGu{
     void Widget::OnDragLeave(const DragDropEvent& dragDropEvent)
     {
     }
+    Reply Widget::OnDrop(const WidgetGeometry& myGeometry, const DragDropEvent& dragDropEvent)
+    {
+        return Reply::Unhandled();
+    }
     void Widget::OnFocusChanging(const WeakWidgetPath& previousFocusPath, const WidgetPath& newWidgetPath)
     {
     }
