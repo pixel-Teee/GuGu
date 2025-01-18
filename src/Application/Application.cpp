@@ -1022,42 +1022,54 @@ namespace GuGu{
 		//------当前获取得到的控件路径------
 
 		//------上一次事件处理的控件路径------
-		WeakWidgetPath lastWidgetsUnderPointer = m_widgetsUnderPointerLastEvent;
+		WeakWidgetPath lastWidgetsUnderPointer;
 		//------上一次事件处理的控件路径------
 
 		bool bShouldStartDetectingDrag = m_dragDropContent == nullptr;
 
-		WidgetPath dragDetectionPath;
+		if (bShouldStartDetectingDrag)
 		{
-			if (m_dragstate != nullptr)
+			WidgetPath dragDetectionPath;
 			{
-				math::float2 dragDelta = m_dragstate->m_dragStartLocation - mouseEvent.m_screenSpacePosition;
-				if (math::lengthSquared(dragDelta) > m_dragTriggerDistance * m_dragTriggerDistance)
+				if (m_dragstate != nullptr)
 				{
-					
-					m_dragstate->m_detectDragForWidget.toWidgetPath(dragDetectionPath);
-					if (dragDetectionPath.isValid())
+					math::float2 dragDelta = m_dragstate->m_dragStartLocation - mouseEvent.m_screenSpacePosition;
+					if (math::lengthSquared(dragDelta) > m_dragTriggerDistance * m_dragTriggerDistance)
 					{
-						m_dragstate = nullptr;//reset drag detection
+
+						m_dragstate->m_detectDragForWidget.toWidgetPath(dragDetectionPath);
+						if (dragDetectionPath.isValid())
+						{
+							m_dragstate = nullptr;//reset drag detection
+						}
 					}
 				}
+
+				//处理拖动
+				if (dragDetectionPath.isValid())
+				{
+					ArrangedWidget detectDragForMe = dragDetectionPath.findArrangedWidgetAndCursor(dragDetectionPath.getLastWidget());
+
+					lastWidgetsUnderPointer = dragDetectionPath;
+
+					const Reply reply = detectDragForMe.getWidget()->OnDragDetected(detectDragForMe.getWidgetGeometry(), mouseEvent);
+					processReply(reply, dragDetectionPath); //获取drag drop operation
+				}
 			}
+		}
 
-			//处理拖动
-			if (dragDetectionPath.isValid())
-			{
-				ArrangedWidget detectDragForMe = dragDetectionPath.findArrangedWidgetAndCursor(dragDetectionPath.getLastWidget());
+		if (bShouldStartDetectingDrag && m_dragDropContent != nullptr)
+		{
 
-				lastWidgetsUnderPointer = dragDetectionPath;
-
-				const Reply reply = detectDragForMe.getWidget()->OnDragDetected(detectDragForMe.getWidgetGeometry(), mouseEvent);
-				processReply(reply, dragDetectionPath); //获取drag drop operation
-			}
+		}
+		else
+		{
+			lastWidgetsUnderPointer = m_widgetsUnderPointerLastEvent;
 		}
 
 		DragDropEvent dragDropEvent(mouseEvent, m_dragDropContent);
 		const bool bIsDragDroppintAffected = m_dragDropContent != nullptr;
-		int32_t preViousUnderCusorWidgetNumber = m_widgetsUnderPointerLastEvent.m_widgets.size();
+		int32_t preViousUnderCusorWidgetNumber = lastWidgetsUnderPointer.m_widgets.size();
 		for (int32_t widgetIndex = preViousUnderCusorWidgetNumber - 1; widgetIndex >= 0; --widgetIndex)
 		{
 			const std::shared_ptr<Widget>& someWidgetPreviouslyUnderCursor = lastWidgetsUnderPointer.m_widgets[widgetIndex].lock();
