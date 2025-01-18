@@ -1036,7 +1036,6 @@ namespace GuGu{
 					math::float2 dragDelta = m_dragstate->m_dragStartLocation - mouseEvent.m_screenSpacePosition;
 					if (math::lengthSquared(dragDelta) > m_dragTriggerDistance * m_dragTriggerDistance)
 					{
-
 						m_dragstate->m_detectDragForWidget.toWidgetPath(dragDetectionPath);
 						if (dragDetectionPath.isValid())
 						{

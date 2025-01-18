@@ -5,6 +5,8 @@
 
 #include <Application/InputTypes.h>
 
+#include "DragDropOperation.h"
+
 namespace GuGu {
 	//修饰键
 	class ModifierKeysState

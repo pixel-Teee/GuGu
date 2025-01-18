@@ -39,7 +39,6 @@ namespace GuGu {
 
 		void init(const BuilderArguments& arguments);
 
-
 		Reply openFileMenu();
 
 		Reply saveLevel();
