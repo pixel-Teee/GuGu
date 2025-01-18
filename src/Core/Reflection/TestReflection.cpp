@@ -7,6 +7,8 @@
 #include <Core/Model/StaticMesh.h>
 #include <Core/GamePlay/TransformComponent.h>
 #include <Core/GamePlay/StaticMeshComponent.h>
+#include <Core/GamePlay/LightComponent.h>
+#include <Core/GamePlay/MaterialComponent.h>
 
 namespace GuGu {
 	void testReflection()
@@ -162,6 +164,54 @@ namespace GuGu {
 
 				//StaticMeshComponent使用自定义序列化
 				meta::TypeInfo<StaticMeshComponent>::Defined = true;
+			}
+		}
+
+		{
+			auto id = db.AllocateType("LightComponent");
+			auto& type = db.types[id];
+			meta::TypeInfo<LightComponent>::Register(id, type, true);
+
+			auto typeID = typeidof(LightComponent);
+			if (typeID != meta::InvalidTypeID && !meta::TypeInfo<LightComponent>::Defined)
+			{
+				auto& type = db.types[typeID];
+
+				//array constructor
+				type.SetArrayConstructor<GuGu::Array<LightComponent>>();
+
+				type.AddConstructor<LightComponent, false, false>();
+
+				type.AddConstructor<LightComponent, true, false>();
+
+				meta::TypeInfo<LightComponent>::Defined = true;
+
+				//LightComponent使用自定义序列化
+				meta::TypeInfo<LightComponent>::Defined = true;
+			}
+		}
+
+		{
+			auto id = db.AllocateType("MaterialComponent");
+			auto& type = db.types[id];
+			meta::TypeInfo<MaterialComponent>::Register(id, type, true);
+
+			auto typeID = typeidof(MaterialComponent);
+			if (typeID != meta::InvalidTypeID && !meta::TypeInfo<MaterialComponent>::Defined)
+			{
+				auto& type = db.types[typeID];
+
+				//array constructor
+				type.SetArrayConstructor<GuGu::Array<MaterialComponent>>();
+
+				type.AddConstructor<MaterialComponent, false, false>();
+
+				type.AddConstructor<MaterialComponent, true, false>();
+
+				meta::TypeInfo<MaterialComponent>::Defined = true;
+
+				//MaterialComponent使用自定义序列化
+				meta::TypeInfo<MaterialComponent>::Defined = true;
 			}
 		}
 

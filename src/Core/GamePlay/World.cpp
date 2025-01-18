@@ -4,6 +4,8 @@
 #include "GameObject.h"
 #include "TransformComponent.h"
 #include "StaticMeshComponent.h"
+#include "LightComponent.h"
+#include "MaterialComponent.h"
 #include "Level.h"
 
 #include <Core/AssetManager/AssetData.h>
@@ -59,6 +61,12 @@ namespace GuGu {
 			std::shared_ptr<StaticMeshComponent> staticMeshComponent = std::make_shared<StaticMeshComponent>();
 			staticMeshComponent->setGStaticMesh(gStaticMesh);
 			gameObject->addComponent(staticMeshComponent);
+
+			std::shared_ptr<LightComponent> lightComponent = std::make_shared<LightComponent>();
+			gameObject->addComponent(lightComponent);
+
+			std::shared_ptr<MaterialComponent> materialComponent = std::make_shared<MaterialComponent>();
+			gameObject->addComponent(materialComponent);
 		}
 	}
 }

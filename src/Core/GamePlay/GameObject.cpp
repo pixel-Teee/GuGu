@@ -2,6 +2,7 @@
 
 #include "GameObject.h"
 #include "TransformComponent.h"
+#include "LightComponent.h"
 
 namespace GuGu {
 	GameObject::GameObject()
@@ -20,7 +21,7 @@ namespace GuGu {
 		//{
 		//	m_components[i]->Update(fElapsedTimeSeconds);
 		//}
-
+		getComponent<LightComponent>()->Update(fElapsedTimeSeconds);
 	}
 	meta::Type GameObject::GetType() const
 	{

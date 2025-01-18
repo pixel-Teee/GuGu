@@ -24,6 +24,8 @@
 #include <Core/GamePlay/GameObject.h>
 #include <Core/GamePlay/TransformComponent.h>
 #include <Core/GamePlay/StaticMeshComponent.h>
+#include <Core/GamePlay/LightComponent.h>
+#include <Core/GamePlay/MaterialComponent.h>
 #include <Core/Model/StaticMesh.h>
 
 namespace GuGu {
@@ -965,12 +967,36 @@ namespace GuGu {
 		{
 			std::shared_ptr<TransformComponent> transformComponent = gameObjects[i]->getComponent<TransformComponent>();
 			std::shared_ptr<StaticMeshComponent> staticMeshComponent = gameObjects[i]->getComponent<StaticMeshComponent>();
+			std::shared_ptr<LightComponent> lightComponent = gameObjects[i]->getComponent<LightComponent>();
+			std::shared_ptr<MaterialComponent> materialComponent = gameObjects[i]->getComponent<MaterialComponent>();
 			std::shared_ptr<GStaticMesh> staticMesh = staticMeshComponent->getStaticMesh();
 
 			if (staticMesh->m_indexBuffer == nullptr || staticMesh->m_vertexBuffer == nullptr)
 			{
 				createVertexBufferAndIndexBuffer(*staticMesh);
 			}
+			if (materialComponent->m_bufferHandle == nullptr)
+			{
+				materialComponent->m_bufferHandle = GetDevice()->createBuffer(
+					nvrhi::utils::CreateStaticConstantBufferDesc(
+					sizeof(PbrMaterial), "PbrMaterialConstantBuffer")
+					.setInitialState(
+					nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
+					true));
+				PbrMaterial pbrMaterial;
+				pbrMaterial.albedo = materialComponent->m_albedo;
+				pbrMaterial.metallic = materialComponent->m_metallic;;
+				pbrMaterial.roughness = materialComponent->m_roughness;
+				pbrMaterial.ao = materialComponent->m_ao;
+				m_CommandList->writeBuffer(materialComponent->m_bufferHandle, &pbrMaterial, sizeof(pbrMaterial));
+			}
+
+			Light light;
+			std::memset(light.lightPositions, 0, sizeof(light.lightPositions));
+			std::memset(light.lightColors, 0, sizeof(light.lightColors));
+			light.lightPositions[0] = lightComponent->m_lightPosition;
+			light.lightColors[0] = lightComponent->m_lightColor;
+			m_CommandList->writeBuffer(m_LightBuffers, &light, sizeof(light));
 			
 			const math::affine3& worldMatrix = transformComponent->GetLocalToWorldTransformFloat();
 
@@ -980,7 +1006,7 @@ namespace GuGu {
 			drawItem.bufferGroup = m_meshInfo->buffers.get();
 			drawItem.meshGeometry = m_meshInfo->geometries[0].get();
 			drawItem.m_worldMatrix = m_cubeConstantBuffer;
-			//drawItem.m_pbrMaterial = m_PbrMaterialBuffers[index];
+			drawItem.m_pbrMaterial = materialComponent->m_bufferHandle;
 			drawItem.m_isSkinned = false;
 			m_drawItems.push_back(drawItem);
 
