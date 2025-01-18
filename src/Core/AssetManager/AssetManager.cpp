@@ -142,7 +142,8 @@ namespace GuGu {
 
 	void AssetManager::registerAsset(const GuGuUtf8Str& guid, const GuGuUtf8Str& filePath, const GuGuUtf8Str& fileName, meta::Type assetType)
 	{
-		GuGuUtf8Str relativePath = "content/" + FilePath::getRelativePathForAsset(filePath, m_nativeFileSystem->getNativeFilePath() + "/").getStr();
+		//GuGuUtf8Str relativePath = "content/" + FilePath::getRelativePathForAsset(filePath, m_nativeFileSystem->getNativeFilePath() + "/").getStr();
+		GuGuUtf8Str relativePath = filePath;
 		m_guidToAssetMap.insert({ guid, {relativePath, fileName, assetType.GetID()} });
 		m_rootFileSystem->OpenFile("content/AssetRgistry.json", GuGuFile::FileMode::OnlyWrite);
 		

@@ -164,16 +164,15 @@ namespace GuGu {
 						noFileExtensionsFileName = noFileExtensionsFileName.substr(0, dotPos);
 					}
 
-					GuGuUtf8Str registerFilePath = filePath;
-					dotPos = filePath.findLastOf(".");
-					if (dotPos != -1)
-					{
-						registerFilePath = filePath.substr(0, dotPos);
-					}					
-
-					AssetManager::getAssetManager().registerAsset(guidStr, registerFilePath + ".json", noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GStaticMesh>().ID));
-
+					//GuGuUtf8Str registerFilePath = filePath;
+					//dotPos = filePath.findLastOf(".");
+					//if (dotPos != -1)
+					//{
+					//	registerFilePath = filePath.substr(0, dotPos);
+					//}					
 					GuGuUtf8Str outputFilePath = sourcesData + "/" + noFileExtensionsFileName + ".json";
+
+					AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GStaticMesh>().ID));
 					//输出到目录
 					AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
 					AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
