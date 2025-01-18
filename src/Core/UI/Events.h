@@ -185,7 +185,7 @@ namespace GuGu {
 	{
 		if (m_content && m_content->isOfType<OperationType>())
 		{
-			return std::static_pointer_cast<OperationType>();
+			return std::static_pointer_cast<OperationType>(m_content);
 		}
 		else
 		{

@@ -1,6 +1,7 @@
 #include <pch.h>
 
 #include "EditorMainWindow.h"
+#include "LevelViewport.h"
 
 #include <Core/UI/Button.h>
 #include <Core/UI/NullWidget.h>
@@ -148,7 +149,7 @@ namespace GuGu {
 									.BorderBackgroundColor(math::float4(0.0f, 0.0f, 0.0f, 0.0f))
 									.Content
 									(
-										WIDGET_ASSIGN_NEW(ViewportWidget, m_viewportWidget)
+										WIDGET_ASSIGN_NEW(LevelViewport, m_viewportWidget)
 										.Content
 										(
 											NullWidget::getNullWidget()

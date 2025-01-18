@@ -36,7 +36,7 @@ namespace GuGu {
 		virtual uint32_t getSlotsNumber() const override;
 
 		void setRenderTarget(nvrhi::TextureHandle renderTarget);
-	private:
+	protected:
 		std::shared_ptr<SingleChildSlot> m_childWidget;
 
 		nvrhi::TextureHandle m_renderTarget;
