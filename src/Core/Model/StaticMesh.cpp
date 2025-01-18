@@ -21,7 +21,18 @@ namespace GuGu {
 
 	meta::Object* GStaticMesh::Clone(void) const
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		GStaticMesh* staticMesh = new GStaticMesh();
+		staticMesh->m_indexData = m_indexData;
+		staticMesh->m_positionData = m_positionData;
+		staticMesh->m_texCoord1Data = m_texCoord1Data;
+		staticMesh->m_texCoord2Data = m_texCoord2Data;
+		staticMesh->m_normalData = m_normalData;
+		staticMesh->m_tangentData = m_tangentData;
+		staticMesh->m_jointData = m_jointData;//指向骨骼矩阵的索引
+		staticMesh->m_weightData = m_weightData;
+		staticMesh->m_vertexBufferRanges = m_vertexBufferRanges;
+		staticMesh->m_geometries = m_geometries;
+		return staticMesh;
 	}
 
 	void GStaticMesh::OnSerialize(nlohmann::json& output) const
@@ -57,30 +68,32 @@ namespace GuGu {
 	void GStaticMesh::OnDeserialize(const nlohmann::json& input)
 	{
 		nlohmann::json indexData = input["indexData"];
+		m_indexData.resize(indexData.size());
 		for (int32_t i = 0; i < indexData.size(); ++i)
 		{
 			m_indexData[i] = indexData[i].get<uint32_t>();
 		}
 		nlohmann::json positionData = input["indexData"];
 		int32_t currentIndex = 0;
+		m_positionData.resize(positionData.size());
 		for (int32_t i = 0; i < positionData.size(); i = i + 3)
 		{
 			m_positionData[currentIndex] = positionData[i].get<float>();
 			m_positionData[currentIndex + 1] = positionData[i + 1].get<float>();
-			m_positionData[currentIndex + 2] = positionData[i + 2].get<float>();
-			currentIndex = currentIndex + 3;
+			currentIndex = currentIndex + 2;
 		}
 		nlohmann::json texCoord1 = input["texCoord1"];
 		currentIndex = 0;
-		for (int32_t i = 0; i < texCoord1.size(); i = i + 3)
+		m_texCoord1Data.resize(texCoord1.size());
+		for (int32_t i = 0; i < texCoord1.size(); i = i + 2)
 		{
 			m_texCoord1Data[currentIndex] = texCoord1[i].get<float>();
 			m_texCoord1Data[currentIndex + 1] = texCoord1[i + 1].get<float>();
-			m_texCoord1Data[currentIndex + 2] = texCoord1[i + 2].get<float>();
-			currentIndex = currentIndex + 3;
+			currentIndex = currentIndex + 2;
 		}
 		nlohmann::json normal = input["normal"];
 		currentIndex = 0;
+		m_normalData.resize(normal.size());
 		for (int32_t i = 0; i < normal.size(); i = i + 3)
 		{
 			m_normalData[currentIndex] = normal[i].get<float>();

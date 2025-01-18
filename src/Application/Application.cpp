@@ -20,6 +20,7 @@
 #include <Core/GamePlay/Level.h>
 #include <Core/GamePlay/GameObject.h>
 #include <Core/GamePlay/TransformComponent.h>
+#include <Core/GamePlay/World.h>
 
 namespace GuGu{
 	WindowActivateEvent::ActivationType translationWindowActivationMessage(const WindowActivation activationType)
@@ -60,13 +61,7 @@ namespace GuGu{
 	}
 	void Application::init(std::shared_ptr<WindowWidget> inWindowWidget)
 	{
-		//create level
-		m_currentLevel = std::make_shared<Level>();
-		std::shared_ptr<GameObject> gameObject = std::make_shared<GameObject>();
-		std::shared_ptr<TransformComponent> transformComponent = std::make_shared<TransformComponent>();
-		transformComponent->SetRotation(math::rotationQuat(math::double3(math::radians(60.0), math::radians(135.0), math::radians(40.0))));
-		gameObject->addComponent(transformComponent);
-		m_currentLevel->addGameObject(gameObject);
+
 	}
     void Application::Run()
     {
@@ -81,11 +76,11 @@ namespace GuGu{
             if(m_focused)
             {
 				//1.更新关卡和里面的game object
-				m_currentLevel->Update(m_timer->GetDeltaTime());
+				World::getWorld()->getCurrentLevel()->Update(m_timer->GetDeltaTime()); //todo:可能会崩，记得修复
                 UIRenderPass* uiRenderPass = m_renderer->getUIRenderPass();
                 Demo* demoPass = m_renderer->getDemoPass();
 				//demoPass->setLevel()
-				demoPass->renderLevel(m_currentLevel);
+				demoPass->renderLevel(World::getWorld()->getCurrentLevel());
                 VertexBuffer* vertexBuffer = m_renderer->getVertexBufferPass();
                 uiRenderPass->setRenderTarget(demoPass->getRenderTarget());
                 m_renderer->onRender();
@@ -734,16 +729,6 @@ namespace GuGu{
 		workArea.m_mins = math::float2(0, 0);
 		workArea.m_maxs = math::float2(0, 0);
 		return workArea;
-	}
-
-	std::shared_ptr<Level> Application::getCurrentLevel()
-	{
-		return m_currentLevel;
-	}
-
-	const std::shared_ptr<Level> Application::getCurrentLevel() const
-	{
-		return m_currentLevel;
 	}
 
 	void Application::closeTooltip()

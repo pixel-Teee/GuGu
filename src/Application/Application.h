@@ -175,11 +175,6 @@ namespace GuGu {
 
 		virtual math::box2 getWorkArea(const math::box2& currentWindow) const;
 
-		//------game play------
-		std::shared_ptr<Level> getCurrentLevel();
-		const std::shared_ptr<Level> getCurrentLevel() const;
-		//------game play------
-
 		std::shared_ptr<Widget> locateWidgetInWindow(const std::shared_ptr<Window>& window, const math::float2& screenSpacePosition);
 
 		virtual math::float2 getCursorPos() const;
@@ -282,8 +277,6 @@ namespace GuGu {
 		std::shared_ptr<DragDetectionState> m_dragstate;
 
 		std::shared_ptr<DragDropOperation> m_dragDropContent;
-
-		std::shared_ptr<Level> m_currentLevel;
 
 		MenuStack m_menuStack;
 
