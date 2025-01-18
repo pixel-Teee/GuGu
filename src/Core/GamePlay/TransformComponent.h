@@ -27,6 +27,8 @@ namespace GuGu {
 		void SetScaling(const math::double3& scaling);
 		void SetRotation(const math::dquat& rotation);
 		void SetTranslation(const math::double3& translation);
+
+		virtual meta::Type GetType() const override;
 	private:
 		math::dquat m_Rotation = math::dquat::identity();
 		math::double3 m_Scaling = 1.0;

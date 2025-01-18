@@ -23,6 +23,8 @@
 #include <Core/GamePlay/Level.h>
 #include <Core/GamePlay/GameObject.h>
 #include <Core/GamePlay/TransformComponent.h>
+#include <Core/GamePlay/StaticMeshComponent.h>
+#include <Core/Model/StaticMesh.h>
 
 namespace GuGu {
 	inline void AppendBufferRange(nvrhi::BufferRange& range, size_t size, uint64_t& currentBufferSize)
@@ -30,6 +32,134 @@ namespace GuGu {
 		range.byteOffset = currentBufferSize;
 		range.byteSize = size;
 		currentBufferSize += range.byteSize;
+	}
+
+	void Demo::createVertexBufferAndIndexBuffer(GStaticMesh& staticMesh)
+	{
+		std::vector<uint32_t>& indexData = staticMesh.m_indexData;
+		std::vector<math::float3>& positionData = staticMesh.m_positionData;
+		std::vector<math::float2>& texCoord1Data = staticMesh.m_texCoord1Data;
+		std::vector<math::float2>& texCoord2Data = staticMesh.m_texCoord2Data;
+		std::vector<math::float3>& normalData = staticMesh.m_normalData;
+		std::vector<math::float3>& tangentData = staticMesh.m_tangentData;
+		std::vector<math::vector<uint16_t, 4>>& jointData = staticMesh.m_jointData;//指向骨骼矩阵的索引
+		std::vector<math::float4>& weightData = staticMesh.m_weightData;
+		std::array<nvrhi::BufferRange, size_t(GVertexAttribute::Count)>& vertexBufferRanges = staticMesh.m_vertexBufferRanges;
+
+		if (!indexData.empty() && !staticMesh.m_indexBuffer)
+		{
+			nvrhi::BufferDesc bufferDesc;
+			bufferDesc.isIndexBuffer = true;
+			bufferDesc.byteSize = indexData.size() * sizeof(uint32_t);
+			bufferDesc.debugName = "IndexBuffer";
+			bufferDesc.canHaveTypedViews = true;
+			bufferDesc.canHaveRawViews = true;
+			bufferDesc.format = nvrhi::Format::R32_UINT;
+			//bufferDesc.isAccelStructBuildInput = m_RayTracingSupported;
+
+			staticMesh.m_indexBuffer = GetDevice()->createBuffer(bufferDesc);
+
+			m_CommandList->beginTrackingBufferState(staticMesh.m_indexBuffer, nvrhi::ResourceStates::Common);
+
+			m_CommandList->writeBuffer(staticMesh.m_indexBuffer, indexData.data(), indexData.size() * sizeof(uint32_t));
+			std::vector<uint32_t>().swap(indexData);
+
+			nvrhi::ResourceStates state = nvrhi::ResourceStates::IndexBuffer | nvrhi::ResourceStates::ShaderResource;
+
+			m_CommandList->setPermanentBufferState(staticMesh.m_indexBuffer, state);
+			m_CommandList->commitBarriers();
+		}
+
+		if (!staticMesh.m_vertexBuffer)
+		{
+			nvrhi::BufferDesc bufferDesc;
+			bufferDesc.isVertexBuffer = true;
+			bufferDesc.byteSize = 0;
+			bufferDesc.debugName = "VertexBuffer";
+			bufferDesc.canHaveTypedViews = true;
+			bufferDesc.canHaveRawViews = true;
+
+			if (!positionData.empty())
+			{
+				AppendBufferRange(staticMesh.getVertexBufferRange(GVertexAttribute::Position),
+					positionData.size() * sizeof(positionData[0]), bufferDesc.byteSize);
+			}
+
+			if (!normalData.empty())
+			{
+				AppendBufferRange(staticMesh.getVertexBufferRange(GVertexAttribute::Normal),
+					normalData.size() * sizeof(normalData[0]), bufferDesc.byteSize);
+			}
+
+			if (!tangentData.empty())
+			{
+				AppendBufferRange(staticMesh.getVertexBufferRange(GVertexAttribute::Tangent),
+					tangentData.size() * sizeof(tangentData[0]), bufferDesc.byteSize);
+			}
+
+			if (!texCoord1Data.empty())
+			{
+				AppendBufferRange(staticMesh.getVertexBufferRange(GVertexAttribute::TexCoord1),
+					texCoord1Data.size() * sizeof(texCoord1Data[0]), bufferDesc.byteSize);
+			}
+
+			if (!weightData.empty())
+			{
+				AppendBufferRange(staticMesh.getVertexBufferRange(GVertexAttribute::JointWeights),
+					weightData.size() * sizeof(weightData[0]), bufferDesc.byteSize);
+			}
+
+			if (!jointData.empty())
+			{
+				AppendBufferRange(staticMesh.getVertexBufferRange(GVertexAttribute::JointIndices),
+					jointData.size() * sizeof(jointData[0]), bufferDesc.byteSize);
+			}
+
+			staticMesh.m_vertexBuffer = GetDevice()->createBuffer(bufferDesc);
+
+			m_CommandList->beginTrackingBufferState(staticMesh.m_vertexBuffer, nvrhi::ResourceStates::Common);
+
+			if (!positionData.empty())
+			{
+				const auto& range = staticMesh.getVertexBufferRange(GVertexAttribute::Position);
+				m_CommandList->writeBuffer(staticMesh.m_vertexBuffer, positionData.data(), range.byteSize, range.byteOffset);
+			}
+
+			if (!normalData.empty())
+			{
+				const auto& range = staticMesh.getVertexBufferRange(GVertexAttribute::Normal);
+				m_CommandList->writeBuffer(staticMesh.m_vertexBuffer, normalData.data(), range.byteSize, range.byteOffset);
+			}
+
+			if (!tangentData.empty())
+			{
+				const auto& range = staticMesh.getVertexBufferRange(GVertexAttribute::Tangent);
+				m_CommandList->writeBuffer(staticMesh.m_vertexBuffer, tangentData.data(), range.byteSize, range.byteOffset);
+			}
+
+			if (!texCoord1Data.empty())
+			{
+				const auto& range = staticMesh.getVertexBufferRange(GVertexAttribute::TexCoord1);
+				m_CommandList->writeBuffer(staticMesh.m_vertexBuffer, texCoord1Data.data(), range.byteSize, range.byteOffset);
+			}
+
+			if (!weightData.empty())
+			{
+				const auto& range = staticMesh.getVertexBufferRange(GVertexAttribute::JointWeights);
+				m_CommandList->writeBuffer(staticMesh.m_vertexBuffer, weightData.data(), range.byteSize, range.byteOffset);
+			}
+
+			if (!jointData.empty())
+			{
+				const auto& range = staticMesh.getVertexBufferRange(GVertexAttribute::JointIndices);
+				m_CommandList->writeBuffer(staticMesh.m_vertexBuffer, jointData.data(), range.byteSize, range.byteOffset);
+			}
+
+			nvrhi::ResourceStates state = nvrhi::ResourceStates::VertexBuffer | nvrhi::ResourceStates::ShaderResource;
+
+			m_CommandList->setPermanentBufferState(staticMesh.m_vertexBuffer, state);
+			m_CommandList->commitBarriers();
+		}
 	}
 
 	bool Demo::Init(std::shared_ptr<UIData> uiData)
@@ -834,10 +964,18 @@ namespace GuGu {
 		for (size_t i = 0; i < gameObjects.size(); ++i)
 		{
 			std::shared_ptr<TransformComponent> transformComponent = gameObjects[i]->getComponent<TransformComponent>();
+			std::shared_ptr<StaticMeshComponent> staticMeshComponent = gameObjects[i]->getComponent<StaticMeshComponent>();
+			std::shared_ptr<GStaticMesh> staticMesh = staticMeshComponent->getStaticMesh();
+
+			if (staticMesh->m_indexBuffer == nullptr || staticMesh->m_vertexBuffer == nullptr)
+			{
+				createVertexBufferAndIndexBuffer(*staticMesh);
+			}
 			
 			const math::affine3& worldMatrix = transformComponent->GetLocalToWorldTransformFloat();
 
 			DrawItem drawItem;
+			drawItem.m_staticMesh = staticMesh.get();
 			drawItem.mesh = m_meshInfo.get();
 			drawItem.bufferGroup = m_meshInfo->buffers.get();
 			drawItem.meshGeometry = m_meshInfo->geometries[0].get();
@@ -917,20 +1055,20 @@ namespace GuGu {
 
 			graphicsState.bindings = { bindingSet };
 
-			if (!m_drawItems[i].bufferGroup->vertexBuffer)
+			if (!m_drawItems[i].m_staticMesh->m_indexBuffer)
 				continue;
 
 			graphicsState.vertexBuffers = {
-						{m_drawItems[i].bufferGroup->vertexBuffer, 0, m_drawItems[i].bufferGroup->getVertexBufferRange(VertexAttribute::Position).byteOffset},
-						{m_drawItems[i].bufferGroup->vertexBuffer, 1, m_drawItems[i].bufferGroup->getVertexBufferRange(VertexAttribute::TexCoord1).byteOffset},
-						{m_drawItems[i].bufferGroup->vertexBuffer, 2, m_drawItems[i].bufferGroup->getVertexBufferRange(VertexAttribute::Normal).byteOffset},
-						{m_drawItems[i].bufferGroup->vertexBuffer, 3, m_drawItems[i].bufferGroup->getVertexBufferRange(VertexAttribute::Tangent).byteOffset},
-						{m_drawItems[i].bufferGroup->vertexBuffer, 4, m_drawItems[i].bufferGroup->getVertexBufferRange(VertexAttribute::JointWeights).byteOffset},
-						{m_drawItems[i].bufferGroup->vertexBuffer, 5, m_drawItems[i].bufferGroup->getVertexBufferRange(VertexAttribute::JointIndices).byteOffset}
+						{m_drawItems[i].m_staticMesh->m_vertexBuffer, 0, m_drawItems[i].m_staticMesh->getVertexBufferRange(GVertexAttribute::Position).byteOffset},
+						{m_drawItems[i].m_staticMesh->m_vertexBuffer, 1, m_drawItems[i].m_staticMesh->getVertexBufferRange(GVertexAttribute::TexCoord1).byteOffset},
+						{m_drawItems[i].m_staticMesh->m_vertexBuffer, 2, m_drawItems[i].m_staticMesh->getVertexBufferRange(GVertexAttribute::Normal).byteOffset},
+						{m_drawItems[i].m_staticMesh->m_vertexBuffer, 3, m_drawItems[i].m_staticMesh->getVertexBufferRange(GVertexAttribute::Tangent).byteOffset},
+						{m_drawItems[i].m_staticMesh->m_vertexBuffer, 4, m_drawItems[i].m_staticMesh->getVertexBufferRange(GVertexAttribute::JointWeights).byteOffset},
+						{m_drawItems[i].m_staticMesh->m_vertexBuffer, 5, m_drawItems[i].m_staticMesh->getVertexBufferRange(GVertexAttribute::JointIndices).byteOffset}
 			};
 
 			graphicsState.indexBuffer = {
-				m_drawItems[i].bufferGroup->indexBuffer, nvrhi::Format::R32_UINT, 0
+				m_drawItems[i].m_staticMesh->m_indexBuffer, nvrhi::Format::R32_UINT, 0
 			};
 
 			if (!m_drawItems[i].m_isSkinned)
@@ -947,10 +1085,12 @@ namespace GuGu {
 
 			// Draw the model.
 			nvrhi::DrawArguments args;
-			args.vertexCount = m_drawItems[i].meshGeometry->numIndices;
+			args.vertexCount = m_drawItems[i].m_staticMesh->m_totalIndices;
 			args.instanceCount = 1;
-			args.startVertexLocation = m_drawItems[i].mesh->vertexOffset + m_drawItems[i].meshGeometry->vertexOffsetInMesh;
-			args.startIndexLocation = m_drawItems[i].mesh->indexOffset + m_drawItems[i].meshGeometry->indexOffsetInMesh;
+			//args.startVertexLocation = m_drawItems[i].mesh->vertexOffset + m_drawItems[i].meshGeometry->vertexOffsetInMesh;
+			//args.startIndexLocation = m_drawItems[i].mesh->indexOffset + m_drawItems[i].meshGeometry->indexOffsetInMesh;
+			args.startVertexLocation = 0;
+			args.startIndexLocation = 0;
 			m_CommandList->drawIndexed(args);
 		}
 
@@ -1234,5 +1374,4 @@ namespace GuGu {
 
 		m_uiData->m_currentSelectItems = findNode;
 	}
-
 }

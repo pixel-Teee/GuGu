@@ -32,6 +32,8 @@ namespace GuGu {
 		staticMesh->m_weightData = m_weightData;
 		staticMesh->m_vertexBufferRanges = m_vertexBufferRanges;
 		staticMesh->m_geometries = m_geometries;
+		staticMesh->m_totalIndices = m_totalIndices;
+		staticMesh->m_totalVertices = m_totalVertices;
 		return staticMesh;
 	}
 
@@ -73,34 +75,35 @@ namespace GuGu {
 		{
 			m_indexData[i] = indexData[i].get<uint32_t>();
 		}
-		nlohmann::json positionData = input["indexData"];
+		m_totalIndices = indexData.size();
+		nlohmann::json positionData = input["positionData"];
 		int32_t currentIndex = 0;
 		m_positionData.resize(positionData.size());
 		for (int32_t i = 0; i < positionData.size(); i = i + 3)
 		{
-			m_positionData[currentIndex] = positionData[i].get<float>();
-			m_positionData[currentIndex + 1] = positionData[i + 1].get<float>();
-			currentIndex = currentIndex + 2;
+			math::float3 position = math::float3(positionData[i].get<float>(), positionData[i + 1].get<float>(), positionData[i + 2].get<float>());
+			m_positionData[currentIndex] = position;
+			++currentIndex;
 		}
 		nlohmann::json texCoord1 = input["texCoord1"];
 		currentIndex = 0;
 		m_texCoord1Data.resize(texCoord1.size());
 		for (int32_t i = 0; i < texCoord1.size(); i = i + 2)
 		{
-			m_texCoord1Data[currentIndex] = texCoord1[i].get<float>();
-			m_texCoord1Data[currentIndex + 1] = texCoord1[i + 1].get<float>();
-			currentIndex = currentIndex + 2;
+			math::float2 texcoord = math::float2(texCoord1[i].get<float>(), texCoord1[i + 1].get<float>());
+			m_texCoord1Data[currentIndex] = texcoord;
+			++currentIndex;
 		}
 		nlohmann::json normal = input["normal"];
 		currentIndex = 0;
 		m_normalData.resize(normal.size());
 		for (int32_t i = 0; i < normal.size(); i = i + 3)
 		{
-			m_normalData[currentIndex] = normal[i].get<float>();
-			m_normalData[currentIndex + 1] = normal[i + 1].get<float>();
-			m_normalData[currentIndex + 2] = normal[i + 2].get<float>();
-			currentIndex = currentIndex + 3;
+			math::float3 normaldata = math::float3(normal[i].get<float>(), normal[i + 1].get<float>(), normal[i + 2].get<float>());
+			m_normalData[currentIndex] = normaldata;
+			++currentIndex;
 		}
+		m_totalVertices = positionData.size() / 3;
 	}
 
 }

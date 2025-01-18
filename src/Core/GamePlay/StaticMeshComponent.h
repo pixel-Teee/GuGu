@@ -15,6 +15,12 @@ namespace GuGu {
 		void Update(float fElapsedTimeSeconds) override;
 
 		void setGStaticMesh(const GStaticMesh& gStaticMesh);
+
+		std::shared_ptr<GStaticMesh> getStaticMesh() const;
+
+		std::shared_ptr<GStaticMesh> getStaticMesh();
+
+		virtual meta::Type GetType() const override;
 	private:
 		std::shared_ptr<GStaticMesh> m_staticMesh;
 	};

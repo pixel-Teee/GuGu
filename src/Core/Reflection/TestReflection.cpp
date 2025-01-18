@@ -5,6 +5,8 @@
 #include "TypeInfo.h"
 
 #include <Core/Model/StaticMesh.h>
+#include <Core/GamePlay/TransformComponent.h>
+#include <Core/GamePlay/StaticMeshComponent.h>
 
 namespace GuGu {
 	void testReflection()
@@ -112,6 +114,54 @@ namespace GuGu {
 
 				//GStaticMesh使用自定义序列化
 				meta::TypeInfo<GStaticMesh>::Defined = true;
+			}
+		}
+
+		{
+			auto id = db.AllocateType("TransformComponent");
+			auto& type = db.types[id];
+			meta::TypeInfo<TransformComponent>::Register(id, type, true);
+
+			auto typeID = typeidof(TransformComponent);
+			if (typeID != meta::InvalidTypeID && !meta::TypeInfo<TransformComponent>::Defined)
+			{
+				auto& type = db.types[typeID];
+
+				//array constructor
+				type.SetArrayConstructor<GuGu::Array<TransformComponent>>();
+
+				type.AddConstructor<TransformComponent, false, false>();
+
+				type.AddConstructor<TransformComponent, true, false>();
+
+				meta::TypeInfo<TransformComponent>::Defined = true;
+
+				//TransformComponent使用自定义序列化
+				meta::TypeInfo<TransformComponent>::Defined = true;
+			}
+		}
+
+		{
+			auto id = db.AllocateType("StaticMeshComponent");
+			auto& type = db.types[id];
+			meta::TypeInfo<StaticMeshComponent>::Register(id, type, true);
+
+			auto typeID = typeidof(StaticMeshComponent);
+			if (typeID != meta::InvalidTypeID && !meta::TypeInfo<StaticMeshComponent>::Defined)
+			{
+				auto& type = db.types[typeID];
+
+				//array constructor
+				type.SetArrayConstructor<GuGu::Array<StaticMeshComponent>>();
+
+				type.AddConstructor<StaticMeshComponent, false, false>();
+
+				type.AddConstructor<StaticMeshComponent, true, false>();
+
+				meta::TypeInfo<StaticMeshComponent>::Defined = true;
+
+				//StaticMeshComponent使用自定义序列化
+				meta::TypeInfo<StaticMeshComponent>::Defined = true;
 			}
 		}
 

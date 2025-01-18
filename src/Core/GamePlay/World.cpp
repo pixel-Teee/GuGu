@@ -52,11 +52,13 @@ namespace GuGu {
 			int32_t numberBytesHavedReaded = 0;
 			AssetManager::getAssetManager().getRootFileSystem()->ReadFile((void*)fileContent, fileSize, numberBytesHavedReaded);
 			AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
+			GuGuUtf8Str modelJson(fileContent);
 			//load model
-			GStaticMesh gStaticMesh = meta::Type::DeserializeJson<GStaticMesh>(nlohmann::json::parse(fileContent));
+			GStaticMesh gStaticMesh = meta::Type::DeserializeJson<GStaticMesh>(nlohmann::json::parse(modelJson.getStr()));
 			delete[] fileContent;
 			std::shared_ptr<StaticMeshComponent> staticMeshComponent = std::make_shared<StaticMeshComponent>();
 			staticMeshComponent->setGStaticMesh(gStaticMesh);
+			gameObject->addComponent(staticMeshComponent);
 		}
 	}
 }

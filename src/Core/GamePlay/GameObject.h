@@ -28,7 +28,7 @@ namespace GuGu {
 		{
 			for (auto& component : m_components)
 			{ 
-				if (meta::Type::Get(component) == typeof(T))
+				if (component->GetType() == typeof(T)) //需要注册指针类型
 				{
 					return std::static_pointer_cast<T>(component);
 				}

@@ -16,6 +16,7 @@ namespace GuGu {
 	class CommonRenderPasses;
 	class SceneGraphNode;
 	class Level;
+	class GStaticMesh;
 	struct DrawItem
 	{
 		const MeshInfo* mesh;
@@ -25,6 +26,7 @@ namespace GuGu {
 		nvrhi::BufferHandle m_skinnedMatrix;
 		bool m_isSkinned = false;
 		nvrhi::BufferHandle m_pbrMaterial;
+		GStaticMesh* m_staticMesh;
 	};
 	//struct UIData;
 	class Demo : public IRenderPass
@@ -45,6 +47,8 @@ namespace GuGu {
 		nvrhi::TextureHandle getRenderTarget();
 
 		void renderLevel(const std::shared_ptr<Level> inLevel);
+
+		void createVertexBufferAndIndexBuffer(GStaticMesh& staticMesh);
 	private:
 		void RenderView(nvrhi::GraphicsState& graphicsState, nvrhi::GraphicsState& gridGraphicsState, math::float4x4 viewProjMatrix);
 

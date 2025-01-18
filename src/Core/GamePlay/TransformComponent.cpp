@@ -56,4 +56,8 @@ namespace GuGu {
 	{
 		SetTransform(&translation, nullptr, nullptr);
 	}
+	meta::Type TransformComponent::GetType() const
+	{
+		return typeof(TransformComponent);
+	}
 }
