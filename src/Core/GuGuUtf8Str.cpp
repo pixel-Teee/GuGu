@@ -498,19 +498,27 @@ namespace GuGu {
 		{
 			a = rhs;
 			b = *this;
+			for (int32_t index = 0; index < a.getTotalByteCount(); ++index)
+			{
+				if (a.m_str[index] < b.m_str[index])
+					return false;
+			}
+			if (a.getTotalByteCount() < b.getTotalByteCount())
+				return false;
 		}
 		else
 		{
 			a = *this;
 			b = rhs;
-		}
-		for (int32_t index = 0; index < a.getTotalByteCount(); ++index)
-		{
-			if (a.m_str[index] < b.m_str[index])
+			for (int32_t index = 0; index < a.getTotalByteCount(); ++index)
+			{
+				if (a.m_str[index] < b.m_str[index])
+					return true;
+			}
+			if (a.getTotalByteCount() < b.getTotalByteCount())
 				return true;
 		}
-		if (a.getTotalByteCount() < b.getTotalByteCount())
-			return true;
+
 		return false;
 	}
 	GuGuUtf8Str GuGuUtf8Str::operator[](size_t pos) const

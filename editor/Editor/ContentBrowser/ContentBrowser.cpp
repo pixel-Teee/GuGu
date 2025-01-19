@@ -90,7 +90,7 @@ namespace GuGu {
 
 		pathSelected(selectedPaths[0]);
 	}
-	std::shared_ptr<Widget> ContentBrowser::onGetAssetContextMenu()
+	std::shared_ptr<Widget> ContentBrowser::onGetAssetContextMenu(const std::vector<AssetData>& selectedAssets)
 	{
 		GuGuUtf8Str sourcesData = m_assetView->getSourcesData();//当前所处于的文件夹
 

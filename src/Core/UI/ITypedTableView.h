@@ -33,6 +33,7 @@ namespace GuGu {
 
 	class ITableRow;
 	class Widget;
+	struct PointerEvent;
 	template<typename ItemType>
 	class ITypedTableView
 	{
@@ -63,6 +64,8 @@ namespace GuGu {
 		virtual bool privateIsItemHighlighted(const ItemType& theItem) const = 0;
 
 		virtual bool privateOnItemDoubleClicked(ItemType theItem) = 0;
+
+		virtual void privateOnItemRightClicked(ItemType theItem, const PointerEvent& mouseEvent) = 0;
 
 		virtual std::shared_ptr<Widget> asWidget() = 0;
 

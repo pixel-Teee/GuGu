@@ -1,0 +1,90 @@
+#include <pch.h>
+
+#include "InputManager.h"
+
+namespace GuGu {
+    InputManager::InputManager()
+    {
+    }
+    InputManager::~InputManager()
+    {
+    }
+    InputManager& InputManager::getInputManager()
+    {
+        static InputManager inputManager;
+        return inputManager;
+    }
+    void InputManager::updateMouseButton(const Key& key, int32_t mouseX, int32_t mouseY, bool bPressed)
+    {
+		if (m_previousMouseState.find(key.getKeyName()) == m_previousMouseState.end())
+			m_previousMouseState[key.getKeyName()] = InputManager::MouseState(key.getKeyName(), mouseX, mouseY, false);
+
+        MouseState mouseState;
+        mouseState.m_bPressed = bPressed;
+        mouseState.m_mouseX = mouseX;
+        mouseState.m_mouseY = mouseY;
+        mouseState.m_key = key.getKeyName();
+
+		if (mouseState != m_previousMouseState[key.getKeyName()])
+		{
+			Event event;
+            event.m_type = mouseState.m_bPressed ? Event::EventType::PRESS : Event::EventType::RELEASE;
+			event.m_keyCode = key;
+            event.m_mouseX = mouseX;
+            event.m_mouseY = mouseY;
+			m_events.push_back(event);
+		}
+
+        m_previousMouseState[key.getKeyName()] = mouseState;
+    }
+    void InputManager::updateKeyboard(const Key& key, bool bPressed)
+    {
+        if (m_previousState.find(key.getKeyName()) == m_previousState.end())
+            m_previousState[key.getKeyName()] = false;
+
+        bool currentState = bPressed;
+
+        if (currentState && !m_previousState[key.getKeyName()])
+        {
+            Event event;
+            event.m_type = Event::EventType::PRESS;
+            event.m_keyCode = key;
+            m_events.push_back(event);
+        }
+        else if (!currentState && m_previousState[key.getKeyName()])
+        {
+			Event event;
+			event.m_type = Event::EventType::RELEASE;
+			event.m_keyCode = key;
+			m_events.push_back(event);
+        }
+
+        m_previousState[key.getKeyName()] = currentState;
+    }
+    bool InputManager::isKeyDown(const Key& key)
+    {
+		for (const auto& item : m_events)
+		{
+			if (item.m_keyCode == key.getKeyName() && item.m_type == Event::EventType::PRESS)
+			{
+				return true;
+			}
+		}
+        return false;
+    }
+    bool InputManager::isMouseDown(const Key& key)
+    {
+        for (const auto& item : m_events)
+        {
+            if (item.m_keyCode == key.getKeyName() && item.m_type == Event::EventType::PRESS)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+    void InputManager::clearEvents()
+    {
+        m_events.clear();
+    }
+}

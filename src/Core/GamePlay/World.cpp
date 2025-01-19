@@ -7,6 +7,7 @@
 #include "LightComponent.h"
 #include "MaterialComponent.h"
 #include "Level.h"
+#include "InputManager.h"
 
 #include <Core/AssetManager/AssetData.h>
 #include <Core/Model/StaticMesh.h>
@@ -23,7 +24,7 @@ namespace GuGu {
 	}
 	std::shared_ptr<World>& World::getWorld()
 	{
-		static std::shared_ptr<World>& g_world = std::make_shared<World>();
+		static std::shared_ptr<World> g_world = std::make_shared<World>();
 		return g_world;
 	}
 
@@ -68,5 +69,25 @@ namespace GuGu {
 			std::shared_ptr<MaterialComponent> materialComponent = std::make_shared<MaterialComponent>();
 			gameObject->addComponent(materialComponent);
 		}
+	}
+	void World::update(float fElapsedTimeSeconds)
+	{
+		getCurrentLevel()->Update(fElapsedTimeSeconds);
+	}
+	void World::setWorldToViewMatrix(const math::affine3& matrix)
+	{
+		m_editorCameraMatrix = matrix;
+	}
+	math::affine3 World::getWorldToViewMatrix() const
+	{
+		return m_editorCameraMatrix;
+	}
+	void World::setCamPos(const math::float3& camPos)
+	{
+		m_camPos = camPos;
+	}
+	math::float3 World::getCamPos() const
+	{
+		return m_camPos;
 	}
 }

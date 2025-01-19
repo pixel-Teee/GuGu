@@ -3,6 +3,7 @@
 #include "LevelViewport.h"
 #include <Core/UI/AssetDragDrop.h>
 #include <Core/GamePlay/World.h>
+#include "EditorCamera.h"
 
 namespace GuGu {
 	void LevelViewport::init(const BuilderArguments& arguments)
@@ -13,6 +14,10 @@ namespace GuGu {
 			.Content(arguments.mContent->getChildWidget())
 			.visibility(Visibility::Visible)
 		);
+	}
+	void LevelViewport::Tick(const WidgetGeometry& allocatedGeometry, const double inCurrentTime, const float inDeltaTime)
+	{
+		m_editorCamera.update(inDeltaTime);
 	}
 	Reply LevelViewport::OnDrop(const WidgetGeometry& myGeometry, const DragDropEvent& dragDropEvent)
 	{
@@ -29,5 +34,9 @@ namespace GuGu {
 			return Reply::Handled();
 		}
 		return Reply::Unhandled();
+	}
+	bool LevelViewport::supportsKeyboardFocus() const
+	{
+		return true;
 	}
 }

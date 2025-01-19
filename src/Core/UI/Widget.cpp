@@ -152,6 +152,10 @@ namespace GuGu{
     {
         return Reply::Unhandled();
     }
+    Reply Widget::OnKeyUp(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent)
+    {
+        return Reply::Unhandled();
+    }
     Reply Widget::OnDragDetected(const WidgetGeometry& myGeometry, const PointerEvent& mouseEvent)
     {
         return Reply::Unhandled();

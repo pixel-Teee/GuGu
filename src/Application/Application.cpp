@@ -21,6 +21,7 @@
 #include <Core/GamePlay/GameObject.h>
 #include <Core/GamePlay/TransformComponent.h>
 #include <Core/GamePlay/World.h>
+#include <Core/GamePlay/InputManager.h>
 
 namespace GuGu{
 	WindowActivateEvent::ActivationType translationWindowActivationMessage(const WindowActivation activationType)
@@ -67,6 +68,7 @@ namespace GuGu{
     {
         while (!m_alreadyExit)
         {
+			InputManager::getInputManager().clearEvents();
             //todo:add update
             pumpMessage();
 
@@ -76,14 +78,15 @@ namespace GuGu{
             if(m_focused)
             {
 				//1.更新关卡和里面的game object
-				World::getWorld()->getCurrentLevel()->Update(m_timer->GetDeltaTime()); //todo:可能会崩，记得修复
+				//World::getWorld()->getCurrentLevel()->Update(m_timer->GetDeltaTime()); //todo:可能会崩，记得修复
+				World::getWorld()->update(m_timer->GetDeltaTime());
                 UIRenderPass* uiRenderPass = m_renderer->getUIRenderPass();
                 Demo* demoPass = m_renderer->getDemoPass();
 				//demoPass->setLevel()
-				demoPass->renderLevel(World::getWorld()->getCurrentLevel());
+				demoPass->renderLevel(World::getWorld()->getCurrentLevel(), World::getWorld()->getWorldToViewMatrix(), World::getWorld()->getCamPos());
                 VertexBuffer* vertexBuffer = m_renderer->getVertexBufferPass();
                 uiRenderPass->setRenderTarget(demoPass->getRenderTarget());
-                m_renderer->onRender();
+                m_renderer->onRender();			
             }
         }
 
@@ -292,6 +295,16 @@ namespace GuGu{
 		KeyEvent keyEvent(key, getModifierKeys(),characterCode, keyCode);
 
 		return processKeyDownEvent(keyEvent);
+	}
+
+	bool Application::onKeyUp(const int32_t keyCode, const uint32_t characterCode)
+	{
+		const Key key = InputKeyManager::Get().getKeyFromCodes(keyCode, characterCode);
+
+		//字符串名，字符码，虚拟键码
+		KeyEvent keyEvent(key, getModifierKeys(), characterCode, keyCode);
+
+		return processKeyUpEvent(keyEvent);
 	}
 
 	bool Application::onWindowActivationChanged(const std::shared_ptr<Window>& window, const WindowActivation activationType)
@@ -1239,6 +1252,24 @@ namespace GuGu{
 		{
 			std::shared_ptr<Widget> widget = focusPath.m_widgets.getArrangedWidget(i)->getWidget();
 			widget->OnKeyDown(widget->getWidgetGeometry(), inKeyEvent);
+		}
+
+		return true;
+	}
+
+	bool Application::processKeyUpEvent(const KeyEvent& inKeyEvent)
+	{
+		Reply reply = Reply::Unhandled();
+
+		//focus path
+		WidgetPath focusPath;
+		m_focusWidgetsPath.toWidgetPath(focusPath);
+
+		int32_t focusWidgetNumber = focusPath.m_widgets.getArrangedWidgetsNumber();
+		for (int32_t i = focusWidgetNumber - 1; i >= 0; --i)
+		{
+			std::shared_ptr<Widget> widget = focusPath.m_widgets.getArrangedWidget(i)->getWidget();
+			widget->OnKeyUp(widget->getWidgetGeometry(), inKeyEvent);
 		}
 
 		return true;

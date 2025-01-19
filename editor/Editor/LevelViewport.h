@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/UI/Viewport.h>
+#include "EditorCamera.h"
 
 namespace GuGu {
 	class LevelViewport : public ViewportWidget
@@ -17,8 +18,12 @@ namespace GuGu {
 
 		void init(const BuilderArguments& arguments);
 
-		virtual Reply OnDrop(const WidgetGeometry& myGeometry, const DragDropEvent& dragDropEvent);
-	private:
+		virtual void Tick(const WidgetGeometry& allocatedGeometry, const double inCurrentTime, const float inDeltaTime) override;
 
+		virtual Reply OnDrop(const WidgetGeometry& myGeometry, const DragDropEvent& dragDropEvent);
+
+		virtual bool supportsKeyboardFocus() const override;
+	private:
+		EditorCamera m_editorCamera;
 	};
 }

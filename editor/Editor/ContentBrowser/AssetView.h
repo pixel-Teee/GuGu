@@ -89,6 +89,8 @@ namespace GuGu {
 
 		bool m_bslowFullListRefreshRequested = false;
 
+		OnGetFolderContextMenu m_onGetFolderContextMenu;
+
 		OnGetAssetContextMenu m_onGetAssetContextMenu;
 
 		int32_t m_tileViewThumbnailSize;

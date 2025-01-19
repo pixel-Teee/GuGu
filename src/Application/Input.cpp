@@ -3,6 +3,7 @@
 #include "Input.h"
 
 #include <Core/GuGuUtf8Str.h>
+#include "Input.h"
 
 namespace GuGu {
 	uint32_t GenericPlatformInput::getStandardPrintableKeyMap(uint32_t* keyCodes, GuGuUtf8Str* keyNames, uint32_t maxMappings, bool bMapUppercaseKeys, bool bMapLowercaseKeys)
@@ -90,4 +91,5 @@ namespace GuGu {
 
 		return numMappings;
 	}
+
 }

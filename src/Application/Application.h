@@ -105,6 +105,8 @@ namespace GuGu {
 
 		virtual bool onKeyDown(const int32_t keyCode, const uint32_t characterCode);
 
+		virtual bool onKeyUp(const int32_t keyCode, const uint32_t characterCode);
+
 		virtual bool onWindowActivationChanged(const std::shared_ptr<Window>& window, const WindowActivation);
 
 		virtual void onMovedWindow(const std::shared_ptr<Window>& window, const int32_t x, const int32_t y);
@@ -247,6 +249,8 @@ namespace GuGu {
 		bool processKeyCharEvent(const CharacterEvent& inCharacterEvent);
 
 		bool processKeyDownEvent(const KeyEvent& inKeyEvent);
+
+		bool processKeyUpEvent(const KeyEvent& inKeyEvent);
 
 		bool processWindowActivatedEvent(const WindowActivateEvent& activateEvent);
 

@@ -6,6 +6,8 @@
 #include "LayoutUtils.h"
 #include "ElementList.h"
 
+#include <Core/GamePlay/InputManager.h>
+
 namespace GuGu {
 	ViewportWidget::ViewportWidget()
 	{
@@ -80,5 +82,33 @@ namespace GuGu {
 	void ViewportWidget::setRenderTarget(nvrhi::TextureHandle renderTarget)
 	{
 		m_renderTarget = renderTarget;
+	}
+	Reply ViewportWidget::OnMouseButtonDown(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
+	{
+		InputManager::getInputManager().updateMouseButton(inMouseEvent.m_effectingButton, inMouseEvent.m_screenSpacePosition.x, inMouseEvent.m_screenSpacePosition.y, true);
+		return Reply::Handled().setFocus(shared_from_this());
+	}
+
+	Reply ViewportWidget::OnMouseButtonUp(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
+	{
+		InputManager::getInputManager().updateMouseButton(inMouseEvent.m_effectingButton, inMouseEvent.m_screenSpacePosition.x, inMouseEvent.m_screenSpacePosition.y, false);
+		return Reply::Handled();
+	}
+
+	Reply ViewportWidget::OnMouseMove(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
+	{
+		InputManager::getInputManager().updateMouseButton(inMouseEvent.m_effectingButton, inMouseEvent.m_screenSpacePosition.x, inMouseEvent.m_screenSpacePosition.y, false);
+		return Reply::Handled();
+	}
+
+	Reply ViewportWidget::OnKeyDown(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent)
+	{
+		InputManager::getInputManager().updateKeyboard(inKeyEvent.getKey(), true); //game play 
+		return Reply::Handled();
+	}
+	Reply ViewportWidget::OnKeyUp(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent)
+	{
+		InputManager::getInputManager().updateKeyboard(inKeyEvent.getKey(), false); //game play 
+		return Reply::Handled();
 	}
 }

@@ -98,6 +98,8 @@ namespace GuGu{
 
         virtual Reply OnKeyDown(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent);
 
+        virtual Reply OnKeyUp(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent);
+
         virtual Reply OnDragDetected(const WidgetGeometry& myGeometry, const PointerEvent& mouseEvent);
 
         virtual void OnDragEnter(const WidgetGeometry& myGeometry, const DragDropEvent& dragDropEvent);

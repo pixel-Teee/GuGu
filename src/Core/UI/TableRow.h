@@ -140,6 +140,24 @@ namespace GuGu {
 					}
 				}
 			}
+			else if (inMouseEvent.getEffectingButton() == Keys::RightMouseButton)
+			{
+				if (const ItemType* myItemIt = getItemForThis(ownerTable))
+				{
+					const bool bIsSelected = ownerTable->privateIsItemSelected(*myItemIt);
+
+					if (!bIsSelected)
+					{
+						ownerTable->privateClearSelection();
+						ownerTable->privateSetItemSelection(*myItemIt, true, true);
+						ownerTable->privateSignalSelectionChanged(SelectInfo::OnMouseClick);
+					}
+
+					ownerTable->privateOnItemRightClicked(*myItemIt, inMouseEvent);
+
+					return Reply::Handled();
+				}
+			}
 
 			return Reply::Unhandled();
 		}

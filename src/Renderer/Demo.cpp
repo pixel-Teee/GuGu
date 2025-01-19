@@ -916,7 +916,7 @@ namespace GuGu {
 	{
 		return m_renderTarget;
 	}
-	void Demo::renderLevel(const std::shared_ptr<Level> inLevel)
+	void Demo::renderLevel(const std::shared_ptr<Level> inLevel, math::affine3 worldToViewMatrix, math::float3 camPos)
 	{
 		if (!m_Pipeline) {
 			nvrhi::GraphicsPipelineDesc psoDesc;
@@ -953,11 +953,11 @@ namespace GuGu {
 			float(640) /
 			float(400), 1.0f, 400.0f
 		);
-		math::float4x4 viewProjMatrix = math::affineToHomogeneous(worldToView) * projMatrix;
+		math::float4x4 viewProjMatrix = math::affineToHomogeneous(worldToViewMatrix) * projMatrix;
 		//modelConstants.viewProjMatrix = viewProjMatrix;
 
 		Pass pass;
-		pass.camPos = cameraPos;
+		pass.camPos = camPos;
 		m_CommandList->writeBuffer(m_PassBuffers, &pass, sizeof(pass));
 
 		//draw level

@@ -61,4 +61,8 @@ namespace GuGu {
 		}
 		return Key("");
 	}
+	const GuGuUtf8Str& Key::getKeyName() const
+	{
+		return m_keyName;
+	}
 }

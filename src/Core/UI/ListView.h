@@ -469,6 +469,11 @@ namespace GuGu {
 			}
 		}
 
+		virtual void privateOnItemRightClicked(ItemType theItem, const PointerEvent& mouseEvent) override
+		{
+			this->onRightMouseButtonUp(mouseEvent);
+		}
+
 		virtual std::shared_ptr<Widget> asWidget() override
 		{
 			return shared_from_this();

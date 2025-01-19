@@ -36,6 +36,16 @@ namespace GuGu {
 		virtual uint32_t getSlotsNumber() const override;
 
 		void setRenderTarget(nvrhi::TextureHandle renderTarget);
+
+		virtual Reply OnMouseButtonDown(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent) override;
+
+		virtual Reply OnMouseButtonUp(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent) override;
+
+		virtual Reply OnMouseMove(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent) override;
+
+		virtual Reply OnKeyDown(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent);
+
+		virtual Reply OnKeyUp(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent);
 	protected:
 		std::shared_ptr<SingleChildSlot> m_childWidget;
 

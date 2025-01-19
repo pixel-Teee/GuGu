@@ -457,7 +457,7 @@ namespace GuGu {
 				uint32_t charCode = MapVirtualKey(win32Key, MAPVK_VK_TO_CHAR);
 
 				//添加onKeyUp
-				//globalApplication->onKeyDown(actualKey, charCode);
+				globalApplication->onKeyUp(actualKey, charCode);
 				break;
 			}
 			case WM_CHAR:

@@ -233,11 +233,11 @@ namespace GuGu {
 		const std::vector<GuGuUtf8Str> selectedFolders = getSelectedFolders();
 		if (selectedFolders.size() > 0)
 		{
-
+			return m_onGetFolderContextMenu(selectedFolders);
 		}
 		else
 		{
-			return m_onGetAssetContextMenu();//todo:传入选中的资产
+			return m_onGetAssetContextMenu(getSelectedAssets());//todo:传入选中的资产
 		}
 
 		return nullptr;
