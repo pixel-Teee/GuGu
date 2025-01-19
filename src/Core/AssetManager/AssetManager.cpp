@@ -223,7 +223,7 @@ namespace GuGu {
 			{
 				bool isDirectory = false; //isFile
 				enumerateCallBack("content/" + utf8RelativePath, isDirectory);
-				GuGu_LOGE("File: %s\n", utf8RelativePath.getStr());
+				GuGu_LOGD("File: %s\n", utf8RelativePath.getStr());
 			}
 		} while (FindNextFile(hFind, &findData) != 0);
 

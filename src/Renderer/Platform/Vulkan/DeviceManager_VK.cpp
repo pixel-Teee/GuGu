@@ -1073,8 +1073,19 @@ namespace GuGu{
 
     void DeviceManager_VK::onWindowDestroyed(const std::shared_ptr<WindowWidget>& inWindow)
     {
+        //销毁 swap chain
 		auto it = m_windowViewports.find(inWindow.get());
 		if (it != m_windowViewports.end())
+		{
+			//assert(it != m_windowViewports.end());
+			it->second.m_oldSwapChain = it->second.m_SwapChain;
+			std::swap(it->second.m_oldSwapChainImages, it->second.m_swapChainImages);
+		}
+		destroyOldSwapChain(inWindow);
+
+        //销毁 window surface
+		auto it2 = m_windowViewports.find(inWindow.get());
+		if (it2 != m_windowViewports.end())
 		{
 			vkDestroySurfaceKHR(m_VulkanInstance, it->second.m_windowSurface, nullptr);
 			it->second.m_windowSurface = VK_NULL_HANDLE;
