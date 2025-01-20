@@ -116,6 +116,11 @@ namespace GuGu {
 		InputManager::getInputManager().updateKeyboard(inKeyEvent.getKey(), false); //game play 
 		return Reply::Handled();
 	}
+	void ViewportWidget::OnFocusLost()
+	{
+		InputManager::getInputManager().clearEvents();
+		InputManager::getInputManager().clearMouseStates();
+	}
 	void ViewportWidget::applyModifierKeys(ModifierKeysState keyState)
 	{
 		if(keyState.isLeftShiftDown())

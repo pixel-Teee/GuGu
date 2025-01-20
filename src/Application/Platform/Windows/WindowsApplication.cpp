@@ -316,6 +316,8 @@ namespace GuGu {
 			case WM_MOUSEMOVE:
 			case WM_RBUTTONDOWN:
 			case WM_RBUTTONUP:
+			case WM_MBUTTONDOWN:
+			case WM_MBUTTONUP:
 			case WM_LBUTTONDBLCLK:
 			case WM_MBUTTONDBLCLK:
 			case WM_RBUTTONDBLCLK:
@@ -372,6 +374,22 @@ namespace GuGu {
 					case WM_RBUTTONUP:
 					{
 						globalApplication->onMouseUp(window, MouseButtons::Type::Right, math::float2(cursorPoint.x, cursorPoint.y));
+						break;
+					}
+					case WM_MBUTTONDBLCLK:
+					{
+						globalApplication->onMouseDoubleClick(window, MouseButtons::Type::Middle, math::float2(cursorPoint.x, cursorPoint.y));
+						break;
+					}
+					case WM_MBUTTONDOWN:
+					{
+						GuGu_LOGD("%s", "MIDDLE BUTTON DOWN");
+						globalApplication->onMouseDown(window, MouseButtons::Type::Middle, math::float2(cursorPoint.x, cursorPoint.y));
+						break;
+					}
+					case WM_MBUTTONUP:
+					{
+						globalApplication->onMouseUp(window, MouseButtons::Type::Middle, math::float2(cursorPoint.x, cursorPoint.y));
 						break;
 					}
 				}
@@ -433,6 +451,7 @@ namespace GuGu {
 				//获取字母码点从虚拟键的按压，将虚拟码转换为字符值
 				uint32_t charCode = MapVirtualKey(win32Key, MAPVK_VK_TO_CHAR);
 
+				GuGu_LOGD("%d", actualKey);
 				globalApplication->onKeyDown(actualKey, charCode);
 				break;
 			}
@@ -565,7 +584,6 @@ namespace GuGu {
 				if (LOWORD(wParam) & WA_ACTIVE)
 				{
 					activationType = WindowActivation::Activate;
-					GuGu_LOGD("%d", activationType);
 				}
 				else if (LOWORD(wParam) & WA_CLICKACTIVE)
 				{

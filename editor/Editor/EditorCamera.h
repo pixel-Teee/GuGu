@@ -30,5 +30,7 @@ namespace GuGu {
 		math::float3 m_position = math::float3(0, 0, -10);
 
 		math::float3 m_moveTarget = m_position;
+
+		bool m_bMiddleMouseButtonDown = false;
 	};
 }

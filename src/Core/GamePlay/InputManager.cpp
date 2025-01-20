@@ -18,6 +18,8 @@ namespace GuGu {
     {
 		if (m_previousMouseState.find(key.getKeyName()) == m_previousMouseState.end())
 			m_previousMouseState[key.getKeyName()] = InputManager::MouseState(key.getKeyName(), mouseX, mouseY, false);
+		if (m_currentMouseState.find(key.getKeyName()) == m_currentMouseState.end())
+			m_currentMouseState[key.getKeyName()] = InputManager::MouseState(key.getKeyName(), mouseX, mouseY, false);
 
         MouseState mouseState;
         mouseState.m_bPressed = bPressed;
@@ -25,17 +27,8 @@ namespace GuGu {
         mouseState.m_mouseY = mouseY;
         mouseState.m_key = key.getKeyName();
 
-		if (mouseState != m_previousMouseState[key.getKeyName()])
-		{
-			Event event;
-            event.m_type = mouseState.m_bPressed ? Event::EventType::PRESS : Event::EventType::RELEASE;
-			event.m_keyCode = key;
-            event.m_mouseX = mouseX;
-            event.m_mouseY = mouseY;
-			m_events.push_back(event);
-		}
-
-        m_previousMouseState[key.getKeyName()] = mouseState;
+        m_previousMouseState[key.getKeyName()] = m_currentMouseState[key.getKeyName()];
+		m_currentMouseState[key.getKeyName()] = mouseState;
     }
     void InputManager::updateKeyboard(const Key& key, bool bPressed)
     {
@@ -64,17 +57,20 @@ namespace GuGu {
     }
     bool InputManager::isMouseDown(const Key& key)
     {
-        for (const auto& item : m_events)
+        for (const auto& item : m_currentMouseState)
         {
-            if (item.m_keyCode == key.getKeyName() && item.m_type == Event::EventType::PRESS)
-            {
+            if (item.second.m_key == key.getKeyName() && item.second.m_bPressed)
                 return true;
-            }
         }
         return false;
     }
     void InputManager::clearEvents()
     {
         m_events.clear();
+    }
+    void InputManager::clearMouseStates()
+    {
+        m_currentMouseState.clear();
+        m_previousMouseState.clear();
     }
 }

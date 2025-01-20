@@ -250,7 +250,8 @@ namespace GuGu{
 
 		PointerEvent mouseEvent(
 			translatedCursorPos,
-			m_lastCursorPos
+			m_lastCursorPos,
+			Keys::Invalid
 		);
 		m_lastCursorPos = translatedCursorPos;
 

@@ -47,6 +47,8 @@ namespace GuGu {
 
 		virtual Reply OnKeyUp(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent);
 
+		virtual void OnFocusLost() override;
+
 		void applyModifierKeys(ModifierKeysState keyState);
 
 		void updateModifierKeys(ModifierKeysState keyState);

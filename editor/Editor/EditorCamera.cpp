@@ -18,7 +18,16 @@ namespace GuGu {
 	{
 		m_moveOffset = math::float3(0, 0, 0);
 
-		if (InputManager::getInputManager().isKeyDown(Keys::LeftAlt))
+		if (InputManager::getInputManager().isMouseDown(Keys::MiddleMouseButton))
+		{
+			m_bMiddleMouseButtonDown = true;
+		}
+		else
+		{
+			m_bMiddleMouseButtonDown = false;
+		}
+
+		if (m_bMiddleMouseButtonDown)
 		{
 			math::float3 direction = math::float3(0, 0, 0);
 			if (InputManager::getInputManager().isKeyDown(Keys::W))

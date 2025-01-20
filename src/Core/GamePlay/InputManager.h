@@ -16,8 +16,6 @@ namespace GuGu {
 		EventType m_type;
 
 		Key m_keyCode;//keyboard events
-
-		int32_t m_mouseX, m_mouseY;//mouse events
 	};
 
 	struct InputManager
@@ -39,6 +37,8 @@ namespace GuGu {
 
 		void clearEvents();
 
+		void clearMouseStates();
+
 		struct MouseState
 		{
 			bool m_bPressed;
@@ -56,7 +56,7 @@ namespace GuGu {
 
 			bool operator==(const MouseState& rhs) const
 			{
-				return m_key == rhs.m_key || m_mouseX == rhs.m_mouseX || m_mouseY == rhs.m_mouseY;
+				return m_key == rhs.m_key && m_mouseX == rhs.m_mouseX && m_mouseY == rhs.m_mouseY && m_bPressed == rhs.m_bPressed;
 			}
 
 			bool operator!=(const MouseState& rhs) const
@@ -69,6 +69,8 @@ namespace GuGu {
 
 		std::map<GuGuUtf8Str, MouseState> m_previousMouseState;
 
-		std::vector<Event> m_events;
+		std::map<GuGuUtf8Str, MouseState> m_currentMouseState;
+
+		std::vector<Event> m_events;//key event
 	};
 }
