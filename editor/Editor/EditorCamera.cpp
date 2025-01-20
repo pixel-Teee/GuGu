@@ -18,19 +18,19 @@ namespace GuGu {
 	{
 		m_moveOffset = math::float3(0, 0, 0);
 
-		//if (InputManager::getInputManager().isMouseDown(Keys::LeftAlt))
-		//{
-		math::float3 direction = math::float3(0, 0, 0);
-		if (InputManager::getInputManager().isKeyDown(Keys::W))
-			direction = m_forward;
-		else if (InputManager::getInputManager().isKeyDown(Keys::S))
-			direction = -m_forward;
-		else if (InputManager::getInputManager().isKeyDown(Keys::A))
-			direction = m_right;
-		else if (InputManager::getInputManager().isKeyDown(Keys::D))
-			direction = -m_right;
-		m_moveOffset += direction * m_moveSpeed;
-		//}
+		if (InputManager::getInputManager().isKeyDown(Keys::LeftAlt))
+		{
+			math::float3 direction = math::float3(0, 0, 0);
+			if (InputManager::getInputManager().isKeyDown(Keys::W))
+				direction = m_forward;
+			else if (InputManager::getInputManager().isKeyDown(Keys::S))
+				direction = -m_forward;
+			else if (InputManager::getInputManager().isKeyDown(Keys::A))
+				direction = m_right;
+			else if (InputManager::getInputManager().isKeyDown(Keys::D))
+				direction = -m_right;
+			m_moveOffset += direction * m_moveSpeed;
+		}
 
 		if (m_moveOffset.x != 0 || m_moveOffset.y != 0 || m_moveOffset.z != 0)
 		{

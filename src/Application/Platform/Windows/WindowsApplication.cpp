@@ -84,7 +84,13 @@ namespace GuGu {
 
 	ModifierKeysState WindowsApplication::getModifierKeys() const
 	{
-		return ModifierKeysState(m_modifierKeyState[ModifierKey::LeftControl], m_modifierKeyState[ModifierKey::LeftShift]);
+		return ModifierKeysState(m_modifierKeyState[ModifierKey::LeftShift], 
+								 m_modifierKeyState[ModifierKey::RightShift],
+			m_modifierKeyState[ModifierKey::LeftControl],
+			m_modifierKeyState[ModifierKey::RightControl],
+			m_modifierKeyState[ModifierKey::LeftAlt],
+			m_modifierKeyState[ModifierKey::RightAlt],
+			m_modifierKeyState[ModifierKey::CapsLock]);
 	}
 
 	void WindowsApplication::setModifierKeyState(ModifierKey::Type key, bool value)
@@ -371,6 +377,7 @@ namespace GuGu {
 				}
 				break;
 			}
+			case WM_SYSKEYDOWN:
 			case WM_KEYDOWN:
 			{
 				const int32_t win32Key = wParam;//获取虚拟码
@@ -407,6 +414,20 @@ namespace GuGu {
 						}
 						break;
 					}
+					case VK_MENU:
+					{
+						if ((lParam & 0x1000000) == 0)
+						{
+							actualKey = VK_LMENU;
+							globalApplication->setModifierKeyState(WindowsApplication::ModifierKey::Type::LeftAlt, true);
+						}
+						else
+						{
+							actualKey = VK_RMENU;
+							globalApplication->setModifierKeyState(WindowsApplication::ModifierKey::Type::RightAlt, true);
+						}
+						break;
+					}
 				}
 
 				//获取字母码点从虚拟键的按压，将虚拟码转换为字符值
@@ -415,6 +436,7 @@ namespace GuGu {
 				globalApplication->onKeyDown(actualKey, charCode);
 				break;
 			}
+			case WM_SYSKEYUP:
 			case WM_KEYUP:
 			{
 				const int32_t win32Key = wParam;//获取虚拟码
@@ -448,6 +470,20 @@ namespace GuGu {
 						{
 							actualKey = VK_RCONTROL;
 							globalApplication->setModifierKeyState(WindowsApplication::ModifierKey::Type::RightControl, false);
+						}
+						break;
+					}
+					case VK_MENU:
+					{
+						if ((lParam & 0x1000000) == 0)
+						{
+							actualKey = VK_LMENU;
+							globalApplication->setModifierKeyState(WindowsApplication::ModifierKey::Type::LeftAlt, false);
+						}
+						else
+						{
+							actualKey = VK_RMENU;
+							globalApplication->setModifierKeyState(WindowsApplication::ModifierKey::Type::RightAlt, false);
 						}
 						break;
 					}

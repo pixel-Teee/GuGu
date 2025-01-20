@@ -7,6 +7,7 @@
 #include "ElementList.h"
 
 #include <Core/GamePlay/InputManager.h>
+#include <Application/Application.h>
 
 namespace GuGu {
 	ViewportWidget::ViewportWidget()
@@ -90,7 +91,7 @@ namespace GuGu {
 	}
 
 	Reply ViewportWidget::OnMouseButtonUp(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
-	{
+	{	
 		InputManager::getInputManager().updateMouseButton(inMouseEvent.m_effectingButton, inMouseEvent.m_screenSpacePosition.x, inMouseEvent.m_screenSpacePosition.y, false);
 		return Reply::Handled();
 	}
@@ -103,12 +104,70 @@ namespace GuGu {
 
 	Reply ViewportWidget::OnKeyDown(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent)
 	{
+		ModifierKeysState keysState = Application::getApplication()->getModifierKeys();
+		applyModifierKeys(keysState);
 		InputManager::getInputManager().updateKeyboard(inKeyEvent.getKey(), true); //game play 
 		return Reply::Handled();
 	}
 	Reply ViewportWidget::OnKeyUp(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent)
 	{
+		ModifierKeysState keysState = Application::getApplication()->getModifierKeys();
+		updateModifierKeys(keysState);
 		InputManager::getInputManager().updateKeyboard(inKeyEvent.getKey(), false); //game play 
 		return Reply::Handled();
+	}
+	void ViewportWidget::applyModifierKeys(ModifierKeysState keyState)
+	{
+		if(keyState.isLeftShiftDown())
+		{
+			InputManager::getInputManager().updateKeyboard(Keys::LeftShift, true);
+		}
+		if (keyState.isRightShiftDown())
+		{
+			InputManager::getInputManager().updateKeyboard(Keys::RightShift, true);
+		}
+		if (keyState.isLeftAltDown())
+		{
+			InputManager::getInputManager().updateKeyboard(Keys::LeftAlt, true);
+		}
+		if (keyState.isRightAltDown())
+		{
+			InputManager::getInputManager().updateKeyboard(Keys::RightAlt, true);
+		}
+		if (keyState.isLeftControlDown())
+		{
+			InputManager::getInputManager().updateKeyboard(Keys::LeftControl, true);
+		}
+		if (keyState.isRightControlDown())
+		{
+			InputManager::getInputManager().updateKeyboard(Keys::RightControl, true);
+		}
+	}
+	void ViewportWidget::updateModifierKeys(ModifierKeysState keyState)
+	{
+		if (!keyState.isLeftShiftDown())
+		{
+			InputManager::getInputManager().updateKeyboard(Keys::LeftShift, false);
+		}
+		if (!keyState.isRightShiftDown())
+		{
+			InputManager::getInputManager().updateKeyboard(Keys::RightShift, false);
+		}
+		if (!keyState.isLeftAltDown())
+		{
+			InputManager::getInputManager().updateKeyboard(Keys::LeftAlt, false);
+		}
+		if (!keyState.isRightAltDown())
+		{
+			InputManager::getInputManager().updateKeyboard(Keys::RightAlt, false);
+		}
+		if (!keyState.isLeftControlDown())
+		{
+			InputManager::getInputManager().updateKeyboard(Keys::LeftControl, false);
+		}
+		if (!keyState.isRightControlDown())
+		{
+			InputManager::getInputManager().updateKeyboard(Keys::RightControl, false);
+		}
 	}
 }

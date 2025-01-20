@@ -44,20 +44,10 @@ namespace GuGu {
 
         bool currentState = bPressed;
 
-        if (currentState && !m_previousState[key.getKeyName()])
-        {
-            Event event;
-            event.m_type = Event::EventType::PRESS;
-            event.m_keyCode = key;
-            m_events.push_back(event);
-        }
-        else if (!currentState && m_previousState[key.getKeyName()])
-        {
-			Event event;
-			event.m_type = Event::EventType::RELEASE;
-			event.m_keyCode = key;
-			m_events.push_back(event);
-        }
+		Event event;
+		event.m_type = currentState ? Event::EventType::PRESS : Event::EventType::RELEASE;
+		event.m_keyCode = key;
+		m_events.push_back(event);
 
         m_previousState[key.getKeyName()] = currentState;
     }

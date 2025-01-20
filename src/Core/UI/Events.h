@@ -14,26 +14,78 @@ namespace GuGu {
 	public:
 		ModifierKeysState()
 		{
+			m_bIsLeftShiftDown = false;
+			m_bIsRightShitDown = false;
 			m_bIsLeftControlDown = false;
-			m_bIsLeftShitDown = false;
+			m_bIsRightControlDown = false;
+			m_bIsLeftAltDown = false;
+			m_bIsRightAltDown = false;
+			m_bAreCapsedLocked = false;
 		}
-		ModifierKeysState(const bool bInLeftControlDown, const bool bInLeftShitDown)
-			: m_bIsLeftControlDown(bInLeftControlDown)
-			, m_bIsLeftShitDown(bInLeftShitDown)
+		ModifierKeysState(const bool bInIsLeftShitDown, const bool bInIsRightShiftDown,
+			const bool bInLeftControlDown, const bool bInIsRightControlDown, const bool bInIsLeftAltDown,
+			const bool bInIsRightAltDown, const bool bInAreCapsLockaed)
+			: m_bIsLeftShiftDown(bInIsLeftShitDown),
+			  m_bIsRightShitDown(bInIsRightShiftDown),
+			  m_bIsLeftControlDown(bInLeftControlDown),
+			  m_bIsRightControlDown(bInIsRightControlDown),
+			  m_bIsLeftAltDown(bInIsLeftAltDown),
+			  m_bIsRightAltDown(bInIsRightAltDown),
+			  m_bAreCapsedLocked(bInAreCapsLockaed)
 		{}
 
 		bool isControlDown() const
 		{
-			return m_bIsLeftControlDown;
+			return m_bIsLeftControlDown || m_bIsRightControlDown;
 		}
 
 		bool isShiftDown() const
 		{
-			return m_bIsLeftShitDown;
+			return m_bIsLeftShiftDown || m_bIsRightShitDown;
 		}
 
+		bool isLeftShiftDown() const
+		{
+			return m_bIsLeftShiftDown;
+		}
+
+		bool isRightShiftDown() const
+		{
+			return m_bIsRightShitDown;
+		}
+
+		bool isLeftAltDown() const
+		{
+			return m_bIsLeftAltDown;
+		}
+
+		bool isRightAltDown() const
+		{
+			return m_bIsRightAltDown;
+		}
+
+		bool isLeftControlDown() const
+		{
+			return m_bIsLeftControlDown;
+		}
+
+		bool isRightControlDown() const
+		{
+			return m_bIsRightControlDown;
+		}
+
+		bool areCapsedLocked() const
+		{
+			return m_bAreCapsedLocked;
+		}
+
+		uint16_t m_bIsLeftShiftDown : 1;
+		uint16_t m_bIsRightShitDown : 1;
 		uint16_t m_bIsLeftControlDown : 1;
-		uint16_t m_bIsLeftShitDown : 1;
+		uint16_t m_bIsRightControlDown : 1;
+		uint16_t m_bIsLeftAltDown : 1;
+		uint16_t m_bIsRightAltDown : 1;
+		uint16_t m_bAreCapsedLocked : 1;
 	};
 
 	struct InputEvent

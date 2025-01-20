@@ -46,6 +46,10 @@ namespace GuGu {
 		virtual Reply OnKeyDown(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent);
 
 		virtual Reply OnKeyUp(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent);
+
+		void applyModifierKeys(ModifierKeysState keyState);
+
+		void updateModifierKeys(ModifierKeysState keyState);
 	protected:
 		std::shared_ptr<SingleChildSlot> m_childWidget;
 
