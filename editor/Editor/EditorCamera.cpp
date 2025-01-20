@@ -43,7 +43,7 @@ namespace GuGu {
 	{
 		move(fElapsedTimeSecond);
 
-		m_forward = math::normalize(math::float3(0.0f, 0.0f, 0.0f) - m_position);
+		m_forward = math::normalize(m_forward);
 		m_right = math::normalize(math::cross(math::float3(0.0f, 1.0f, 0.0f), m_forward));
 		m_up = math::normalize(math::cross(m_forward, m_right));
 

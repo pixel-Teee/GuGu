@@ -6,7 +6,7 @@
 namespace GuGu {
 	LightComponent::LightComponent()
 	{
-		m_lightPosition = math::float4(10.0f, 10.0f, 10.0f, 0.0f);
+		m_lightPosition = math::float4(0.0f, 0.0f, 10.0f, 1.0f);
 		m_lightColor = math::float4(900.0f, 200.0f, 900.0f, 1.0f);
 	}
 	LightComponent::~LightComponent()

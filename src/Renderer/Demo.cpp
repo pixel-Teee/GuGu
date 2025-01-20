@@ -581,16 +581,16 @@ namespace GuGu {
 						.setElementStride(sizeof(math::float2)),
 				nvrhi::VertexAttributeDesc()
 						.setName("NORMAL")
-						.setFormat(nvrhi::Format::RGBA8_SNORM)
+						.setFormat(nvrhi::Format::RGB32_FLOAT)
 						.setOffset(0)
 						.setBufferIndex(2)
-						.setElementStride(sizeof(uint32_t)),
+						.setElementStride(sizeof(math::float3)),
 				nvrhi::VertexAttributeDesc()
 						.setName("TANGENT")
-						.setFormat(nvrhi::Format::RGBA8_SNORM)
+						.setFormat(nvrhi::Format::RGB32_FLOAT)
 						.setOffset(0)
 						.setBufferIndex(3)
-						.setElementStride(sizeof(uint32_t)),		
+						.setElementStride(sizeof(math::float3)),
 				nvrhi::VertexAttributeDesc()
 						.setName("BONEWEIGHTS")
 						.setFormat(nvrhi::Format::RGBA32_FLOAT)
@@ -957,7 +957,7 @@ namespace GuGu {
 		//modelConstants.viewProjMatrix = viewProjMatrix;
 
 		Pass pass;
-		pass.camPos = camPos;
+		pass.camPos = -camPos;
 		m_CommandList->writeBuffer(m_PassBuffers, &pass, sizeof(pass));
 
 		//draw level
@@ -996,6 +996,12 @@ namespace GuGu {
 			std::memset(light.lightColors, 0, sizeof(light.lightColors));
 			light.lightPositions[0] = lightComponent->m_lightPosition;
 			light.lightColors[0] = lightComponent->m_lightColor;
+			light.lightPositions[1] = lightComponent->m_lightPosition;
+			light.lightColors[1] = lightComponent->m_lightColor;
+			light.lightPositions[2] = lightComponent->m_lightPosition;
+			light.lightColors[2] = lightComponent->m_lightColor;
+			light.lightPositions[3] = lightComponent->m_lightPosition;
+			light.lightColors[3] = lightComponent->m_lightColor;
 			m_CommandList->writeBuffer(m_LightBuffers, &light, sizeof(light));
 			
 			const math::affine3& worldMatrix = transformComponent->GetLocalToWorldTransformFloat();
