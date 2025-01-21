@@ -43,6 +43,10 @@ namespace GuGu {
 
 		virtual Reply OnMouseMove(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent) override;
 
+		virtual void OnMouseLeave(const PointerEvent& inMouseEvent) override;
+
+		virtual Reply OnMouseWheel(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent) override;
+
 		virtual Reply OnKeyDown(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent);
 
 		virtual Reply OnKeyUp(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent);

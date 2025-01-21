@@ -4,6 +4,7 @@
 #include <map>
 #include <unordered_map>
 #include <Application/InputTypes.h>
+#include <Core/Math/MyMath.h>
 
 namespace GuGu {
 	struct Event {
@@ -27,9 +28,15 @@ namespace GuGu {
 
 		static InputManager& getInputManager();
 
+		void updatePreviousMouseState();
+
 		void updateMouseButton(const Key& key, int32_t mouseX, int32_t mouseY, bool bPressed);
 
 		void updateKeyboard(const Key& key, bool bPressed);
+
+		void updateWheelDelta(float delta);
+
+		float getWheelDelta() const;
 
 		bool isKeyDown(const Key& key);
 
@@ -64,7 +71,11 @@ namespace GuGu {
 				return !operator==(rhs);
 			}
 		};
+
+		math::float2 getMouseDelta();
 	private:
+		std::map<GuGuUtf8Str, bool> m_currentState;
+
 		std::map<GuGuUtf8Str, bool> m_previousState;
 
 		std::map<GuGuUtf8Str, MouseState> m_previousMouseState;
@@ -72,5 +83,7 @@ namespace GuGu {
 		std::map<GuGuUtf8Str, MouseState> m_currentMouseState;
 
 		std::vector<Event> m_events;//key event
+
+		float m_wheelDelta;
 	};
 }

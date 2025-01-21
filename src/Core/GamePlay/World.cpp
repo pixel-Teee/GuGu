@@ -90,4 +90,15 @@ namespace GuGu {
 	{
 		return m_camPos;
 	}
+
+	void World::setFov(float fov)
+	{
+		m_fov = fov;
+	}
+
+	float World::getFov() const
+	{
+		return m_fov;
+	}
+
 }

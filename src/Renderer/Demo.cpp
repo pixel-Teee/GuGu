@@ -916,7 +916,7 @@ namespace GuGu {
 	{
 		return m_renderTarget;
 	}
-	void Demo::renderLevel(const std::shared_ptr<Level> inLevel, math::affine3 worldToViewMatrix, math::float3 camPos)
+	void Demo::renderLevel(const std::shared_ptr<Level> inLevel, math::affine3 worldToViewMatrix, math::float3 camPos, float fov)
 	{
 		if (!m_Pipeline) {
 			nvrhi::GraphicsPipelineDesc psoDesc;
@@ -949,7 +949,7 @@ namespace GuGu {
 		//math::affine3 viewMatrix =
 		//math::yawPitchRoll(0.f, math::radians(-30.f), 0.f)
 		//* math::translation(math::float3(0, 0, 2));
-		math::float4x4 projMatrix = math::perspProjD3DStyle(math::radians(45.f),
+		math::float4x4 projMatrix = math::perspProjD3DStyle(math::radians(fov),
 			float(640) /
 			float(400), 1.0f, 400.0f
 		);

@@ -10,47 +10,91 @@
 namespace GuGu {
 	EditorCamera::EditorCamera()
 	{
+		m_fov = 45.0f;
 	}
 	EditorCamera::~EditorCamera()
 	{
 	}
-	void EditorCamera::move(float fElapsedTimeSecond)
+	bool EditorCamera::move(float fElapsedTimeSecond)
 	{
 		m_moveOffset = math::float3(0, 0, 0);
 
-		if (InputManager::getInputManager().isMouseDown(Keys::MiddleMouseButton))
+		if (InputManager::getInputManager().isMouseDown(Keys::MiddleMouseButton) && InputManager::getInputManager().isKeyDown(Keys::LeftShift))
 		{
-			m_bMiddleMouseButtonDown = true;
-		}
-		else
-		{
-			m_bMiddleMouseButtonDown = false;
-		}
+			math::float2 mouseDelta = InputManager::getInputManager().getMouseDelta();
 
-		if (m_bMiddleMouseButtonDown)
-		{
-			math::float3 direction = math::float3(0, 0, 0);
-			if (InputManager::getInputManager().isKeyDown(Keys::W))
-				direction = m_forward;
-			else if (InputManager::getInputManager().isKeyDown(Keys::S))
-				direction = -m_forward;
-			else if (InputManager::getInputManager().isKeyDown(Keys::A))
-				direction = m_right;
-			else if (InputManager::getInputManager().isKeyDown(Keys::D))
-				direction = -m_right;
-			m_moveOffset += direction * m_moveSpeed;
+			math::float2 direction = mouseDelta.x * math::float3(-1.0f, 0.0f, 0.0) + mouseDelta.y * math::float3(0.0f, 1.0f, 0.0);
+
+			//GuGu_LOGD("(%f, %f)", mouseDelta.x, mouseDelta.y);
+
+			m_moveOffset += math::float3(direction, 0.0f) * m_moveSpeed;
 		}
 
 		if (m_moveOffset.x != 0 || m_moveOffset.y != 0 || m_moveOffset.z != 0)
 		{
 			m_moveTarget = m_position + m_moveOffset; //移动到的指定位置
 			//平滑移动
+			//m_position = m_moveTarget;
 			m_position = math::lerp(m_position, m_moveTarget, fElapsedTimeSecond * m_smoothMoveSpeed);
+			return true;
 		}
+		return false;
+	}
+	bool EditorCamera::zoom(float fElapsedTimeSecond)
+	{
+		//m_moveOffset = math::float3(0, 0, 0);
+		//
+		float wheelDelta = InputManager::getInputManager().getWheelDelta();
+		//
+		//math::float3 direction = m_forward * wheelDelta;
+		//
+		//m_moveOffset += direction * m_zoomSpeed;
+
+		if (wheelDelta != 0.0f)
+		{
+			m_fov -= wheelDelta;
+			if(m_fov < 1.0f)
+				m_fov = 1.0f;
+			if(m_fov > 45.0f)
+				m_fov = 45.0f;
+			return true;
+		}
+		return false;
+	}
+	bool EditorCamera::rotate(float fElapsedTimeSecond)
+	{
+		if (InputManager::getInputManager().isMouseDown(Keys::MiddleMouseButton) && !InputManager::getInputManager().isKeyDown(Keys::LeftShift))
+		{
+			math::float2 mouseDelta = InputManager::getInputManager().getMouseDelta();
+
+			m_yaw += mouseDelta.x * fElapsedTimeSecond;
+			m_pitch += (-mouseDelta.y) * fElapsedTimeSecond;
+
+			if(m_pitch > 89.0f)
+				m_pitch = 89.0f;
+			if(m_pitch < -89.0f)
+				m_pitch = -89.0f;
+
+			//GuGu_LOGD("%s", "rotate");
+			bool isLeftShiftDown = InputManager::getInputManager().isKeyDown(Keys::LeftShift);
+			math::matrix pichRollMatrix = math::affineToHomogeneous(math::yawPitchRoll(m_yaw, m_pitch, 0.0f));
+			math::float3 newFront = math::float4(1.0f, 1.0f, 1.0f, 0.0f) * pichRollMatrix;
+
+			m_forward = math::normalize(newFront);
+			return true;
+		}
+		return false;
 	}
 	void EditorCamera::update(float fElapsedTimeSecond)
 	{
-		move(fElapsedTimeSecond);
+		if(!move(fElapsedTimeSecond))
+		{
+			if(!zoom(fElapsedTimeSecond))
+				rotate(fElapsedTimeSecond);
+		}
+		//move(fElapsedTimeSecond);
+		//zoom(fElapsedTimeSecond);
+		//rotate(fElapsedTimeSecond);
 
 		m_forward = math::normalize(m_forward);
 		m_right = math::normalize(math::cross(math::float3(0.0f, 1.0f, 0.0f), m_forward));
@@ -58,10 +102,15 @@ namespace GuGu {
 
 		World::getWorld()->setWorldToViewMatrix(getWorldToViewMatrix());
 		World::getWorld()->setCamPos(m_position);
+		World::getWorld()->setFov(m_fov);
 	}
 	math::affine3 EditorCamera::getWorldToViewMatrix()
 	{
 		math::affine3 worldToView = math::affine3::from_cols(m_right, m_up, m_forward, -m_position);
 		return worldToView;
+	}
+	float EditorCamera::getFov() const
+	{
+		return m_fov;
 	}
 }

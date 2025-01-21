@@ -102,6 +102,18 @@ namespace GuGu {
 		return Reply::Handled();
 	}
 
+	void ViewportWidget::OnMouseLeave(const PointerEvent& inMouseEvent)
+	{
+		InputManager::getInputManager().clearEvents();
+		InputManager::getInputManager().clearMouseStates();
+	}
+
+	Reply ViewportWidget::OnMouseWheel(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
+	{
+		InputManager::getInputManager().updateWheelDelta(inMouseEvent.m_wheelOrGestureDelta);
+		return Reply();
+	}
+
 	Reply ViewportWidget::OnKeyDown(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent)
 	{
 		ModifierKeysState keysState = Application::getApplication()->getModifierKeys();

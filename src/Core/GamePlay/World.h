@@ -29,6 +29,10 @@ namespace GuGu {
 		void setCamPos(const math::float3& camPos);
 
 		math::float3 getCamPos() const;
+
+		void setFov(float fov);
+
+		float getFov() const;
 	private:
 
 		std::shared_ptr<Level> m_currentLevel;
@@ -37,5 +41,7 @@ namespace GuGu {
 		math::affine3 m_editorCameraMatrix;
 
 		math::float3 m_camPos;
+
+		float m_fov;
 	};
 }

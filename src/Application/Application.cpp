@@ -69,6 +69,8 @@ namespace GuGu{
         while (!m_alreadyExit)
         {
 			InputManager::getInputManager().clearEvents();
+			InputManager::getInputManager().updatePreviousMouseState();
+			InputManager::getInputManager().updateWheelDelta(0.0f);
             //todo:add update
             pumpMessage();
 
@@ -83,7 +85,7 @@ namespace GuGu{
                 UIRenderPass* uiRenderPass = m_renderer->getUIRenderPass();
                 Demo* demoPass = m_renderer->getDemoPass();
 				//demoPass->setLevel()
-				demoPass->renderLevel(World::getWorld()->getCurrentLevel(), World::getWorld()->getWorldToViewMatrix(), World::getWorld()->getCamPos());
+				demoPass->renderLevel(World::getWorld()->getCurrentLevel(), World::getWorld()->getWorldToViewMatrix(), World::getWorld()->getCamPos(), World::getWorld()->getFov());
                 VertexBuffer* vertexBuffer = m_renderer->getVertexBufferPass();
                 uiRenderPass->setRenderTarget(demoPass->getRenderTarget());
                 m_renderer->onRender();			
