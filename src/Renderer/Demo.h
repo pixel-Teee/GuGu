@@ -4,6 +4,7 @@
 
 #include <Core/UI/UIData.h>
 #include <Core/UI/BasicElement.h>
+#include <Core/Model/GeometryHelper.h>
 
 namespace GuGu {
 	class BindingCache;
@@ -17,6 +18,7 @@ namespace GuGu {
 	class SceneGraphNode;
 	class Level;
 	class GStaticMesh;
+	class StaticMeshComponent;
 	struct DrawItem
 	{
 		const MeshInfo* mesh;
@@ -158,5 +160,8 @@ namespace GuGu {
 		void selectionChanged(GuGuUtf8Str, SelectInfo::Type);
 
 		std::shared_ptr<SceneGraphNode> m_currentSelectItems;
+
+		GeometryHelper m_geometryHelper;
+		std::shared_ptr<StaticMeshComponent> m_cylinderMeshComponent;
 	};
 }

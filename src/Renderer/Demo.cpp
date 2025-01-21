@@ -64,7 +64,6 @@ namespace GuGu {
 			m_CommandList->beginTrackingBufferState(staticMesh.m_indexBuffer, nvrhi::ResourceStates::Common);
 
 			m_CommandList->writeBuffer(staticMesh.m_indexBuffer, indexData.data(), indexData.size() * sizeof(uint32_t));
-			std::vector<uint32_t>().swap(indexData);
 
 			nvrhi::ResourceStates state = nvrhi::ResourceStates::IndexBuffer | nvrhi::ResourceStates::ShaderResource;
 
@@ -723,6 +722,8 @@ namespace GuGu {
 
 			initRenderTargetAndDepthTarget();
 		}
+		m_cylinderMeshComponent = std::make_shared<StaticMeshComponent>();
+		m_cylinderMeshComponent->setGStaticMesh(m_geometryHelper.createCylinder(1.0f, 0.25f, 1.0f, 4, 4));
 
 		return true;
 	}
