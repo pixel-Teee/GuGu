@@ -15,5 +15,9 @@ namespace GuGu {
 
 		void createCylinderBottomCap(GStaticMesh& staticMesh, float bottomRaidus, float topRadius, float height,
 			uint32_t sliceCount, uint32_t stackCount);
+
+		GStaticMesh createQuat(float x, float y, float w, float h, float depth);
+
+		GStaticMesh createGrid(float width, float depth, uint32_t m, uint32_t n);
 	};
 }

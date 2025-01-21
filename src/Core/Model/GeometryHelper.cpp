@@ -133,4 +133,86 @@ namespace GuGu {
 			staticMesh.m_indexData.push_back(baseIndex + i + 1);
 		}
 	}
+	GStaticMesh GeometryHelper::createQuat(float x, float y, float w, float h, float depth)
+	{
+		GStaticMesh staticMesh;
+		staticMesh.m_positionData.resize(4);
+		staticMesh.m_indexData.resize(6);
+
+		//位置坐标描述在NDC空间中
+		staticMesh.m_positionData.push_back(math::float3(x, y, depth));
+		staticMesh.m_normalData.push_back(math::float3(0.0f, 0.0f, -1.0f));
+		staticMesh.m_tangentData.push_back(math::float3(1.0f, 0.0f, 0.0f));
+		staticMesh.m_texCoord1Data.push_back(math::float2(0.0f, 0.0f));
+
+		staticMesh.m_positionData.push_back(math::float3(x + w, y, depth));
+		staticMesh.m_normalData.push_back(math::float3(0.0f, 0.0f, -1.0f));
+		staticMesh.m_tangentData.push_back(math::float3(1.0f, 0.0f, 0.0f));
+		staticMesh.m_texCoord1Data.push_back(math::float2(1.0f, 0.0f));
+
+		staticMesh.m_positionData.push_back(math::float3(x + w, y - h, depth));
+		staticMesh.m_normalData.push_back(math::float3(0.0f, 0.0f, -1.0f));
+		staticMesh.m_tangentData.push_back(math::float3(1.0f, 0.0f, 0.0f));
+		staticMesh.m_texCoord1Data.push_back(math::float2(1.0f, 1.0f));
+
+		staticMesh.m_indexData.push_back(0);
+		staticMesh.m_indexData.push_back(1);
+		staticMesh.m_indexData.push_back(2);
+
+		staticMesh.m_indexData.push_back(0);
+		staticMesh.m_indexData.push_back(2);
+		staticMesh.m_indexData.push_back(3);
+
+		return staticMesh;
+	}
+	GStaticMesh GeometryHelper::createGrid(float width, float depth, uint32_t m, uint32_t n)
+	{
+		GStaticMesh staticMesh;
+		uint32_t vertexCount = m * n;
+		uint32_t faceCount = (m - 1) * (n - 1) * 2;
+
+		float halfWidth = 0.5f * width;
+		float halfDepth = 0.5f * depth;
+
+		float dx = width / (n - 1);
+		float dz = depth / (n - 1);
+
+		float du = 1.0f / (n - 1);
+		float dv = 1.0f / (m - 1);
+
+		staticMesh.m_positionData.resize(vertexCount);
+
+		for (uint32_t i = 0; i < m; ++i)
+		{
+			float z = halfDepth - i * dz;
+			for (uint32_t j = 0; j < n; ++j)
+			{
+				float x = -halfWidth + j * dx;
+
+				staticMesh.m_positionData.push_back(math::float3(x, 0.0f, z));
+				staticMesh.m_normalData.push_back(math::float3(0.0f, 1.0f, 0.0f));
+				staticMesh.m_tangentData.push_back(math::float3(1.0f, 0.0f, 0.0f));
+				staticMesh.m_texCoord1Data.push_back(math::float2(j * du, i * dv));
+			}
+		}
+
+		staticMesh.m_indexData.push_back(faceCount * 3);
+
+		uint32_t k = 0;
+		for (uint32_t i = 0; i < m - 1; ++i)
+		{
+			for (uint32_t j = 0; j < n - 1; ++j)
+			{
+				staticMesh.m_indexData.push_back(i * n + j);
+				staticMesh.m_indexData.push_back(i * n + j + 1);
+				staticMesh.m_indexData.push_back((i + 1) * n + j);
+
+				staticMesh.m_indexData.push_back((i + 1) * n + j);
+				staticMesh.m_indexData.push_back(i * n + j + 1);
+				staticMesh.m_indexData.push_back((i + 1) * n + j + 1);
+			}
+		}
+
+		return staticMesh;
+	}
 }

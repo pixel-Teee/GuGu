@@ -967,7 +967,8 @@ namespace GuGu {
 		for (size_t i = 0; i < gameObjects.size(); ++i)
 		{
 			std::shared_ptr<TransformComponent> transformComponent = gameObjects[i]->getComponent<TransformComponent>();
-			std::shared_ptr<StaticMeshComponent> staticMeshComponent = gameObjects[i]->getComponent<StaticMeshComponent>();
+			//std::shared_ptr<StaticMeshComponent> staticMeshComponent = gameObjects[i]->getComponent<StaticMeshComponent>();
+			std::shared_ptr<StaticMeshComponent> staticMeshComponent = m_cylinderMeshComponent;
 			std::shared_ptr<LightComponent> lightComponent = gameObjects[i]->getComponent<LightComponent>();
 			std::shared_ptr<MaterialComponent> materialComponent = gameObjects[i]->getComponent<MaterialComponent>();
 			std::shared_ptr<GStaticMesh> staticMesh = staticMeshComponent->getStaticMesh();
