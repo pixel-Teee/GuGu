@@ -962,7 +962,7 @@ namespace GuGu {
 		//math::yawPitchRoll(0.f, math::radians(-30.f), 0.f)
 		//* math::translation(math::float3(0, 0, 2));
 		math::float4x4 projMatrix = math::perspProjD3DStyle(math::radians(inViewportClient->getFov()),
-			inViewportClient->getAspectRatio(), 1.0f, 400.0f
+			inViewportClient->getAspectRatio(), 1.0f, 1000.0f
 		);
 		math::float4x4 viewProjMatrix = math::affineToHomogeneous(inViewportClient->getWorldToViewMatrix()) * projMatrix;
 		//modelConstants.viewProjMatrix = viewProjMatrix;
@@ -1057,8 +1057,8 @@ namespace GuGu {
 		graphicsState.framebuffer = inViewportClient->getFramebuffer();
 
 		// Construct the viewport so that all viewports form a grid.
-		const float width = float(1280.0f);
-		const float height = float(720.0f);
+		const float width = inViewportClient->getViewportSize().x;
+		const float height = inViewportClient->getViewportSize().y;
 		const float left = 0;
 		const float top = 0;
 
