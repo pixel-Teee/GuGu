@@ -84,8 +84,9 @@ namespace GuGu{
 				World::getWorld()->update(m_timer->GetDeltaTime());
                 UIRenderPass* uiRenderPass = m_renderer->getUIRenderPass();
                 Demo* demoPass = m_renderer->getDemoPass();
-				//demoPass->setLevel()
-				demoPass->renderLevel(World::getWorld()->getCurrentLevel(), World::getWorld()->getWorldToViewMatrix(), World::getWorld()->getCamPos(), World::getWorld()->getFov());
+
+				World::getWorld()->renderLevel(demoPass);
+				
                 VertexBuffer* vertexBuffer = m_renderer->getVertexBufferPass();
                 uiRenderPass->setRenderTarget(demoPass->getRenderTarget());
                 m_renderer->onRender();			

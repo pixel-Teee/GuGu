@@ -1,10 +1,11 @@
 #pragma once
 
 #include <Core/Math/MyMath.h>
+#include <Core/GamePlay/ViewportClient.h>
 
 namespace GuGu {
 	struct KeyEvent;
-	class EditorCamera
+	class EditorCamera : public ViewportClient
 	{
 	public:
 		EditorCamera();
@@ -17,11 +18,13 @@ namespace GuGu {
 
 		bool rotate(float fElapsedTimeSecond); //旋转
 
-		void update(float fElapsedTimeSecond);
+		virtual void update(float fElapsedTimeSecond) override;
 
-		math::affine3 getWorldToViewMatrix();
+		virtual math::affine3 getWorldToViewMatrix() const override;
 
-		float getFov() const;
+		virtual math::float3 getCamPos() const override;
+
+		virtual float getFov() const override;
 	private:
 
 		//move

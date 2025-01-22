@@ -5,6 +5,8 @@
 namespace GuGu {
 	struct AssetData;
 	class Level;
+	class ViewportClient;
+	class Demo;
 	class World
 	{
 	public:
@@ -22,26 +24,14 @@ namespace GuGu {
 
 		void update(float fElapsedTimeSeconds);
 
-		void setWorldToViewMatrix(const math::affine3& matrix);
+		void setViewportClient(std::shared_ptr<ViewportClient> viewportClient);
 
-		math::affine3 getWorldToViewMatrix() const;
+		std::weak_ptr<ViewportClient> getViewportClient() const;
 
-		void setCamPos(const math::float3& camPos);
-
-		math::float3 getCamPos() const;
-
-		void setFov(float fov);
-
-		float getFov() const;
+		void renderLevel(Demo* demoPass);
 	private:
+		std::shared_ptr<ViewportClient> m_viewportClient;
 
 		std::shared_ptr<Level> m_currentLevel;
-
-		//editor camera matrix
-		math::affine3 m_editorCameraMatrix;
-
-		math::float3 m_camPos;
-
-		float m_fov;
 	};
 }

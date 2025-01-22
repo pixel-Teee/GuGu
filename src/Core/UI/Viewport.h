@@ -5,6 +5,7 @@
 #include "UIMacros.h"
 
 #include <Renderer/nvrhi.h>
+#include <Core/GamePlay/ViewportClient.h>
 
 namespace GuGu {
 	class ViewportWidget : public Widget
@@ -60,5 +61,7 @@ namespace GuGu {
 		std::shared_ptr<SingleChildSlot> m_childWidget;
 
 		nvrhi::TextureHandle m_renderTarget;
+
+		std::weak_ptr<ViewportClient> m_viewportClient;
 	};
 }

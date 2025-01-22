@@ -24,6 +24,6 @@ namespace GuGu {
 
 		virtual bool supportsKeyboardFocus() const override;
 	private:
-		EditorCamera m_editorCamera;
+		//EditorCamera m_editorCamera;
 	};
 }

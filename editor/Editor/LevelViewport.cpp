@@ -14,10 +14,16 @@ namespace GuGu {
 			.Content(arguments.mContent->getChildWidget())
 			.visibility(Visibility::Visible)
 		);
+		//m_viewportClient = World::getWorld()->getViewportClient();
+		World::getWorld()->setViewportClient(std::make_shared<EditorCamera>());
 	}
 	void LevelViewport::Tick(const WidgetGeometry& allocatedGeometry, const double inCurrentTime, const float inDeltaTime)
 	{
-		m_editorCamera.update(inDeltaTime);
+		//m_editorCamera.update(inDeltaTime);
+		if (m_viewportClient.lock())
+		{
+			m_viewportClient.lock()->update(inDeltaTime);
+		}	
 	}
 	Reply LevelViewport::OnDrop(const WidgetGeometry& myGeometry, const DragDropEvent& dragDropEvent)
 	{

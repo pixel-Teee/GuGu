@@ -12,6 +12,8 @@
 #include <Core/AssetManager/AssetData.h>
 #include <Core/Model/StaticMesh.h>
 #include <Core/AssetManager/AssetManager.h>
+#include <Renderer/Demo.h>
+#include <Core/GamePlay/ViewportClient.h>
 
 namespace GuGu {
 	World::World()
@@ -71,34 +73,27 @@ namespace GuGu {
 		}
 	}
 	void World::update(float fElapsedTimeSeconds)
-	{
+	{	
 		getCurrentLevel()->Update(fElapsedTimeSeconds);
-	}
-	void World::setWorldToViewMatrix(const math::affine3& matrix)
-	{
-		m_editorCameraMatrix = matrix;
-	}
-	math::affine3 World::getWorldToViewMatrix() const
-	{
-		return m_editorCameraMatrix;
-	}
-	void World::setCamPos(const math::float3& camPos)
-	{
-		m_camPos = camPos;
-	}
-	math::float3 World::getCamPos() const
-	{
-		return m_camPos;
+		m_viewportClient->update(fElapsedTimeSeconds);
 	}
 
-	void World::setFov(float fov)
+	void World::setViewportClient(std::shared_ptr<ViewportClient> viewportClient)
 	{
-		m_fov = fov;
+		m_viewportClient = viewportClient;
 	}
 
-	float World::getFov() const
+	std::weak_ptr<ViewportClient> World::getViewportClient() const
 	{
-		return m_fov;
+		return m_viewportClient;
+	}
+
+	void World::renderLevel(Demo* demoPass)
+	{
+		if (demoPass)
+		{
+			demoPass->renderLevel(getCurrentLevel(), m_viewportClient->getWorldToViewMatrix(), m_viewportClient->getCamPos(), m_viewportClient->getFov());
+		}	
 	}
 
 }

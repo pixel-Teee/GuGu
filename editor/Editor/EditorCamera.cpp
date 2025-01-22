@@ -100,14 +100,18 @@ namespace GuGu {
 		m_right = math::normalize(math::cross(math::float3(0.0f, 1.0f, 0.0f), m_forward));
 		m_up = math::normalize(math::cross(m_forward, m_right));
 
-		World::getWorld()->setWorldToViewMatrix(getWorldToViewMatrix());
-		World::getWorld()->setCamPos(m_position);
-		World::getWorld()->setFov(m_fov);
+		//World::getWorld()->setWorldToViewMatrix(getWorldToViewMatrix());
+		//World::getWorld()->setCamPos(m_position);
+		//World::getWorld()->setFov(m_fov);
 	}
-	math::affine3 EditorCamera::getWorldToViewMatrix()
+	math::affine3 EditorCamera::getWorldToViewMatrix() const
 	{
 		math::affine3 worldToView = math::affine3::from_cols(m_right, m_up, m_forward, -m_position);
 		return worldToView;
+	}
+	math::float3 EditorCamera::getCamPos() const
+	{
+		return m_position;
 	}
 	float EditorCamera::getFov() const
 	{

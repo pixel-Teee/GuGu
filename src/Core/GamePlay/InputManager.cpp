@@ -14,7 +14,7 @@ namespace GuGu {
         static InputManager inputManager;
         return inputManager;
     }
-    void InputManager::updatePreviousMouseState() //将当前状态保存到过去的状态，用于计算鼠标偏移
+    void InputManager::updatePreviousMouseState() //灏嗗綋鍓嶇姸鎬佷繚瀛樺埌杩囧幓鐨勭姸鎬侊紝鐢ㄤ簬璁＄畻榧犳爣鍋忕Щ
     {
         m_previousMouseState = m_currentMouseState;
     }
@@ -70,7 +70,7 @@ namespace GuGu {
 		//	}
 		//}
 		//return false;
-        GuGu_LOGD("%s %d", key.getKeyName().getStr(), m_currentState[key.getKeyName()]);
+        //GuGu_LOGD("%s %d", key.getKeyName().getStr(), m_currentState[key.getKeyName()]);
         return m_currentState[key.getKeyName()];
     }
     bool InputManager::isMouseDown(const Key& key)
