@@ -92,7 +92,12 @@ namespace GuGu {
 	{
 		if (demoPass)
 		{
-			demoPass->renderLevel(getCurrentLevel(), m_viewportClient->getWorldToViewMatrix(), m_viewportClient->getCamPos(), m_viewportClient->getFov());
+			if (m_viewportClient->getRenderTarget() == nullptr || math::any(m_viewportClient->getViewportSize() != m_viewportClient->getRenderTargetSize()))
+			{
+				demoPass->initRenderTargetAndDepthTarget(*m_viewportClient, m_viewportClient->getViewportSize());
+			}
+
+			demoPass->renderLevel(getCurrentLevel(), m_viewportClient);
 		}	
 	}
 

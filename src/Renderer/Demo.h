@@ -19,6 +19,7 @@ namespace GuGu {
 	class Level;
 	class GStaticMesh;
 	class StaticMeshComponent;
+	class ViewportClient;
 	struct DrawItem
 	{
 		const MeshInfo* mesh;
@@ -48,9 +49,11 @@ namespace GuGu {
 
 		nvrhi::TextureHandle getRenderTarget();
 
-		void renderLevel(const std::shared_ptr<Level> inLevel, math::affine3 worldToViewMatrix, math::float3 camPos, float fov);
+		void renderLevel(const std::shared_ptr<Level> inLevel, std::shared_ptr<ViewportClient> inViewportClient);
 
 		void createVertexBufferAndIndexBuffer(GStaticMesh& staticMesh);
+
+		void initRenderTargetAndDepthTarget(ViewportClient& viewportClient, math::float2 viewportSize);
 	private:
 		void RenderView(nvrhi::GraphicsState& graphicsState, nvrhi::GraphicsState& gridGraphicsState, math::float4x4 viewProjMatrix);
 
@@ -150,8 +153,6 @@ namespace GuGu {
 		nvrhi::TextureHandle m_renderTarget;
 		nvrhi::TextureHandle m_depthTarget;
 		nvrhi::FramebufferHandle m_frameBuffer;
-
-		void initRenderTargetAndDepthTarget();
 
 		std::shared_ptr<UIData> m_uiData;
 

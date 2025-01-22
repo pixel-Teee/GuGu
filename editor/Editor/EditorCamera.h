@@ -8,7 +8,7 @@ namespace GuGu {
 	class EditorCamera : public ViewportClient
 	{
 	public:
-		EditorCamera();
+		EditorCamera(std::shared_ptr<ViewportWidget> inViewportWidget);
 
 		virtual ~EditorCamera();
 
@@ -22,9 +22,25 @@ namespace GuGu {
 
 		virtual math::affine3 getWorldToViewMatrix() const override;
 
+		virtual float getAspectRatio() const override;
+
 		virtual math::float3 getCamPos() const override;
 
 		virtual float getFov() const override;
+
+		virtual void resizeViewport(int32_t width, int32_t height) override;
+
+		virtual math::float2 getViewportSize() const override;
+
+		virtual void setRenderTarget(nvrhi::TextureHandle viewportRenderTarget, nvrhi::TextureHandle depthRenderTarget, nvrhi::FramebufferHandle frameBuffer) override;
+
+		virtual nvrhi::TextureHandle getRenderTarget() const override;
+
+		virtual nvrhi::TextureHandle getDepthTarget() const;
+
+		virtual nvrhi::FramebufferHandle getFramebuffer() const;
+
+		virtual math::float2 getRenderTargetSize() const override;
 	private:
 
 		//move
@@ -39,7 +55,7 @@ namespace GuGu {
 		math::float3 m_forward = math::float3(0, 0, -1.0); //摄像机的方向向量 
 		math::float3 m_right = math::float3(0, 0, 0); //摄像机空间的x轴方向
 		math::float3 m_up = math::float3(0.0, 1.0, 0.0);
-		math::float3 m_position = math::float3(0, 0, -10);
+		math::float3 m_position = math::float3(0, 0, -20);
 
 		math::float3 m_moveTarget = m_position;
 
@@ -48,5 +64,13 @@ namespace GuGu {
 		float m_yaw, m_pitch;
 
 		float m_fov;
+
+		uint32_t m_width, m_height;
+
+		nvrhi::TextureHandle m_renderTarget;
+		nvrhi::TextureHandle m_depthTarget;
+		nvrhi::FramebufferHandle m_frameBuffer;
+
+		std::weak_ptr<ViewportWidget> m_viewportWidget;
 	};
 }

@@ -27,6 +27,7 @@
 #include <Core/GamePlay/LightComponent.h>
 #include <Core/GamePlay/MaterialComponent.h>
 #include <Core/Model/StaticMesh.h>
+#include <Core/GamePlay/ViewportClient.h>
 
 namespace GuGu {
 	inline void AppendBufferRange(nvrhi::BufferRange& range, size_t size, uint64_t& currentBufferSize)
@@ -713,15 +714,15 @@ namespace GuGu {
 		m_CommandList->close();
 		GetDevice()->executeCommandList(m_CommandList);
 
-		math::uint2 size = math::uint2(1280.0f, 960.0f);
-		if (!m_renderTarget || math::any(m_renderTargetSize != size))
-		{
-			m_renderTarget = nullptr;
-
-			m_renderTargetSize = size;
-
-			initRenderTargetAndDepthTarget();
-		}
+		//math::uint2 size = math::uint2(1280.0f, 960.0f);
+		//if (!m_renderTarget || math::any(m_renderTargetSize != size))
+		//{
+		//	m_renderTarget = nullptr;
+		//
+		//	m_renderTargetSize = size;
+		//
+		//	initRenderTargetAndDepthTarget();
+		//}
 		m_cylinderMeshComponent = std::make_shared<StaticMeshComponent>();
 		m_cylinderMeshComponent->setGStaticMesh(m_geometryHelper.createCylinder(1.0f, 0.25f, 1.0f, 4, 4));
 
@@ -917,8 +918,18 @@ namespace GuGu {
 	{
 		return m_renderTarget;
 	}
-	void Demo::renderLevel(const std::shared_ptr<Level> inLevel, math::affine3 worldToViewMatrix, math::float3 camPos, float fov)
+	void Demo::renderLevel(const std::shared_ptr<Level> inLevel, std::shared_ptr<ViewportClient> inViewportClient)
 	{
+		//math::uint2 intViewportSize(viewportSize.x, viewportSize.y);
+		//if (math::any(m_renderTargetSize != intViewportSize))
+		//{
+		//	m_renderTarget = nullptr;
+		//
+		//	m_renderTargetSize = intViewportSize;
+		//
+		//	initRenderTargetAndDepthTarget();
+		//}
+
 		if (!m_Pipeline) {
 			nvrhi::GraphicsPipelineDesc psoDesc;
 			psoDesc.VS = m_VertexShader; //opaque geometry
@@ -928,37 +939,36 @@ namespace GuGu {
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
 			psoDesc.renderState.depthStencilState.depthTestEnable = true;
 			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
-			m_Pipeline = GetDevice()->createGraphicsPipeline(psoDesc, m_frameBuffer);
+			m_Pipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
 		m_drawItems.clear();
 
 		m_CommandList->open();
 		
-		nvrhi::utils::ClearColorAttachment(m_CommandList, m_frameBuffer, 0, Color(0.2f, 0.3f, 0.7f, 1.0f));
-		m_CommandList->clearDepthStencilTexture(m_depthTarget, nvrhi::AllSubresources, true, 1.0f, true, 0);
+		nvrhi::utils::ClearColorAttachment(m_CommandList, inViewportClient->getFramebuffer(), 0, Color(0.2f, 0.3f, 0.7f, 1.0f));
+		m_CommandList->clearDepthStencilTexture(inViewportClient->getDepthTarget(), nvrhi::AllSubresources, true, 1.0f, true, 0);
 
-		math::float3 cameraPos = math::float3(0.0f, 0.0f, m_uiData->camPos);
-		math::float3 cameraDir = normalize(math::float3(0.0f, m_uiData->dir, 1.0f) - cameraPos);
-		math::float3 cameraUp = math::float3(0.0f, 1.0f, 0.0f);
-		math::float3 cameraRight = normalize(cross(cameraUp, cameraDir));
-		cameraUp = normalize(cross(cameraDir, cameraRight));
-
-		math::affine3 worldToView = math::affine3::from_cols(cameraRight, cameraUp, cameraDir, -cameraPos);
+		//math::float3 cameraPos = math::float3(0.0f, 0.0f, m_uiData->camPos);
+		//math::float3 cameraDir = normalize(math::float3(0.0f, m_uiData->dir, 1.0f) - cameraPos);
+		//math::float3 cameraUp = math::float3(0.0f, 1.0f, 0.0f);
+		//math::float3 cameraRight = normalize(cross(cameraUp, cameraDir));
+		//cameraUp = normalize(cross(cameraDir, cameraRight));
+		//
+		//math::affine3 worldToView = math::affine3::from_cols(cameraRight, cameraUp, cameraDir, -cameraPos);
 
 		//ConstantBufferEntry modelConstants;
 		//math::affine3 viewMatrix =
 		//math::yawPitchRoll(0.f, math::radians(-30.f), 0.f)
 		//* math::translation(math::float3(0, 0, 2));
-		math::float4x4 projMatrix = math::perspProjD3DStyle(math::radians(fov),
-			float(640) /
-			float(400), 1.0f, 400.0f
+		math::float4x4 projMatrix = math::perspProjD3DStyle(math::radians(inViewportClient->getFov()),
+			inViewportClient->getAspectRatio(), 1.0f, 400.0f
 		);
-		math::float4x4 viewProjMatrix = math::affineToHomogeneous(worldToViewMatrix) * projMatrix;
+		math::float4x4 viewProjMatrix = math::affineToHomogeneous(inViewportClient->getWorldToViewMatrix()) * projMatrix;
 		//modelConstants.viewProjMatrix = viewProjMatrix;
 
 		Pass pass;
-		pass.camPos = -camPos;
+		pass.camPos = -inViewportClient->getCamPos();
 		m_CommandList->writeBuffer(m_PassBuffers, &pass, sizeof(pass));
 
 		//draw level
@@ -967,8 +977,8 @@ namespace GuGu {
 		for (size_t i = 0; i < gameObjects.size(); ++i)
 		{
 			std::shared_ptr<TransformComponent> transformComponent = gameObjects[i]->getComponent<TransformComponent>();
-			//std::shared_ptr<StaticMeshComponent> staticMeshComponent = gameObjects[i]->getComponent<StaticMeshComponent>();
-			std::shared_ptr<StaticMeshComponent> staticMeshComponent = m_cylinderMeshComponent;
+			std::shared_ptr<StaticMeshComponent> staticMeshComponent = gameObjects[i]->getComponent<StaticMeshComponent>();
+			//std::shared_ptr<StaticMeshComponent> staticMeshComponent = m_cylinderMeshComponent;
 			std::shared_ptr<LightComponent> lightComponent = gameObjects[i]->getComponent<LightComponent>();
 			std::shared_ptr<MaterialComponent> materialComponent = gameObjects[i]->getComponent<MaterialComponent>();
 			std::shared_ptr<GStaticMesh> staticMesh = staticMeshComponent->getStaticMesh();
@@ -1044,7 +1054,7 @@ namespace GuGu {
 		//		{m_buffers->vertexBuffer, 0, 0}
 		//};
 		graphicsState.pipeline = m_Pipeline;
-		graphicsState.framebuffer = m_frameBuffer;
+		graphicsState.framebuffer = inViewportClient->getFramebuffer();
 
 		// Construct the viewport so that all viewports form a grid.
 		const float width = float(1280.0f);
@@ -1343,11 +1353,11 @@ namespace GuGu {
 		return bufferHandle;
 	}
 
-	void Demo::initRenderTargetAndDepthTarget()
+	void Demo::initRenderTargetAndDepthTarget(ViewportClient& viewportClient, math::float2 viewportSize)
 	{
 		nvrhi::TextureDesc desc;
-		desc.width = m_renderTargetSize.x;
-		desc.height = m_renderTargetSize.y;
+		desc.width = viewportSize.x;
+		desc.height = viewportSize.y;
 		desc.initialState = nvrhi::ResourceStates::RenderTarget;
 		desc.isRenderTarget = true;
 		desc.useClearValue = true;
@@ -1361,7 +1371,7 @@ namespace GuGu {
 
 		desc.format = nvrhi::Format::SRGBA8_UNORM;
 		desc.debugName = "RenderTarget";
-		m_renderTarget = GetDevice()->createTexture(desc);
+		nvrhi::TextureHandle renderTarget = GetDevice()->createTexture(desc);
 
 		const nvrhi::Format depthFormats[] = {
 			nvrhi::Format::D24S8,
@@ -1379,13 +1389,14 @@ namespace GuGu {
 		desc.initialState = nvrhi::ResourceStates::DepthWrite;
 		desc.clearValue = Color(1.f);
 		desc.debugName = "Depth";
-		m_depthTarget = GetDevice()->createTexture(desc);
+		nvrhi::TextureHandle depthTarget = GetDevice()->createTexture(desc);
 
 		nvrhi::FramebufferDesc fbDesc;
-		fbDesc.addColorAttachment(m_renderTarget, nvrhi::TextureSubresourceSet(0, 1, 0, 1));
-		fbDesc.setDepthAttachment(m_depthTarget, nvrhi::TextureSubresourceSet(0, 1, 0, 1));
+		fbDesc.addColorAttachment(renderTarget, nvrhi::TextureSubresourceSet(0, 1, 0, 1));
+		fbDesc.setDepthAttachment(depthTarget, nvrhi::TextureSubresourceSet(0, 1, 0, 1));
 
-		m_frameBuffer = GetDevice()->createFramebuffer(fbDesc);
+		nvrhi::FramebufferHandle framebuffer = GetDevice()->createFramebuffer(fbDesc);
+		viewportClient.setRenderTarget(renderTarget, depthTarget, framebuffer);
 	}
 
 	void Demo::getNodeChildrens(GuGuUtf8Str nodeName, std::vector<GuGuUtf8Str>& nodeChildrenNames)

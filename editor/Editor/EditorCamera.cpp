@@ -2,15 +2,19 @@
 
 #include "EditorCamera.h"
 #include <Core/UI/Events.h>
+#include <Core/UI/Viewport.h>
 #include <Core/GamePlay/InputManager.h>
 #include <Core/Timer.h>
 #include <Application/Application.h>
 #include <Core/GamePlay/World.h>
 
 namespace GuGu {
-	EditorCamera::EditorCamera()
+	EditorCamera::EditorCamera(std::shared_ptr<ViewportWidget> inViewportWidget)
+		: m_viewportWidget(inViewportWidget)
 	{
 		m_fov = 45.0f;
+		m_width = 1280.0f;
+		m_height = 920.0f;
 	}
 	EditorCamera::~EditorCamera()
 	{
@@ -103,11 +107,18 @@ namespace GuGu {
 		//World::getWorld()->setWorldToViewMatrix(getWorldToViewMatrix());
 		//World::getWorld()->setCamPos(m_position);
 		//World::getWorld()->setFov(m_fov);
+
+		if (m_viewportWidget.lock())
+			m_viewportWidget.lock()->setRenderTarget(m_renderTarget);
 	}
 	math::affine3 EditorCamera::getWorldToViewMatrix() const
 	{
 		math::affine3 worldToView = math::affine3::from_cols(m_right, m_up, m_forward, -m_position);
 		return worldToView;
+	}
+	float EditorCamera::getAspectRatio() const
+	{
+		return m_width / m_height;
 	}
 	math::float3 EditorCamera::getCamPos() const
 	{
@@ -116,5 +127,36 @@ namespace GuGu {
 	float EditorCamera::getFov() const
 	{
 		return m_fov;
+	}
+	void EditorCamera::resizeViewport(int32_t width, int32_t height)
+	{
+		m_width = width;
+		m_height = height;
+	}
+	math::float2 EditorCamera::getViewportSize() const
+	{
+		return math::float2(m_width, m_height);
+	}
+	void EditorCamera::setRenderTarget(nvrhi::TextureHandle viewportRenderTarget, nvrhi::TextureHandle depthRenderTarget, nvrhi::FramebufferHandle frameBuffer)
+	{
+		m_renderTarget = viewportRenderTarget;
+		m_depthTarget = depthRenderTarget;
+		m_frameBuffer = frameBuffer;
+	}
+	nvrhi::TextureHandle EditorCamera::getRenderTarget() const
+	{
+		return m_renderTarget;
+	}
+	nvrhi::TextureHandle EditorCamera::getDepthTarget() const
+	{
+		return m_depthTarget;
+	}
+	nvrhi::FramebufferHandle EditorCamera::getFramebuffer() const
+	{
+		return m_frameBuffer;
+	}
+	math::float2 EditorCamera::getRenderTargetSize() const
+	{
+		return math::float2(m_renderTarget->getDesc().width, m_renderTarget->getDesc().height);
 	}
 }

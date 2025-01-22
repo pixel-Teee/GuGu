@@ -14,8 +14,9 @@ namespace GuGu {
 			.Content(arguments.mContent->getChildWidget())
 			.visibility(Visibility::Visible)
 		);
-		//m_viewportClient = World::getWorld()->getViewportClient();
-		World::getWorld()->setViewportClient(std::make_shared<EditorCamera>());
+		std::shared_ptr<ViewportClient> viewportClient = std::make_shared<EditorCamera>(std::static_pointer_cast<ViewportWidget>(shared_from_this()));
+		World::getWorld()->setViewportClient(viewportClient);
+		m_viewportClient = viewportClient;
 	}
 	void LevelViewport::Tick(const WidgetGeometry& allocatedGeometry, const double inCurrentTime, const float inDeltaTime)
 	{

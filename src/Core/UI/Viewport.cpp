@@ -26,6 +26,11 @@ namespace GuGu {
 	}
 	uint32_t ViewportWidget::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
+		if (m_viewportClient.lock())
+		{
+			m_viewportClient.lock()->resizeViewport(allocatedGeometry.getLocalSize().x, allocatedGeometry.getLocalSize().y);
+		}
+
 		ArrangedWidgetArray arrangedWidgetArray(Visibility::Visible);
 		AllocationChildActualSpace(allocatedGeometry, arrangedWidgetArray);
 
