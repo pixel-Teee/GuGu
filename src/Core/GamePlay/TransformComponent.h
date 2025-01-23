@@ -32,7 +32,7 @@ namespace GuGu {
 	private:
 		math::dquat m_Rotation = math::dquat::identity();
 		math::double3 m_Scaling = 1.0;
-		math::double3 m_Translation = 0.0;
+		math::double3 m_Translation = math::double3(0, 0, 10);
 		math::daffine3 m_LocalTransform = math::daffine3::identity();
 		math::daffine3 m_GlobalTransform = math::daffine3::identity();
 		math::affine3 m_GlobalTransformFloat = math::affine3::identity();

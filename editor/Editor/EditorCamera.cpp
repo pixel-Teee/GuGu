@@ -12,9 +12,11 @@ namespace GuGu {
 	EditorCamera::EditorCamera(std::shared_ptr<ViewportWidget> inViewportWidget)
 		: m_viewportWidget(inViewportWidget)
 	{
-		m_fov = 45.0f;
+		m_fov = 90.0f;
 		m_width = 1280.0f;
 		m_height = 920.0f;
+		m_yaw = 0;
+		m_pitch = 0;
 	}
 	EditorCamera::~EditorCamera()
 	{
@@ -71,8 +73,8 @@ namespace GuGu {
 		{
 			math::float2 mouseDelta = InputManager::getInputManager().getMouseDelta();
 
-			m_yaw += mouseDelta.x * fElapsedTimeSecond;
-			m_pitch += (-mouseDelta.y) * fElapsedTimeSecond;
+			m_yaw += mouseDelta.x * 0.02 * fElapsedTimeSecond;//偏航角，绕y轴
+			m_pitch += (-mouseDelta.y) * 0.02 * fElapsedTimeSecond;//俯仰角，绕x轴
 
 			if(m_pitch > 89.0f)
 				m_pitch = 89.0f;
@@ -93,20 +95,16 @@ namespace GuGu {
 	{
 		if(!move(fElapsedTimeSecond))
 		{
-			if(!zoom(fElapsedTimeSecond))
-				rotate(fElapsedTimeSecond);
+			//if(!zoom(fElapsedTimeSecond))
+			rotate(fElapsedTimeSecond);
 		}
 		//move(fElapsedTimeSecond);
 		//zoom(fElapsedTimeSecond);
 		//rotate(fElapsedTimeSecond);
 
 		m_forward = math::normalize(m_forward);
-		m_right = math::normalize(math::cross(math::float3(0.0f, 1.0f, 0.0f), m_forward));
+		m_right = math::normalize(math::cross(m_up, m_forward));
 		m_up = math::normalize(math::cross(m_forward, m_right));
-
-		//World::getWorld()->setWorldToViewMatrix(getWorldToViewMatrix());
-		//World::getWorld()->setCamPos(m_position);
-		//World::getWorld()->setFov(m_fov);
 
 		if (m_viewportWidget.lock())
 			m_viewportWidget.lock()->setRenderTarget(m_renderTarget);
@@ -118,7 +116,7 @@ namespace GuGu {
 	}
 	float EditorCamera::getAspectRatio() const
 	{
-		return m_width / m_height;
+		return (float)m_width / m_height;
 	}
 	math::float3 EditorCamera::getCamPos() const
 	{
@@ -126,7 +124,7 @@ namespace GuGu {
 	}
 	float EditorCamera::getFov() const
 	{
-		return m_fov;
+		return math::radians(m_fov);
 	}
 	void EditorCamera::resizeViewport(int32_t width, int32_t height)
 	{
@@ -158,5 +156,13 @@ namespace GuGu {
 	math::float2 EditorCamera::getRenderTargetSize() const
 	{
 		return math::float2(m_renderTarget->getDesc().width, m_renderTarget->getDesc().height);
+	}
+	float EditorCamera::getNearPlane() const
+	{
+		return m_nearPlane;
+	}
+	float EditorCamera::getFarPlane() const
+	{
+		return m_farPlane;
 	}
 }

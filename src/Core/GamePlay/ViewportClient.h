@@ -40,5 +40,9 @@ namespace GuGu {
 		virtual math::float2 getRenderTargetSize() const = 0;
 
 		virtual float getAspectRatio() const = 0;
+
+		virtual float getNearPlane() const = 0;
+
+		virtual float getFarPlane() const = 0;
 	};
 }

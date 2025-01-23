@@ -961,14 +961,14 @@ namespace GuGu {
 		//math::affine3 viewMatrix =
 		//math::yawPitchRoll(0.f, math::radians(-30.f), 0.f)
 		//* math::translation(math::float3(0, 0, 2));
-		math::float4x4 projMatrix = math::perspProjD3DStyle(math::radians(inViewportClient->getFov()),
-			inViewportClient->getAspectRatio(), 1.0f, 1000.0f
+		math::float4x4 projMatrix = math::perspProjD3DStyle(inViewportClient->getFov(),
+			inViewportClient->getAspectRatio(), inViewportClient->getNearPlane(), inViewportClient->getFarPlane()
 		);
 		math::float4x4 viewProjMatrix = math::affineToHomogeneous(inViewportClient->getWorldToViewMatrix()) * projMatrix;
 		//modelConstants.viewProjMatrix = viewProjMatrix;
 
 		Pass pass;
-		pass.camPos = -inViewportClient->getCamPos();
+		pass.camPos = inViewportClient->getCamPos();
 		m_CommandList->writeBuffer(m_PassBuffers, &pass, sizeof(pass));
 
 		//draw level
