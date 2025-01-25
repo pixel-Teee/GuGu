@@ -67,7 +67,7 @@ namespace GuGu{
        float4x4 perspProjD3DStyle(float verticalFOV, float aspect, float zNear, float zFar)
        {
            //观察矩阵的we是1，xe，ye在[l, r], [b, t]之间，而ze在[n, f]之间
-		   //这个投影矩阵，是把[l, r]，[b, t]，[n, f]转换成[0, 1]
+		   //这个投影矩阵，是把[n, f]转换成[0, 1], [l, r]，[b, t]转成[-1, 1]
 		   //注意，矩阵这里是列主序，并且C++这里是左乘，向量左乘矩阵，会按列相乘再相加
 		   //在shader里面，也是左乘，shader会将向量和每一行左乘，但是shader会将矩阵的列转换成行
            float yScale = 1.0f / tanf(0.5f * verticalFOV);

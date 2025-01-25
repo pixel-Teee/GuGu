@@ -961,9 +961,7 @@ namespace GuGu {
 		//math::affine3 viewMatrix =
 		//math::yawPitchRoll(0.f, math::radians(-30.f), 0.f)
 		//* math::translation(math::float3(0, 0, 2));
-		math::float4x4 projMatrix = math::perspProjD3DStyle(inViewportClient->getFov(),
-			inViewportClient->getAspectRatio(), inViewportClient->getNearPlane(), inViewportClient->getFarPlane()
-		);
+		math::float4x4 projMatrix = inViewportClient->getPespectiveMatrix();
 		math::float4x4 viewProjMatrix = math::affineToHomogeneous(inViewportClient->getWorldToViewMatrix()) * projMatrix;
 		//modelConstants.viewProjMatrix = viewProjMatrix;
 

@@ -29,6 +29,8 @@ namespace GuGu{
 		virtual void OnSerialize(nlohmann::json& output) const override;
 		//反序列化
 		virtual void OnDeserialize(const nlohmann::json& input) override;
+
+		const dm::box3& getObjectSpaceBounds() const;
 	
 		//组成一个模型的所有子网格的数据(包括内存数据和显存数据)
 		nvrhi::BufferHandle m_indexBuffer;

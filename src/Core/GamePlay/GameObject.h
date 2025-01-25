@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Reflection/Object.h"
-#include "Reflection/Type.h"
+#include <Core/Reflection/Object.h>
+#include <Core/Reflection/Type.h>
 
 #include "Component.h"
 
@@ -28,6 +28,19 @@ namespace GuGu {
 		{
 			for (auto& component : m_components)
 			{ 
+				if (component->GetType() == typeof(T)) //需要注册指针类型
+				{
+					return std::static_pointer_cast<T>(component);
+				}
+			}
+			return nullptr;
+		}
+
+		template<typename T>
+		std::shared_ptr<T> getComponent() const
+		{
+			for (auto& component : m_components)
+			{
 				if (component->GetType() == typeof(T)) //需要注册指针类型
 				{
 					return std::static_pointer_cast<T>(component);

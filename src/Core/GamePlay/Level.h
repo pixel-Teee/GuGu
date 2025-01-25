@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Reflection/Array.h"
+#include <Core/Reflection/Array.h>
 #include "GameObject.h"
 
 namespace GuGu {

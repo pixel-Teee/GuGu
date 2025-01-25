@@ -99,4 +99,12 @@ namespace GuGu {
         mouseDelta.y = m_currentMouseState[keyName].m_mouseY - m_previousMouseState[keyName].m_mouseY;
         return mouseDelta;
     }
+
+	math::float2 InputManager::getMousePosition()
+	{
+        GuGuUtf8Str keyName = Keys::Invalid.getKeyName();
+
+        return math::float2(m_currentMouseState[keyName].m_mouseX, m_currentMouseState[keyName].m_mouseY);
+	}
+
 }

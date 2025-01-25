@@ -73,6 +73,8 @@ namespace GuGu {
 		};
 
 		math::float2 getMouseDelta();
+
+		math::float2 getMousePosition();
 	private:
 		std::map<GuGuUtf8Str, bool> m_currentState;
 

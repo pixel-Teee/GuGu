@@ -7,46 +7,36 @@
 #include <Core/Timer.h>
 #include <Application/Application.h>
 #include <Core/GamePlay/World.h>
+#include <Core/Collision/Collision3D.h>
+#include <Core/GamePlay/Level.h>
 
 namespace GuGu {
 	EditorCamera::EditorCamera(std::shared_ptr<ViewportWidget> inViewportWidget)
 		: m_viewportWidget(inViewportWidget)
 	{
-		m_fov = 90.0f;
+		m_fov = 60.0f;
 		m_width = 1280.0f;
 		m_height = 920.0f;
-		m_yaw = 0;
+		m_yaw = 0.0f;
 		m_pitch = 0;
+		updateView();
 	}
 	EditorCamera::~EditorCamera()
 	{
 	}
-	bool EditorCamera::move(float fElapsedTimeSecond)
+	void EditorCamera::move(float fElapsedTimeSecond)
 	{
 		m_moveOffset = math::float3(0, 0, 0);
 
 		if (InputManager::getInputManager().isMouseDown(Keys::MiddleMouseButton) && InputManager::getInputManager().isKeyDown(Keys::LeftShift))
 		{
 			math::float2 mouseDelta = InputManager::getInputManager().getMouseDelta();
-
-			math::float2 direction = mouseDelta.x * math::float3(-1.0f, 0.0f, 0.0) + mouseDelta.y * math::float3(0.0f, 1.0f, 0.0);
-
-			//GuGu_LOGD("(%f, %f)", mouseDelta.x, mouseDelta.y);
-
-			m_moveOffset += math::float3(direction, 0.0f) * m_moveSpeed;
+			math::float2 speedDelta = moveSpeed();
+			m_focalPoint += -getRightDirection() * mouseDelta.x * speedDelta.x * m_distance * fElapsedTimeSecond;
+			m_focalPoint += getUpDirection() * mouseDelta.y * speedDelta.y * m_distance * fElapsedTimeSecond;
 		}
-
-		if (m_moveOffset.x != 0 || m_moveOffset.y != 0 || m_moveOffset.z != 0)
-		{
-			m_moveTarget = m_position + m_moveOffset; //移动到的指定位置
-			//平滑移动
-			//m_position = m_moveTarget;
-			m_position = math::lerp(m_position, m_moveTarget, fElapsedTimeSecond * m_smoothMoveSpeed);
-			return true;
-		}
-		return false;
 	}
-	bool EditorCamera::zoom(float fElapsedTimeSecond)
+	void EditorCamera::zoom(float fElapsedTimeSecond)
 	{
 		//m_moveOffset = math::float3(0, 0, 0);
 		//
@@ -58,61 +48,63 @@ namespace GuGu {
 
 		if (wheelDelta != 0.0f)
 		{
-			m_fov -= wheelDelta;
-			if(m_fov < 1.0f)
-				m_fov = 1.0f;
-			if(m_fov > 45.0f)
-				m_fov = 45.0f;
-			return true;
+			//GuGu_LOGD("%f", wheelDelta);
+			m_distance -= fElapsedTimeSecond * wheelDelta * 10;
+			if (m_distance < 0.01f)
+			{
+				m_focalPoint += getForwardDirection();
+				m_distance = 0.01f;
+			}
 		}
-		return false;
 	}
-	bool EditorCamera::rotate(float fElapsedTimeSecond)
+	void EditorCamera::rotate(float fElapsedTimeSecond)
 	{
 		if (InputManager::getInputManager().isMouseDown(Keys::MiddleMouseButton) && !InputManager::getInputManager().isKeyDown(Keys::LeftShift))
 		{
-			math::float2 mouseDelta = InputManager::getInputManager().getMouseDelta();
-
-			m_yaw += mouseDelta.x * 0.02 * fElapsedTimeSecond;//偏航角，绕y轴
-			m_pitch += (-mouseDelta.y) * 0.02 * fElapsedTimeSecond;//俯仰角，绕x轴
-
-			if(m_pitch > 89.0f)
-				m_pitch = 89.0f;
-			if(m_pitch < -89.0f)
-				m_pitch = -89.0f;
-
-			//GuGu_LOGD("%s", "rotate");
-			bool isLeftShiftDown = InputManager::getInputManager().isKeyDown(Keys::LeftShift);
-			math::matrix pichRollMatrix = math::affineToHomogeneous(math::yawPitchRoll(m_yaw, m_pitch, 0.0f));
-			math::float3 newFront = math::float4(1.0f, 1.0f, 1.0f, 0.0f) * pichRollMatrix;
-
-			m_forward = math::normalize(newFront);
-			return true;
+			math::float2 delta = InputManager::getInputManager().getMouseDelta();
+			float yawSign = getUpDirection().y < 0.0f ? -1.0f : 1.0f;
+			m_yaw += yawSign * delta.x * 0.05f * fElapsedTimeSecond;
+			m_pitch += delta.y * 0.05f * fElapsedTimeSecond;
 		}
-		return false;
 	}
 	void EditorCamera::update(float fElapsedTimeSecond)
 	{
-		if(!move(fElapsedTimeSecond))
+		move(fElapsedTimeSecond);
+		rotate(fElapsedTimeSecond);
+		zoom(fElapsedTimeSecond);
+		if (InputManager::getInputManager().isMouseDown(Keys::LeftMouseButton))
 		{
-			//if(!zoom(fElapsedTimeSecond))
-			rotate(fElapsedTimeSecond);
+			math::float2 mousePosition = InputManager::getInputManager().getMousePosition();
+			//GuGu_LOGD("%f %f", mousePosition.x, mousePosition.y);
+			std::shared_ptr<GameObject> pickedItem = Collision3D::pick(mousePosition.x, mousePosition.y, m_width, m_height, getPespectiveMatrix(), math::affineToHomogeneous(getWorldToViewMatrix()), World::getWorld()->getCurrentLevel()->getGameObjects());
+			if (pickedItem)
+			{
+				GuGu_LOGD("pick item");
+			}
 		}
-		//move(fElapsedTimeSecond);
-		//zoom(fElapsedTimeSecond);
-		//rotate(fElapsedTimeSecond);
-
-		m_forward = math::normalize(m_forward);
-		m_right = math::normalize(math::cross(m_up, m_forward));
-		m_up = math::normalize(math::cross(m_forward, m_right));
+		updateView();
+		//m_forward = math::normalize(m_forward);
+		//m_right = math::normalize(math::cross(m_up, m_forward));
+		//m_up = math::normalize(math::cross(m_forward, m_right));
 
 		if (m_viewportWidget.lock())
 			m_viewportWidget.lock()->setRenderTarget(m_renderTarget);
 	}
 	math::affine3 EditorCamera::getWorldToViewMatrix() const
 	{
-		math::affine3 worldToView = math::affine3::from_cols(m_right, m_up, m_forward, -m_position);
-		return worldToView;
+		//math::affine3 worldToView = math::affine3::from_cols(m_right, m_up, m_forward, -m_position);
+		//return worldToView;
+
+		math::quat orientation = getOrientation();
+		math::affine3 worldToView = orientation.toAffine() * math::translation(m_position);	
+		return math::inverse(worldToView);
+	}
+	math::float4x4 EditorCamera::getPespectiveMatrix() const
+	{
+		math::matrix perspectiveMatrix = math::perspProjD3DStyle(getFov(),
+			getAspectRatio(), getNearPlane(), getFarPlane()
+		);
+		return perspectiveMatrix;
 	}
 	float EditorCamera::getAspectRatio() const
 	{
@@ -164,5 +156,47 @@ namespace GuGu {
 	float EditorCamera::getFarPlane() const
 	{
 		return m_farPlane;
+	}
+	void EditorCamera::updateView()
+	{
+		m_position = calculatePosition();
+	}
+	math::float3 EditorCamera::calculatePosition() const
+	{
+		return m_focalPoint - getForwardDirection() * m_distance;
+	}
+	math::float3 EditorCamera::getForwardDirection() const
+	{
+		return math::applyQuat(getOrientation(), math::float3(0.0f, 0.0f, 1.0f));
+	}
+	math::quat EditorCamera::getOrientation() const
+	{
+		return math::rotationQuat(math::float3(m_pitch, m_yaw, 0.0f));
+	}
+	math::float3 EditorCamera::getRightDirection() const
+	{
+		return math::applyQuat(getOrientation(), math::float3(1.0f, 0.0f, 0.0f));
+	}
+	math::float3 EditorCamera::getUpDirection() const
+	{
+		return math::applyQuat(getOrientation(), math::float3(0.0f, 1.0f, 0.0f));
+	}
+	math::float2 EditorCamera::moveSpeed()
+	{
+		float x = std::min(m_width / 1000.0f, 2.4f);//max = 2.4f
+		float xFactor = 0.0366f * (x * x) - 0.1778f * x + 0.3021f;
+
+		float y = std::min(m_height / 1000.0f, 2.4f); // max = 2.4f
+		float yFactor = 0.0366f * (y * y) - 0.1778f * y + 0.3021f;
+
+		return { xFactor, yFactor };
+	}
+	float EditorCamera::zoomSpeed()
+	{
+		float distance = m_distance * 0.2f;
+		distance = std::max(distance, 0.0f);
+		float speed = distance * distance;
+		speed = std::min(speed, 100.0f);//max speed = 100
+		return speed;
 	}
 }

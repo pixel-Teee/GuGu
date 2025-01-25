@@ -45,7 +45,7 @@ namespace GuGu {
 		{
 			std::shared_ptr<GameObject> gameObject = std::make_shared<GameObject>();
 			std::shared_ptr<TransformComponent> transformComponent = std::make_shared<TransformComponent>();
-			transformComponent->SetScaling(10.0f);
+			//transformComponent->SetScaling(0.2f);
 			//transformComponent->SetTranslation(math::double3(5, 5, 0));
 			//transformComponent->SetRotation(math::rotationQuat(math::double3(math::radians(60.0), math::radians(135.0), math::radians(40.0))));
 			gameObject->addComponent(transformComponent);

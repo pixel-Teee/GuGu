@@ -91,19 +91,22 @@ namespace GuGu {
 	}
 	Reply ViewportWidget::OnMouseButtonDown(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
 	{
-		InputManager::getInputManager().updateMouseButton(inMouseEvent.m_effectingButton, inMouseEvent.m_screenSpacePosition.x, inMouseEvent.m_screenSpacePosition.y, true);
+		math::float2 localMousePosition = myGeometry.absoluteToLocal(inMouseEvent.m_screenSpacePosition);
+		InputManager::getInputManager().updateMouseButton(inMouseEvent.m_effectingButton, localMousePosition.x, localMousePosition.y, true);
 		return Reply::Handled().setFocus(shared_from_this());
 	}
 
 	Reply ViewportWidget::OnMouseButtonUp(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
 	{	
-		InputManager::getInputManager().updateMouseButton(inMouseEvent.m_effectingButton, inMouseEvent.m_screenSpacePosition.x, inMouseEvent.m_screenSpacePosition.y, false);
+		math::float2 localMousePosition = myGeometry.absoluteToLocal(inMouseEvent.m_screenSpacePosition);
+		InputManager::getInputManager().updateMouseButton(inMouseEvent.m_effectingButton, localMousePosition.x, localMousePosition.y, false);
 		return Reply::Handled();
 	}
 
 	Reply ViewportWidget::OnMouseMove(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
 	{
-		InputManager::getInputManager().updateMouseButton(inMouseEvent.m_effectingButton, inMouseEvent.m_screenSpacePosition.x, inMouseEvent.m_screenSpacePosition.y, false);
+		math::float2 localMousePosition = myGeometry.absoluteToLocal(inMouseEvent.m_screenSpacePosition);
+		InputManager::getInputManager().updateMouseButton(inMouseEvent.m_effectingButton, localMousePosition.x, localMousePosition.y, false);
 		return Reply::Handled();
 	}
 

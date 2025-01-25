@@ -12,15 +12,17 @@ namespace GuGu {
 
 		virtual ~EditorCamera();
 
-		bool move(float fElapsedTimeSecond); //移动
+		void move(float fElapsedTimeSecond); //移动
 
-		bool zoom(float fElapsedTimeSecond); //聚焦
+		void zoom(float fElapsedTimeSecond); //聚焦
 
-		bool rotate(float fElapsedTimeSecond); //旋转
+		void rotate(float fElapsedTimeSecond); //旋转
 
 		virtual void update(float fElapsedTimeSecond) override;
 
 		virtual math::affine3 getWorldToViewMatrix() const override;
+
+		virtual math::float4x4 getPespectiveMatrix() const override;
 
 		virtual float getAspectRatio() const override;
 
@@ -45,7 +47,26 @@ namespace GuGu {
 		virtual float getNearPlane() const override;
 
 		virtual float getFarPlane() const override;
+
+		void updateView();
+
+		math::float3 calculatePosition() const;
+
+		math::float3 getForwardDirection() const;
+
+		math::quat getOrientation() const;
+
+		math::float3 getRightDirection() const;
+
+		math::float3 getUpDirection() const;
+
+		math::float2 moveSpeed();
+
+		float zoomSpeed();
 	private:
+
+		math::float3 m_focalPoint = math::float3(0.0f, 0.0f, 0.0f);//焦点在世界原点
+		float m_distance = 2.0f;//focal point 和 distance 决定摄像机位置
 
 		//move
 		math::float3 m_moveOffset = math::float3(0, 0, 0);
@@ -56,13 +77,13 @@ namespace GuGu {
 		float m_zoomSpeed = 2.0f;
 
 		//camera
-		math::float3 m_forward = math::float3(0, 0, 1.0); //摄像机的方向向量 
-		math::float3 m_right = math::float3(1, 0, 0); //摄像机空间的x轴方向
-		math::float3 m_up = math::float3(0.0, 1.0, 0.0);
-		math::float3 m_position = math::float3(0, 0, -25);
+		//math::float3 m_forward = math::float3(0, 0, 1.0); //摄像机的方向向量 
+		//math::float3 m_right = math::float3(1, 0, 0); //摄像机空间的x轴方向
+		//math::float3 m_up = math::float3(0.0, 1.0, 0.0);
+		math::float3 m_position = math::float3(0, 0, -1);
 		float m_fov;
 		float m_yaw, m_pitch;
-		float m_nearPlane = 1.0f;
+		float m_nearPlane = 0.01f;
 		float m_farPlane = 1000.0f;
 
 		math::float3 m_moveTarget = m_position;	

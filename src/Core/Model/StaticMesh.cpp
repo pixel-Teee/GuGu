@@ -34,6 +34,7 @@ namespace GuGu {
 		staticMesh->m_geometries = m_geometries;
 		staticMesh->m_totalIndices = m_totalIndices;
 		staticMesh->m_totalVertices = m_totalVertices;
+		staticMesh->m_objectSpaceBounds = m_objectSpaceBounds;
 		return staticMesh;
 	}
 
@@ -78,7 +79,7 @@ namespace GuGu {
 		m_totalIndices = indexData.size();
 		nlohmann::json positionData = input["positionData"];
 		int32_t currentIndex = 0;
-		m_positionData.resize(positionData.size());
+		m_positionData.resize(positionData.size() / 3);
 		for (int32_t i = 0; i < positionData.size(); i = i + 3)
 		{
 			math::float3 position = math::float3(positionData[i].get<float>(), positionData[i + 1].get<float>(), positionData[i + 2].get<float>());
@@ -104,6 +105,13 @@ namespace GuGu {
 			++currentIndex;
 		}
 		m_totalVertices = positionData.size() / 3;
+
+		m_objectSpaceBounds = dm::box3(m_positionData.size(), m_positionData.data());
+	}
+
+	const dm::box3& GStaticMesh::getObjectSpaceBounds() const
+	{
+		return m_objectSpaceBounds;
 	}
 
 }
