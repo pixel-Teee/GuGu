@@ -5,6 +5,8 @@
 
 namespace GuGu {
 	class ViewportWidget;
+	class GStaticMesh;
+	class GameObject;
 	class ViewportClient
 	{
 	public:
@@ -17,7 +19,7 @@ namespace GuGu {
 
 		virtual ~ViewportClient();
 
-		virtual math::affine3 getWorldToViewMatrix() const = 0;
+		virtual math::float4x4 getWorldToViewMatrix() const = 0;
 
 		virtual math::float4x4 getPespectiveMatrix() const = 0;
 
@@ -46,5 +48,14 @@ namespace GuGu {
 		virtual float getNearPlane() const = 0;
 
 		virtual float getFarPlane() const = 0;
+
+		virtual const std::vector<std::shared_ptr<GStaticMesh>>& getGizmos() const = 0;
+
+		virtual std::vector<std::shared_ptr<GStaticMesh>>& getGizmos() = 0;
+
+		virtual bool gizmosIsVisible() const = 0;
+
+		virtual std::shared_ptr<GameObject> getSelectedItems() const = 0;
+
 	};
 }

@@ -15,7 +15,7 @@ namespace GuGu {
 						 uint32_t clientWidth, uint32_t clientHeight, 
 						 math::float4x4 perspectiveMatrix, 
 						 math::float4x4 viewMatrix,
-						 const std::vector<std::shared_ptr<GameObject>>& objects);
+						 const std::vector<std::shared_ptr<GameObject>>& objects, math::float4& debugDrawWorldPos = math::float4(1.0f));
 
 		//AABB box
 		static bool intersectsWithBox(math::float3 rayOrigin, math::float3 rayDir, float& dist, dm::box3 boundingBox);

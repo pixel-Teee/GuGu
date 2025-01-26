@@ -5,6 +5,8 @@
 
 namespace GuGu {
 	struct KeyEvent;
+	class GameObject;
+	class GStaticMesh;
 	class EditorCamera : public ViewportClient
 	{
 	public:
@@ -20,7 +22,7 @@ namespace GuGu {
 
 		virtual void update(float fElapsedTimeSecond) override;
 
-		virtual math::affine3 getWorldToViewMatrix() const override;
+		virtual math::float4x4 getWorldToViewMatrix() const override;
 
 		virtual math::float4x4 getPespectiveMatrix() const override;
 
@@ -63,7 +65,21 @@ namespace GuGu {
 		math::float2 moveSpeed();
 
 		float zoomSpeed();
+
+		void gizmos(float fElapsedTimeSecond);
+
+		virtual const std::vector<std::shared_ptr<GStaticMesh>>& getGizmos() const override;
+
+		virtual std::vector<std::shared_ptr<GStaticMesh>>& getGizmos() override;
+
+		virtual bool gizmosIsVisible() const override;
+
+		virtual std::shared_ptr<GameObject> getSelectedItems() const override;
+
+		void debugPitchAndYaw();
+
 	private:
+		void makeMoveGizmos();
 
 		math::float3 m_focalPoint = math::float3(0.0f, 0.0f, 0.0f);//焦点在世界原点
 		float m_distance = 2.0f;//focal point 和 distance 决定摄像机位置
@@ -94,5 +110,12 @@ namespace GuGu {
 		nvrhi::TextureHandle m_depthTarget;
 		nvrhi::FramebufferHandle m_frameBuffer;
 		std::weak_ptr<ViewportWidget> m_viewportWidget;
+
+		bool m_bShowGizmos;
+		std::shared_ptr<GameObject> m_pickedGameObject;
+
+		std::vector<std::shared_ptr<GStaticMesh>> m_moveGizmos;
+
+		math::float4 m_debugDrawWorldPos = math::float4(1.0f);
 	};
 }

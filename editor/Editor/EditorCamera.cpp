@@ -9,6 +9,7 @@
 #include <Core/GamePlay/World.h>
 #include <Core/Collision/Collision3D.h>
 #include <Core/GamePlay/Level.h>
+#include <Core/Model/GeometryHelper.h>
 
 namespace GuGu {
 	EditorCamera::EditorCamera(std::shared_ptr<ViewportWidget> inViewportWidget)
@@ -19,7 +20,9 @@ namespace GuGu {
 		m_height = 920.0f;
 		m_yaw = 0.0f;
 		m_pitch = 0;
+		m_bShowGizmos = false;
 		updateView();
+		makeMoveGizmos();
 	}
 	EditorCamera::~EditorCamera()
 	{
@@ -72,17 +75,9 @@ namespace GuGu {
 		move(fElapsedTimeSecond);
 		rotate(fElapsedTimeSecond);
 		zoom(fElapsedTimeSecond);
-		if (InputManager::getInputManager().isMouseDown(Keys::LeftMouseButton))
-		{
-			math::float2 mousePosition = InputManager::getInputManager().getMousePosition();
-			//GuGu_LOGD("%f %f", mousePosition.x, mousePosition.y);
-			std::shared_ptr<GameObject> pickedItem = Collision3D::pick(mousePosition.x, mousePosition.y, m_width, m_height, getPespectiveMatrix(), math::affineToHomogeneous(getWorldToViewMatrix()), World::getWorld()->getCurrentLevel()->getGameObjects());
-			if (pickedItem)
-			{
-				GuGu_LOGD("pick item");
-			}
-		}
+		gizmos(fElapsedTimeSecond);
 		updateView();
+
 		//m_forward = math::normalize(m_forward);
 		//m_right = math::normalize(math::cross(m_up, m_forward));
 		//m_up = math::normalize(math::cross(m_forward, m_right));
@@ -90,14 +85,14 @@ namespace GuGu {
 		if (m_viewportWidget.lock())
 			m_viewportWidget.lock()->setRenderTarget(m_renderTarget);
 	}
-	math::affine3 EditorCamera::getWorldToViewMatrix() const
+	math::float4x4 EditorCamera::getWorldToViewMatrix() const
 	{
 		//math::affine3 worldToView = math::affine3::from_cols(m_right, m_up, m_forward, -m_position);
 		//return worldToView;
 
 		math::quat orientation = getOrientation();
 		math::affine3 worldToView = orientation.toAffine() * math::translation(m_position);	
-		return math::inverse(worldToView);
+		return math::inverse(math::affineToHomogeneous(worldToView));
 	}
 	math::float4x4 EditorCamera::getPespectiveMatrix() const
 	{
@@ -198,5 +193,88 @@ namespace GuGu {
 		float speed = distance * distance;
 		speed = std::min(speed, 100.0f);//max speed = 100
 		return speed;
+	}
+	void EditorCamera::gizmos(float fElapsedTimeSecond)
+	{
+		if (m_bShowGizmos)
+		{
+			//和gizmos先做碰撞检测
+
+		}
+
+		if (InputManager::getInputManager().isMouseDown(Keys::LeftMouseButton))
+		{
+			math::float2 mousePosition = InputManager::getInputManager().getMousePosition();
+			//GuGu_LOGD("%f %f", mousePosition.x, mousePosition.y);
+			std::shared_ptr<GameObject> pickedItem = Collision3D::pick(mousePosition.x, mousePosition.y, m_width, m_height, getPespectiveMatrix(), getWorldToViewMatrix(), World::getWorld()->getCurrentLevel()->getGameObjects(), m_debugDrawWorldPos);
+			if (pickedItem)
+			{
+				m_bShowGizmos = true;
+				m_pickedGameObject = pickedItem;
+			}
+			else
+			{
+				m_bShowGizmos = false;
+				m_pickedGameObject = nullptr;
+			}
+
+			debugPitchAndYaw();
+		}
+
+	}
+	const std::vector<std::shared_ptr<GStaticMesh>>& EditorCamera::getGizmos() const
+	{
+		return m_moveGizmos;
+	}
+	std::vector<std::shared_ptr<GStaticMesh>>& EditorCamera::getGizmos()
+	{
+		return m_moveGizmos;
+	}
+	bool EditorCamera::gizmosIsVisible() const
+	{
+		return m_bShowGizmos;
+	}
+	std::shared_ptr<GameObject> EditorCamera::getSelectedItems() const
+	{
+		return m_pickedGameObject;
+	}
+	void EditorCamera::debugPitchAndYaw()
+	{
+		float pitchRad = math::radians(m_pitch);
+		float yawRad = math::radians(m_yaw);
+
+		float cosPitch = std::cos(pitchRad);
+		float sinPitch = std::sin(pitchRad);
+		float cosYaw = std::cos(yawRad);
+		float sinYaw = std::sin(yawRad);
+
+		math::float3x3 rotationMatrix = math::float3x3(
+			cosYaw, 0, sinYaw,
+			sinPitch * sinYaw, cosPitch, -sinPitch * cosYaw,
+			-cosPitch * sinYaw, sinPitch, cosPitch * cosYaw
+		);
+
+		math::float3 forward = math::float3(0, 0, 1);
+		math::float3 right = math::float3(1, 0, 0);
+		math::float3 up = math::float3(0, 1, 0);
+
+		forward = math::normalize(forward * rotationMatrix);
+		right = math::normalize(right * rotationMatrix);
+		up = math::normalize(up * rotationMatrix);
+
+		GuGu_LOGD("forward:(%f, %f, %f), right:(%f, %f, %f), up:(%f, %f, %f)", forward.x, forward.y, forward.z,
+			right.x, right.y, right.z,
+			up.x, up.y, up.z);
+	}
+
+	void EditorCamera::makeMoveGizmos()
+	{
+		//先制作一根箭头
+
+		//绿色
+		GStaticMesh gstaticMesh = GeometryHelper::createCylinder(0.2f, 0.05f, 0.2f, 16, 4);
+		m_moveGizmos.push_back(std::shared_ptr<GStaticMesh>(static_cast<GStaticMesh*>(gstaticMesh.Clone())));//垂直于xy平面
+		gstaticMesh = GeometryHelper::createCylinder(0.015f, 0.015f, 0.4f, 16, 4);
+		m_moveGizmos.push_back(std::shared_ptr<GStaticMesh>(static_cast<GStaticMesh*>(gstaticMesh.Clone())));
 	}
 }

@@ -7,17 +7,17 @@ namespace GuGu {
 	{
 		//slice count:圆柱体的横截面切片数量
 		//stack count:圆柱体的层数
-		GStaticMesh createCylinder(float bottomRaidus, float topRadius, float height,
+		static GStaticMesh createCylinder(float bottomRaidus, float topRadius, float height,
 		uint32_t sliceCount, uint32_t stackCount);
 
-		void createCylinderTopCap(GStaticMesh& staticMesh, float bottomRaidus, float topRadius, float height,
+		static void createCylinderTopCap(GStaticMesh& staticMesh, float bottomRaidus, float topRadius, float height,
 			uint32_t sliceCount, uint32_t stackCount);
 
-		void createCylinderBottomCap(GStaticMesh& staticMesh, float bottomRaidus, float topRadius, float height,
+		static void createCylinderBottomCap(GStaticMesh& staticMesh, float bottomRaidus, float topRadius, float height,
 			uint32_t sliceCount, uint32_t stackCount);
 
-		GStaticMesh createQuat(float x, float y, float w, float h, float depth);
+		static GStaticMesh createQuat(float x, float y, float w, float h, float depth);
 
-		GStaticMesh createGrid(float width, float depth, uint32_t m, uint32_t n);
+		static GStaticMesh createGrid(float width, float depth, uint32_t m, uint32_t n);
 	};
 }

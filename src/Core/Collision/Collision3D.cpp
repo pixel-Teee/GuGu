@@ -10,16 +10,25 @@ namespace GuGu {
 	std::shared_ptr<GameObject> Collision3D::pick(uint32_t x, uint32_t y,
 						   uint32_t clientWidth, uint32_t clientHeight, 
 						   math::float4x4 perspectiveMatrix, math::float4x4 viewMatrix, 
-						   const std::vector<std::shared_ptr<GameObject>>& objects)
+						   const std::vector<std::shared_ptr<GameObject>>& objects, math::float4& debugDrawWorldPos)
 	{
 		//观察空间中的摄像
 		float vx = (2.0f * x / clientWidth - 1.0f) / perspectiveMatrix[0][0];
 		float vy = (-2.0f * y / clientHeight + 1.0f) / perspectiveMatrix[1][1];
 
+		//GuGu_LOGD("{%f, %f}", vx, vy);
+
 		math::float4 rayOrigin = math::float4(0.0f, 0.0f, 0.0f, 1.0f);
 		math::float4 rayDir = math::float4(vx, vy, 1.0f, 0.0f);
 
-		//GuGu_LOGD("%f %f\n", rayDir.x, rayDir.y);
+		math::float4x4 invView = math::inverse(viewMatrix);
+		math::float4 worldRayOrigin = rayOrigin * invView;
+		math::float4 worldRayDir = math::normalize(rayDir * invView);
+
+		//debug draw
+		//debugDrawWorldPos = worldRayOrigin + worldRayDir;
+
+		//GuGu_LOGD("(%f %f %f), (%f %f %f)", worldRayOrigin.x, worldRayOrigin.y, worldRayOrigin.z, worldRayDir.x, worldRayDir.y, worldRayDir.z);
 
 		std::shared_ptr<GameObject> pickedGameObject;
 		for (const auto& item : objects)
@@ -31,7 +40,7 @@ namespace GuGu {
 				math::float4x4 invView = math::inverse(viewMatrix);
 				math::float4x4 invWorld = math::float4x4(math::inverse(math::affineToHomogeneous(transformComponent->GetLocalToWorldTransform())));
 			
-				math::float4x4 toLocal = invWorld * invView;
+				math::float4x4 toLocal = invView * invWorld;
 
 				math::float4 localRayOrigin = rayOrigin * toLocal;
 				math::float4 localRayDir = math::normalize(rayDir * toLocal);

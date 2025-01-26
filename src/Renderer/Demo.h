@@ -164,5 +164,48 @@ namespace GuGu {
 
 		GeometryHelper m_geometryHelper;
 		std::shared_ptr<StaticMeshComponent> m_cylinderMeshComponent;
+
+		//------gizmos------
+		struct GizmosBufferEntry {
+			dm::float4x4 viewProjMatrix;
+			dm::float4x4 worldMatrix;
+			dm::float3 camWorldPos;
+		};
+
+		struct GizmosPropertiesBuffer {
+			dm::float3 color;
+		};
+
+		struct GizmosVertex
+		{
+			math::float3 position;
+			math::float2 uv;
+			math::float3 tangent;
+			math::float3 normal;
+
+			GizmosVertex(math::float3 inPosition, math::float2 inUV, math::float3 inTangent, math::float3 inNormal)
+			{
+				position = inPosition;
+				uv = inUV;
+				tangent = inTangent;
+				normal = inNormal;
+			}
+		};
+
+		nvrhi::ShaderHandle m_gizmosVertexShader;
+		nvrhi::ShaderHandle m_gizmosPixelShader;
+		nvrhi::BufferHandle m_gizmosConstantBuffer;
+		nvrhi::BufferHandle m_gizmosPropertiesConstantBuffer;
+		nvrhi::InputLayoutHandle m_gizmosInputLayout;
+		nvrhi::BindingLayoutHandle m_gizmosBindingLayout;
+		nvrhi::BindingSetHandle m_gizmosBindingSet;
+		nvrhi::GraphicsPipelineHandle m_gizmosPipeline;
+
+		struct GizmosConstantBufferEntry {
+			dm::float4x4 viewProjMatrix;
+			dm::float4x4 worldMatrix;
+			dm::float3 camWorldPos;
+		};
+		//------gizmos------
 	};
 }

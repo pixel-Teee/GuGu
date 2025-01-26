@@ -711,6 +711,62 @@ namespace GuGu {
 			nvrhi::ResourceStates::VertexBuffer);//note:will call end tracking buffer state
 		//------grid------
 
+		//------gizmos------
+		m_gizmosVertexShader = shaderFactory->CreateShader("asset/shader/gizmos.hlsl", "main_vs", nullptr,
+			nvrhi::ShaderType::Vertex);
+		m_gizmosPixelShader = shaderFactory->CreateShader("asset/shader/gizmos.hlsl", "main_ps", nullptr,
+			nvrhi::ShaderType::Pixel);
+		layoutDesc.bindings = {
+			nvrhi::BindingLayoutItem::ConstantBuffer(0),
+			nvrhi::BindingLayoutItem::ConstantBuffer(1)
+		};
+		m_gizmosBindingLayout = GetDevice()->createBindingLayout(layoutDesc);
+
+		nvrhi::VertexAttributeDesc gizmosAttributes[] = {
+			nvrhi::VertexAttributeDesc()
+						.setName("POSITION")
+						.setFormat(nvrhi::Format::RGB32_FLOAT)
+						.setOffset(0)
+						.setBufferIndex(0)
+						.setElementStride(sizeof(math::float3)),
+				nvrhi::VertexAttributeDesc()
+						.setName("UV")
+						.setFormat(nvrhi::Format::RG32_FLOAT)
+						.setOffset(0)
+						.setBufferIndex(1)
+						.setElementStride(sizeof(math::float2)),
+				nvrhi::VertexAttributeDesc()
+						.setName("NORMAL")
+						.setFormat(nvrhi::Format::RGB32_FLOAT)
+						.setOffset(0)
+						.setBufferIndex(2)
+						.setElementStride(sizeof(math::float3)),
+				nvrhi::VertexAttributeDesc()
+						.setName("TANGENT")
+						.setFormat(nvrhi::Format::RGB32_FLOAT)
+						.setOffset(0)
+						.setBufferIndex(3)
+						.setElementStride(sizeof(math::float3)),
+		};
+		m_gizmosInputLayout = GetDevice()->createInputLayout(gizmosAttributes,
+			uint32_t(std::size(gizmosAttributes)),
+			m_gizmosVertexShader);
+
+		m_gizmosConstantBuffer = GetDevice()->createBuffer(
+			nvrhi::utils::CreateStaticConstantBufferDesc(
+				sizeof(GizmosBufferEntry), "GizmosBufferEntryConstantBuffer")
+			.setInitialState(
+				nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
+					true));
+
+		m_gizmosPropertiesConstantBuffer = GetDevice()->createBuffer(
+			nvrhi::utils::CreateStaticConstantBufferDesc(
+				sizeof(GizmosPropertiesBuffer), "GizmosPropertiesConstantBuffer")
+			.setInitialState(
+				nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
+					true));
+		//------gizmos------
+
 		m_CommandList->close();
 		GetDevice()->executeCommandList(m_CommandList);
 
@@ -942,6 +998,19 @@ namespace GuGu {
 			m_Pipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
+		if (!m_gizmosPipeline)
+		{
+			nvrhi::GraphicsPipelineDesc psoDesc;
+			psoDesc.VS = m_gizmosVertexShader;
+			psoDesc.PS = m_gizmosPixelShader;
+			psoDesc.inputLayout = m_gizmosInputLayout;
+			psoDesc.bindingLayouts = { m_gizmosBindingLayout };
+			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+			psoDesc.renderState.depthStencilState.depthTestEnable = false;
+			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
+			m_gizmosPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
+		}
+
 		m_drawItems.clear();
 
 		m_CommandList->open();
@@ -962,7 +1031,7 @@ namespace GuGu {
 		//math::yawPitchRoll(0.f, math::radians(-30.f), 0.f)
 		//* math::translation(math::float3(0, 0, 2));
 		math::float4x4 projMatrix = inViewportClient->getPespectiveMatrix();
-		math::float4x4 viewProjMatrix = math::affineToHomogeneous(inViewportClient->getWorldToViewMatrix()) * projMatrix;
+		math::float4x4 viewProjMatrix = inViewportClient->getWorldToViewMatrix() * projMatrix;
 		//modelConstants.viewProjMatrix = viewProjMatrix;
 
 		Pass pass;
@@ -1133,8 +1202,74 @@ namespace GuGu {
 			//args.startIndexLocation = m_drawItems[i].mesh->indexOffset + m_drawItems[i].meshGeometry->indexOffsetInMesh;
 			args.startVertexLocation = 0;
 			args.startIndexLocation = 0;
-			m_CommandList->drawIndexed(args);
+			m_CommandList->drawIndexed(args);	
 		}
+	
+		nvrhi::GraphicsState gizmosGraphicsState;
+		gizmosGraphicsState.pipeline = m_gizmosPipeline;
+		gizmosGraphicsState.framebuffer = inViewportClient->getFramebuffer();
+
+		gizmosGraphicsState.viewport.addViewportAndScissorRect(viewport);
+
+		if (inViewportClient->gizmosIsVisible())
+		{
+			//draw gizmos
+			std::vector<std::shared_ptr<GStaticMesh>>& gizmosStaticMesh = inViewportClient->getGizmos();
+			for (const auto& item : gizmosStaticMesh)
+			{
+				if (item->m_vertexBuffer == nullptr)
+				{
+					createVertexBufferAndIndexBuffer(*item);
+				}
+
+				//draw
+				if (!m_gizmosBindingSet)
+				{
+					nvrhi::BindingSetDesc desc;
+					//nvrhi::BindingSetHandle bindingSet;
+					desc.bindings = {
+							nvrhi::BindingSetItem::ConstantBuffer(0, m_gizmosConstantBuffer),
+							nvrhi::BindingSetItem::ConstantBuffer(1, m_gizmosPropertiesConstantBuffer),
+					};
+					m_gizmosBindingSet = GetDevice()->createBindingSet(desc, m_gizmosBindingLayout);
+				}
+
+				gizmosGraphicsState.bindings = { m_gizmosBindingSet };
+
+				gizmosGraphicsState.vertexBuffers = {
+					{item->m_vertexBuffer, 0, item->getVertexBufferRange(GVertexAttribute::Position).byteOffset},
+					{item->m_vertexBuffer, 1, item->getVertexBufferRange(GVertexAttribute::TexCoord1).byteOffset},
+					{item->m_vertexBuffer, 2, item->getVertexBufferRange(GVertexAttribute::Normal).byteOffset},
+					{item->m_vertexBuffer, 3, item->getVertexBufferRange(GVertexAttribute::Tangent).byteOffset},
+				};
+
+				gizmosGraphicsState.indexBuffer = {
+					item->m_indexBuffer, nvrhi::Format::R32_UINT, 0
+				};
+
+				GizmosConstantBufferEntry modelConstants;
+				modelConstants.viewProjMatrix = viewProjMatrix;
+				modelConstants.worldMatrix = math::float4x4(math::affineToHomogeneous(inViewportClient->getSelectedItems()->getComponent<TransformComponent>()->GetLocalToWorldTransform()));
+				modelConstants.camWorldPos = inViewportClient->getCamPos();
+				//get the global matrix to fill constant buffer		
+				m_CommandList->writeBuffer(m_gizmosConstantBuffer, &modelConstants, sizeof(modelConstants));
+
+				GizmosPropertiesBuffer propertiesBuffer;
+				propertiesBuffer.color = math::float3(0.0f, 1.0f, 0.0f);
+				m_CommandList->writeBuffer(m_gizmosPropertiesConstantBuffer, &propertiesBuffer, sizeof(propertiesBuffer));
+
+				gizmosGraphicsState.setPipeline(m_gizmosPipeline);
+				m_CommandList->setGraphicsState(gizmosGraphicsState);
+
+				// Draw the model.
+				nvrhi::DrawArguments args;
+				args.vertexCount = item->m_indexData.size();
+				args.instanceCount = 1;
+				args.startVertexLocation = 0;
+				args.startIndexLocation = 0;
+				m_CommandList->drawIndexed(args);
+			}
+		}	
 
 		m_CommandList->close();
 		GetDevice()->executeCommandList(m_CommandList);
