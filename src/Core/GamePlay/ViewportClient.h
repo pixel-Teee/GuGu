@@ -53,9 +53,12 @@ namespace GuGu {
 
 		virtual std::vector<std::shared_ptr<GStaticMesh>>& getGizmos() = 0;
 
+		virtual math::float4 getGizmosColor(uint32_t index) const = 0;
+
 		virtual bool gizmosIsVisible() const = 0;
 
 		virtual std::shared_ptr<GameObject> getSelectedItems() const = 0;
 
+		virtual std::vector<uint32_t> getMoveGizmosRenderSort() const = 0;
 	};
 }

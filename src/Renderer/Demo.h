@@ -195,10 +195,9 @@ namespace GuGu {
 		nvrhi::ShaderHandle m_gizmosVertexShader;
 		nvrhi::ShaderHandle m_gizmosPixelShader;
 		nvrhi::BufferHandle m_gizmosConstantBuffer;
-		nvrhi::BufferHandle m_gizmosPropertiesConstantBuffer;
+		std::vector<nvrhi::BufferHandle> m_gizmosPropertiesConstantBuffers;//3*3
 		nvrhi::InputLayoutHandle m_gizmosInputLayout;
 		nvrhi::BindingLayoutHandle m_gizmosBindingLayout;
-		nvrhi::BindingSetHandle m_gizmosBindingSet;
 		nvrhi::GraphicsPipelineHandle m_gizmosPipeline;
 
 		struct GizmosConstantBufferEntry {

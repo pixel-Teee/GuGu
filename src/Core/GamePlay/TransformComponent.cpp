@@ -56,6 +56,12 @@ namespace GuGu {
 	{
 		SetTransform(&translation, nullptr, nullptr);
 	}
+
+	math::double3 TransformComponent::getTranslation() const
+	{
+		return m_Translation;
+	}
+
 	meta::Type TransformComponent::GetType() const
 	{
 		return typeof(TransformComponent);

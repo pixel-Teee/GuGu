@@ -759,12 +759,16 @@ namespace GuGu {
 				nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
 					true));
 
-		m_gizmosPropertiesConstantBuffer = GetDevice()->createBuffer(
-			nvrhi::utils::CreateStaticConstantBufferDesc(
-				sizeof(GizmosPropertiesBuffer), "GizmosPropertiesConstantBuffer")
-			.setInitialState(
-				nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
-					true));
+		m_gizmosPropertiesConstantBuffers.resize(18);
+		for (uint32_t i = 0; i < 18; ++i)
+		{
+			m_gizmosPropertiesConstantBuffers[i] = GetDevice()->createBuffer(
+				nvrhi::utils::CreateStaticConstantBufferDesc(
+					sizeof(GizmosPropertiesBuffer), "GizmosPropertiesConstantBuffer")
+				.setInitialState(
+					nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
+						true));
+		}
 		//------gizmos------
 
 		m_CommandList->close();
@@ -1006,7 +1010,12 @@ namespace GuGu {
 			psoDesc.inputLayout = m_gizmosInputLayout;
 			psoDesc.bindingLayouts = { m_gizmosBindingLayout };
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
-			psoDesc.renderState.depthStencilState.depthTestEnable = false;
+			psoDesc.renderState.depthStencilState.depthTestEnable = true;
+			nvrhi::BlendState::RenderTarget renderTargetBlendState;
+			renderTargetBlendState.blendEnable = true;
+			renderTargetBlendState.srcBlend = nvrhi::BlendFactor::SrcAlpha;
+			renderTargetBlendState.destBlend = nvrhi::BlendFactor::OneMinusSrc1Alpha;
+			psoDesc.renderState.blendState = nvrhi::BlendState().setRenderTarget(0, renderTargetBlendState);
 			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
 			m_gizmosPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
@@ -1016,7 +1025,6 @@ namespace GuGu {
 		m_CommandList->open();
 		
 		nvrhi::utils::ClearColorAttachment(m_CommandList, inViewportClient->getFramebuffer(), 0, Color(0.2f, 0.3f, 0.7f, 1.0f));
-		m_CommandList->clearDepthStencilTexture(inViewportClient->getDepthTarget(), nvrhi::AllSubresources, true, 1.0f, true, 0);
 
 		//math::float3 cameraPos = math::float3(0.0f, 0.0f, m_uiData->camPos);
 		//math::float3 cameraDir = normalize(math::float3(0.0f, m_uiData->dir, 1.0f) - cameraPos);
@@ -1204,37 +1212,39 @@ namespace GuGu {
 			args.startIndexLocation = 0;
 			m_CommandList->drawIndexed(args);	
 		}
-	
+
+		m_CommandList->clearDepthStencilTexture(inViewportClient->getDepthTarget(), nvrhi::AllSubresources, true, 1.0f, true, 0);
 		nvrhi::GraphicsState gizmosGraphicsState;
 		gizmosGraphicsState.pipeline = m_gizmosPipeline;
 		gizmosGraphicsState.framebuffer = inViewportClient->getFramebuffer();
 
 		gizmosGraphicsState.viewport.addViewportAndScissorRect(viewport);
 
+		std::vector<uint32_t> gizmosRenderSort = inViewportClient->getMoveGizmosRenderSort();
 		if (inViewportClient->gizmosIsVisible())
 		{
 			//draw gizmos
 			std::vector<std::shared_ptr<GStaticMesh>>& gizmosStaticMesh = inViewportClient->getGizmos();
-			for (const auto& item : gizmosStaticMesh)
-			{
+			uint32_t i = 0;
+			for (uint32_t index = 0; index < gizmosRenderSort.size(); ++index)
+			{			
+				auto& item = gizmosStaticMesh[gizmosRenderSort[index]];
 				if (item->m_vertexBuffer == nullptr)
 				{
 					createVertexBufferAndIndexBuffer(*item);
 				}
 
 				//draw
-				if (!m_gizmosBindingSet)
-				{
-					nvrhi::BindingSetDesc desc;
-					//nvrhi::BindingSetHandle bindingSet;
-					desc.bindings = {
-							nvrhi::BindingSetItem::ConstantBuffer(0, m_gizmosConstantBuffer),
-							nvrhi::BindingSetItem::ConstantBuffer(1, m_gizmosPropertiesConstantBuffer),
-					};
-					m_gizmosBindingSet = GetDevice()->createBindingSet(desc, m_gizmosBindingLayout);
-				}
+				nvrhi::BindingSetHandle gizmosBindingSet;
+				nvrhi::BindingSetDesc desc;
+				//nvrhi::BindingSetHandle bindingSet;
+				desc.bindings = {
+						nvrhi::BindingSetItem::ConstantBuffer(0, m_gizmosConstantBuffer),
+						nvrhi::BindingSetItem::ConstantBuffer(1, m_gizmosPropertiesConstantBuffers[i]),
+				};
+				gizmosBindingSet = GetDevice()->createBindingSet(desc, m_gizmosBindingLayout);
 
-				gizmosGraphicsState.bindings = { m_gizmosBindingSet };
+				gizmosGraphicsState.bindings = { gizmosBindingSet };
 
 				gizmosGraphicsState.vertexBuffers = {
 					{item->m_vertexBuffer, 0, item->getVertexBufferRange(GVertexAttribute::Position).byteOffset},
@@ -1255,8 +1265,8 @@ namespace GuGu {
 				m_CommandList->writeBuffer(m_gizmosConstantBuffer, &modelConstants, sizeof(modelConstants));
 
 				GizmosPropertiesBuffer propertiesBuffer;
-				propertiesBuffer.color = math::float3(0.0f, 1.0f, 0.0f);
-				m_CommandList->writeBuffer(m_gizmosPropertiesConstantBuffer, &propertiesBuffer, sizeof(propertiesBuffer));
+				propertiesBuffer.color = inViewportClient->getGizmosColor(i).xyz();
+				m_CommandList->writeBuffer(m_gizmosPropertiesConstantBuffers[i], &propertiesBuffer, sizeof(propertiesBuffer));
 
 				gizmosGraphicsState.setPipeline(m_gizmosPipeline);
 				m_CommandList->setGraphicsState(gizmosGraphicsState);
@@ -1268,6 +1278,8 @@ namespace GuGu {
 				args.startVertexLocation = 0;
 				args.startIndexLocation = 0;
 				m_CommandList->drawIndexed(args);
+
+				++i;
 			}
 		}	
 

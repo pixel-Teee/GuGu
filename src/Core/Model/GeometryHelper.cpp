@@ -4,7 +4,7 @@
 #include <Core/Math/MyMath.h>
 
 namespace GuGu {
-	GStaticMesh GeometryHelper::createCylinder(float bottomRaidus, float topRadius, float height, uint32_t sliceCount, uint32_t stackCount)
+	GStaticMesh GeometryHelper::createCylinder(float bottomRaidus, float topRadius, float height, uint32_t sliceCount, uint32_t stackCount, math::float4x4 transform)
 	{
 		//构建堆叠层
 		float stackHeight = height / stackCount;
@@ -26,9 +26,9 @@ namespace GuGu {
 				float c = std::cosf(j * dTheta);
 				float s = std::sinf(j * dTheta);
 
-				math::float3 position = math::float3(r * c, y, r * s);
+				math::float3 position = math::float4(r * c, y, r * s, 1.0f) * transform;
 				math::float2 texcoord = math::float2(j / sliceCount, i / stackCount);
-				math::float3 tangent = math::float3(-s, 0.0f, c);
+				math::float3 tangent = math::float3(-s, 0.0f, c) * math::float3x3(transform);
 
 				float dr = bottomRaidus - topRadius;
 				math::float3 bitangent(dr * c, -height, dr * s);
@@ -56,12 +56,13 @@ namespace GuGu {
 				staticMesh.m_indexData.push_back(i * ringVertexCount + j + 1);
 			}
 		}
-		createCylinderTopCap(staticMesh, bottomRaidus, topRadius, height, sliceCount, stackCount);
-		createCylinderBottomCap(staticMesh, bottomRaidus, topRadius, height, sliceCount, stackCount);
+		createCylinderTopCap(staticMesh, bottomRaidus, topRadius, height, sliceCount, stackCount, transform);
+		createCylinderBottomCap(staticMesh, bottomRaidus, topRadius, height, sliceCount, stackCount, transform);
 		staticMesh.m_totalIndices = staticMesh.m_indexData.size();
+		staticMesh.m_objectSpaceBounds = dm::box3(staticMesh.m_positionData.size(), staticMesh.m_positionData.data());
 		return staticMesh;
 	}
-	void GeometryHelper::createCylinderTopCap(GStaticMesh& staticMesh, float bottomRaidus, float topRadius, float height, uint32_t sliceCount, uint32_t stackCount)
+	void GeometryHelper::createCylinderTopCap(GStaticMesh& staticMesh, float bottomRaidus, float topRadius, float height, uint32_t sliceCount, uint32_t stackCount, math::float4x4 transform)
 	{
 		uint32_t baseIndex = (uint32_t)staticMesh.m_positionData.size();
 
@@ -76,16 +77,16 @@ namespace GuGu {
 			float u = x / height + 0.5f;
 			float v = z / height + 0.5f;
 
-			staticMesh.m_positionData.push_back(math::float3(x, y, z));
-			staticMesh.m_normalData.push_back(math::float3(0.0f, 1.0f, 0.0f));
-			staticMesh.m_tangentData.push_back(math::float3(1.0f, 0.0f, 0.0f));
+			staticMesh.m_positionData.push_back(math::float4(x, y, z, 1.0f) * transform);
+			staticMesh.m_normalData.push_back(math::float3(0.0f, 1.0f, 0.0f) * math::float3x3(transform));
+			staticMesh.m_tangentData.push_back(math::float3(1.0f, 0.0f, 0.0f) * math::float3x3(transform));
 			staticMesh.m_texCoord1Data.push_back(math::float2(u, v));
 		}
 
 		//cap 的中心顶点
-		staticMesh.m_positionData.push_back(math::float3(0.0, y, 0.0));
-		staticMesh.m_normalData.push_back(math::float3(0.0f, 1.0f, 0.0f));
-		staticMesh.m_tangentData.push_back(math::float3(1.0f, 0.0f, 0.0f));
+		staticMesh.m_positionData.push_back(math::float4(0.0, y, 0.0, 1.0f) * transform);
+		staticMesh.m_normalData.push_back(math::float3(0.0f, 1.0f, 0.0f) * math::float3x3(transform));
+		staticMesh.m_tangentData.push_back(math::float3(1.0f, 0.0f, 0.0f) * math::float3x3(transform));
 		staticMesh.m_texCoord1Data.push_back(math::float2(0.5f, 0.5f));
 
 		uint32_t centerIndex = (uint32_t)staticMesh.m_positionData.size() - 1;
@@ -97,7 +98,7 @@ namespace GuGu {
 			staticMesh.m_indexData.push_back(baseIndex + i);
 		}
 	}
-	void GeometryHelper::createCylinderBottomCap(GStaticMesh& staticMesh, float bottomRaidus, float topRadius, float height, uint32_t sliceCount, uint32_t stackCount)
+	void GeometryHelper::createCylinderBottomCap(GStaticMesh& staticMesh, float bottomRaidus, float topRadius, float height, uint32_t sliceCount, uint32_t stackCount, math::float4x4 transform)
 	{
 		uint32_t baseIndex = (uint32_t)staticMesh.m_positionData.size();
 
@@ -112,16 +113,16 @@ namespace GuGu {
 			float u = x / height + 0.5f;
 			float v = z / height + 0.5f;
 
-			staticMesh.m_positionData.push_back(math::float3(x, y, z));
-			staticMesh.m_normalData.push_back(math::float3(0.0f, -1.0f, 0.0f));
-			staticMesh.m_tangentData.push_back(math::float3(1.0f, 0.0f, 0.0f));
+			staticMesh.m_positionData.push_back(math::float4(x, y, z, 1.0f) * transform);
+			staticMesh.m_normalData.push_back(math::float3(0.0f, -1.0f, 0.0f) * math::float3x3(transform));
+			staticMesh.m_tangentData.push_back(math::float3(1.0f, 0.0f, 0.0f) * math::float3x3(transform));
 			staticMesh.m_texCoord1Data.push_back(math::float2(u, v));
 		}
 
 		//cap 的中心顶点
-		staticMesh.m_positionData.push_back(math::float3(0.0, y, 0.0));
-		staticMesh.m_normalData.push_back(math::float3(0.0f, -1.0f, 0.0f));
-		staticMesh.m_tangentData.push_back(math::float3(1.0f, 0.0f, 0.0f));
+		staticMesh.m_positionData.push_back(math::float4(0.0, y, 0.0, 1.0f) * transform);
+		staticMesh.m_normalData.push_back(math::float3(0.0f, -1.0f, 0.0f) * math::float3x3(transform));
+		staticMesh.m_tangentData.push_back(math::float3(1.0f, 0.0f, 0.0f) * math::float3x3(transform));
 		staticMesh.m_texCoord1Data.push_back(math::float2(0.5f, 0.5f));
 
 		uint32_t centerIndex = (uint32_t)staticMesh.m_positionData.size() - 1;

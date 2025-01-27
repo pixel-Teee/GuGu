@@ -80,6 +80,77 @@ namespace GuGu {
 
 		return pickedGameObject;
 	}
+
+	std::shared_ptr<GuGu::GStaticMesh> Collision3D::pick(uint32_t x, uint32_t y, 
+		uint32_t clientWidth, uint32_t clientHeight, 
+		math::float4x4 perspectiveMatrix, math::float4x4 viewMatrix, 
+		const std::vector<std::shared_ptr<GStaticMesh>>& objects, math::float4x4 selectedObjectTransform, math::float4& debugDrawWorldPos /*= math::float4(1.0f)*/)
+	{
+		//观察空间中的摄像
+		float vx = (2.0f * x / clientWidth - 1.0f) / perspectiveMatrix[0][0];
+		float vy = (-2.0f * y / clientHeight + 1.0f) / perspectiveMatrix[1][1];
+
+		//GuGu_LOGD("{%f, %f}", vx, vy);
+
+		math::float4 rayOrigin = math::float4(0.0f, 0.0f, 0.0f, 1.0f);
+		math::float4 rayDir = math::float4(vx, vy, 1.0f, 0.0f);
+
+		math::float4x4 invView = math::inverse(viewMatrix);
+		math::float4 worldRayOrigin = rayOrigin * invView;
+		math::float4 worldRayDir = math::normalize(rayDir * invView);
+
+		//debug draw
+		//debugDrawWorldPos = worldRayOrigin + worldRayDir;
+
+		//GuGu_LOGD("(%f %f %f), (%f %f %f)", worldRayOrigin.x, worldRayOrigin.y, worldRayOrigin.z, worldRayDir.x, worldRayDir.y, worldRayDir.z);
+
+		std::shared_ptr<GStaticMesh> pickedGameObject;
+		for (const auto& item : objects)
+		{
+
+			math::float4x4 invView = math::inverse(viewMatrix);
+			math::float4x4 invWorld = math::inverse(selectedObjectTransform);
+
+			math::float4x4 toLocal = invView * invWorld;
+
+			math::float4 localRayOrigin = rayOrigin * toLocal;
+			math::float4 localRayDir = math::normalize(rayDir * toLocal);
+
+			math::box3 boundingBox = item->getObjectSpaceBounds();
+
+			float tmin = 0.0f;
+			if (intersectsWithBox(localRayOrigin, localRayDir, tmin, boundingBox))
+			{
+				const auto& positions = item->m_positionData;
+				const auto& indices = item->m_indexData;
+				uint32_t triCount = indices.size() / 3;
+				tmin = std::numeric_limits<float>::infinity();
+				for (uint32_t i = 0; i < triCount; ++i)
+				{
+					uint32_t i0 = indices[i * 3 + 0];
+					uint32_t i1 = indices[i * 3 + 1];
+					uint32_t i2 = indices[i * 3 + 2];
+
+					math::float3 position0 = positions[i0];
+					math::float3 position1 = positions[i1];
+					math::float3 position2 = positions[i2];
+
+					float t = 0.0f;
+					if (intersectWithTriangle(localRayOrigin, localRayDir, position0, position1, position2, t))
+					{
+						if (t < tmin)
+						{
+							tmin = t;
+							pickedGameObject = item;
+						}
+					}
+				}
+			}
+		}
+
+		return pickedGameObject;
+	}
+
 	bool Collision3D::intersectsWithBox(math::float3 rayOrigin, math::float3 rayDir, float& dist, dm::box3 boundingBox)
 	{
 		math::float3 boundingMin = boundingBox.m_mins, boundingMax = boundingBox.m_maxs;

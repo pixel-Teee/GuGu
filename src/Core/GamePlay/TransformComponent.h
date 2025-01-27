@@ -28,6 +28,8 @@ namespace GuGu {
 		void SetRotation(const math::dquat& rotation);
 		void SetTranslation(const math::double3& translation);
 
+		math::double3 getTranslation() const;
+
 		virtual meta::Type GetType() const override;
 	private:
 		math::dquat m_Rotation = math::dquat::identity();

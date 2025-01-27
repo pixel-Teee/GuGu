@@ -72,11 +72,15 @@ namespace GuGu {
 
 		virtual std::vector<std::shared_ptr<GStaticMesh>>& getGizmos() override;
 
+		virtual math::float4 getGizmosColor(uint32_t index) const override;
+
 		virtual bool gizmosIsVisible() const override;
 
 		virtual std::shared_ptr<GameObject> getSelectedItems() const override;
 
 		void debugPitchAndYaw();
+
+		virtual std::vector<uint32_t> getMoveGizmosRenderSort() const override;//获取 gizmos 渲染顺序
 
 	private:
 		void makeMoveGizmos();
@@ -115,6 +119,10 @@ namespace GuGu {
 		std::shared_ptr<GameObject> m_pickedGameObject;
 
 		std::vector<std::shared_ptr<GStaticMesh>> m_moveGizmos;
+		std::vector<math::float3> m_moveGizmoPos;
+		uint32_t m_currentMoveGizmosIndex = 0;
+		uint32_t m_currentMovePositionX = 0, m_currentMousePositionY = 0;
+		bool m_bdragging = false;
 
 		math::float4 m_debugDrawWorldPos = math::float4(1.0f);
 	};
