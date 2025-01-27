@@ -208,7 +208,7 @@ namespace GuGu {
 				{
 					std::shared_ptr<GStaticMesh> gStaticMesh = Collision3D::pick(mousePosition.x, mousePosition.y, m_width, m_height,
 						getPespectiveMatrix(), getWorldToViewMatrix(),
-						m_moveGizmos, math::float4x4(math::affineToHomogeneous(m_pickedGameObject->getComponent<TransformComponent>()->GetLocalToWorldTransform())));
+						m_moveGizmos, math::float4x4(math::affineToHomogeneous(m_pickedGameObject->getComponent<TransformComponent>()->GetLocalToWorldTransform())), m_debugDrawWorldPos);
 					if (gStaticMesh)
 					{
 						//判断是选取了哪个轴
