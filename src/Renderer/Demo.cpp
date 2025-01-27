@@ -535,8 +535,8 @@ namespace GuGu {
 		m_SkinnedVertexShader = shaderFactory->CreateShader("asset/shader/OpaqueGeometry.hlsl", "main_vs", &macros,
 			nvrhi::ShaderType::Vertex);
 
-		m_ConstantBuffers.resize(m_sceneGraph->GetMeshes().size());
-		m_PbrMaterialBuffers.resize(m_sceneGraph->GetMeshes().size());
+		m_ConstantBuffers.resize(256); //max objects
+		m_PbrMaterialBuffers.resize(256); //max objects
 		m_PassBuffers = GetDevice()->createBuffer(
 			nvrhi::utils::CreateStaticConstantBufferDesc(
 				sizeof(Pass), "PassBuffer")
@@ -1046,9 +1046,13 @@ namespace GuGu {
 		pass.camPos = inViewportClient->getCamPos();
 		m_CommandList->writeBuffer(m_PassBuffers, &pass, sizeof(pass));
 
+		uint32_t lightCount = 0;
+		Light light;
+		std::memset(light.lightPositions, 0, sizeof(light.lightPositions));
+		std::memset(light.lightColors, 0, sizeof(light.lightColors));
 		//draw level
 		const std::vector<std::shared_ptr<GameObject>>& gameObjects = inLevel->getGameObjects();
-		//暂时用cube代替绘制
+
 		for (size_t i = 0; i < gameObjects.size(); ++i)
 		{
 			std::shared_ptr<TransformComponent> transformComponent = gameObjects[i]->getComponent<TransformComponent>();
@@ -1078,18 +1082,11 @@ namespace GuGu {
 				m_CommandList->writeBuffer(materialComponent->m_bufferHandle, &pbrMaterial, sizeof(pbrMaterial));
 			}
 
-			Light light;
-			std::memset(light.lightPositions, 0, sizeof(light.lightPositions));
-			std::memset(light.lightColors, 0, sizeof(light.lightColors));
-			light.lightPositions[0] = lightComponent->m_lightPosition;
-			light.lightColors[0] = lightComponent->m_lightColor;
-			light.lightPositions[1] = lightComponent->m_lightPosition;
-			light.lightColors[1] = lightComponent->m_lightColor;
-			light.lightPositions[2] = lightComponent->m_lightPosition;
-			light.lightColors[2] = lightComponent->m_lightColor;
-			light.lightPositions[3] = lightComponent->m_lightPosition;
-			light.lightColors[3] = lightComponent->m_lightColor;
-			m_CommandList->writeBuffer(m_LightBuffers, &light, sizeof(light));
+			if (lightCount < m_maxLightCounts)
+			{
+				light.lightPositions[lightCount] = lightComponent->m_lightPosition;
+				light.lightColors[lightCount] = lightComponent->m_lightColor;
+			}
 			
 			const math::affine3& worldMatrix = transformComponent->GetLocalToWorldTransformFloat();
 
@@ -1098,7 +1095,7 @@ namespace GuGu {
 			drawItem.mesh = m_meshInfo.get();
 			drawItem.bufferGroup = m_meshInfo->buffers.get();
 			drawItem.meshGeometry = m_meshInfo->geometries[0].get();
-			drawItem.m_worldMatrix = m_cubeConstantBuffer;
+			drawItem.m_worldMatrix = m_ConstantBuffers[i];
 			drawItem.m_pbrMaterial = materialComponent->m_bufferHandle;
 			drawItem.m_isSkinned = false;
 			m_drawItems.push_back(drawItem);
@@ -1108,7 +1105,7 @@ namespace GuGu {
 			modelConstants.viewProjMatrix = viewProjMatrix;
 			modelConstants.worldMatrix = math::affineToHomogeneous(worldMatrix);
 			//get the global matrix to fill constant buffer		
-			m_CommandList->writeBuffer(m_cubeConstantBuffer, &modelConstants, sizeof(modelConstants));
+			m_CommandList->writeBuffer(m_ConstantBuffers[i], &modelConstants, sizeof(modelConstants));
 
 			//PbrMaterial pbrMaterial;
 			//pbrMaterial.albedo = m_uiData->color;
@@ -1117,7 +1114,9 @@ namespace GuGu {
 			//pbrMaterial.ao = 0.0f;
 			//m_CommandList->writeBuffer(m_PbrMaterialBuffers[index], &pbrMaterial, sizeof(pbrMaterial));
 			//++index;
+			++lightCount;
 		}
+		m_CommandList->writeBuffer(m_LightBuffers, &light, sizeof(light));
 
 		nvrhi::GraphicsState graphicsState;
 		// Pick the right binding set for this view.

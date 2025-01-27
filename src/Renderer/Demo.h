@@ -206,5 +206,7 @@ namespace GuGu {
 			dm::float3 camWorldPos;
 		};
 		//------gizmos------
+
+		uint32_t m_maxLightCounts = 4;
 	};
 }
