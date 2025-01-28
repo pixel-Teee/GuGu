@@ -216,4 +216,67 @@ namespace GuGu {
 
 		return staticMesh;
 	}
+	GStaticMesh GeometryHelper::createToru(float R, float r, int32_t majorSegments, int32_t minorSegments, math::float4x4 transform)
+	{
+		GStaticMesh toru;
+
+		for (int i = 0; i <= majorSegments; ++i) {
+			float theta = (float)i / majorSegments * 2 * math::PI_f;
+			float cosTheta = std::cos(theta);
+			float sinTheta = std::sin(theta);
+
+			for (int j = 0; j <= minorSegments; ++j) {
+				float phi = (float)j / minorSegments * 2 * math::PI_f;
+				float cosPhi = std::cos(phi);
+				float sinPhi = std::sin(phi);
+
+				// 计算顶点位置
+				float x = (R + r * cosPhi) * cosTheta;
+				float y = r * sinPhi;
+				float z = (R + r * cosPhi) * sinTheta;
+
+				// 计算法线（单位向量）
+				float nx = cosTheta * cosPhi;
+				float ny = sinPhi;
+				float nz = sinTheta * cosPhi;
+
+				// 纹理坐标
+				float u = (float)i / majorSegments; // 沿主圆方向
+				float v = (float)j / minorSegments; // 沿管圆方向
+
+				toru.m_positionData.push_back(math::float4(x, y, z, 1.0f) * transform);
+				toru.m_normalData.push_back(math::float3(nx, ny, nz ) * math::float3x3(transform));
+				toru.m_texCoord1Data.push_back({ u, v });
+				toru.m_tangentData.push_back(math::normalize(math::cross(toru.m_positionData.back(), toru.m_normalData.back())) * math::float3x3(transform));
+			}
+		}
+
+		// 生成索引数据
+		for (int i = 0; i < majorSegments; ++i) {
+			for (int j = 0; j < minorSegments; ++j) {
+				// 当前四边形的四个顶点索引
+				int i0 = i * (minorSegments + 1) + j;
+				int i1 = (i + 1) * (minorSegments + 1) + j;
+				int i2 = (i + 1) * (minorSegments + 1) + (j + 1);
+				int i3 = i * (minorSegments + 1) + (j + 1);
+
+				// 划分为两个三角形
+				
+				toru.m_indexData.push_back(i2);
+				toru.m_indexData.push_back(i1);
+				toru.m_indexData.push_back(i0);
+
+				
+				toru.m_indexData.push_back(i3);
+				toru.m_indexData.push_back(i2);
+				toru.m_indexData.push_back(i0);
+			}
+		}
+
+		toru.m_totalIndices = toru.m_indexData.size();
+		toru.m_totalVertices = toru.m_positionData.size();
+		toru.m_objectSpaceBounds = dm::box3(toru.m_positionData.size(), toru.m_positionData.data());
+
+		return toru;
+	}
 }

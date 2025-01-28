@@ -59,6 +59,6 @@ namespace GuGu {
 
 		virtual std::shared_ptr<GameObject> getSelectedItems() const = 0;
 
-		virtual std::vector<uint32_t> getMoveGizmosRenderSort() const = 0;
+		virtual std::vector<uint32_t> getGizmosRenderSort() const = 0;
 	};
 }

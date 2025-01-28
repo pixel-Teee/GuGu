@@ -62,6 +62,11 @@ namespace GuGu {
 		return m_Translation;
 	}
 
+	math::dquat TransformComponent::getRotation() const
+	{
+		return m_Rotation;
+	}
+
 	meta::Type TransformComponent::GetType() const
 	{
 		return typeof(TransformComponent);

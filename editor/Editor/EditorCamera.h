@@ -80,7 +80,7 @@ namespace GuGu {
 
 		void debugPitchAndYaw();
 
-		virtual std::vector<uint32_t> getMoveGizmosRenderSort() const override;//获取 gizmos 渲染顺序
+		virtual std::vector<uint32_t> getGizmosRenderSort() const override;//获取 gizmos 渲染顺序
 
 	private:
 		void makeMoveGizmos();
@@ -118,11 +118,24 @@ namespace GuGu {
 		bool m_bShowGizmos;
 		std::shared_ptr<GameObject> m_pickedGameObject;
 
+		enum Gizmos
+		{
+			Move,
+			Rotation,
+			Scale
+		};
+
+		Gizmos m_gizmos = Gizmos::Move;
+		std::vector<std::shared_ptr<GStaticMesh>> m_currentGizmos;
 		std::vector<std::shared_ptr<GStaticMesh>> m_moveGizmos;
 		std::vector<math::float3> m_moveGizmoPos;
-		uint32_t m_currentMoveGizmosIndex = 0;
+		uint32_t m_currentGizmosIndex = 0;
 		uint32_t m_currentMovePositionX = 0, m_currentMousePositionY = 0;
 		bool m_bdragging = false;
+
+		std::vector<std::shared_ptr<GStaticMesh>> m_rotateGizmos;
+		std::vector<math::float3> m_rotateGizmoPos;
+		uint32_t m_currentRotateGizmosIndex = 0;
 
 		math::float4 m_debugDrawWorldPos = math::float4(1.0f);
 	};

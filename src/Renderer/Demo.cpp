@@ -784,7 +784,7 @@ namespace GuGu {
 		//	initRenderTargetAndDepthTarget();
 		//}
 		m_cylinderMeshComponent = std::make_shared<StaticMeshComponent>();
-		m_cylinderMeshComponent->setGStaticMesh(m_geometryHelper.createCylinder(1.0f, 0.25f, 1.0f, 4, 4));
+		m_cylinderMeshComponent->setGStaticMesh(m_geometryHelper.createToru(0.6f, 0.2f, 16, 4));
 
 		return true;
 	}
@@ -1219,7 +1219,7 @@ namespace GuGu {
 
 		gizmosGraphicsState.viewport.addViewportAndScissorRect(viewport);
 
-		std::vector<uint32_t> gizmosRenderSort = inViewportClient->getMoveGizmosRenderSort();
+		std::vector<uint32_t> gizmosRenderSort = inViewportClient->getGizmosRenderSort();
 		if (inViewportClient->gizmosIsVisible())
 		{
 			//draw gizmos
