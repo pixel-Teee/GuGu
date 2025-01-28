@@ -23,7 +23,7 @@ namespace GuGu {
 		m_pitch = 0;
 		m_bShowGizmos = false;
 		updateView();
-		makeMoveGizmos();
+		makeGizmos();
 	}
 	EditorCamera::~EditorCamera()
 	{
@@ -431,8 +431,8 @@ namespace GuGu {
 		return std::vector<uint32_t>();
 	}
 
-	void EditorCamera::makeMoveGizmos()
-	{
+	void EditorCamera::makeGizmos()
+{
 		//移动轴
 		m_moveGizmoPos.resize(6);
 		//绿色
