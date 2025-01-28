@@ -83,7 +83,7 @@ namespace GuGu {
 		virtual std::vector<uint32_t> getGizmosRenderSort() const override;//获取 gizmos 渲染顺序
 
 	private:
-		void makeMoveGizmos();
+		void makeGizmos();
 
 		math::float3 m_focalPoint = math::float3(0.0f, 0.0f, 0.0f);//焦点在世界原点
 		float m_distance = 2.0f;//focal point 和 distance 决定摄像机位置

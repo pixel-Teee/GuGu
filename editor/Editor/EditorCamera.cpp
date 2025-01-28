@@ -472,5 +472,7 @@ namespace GuGu {
 		//蓝色，绕z轴旋转
 		gstaticMesh = GeometryHelper::createToru(1.0f, 0.015f, 16, 16, math::affineToHomogeneous(math::rotation(math::float3(1, 0, 0), math::radians(90.0f))));
 		m_rotateGizmos.push_back(std::shared_ptr<GStaticMesh>(static_cast<GStaticMesh*>(gstaticMesh.Clone())));
+
+		m_currentGizmos = m_moveGizmos;
 	}
 }
