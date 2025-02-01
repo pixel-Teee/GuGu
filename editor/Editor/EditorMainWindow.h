@@ -43,6 +43,8 @@ namespace GuGu {
 
 		Reply openLevel();
 
+		Reply switchEditorAndRuntime();
+
 		void setRenderTarget(nvrhi::TextureHandle renderTarget);
 	private:
 
@@ -51,6 +53,8 @@ namespace GuGu {
 		std::shared_ptr<MenuAnchor> m_openFileMenuAnchor;
 
 		std::shared_ptr<Button> m_saveLevelButton;
+
+		std::shared_ptr<Button> m_switchEditorAndRuntime;
 	};
 
 	std::shared_ptr<EditorMainWindow> CreateEditorMainWindow();

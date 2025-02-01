@@ -49,6 +49,8 @@ namespace GuGu {
 
 		nvrhi::TextureHandle getRenderTarget();
 
+		void renderLevelRuntime(const std::shared_ptr<Level> inLevel, std::shared_ptr<ViewportClient> inViewportClient);
+
 		void renderLevel(const std::shared_ptr<Level> inLevel, std::shared_ptr<ViewportClient> inViewportClient);
 
 		void createVertexBufferAndIndexBuffer(GStaticMesh& staticMesh);

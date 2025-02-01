@@ -82,6 +82,9 @@ namespace GuGu {
 
 		virtual std::vector<uint32_t> getGizmosRenderSort() const override;//获取 gizmos 渲染顺序
 
+		virtual ViewportState getViewportState() const override;
+
+		virtual void setViewportState(ViewportState state) override;
 	private:
 		void makeGizmos();
 
@@ -138,5 +141,7 @@ namespace GuGu {
 		uint32_t m_currentRotateGizmosIndex = 0;
 
 		math::float4 m_debugDrawWorldPos = math::float4(1.0f);
+
+		ViewportState m_viewportState;
 	};
 }

@@ -133,7 +133,14 @@ namespace GuGu {
 								.cornerRadius(math::float4(5.0f, 5.0f, 5.0f, 5.0f))
 								.Content
 								(
-									NullWidget::getNullWidget()
+									WIDGET_ASSIGN_NEW(Button, m_switchEditorAndRuntime)
+									.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+									.Content
+									(
+										WIDGET_NEW(TextBlockWidget)
+										.text(u8"Test")
+										.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+									)
 								)
 							)
 							+ Splitter::Slot()
@@ -187,6 +194,7 @@ namespace GuGu {
 			.ScreenPosition(arguments.mScreenPosition));
 
 			fileButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::openFileMenu, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
+			m_switchEditorAndRuntime->setOnClicked(OnClicked(std::bind(&EditorMainWindow::switchEditorAndRuntime, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
 		}
 		else
 		{
@@ -242,6 +250,7 @@ namespace GuGu {
 			)
 		);
 		m_saveLevelButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::openLevel, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
+
 		m_openFileMenuAnchor->setIsOpen(true);
 		return Reply::Handled();
 	}
@@ -256,6 +265,22 @@ namespace GuGu {
 		GuGuUtf8Str executableFilePath = Application::GetExecutableFilePath();
 		return Reply();
 	}
+
+	Reply EditorMainWindow::switchEditorAndRuntime()
+	{
+		std::shared_ptr<ViewportClient> viewportClient = m_viewportWidget->getViewportClient();
+		ViewportClient::ViewportState state = viewportClient->getViewportState();
+		if (state == ViewportClient::ViewportState::Runtime)
+		{
+			viewportClient->setViewportState(ViewportClient::ViewportState::Editor);
+		}
+		else
+		{
+			viewportClient->setViewportState(ViewportClient::ViewportState::Runtime);
+		}
+		return Reply::Handled();
+	}
+
 	void EditorMainWindow::setRenderTarget(nvrhi::TextureHandle renderTarget)
 	{
 		m_viewportWidget->setRenderTarget(renderTarget);

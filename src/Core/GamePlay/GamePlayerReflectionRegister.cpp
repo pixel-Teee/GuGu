@@ -12,6 +12,7 @@
 #include <Core/GamePlay/StaticMeshComponent.h>
 #include <Core/GamePlay/LightComponent.h>
 #include <Core/GamePlay/MaterialComponent.h>
+#include <Core/GamePlay/CameraComponent.h>
 
 #include <Core/AssetManager/AssetData.h>
 
@@ -503,6 +504,53 @@ namespace GuGu {
 				auto id = db.AllocateType("MaterialComponentWeakPtr");
 				auto& type = db.types[id];
 				meta::TypeInfo<std::weak_ptr<MaterialComponent>>::Register(id, type, false);
+			}
+		}
+
+		{
+			auto id = db.AllocateType("CameraComponent");
+			auto& type = db.types[id];
+			meta::TypeInfo<CameraComponent>::Register(id, type, true);
+
+			auto typeID = typeidof(CameraComponent);
+			if (typeID != meta::InvalidTypeID && !meta::TypeInfo<CameraComponent>::Defined)
+			{
+				auto& type = db.types[typeID];
+
+				//array constructor
+				type.SetArrayConstructor<CameraComponent>();
+
+				type.AddConstructor<CameraComponent, false, false>();
+
+				type.AddConstructor<CameraComponent, true, true>();
+
+				type.LoadBaseClasses(db, typeID, { typeof(Component) });
+
+				meta::TypeInfo<CameraComponent>::Defined = true;
+
+				type.AddField<CameraComponent, float>("m_fov",
+					(meta::FieldGetter<CameraComponent, float, true>::Signature)& CameraComponent::getFov,
+					(meta::FieldSetter<CameraComponent, float, true>::Signature)& CameraComponent::setFov);
+
+				type.AddField<CameraComponent, float>("m_metallic",
+					(meta::FieldGetter<CameraComponent, float, true>::Signature)& CameraComponent::getNearPlane,
+					(meta::FieldSetter<CameraComponent, float, true>::Signature)& CameraComponent::setNearPlane);
+
+				type.AddField<CameraComponent, float>("m_roughness",
+					(meta::FieldGetter<CameraComponent, float, true>::Signature) & CameraComponent::getFarPlane,
+					(meta::FieldSetter<CameraComponent, float, true>::Signature) & CameraComponent::setFarPlane);
+			}
+
+			{
+				auto id = db.AllocateType("CameraComponentSharedPtr");
+				auto& type = db.types[id];
+				meta::TypeInfo<std::shared_ptr<CameraComponent>>::Register(id, type, false);
+			}
+
+			{
+				auto id = db.AllocateType("CameraComponentWeakPtr");
+				auto& type = db.types[id];
+				meta::TypeInfo<std::weak_ptr<CameraComponent>>::Register(id, type, false);
 			}
 		}
 

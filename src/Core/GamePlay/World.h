@@ -10,6 +10,11 @@ namespace GuGu {
 	class World
 	{
 	public:
+		enum WorldState
+		{
+			Runtime,
+			Editor
+		};
 		World();
 
 		virtual ~World();
@@ -33,8 +38,12 @@ namespace GuGu {
 		std::weak_ptr<ViewportClient> getViewportClient() const;
 
 		void renderLevel(Demo* demoPass);
+
+		void switchState(WorldState state);
 	private:
 		std::shared_ptr<ViewportClient> m_viewportClient;
+
+		std::shared_ptr<Level> m_editorLevel;
 
 		std::shared_ptr<Level> m_currentLevel;
 	};

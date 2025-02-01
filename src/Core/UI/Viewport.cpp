@@ -195,4 +195,10 @@ namespace GuGu {
 			InputManager::getInputManager().updateKeyboard(Keys::RightControl, false);
 		}
 	}
+
+	std::shared_ptr<GuGu::ViewportClient> ViewportWidget::getViewportClient()
+	{
+		return m_viewportClient.lock();
+	}
+
 }

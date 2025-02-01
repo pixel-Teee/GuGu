@@ -57,6 +57,8 @@ namespace GuGu {
 		void applyModifierKeys(ModifierKeysState keyState);
 
 		void updateModifierKeys(ModifierKeysState keyState);
+
+		std::shared_ptr<ViewportClient> getViewportClient();
 	protected:
 		std::shared_ptr<SingleChildSlot> m_childWidget;
 

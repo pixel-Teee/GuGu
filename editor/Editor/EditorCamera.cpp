@@ -33,6 +33,7 @@ namespace GuGu {
 		m_yaw = 0.0f;
 		m_pitch = 0;
 		m_bShowGizmos = false;
+		m_viewportState = ViewportClient::Editor;
 		updateView();
 		makeGizmos();
 	}
@@ -501,8 +502,26 @@ namespace GuGu {
 		return std::vector<uint32_t>();
 	}
 
+	ViewportClient::ViewportState EditorCamera::getViewportState() const
+	{
+		return m_viewportState;
+	}
+
+	void EditorCamera::setViewportState(ViewportState state)
+	{
+		m_viewportState = state;
+		if (state == ViewportClient::Editor)
+		{
+			World::getWorld()->switchState(World::Runtime);
+		}
+		else
+		{
+			World::getWorld()->switchState(World::Editor);
+		}
+	}
+
 	void EditorCamera::makeGizmos()
-{
+	{
 		//移动轴
 		m_moveGizmoPos.resize(6);
 		//绿色

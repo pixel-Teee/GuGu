@@ -19,6 +19,10 @@ namespace GuGu {
 
 		virtual ~ViewportClient();
 
+		virtual ViewportState getViewportState() const = 0;
+
+		virtual void setViewportState(ViewportState state) = 0;
+
 		virtual math::float4x4 getWorldToViewMatrix() const = 0;
 
 		virtual math::float4x4 getPespectiveMatrix() const = 0;

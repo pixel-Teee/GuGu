@@ -6,6 +6,7 @@
 #include "StaticMeshComponent.h"
 #include "LightComponent.h"
 #include "MaterialComponent.h"
+#include "CameraComponent.h"
 #include "Level.h"
 #include "InputManager.h"
 
@@ -18,6 +19,7 @@
 namespace GuGu {
 	World::World()
 	{
+		m_editorLevel = std::make_shared<Level>();
 		//create level
 		m_currentLevel = std::make_shared<Level>();		
 	}
@@ -75,6 +77,16 @@ namespace GuGu {
 
 			std::shared_ptr<MaterialComponent> materialComponent = std::make_shared<MaterialComponent>();
 			gameObject->addComponent(materialComponent);
+
+
+			//camera
+			std::shared_ptr<GameObject> cameraGameObject = std::make_shared<GameObject>();
+			std::shared_ptr<TransformComponent> cameraTransformComponent = std::make_shared<TransformComponent>();
+			std::shared_ptr<CameraComponent> cameraComponent = std::make_shared<CameraComponent>();
+			cameraTransformComponent->SetTranslation(math::double3(0.0f, 0.0f, -15.0f));
+			cameraGameObject->addComponent(cameraTransformComponent);
+			cameraGameObject->addComponent(cameraComponent);
+			m_currentLevel->addGameObject(cameraGameObject);
 		}
 	}
 
@@ -98,7 +110,9 @@ namespace GuGu {
 
 			delete[] fileContent;
 			
-			m_currentLevel = level;
+			//m_currentLevel = level;
+			m_editorLevel = level;
+			m_viewportClient->setViewportState(ViewportClient::Editor);
 		}
 	}
 
@@ -126,15 +140,44 @@ namespace GuGu {
 
 	void World::renderLevel(Demo* demoPass)
 	{
-		if (demoPass && m_viewportClient != nullptr)
+		if (m_viewportClient->getViewportState() == ViewportClient::Editor)
 		{
-			if (m_viewportClient->getRenderTarget() == nullptr || math::any(m_viewportClient->getViewportSize() != m_viewportClient->getRenderTargetSize()))
+			if (demoPass && m_viewportClient != nullptr)
 			{
-				demoPass->initRenderTargetAndDepthTarget(*m_viewportClient, m_viewportClient->getViewportSize());
-			}
+				if (m_viewportClient->getRenderTarget() == nullptr || math::any(m_viewportClient->getViewportSize() != m_viewportClient->getRenderTargetSize()))
+				{
+					demoPass->initRenderTargetAndDepthTarget(*m_viewportClient, m_viewportClient->getViewportSize());
+				}
 
-			demoPass->renderLevel(getCurrentLevel(), m_viewportClient);
-		}	
+				demoPass->renderLevel(m_currentLevel, m_viewportClient);
+			}
+		}
+		else
+		{
+			if (demoPass && m_viewportClient != nullptr)
+			{
+				if (m_viewportClient->getRenderTarget() == nullptr || math::any(m_viewportClient->getViewportSize() != m_viewportClient->getRenderTargetSize()))
+				{
+					demoPass->initRenderTargetAndDepthTarget(*m_viewportClient, m_viewportClient->getViewportSize());
+				}
+
+				demoPass->renderLevelRuntime(m_currentLevel, m_viewportClient);
+			}
+		}
+
+		
+	}
+
+	void World::switchState(WorldState state)
+	{
+		if (state == ViewportClient::ViewportState::Runtime)
+		{
+			m_currentLevel = std::shared_ptr<Level>(static_cast<Level*>(static_cast<meta::Object*>(m_editorLevel->Clone())));
+		}
+		else if(state == ViewportClient::ViewportState::Editor)
+		{
+			m_currentLevel = m_editorLevel;
+		}
 	}
 
 }

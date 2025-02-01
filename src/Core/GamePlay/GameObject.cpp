@@ -21,7 +21,11 @@ namespace GuGu {
 		//{
 		//	m_components[i]->Update(fElapsedTimeSeconds);
 		//}
-		getComponent<LightComponent>()->Update(fElapsedTimeSeconds);
+		if (getComponent<LightComponent>())
+		{
+			getComponent<LightComponent>()->Update(fElapsedTimeSeconds);
+		}
+		
 	}
 	meta::Type GameObject::GetType() const
 	{

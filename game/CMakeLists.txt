@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15.0)
 
-file(GLOB SourceFile "main.cpp")
+file(GLOB SourceFile "main.cpp" "LevelViewport.*" "GameViewportClient.*")
 
 if(WIN32)
 	add_executable(Game WIN32 ${SourceFile})

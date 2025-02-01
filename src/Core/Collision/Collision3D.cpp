@@ -35,7 +35,7 @@ namespace GuGu {
 		{			
 			const std::shared_ptr<TransformComponent>& transformComponent = item->getComponent<TransformComponent>();
 			const std::shared_ptr<StaticMeshComponent>& staticMeshComponent = item->getComponent<StaticMeshComponent>();
-			if (transformComponent)
+			if (transformComponent && staticMeshComponent)
 			{
 				math::float4x4 invView = math::inverse(viewMatrix);
 				math::float4x4 invWorld = math::float4x4(math::inverse(math::affineToHomogeneous(transformComponent->GetLocalToWorldTransform())));
