@@ -1435,6 +1435,7 @@ namespace GuGu {
 			m_CommandList->drawIndexed(args);	
 		}
 
+		m_CommandList->clearDepthStencilTexture(inViewportClient->getDepthTarget(), nvrhi::AllSubresources, true, 1.0f, true, 0);
 		nvrhi::GraphicsState gizmosGraphicsState;
 		gizmosGraphicsState.pipeline = m_gizmosPipeline;
 		gizmosGraphicsState.framebuffer = inViewportClient->getFramebuffer();
