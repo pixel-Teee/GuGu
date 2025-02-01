@@ -110,7 +110,8 @@ namespace GuGu {
 	void World::update(float fElapsedTimeSeconds)
 	{	
 		getCurrentLevel()->Update(fElapsedTimeSeconds);
-		m_viewportClient->update(fElapsedTimeSeconds);
+        if(m_viewportClient != nullptr)
+		    m_viewportClient->update(fElapsedTimeSeconds);
 	}
 
 	void World::setViewportClient(std::shared_ptr<ViewportClient> viewportClient)
@@ -125,7 +126,7 @@ namespace GuGu {
 
 	void World::renderLevel(Demo* demoPass)
 	{
-		if (demoPass)
+		if (demoPass && m_viewportClient != nullptr)
 		{
 			if (m_viewportClient->getRenderTarget() == nullptr || math::any(m_viewportClient->getViewportSize() != m_viewportClient->getRenderTargetSize()))
 			{

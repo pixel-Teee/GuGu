@@ -1,6 +1,7 @@
 #include <Core/Log.h>
 #include <Core/GuGuUtf8Str.h>//test utf8 str
 #include <Window/Window.h>
+#include <Core/GamePlay/GamePlayerReflectionRegister.h>
 
 #ifdef WIN32
 #include <Application/Platform/Windows/WindowsApplication.h>
@@ -135,6 +136,7 @@ extern "C" {
 
 	void android_main(struct android_app* pApp) {
 
+		GuGu::gamePlayerReflectionRegister();
 		std::shared_ptr<GuGu::Application> application = GuGu::CreateApplicationFactory();
 		std::shared_ptr<GuGu::AndroidApplication> androidApplication = std::static_pointer_cast<GuGu::AndroidApplication>(application);
 		androidApplication->setAndroidApp(pApp);
