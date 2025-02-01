@@ -119,6 +119,14 @@ namespace GuGu {
 		{
 			return gDatabase.types[m_id].isPointer;
 		}
+		bool Type::IsSharedPtr(void) const
+		{
+			return gDatabase.types[m_id].isSharedPointer;
+		}
+		bool Type::IsWeakPtr(void) const
+		{
+			return gDatabase.types[m_id].isWeakPointer;
+		}
 		bool Type::IsClass(void) const
 		{
 			return gDatabase.types[m_id].isClass;
@@ -132,6 +140,12 @@ namespace GuGu {
 
 			return name;
 		}
+
+		const Type::Set& Type::GetBaseClasses() const
+		{
+			return gDatabase.types[m_id].baseClasses;
+		}
+
 		Type Type::GetDecayedType(void) const
 		{
 			GuGu_LOGD("Type::GetDecayedType() not implemented");
@@ -160,6 +174,10 @@ namespace GuGu {
 		const Constructor& Type::GetConstructor(const InvokableSignature& signature) const
 		{
 			return gDatabase.types[m_id].GetConstructor(signature);
+		}
+		const Constructor& Type::GetDynamicConstructor(const InvokableSignature& signature) const
+		{
+			return gDatabase.types[m_id].GetDynamicConstructor(signature);
 		}
 		nlohmann::json Type::SerializeJson(const Variant& instance, bool invokeHook) const
 		{

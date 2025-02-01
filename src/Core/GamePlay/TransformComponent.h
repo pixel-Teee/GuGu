@@ -14,6 +14,8 @@ namespace GuGu {
 
 		virtual ~TransformComponent();
 
+		virtual Object* Clone(void) const override;
+
 		void Update(float fElapsedTimeSeconds) override;
 
 		void UpdateLocalModelMatrix();
@@ -30,6 +32,7 @@ namespace GuGu {
 
 		math::double3 getTranslation() const;
 		math::dquat getRotation() const;
+		math::double3 getScaling() const;
 
 		virtual meta::Type GetType() const override;
 	private:
@@ -39,7 +42,5 @@ namespace GuGu {
 		math::daffine3 m_LocalTransform = math::daffine3::identity();
 		math::daffine3 m_GlobalTransform = math::daffine3::identity();
 		math::affine3 m_GlobalTransformFloat = math::affine3::identity();
-
-		std::weak_ptr<GameObject> m_owner;//parent
 	};
 }

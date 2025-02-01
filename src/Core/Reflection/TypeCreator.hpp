@@ -1,5 +1,7 @@
 #pragma once
 
+#include "constructor.h"
+
 namespace GuGu {
 	namespace meta {
 		template<typename ...Args>

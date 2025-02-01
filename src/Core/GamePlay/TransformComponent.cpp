@@ -10,6 +10,17 @@ namespace GuGu {
 	TransformComponent::~TransformComponent()
 	{
 	}
+
+	meta::Object* TransformComponent::Clone(void) const
+	{
+		TransformComponent* transformComponent = new TransformComponent();
+		transformComponent->m_Translation = m_Translation;
+		transformComponent->m_Scaling = m_Scaling;
+		transformComponent->m_Rotation = m_Rotation;
+		transformComponent->m_owner = m_owner;//todo:这里要修复
+		return transformComponent;
+	}
+
 	void TransformComponent::Update(float fElapsedTimeSeconds)
 	{	
 		UpdateLocalModelMatrix();
@@ -27,10 +38,19 @@ namespace GuGu {
 	{
 		std::shared_ptr<GameObject> owner = m_owner.lock();
 		if (owner != nullptr)
-		{
-			std::shared_ptr<TransformComponent> parentTransformComponent =
-				owner->getComponent<TransformComponent>();
-			m_GlobalTransform = m_LocalTransform * parentTransformComponent->GetLocalToWorldTransform();
+		{	
+			std::shared_ptr<GameObject> parentGameObject = owner->getParentGameObject().lock();
+
+			if (parentGameObject != nullptr)
+			{
+				std::shared_ptr<TransformComponent> parentTransformComponent =
+					parentGameObject->getComponent<TransformComponent>();
+				m_GlobalTransform = m_LocalTransform * parentTransformComponent->GetLocalToWorldTransform();
+			}
+			else
+			{
+				m_GlobalTransform = m_LocalTransform;
+			}
 		}
 		else
 		{
@@ -65,6 +85,11 @@ namespace GuGu {
 	math::dquat TransformComponent::getRotation() const
 	{
 		return m_Rotation;
+	}
+
+	math::double3 TransformComponent::getScaling() const
+	{
+		return m_Scaling;
 	}
 
 	meta::Type TransformComponent::GetType() const

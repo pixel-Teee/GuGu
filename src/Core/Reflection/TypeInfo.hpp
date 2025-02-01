@@ -8,6 +8,17 @@ namespace GuGu {
 		template<typename T>
 		bool TypeInfo<T>::Defined = false;
 
+		//check is shared ptr
+		template<typename>
+		struct isSharedPtr : std::false_type {};
+		template<typename T>
+		struct isSharedPtr<std::shared_ptr<T>> : std::true_type { };
+
+		template<typename>
+		struct isWeakPtr : std::false_type {};
+		template<typename T>
+		struct isWeakPtr<std::weak_ptr<T>> : std::true_type { };
+
 		template<typename T>
 		void TypeInfo<T>::Register(TypeID id, TypeData& data, bool beingDefined)
 		{
@@ -25,6 +36,8 @@ namespace GuGu {
 			data.isPrimitive = std::is_arithmetic<Decayed>::value;
 			data.isFloatingPoint = std::is_floating_point<Decayed>::value;
 			data.isSigned = std::is_signed<Decayed>::value;
+			data.isSharedPointer = isSharedPtr<T>::value;
+			data.isWeakPointer = isWeakPtr<T>::value;
 			
 			if (beingDefined)
 			{

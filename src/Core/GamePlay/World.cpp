@@ -39,7 +39,7 @@ namespace GuGu {
 	{
 		return m_currentLevel;
 	}
-	void World::loadObject(const AssetData& assetData) const
+	void World::loadObject(AssetData& assetData) const
 	{
 		if (assetData.m_assetType == meta::Type(meta::TypeIDs<GStaticMesh>::ID))
 		{
@@ -61,10 +61,13 @@ namespace GuGu {
 			AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
 			GuGuUtf8Str modelJson(fileContent);
 			//load model
-			GStaticMesh gStaticMesh = meta::Type::DeserializeJson<GStaticMesh>(nlohmann::json::parse(modelJson.getStr()));
+			std::shared_ptr<GStaticMesh> gStaticMesh = std::shared_ptr<GStaticMesh>(AssetManager::getAssetManager().deserializeJson<GStaticMesh>(nlohmann::json::parse(modelJson.getStr())));
+			assetData.m_loadedResource = std::static_pointer_cast<meta::Object>(gStaticMesh);
+			//AssetManager::getAssetManager().deserializeJson(nlohmann::json::parse(modelJson.getStr()))
+			
 			delete[] fileContent;
 			std::shared_ptr<StaticMeshComponent> staticMeshComponent = std::make_shared<StaticMeshComponent>();
-			staticMeshComponent->setGStaticMesh(gStaticMesh);
+			staticMeshComponent->setGStaticMesh(std::static_pointer_cast<AssetData>(std::shared_ptr<meta::Object>(assetData.Clone())));
 			gameObject->addComponent(staticMeshComponent);
 
 			std::shared_ptr<LightComponent> lightComponent = std::make_shared<LightComponent>();
@@ -74,6 +77,36 @@ namespace GuGu {
 			gameObject->addComponent(materialComponent);
 		}
 	}
+
+	void World::loadLevel(AssetData& assetData)
+	{
+		if (assetData.m_assetType == meta::Type(meta::TypeIDs<Level>::ID))
+		{
+			GuGuUtf8Str filePath = assetData.m_filePath;
+			AssetManager::getAssetManager().getRootFileSystem()->OpenFile(filePath.getStr(), GuGuFile::FileMode::OnlyRead);
+			uint32_t fileSize = AssetManager::getAssetManager().getRootFileSystem()->getFileSize();
+			char* fileContent = new char[fileSize + 1];
+			fileContent[fileSize] = '\0';
+			int32_t numberBytesHavedReaded = 0;
+			AssetManager::getAssetManager().getRootFileSystem()->ReadFile((void*)fileContent, fileSize, numberBytesHavedReaded);
+			AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
+			GuGuUtf8Str modelJson(fileContent);
+			//load model
+			std::shared_ptr<Level> level = std::shared_ptr<Level>(AssetManager::getAssetManager().deserializeJson<Level>(nlohmann::json::parse(modelJson.getStr())));
+			assetData.m_loadedResource = std::static_pointer_cast<meta::Object>(level);
+			//AssetManager::getAssetManager().deserializeJson(nlohmann::json::parse(modelJson.getStr()))
+
+			delete[] fileContent;
+			
+			m_currentLevel = level;
+		}
+	}
+
+	void World::setLevel(std::shared_ptr<Level> inLevel)
+	{
+		m_currentLevel = inLevel;
+	}
+
 	void World::update(float fElapsedTimeSeconds)
 	{	
 		getCurrentLevel()->Update(fElapsedTimeSeconds);

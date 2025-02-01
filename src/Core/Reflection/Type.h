@@ -69,12 +69,18 @@ namespace GuGu {
 
 			bool IsPointer(void) const;
 
+			bool IsSharedPtr(void) const;
+
+			bool IsWeakPtr(void) const;
+
 			bool IsClass(void) const;
 
 			bool IsArray(void) const;
 
 			//获取对于这个类型可读的名称
 			GuGuUtf8Str GetName() const;
+
+			const Set& GetBaseClasses() const;
 
 			Type GetDecayedType(void) const;
 
@@ -85,6 +91,8 @@ namespace GuGu {
 			std::vector<Constructor> GetConstructos(void) const;
 
 			const Constructor& GetConstructor(const InvokableSignature& signature = InvokableSignature()) const;
+
+			const Constructor& GetDynamicConstructor(const InvokableSignature& signature = InvokableSignature()) const;
 
             nlohmann::json SerializeJson(const Variant& instance, bool invokeHook = true) const;
 
@@ -99,6 +107,7 @@ namespace GuGu {
 			//Variant DeserializeJson(const nlohmann::json& value, const )
 			void DeserializeJson(Variant& instance, const nlohmann::json& value) const;
 		private:
+			friend struct TypeData;
 			//一个无符号整数
 			TypeID m_id;
 			//是否为数组

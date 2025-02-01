@@ -13,6 +13,11 @@ namespace GuGu {
 		
 		virtual ~AssetDragDrop() {}
 
+		std::vector<AssetData>& getAssets()
+		{
+			return m_assetData;
+		}
+
 		const std::vector<AssetData>& getAssets() const
 		{
 			return m_assetData;

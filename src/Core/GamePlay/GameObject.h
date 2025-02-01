@@ -6,7 +6,7 @@
 #include "Component.h"
 
 namespace GuGu {
-	class GameObject : public meta::Object {
+	class GameObject : public meta::Object, public std::enable_shared_from_this<GameObject> {
 
 	public:
 		GameObject();
@@ -22,6 +22,8 @@ namespace GuGu {
 		virtual void OnSerialize(nlohmann::json& output) const override;
 
 		virtual void OnDeserialize(const nlohmann::json& input) override;
+
+		virtual void PostLoad() override;
 
 		template<typename T>
 		std::shared_ptr<T> getComponent() 
@@ -51,10 +53,25 @@ namespace GuGu {
 
 		void addComponent(std::shared_ptr<Component> inComponent);
 
+		void setComponents(const Array<std::shared_ptr<Component>>& components);
+
+		Array<std::shared_ptr<Component>> getComponents();
+
+		void setChildrens(const Array<std::shared_ptr<GameObject>>& childrens);
+
+		Array<std::shared_ptr<GameObject>> getChildrens();
+
+		std::weak_ptr<GameObject> getParentGameObject();
+
+		std::weak_ptr<GameObject> getParentGameObject() const;
+
+		void setParentGameObject(const std::weak_ptr<GameObject>& inGameObject);
 	protected:
 		Array<std::shared_ptr<Component>> m_components;
 
 		Array<std::shared_ptr<GameObject>> m_childrens;
+
+		std::weak_ptr<GameObject> m_parentGameObject;
 
 		GuGuUtf8Str m_name;
 	};

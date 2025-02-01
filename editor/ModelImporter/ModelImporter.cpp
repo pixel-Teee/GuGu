@@ -3,6 +3,7 @@
 #include "ModelImporter.h"
 
 #include <Core/Model/StaticMesh.h>
+#include <Core/AssetManager/AssetManager.h>
 
 namespace GuGu {
 	inline void AppendBufferRange(nvrhi::BufferRange& range, size_t size, uint64_t& currentBufferSize)
@@ -62,9 +63,11 @@ namespace GuGu {
 				/*out*/bufferSize);
 		}
 
-		//序列化掉这个模型为json文件
-		nlohmann::json staticMeshJson = meta::Variant(*m_currentLoadStaticMesh).SerializeJson();
+		//meta::Variant object = ObjectVariant(m_currentLoadStaticMesh.get());
 
+		//序列化掉这个模型为json文件
+		//nlohmann::json staticMeshJson = AssetManager::getAssetManager().serializeJson(object.GetType(), object);
+		nlohmann::json staticMeshJson = AssetManager::getAssetManager().serializeJson(m_currentLoadStaticMesh);
 		return staticMeshJson;
 	}
 	void ModelImporter::processNode(aiNode* node, const aiScene* scene)

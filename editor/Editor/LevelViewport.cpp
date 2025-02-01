@@ -32,11 +32,18 @@ namespace GuGu {
 		if (assetDragDrop)
 		{
 			const std::vector<GuGuUtf8Str>& assetPaths = assetDragDrop->getAssetPaths();
-			const std::vector<AssetData>& assetDatas = assetDragDrop->getAssets();
+			std::vector<AssetData>& assetDatas = assetDragDrop->getAssets();
 			for (int32_t i = 0; i < assetDatas.size(); ++i)
 			{
-				//GuGu_LOGD("%s\n", assetDatas[i].m_fileName.getStr());
-				World::getWorld()->loadObject(assetDatas[i]);
+				if (assetDatas[i].m_assetType == typeof(GStaticMesh))
+				{
+					//GuGu_LOGD("%s\n", assetDatas[i].m_fileName.getStr());
+					World::getWorld()->loadObject(assetDatas[i]);
+				}
+				else if(assetDatas[i].m_assetType == typeof(Level))
+				{
+					World::getWorld()->loadLevel(assetDatas[i]);
+				}			
 			}
 			return Reply::Handled();
 		}

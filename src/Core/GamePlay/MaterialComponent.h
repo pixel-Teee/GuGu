@@ -12,6 +12,8 @@ namespace GuGu {
 
 		virtual ~MaterialComponent();
 
+		virtual Object* Clone(void) const override;
+
 		void Update(float fElapsedTimeSeconds) override;
 
 		virtual meta::Type GetType() const override;

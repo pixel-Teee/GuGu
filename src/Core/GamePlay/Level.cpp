@@ -19,9 +19,39 @@ namespace GuGu {
 
 		//m_objects[0]->getComponent<Component>();
 	}
-	const std::vector<std::shared_ptr<GameObject>>& Level::getGameObjects()
+
+	void Level::PostLoad()
+	{
+
+	}
+
+	meta::Type Level::GetType() const
+	{
+		return typeof(Level);
+	}
+	meta::Object* Level::Clone(void) const
+	{
+		Level* level = new Level();
+		level->m_objects = m_objects;
+		return level;
+	}
+	void Level::OnSerialize(nlohmann::json& output) const
+	{
+	}
+	void Level::OnDeserialize(const nlohmann::json& input)
+	{
+	}
+	const Array<std::shared_ptr<GameObject>>& Level::getGameObjects() const
 	{
 		return m_objects;
+	}
+	Array<std::shared_ptr<GameObject>>& Level::getGameObjects()
+	{
+		return m_objects;
+	}
+	void Level::setGameObjects(const Array<std::shared_ptr<GameObject>>& gameObjects)
+	{
+		m_objects = gameObjects;
 	}
 	void Level::addGameObject(std::shared_ptr<GameObject> inGameObject)
 	{

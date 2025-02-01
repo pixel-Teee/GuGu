@@ -41,7 +41,7 @@ namespace GuGu {
 
 		Reply openFileMenu();
 
-		Reply saveLevel();
+		Reply openLevel();
 
 		void setRenderTarget(nvrhi::TextureHandle renderTarget);
 	private:

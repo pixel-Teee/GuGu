@@ -20,7 +20,11 @@ namespace GuGu {
 
 		const std::shared_ptr<Level> getCurrentLevel() const;
 
-		void loadObject(const AssetData& assetData) const;
+		void loadObject(AssetData& assetData) const;
+
+		void loadLevel(AssetData& assetData);
+
+		void setLevel(std::shared_ptr<Level> inLevel);
 
 		void update(float fElapsedTimeSeconds);
 

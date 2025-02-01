@@ -19,6 +19,8 @@ namespace GuGu {
 			virtual Type GetType() const = 0;
 			virtual Object* Clone(void) const = 0;
 
+			virtual void PostLoad() = 0;
+
 			//todo:add serialize and deserialize
 			virtual void OnSerialize(nlohmann::json& output) const {}
 			virtual void OnDeserialize(const nlohmann::json& input) {}

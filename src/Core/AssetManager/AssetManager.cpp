@@ -9,6 +9,12 @@
 #include <windows.h>
 #endif
 
+#include <Core/Reflection/TypeCreator.h>
+#include <Core/Reflection/Enum.h>
+#include <Core/Reflection/ReflectionDatabase.h>
+#include <Core/GamePlay/TransformComponent.h>
+#include <Core/Model/StaticMesh.h>
+
 namespace GuGu {
 	AssetManager::AssetManager()
 	{
@@ -47,7 +53,7 @@ namespace GuGu {
 			GuGuUtf8Str filePath = item.at("FilePath").get<std::string>();
 			GuGuUtf8Str fileName = item.at("FileName").get<std::string>();
 			uint32_t assetTypeId = item.at("AssetType").get<uint32_t>();
-			m_guidToAssetMap.insert({ key, {filePath, fileName, meta::Type(assetTypeId)}});
+			m_guidToAssetMap.insert({ key, std::make_shared<AssetData>(filePath, fileName, meta::Type(assetTypeId))});
 		}
 	}
 	AssetManager::~AssetManager()
@@ -144,7 +150,7 @@ namespace GuGu {
 	{
 		//GuGuUtf8Str relativePath = "content/" + FilePath::getRelativePathForAsset(filePath, m_nativeFileSystem->getNativeFilePath() + "/").getStr();
 		GuGuUtf8Str relativePath = filePath;
-		m_guidToAssetMap.insert({ guid, {relativePath, fileName, assetType.GetID()} });
+		m_guidToAssetMap.insert({ guid, std::make_shared<AssetData>(relativePath, fileName, assetType.GetID())});
 		m_rootFileSystem->OpenFile("content/AssetRgistry.json", GuGuFile::FileMode::OnlyWrite);
 		
 		nlohmann::json newItem = nlohmann::json::object();
@@ -169,7 +175,7 @@ namespace GuGu {
 	{
 		for (const auto& item : m_guidToAssetMap)
 		{
-			if (item.second.m_filePath == filePath)
+			if (item.second->m_filePath == filePath)
 				return true;
 		}
 		return false;
@@ -179,10 +185,477 @@ namespace GuGu {
 	{
 		for (const auto& item : m_guidToAssetMap)
 		{
-			if (item.second.m_filePath == filePath)
-				return item.second;
+			if (item.second->m_filePath == filePath)
+				return *item.second;
 		}
 		return AssetData();
+	}
+
+	nlohmann::json AssetManager::serializeJson(std::shared_ptr<meta::Object> object)
+	{
+		SerializeDeserializeContext context;
+		context.m_indexToObject.clear();
+		context.index = 0;
+		meta::Variant rootObject = ObjectVariant(object.get());
+		CollisionObjects(rootObject, context);//收集所有object
+
+		nlohmann::json output = nlohmann::json::object();
+
+		nlohmann::json objectArrays = nlohmann::json::array();
+		for (const auto& item : context.m_indexToObject)
+		{
+			meta::Variant object = ObjectVariant(item.second);
+			std::string objectIndex = std::to_string(item.first);
+			nlohmann::json jsonObject = serializeJson(object.GetType(), object, context);
+			jsonObject["type"] = object.GetType().GetID();
+			nlohmann::json indexAndObject = nlohmann::json::object();
+			indexAndObject[objectIndex.c_str()] = jsonObject;
+			objectArrays.push_back(indexAndObject);
+		}
+		output["Objects"] = objectArrays;
+		GuGu_LOGD("%s\n", output.dump().c_str());
+
+		context.m_indexToObject.clear();
+		context.index = 0;
+
+		return output;
+	}
+
+	void AssetManager::CollisionObjects(meta::Variant& object, SerializeDeserializeContext& context)
+	{
+		if (object.GetType().IsSharedPtr())
+		{
+			std::shared_ptr<meta::Object> metaObject = *static_cast<std::shared_ptr<meta::Object>*>(object.getBase()->GetPtr());
+			object = ObjectVariant(metaObject.get());
+		}
+		else
+		{
+			bool isMetaObject = false;
+			auto& baseClassesType = object.GetType().GetBaseClasses();
+			for (const auto& type : baseClassesType)
+			{
+				if (type == typeof(meta::Object))
+					isMetaObject = true;
+			}
+			if (!isMetaObject)
+				return;
+		}
+
+		//先找出所有的 std::shared_ptr<meta::object> 或者 std::weak_ptr<meta::object>
+		auto type = object.GetType();
+
+		auto& fields = meta::ReflectionDatabase::Instance().types[type.GetID()].fields;
+
+		bool haveAdded = false;
+		for (const auto& item : context.m_indexToObject)
+		{
+			if (item.second == object.getBase()->GetPtr())
+			{
+				haveAdded = true;
+				break;
+			}
+		}
+		if (!haveAdded)
+		{
+			++context.index;
+			meta::Object* insertObject = static_cast<meta::Object*>(object.getBase()->GetPtr());
+			context.m_indexToObject.insert({ context.index, insertObject });
+		}
+
+		meta::Object* metaObject = static_cast<meta::Object*>(object.getBase()->GetPtr());
+		meta::Variant instance = ObjectVariant(metaObject);
+		for (auto& field : fields)
+		{
+			auto type = field.GetType();
+			if (type != meta::Type::Invalid())
+			{
+				//if (type.IsSharedPtr() && type.IsArray() == false)
+				//{
+				//	meta::Variant value = field.GetValue(instance);
+				//	void* ptr = value.getBase()->GetPtr();
+				//	std::shared_ptr<meta::Object> object = *reinterpret_cast<std::shared_ptr<meta::Object>*>(&ptr);
+				//	CollisionObjects(object);
+				//}
+				if (type.IsArray())
+				{
+					meta::Variant value = field.GetValue(instance);
+					auto wrapper = value.GetArray();//从 variant 获取 array, array wrapper
+					auto size = wrapper.Size();
+					for (size_t i = 0; i < size; ++i)
+					{
+						meta::Variant item = wrapper.GetValue(i);//variant
+						//void* ptr = item.getBase()->GetPtr();
+						//std::shared_ptr<meta::Object> object = *reinterpret_cast<std::shared_ptr<meta::Object>*>(&ptr);
+						CollisionObjects(item, context);
+					}
+				}
+			}
+		}
+	}
+
+	nlohmann::json AssetManager::serializeJson(meta::Type type, const meta::Variant& instance, SerializeDeserializeContext& context)
+	{
+		if (type.IsArray()) //数组
+		{
+			nlohmann::json array = nlohmann::json::array();
+			auto wrapper = instance.GetArray();//从 variant 获取 array, array wrapper
+			auto size = wrapper.Size();
+			for (size_t i = 0; i < size; ++i)
+			{
+				auto value = wrapper.GetValue(i);//variant
+
+				array.emplace_back(
+					serializeJson(value.GetType(), value, context)
+				);
+			}
+			return array;
+		}
+
+		if (type == typeof(bool))
+		{
+			return instance.ToBool();
+		}
+	
+		//number, or non-associative enum
+		if (type.IsPrimitive()) //todo:add get property serialize as number
+		{
+			if (type.IsFloatingPoint() || !type.IsSigned())
+			{
+				return instance.ToDouble();
+			}
+
+			return instance.ToInt();
+		}
+
+		//associative enum value
+		auto isEnum = type.IsEnum();
+		if (isEnum)
+		{
+			return type.GetEnum().GetKey(instance).getStr();//str to json
+		}
+
+		if (type == typeof(GuGuUtf8Str))
+		{
+			return instance.ToString().getStr();
+		}
+
+
+		if (type == typeof(std::shared_ptr<AssetData>))
+		{
+			//序列化GUID
+			std::shared_ptr<AssetData> assetData = *reinterpret_cast<std::shared_ptr<AssetData>*>(instance.getBase()->GetPtr());
+
+			GGuid guid = AssetManager::getAssetManager().getGuid(assetData);
+
+			return guid.getGuid().getStr();
+		}
+		else
+		{
+			//遇到指针，序列化成索引
+			if (type.IsSharedPtr())
+			{
+				std::shared_ptr<meta::Object> ptr = *reinterpret_cast<std::shared_ptr<meta::Object>*>(instance.getBase()->GetPtr());
+				for (auto& item : context.m_indexToObject)
+				{
+					if (item.second == ptr.get())
+						return item.first;//index
+				}
+				return -1;
+			}
+
+			if (type.IsWeakPtr())
+			{
+				void* ptr = instance.getBase()->GetPtr();
+				std::weak_ptr<meta::Object> object = *reinterpret_cast<std::weak_ptr<meta::Object>*>(ptr);
+				for (auto& item : context.m_indexToObject)
+				{
+					if (item.second == object.lock().get())
+						return item.first;//index
+				}
+				return -1;
+			}
+		}	
+
+		nlohmann::json object = nlohmann::json::object();
+
+		auto& fields = meta::ReflectionDatabase::Instance().types[type.GetID()].fields;
+
+		for (auto& field : fields)
+		{
+			auto value = field.GetValue(instance);//variant
+
+			//auto json = value.SerializeJson();
+			auto json = serializeJson(field.GetType(), value, context);
+
+			//value.getBase()->OnSerialize(const_cast<nlohmann::json&>(json));
+
+			object[field.GetName().getStr()] = json;	
+		}
+
+		return object;
+	}
+
+	meta::Variant AssetManager::deserializeJson(meta::Type type, nlohmann::json value, const meta::Constructor& ctor, SerializeDeserializeContext& context)
+	{
+		//数组类型需要特殊的情况
+		if (type.IsArray())
+		{
+			auto nonArrayType = type.GetArrayType();
+			auto arrayCtor = type.GetArrayConstructor();
+
+			auto instance = arrayCtor.Invoke();
+			auto wrapper = instance.GetArray();
+
+			if (nonArrayType.IsSharedPtr() || nonArrayType.IsWeakPtr()) //指针数组
+			{
+				return nullptr;
+			}
+			else
+			{
+				size_t i = 0;
+				for (auto& item : value) //遍历json数组
+				{
+					//nonArrayType.DeserializeJson(item, ctor)
+					meta::Variant insertItem = deserializeJson(nonArrayType, item, ctor, context);
+
+					wrapper.Insert(i++, insertItem);
+				}
+			}
+			
+			return instance;
+		}
+		//处理所有原子类型
+		else if (type.IsPrimitive())
+		{
+			if (type == typeof(int))
+				return { value.get<int>() };
+			else if (type == typeof(unsigned int))
+				return { static_cast<unsigned int>(value.get<unsigned int>()) };
+			else if (type == typeof(bool))
+				return { value.get<bool>() };
+			else if (type == typeof(float))
+				return { static_cast<float>(value.get<float>()) };
+			else if (type == typeof(double))
+				return { value.get<double>() };
+		}
+		else if (type.IsEnum())
+		{
+			// number literal
+			if (value.is_number())
+				return { value.get<int>() };
+
+			// associative value
+			auto enumValue = type.GetEnum().GetValue(value.get<std::string>());
+
+			// make sure we can find the key
+			if (enumValue.IsValid())
+				return enumValue;
+
+			// use the default value as we couldn't find the key
+			return meta::TypeCreator::Create(type);
+		}
+		else if (type == typeof(GuGuUtf8Str))
+		{
+			return GuGuUtf8Str(value.get<std::string>());
+		}
+		if (type == typeof(std::shared_ptr<AssetData>))
+		{
+			//特殊处理，引用了另外一种资源
+
+			GGuid guid(value.get<std::string>());
+
+			//去加载(有缓存)
+			return AssetManager::getAssetManager().loadAsset(guid);
+		}
+		if (type.IsSharedPtr())
+		{
+			return nullptr;//后续 link
+		}
+		if (type.IsWeakPtr())
+		{
+			return nullptr;//后续 link
+		}
+
+		auto instance = ctor.Invoke();
+
+		auto& fields = meta::ReflectionDatabase::Instance().types[type.GetID()].fields;
+
+		for (auto& field : fields)
+		{
+			auto fieldType = field.GetType();
+
+			//				assert(fieldType.IsValid(),
+			//					"Unknown type for field '%s' in base type '%s'. Is this type reflected?",
+			//					fieldType.GetName().c_str(),
+			//					GetName().c_str()
+			//				);
+			if(fieldType != typeof(std::shared_ptr<AssetData>))
+			{
+				if(fieldType.IsWeakPtr() || fieldType.IsSharedPtr()) //后续link
+					continue;
+			}
+
+			auto& fieldData = value[field.GetName().getStr()];
+
+			if (!fieldData.is_null())
+			{
+				auto& ctor = fieldType.GetConstructor();
+
+				//auto fieldValue = fieldType.DeserializeJson(fieldData);
+				auto fieldValue = deserializeJson(fieldType, fieldData, ctor, context);
+
+				field.SetValue(instance, fieldValue);
+			}
+		}
+
+		return instance;
+	}
+
+	void AssetManager::deserializeJson(nlohmann::json value, SerializeDeserializeContext& context)
+	{
+		auto& jsonObjects = value["Objects"];
+
+		for (auto& element : jsonObjects)
+		{
+			for (auto& it : element.items())
+			{
+				uint32_t typeId = it.value()["type"].get<uint32_t>();
+				meta::Type type = meta::Type(typeId);
+				meta::Constructor constructor = type.GetDynamicConstructor();
+				meta::Variant instance = deserializeJson(type, it.value(), constructor, context);//GStaticMesh
+				meta::Object* object = static_cast<meta::Object*>(instance.getBase()->GetPtr());
+				object->PostLoad();
+				//meta::Object& object = deserializeJson(type, it.value(), constructor).GetValue<meta::Object>();
+				context.m_indexToObject.insert({ std::stoi(it.key()), object });
+			}
+		}
+		
+		//链接
+		for (auto& item : context.m_indexToObject)
+		{
+			bool needLink = false;
+			nlohmann::json object;
+			for (auto& element : jsonObjects)
+			{
+				for (auto& it : element.items())
+				{
+					if (std::stoi(std::string(it.key())) == item.first)
+					{
+						needLink = true;
+						object = it.value();
+					}
+					break;
+				}
+			}
+			if (needLink)
+			{
+				link(object, item.second, context);
+			}			
+		}	
+	}
+
+	void AssetManager::link(nlohmann::json jsonObject, meta::Object* object, SerializeDeserializeContext& context)
+	{
+		auto type = object->GetType();
+		auto& fields = meta::ReflectionDatabase::Instance().types[type.GetID()].fields;
+
+		meta::Variant variantObject = ObjectVariant(object);
+		for (auto& field : fields)
+		{
+			auto fieldType = field.GetType();
+
+			if (fieldType == typeof(std::shared_ptr<AssetData>))
+			{
+				GGuid guid = GGuid(jsonObject[field.GetName().getStr()].get<std::string>());
+				//field.SetValue(variantObject, linkedObject);
+			}
+			else if (fieldType.IsWeakPtr() && !fieldType.IsArray())
+			{
+				int32_t objectIndex = jsonObject[field.GetName().getStr()].get<int32_t>();
+				if (objectIndex != -1)
+				{
+					//weak ptr 后续处理
+
+					//auto& linkedObject = context.m_indexToObject.find(objectIndex)->second;
+					//std::shared_ptr<meta::Object> linkedObject = std::shared_ptr<meta::Object>(context.m_indexToObject.find(objectIndex)->second);
+					//std::weak_ptr<meta::Object> weakObject = linkedObject;
+					//field.SetValue(variantObject, weakObject);
+				}
+			}
+			else if (fieldType.IsSharedPtr() && !fieldType.IsArray())
+			{
+				int32_t objectIndex = jsonObject[field.GetName().getStr()].get<int32_t>();
+				if (objectIndex != -1)
+				{
+					//auto& linkedObject = context.m_indexToObject.find(objectIndex)->second;
+					std::shared_ptr<meta::Object> linkedObject = std::shared_ptr<meta::Object>(context.m_indexToObject.find(objectIndex)->second);
+					field.SetValue(variantObject, linkedObject);
+				}		
+			}
+			else if (fieldType.IsArray())
+			{
+				auto nonArrayType = fieldType.GetArrayType();
+				if (nonArrayType.IsSharedPtr() == false)
+					continue;
+				auto arrayCtor = fieldType.GetArrayConstructor();
+
+				auto instance = arrayCtor.Invoke();
+				auto wrapper = instance.GetArray();
+
+				size_t i = 0;
+				for (auto& item : jsonObject[field.GetName().getStr()]) //遍历json数组
+				{
+					//auto& linkedObject = context.m_indexToObject.find(item.get<int32_t>())->second;
+					std::shared_ptr<meta::Object> linkedObject = std::shared_ptr<meta::Object>(context.m_indexToObject.find(item.get<int32_t>())->second);
+					wrapper.Insert(i++, linkedObject);
+				}
+				field.SetValue(variantObject, instance);
+			}
+		}
+	}
+
+	GGuid AssetManager::getGuid(std::shared_ptr<AssetData> inAssetData)
+	{
+		for (const auto& item : m_guidToAssetMap)
+		{
+			if (item.second->m_filePath == inAssetData->m_filePath)
+				return item.first;
+		}
+		return GGuid();//nothing
+	}
+
+	std::shared_ptr<AssetData> AssetManager::loadAsset(GGuid guid)
+	{
+		for (const auto& item : m_guidToAssetMap)
+		{
+			if (item.first == guid)
+			{
+				if (item.second->m_loadedResource == nullptr)
+				{
+					//load
+					AssetManager::getAssetManager().getRootFileSystem()->OpenFile(item.second->m_filePath, GuGuFile::FileMode::OnlyRead);
+					uint32_t fileSize = AssetManager::getAssetManager().getRootFileSystem()->getFileSize();
+					char* fileContent = new char[fileSize + 1];
+					fileContent[fileSize] = '\0';
+					int32_t numberBytesHavedReaded = 0;
+					AssetManager::getAssetManager().getRootFileSystem()->ReadFile((void*)fileContent, fileSize, numberBytesHavedReaded);
+					AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
+					GuGuUtf8Str modelJson(fileContent);
+					//load asset
+					std::shared_ptr<meta::Object> loadedObject = std::shared_ptr<meta::Object>(AssetManager::getAssetManager().deserializeJson<GStaticMesh>(nlohmann::json::parse(modelJson.getStr())));
+					item.second->m_loadedResource = loadedObject;
+					//AssetManager::getAssetManager().deserializeJson(nlohmann::json::parse(modelJson.getStr()))
+
+					delete[] fileContent;
+					return item.second;
+				}
+				else
+				{
+					return item.second;
+				}
+			}
+		}
+		return nullptr;
 	}
 
 	//遍历目录

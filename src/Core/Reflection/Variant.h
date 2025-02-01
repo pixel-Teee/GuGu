@@ -103,6 +103,8 @@ namespace GuGu {
 			bool IsValid(void) const;
 			bool IsConst(void) const;
 			bool IsArray(void) const;
+
+			meta::VariantBase* getBase() const;
 		private:
 			friend class Type;
 			friend class Argument;

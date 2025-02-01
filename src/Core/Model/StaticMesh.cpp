@@ -9,6 +9,14 @@ namespace GuGu {
 	GStaticMesh::~GStaticMesh()
 	{
 	}
+
+	void GStaticMesh::PostLoad()
+	{
+		m_objectSpaceBounds = dm::box3(m_positionData.size(), m_positionData.data());
+		m_totalIndices = m_indexData.size();
+		m_totalVertices = m_positionData.size();
+	}
+
 	void GStaticMesh::Update(float fElapsedTimeSeconds)
 	{
 		

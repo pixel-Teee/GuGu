@@ -1,16 +1,27 @@
 #include <pch.h>
 
 #include "EditorCamera.h"
+#include <Application/Application.h>
+
 #include <Core/UI/Events.h>
 #include <Core/UI/Viewport.h>
-#include <Core/GamePlay/InputManager.h>
+#include <Core/UI/WindowWidget.h>
 #include <Core/Timer.h>
-#include <Application/Application.h>
-#include <Core/GamePlay/World.h>
 #include <Core/Collision/Collision3D.h>
+#include <Core/GamePlay/InputManager.h>
+#include <Core/GamePlay/World.h>
 #include <Core/GamePlay/Level.h>
-#include <Core/Model/GeometryHelper.h>
 #include <Core/GamePlay/TransformComponent.h>
+#include <Core/Model/GeometryHelper.h>
+#include <Core/AssetManager/AssetManager.h>
+
+#ifdef WIN32
+#include <Application/Platform/Windows/WindowsMisc.h>
+#else
+#ifdef ANDROID
+#include <Application/Platform/Android/AndroidMisc.h>
+#endif
+#endif
 
 namespace GuGu {
 	EditorCamera::EditorCamera(std::shared_ptr<ViewportWidget> inViewportWidget)
@@ -77,6 +88,65 @@ namespace GuGu {
 		rotate(fElapsedTimeSecond);
 		zoom(fElapsedTimeSecond);
 		gizmos(fElapsedTimeSecond);
+
+		//save level
+		if (InputManager::getInputManager().isKeyDown(Keys::S)) //save level
+		{
+			InputManager::getInputManager().updateKeyboard(Keys::S, false);//立马释放掉
+			GuGuUtf8Str ouputDir = "content";
+			GuGuUtf8Str initDir = "";
+			std::vector<GuGuUtf8Str> filterArray;
+			filterArray.push_back("JSON(*.json)\0");
+			filterArray.push_back("*.json\0");
+			//initDir = sourcesData.substr(initDir.findFirstOf("/"));
+			initDir = AssetManager::getAssetManager().getActualPhysicalPath(initDir);
+			GuGuUtf8Str fileName;
+			GuGuUtf8Str filePath;
+
+			std::shared_ptr<WindowWidget> rootWindow;
+			std::shared_ptr<Widget> widget = m_viewportWidget.lock()->getParentWidget();
+			while (widget)
+			{
+				if (widget->getParentWidget() == nullptr)
+				{
+					rootWindow = std::static_pointer_cast<WindowWidget>(widget);
+					break;
+				}
+				else
+					widget = widget->getParentWidget();
+			}
+
+			PlatformMisc::getSaveFilePathAndFileName(rootWindow, initDir, filePath, fileName, filterArray);
+
+			//get current level
+			std::shared_ptr<Level> currentLevel = World::getWorld()->getCurrentLevel();
+			nlohmann::json levelJson = AssetManager::getAssetManager().serializeJson(currentLevel);
+			GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
+
+			levelJson["GUID"] = guidStr.getStr();
+			GuGuUtf8Str fileContent = levelJson.dump();
+
+			GuGuUtf8Str noFileExtensionsFileName = fileName;
+			int32_t dotPos = noFileExtensionsFileName.findLastOf(".");
+			if (dotPos != -1)
+			{
+				noFileExtensionsFileName = noFileExtensionsFileName.substr(0, dotPos);
+			}
+
+			//GuGuUtf8Str registerFilePath = filePath;
+			//dotPos = filePath.findLastOf(".");
+			//if (dotPos != -1)
+			//{
+			//	registerFilePath = filePath.substr(0, dotPos);
+			//}					
+			GuGuUtf8Str outputFilePath = ouputDir + "/" + noFileExtensionsFileName + ".json";
+
+			AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<Level>().ID));
+			//输出到目录
+			AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
+			AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
+		}
+
 		updateView();
 
 		//m_forward = math::normalize(m_forward);

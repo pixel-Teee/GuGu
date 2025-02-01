@@ -45,7 +45,7 @@ namespace GuGu {
 		std::vector<math::float2>& texCoord2Data = staticMesh.m_texCoord2Data;
 		std::vector<math::float3>& normalData = staticMesh.m_normalData;
 		std::vector<math::float3>& tangentData = staticMesh.m_tangentData;
-		std::vector<math::vector<uint16_t, 4>>& jointData = staticMesh.m_jointData;//指向骨骼矩阵的索引
+		Array<math::vector<uint16_t, 4>>& jointData = staticMesh.m_jointData;//指向骨骼矩阵的索引
 		std::vector<math::float4>& weightData = staticMesh.m_weightData;
 		std::array<nvrhi::BufferRange, size_t(GVertexAttribute::Count)>& vertexBufferRanges = staticMesh.m_vertexBufferRanges;
 

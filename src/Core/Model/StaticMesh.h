@@ -21,6 +21,8 @@ namespace GuGu{
 		nvrhi::BufferRange& getVertexBufferRange(GVertexAttribute attr) { return m_vertexBufferRanges[int32_t(attr)]; }
 		const nvrhi::BufferRange& getVertexBufferRange(GVertexAttribute attr) const { return m_vertexBufferRanges[int32_t(attr)]; }
 
+		virtual void PostLoad() override;
+
 		virtual void Update(float fElapsedTimeSeconds) override;
 		virtual meta::Type GetType() const override;
 		//拷贝对象
@@ -37,14 +39,14 @@ namespace GuGu{
 		nvrhi::BufferHandle m_vertexBuffer;
 
 		//内存数据是要序列化的
-		std::vector<uint32_t> m_indexData;
-		std::vector<math::float3> m_positionData;
-		std::vector<math::float2> m_texCoord1Data;
-		std::vector<math::float2> m_texCoord2Data;
-		std::vector<math::float3> m_normalData;
-		std::vector<math::float3> m_tangentData;
-		std::vector<math::vector<uint16_t, 4>> m_jointData;//指向骨骼矩阵的索引
-		std::vector<math::float4> m_weightData;
+		Array<uint32_t> m_indexData;
+		Array<math::float3> m_positionData;
+		Array<math::float2> m_texCoord1Data;
+		Array<math::float2> m_texCoord2Data;
+		Array<math::float3> m_normalData;
+		Array<math::float3> m_tangentData;
+		Array<math::vector<uint16_t, 4>> m_jointData;//指向骨骼矩阵的索引
+		Array<math::float4> m_weightData;
 		std::array<nvrhi::BufferRange, size_t(GVertexAttribute::Count)> m_vertexBufferRanges;
 
 		std::vector<std::shared_ptr<GMeshGeometry>> m_geometries;//描述整个模型网格中的子网格

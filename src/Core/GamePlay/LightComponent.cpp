@@ -12,6 +12,13 @@ namespace GuGu {
 	LightComponent::~LightComponent()
 	{
 	}
+	meta::Object* LightComponent::Clone(void) const
+	{
+		LightComponent* lightComponent = new LightComponent();
+		lightComponent->m_lightPosition = m_lightPosition;
+		lightComponent->m_lightColor = m_lightColor;
+		return lightComponent;
+	}
 	void LightComponent::Update(float fElapsedTimeSeconds)
 	{
 		//m_lightColor.x += std::cos(fElapsedTimeSeconds * 200.0);

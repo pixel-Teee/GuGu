@@ -20,6 +20,8 @@ namespace GuGu {
 			bool isSigned : 1; //是否有符号
 			bool isFloatingPoint : 1; //是否为浮点数
 			bool isPointer : 1; //是否为指针
+			bool isSharedPointer : 1;//是否为共享指针
+			bool isWeakPointer : 1;//是否为弱指针
 			bool isClass : 1; //是否为类
 
 			//todo:添加 meta 管理器
@@ -54,6 +56,10 @@ namespace GuGu {
 			TypeData(void);
 			TypeData(const GuGuUtf8Str& name);
 
+			void LoadBaseClasses(ReflectionDatabase& db,
+				TypeID thisType,
+				const std::initializer_list<Type>& classes);
+
 			template<typename ClassType>
 			void SetArrayConstructor(void);
 
@@ -61,6 +67,10 @@ namespace GuGu {
 			void AddConstructor();
 
 			const Constructor& GetConstructor(
+				const InvokableSignature& signature
+			);
+
+			const Constructor& GetDynamicConstructor(
 				const InvokableSignature& signature
 			);
 

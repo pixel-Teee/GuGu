@@ -32,6 +32,8 @@
 #include "ContentBrowser/PathView.h"
 #include "WindowTitleBar.h"
 
+#include <Core/GamePlay/World.h>
+
 namespace GuGu {
 	EditorMainWindow::EditorMainWindow()
 	{
@@ -239,12 +241,12 @@ namespace GuGu {
 				//NullWidget::getNullWidget()
 			)
 		);
-		m_saveLevelButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::saveLevel, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
+		m_saveLevelButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::openLevel, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
 		m_openFileMenuAnchor->setIsOpen(true);
 		return Reply::Handled();
 	}
-	Reply EditorMainWindow::saveLevel()
-	{
+	GuGu::Reply EditorMainWindow::openLevel()
+{
 		GuGuUtf8Str fileName;
 		GuGuUtf8Str filePath;
 		GuGuUtf8Str initDir;

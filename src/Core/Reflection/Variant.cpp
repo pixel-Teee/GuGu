@@ -93,6 +93,10 @@ namespace GuGu {
 		{
 			return m_base ? m_base->IsArray() : false;
 		}
+		meta::VariantBase* Variant::getBase() const
+		{
+			return m_base;
+		}
 		void* Variant::getPtr(void) const
 		{
 			return m_base ? m_base->GetPtr() : nullptr;

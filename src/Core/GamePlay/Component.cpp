@@ -7,4 +7,20 @@ namespace GuGu {
     {
         return typeof(Component);
     }
+
+
+	const std::weak_ptr<GameObject>& Component::getParentGameObject() const
+	{
+		return m_owner;
+	}
+
+	std::weak_ptr<GameObject>& Component::getParentGameObject()
+	{
+		return m_owner;
+	}
+
+	void Component::setParentGameObject(const std::weak_ptr<GameObject>& inGameObject)
+	{
+		m_owner = inGameObject;
+	}
 }

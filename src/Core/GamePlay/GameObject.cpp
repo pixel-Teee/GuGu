@@ -25,11 +25,15 @@ namespace GuGu {
 	}
 	meta::Type GameObject::GetType() const
 	{
-		return meta::Type();
+		return typeof(GameObject);
 	}
 	meta::Object* GameObject::Clone(void) const
 	{
-		return nullptr;
+		GameObject* gameObject = new GameObject();
+		gameObject->m_name = m_name;
+		gameObject->m_components = m_components;
+		gameObject->m_childrens = m_childrens;
+		return gameObject;
 	}
 	void GameObject::OnSerialize(nlohmann::json& output) const
 	{
@@ -37,8 +41,52 @@ namespace GuGu {
 	void GameObject::OnDeserialize(const nlohmann::json& input)
 	{
 	}
+
+	void GameObject::PostLoad()
+	{
+
+	}
+
 	void GameObject::addComponent(std::shared_ptr<Component> inComponent)
 	{
+		inComponent->setParentGameObject(shared_from_this());
 		m_components.push_back(inComponent);
 	}
+	void GameObject::setComponents(const Array<std::shared_ptr<Component>>& components)
+	{
+		m_components = components;
+	}
+	Array<std::shared_ptr<Component>> GameObject::getComponents()
+	{
+		return m_components;
+	}
+	void GameObject::setChildrens(const Array<std::shared_ptr<GameObject>>& childrens)
+	{
+		m_childrens = childrens;
+		for (const auto& children : m_childrens)
+		{
+			children->setParentGameObject(shared_from_this());
+		}
+	}
+
+	Array<std::shared_ptr<GameObject>> GameObject::getChildrens()
+	{
+		return m_childrens;
+	}
+
+	std::weak_ptr<GameObject> GameObject::getParentGameObject() const
+	{
+		return m_parentGameObject;
+	}
+
+	std::weak_ptr<GameObject> GameObject::getParentGameObject()
+	{
+		return m_parentGameObject;
+	}
+
+	void GameObject::setParentGameObject(const std::weak_ptr<GameObject>& inGameObject)
+	{
+		m_parentGameObject = inGameObject;
+	}
+
 }
