@@ -532,11 +532,11 @@ namespace GuGu {
 					(meta::FieldGetter<CameraComponent, float, true>::Signature)& CameraComponent::getFov,
 					(meta::FieldSetter<CameraComponent, float, true>::Signature)& CameraComponent::setFov);
 
-				type.AddField<CameraComponent, float>("m_metallic",
+				type.AddField<CameraComponent, float>("m_nearPlane",
 					(meta::FieldGetter<CameraComponent, float, true>::Signature)& CameraComponent::getNearPlane,
 					(meta::FieldSetter<CameraComponent, float, true>::Signature)& CameraComponent::setNearPlane);
 
-				type.AddField<CameraComponent, float>("m_roughness",
+				type.AddField<CameraComponent, float>("m_farPlane",
 					(meta::FieldGetter<CameraComponent, float, true>::Signature) & CameraComponent::getFarPlane,
 					(meta::FieldSetter<CameraComponent, float, true>::Signature) & CameraComponent::setFarPlane);
 			}
