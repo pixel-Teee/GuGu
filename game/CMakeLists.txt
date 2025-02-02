@@ -19,7 +19,7 @@ elseif(ANDROID)
 endif()
 
 target_link_libraries(Game PUBLIC GuGu)
-target_include_directories(Game PUBLIC "../src")
+target_include_directories(Game PUBLIC "../src" "../thirdParty/nlohmann")
 target_precompile_headers(Game PRIVATE "../src/pch.h")
 target_compile_features(Game PRIVATE cxx_std_17)
 add_dependencies(Game GuGu)

@@ -1,12 +1,18 @@
 #include <pch.h>
 
 #include "GameViewportClient.h"
+#include <Core/UI/WindowWidget.h>
+#include <Core/UI/NullWidget.h>
+#include <Core/GamePlay/World.h>
+#include <Core/AssetManager/AssetManager.h>
+#include "LevelViewport.h"
 
 namespace GuGu {
 	GameViewportClient::GameViewportClient(std::shared_ptr<ViewportWidget> inViewportWidget)
 		: m_viewportWidget(inViewportWidget)
 	{
-
+		m_width = 1280.0f;
+		m_height = 920.0f;
 	}
 	GameViewportClient::~GameViewportClient()
 	{
@@ -14,47 +20,51 @@ namespace GuGu {
 	}
 	void GameViewportClient::update(float fElapsedTimeSecond)
 	{
-
+		if (m_viewportWidget.lock())
+			m_viewportWidget.lock()->setRenderTarget(m_renderTarget);
 	}
 
 	void GameViewportClient::resizeViewport(int32_t width, int32_t height)
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		m_width = width;
+		m_height = height;
 	}
 
-	GuGu::math::float2 GameViewportClient::getViewportSize() const
+	math::float2 GameViewportClient::getViewportSize() const
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		return math::float2(m_width, m_height);
 	}
 
 	void GameViewportClient::setRenderTarget(nvrhi::TextureHandle viewportRenderTarget, nvrhi::TextureHandle depthRenderTarget, nvrhi::FramebufferHandle frameBuffer)
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		m_renderTarget = viewportRenderTarget;
+		m_depthTarget = depthRenderTarget;
+		m_frameBuffer = frameBuffer;
 	}
 
 	GuGu::nvrhi::TextureHandle GameViewportClient::getRenderTarget() const
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		return m_renderTarget;
 	}
 
 	GuGu::nvrhi::TextureHandle GameViewportClient::getDepthTarget() const
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		return m_depthTarget;
 	}
 
 	GuGu::nvrhi::FramebufferHandle GameViewportClient::getFramebuffer() const
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		return m_frameBuffer;
 	}
 
 	GuGu::math::float2 GameViewportClient::getRenderTargetSize() const
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		return math::float2(m_renderTarget->getDesc().width, m_renderTarget->getDesc().height);
 	}
 
 	float GameViewportClient::getAspectRatio() const
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		return (float)m_width / m_height;
 	}
 
 	float GameViewportClient::getNearPlane() const
@@ -97,6 +107,16 @@ namespace GuGu {
 		throw std::logic_error("The method or operation is not implemented.");
 	}
 
+	GuGu::ViewportClient::ViewportState GameViewportClient::getViewportState() const
+	{
+		return ViewportClient::Runtime;
+	}
+
+	void GameViewportClient::setViewportState(ViewportState state)
+	{
+		
+	}
+
 	GuGu::math::float4x4 GameViewportClient::getWorldToViewMatrix() const
 	{
 		throw std::logic_error("The method or operation is not implemented.");
@@ -104,7 +124,10 @@ namespace GuGu {
 
 	GuGu::math::float4x4 GameViewportClient::getPespectiveMatrix() const
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		math::matrix perspectiveMatrix = math::perspProjD3DStyle(getFov(),
+			getAspectRatio(), getNearPlane(), getFarPlane()
+		);
+		return perspectiveMatrix;
 	}
 
 	GuGu::math::float3 GameViewportClient::getCamPos() const
@@ -115,6 +138,32 @@ namespace GuGu {
 	float GameViewportClient::getFov() const
 	{
 		throw std::logic_error("The method or operation is not implemented.");
+	}
+
+	std::shared_ptr<WindowWidget> CreateGameMainWindow()
+	{
+		
+		std::shared_ptr<WindowWidget> mainWindow = std::make_shared<WindowWidget>();
+
+		//1.先创建 window widget
+		WIDGET_ASSIGN_NEW(WindowWidget, mainWindow)
+		.Content
+		(
+			WIDGET_NEW(LevelViewport)
+			.Content
+			(
+				NullWidget::getNullWidget()
+			)
+		)
+		.ScreenPosition(math::float2(0.0f, 0.0f));
+
+		AssetData assetData;
+		assetData.m_filePath = "content/level1.json";
+		assetData.m_fileName = "level1";
+		assetData.m_assetType = typeof(Level);
+		World::getWorld()->loadLevel(assetData);
+
+		return mainWindow;
 	}
 
 }

@@ -1,6 +1,8 @@
 #include <Core/Log.h>
 #include <Core/GuGuUtf8Str.h>//test utf8 str
 #include <Window/Window.h>
+#include "GameViewportClient.h"
+#include <Core/Reflection/TestReflection.h>
 #include <Core/GamePlay/GamePlayerReflectionRegister.h>
 
 #ifdef WIN32
@@ -32,12 +34,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
 
 	system("chcp 65001");//change code page to utf8
 	GuGu_LOGD("%s", str.getStr());
-
+	GuGu::testReflection();
+	GuGu::gamePlayerReflectionRegister();
 	std::shared_ptr<GuGu::Application> application = GuGu::CreateApplicationFactory();
 	std::shared_ptr<GuGu::WindowsApplication> windowsApplication = std::static_pointer_cast<GuGu::WindowsApplication>(application);
 	windowsApplication->setNativeApplicationHandleAndCmdShow(hInstance, nCmdShow);
 
-	application->init();
+	std::shared_ptr<GuGu::WindowWidget> gameWindowWidget = GuGu::CreateGameMainWindow();
+
+	application->init(gameWindowWidget);
 	application->Run();
 	return 0;
 }
@@ -136,7 +141,8 @@ extern "C" {
 
 	void android_main(struct android_app* pApp) {
 
-		GuGu::gamePlayerReflectionRegister();
+        GuGu::testReflection();
+        GuGu::gamePlayerReflectionRegister();
 		std::shared_ptr<GuGu::Application> application = GuGu::CreateApplicationFactory();
 		std::shared_ptr<GuGu::AndroidApplication> androidApplication = std::static_pointer_cast<GuGu::AndroidApplication>(application);
 		androidApplication->setAndroidApp(pApp);
@@ -160,8 +166,8 @@ extern "C" {
 		//------similar to setNativeApplicationHandleAndCmdShow------
 
 		//GuGu::InitArchive();
-
-		androidApplication->init(nullptr);
+        std::shared_ptr<GuGu::WindowWidget> gameWindowWidget = GuGu::CreateGameMainWindow();
+		androidApplication->init(gameWindowWidget);
 
 		androidApplication->Run();
 

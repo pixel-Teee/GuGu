@@ -147,12 +147,12 @@ namespace GuGu{
 
 	bool AndroidGuGuFile::fileExists(const GuGuUtf8Str& filePath)
 	{
-        return false;
+        return true;
 	}
 
 	bool AndroidGuGuFile::folderExists(const GuGuUtf8Str& folderPath)
 	{
-        return false;
+        return true;
 	}
 
     std::shared_ptr<GuGuFile> CreateFileFactory()

@@ -7,6 +7,7 @@ namespace GuGu {
 	struct KeyEvent;
 	class GameObject;
 	class GStaticMesh;
+	class WindowWidget;
 	class GameViewportClient : public ViewportClient
 	{
 	public:
@@ -76,7 +77,21 @@ namespace GuGu {
 
 		std::vector<uint32_t> getGizmosRenderSort() const override;
 
+
+		ViewportState getViewportState() const override;
+
+
+		void setViewportState(ViewportState state) override;
+
 	private:
 		std::weak_ptr<ViewportWidget> m_viewportWidget;
+
+		uint32_t m_width, m_height;
+
+		nvrhi::TextureHandle m_renderTarget;
+		nvrhi::TextureHandle m_depthTarget;
+		nvrhi::FramebufferHandle m_frameBuffer;
 	};
+
+	std::shared_ptr<WindowWidget> CreateGameMainWindow();
 }

@@ -48,7 +48,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
 
 	application->init(editorMainWindow);
 
-    editorMainWindow->setRenderTarget(application->getRenderer()->getDemoPass()->getRenderTarget());
+    //editorMainWindow->setRenderTarget(application->getRenderer()->getDemoPass()->getRenderTarget());
 
 	application->Run();
 	return 0;

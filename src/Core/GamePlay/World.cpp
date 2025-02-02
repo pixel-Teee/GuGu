@@ -113,6 +113,11 @@ namespace GuGu {
 			//m_currentLevel = level;
 			m_editorLevel = level;
 			m_viewportClient->setViewportState(ViewportClient::Editor);
+
+			if (m_viewportClient->getViewportState() == ViewportClient::Runtime)
+			{
+				m_currentLevel = m_editorLevel;
+			}
 		}
 	}
 
@@ -140,32 +145,33 @@ namespace GuGu {
 
 	void World::renderLevel(Demo* demoPass)
 	{
-		if (m_viewportClient->getViewportState() == ViewportClient::Editor)
+		if (m_viewportClient != nullptr)
 		{
-			if (demoPass && m_viewportClient != nullptr)
+			if (m_viewportClient->getViewportState() == ViewportClient::Editor)
 			{
-				if (m_viewportClient->getRenderTarget() == nullptr || math::any(m_viewportClient->getViewportSize() != m_viewportClient->getRenderTargetSize()))
+				if (demoPass && m_viewportClient != nullptr)
 				{
-					demoPass->initRenderTargetAndDepthTarget(*m_viewportClient, m_viewportClient->getViewportSize());
-				}
+					if (m_viewportClient->getRenderTarget() == nullptr || math::any(m_viewportClient->getViewportSize() != m_viewportClient->getRenderTargetSize()))
+					{
+						demoPass->initRenderTargetAndDepthTarget(*m_viewportClient, m_viewportClient->getViewportSize());
+					}
 
-				demoPass->renderLevel(m_currentLevel, m_viewportClient);
+					demoPass->renderLevel(m_currentLevel, m_viewportClient);
+				}
 			}
-		}
-		else
-		{
-			if (demoPass && m_viewportClient != nullptr)
+			else
 			{
-				if (m_viewportClient->getRenderTarget() == nullptr || math::any(m_viewportClient->getViewportSize() != m_viewportClient->getRenderTargetSize()))
+				if (demoPass && m_viewportClient != nullptr)
 				{
-					demoPass->initRenderTargetAndDepthTarget(*m_viewportClient, m_viewportClient->getViewportSize());
+					if (m_viewportClient->getRenderTarget() == nullptr || math::any(m_viewportClient->getViewportSize() != m_viewportClient->getRenderTargetSize()))
+					{
+						demoPass->initRenderTargetAndDepthTarget(*m_viewportClient, m_viewportClient->getViewportSize());
+					}
+
+					demoPass->renderLevelRuntime(m_currentLevel, m_viewportClient);
 				}
-
-				demoPass->renderLevelRuntime(m_currentLevel, m_viewportClient);
 			}
-		}
-
-		
+		}	
 	}
 
 	void World::switchState(WorldState state)

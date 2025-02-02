@@ -368,7 +368,7 @@ namespace GuGu{
 			// window is not minimized, and the size has changed
 
 			//BackBufferResizing();
-
+            windowWidget->resize(math::float2(width, height));
 
 			m_deviceParams.backBufferWidth = width;
 			m_deviceParams.backBufferHeight = height;

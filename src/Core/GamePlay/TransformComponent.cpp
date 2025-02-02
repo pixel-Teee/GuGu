@@ -64,15 +64,15 @@ namespace GuGu {
 		if (rotation) m_Rotation = *rotation;
 		if (translation) m_Translation = *translation;
 	}
-	void TransformComponent::SetScaling(const math::double3& scaling)
+	void TransformComponent::SetScaling(math::double3 scaling)
 	{
 		SetTransform(nullptr, nullptr, &scaling);
 	}
-	void TransformComponent::SetRotation(const math::dquat& rotation)
+	void TransformComponent::SetRotation(math::dquat rotation)
 	{
 		SetTransform(nullptr, &rotation, nullptr);
 	}
-	void TransformComponent::SetTranslation(const math::double3& translation)
+	void TransformComponent::SetTranslation(math::double3 translation)
 	{
 		SetTransform(&translation, nullptr, nullptr);
 	}

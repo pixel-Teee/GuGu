@@ -56,6 +56,11 @@ namespace GuGu {
 		closeButtonNormal->m_texturePath = u8"asset/MinimumWindow/CloseButton.png";
 		m_brushes.insert({ u8"CloseButtonNormal", closeButtonNormal });
 
+		std::shared_ptr<Brush> closeButtonHovered = std::make_shared<Brush>();
+		closeButtonHovered->m_tiling = false;
+		closeButtonHovered->m_texturePath = u8"asset/MinimumWindow/CloseButton.png";
+		m_brushes.insert({ u8"CloseButtonHovered", closeButtonHovered });
+
 		std::shared_ptr<Brush> closeButtonPressed = std::make_shared<Brush>();
 		closeButtonPressed->m_tiling = false;
 		closeButtonPressed->m_texturePath = u8"asset/MinimumWindow/CloseButtonPressed.png";
@@ -73,6 +78,7 @@ namespace GuGu {
 
 		std::shared_ptr<ButtonStyle> closeButtonStyle = std::make_shared<ButtonStyle>();
 		closeButtonStyle->setNormal(closeButtonNormal);
+		closeButtonStyle->setHovered(closeButtonHovered);
 		closeButtonStyle->setPressed(closeButtonPressed);
 		m_styles.insert({ "closeButton", closeButtonStyle });
 
