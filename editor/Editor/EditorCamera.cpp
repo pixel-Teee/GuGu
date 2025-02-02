@@ -146,6 +146,7 @@ namespace GuGu {
 			//输出到目录
 			AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
 			AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
+			AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
 		}
 
 		updateView();
