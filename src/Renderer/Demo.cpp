@@ -1017,7 +1017,7 @@ namespace GuGu {
 
 		if (cameraComponent != nullptr)
 		{
-			math::float4x4 projMatrix = math::perspProjD3DStyle(cameraComponent->getFov(),
+			math::float4x4 projMatrix = math::perspProjD3DStyle(math::radians(cameraComponent->getFov()),
 				inViewportClient->getAspectRatio(), cameraComponent->getNearPlane(), cameraComponent->getFarPlane()
 			);
 			math::float4x4 viewProjMatrix = math::inverse(math::affineToHomogeneous(cameraTransformComponent->GetLocalToWorldTransformFloat())) * projMatrix;

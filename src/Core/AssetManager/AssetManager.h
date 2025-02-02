@@ -22,6 +22,8 @@ namespace GuGu {
 		{
 			uint32_t index = 0;//用于序列化的时候，给指针类型赋予一个索引
 			std::unordered_map<uint32_t, meta::Object*> m_indexToObject;
+
+			std::unordered_map<uint32_t, std::shared_ptr<meta::Object>> m_indexToSharedPtrObject;
 		};
 
 		static AssetManager& getAssetManager();
@@ -59,6 +61,7 @@ namespace GuGu {
 		{
 			SerializeDeserializeContext context;
 			context.m_indexToObject.clear();
+			context.m_indexToSharedPtrObject.clear();
 			context.index = 0;
 			deserializeJson(value, context);
 		
@@ -69,12 +72,15 @@ namespace GuGu {
 			}
 
 			context.m_indexToObject.clear();
+			context.m_indexToSharedPtrObject.clear();
 			context.index = 0;
 
 			return nullptr;
 		}
 
-		void link(nlohmann::json value, meta::Object* object, SerializeDeserializeContext& context);
+		void linkSharedPtr(nlohmann::json value, meta::Object* object, SerializeDeserializeContext& context);
+
+		void linkWeakPtr(nlohmann::json value, meta::Object* object, SerializeDeserializeContext& context);
 
 		GGuid getGuid(std::shared_ptr<AssetData> inAssetData);
 

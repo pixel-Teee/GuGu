@@ -195,6 +195,7 @@ namespace GuGu {
 	{
 		SerializeDeserializeContext context;
 		context.m_indexToObject.clear();
+		context.m_indexToSharedPtrObject.clear();
 		context.index = 0;
 		meta::Variant rootObject = ObjectVariant(object.get());
 		CollisionObjects(rootObject, context);//收集所有object
@@ -215,6 +216,7 @@ namespace GuGu {
 		output["Objects"] = objectArrays;
 		GuGu_LOGD("%s\n", output.dump().c_str());
 
+		context.m_indexToSharedPtrObject.clear();
 		context.m_indexToObject.clear();
 		context.index = 0;
 
@@ -549,12 +551,34 @@ namespace GuGu {
 			}
 			if (needLink)
 			{
-				link(object, item.second, context);
+				linkSharedPtr(object, item.second, context);
 			}			
 		}	
+		//链接
+		for (auto& item : context.m_indexToObject)
+		{
+			bool needLink = false;
+			nlohmann::json object;
+			for (auto& element : jsonObjects)
+			{
+				for (auto& it : element.items())
+				{
+					if (std::stoi(std::string(it.key())) == item.first)
+					{
+						needLink = true;
+						object = it.value();
+					}
+					break;
+				}
+			}
+			if (needLink)
+			{
+				linkWeakPtr(object, item.second, context);
+			}
+		}
 	}
 
-	void AssetManager::link(nlohmann::json jsonObject, meta::Object* object, SerializeDeserializeContext& context)
+	void AssetManager::linkSharedPtr(nlohmann::json jsonObject, meta::Object* object, SerializeDeserializeContext& context)
 	{
 		auto type = object->GetType();
 		auto& fields = meta::ReflectionDatabase::Instance().types[type.GetID()].fields;
@@ -589,6 +613,7 @@ namespace GuGu {
 				{
 					//auto& linkedObject = context.m_indexToObject.find(objectIndex)->second;
 					std::shared_ptr<meta::Object> linkedObject = std::shared_ptr<meta::Object>(context.m_indexToObject.find(objectIndex)->second);
+					context.m_indexToSharedPtrObject.insert({ objectIndex, linkedObject });
 					field.SetValue(variantObject, linkedObject);
 				}		
 			}
@@ -605,9 +630,73 @@ namespace GuGu {
 				size_t i = 0;
 				for (auto& item : jsonObject[field.GetName().getStr()]) //遍历json数组
 				{
+					uint32_t objectIndex = item.get<int32_t>();
 					//auto& linkedObject = context.m_indexToObject.find(item.get<int32_t>())->second;
-					std::shared_ptr<meta::Object> linkedObject = std::shared_ptr<meta::Object>(context.m_indexToObject.find(item.get<int32_t>())->second);
+					std::shared_ptr<meta::Object> linkedObject = std::shared_ptr<meta::Object>(context.m_indexToObject.find(objectIndex)->second);
+					context.m_indexToSharedPtrObject.insert({ objectIndex, linkedObject });
 					wrapper.Insert(i++, linkedObject);
+				}
+				field.SetValue(variantObject, instance);
+			}
+		}
+	}
+
+	void AssetManager::linkWeakPtr(nlohmann::json jsonObject, meta::Object* object, SerializeDeserializeContext& context)
+	{
+		auto type = object->GetType();
+		auto& fields = meta::ReflectionDatabase::Instance().types[type.GetID()].fields;
+
+		meta::Variant variantObject = ObjectVariant(object);
+		for (auto& field : fields)
+		{
+			auto fieldType = field.GetType();
+
+			if (fieldType == typeof(std::shared_ptr<AssetData>))
+			{
+				GGuid guid = GGuid(jsonObject[field.GetName().getStr()].get<std::string>());
+				//field.SetValue(variantObject, linkedObject);
+			}
+			else if (fieldType.IsWeakPtr() && !fieldType.IsArray())
+			{
+				int32_t objectIndex = jsonObject[field.GetName().getStr()].get<int32_t>();
+				if (objectIndex != -1)
+				{
+					//weak ptr
+					std::shared_ptr<meta::Object> sharedPtrObject = context.m_indexToSharedPtrObject.find(objectIndex)->second;
+					std::weak_ptr<meta::Object> weakObject = sharedPtrObject;
+					field.SetValue(variantObject, weakObject);
+				}
+			}
+			else if (fieldType.IsSharedPtr() && !fieldType.IsArray())
+			{
+// 				int32_t objectIndex = jsonObject[field.GetName().getStr()].get<int32_t>();
+// 				if (objectIndex != -1)
+// 				{
+// 					//auto& linkedObject = context.m_indexToObject.find(objectIndex)->second;
+// 					std::shared_ptr<meta::Object> linkedObject = std::shared_ptr<meta::Object>(context.m_indexToObject.find(objectIndex)->second);
+// 					context.m_indexToSharedPtrObject.insert({ objectIndex, linkedObject });
+// 					field.SetValue(variantObject, linkedObject);
+// 				}
+				//不做任何处理
+			}
+			else if (fieldType.IsArray()) //weak ptr 数组
+			{
+				auto nonArrayType = fieldType.GetArrayType();
+				if (nonArrayType.IsWeakPtr() == false)
+					continue;
+				auto arrayCtor = fieldType.GetArrayConstructor();
+
+				auto instance = arrayCtor.Invoke();
+				auto wrapper = instance.GetArray();
+
+				size_t i = 0;
+				for (auto& item : jsonObject[field.GetName().getStr()]) //遍历json数组
+				{
+					uint32_t objectIndex = item.get<int32_t>();
+					//auto& linkedObject = context.m_indexToObject.find(item.get<int32_t>())->second;
+					std::shared_ptr<meta::Object> sharedPtrObject = context.m_indexToSharedPtrObject.find(objectIndex)->second;
+					std::weak_ptr<meta::Object> weakObject = sharedPtrObject;
+					wrapper.Insert(i++, weakObject);
 				}
 				field.SetValue(variantObject, instance);
 			}
