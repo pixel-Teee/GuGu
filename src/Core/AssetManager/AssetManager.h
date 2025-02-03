@@ -57,7 +57,7 @@ namespace GuGu {
 		void deserializeJson(nlohmann::json value, SerializeDeserializeContext& context);
 
 		template<typename ClassType>
-		ClassType* deserializeJson(const nlohmann::json& value)
+		std::shared_ptr<ClassType> deserializeJson(const nlohmann::json& value)
 		{
 			SerializeDeserializeContext context;
 			context.m_indexToObject.clear();
@@ -65,16 +65,18 @@ namespace GuGu {
 			context.index = 0;
 			deserializeJson(value, context);
 		
-			for (auto& item : context.m_indexToObject)
+			context.m_indexToObject.clear();
+			context.index = 0;
+			for (auto& item : context.m_indexToSharedPtrObject)
 			{
 				if (item.second->GetType() == typeof(ClassType))
-					return static_cast<ClassType*>(item.second);
+				{
+					std::shared_ptr<ClassType> rootObject = std::static_pointer_cast<ClassType>(item.second);
+					context.m_indexToSharedPtrObject.clear();
+					return rootObject;
+				}
 			}
-
-			context.m_indexToObject.clear();
-			context.m_indexToSharedPtrObject.clear();
-			context.index = 0;
-
+			//context.m_indexToSharedPtrObject.clear();
 			return nullptr;
 		}
 

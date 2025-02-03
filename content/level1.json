@@ -122,6 +122,7 @@
                 "m_farPlane": 1000.0,
                 "m_fov": 60.0,
                 "m_nearPlane": 0.009999999776482582,
+                "m_owner": 7,
                 "type": 56
             }
         }

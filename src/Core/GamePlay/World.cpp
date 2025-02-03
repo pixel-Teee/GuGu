@@ -63,7 +63,7 @@ namespace GuGu {
 			AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
 			GuGuUtf8Str modelJson(fileContent);
 			//load model
-			std::shared_ptr<GStaticMesh> gStaticMesh = std::shared_ptr<GStaticMesh>(AssetManager::getAssetManager().deserializeJson<GStaticMesh>(nlohmann::json::parse(modelJson.getStr())));
+			std::shared_ptr<GStaticMesh> gStaticMesh = AssetManager::getAssetManager().deserializeJson<GStaticMesh>(nlohmann::json::parse(modelJson.getStr()));
 			assetData.m_loadedResource = std::static_pointer_cast<meta::Object>(gStaticMesh);
 			//AssetManager::getAssetManager().deserializeJson(nlohmann::json::parse(modelJson.getStr()))
 			

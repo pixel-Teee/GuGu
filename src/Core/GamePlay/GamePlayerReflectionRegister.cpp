@@ -539,6 +539,10 @@ namespace GuGu {
 				type.AddField<CameraComponent, float>("m_farPlane",
 					(meta::FieldGetter<CameraComponent, float, true>::Signature) & CameraComponent::getFarPlane,
 					(meta::FieldSetter<CameraComponent, float, true>::Signature) & CameraComponent::setFarPlane);
+
+				type.AddField<CameraComponent, std::weak_ptr<GameObject>>("m_owner",
+					(meta::FieldGetter<CameraComponent, std::weak_ptr<GameObject>&, true>::Signature)& CameraComponent::getParentGameObject,
+					(meta::FieldSetter<CameraComponent, std::weak_ptr<GameObject>, true>::Signature)& CameraComponent::setParentGameObject);
 			}
 
 			{

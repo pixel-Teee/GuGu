@@ -554,6 +554,15 @@ namespace GuGu {
 				linkSharedPtr(object, item.second, context);
 			}			
 		}	
+
+		for (const auto& item : context.m_indexToObject)
+		{
+			if (context.m_indexToSharedPtrObject.find(item.first) == context.m_indexToSharedPtrObject.end())
+			{
+				context.m_indexToSharedPtrObject.insert({item.first, std::shared_ptr<meta::Object>(item.second)});
+			}
+		}
+
 		//链接
 		for (auto& item : context.m_indexToObject)
 		{
@@ -611,10 +620,17 @@ namespace GuGu {
 				int32_t objectIndex = jsonObject[field.GetName().getStr()].get<int32_t>();
 				if (objectIndex != -1)
 				{
-					//auto& linkedObject = context.m_indexToObject.find(objectIndex)->second;
-					std::shared_ptr<meta::Object> linkedObject = std::shared_ptr<meta::Object>(context.m_indexToObject.find(objectIndex)->second);
-					context.m_indexToSharedPtrObject.insert({ objectIndex, linkedObject });
-					field.SetValue(variantObject, linkedObject);
+					if (context.m_indexToSharedPtrObject.find(objectIndex) != context.m_indexToSharedPtrObject.end())
+					{
+						field.SetValue(variantObject, context.m_indexToSharedPtrObject.find(objectIndex));
+					}
+					else
+					{
+						//auto& linkedObject = context.m_indexToObject.find(objectIndex)->second;
+						std::shared_ptr<meta::Object> linkedObject(context.m_indexToObject.find(objectIndex)->second);
+						context.m_indexToSharedPtrObject.insert({ objectIndex, linkedObject });
+						field.SetValue(variantObject, linkedObject);
+					}		
 				}		
 			}
 			else if (fieldType.IsArray())
@@ -631,10 +647,19 @@ namespace GuGu {
 				for (auto& item : jsonObject[field.GetName().getStr()]) //遍历json数组
 				{
 					uint32_t objectIndex = item.get<int32_t>();
+					if (context.m_indexToSharedPtrObject.find(objectIndex) != context.m_indexToSharedPtrObject.end())
+					{
+						std::shared_ptr<meta::Object> linkedObject = context.m_indexToSharedPtrObject.find(objectIndex)->second;
+						wrapper.Insert(i++, linkedObject);
+					}
+					else
+					{
+						std::shared_ptr<meta::Object> linkedObject(context.m_indexToObject.find(objectIndex)->second);
+						context.m_indexToSharedPtrObject.insert({ objectIndex, linkedObject });
+						wrapper.Insert(i++, linkedObject);
+					}
 					//auto& linkedObject = context.m_indexToObject.find(item.get<int32_t>())->second;
-					std::shared_ptr<meta::Object> linkedObject = std::shared_ptr<meta::Object>(context.m_indexToObject.find(objectIndex)->second);
-					context.m_indexToSharedPtrObject.insert({ objectIndex, linkedObject });
-					wrapper.Insert(i++, linkedObject);
+					//std::shared_ptr<meta::Object> linkedObject = std::shared_ptr<meta::Object>(context.m_indexToObject.find(objectIndex)->second);		
 				}
 				field.SetValue(variantObject, instance);
 			}
@@ -731,7 +756,7 @@ namespace GuGu {
 					AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
 					GuGuUtf8Str modelJson(fileContent);
 					//load asset
-					std::shared_ptr<meta::Object> loadedObject = std::shared_ptr<meta::Object>(AssetManager::getAssetManager().deserializeJson<GStaticMesh>(nlohmann::json::parse(modelJson.getStr())));
+					std::shared_ptr<meta::Object> loadedObject = AssetManager::getAssetManager().deserializeJson<GStaticMesh>(nlohmann::json::parse(modelJson.getStr()));
 					item.second->m_loadedResource = loadedObject;
 					//AssetManager::getAssetManager().deserializeJson(nlohmann::json::parse(modelJson.getStr()))
 
