@@ -78,12 +78,12 @@ namespace GuGu {
 		return m_childrens;
 	}
 
-	std::weak_ptr<GameObject> GameObject::getParentGameObject() const
+	const std::weak_ptr<GameObject>& GameObject::getParentGameObject() const
 	{
 		return m_parentGameObject;
 	}
 
-	std::weak_ptr<GameObject> GameObject::getParentGameObject()
+	std::weak_ptr<GameObject>& GameObject::getParentGameObject()
 	{
 		return m_parentGameObject;
 	}

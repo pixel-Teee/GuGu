@@ -185,7 +185,7 @@ namespace GuGu {
 
 			type.AddField<Component, std::weak_ptr<GameObject>>("m_owner",
 				(meta::FieldGetter<Component, std::weak_ptr<GameObject>&, true>::Signature)& Component::getParentGameObject,
-				(meta::FieldSetter<Component, std::weak_ptr<GameObject>, true>::Signature)& Component::setParentGameObject);
+				(meta::FieldSetter<Component, std::weak_ptr<GameObject>&, true>::Signature)& Component::setParentGameObject);
 		}
 
 		{
@@ -243,8 +243,8 @@ namespace GuGu {
 					(meta::FieldSetter<GameObject, Array<std::shared_ptr<GameObject>>, true>::Signature) & GameObject::setChildrens);
 
 				type.AddField<GameObject, std::weak_ptr<GameObject>>("m_parentGameObject",
-					(meta::FieldGetter<GameObject, std::weak_ptr<GameObject>, true>::Signature)& GameObject::getParentGameObject,
-					(meta::FieldSetter<GameObject, std::weak_ptr<GameObject>, true>::Signature)& GameObject::setParentGameObject);
+					(meta::FieldGetter<GameObject, std::weak_ptr<GameObject>&, true>::Signature)& GameObject::getParentGameObject,
+					(meta::FieldSetter<GameObject, std::weak_ptr<GameObject>&, true>::Signature)& GameObject::setParentGameObject);
 
 				type.LoadBaseClasses(db, typeID, { typeof(meta::Object) });
 
@@ -274,7 +274,7 @@ namespace GuGu {
 
 				type.AddField<Level, Array<std::shared_ptr<GameObject>>>("m_objects", 
 					(meta::FieldGetter<Level, Array<std::shared_ptr<GameObject>>&, true>::Signature)&Level::getGameObjects,
-					(meta::FieldSetter<Level, Array<std::shared_ptr<GameObject>>, true>::Signature)&Level::setGameObjects);
+					(meta::FieldSetter<Level, Array<std::shared_ptr<GameObject>>&, true>::Signature)&Level::setGameObjects);
 
 				meta::TypeInfo<Level>::Defined = true;
 			}
@@ -341,7 +341,7 @@ namespace GuGu {
 
 				type.AddField<TransformComponent, std::weak_ptr<GameObject>>("m_owner",
 					(meta::FieldGetter<TransformComponent, std::weak_ptr<GameObject>&, true>::Signature)& TransformComponent::getParentGameObject,
-					(meta::FieldSetter<TransformComponent, std::weak_ptr<GameObject>, true>::Signature)& TransformComponent::setParentGameObject);
+					(meta::FieldSetter<TransformComponent, std::weak_ptr<GameObject>&, true>::Signature)& TransformComponent::setParentGameObject);
 
 				type.LoadBaseClasses(db, typeID, { typeof(Component) });
 
@@ -386,7 +386,7 @@ namespace GuGu {
 
 				type.AddField<StaticMeshComponent, std::weak_ptr<GameObject>>("m_owner",
 					(meta::FieldGetter<StaticMeshComponent, std::weak_ptr<GameObject>&, true>::Signature)& StaticMeshComponent::getParentGameObject,
-					(meta::FieldSetter<StaticMeshComponent, std::weak_ptr<GameObject>, true>::Signature)& StaticMeshComponent::setParentGameObject);
+					(meta::FieldSetter<StaticMeshComponent, std::weak_ptr<GameObject>&, true>::Signature)& StaticMeshComponent::setParentGameObject);
 
 				meta::TypeInfo<StaticMeshComponent>::Defined = true;
 			}
@@ -431,7 +431,7 @@ namespace GuGu {
 
 				type.AddField<LightComponent, std::weak_ptr<GameObject>>("m_owner",
 					(meta::FieldGetter<LightComponent, std::weak_ptr<GameObject>&, true>::Signature)& LightComponent::getParentGameObject,
-					(meta::FieldSetter<LightComponent, std::weak_ptr<GameObject>, true>::Signature)& LightComponent::setParentGameObject);
+					(meta::FieldSetter<LightComponent, std::weak_ptr<GameObject>&, true>::Signature)& LightComponent::setParentGameObject);
 
 				type.LoadBaseClasses(db, typeID, { typeof(Component) });
 
@@ -491,7 +491,7 @@ namespace GuGu {
 
 				type.AddField<MaterialComponent, std::weak_ptr<GameObject>>("m_owner",
 					(meta::FieldGetter<MaterialComponent, std::weak_ptr<GameObject>&, true>::Signature)& MaterialComponent::getParentGameObject,
-					(meta::FieldSetter<MaterialComponent, std::weak_ptr<GameObject>, true>::Signature)& MaterialComponent::setParentGameObject);
+					(meta::FieldSetter<MaterialComponent, std::weak_ptr<GameObject>&, true>::Signature)& MaterialComponent::setParentGameObject);
 			}
 
 			{
@@ -542,7 +542,7 @@ namespace GuGu {
 
 				type.AddField<CameraComponent, std::weak_ptr<GameObject>>("m_owner",
 					(meta::FieldGetter<CameraComponent, std::weak_ptr<GameObject>&, true>::Signature)& CameraComponent::getParentGameObject,
-					(meta::FieldSetter<CameraComponent, std::weak_ptr<GameObject>, true>::Signature)& CameraComponent::setParentGameObject);
+					(meta::FieldSetter<CameraComponent, std::weak_ptr<GameObject>&, true>::Signature)& CameraComponent::setParentGameObject);
 			}
 
 			{
