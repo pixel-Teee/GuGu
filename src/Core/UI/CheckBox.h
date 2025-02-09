@@ -23,6 +23,8 @@ namespace GuGu {
 			~BuilderArguments() = default;
 
 			ARGUMENT_NAMED_SLOT(SingleChildSlot, Content)
+
+			ARGUMENT_MEMBER(CheckBoxStyle, checkBoxStyle)
 		};
 
 		void init(const BuilderArguments& arguments);

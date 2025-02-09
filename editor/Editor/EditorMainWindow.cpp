@@ -17,6 +17,8 @@
 #include <Core/UI/Box.h>
 #include <Core/UI/TileView.h>
 #include <Core/UI/Splitter.h>
+#include <Core/UI/BoxPanel.h>
+#include <Core/UI/CheckBox.h>
 
 #include <Application/Application.h>//用于退出
 
@@ -133,14 +135,15 @@ namespace GuGu {
 								.cornerRadius(math::float4(5.0f, 5.0f, 5.0f, 5.0f))
 								.Content
 								(
-									WIDGET_ASSIGN_NEW(Button, m_switchEditorAndRuntime)
-									.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
-									.Content
-									(
-										WIDGET_NEW(TextBlockWidget)
-										.text(u8"Test")
-										.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
-									)
+// 									WIDGET_ASSIGN_NEW(Button, m_switchEditorAndRuntime)
+// 									.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+// 									.Content
+// 									(
+// 										WIDGET_NEW(TextBlockWidget)
+// 										.text(u8"Test")
+// 										.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+// 									)
+									NullWidget::getNullWidget()
 								)
 							)
 							+ Splitter::Slot()
@@ -154,14 +157,33 @@ namespace GuGu {
 								.Content
 								(
 									WIDGET_NEW(Border)
-									.padding(Padding(10.0f, 52.0f, 10.0f, 10.0f))
+									.padding(Padding(10.0f, 10.0f, 10.0f, 10.0f))
 									.BorderBackgroundColor(math::float4(0.0f, 0.0f, 0.0f, 0.0f))
 									.Content
 									(
-										WIDGET_ASSIGN_NEW(LevelViewport, m_viewportWidget)
-										.Content
+										WIDGET_NEW(VerticalBox)
+										+ VerticalBox::Slot()
+										.setHorizontalAlignment(HorizontalAlignment::Center)
+										.setVerticalAlignment(VerticalAlignment::Center)
+										.setPadding(Padding(0, 0, 0, 0))
+										.FixedHeight()
 										(
-											NullWidget::getNullWidget()
+											WIDGET_ASSIGN_NEW(CheckBox, m_switchEditorAndRuntime)
+											.checkBoxStyle(EditorStyleSet::getStyleSet()->getStyle<CheckBoxStyle>(u8"StartAndStop"))
+											.visibility(Visibility::Visible)
+											.Content
+											(
+												NullWidget::getNullWidget()
+											)
+										)
+										+ VerticalBox::Slot()
+										.StretchHeight(1.0f)
+										(
+											WIDGET_ASSIGN_NEW(LevelViewport, m_viewportWidget)
+											.Content
+											(
+												NullWidget::getNullWidget()
+											)
 										)
 									)										
 								)
@@ -194,7 +216,7 @@ namespace GuGu {
 			.ScreenPosition(arguments.mScreenPosition));
 
 			fileButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::openFileMenu, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
-			m_switchEditorAndRuntime->setOnClicked(OnClicked(std::bind(&EditorMainWindow::switchEditorAndRuntime, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
+			//m_switchEditorAndRuntime->setOnClicked(OnClicked(std::bind(&EditorMainWindow::switchEditorAndRuntime, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
 		}
 		else
 		{

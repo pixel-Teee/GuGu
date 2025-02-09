@@ -8,6 +8,7 @@ namespace GuGu {
 	class MenuAnchor;
 	class ViewportWidget;
 	class Button;
+	class CheckBox;
 	class EditorMainWindow : public WindowWidget
 	{
 	public:
@@ -54,7 +55,7 @@ namespace GuGu {
 
 		std::shared_ptr<Button> m_saveLevelButton;
 
-		std::shared_ptr<Button> m_switchEditorAndRuntime;
+		std::shared_ptr<CheckBox> m_switchEditorAndRuntime;
 	};
 
 	std::shared_ptr<EditorMainWindow> CreateEditorMainWindow();
