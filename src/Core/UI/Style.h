@@ -59,10 +59,28 @@ namespace GuGu {
 
 		virtual ~CheckBoxStyle();
 
+		EnumAsByte<CheckBoxType::Type> m_checkBoxType;
+		CheckBoxStyle& setCheckBoxType(CheckBoxType::Type inCheckBoxType) { m_checkBoxType = inCheckBoxType; return *this; }
+
 		std::shared_ptr<Brush> m_uncheckedImage;
 		CheckBoxStyle& setUncheckedImage(std::shared_ptr<Brush> inUncheckedImage) { m_uncheckedImage = inUncheckedImage; return *this; }
+
+		std::shared_ptr<Brush> m_uncheckedHoveredImage;
+		CheckBoxStyle& setUncheckedHoveredImage(std::shared_ptr<Brush> inUncheckedHoveredImage) { m_uncheckedHoveredImage = inUncheckedHoveredImage; return *this; }
+
 		std::shared_ptr<Brush> m_checkedImage;
 		CheckBoxStyle& setCheckedImage(std::shared_ptr<Brush> inCheckedImage) { m_checkedImage = inCheckedImage; return *this; }
+
+		std::shared_ptr<Brush> m_checkedHoveredImage;
+		CheckBoxStyle& setCheckedHoveredImage(std::shared_ptr<Brush> inCheckedHoveredImage) { m_checkedHoveredImage = inCheckedHoveredImage; return *this; }
+
+		//press 是针对键盘，手柄的
+		std::shared_ptr<Brush> m_uncheckedPressedImage;
+		CheckBoxStyle& setUncheckedPressedImage(std::shared_ptr<Brush> inUncheckedPressedImage) { m_uncheckedPressedImage = inUncheckedPressedImage; return *this; }
+
+		std::shared_ptr<Brush> m_checkedPressedImage;
+		CheckBoxStyle& setCheckedPressedImage(std::shared_ptr<Brush> inCheckedPressedImage) { m_checkedPressedImage = inCheckedPressedImage; return *this; }
+
 		std::shared_ptr<Brush> m_backgroundImage;
 		CheckBoxStyle& setBackgroundImage(std::shared_ptr<Brush> inBackgroundImage) { m_backgroundImage = inBackgroundImage; return *this; }
 

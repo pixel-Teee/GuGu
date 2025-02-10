@@ -228,6 +228,8 @@ namespace GuGu {
 			std::shared_ptr<CheckBoxStyle> checkBoxStyle = std::make_shared<CheckBoxStyle>();
 			checkBoxStyle->setCheckedImage(Stop);
 			checkBoxStyle->setUncheckedImage(Start);
+			checkBoxStyle->setCheckedHoveredImage(Stop);
+			checkBoxStyle->setUncheckedHoveredImage(Start);
 			checkBoxStyle->setBackgroundImage(noResource);
 
 			m_styles.insert({ u8"StartAndStop", checkBoxStyle });

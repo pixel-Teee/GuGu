@@ -17,6 +17,15 @@ namespace GuGu {
 			MouseUp
 		};
 	}
+	namespace CheckBoxType
+	{
+		enum Type
+		{
+			CheckBox,//带复选框和文本内容的
+
+			ToggleButton
+		};
+	}
 	struct OptionalSize
 	{
 	public:

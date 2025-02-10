@@ -169,6 +169,7 @@ namespace GuGu {
 										.FixedHeight()
 										(
 											WIDGET_ASSIGN_NEW(CheckBox, m_switchEditorAndRuntime)
+											.onCheckStateChanged(this, &EditorMainWindow::switchEditorAndRuntime)
 											.checkBoxStyle(EditorStyleSet::getStyleSet()->getStyle<CheckBoxStyle>(u8"StartAndStop"))
 											.visibility(Visibility::Visible)
 											.Content
@@ -288,7 +289,7 @@ namespace GuGu {
 		return Reply();
 	}
 
-	Reply EditorMainWindow::switchEditorAndRuntime()
+	void EditorMainWindow::switchEditorAndRuntime(CheckBoxState inCheckBoxState)
 	{
 		std::shared_ptr<ViewportClient> viewportClient = m_viewportWidget->getViewportClient();
 		ViewportClient::ViewportState state = viewportClient->getViewportState();
@@ -300,7 +301,7 @@ namespace GuGu {
 		{
 			viewportClient->setViewportState(ViewportClient::ViewportState::Runtime);
 		}
-		return Reply::Handled();
+		//return Reply::Handled();
 	}
 
 	void EditorMainWindow::setRenderTarget(nvrhi::TextureHandle renderTarget)

@@ -6,6 +6,9 @@
 #include "Slot.h"
 
 namespace GuGu {
+
+	using OnCheckStateChanged = std::function<void(CheckBoxState)>;
+
 	class Brush;
 	class CheckBoxStyle;
 	class SingleChildSlot;
@@ -18,13 +21,21 @@ namespace GuGu {
 
 		struct BuilderArguments : public Arguments<CheckBox>
 		{
-			BuilderArguments() = default;
+			BuilderArguments() :
+				mclickMethod(ButtonClickMethod::Type::MouseDown)
+			{
+
+			}
 
 			~BuilderArguments() = default;
 
 			ARGUMENT_NAMED_SLOT(SingleChildSlot, Content)
 
 			ARGUMENT_MEMBER(CheckBoxStyle, checkBoxStyle)
+
+			ARGUMENT_VALUE(ButtonClickMethod::Type, clickMethod)
+
+			UI_EVENT(OnCheckStateChanged, onCheckStateChanged)
 		};
 
 		void init(const BuilderArguments& arguments);
@@ -36,6 +47,8 @@ namespace GuGu {
 		virtual math::float2 ComputeFixedSize(float inLayoutScaleMultiplier);
 
 		virtual Reply OnMouseButtonDown(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent) override;
+
+		virtual Reply OnMouseButtonDoubleClick(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent) override;
 
 		virtual Reply OnMouseButtonUp(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent) override;
 
@@ -49,6 +62,15 @@ namespace GuGu {
 
 		std::shared_ptr<Brush> onGetCheckImage() const;
 
+		std::shared_ptr<Brush> getUncheckedHoveredImage() const;
+
+		std::shared_ptr<Brush> getUncheckedImage() const;
+
+		std::shared_ptr<Brush> getCheckedHoveredImage() const;
+
+		std::shared_ptr<Brush> getCheckedImage() const;
+
+		void toggleCheckedState();
 	private:
 		std::shared_ptr<SingleChildSlot> m_childWidget;
 
@@ -56,6 +78,12 @@ namespace GuGu {
 
 		Attribute<CheckBoxState> m_isCheckboxChecked;
 
+		ButtonClickMethod::Type m_clickMethod;
+
+		EnumAsByte<ButtonClickMethod::Type> getClickMethodFromInputType(const PointerEvent& mouseEvent) const;
+
 		bool m_bIsPressed;
+
+		OnCheckStateChanged m_onCheckStateChanged;
 	};
 }

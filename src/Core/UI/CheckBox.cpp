@@ -64,6 +64,8 @@ namespace GuGu {
 		m_checkBoxStyle = arguments.mcheckBoxStyle;
 		m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 		m_visibilityAttribute = arguments.mVisibility;
+		m_clickMethod = arguments.mclickMethod;
+		m_onCheckStateChanged = arguments.monCheckStateChanged;
 	}
 	void CheckBox::AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) const
 	{
@@ -119,19 +121,40 @@ namespace GuGu {
 	}
 	Reply CheckBox::OnMouseButtonDown(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent)
 	{
-		m_bIsPressed = true;
-
-		if (m_isCheckboxChecked.Get() == CheckBoxState::Checked)
+		if (inMouseEvent.getEffectingButton() == Keys::LeftMouseButton)
 		{
-			m_isCheckboxChecked = CheckBoxState::Unchecked;
-		}
-		else if(m_isCheckboxChecked.Get() == CheckBoxState::Unchecked)
-		{
-			m_isCheckboxChecked = CheckBoxState::Checked;
-		}
+			m_bIsPressed = true;
 
-		return Reply::Unhandled().captureMouse(shared_from_this());
+			ButtonClickMethod::Type inputClickMethod = getClickMethodFromInputType(inMouseEvent);
+
+			if (inputClickMethod == ButtonClickMethod::MouseDown)
+			{
+				toggleCheckedState();
+
+				//todo:play sound				
+
+				return Reply::Handled().captureMouse(shared_from_this());
+			}
+			else
+			{
+				return Reply::Handled().captureMouse(shared_from_this()).setFocus(shared_from_this());
+			}		
+		}
+		else if (inMouseEvent.getEffectingButton() == Keys::RightMouseButton)
+		{
+			return Reply::Handled();
+		}
+		else
+		{
+			return Reply::Unhandled();
+		}
 	}
+
+	Reply CheckBox::OnMouseButtonDoubleClick(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
+	{
+		return OnMouseButtonDown(myGeometry, inMouseEvent);
+	}
+
 	Reply CheckBox::OnMouseButtonUp(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent)
 	{
 		m_bIsPressed = false;
@@ -171,12 +194,69 @@ namespace GuGu {
 		switch (state)
 		{
 		case GuGu::CheckBoxState::Unchecked:
-			imageToUse = m_checkBoxStyle->m_uncheckedImage;
+			imageToUse = (IsHovered() ? getUncheckedHoveredImage() : getUncheckedImage());
 			break;
 		case GuGu::CheckBoxState::Checked:
-			imageToUse = m_checkBoxStyle->m_checkedImage;
+			imageToUse = (IsHovered() ? getCheckedHoveredImage() : getCheckedImage());
 			break;
 		}
 		return imageToUse;
 	}
+
+	std::shared_ptr<GuGu::Brush> CheckBox::getUncheckedHoveredImage() const
+	{
+		return m_checkBoxStyle->m_uncheckedHoveredImage;
+	}
+
+	std::shared_ptr<GuGu::Brush> CheckBox::getUncheckedImage() const
+	{
+		return m_checkBoxStyle->m_uncheckedImage;
+	}
+
+	std::shared_ptr<GuGu::Brush> CheckBox::getCheckedHoveredImage() const
+	{
+		return m_checkBoxStyle->m_checkedHoveredImage;
+	}
+
+	std::shared_ptr<GuGu::Brush> CheckBox::getCheckedImage() const
+	{
+		return m_checkBoxStyle->m_checkedImage;
+	}
+
+	void CheckBox::toggleCheckedState()
+	{
+		const CheckBoxState state = m_isCheckboxChecked.Get();
+
+		if (state == CheckBoxState::Checked)
+		{
+			if (!m_isCheckboxChecked.IsBound())
+			{
+				m_isCheckboxChecked.Set(CheckBoxState::Unchecked);
+			}
+
+			if (m_onCheckStateChanged)
+			{
+				m_onCheckStateChanged(CheckBoxState::Unchecked);
+			}
+			
+		}
+		else if (state == CheckBoxState::Unchecked)
+		{
+			if (!m_isCheckboxChecked.IsBound())
+			{
+				m_isCheckboxChecked.Set(CheckBoxState::Checked);
+			}
+
+			if (m_onCheckStateChanged)
+			{
+				m_onCheckStateChanged(CheckBoxState::Checked);
+			}
+		}
+	}
+
+	EnumAsByte<ButtonClickMethod::Type> CheckBox::getClickMethodFromInputType(const PointerEvent& mouseEvent) const
+	{
+		return m_clickMethod;
+	}
+
 }
