@@ -220,16 +220,19 @@ namespace GuGu {
 
 		ADD_IMAGE(ImportModel_Icon)
 		ADD_IMAGE(MeshAssetIcon)
+		ADD_IMAGE(LevelIcon)
 
-		ADD_IMAGE(Start)
-		ADD_IMAGE(Stop)
+		ADD_IMAGE(Start_Normal)
+		ADD_IMAGE(Start_Hover)
+		ADD_IMAGE(Pause_Normal)
+		ADD_IMAGE(Pause_Hover)
 		{
 			//check box style
 			std::shared_ptr<CheckBoxStyle> checkBoxStyle = std::make_shared<CheckBoxStyle>();
-			checkBoxStyle->setCheckedImage(Stop);
-			checkBoxStyle->setUncheckedImage(Start);
-			checkBoxStyle->setCheckedHoveredImage(Stop);
-			checkBoxStyle->setUncheckedHoveredImage(Start);
+			checkBoxStyle->setCheckedImage(Pause_Normal);
+			checkBoxStyle->setUncheckedImage(Start_Normal);
+			checkBoxStyle->setCheckedHoveredImage(Pause_Hover);
+			checkBoxStyle->setUncheckedHoveredImage(Start_Hover);
 			checkBoxStyle->setBackgroundImage(noResource);
 
 			m_styles.insert({ u8"StartAndStop", checkBoxStyle });

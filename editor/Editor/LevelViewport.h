@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/UI/Viewport.h>
-#include "EditorCamera.h"
+#include "EditorViewportClient.h"
 
 namespace GuGu {
 	class LevelViewport : public ViewportWidget

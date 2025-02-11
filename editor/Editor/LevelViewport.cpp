@@ -3,7 +3,7 @@
 #include "LevelViewport.h"
 #include <Core/UI/AssetDragDrop.h>
 #include <Core/GamePlay/World.h>
-#include "EditorCamera.h"
+#include "EditorViewportClient.h"
 
 namespace GuGu {
 	void LevelViewport::init(const BuilderArguments& arguments)
@@ -14,7 +14,7 @@ namespace GuGu {
 			.Content(arguments.mContent->getChildWidget())
 			.visibility(Visibility::Visible)
 		);
-		std::shared_ptr<ViewportClient> viewportClient = std::make_shared<EditorCamera>(std::static_pointer_cast<ViewportWidget>(shared_from_this()));
+		std::shared_ptr<ViewportClient> viewportClient = std::make_shared<EditorViewportClient>(std::static_pointer_cast<ViewportWidget>(shared_from_this()));
 		World::getWorld()->setViewportClient(viewportClient);
 		m_viewportClient = viewportClient;
 	}

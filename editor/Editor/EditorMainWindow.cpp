@@ -293,7 +293,7 @@ namespace GuGu {
 	{
 		std::shared_ptr<ViewportClient> viewportClient = m_viewportWidget->getViewportClient();
 		ViewportClient::ViewportState state = viewportClient->getViewportState();
-		if (state == ViewportClient::ViewportState::Runtime)
+		if (inCheckBoxState == CheckBoxState::Unchecked)
 		{
 			viewportClient->setViewportState(ViewportClient::ViewportState::Editor);
 		}

@@ -7,12 +7,12 @@ namespace GuGu {
 	struct KeyEvent;
 	class GameObject;
 	class GStaticMesh;
-	class EditorCamera : public ViewportClient
+	class EditorViewportClient : public ViewportClient
 	{
 	public:
-		EditorCamera(std::shared_ptr<ViewportWidget> inViewportWidget);
+		EditorViewportClient(std::shared_ptr<ViewportWidget> inViewportWidget);
 
-		virtual ~EditorCamera();
+		virtual ~EditorViewportClient();
 
 		void move(float fElapsedTimeSecond); //移动
 

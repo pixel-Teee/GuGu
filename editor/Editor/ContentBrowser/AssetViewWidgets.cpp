@@ -9,6 +9,7 @@
 #include <Editor/StyleSet/EditorStyleSet.h>
 
 #include <Core/Model/StaticMesh.h> //GStaticMesh
+#include <Core/GamePlay/Level.h> //Level
 #include <Core/Reflection/Type.h>
 
 namespace GuGu {
@@ -81,6 +82,16 @@ namespace GuGu {
 							.brush(assetImage)
 						);
                 }	
+                else if (assetViewAsset->m_data.m_assetType.GetID() == meta::TypeIDs<Level>::ID)
+                {
+					std::shared_ptr<Brush> assetImage = EditorStyleSet::getStyleSet()->getBrush("LevelIcon");
+					itemContentsOverlay->addSlot()
+						.setChildWidget
+						(
+							WIDGET_NEW(ImageWidget)
+							.brush(assetImage)
+						);
+                }
             }	
         }
 

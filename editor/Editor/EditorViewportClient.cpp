@@ -1,6 +1,6 @@
 #include <pch.h>
 
-#include "EditorCamera.h"
+#include "EditorViewportClient.h"
 #include <Application/Application.h>
 
 #include <Core/UI/Events.h>
@@ -24,7 +24,7 @@
 #endif
 
 namespace GuGu {
-	EditorCamera::EditorCamera(std::shared_ptr<ViewportWidget> inViewportWidget)
+	EditorViewportClient::EditorViewportClient(std::shared_ptr<ViewportWidget> inViewportWidget)
 		: m_viewportWidget(inViewportWidget)
 	{
 		m_fov = 60.0f;
@@ -37,10 +37,10 @@ namespace GuGu {
 		updateView();
 		makeGizmos();
 	}
-	EditorCamera::~EditorCamera()
+	EditorViewportClient::~EditorViewportClient()
 	{
 	}
-	void EditorCamera::move(float fElapsedTimeSecond)
+	void EditorViewportClient::move(float fElapsedTimeSecond)
 	{
 		m_moveOffset = math::float3(0, 0, 0);
 
@@ -52,7 +52,7 @@ namespace GuGu {
 			m_focalPoint += getUpDirection() * mouseDelta.y * speedDelta.y * m_distance * fElapsedTimeSecond;
 		}
 	}
-	void EditorCamera::zoom(float fElapsedTimeSecond)
+	void EditorViewportClient::zoom(float fElapsedTimeSecond)
 	{
 		//m_moveOffset = math::float3(0, 0, 0);
 		//
@@ -73,7 +73,7 @@ namespace GuGu {
 			}
 		}
 	}
-	void EditorCamera::rotate(float fElapsedTimeSecond)
+	void EditorViewportClient::rotate(float fElapsedTimeSecond)
 	{
 		if (InputManager::getInputManager().isMouseDown(Keys::MiddleMouseButton) && !InputManager::getInputManager().isKeyDown(Keys::LeftShift))
 		{
@@ -83,7 +83,7 @@ namespace GuGu {
 			m_pitch += delta.y * 0.05f * fElapsedTimeSecond;
 		}
 	}
-	void EditorCamera::update(float fElapsedTimeSecond)
+	void EditorViewportClient::update(float fElapsedTimeSecond)
 	{
 		move(fElapsedTimeSecond);
 		rotate(fElapsedTimeSecond);
@@ -158,7 +158,7 @@ namespace GuGu {
 		if (m_viewportWidget.lock())
 			m_viewportWidget.lock()->setRenderTarget(m_renderTarget);
 	}
-	math::float4x4 EditorCamera::getWorldToViewMatrix() const
+	math::float4x4 EditorViewportClient::getWorldToViewMatrix() const
 	{
 		//math::affine3 worldToView = math::affine3::from_cols(m_right, m_up, m_forward, -m_position);
 		//return worldToView;
@@ -167,89 +167,89 @@ namespace GuGu {
 		math::affine3 worldToView = orientation.toAffine() * math::translation(m_position);	
 		return math::inverse(math::affineToHomogeneous(worldToView));
 	}
-	math::float4x4 EditorCamera::getPespectiveMatrix() const
+	math::float4x4 EditorViewportClient::getPespectiveMatrix() const
 	{
 		math::matrix perspectiveMatrix = math::perspProjD3DStyle(getFov(),
 			getAspectRatio(), getNearPlane(), getFarPlane()
 		);
 		return perspectiveMatrix;
 	}
-	float EditorCamera::getAspectRatio() const
+	float EditorViewportClient::getAspectRatio() const
 	{
 		return (float)m_width / m_height;
 	}
-	math::float3 EditorCamera::getCamPos() const
+	math::float3 EditorViewportClient::getCamPos() const
 	{
 		return m_position;
 	}
-	float EditorCamera::getFov() const
+	float EditorViewportClient::getFov() const
 	{
 		return math::radians(m_fov);
 	}
-	void EditorCamera::resizeViewport(int32_t width, int32_t height)
+	void EditorViewportClient::resizeViewport(int32_t width, int32_t height)
 	{
 		m_width = width;
 		m_height = height;
 	}
-	math::float2 EditorCamera::getViewportSize() const
+	math::float2 EditorViewportClient::getViewportSize() const
 	{
 		return math::float2(m_width, m_height);
 	}
-	void EditorCamera::setRenderTarget(nvrhi::TextureHandle viewportRenderTarget, nvrhi::TextureHandle depthRenderTarget, nvrhi::FramebufferHandle frameBuffer)
+	void EditorViewportClient::setRenderTarget(nvrhi::TextureHandle viewportRenderTarget, nvrhi::TextureHandle depthRenderTarget, nvrhi::FramebufferHandle frameBuffer)
 	{
 		m_renderTarget = viewportRenderTarget;
 		m_depthTarget = depthRenderTarget;
 		m_frameBuffer = frameBuffer;
 	}
-	nvrhi::TextureHandle EditorCamera::getRenderTarget() const
+	nvrhi::TextureHandle EditorViewportClient::getRenderTarget() const
 	{
 		return m_renderTarget;
 	}
-	nvrhi::TextureHandle EditorCamera::getDepthTarget() const
+	nvrhi::TextureHandle EditorViewportClient::getDepthTarget() const
 	{
 		return m_depthTarget;
 	}
-	nvrhi::FramebufferHandle EditorCamera::getFramebuffer() const
+	nvrhi::FramebufferHandle EditorViewportClient::getFramebuffer() const
 	{
 		return m_frameBuffer;
 	}
-	math::float2 EditorCamera::getRenderTargetSize() const
+	math::float2 EditorViewportClient::getRenderTargetSize() const
 	{
 		return math::float2(m_renderTarget->getDesc().width, m_renderTarget->getDesc().height);
 	}
-	float EditorCamera::getNearPlane() const
+	float EditorViewportClient::getNearPlane() const
 	{
 		return m_nearPlane;
 	}
-	float EditorCamera::getFarPlane() const
+	float EditorViewportClient::getFarPlane() const
 	{
 		return m_farPlane;
 	}
-	void EditorCamera::updateView()
+	void EditorViewportClient::updateView()
 	{
 		m_position = calculatePosition();
 	}
-	math::float3 EditorCamera::calculatePosition() const
+	math::float3 EditorViewportClient::calculatePosition() const
 	{
 		return m_focalPoint - getForwardDirection() * m_distance;
 	}
-	math::float3 EditorCamera::getForwardDirection() const
+	math::float3 EditorViewportClient::getForwardDirection() const
 	{
 		return math::applyQuat(getOrientation(), math::float3(0.0f, 0.0f, 1.0f));
 	}
-	math::quat EditorCamera::getOrientation() const
+	math::quat EditorViewportClient::getOrientation() const
 	{
 		return math::rotationQuat(math::float3(m_pitch, m_yaw, 0.0f));
 	}
-	math::float3 EditorCamera::getRightDirection() const
+	math::float3 EditorViewportClient::getRightDirection() const
 	{
 		return math::applyQuat(getOrientation(), math::float3(1.0f, 0.0f, 0.0f));
 	}
-	math::float3 EditorCamera::getUpDirection() const
+	math::float3 EditorViewportClient::getUpDirection() const
 	{
 		return math::applyQuat(getOrientation(), math::float3(0.0f, 1.0f, 0.0f));
 	}
-	math::float2 EditorCamera::moveSpeed()
+	math::float2 EditorViewportClient::moveSpeed()
 	{
 		float x = std::min(m_width / 1000.0f, 2.4f);//max = 2.4f
 		float xFactor = 0.0366f * (x * x) - 0.1778f * x + 0.3021f;
@@ -259,7 +259,7 @@ namespace GuGu {
 
 		return { xFactor, yFactor };
 	}
-	float EditorCamera::zoomSpeed()
+	float EditorViewportClient::zoomSpeed()
 	{
 		float distance = m_distance * 0.2f;
 		distance = std::max(distance, 0.0f);
@@ -267,7 +267,7 @@ namespace GuGu {
 		speed = std::min(speed, 100.0f);//max speed = 100
 		return speed;
 	}
-	void EditorCamera::gizmos(float fElapsedTimeSecond)
+	void EditorViewportClient::gizmos(float fElapsedTimeSecond)
 	{
 		if (m_bShowGizmos)
 		{
@@ -403,7 +403,7 @@ namespace GuGu {
 		}
 
 	}
-	const std::vector<std::shared_ptr<GStaticMesh>>& EditorCamera::getGizmos() const
+	const std::vector<std::shared_ptr<GStaticMesh>>& EditorViewportClient::getGizmos() const
 	{
 		if (m_gizmos == Gizmos::Move)
 			return m_moveGizmos;
@@ -411,7 +411,7 @@ namespace GuGu {
 			return m_rotateGizmos;
 		return m_moveGizmos;
 	}
-	std::vector<std::shared_ptr<GStaticMesh>>& EditorCamera::getGizmos()
+	std::vector<std::shared_ptr<GStaticMesh>>& EditorViewportClient::getGizmos()
 	{
 		if (m_gizmos == Gizmos::Move)
 			return m_moveGizmos;
@@ -419,7 +419,7 @@ namespace GuGu {
 			return m_rotateGizmos;
 		return m_moveGizmos;
 	}
-	math::float4 EditorCamera::getGizmosColor(uint32_t index) const 
+	math::float4 EditorViewportClient::getGizmosColor(uint32_t index) const 
 	{
 		if (m_gizmos == Gizmos::Move)
 		{
@@ -442,15 +442,15 @@ namespace GuGu {
 		
 		return math::float4(1.0f, 1.0f, 1.0f, 1.0f);
 	}
-	bool EditorCamera::gizmosIsVisible() const
+	bool EditorViewportClient::gizmosIsVisible() const
 	{
 		return m_bShowGizmos;
 	}
-	std::shared_ptr<GameObject> EditorCamera::getSelectedItems() const
+	std::shared_ptr<GameObject> EditorViewportClient::getSelectedItems() const
 	{
 		return m_pickedGameObject;
 	}
-	void EditorCamera::debugPitchAndYaw()
+	void EditorViewportClient::debugPitchAndYaw()
 	{
 		float pitchRad = math::radians(m_pitch);
 		float yawRad = math::radians(m_yaw);
@@ -479,7 +479,7 @@ namespace GuGu {
 // 			up.x, up.y, up.z);
 	}
 
-	std::vector<uint32_t> EditorCamera::getGizmosRenderSort() const 
+	std::vector<uint32_t> EditorViewportClient::getGizmosRenderSort() const 
 {
 		if (m_gizmos == Gizmos::Move)
 		{
@@ -503,12 +503,12 @@ namespace GuGu {
 		return std::vector<uint32_t>();
 	}
 
-	ViewportClient::ViewportState EditorCamera::getViewportState() const
+	ViewportClient::ViewportState EditorViewportClient::getViewportState() const
 	{
 		return m_viewportState;
 	}
 
-	void EditorCamera::setViewportState(ViewportState state)
+	void EditorViewportClient::setViewportState(ViewportState state)
 	{
 		m_viewportState = state;
 		if (state == ViewportClient::Editor)
@@ -521,7 +521,7 @@ namespace GuGu {
 		}
 	}
 
-	void EditorCamera::makeGizmos()
+	void EditorViewportClient::makeGizmos()
 	{
 		//移动轴
 		m_moveGizmoPos.resize(6);
