@@ -157,18 +157,39 @@ namespace GuGu {
 
 	Reply CheckBox::OnMouseButtonUp(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent)
 	{
-		m_bIsPressed = false;
+		if (inMouseEvent.getEffectingButton() == Keys::LeftMouseButton)
+		{
+			m_bIsPressed = false;
+			
+			if (m_clickMethod == ButtonClickMethod::MouseDown)
+			{
 
-		//if (m_isCheckboxChecked.Get() == CheckBoxState::Checked)
-		//{
-		//	m_isCheckboxChecked = CheckBoxState::Unchecked;
-		//}
-		//else if (m_isCheckboxChecked.Get() == CheckBoxState::Unchecked)
-		//{
-		//	m_isCheckboxChecked = CheckBoxState::Checked;
-		//}
-		//
-		return Reply::Unhandled().releaseMouseCapture();
+			}
+			else
+			{
+				//mouse up
+				const bool isUnderMouse = geometry.isUnderLocation(inMouseEvent.m_screenSpacePosition);
+				if (isUnderMouse)
+				{
+					if (m_clickMethod == ButtonClickMethod::MouseUp || hasMouseCapture())
+					{
+						toggleCheckedState();
+						const CheckBoxState state = m_isCheckboxChecked.Get();
+						if (state == CheckBoxState::Checked)
+						{
+							//play sound
+						}
+						else
+						{
+							//play sound
+						}
+					}
+				}
+			}
+			return Reply::Unhandled().releaseMouseCapture();
+		}
+		
+		return Reply::Unhandled();
 	}
 	bool CheckBox::isInteractable() const
 	{

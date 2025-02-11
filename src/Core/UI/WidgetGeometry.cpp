@@ -110,6 +110,7 @@ namespace GuGu {
 		WidgetGeometry offsetGeometry = *this;
 		offsetGeometry.mAccumulateLayoutTransform.m_translation += inTranslation;
 		offsetGeometry.mAbsolutePosition = offsetGeometry.mAccumulateLayoutTransform.m_translation;
+		offsetGeometry.mAccumulateRenderTransform.m_translation += inTranslation;
 		return offsetGeometry;
 	}
 	math::float2 WidgetGeometry::absoluteToLocal(math::float2 absolutePosition) const
@@ -143,6 +144,35 @@ namespace GuGu {
 		root.mAbsoluteScale = root.mAccumulateLayoutTransform.m_linear[0][0];
 
 		return root;
+	}
+
+	bool WidgetGeometry::isUnderLocation(const math::float2& absoluteCoordinate) const
+	{
+		//transform rect
+		math::affine2 transform = getAccumulateRenderTransform();
+
+		math::float2 topLeft = transform.transformPoint(math::float2(0.0f, 0.0f));
+		math::float2 topRight = transform.transformPoint(math::float2(mLocalSize.x, 0.0f));
+		math::float2 bottomLeft = transform.transformPoint(math::float2(0.0f, mLocalSize.y));
+		math::float2 bottomRight = transform.transformPoint(math::float2(mLocalSize.x, mLocalSize.y));
+
+		math::float2 points[4] = {
+			 topLeft,
+			 topRight,
+			 bottomRight,
+			 bottomLeft
+		};
+
+		float a = math::cross(points[1] - points[0], absoluteCoordinate - points[0]);
+		float b = math::cross(points[2] - points[1], absoluteCoordinate - points[1]);
+		float c = math::cross(points[3] - points[2], absoluteCoordinate - points[2]);
+		float d = math::cross(points[0] - points[3], absoluteCoordinate - points[3]);
+
+		if ((a > 0 && b > 0 && c > 0 && d > 0) || (a < 0 && b < 0 && c < 0 && d < 0))
+		{
+			return true;
+		}
+		return false;
 	}
 
 }

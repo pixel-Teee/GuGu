@@ -22,7 +22,7 @@ namespace GuGu {
 		struct BuilderArguments : public Arguments<CheckBox>
 		{
 			BuilderArguments() :
-				mclickMethod(ButtonClickMethod::Type::MouseDown)
+				mclickMethod(ButtonClickMethod::Type::MouseUp)
 			{
 
 			}
