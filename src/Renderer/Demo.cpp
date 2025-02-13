@@ -1483,7 +1483,16 @@ namespace GuGu {
 
 				GizmosConstantBufferEntry modelConstants;
 				modelConstants.viewProjMatrix = viewProjMatrix;
-				modelConstants.worldMatrix = math::float4x4(math::affineToHomogeneous(inViewportClient->getSelectedItems()->getComponent<TransformComponent>()->GetLocalToWorldTransform()));
+				math::float3 translation;
+				math::float3 scaling;
+				math::quat rotation;
+				math::affine3 affine = math::affine3(inViewportClient->getSelectedItems()->getComponent<TransformComponent>()->GetLocalToWorldTransform());
+				math::decomposeAffine(affine, &translation, &rotation, &scaling);
+				math::affine3 noScalingAffine;//gizmos 不需要缩放
+				scaling = math::float3(inViewportClient->getScreenScaleCompensation(translation)) * 100.0f;
+				GuGu_LOGD("%f", scaling.x);
+				noScalingAffine = math::scaling(scaling) * rotation.toAffine() * math::translation(translation);
+				modelConstants.worldMatrix = math::float4x4(math::affineToHomogeneous(noScalingAffine));
 				modelConstants.camWorldPos = inViewportClient->getCamPos();
 				//get the global matrix to fill constant buffer		
 				m_CommandList->writeBuffer(m_gizmosConstantBuffer, &modelConstants, sizeof(modelConstants));

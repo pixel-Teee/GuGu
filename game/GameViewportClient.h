@@ -83,6 +83,7 @@ namespace GuGu {
 
 		void setViewportState(ViewportState state) override;
 
+		virtual float getScreenScaleCompensation(math::float3 objWorldPos) const override;
 	private:
 		std::weak_ptr<ViewportWidget> m_viewportWidget;
 

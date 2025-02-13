@@ -289,9 +289,18 @@ namespace GuGu {
 			
 				if (!m_bdragging)
 				{
+					math::float3 translation;
+					math::float3 scaling;
+					math::quat rotation;
+					math::affine3 affine = math::affine3(m_pickedGameObject->getComponent<TransformComponent>()->GetLocalToWorldTransform());
+					math::decomposeAffine(affine, &translation, &rotation, &scaling);
+					math::affine3 noScalingAffine;//gizmos 不需要缩放
+					scaling = math::float3(getScreenScaleCompensation(translation)) * 100.0f;
+					noScalingAffine = math::scaling(scaling) * rotation.toAffine() * math::translation(translation);
+
 					std::shared_ptr<GStaticMesh> gStaticMesh = Collision3D::pick(mousePosition.x, mousePosition.y, m_width, m_height,
 						getPespectiveMatrix(), getWorldToViewMatrix(),
-						m_currentGizmos, math::float4x4(math::affineToHomogeneous(m_pickedGameObject->getComponent<TransformComponent>()->GetLocalToWorldTransform())), m_debugDrawWorldPos);
+						m_currentGizmos, math::float4x4(math::affineToHomogeneous(noScalingAffine)), m_debugDrawWorldPos);
 					if (gStaticMesh)
 					{
 						//判断是选取了哪个轴
@@ -352,8 +361,8 @@ namespace GuGu {
 						math::float3 delta = intersectPos - m_lastRayIntersectPoint;
 						m_lastRayIntersectPoint = intersectPos;
 						float projection = math::dot(delta, m_worldObjectAxis);
-						GuGu_LOGD("%f\n", projection);
-						math::float3 movement = projection * m_worldObjectAxis * fElapsedTimeSecond * 20.0f;
+						//GuGu_LOGD("%f\n", projection);
+						math::float3 movement = projection * m_worldObjectAxis * m_distance * fElapsedTimeSecond * 10.0f;
 						math::double3 translation = m_pickedGameObject->getComponent<TransformComponent>()->getTranslation();
 						translation = translation + math::double3(movement);
 						m_pickedGameObject->getComponent<TransformComponent>()->SetTranslation(translation);
@@ -532,6 +541,13 @@ namespace GuGu {
 		{
 			World::getWorld()->switchState(World::Editor);
 		}
+	}
+
+	float EditorViewportClient::getScreenScaleCompensation(math::float3 objWorldPos) const
+	{
+		float distance = math::dot(objWorldPos - m_position, getForwardDirection());
+
+		return distance * std::tanf(math::radians(m_fov) * 0.5f) / m_height;
 	}
 
 	void EditorViewportClient::makeGizmos()

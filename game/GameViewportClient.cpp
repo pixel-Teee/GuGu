@@ -117,6 +117,11 @@ namespace GuGu {
 		
 	}
 
+	float GameViewportClient::getScreenScaleCompensation(math::float3 objWorldPos) const
+	{
+		return 0;
+	}
+
 	GuGu::math::float4x4 GameViewportClient::getWorldToViewMatrix() const
 	{
 		throw std::logic_error("The method or operation is not implemented.");

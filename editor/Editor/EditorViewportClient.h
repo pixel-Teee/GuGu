@@ -85,6 +85,8 @@ namespace GuGu {
 		virtual ViewportState getViewportState() const override;
 
 		virtual void setViewportState(ViewportState state) override;
+
+		virtual float getScreenScaleCompensation(math::float3 objWorldPos) const override;
 	private:
 		void makeGizmos();
 
