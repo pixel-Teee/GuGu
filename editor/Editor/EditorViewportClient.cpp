@@ -300,8 +300,31 @@ namespace GuGu {
 							if (m_currentGizmos[i] == gStaticMesh && m_currentGizmosIndex != i)
 							{
 								m_currentGizmosIndex = i;
-								m_currentMovePositionX = mousePosition.x;
+								m_currentMousePositionX = mousePosition.x;
 								m_currentMousePositionY = mousePosition.y;
+								math::float3 worldRayPos;
+								//math::float3 worldRayDir;
+								Collision3D::calculateRayOriginAndRayDir(m_width / 2.0f, m_height / 2.0f, m_width, m_height,
+									getPespectiveMatrix(), getWorldToViewMatrix(), worldRayPos, m_planeNormal);
+								//射线和经过物体原点的平面相交
+								Collision3D::intersectsWithPlane(worldRayPos, m_planeNormal, m_planeNormal,
+									math::float3(m_pickedGameObject->getComponent<TransformComponent>()->getTranslation()), m_lastRayIntersectPoint);
+								m_pickedObjectDragStartWorldPosition = m_pickedGameObject->getComponent<TransformComponent>()->getTranslation();
+								if (m_currentGizmosIndex <= 1) //y
+								{
+									math::quat tmpQuat = math::quat(m_pickedGameObject->getComponent<TransformComponent>()->getRotation());
+									m_worldObjectAxis = math::normalize(math::applyQuat(tmpQuat, math::float3(0, 1, 0)));
+								}
+								else if (m_currentGizmosIndex <= 3) //x
+								{
+									math::quat tmpQuat = math::quat(m_pickedGameObject->getComponent<TransformComponent>()->getRotation());
+									m_worldObjectAxis = math::normalize(math::applyQuat(tmpQuat, math::float3(1, 0, 0)));
+								}
+								else if (m_currentGizmosIndex <= 5) //z
+								{
+									math::quat tmpQuat = math::quat(m_pickedGameObject->getComponent<TransformComponent>()->getRotation());
+									m_worldObjectAxis = math::normalize(math::applyQuat(tmpQuat, math::float3(0, 0, 1)));
+								}
 								m_bdragging = true;//开始拖动
 								break;
 							}
@@ -317,33 +340,23 @@ namespace GuGu {
 			{
 				if (m_gizmos == Gizmos::Move)
 				{
-					math::float2 mouseDelta = InputManager::getInputManager().getMouseDelta();
-					if (m_currentGizmosIndex <= 1) //y
+					math::float2 mousePosition = InputManager::getInputManager().getMousePosition();
+					math::float3 worldRayPos;
+					math::float3 worldRayDir;
+					Collision3D::calculateRayOriginAndRayDir(mousePosition.x, mousePosition.y, m_width, m_height,
+						getPespectiveMatrix(), getWorldToViewMatrix(), worldRayPos, worldRayDir);
+					math::float3 intersectPos;
+					if (Collision3D::intersectsWithPlane(worldRayPos, worldRayDir, m_planeNormal,
+						math::float3(m_pickedObjectDragStartWorldPosition), intersectPos))
 					{
-						if (mouseDelta.y != 0)
-						{
-							math::double3 translation = m_pickedGameObject->getComponent<TransformComponent>()->getTranslation();
-							translation[1] += -mouseDelta.y * fElapsedTimeSecond * 0.2;
-							m_pickedGameObject->getComponent<TransformComponent>()->SetTranslation(translation);
-						}
-					}
-					else if (m_currentGizmosIndex <= 3) //x
-					{
-						if (mouseDelta.x != 0)
-						{
-							math::double3 translation = m_pickedGameObject->getComponent<TransformComponent>()->getTranslation();
-							translation[0] += mouseDelta.x * fElapsedTimeSecond * 0.2;
-							m_pickedGameObject->getComponent<TransformComponent>()->SetTranslation(translation);
-						}
-					}
-					else if (m_currentGizmosIndex <= 5) //z
-					{
-						if (mouseDelta.x != 0)
-						{
-							math::double3 translation = m_pickedGameObject->getComponent<TransformComponent>()->getTranslation();
-							translation[2] += mouseDelta.x * fElapsedTimeSecond * 0.2;
-							m_pickedGameObject->getComponent<TransformComponent>()->SetTranslation(translation);
-						}
+						math::float3 delta = intersectPos - m_lastRayIntersectPoint;
+						m_lastRayIntersectPoint = intersectPos;
+						float projection = math::dot(delta, m_worldObjectAxis);
+						GuGu_LOGD("%f\n", projection);
+						math::float3 movement = projection * m_worldObjectAxis * fElapsedTimeSecond * 20.0f;
+						math::double3 translation = m_pickedGameObject->getComponent<TransformComponent>()->getTranslation();
+						translation = translation + math::double3(movement);
+						m_pickedGameObject->getComponent<TransformComponent>()->SetTranslation(translation);
 					}
 				}
 				else if (m_gizmos == Gizmos::Rotation)
@@ -383,7 +396,7 @@ namespace GuGu {
 			}
 		}
 
-		if (InputManager::getInputManager().isMouseDown(Keys::LeftMouseButton))
+		if (InputManager::getInputManager().isMouseDown(Keys::LeftMouseButton) && !m_bdragging)//不处于拖动
 		{
 			math::float2 mousePosition = InputManager::getInputManager().getMousePosition();
 			//GuGu_LOGD("%f %f", mousePosition.x, mousePosition.y);

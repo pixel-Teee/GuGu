@@ -133,7 +133,11 @@ namespace GuGu {
 		std::vector<std::shared_ptr<GStaticMesh>> m_moveGizmos;
 		std::vector<math::float3> m_moveGizmoPos;
 		uint32_t m_currentGizmosIndex = 0;
-		uint32_t m_currentMovePositionX = 0, m_currentMousePositionY = 0;
+		uint32_t m_currentMousePositionX = 0, m_currentMousePositionY = 0;
+		math::double3 m_pickedObjectDragStartWorldPosition = math::double3(0, 0, 0);
+		math::float3 m_lastRayIntersectPoint = math::float3(0, 0, 0);
+		math::float3 m_worldObjectAxis = math::float3(0, 0, 0);
+		math::float3 m_planeNormal = math::float3(0, 0, 1);
 		bool m_bdragging = false;
 
 		std::vector<std::shared_ptr<GStaticMesh>> m_rotateGizmos;
