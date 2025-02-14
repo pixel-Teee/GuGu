@@ -336,7 +336,7 @@ namespace GuGu {
 									m_worldObjectAxis = math::normalize(math::applyQuat(tmpQuat, math::float3(0, 0, 1)));
 								}
 								m_bdragging = true;//开始拖动
-								GuGu_LOGD("trigger dragging");
+								//GuGu_LOGD("trigger dragging");
 								break;
 							}
 						}
@@ -369,10 +369,10 @@ namespace GuGu {
 						translation = translation + math::double3(movement);
 						m_pickedGameObject->getComponent<TransformComponent>()->SetTranslation(translation);
 					}
-					else
-					{
-						GuGu_LOGD("no intersect");
-					}
+					//else
+					//{
+					//	GuGu_LOGD("no intersect");
+					//}
 				}
 				else if (m_gizmos == Gizmos::Rotation)
 				{
