@@ -1490,7 +1490,7 @@ namespace GuGu {
 				math::decomposeAffine(affine, &translation, &rotation, &scaling);
 				math::affine3 noScalingAffine;//gizmos 不需要缩放
 				scaling = math::float3(inViewportClient->getScreenScaleCompensation(translation)) * 100.0f;
-				GuGu_LOGD("%f", scaling.x);
+				//GuGu_LOGD("%f", scaling.x);
 				noScalingAffine = math::scaling(scaling) * rotation.toAffine() * math::translation(translation);
 				modelConstants.worldMatrix = math::float4x4(math::affineToHomogeneous(noScalingAffine));
 				modelConstants.camWorldPos = inViewportClient->getCamPos();

@@ -301,12 +301,13 @@ namespace GuGu {
 					std::shared_ptr<GStaticMesh> gStaticMesh = Collision3D::pick(mousePosition.x, mousePosition.y, m_width, m_height,
 						getPespectiveMatrix(), getWorldToViewMatrix(),
 						m_currentGizmos, math::float4x4(math::affineToHomogeneous(noScalingAffine)), m_debugDrawWorldPos);
+					GuGu_LOGD("click gizmos");
 					if (gStaticMesh)
 					{
 						//判断是选取了哪个轴
 						for (uint32_t i = 0; i < m_currentGizmos.size(); ++i)
 						{
-							if (m_currentGizmos[i] == gStaticMesh && m_currentGizmosIndex != i)
+							if (m_currentGizmos[i] == gStaticMesh)
 							{
 								m_currentGizmosIndex = i;
 								m_currentMousePositionX = mousePosition.x;
@@ -335,6 +336,7 @@ namespace GuGu {
 									m_worldObjectAxis = math::normalize(math::applyQuat(tmpQuat, math::float3(0, 0, 1)));
 								}
 								m_bdragging = true;//开始拖动
+								GuGu_LOGD("trigger dragging");
 								break;
 							}
 						}
@@ -366,6 +368,10 @@ namespace GuGu {
 						math::double3 translation = m_pickedGameObject->getComponent<TransformComponent>()->getTranslation();
 						translation = translation + math::double3(movement);
 						m_pickedGameObject->getComponent<TransformComponent>()->SetTranslation(translation);
+					}
+					else
+					{
+						GuGu_LOGD("no intersect");
 					}
 				}
 				else if (m_gizmos == Gizmos::Rotation)
