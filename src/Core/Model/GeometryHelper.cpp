@@ -216,6 +216,326 @@ namespace GuGu {
 
 		return staticMesh;
 	}
+
+	void GeometryHelper::subdivide(GStaticMesh& staticMesh, uint32_t numSubdivisions)
+	{
+		Array<math::float3> positionData = staticMesh.m_positionData;
+		Array<math::float3> normalData = staticMesh.m_normalData;
+		Array<math::float3> tangentData = staticMesh.m_tangentData;
+		Array<math::float2> texcoordData = staticMesh.m_texCoord1Data;
+		Array<uint32_t> indexData = staticMesh.m_indexData;
+
+		//copy 
+		staticMesh.m_positionData.resize(0);
+		staticMesh.m_normalData.resize(0);
+		staticMesh.m_tangentData.resize(0);
+		staticMesh.m_texCoord1Data.resize(0);
+		staticMesh.m_indexData.resize(0);
+
+		//       v1
+		//       *
+		//      / \
+		//     /   \
+		//  m0*-----*m1
+		//   / \   / \
+		//  /   \ /   \
+		// *-----*-----*
+		// v0    m2     v2
+		uint32_t numTris = (uint32_t)indexData.size() / 3;
+		for (uint32_t i = 0; i < numTris; ++i)
+		{
+			//vertex 0
+			math::float3 positionData1 = positionData[indexData[i * 3 + 0]];
+			math::float3 normalData1 = normalData[indexData[i * 3 + 0]];
+			math::float3 tangentData1 = tangentData[indexData[i * 3 + 0]];
+			math::float2 texCoordData1 = texcoordData[indexData[i * 3 + 0]];
+
+			//vertex 1
+			math::float3 positionData2 = positionData[indexData[i * 3 + 1]];
+			math::float3 normalData2 = normalData[indexData[i * 3 + 1]];
+			math::float3 tangentData2 = tangentData[indexData[i * 3 + 1]];
+			math::float2 texCoordData2 = texcoordData[indexData[i * 3 + 1]];
+
+			//vertex 2
+			math::float3 positionData3 = positionData[indexData[i * 3 + 2]];
+			math::float3 normalData3 = normalData[indexData[i * 3 + 2]];
+			math::float3 tangentData3 = tangentData[indexData[i * 3 + 2]];
+			math::float2 texCoordData3 = texcoordData[indexData[i * 3 + 2]];
+
+			math::float3 midPositionData1;
+			math::float3 midNormalData1;
+			math::float3 midtangentData1;
+			math::float2 midtexcoordData1;
+			midPoint(positionData1, positionData2,
+				tangentData1, tangentData2,
+				normalData1, normalData2,
+				texCoordData1, texCoordData2,
+				midPositionData1,
+				midtangentData1,
+				midNormalData1,
+				midtexcoordData1);
+
+			math::float3 midPositionData2;
+			math::float3 midNormalData2;
+			math::float3 midtangentData2;
+			math::float2 midtexcoordData2;
+			midPoint(positionData2, positionData3,
+				tangentData2, tangentData3,
+				normalData2, normalData3,
+				texCoordData2, texCoordData3,
+				midPositionData2,
+				midtangentData2,
+				midNormalData2,
+				midtexcoordData2);
+
+			math::float3 midPositionData3;
+			math::float3 midNormalData3;
+			math::float3 midtangentData3;
+			math::float2 midtexcoordData3;
+			midPoint(positionData1, positionData3,
+				tangentData1, tangentData3,
+				normalData1, normalData3,
+				texCoordData1, texCoordData3,
+				midPositionData3,
+				midtangentData3,
+				midNormalData3,
+				midtexcoordData3);
+
+			staticMesh.m_positionData.push_back(positionData1);
+			staticMesh.m_positionData.push_back(positionData2);
+			staticMesh.m_positionData.push_back(positionData3);
+			staticMesh.m_positionData.push_back(midPositionData1);
+			staticMesh.m_positionData.push_back(midPositionData2);
+			staticMesh.m_positionData.push_back(midPositionData3);
+			staticMesh.m_normalData.push_back(normalData1);
+			staticMesh.m_normalData.push_back(normalData2);
+			staticMesh.m_normalData.push_back(normalData3);
+			staticMesh.m_normalData.push_back(midNormalData1);
+			staticMesh.m_normalData.push_back(midNormalData2);
+			staticMesh.m_normalData.push_back(midNormalData3);
+			staticMesh.m_tangentData.push_back(tangentData1);
+			staticMesh.m_tangentData.push_back(tangentData2);
+			staticMesh.m_tangentData.push_back(tangentData3);
+			staticMesh.m_tangentData.push_back(midtangentData1);
+			staticMesh.m_tangentData.push_back(midtangentData2);
+			staticMesh.m_tangentData.push_back(midtangentData3);
+			staticMesh.m_texCoord1Data.push_back(texCoordData1);
+			staticMesh.m_texCoord1Data.push_back(texCoordData2);
+			staticMesh.m_texCoord1Data.push_back(texCoordData3);
+			staticMesh.m_texCoord1Data.push_back(midtexcoordData1);
+			staticMesh.m_texCoord1Data.push_back(midtexcoordData2);
+			staticMesh.m_texCoord1Data.push_back(midtexcoordData3);
+
+			staticMesh.m_indexData.push_back(i * 6 + 0);
+			staticMesh.m_indexData.push_back(i * 6 + 3);
+			staticMesh.m_indexData.push_back(i * 6 + 5);
+
+			staticMesh.m_indexData.push_back(i * 6 + 3);
+			staticMesh.m_indexData.push_back(i * 6 + 4);
+			staticMesh.m_indexData.push_back(i * 6 + 5);
+
+			staticMesh.m_indexData.push_back(i * 6 + 5);
+			staticMesh.m_indexData.push_back(i * 6 + 4);
+			staticMesh.m_indexData.push_back(i * 6 + 2);
+
+			staticMesh.m_indexData.push_back(i * 6 + 3);
+			staticMesh.m_indexData.push_back(i * 6 + 1);
+			staticMesh.m_indexData.push_back(i * 6 + 4);
+		}
+	}
+
+	GStaticMesh GeometryHelper::createBox(float width, float height, float depth, uint32_t numSubdivisions, math::float4x4 transform)
+	{
+		GStaticMesh box;
+
+		float w2 = 0.5f * width;//half width
+		float h2 = 0.5f * height;//half height
+		float d2 = 0.5f * depth;//half depth
+
+		//front face
+		box.m_positionData.push_back(math::float4(-w2, -h2, -d2, 1.0f) * transform);
+		box.m_normalData.push_back(math::float3(0.0f, 0.0f, -1.0f));
+		box.m_tangentData.push_back(math::float3(1.0f, 0.0f, 0.0f));
+		box.m_texCoord1Data.push_back(math::float2(0.0f, 1.0f));
+
+		box.m_positionData.push_back(math::float4(-w2, +h2, -d2, 1.0f) * transform);
+		box.m_normalData.push_back(math::float3(0.0f, 0.0f, -1.0f));
+		box.m_tangentData.push_back(math::float3(1.0f, 0.0f, 0.0f));
+		box.m_texCoord1Data.push_back(math::float2(0.0f, 0.0f));
+
+		box.m_positionData.push_back(math::float4(+w2, +h2, -d2, 1.0f) * transform);
+		box.m_normalData.push_back(math::float3(0.0f, 0.0f, -1.0f));
+		box.m_tangentData.push_back(math::float3(1.0f, 0.0f, 0.0f));
+		box.m_texCoord1Data.push_back(math::float2(1.0f, 0.0f));
+
+		box.m_positionData.push_back(math::float4(+w2, -h2, -d2, 1.0f) * transform);
+		box.m_normalData.push_back(math::float3(0.0f, 0.0f, -1.0f));
+		box.m_tangentData.push_back(math::float3(1.0f, 0.0f, 0.0f));
+		box.m_texCoord1Data.push_back(math::float2(1.0f, 1.0f));
+		//back face
+		box.m_positionData.push_back(math::float4(-w2, -h2, +d2, 1.0f) * transform);
+		box.m_normalData.push_back(math::float3(0.0f, 0.0f, 1.0f));
+		box.m_tangentData.push_back(math::float3(-1.0f, 0.0f, 0.0f));
+		box.m_texCoord1Data.push_back(math::float2(1.0f, 1.0f));
+
+		box.m_positionData.push_back(math::float4(+w2, -h2, +d2, 1.0f) * transform);
+		box.m_normalData.push_back(math::float3(0.0f, 0.0f, 1.0f));
+		box.m_tangentData.push_back(math::float3(-1.0f, 0.0f, 0.0f));
+		box.m_texCoord1Data.push_back(math::float2(0.0f, 1.0f));
+
+		box.m_positionData.push_back(math::float4(+w2, +h2, +d2, 1.0f) * transform);
+		box.m_normalData.push_back(math::float3(0.0f, 0.0f, 1.0f));
+		box.m_tangentData.push_back(math::float3(-1.0f, 0.0f, 0.0f));
+		box.m_texCoord1Data.push_back(math::float2(0.0f, 0.0f));
+
+		box.m_positionData.push_back(math::float4(-w2, +h2, +d2, 1.0f) * transform);
+		box.m_normalData.push_back(math::float3(0.0f, 0.0f, 1.0f));
+		box.m_tangentData.push_back(math::float3(-1.0f, 0.0f, 0.0f));
+		box.m_texCoord1Data.push_back(math::float2(1.0f, 0.0f));
+		//top face
+		box.m_positionData.push_back(math::float4(-w2, +h2, -d2, 1.0f) * transform);
+		box.m_normalData.push_back(math::float3(0.0f, 1.0f, 0.0f));
+		box.m_tangentData.push_back(math::float3(1.0f, 0.0f, 0.0f));
+		box.m_texCoord1Data.push_back(math::float2(0.0f, 1.0f));
+
+		box.m_positionData.push_back(math::float4(-w2, +h2, +d2, 1.0f) * transform);
+		box.m_normalData.push_back(math::float3(0.0f, 1.0f, 0.0f));
+		box.m_tangentData.push_back(math::float3(1.0f, 0.0f, 0.0f));
+		box.m_texCoord1Data.push_back(math::float2(0.0f, 0.0f));
+
+		box.m_positionData.push_back(math::float4(+w2, +h2, +d2, 1.0f) * transform);
+		box.m_normalData.push_back(math::float3(0.0f, 1.0f, 0.0f));
+		box.m_tangentData.push_back(math::float3(1.0f, 0.0f, 0.0f));
+		box.m_texCoord1Data.push_back(math::float2(1.0f, 0.0f));
+
+		box.m_positionData.push_back(math::float4(+w2, +h2, -d2, 1.0f) * transform);
+		box.m_normalData.push_back(math::float3(0.0f, 1.0f, 0.0f));
+		box.m_tangentData.push_back(math::float3(1.0f, 0.0f, 0.0f));
+		box.m_texCoord1Data.push_back(math::float2(1.0f, 1.0f));
+
+		//bottom face
+		box.m_positionData.push_back(math::float4(-w2, -h2, -d2, 1.0f) * transform);
+		box.m_normalData.push_back(math::float3(0.0f, -1.0f, 0.0f));
+		box.m_tangentData.push_back(math::float3(-1.0f, 0.0f, 0.0f));
+		box.m_texCoord1Data.push_back(math::float2(1.0f, 1.0f));
+
+		box.m_positionData.push_back(math::float4(+w2, -h2, -d2, 1.0f) * transform);
+		box.m_normalData.push_back(math::float3(0.0f, -1.0f, 0.0f));
+		box.m_tangentData.push_back(math::float3(-1.0f, 0.0f, 0.0f));
+		box.m_texCoord1Data.push_back(math::float2(0.0f, 1.0f));
+
+		box.m_positionData.push_back(math::float4(+w2, -h2, +d2, 1.0f) * transform);
+		box.m_normalData.push_back(math::float3(0.0f, -1.0f, 0.0f));
+		box.m_tangentData.push_back(math::float3(-1.0f, 0.0f, 0.0f));
+		box.m_texCoord1Data.push_back(math::float2(0.0f, 0.0f));
+
+		box.m_positionData.push_back(math::float4(-w2, -h2, +d2, 1.0f) * transform);
+		box.m_normalData.push_back(math::float3(0.0f, -1.0f, 0.0f));
+		box.m_tangentData.push_back(math::float3(-1.0f, 0.0f, 0.0f));
+		box.m_texCoord1Data.push_back(math::float2(1.0f, 0.0f));
+		//left face
+		box.m_positionData.push_back(math::float4(-w2, -h2, +d2, 1.0f) * transform);
+		box.m_normalData.push_back(math::float3(-1.0f, 0.0f, 0.0f));
+		box.m_tangentData.push_back(math::float3(0.0f, 0.0f, -1.0f));
+		box.m_texCoord1Data.push_back(math::float2(0.0f, 1.0f));
+
+		box.m_positionData.push_back(math::float4(-w2, +h2, +d2, 1.0f) * transform);
+		box.m_normalData.push_back(math::float3(-1.0f, 0.0f, 0.0f));
+		box.m_tangentData.push_back(math::float3(0.0f, 0.0f, -1.0f));
+		box.m_texCoord1Data.push_back(math::float2(0.0f, 0.0f));
+
+		box.m_positionData.push_back(math::float4(-w2, +h2, -d2, 1.0f) * transform);
+		box.m_normalData.push_back(math::float3(-1.0f, 0.0f, 0.0f));
+		box.m_tangentData.push_back(math::float3(0.0f, 0.0f, -1.0f));
+		box.m_texCoord1Data.push_back(math::float2(1.0f, 0.0f));
+
+		box.m_positionData.push_back(math::float4(-w2, -h2, -d2, 1.0f) * transform);
+		box.m_normalData.push_back(math::float3(-1.0f, 0.0f, 0.0f));
+		box.m_tangentData.push_back(math::float3(0.0f, 0.0f, -1.0f));
+		box.m_texCoord1Data.push_back(math::float2(1.0f, 1.0f));
+		//right face
+		box.m_positionData.push_back(math::float4(+w2, -h2, -d2, 1.0f) * transform);
+		box.m_normalData.push_back(math::float3(1.0f, 0.0f, 0.0f));
+		box.m_tangentData.push_back(math::float3(0.0f, 0.0f, 1.0f));
+		box.m_texCoord1Data.push_back(math::float2(0.0f, 1.0f));
+
+		box.m_positionData.push_back(math::float4(+w2, +h2, -d2, 1.0f) * transform);
+		box.m_normalData.push_back(math::float3(1.0f, 0.0f, 0.0f));
+		box.m_tangentData.push_back(math::float3(0.0f, 0.0f, 1.0f));
+		box.m_texCoord1Data.push_back(math::float2(0.0f, 0.0f));
+
+		box.m_positionData.push_back(math::float4(+w2, +h2, +d2, 1.0f) * transform);
+		box.m_normalData.push_back(math::float3(1.0f, 0.0f, 0.0f));
+		box.m_tangentData.push_back(math::float3(0.0f, 0.0f, 1.0f));
+		box.m_texCoord1Data.push_back(math::float2(1.0f, 0.0f));
+
+		box.m_positionData.push_back(math::float4(+w2, -h2, +d2, 1.0f) * transform);
+		box.m_normalData.push_back(math::float3(1.0f, 0.0f, 0.0f));
+		box.m_tangentData.push_back(math::float3(0.0f, 0.0f, 1.0f));
+		box.m_texCoord1Data.push_back(math::float2(1.0f, 1.0f));
+
+		//indices
+		box.m_indexData.resize(36);
+		//front
+		box.m_indexData[0] = 0;
+		box.m_indexData[1] = 1;
+		box.m_indexData[2] = 2;
+		box.m_indexData[3] = 0;
+		box.m_indexData[4] = 2;
+		box.m_indexData[5] = 3;
+		//back
+		box.m_indexData[6] = 4;
+		box.m_indexData[7] = 5;
+		box.m_indexData[8] = 6;
+		box.m_indexData[9] = 4;
+		box.m_indexData[10] = 6;
+		box.m_indexData[11] = 7;
+		//top
+		box.m_indexData[12] = 8;
+		box.m_indexData[13] = 9;
+		box.m_indexData[14] = 10;
+		box.m_indexData[15] = 8;
+		box.m_indexData[16] = 10;
+		box.m_indexData[17] = 11;
+		//bottom
+		box.m_indexData[18] = 12;
+		box.m_indexData[19] = 13;
+		box.m_indexData[20] = 14;
+		box.m_indexData[21] = 12;
+		box.m_indexData[22] = 14;
+		box.m_indexData[23] = 15;
+		//left
+		box.m_indexData[24] = 16;
+		box.m_indexData[25] = 17;
+		box.m_indexData[26] = 18;
+		box.m_indexData[27] = 16;
+		box.m_indexData[28] = 18;
+		box.m_indexData[29] = 19;
+		//right
+		box.m_indexData[30] = 20;
+		box.m_indexData[31] = 21;
+		box.m_indexData[32] = 22;
+		box.m_indexData[33] = 20;
+		box.m_indexData[34] = 22;
+		box.m_indexData[35] = 23;
+
+		//细分次数
+		numSubdivisions = std::min<uint32_t>(numSubdivisions, 6u);
+
+		for (uint32_t i = 0; i < numSubdivisions; ++i)
+			subdivide(box, numSubdivisions);
+
+		return box;
+	}
+
+	void GeometryHelper::midPoint(math::float3 position1, math::float3 position2, math::float3 tangent1, math::float3 tangent2, math::float3 normal1, math::float3 normal2, math::float2 texcoord1, math::float2 texcoord2, math::float3& midPosition, math::float3& midTangent, math::float3& midNormal, math::float2& midTexcoord)
+	{
+		midPosition = 0.5f * (position1 + position2);
+		midNormal = math::normalize(0.5f * (normal1 + normal2));
+		midTangent = math::normalize(0.5f * (tangent1 + tangent2));
+		midTexcoord = 0.5f * (tangent1 + tangent2);
+	}
+
 	GStaticMesh GeometryHelper::createToru(float R, float r, int32_t majorSegments, int32_t minorSegments, math::float4x4 transform)
 	{
 		GStaticMesh toru;

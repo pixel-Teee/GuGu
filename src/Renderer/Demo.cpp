@@ -1499,13 +1499,17 @@ namespace GuGu {
 				{
 					noScalingAffine = math::scaling(scaling) * math::translation(translation);
 				}		
+				else if (inViewportClient->getCurrentGizmosType() == ViewportClient::Scale)
+				{
+					noScalingAffine = math::scaling(scaling) * rotation.toAffine() * math::translation(translation);
+				}
 				modelConstants.worldMatrix = math::float4x4(math::affineToHomogeneous(noScalingAffine));
 				modelConstants.camWorldPos = inViewportClient->getCamPos();
 				//get the global matrix to fill constant buffer		
 				m_CommandList->writeBuffer(m_gizmosConstantBuffer, &modelConstants, sizeof(modelConstants));
 
 				GizmosPropertiesBuffer propertiesBuffer;
-				propertiesBuffer.color = inViewportClient->getGizmosColor(i).xyz();
+				propertiesBuffer.color = inViewportClient->getGizmosColor(gizmosRenderSort[index]).xyz();
 				m_CommandList->writeBuffer(m_gizmosPropertiesConstantBuffers[i], &propertiesBuffer, sizeof(propertiesBuffer));
 
 				gizmosGraphicsState.setPipeline(m_gizmosPipeline);

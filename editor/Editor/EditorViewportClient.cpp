@@ -91,7 +91,7 @@ namespace GuGu {
 		gizmos(fElapsedTimeSecond);
 
 		//save level
-		if (InputManager::getInputManager().isKeyDown(Keys::S)) //save level
+		if (InputManager::getInputManager().isKeyDown(Keys::S) && InputManager::getInputManager().isKeyDown(Keys::LeftControl)) //save level
 		{
 			InputManager::getInputManager().updateKeyboard(Keys::S, false);//立马释放掉
 			GuGuUtf8Str ouputDir = "content";
@@ -281,6 +281,11 @@ namespace GuGu {
 				m_gizmos = Gizmos::Rotation;
 				m_currentGizmos = m_rotateGizmos;
 			}
+			else if (InputManager::getInputManager().isKeyDown(Keys::S)) //缩放
+			{
+				m_gizmos = Gizmos::Scale;
+				m_currentGizmos = m_scaleGizmos;
+			}
 
 			//和gizmos先做碰撞检测
 			if (InputManager::getInputManager().isMouseDown(Keys::LeftMouseButton))
@@ -296,13 +301,13 @@ namespace GuGu {
 						math::quat rotation;
 						math::affine3 affine = math::affine3(m_pickedGameObject->getComponent<TransformComponent>()->GetLocalToWorldTransform());
 						math::decomposeAffine(affine, &translation, &rotation, &scaling);
-						math::affine3 noScalingNoRotationAffine;//gizmos 不需要缩放
+						math::affine3 noScalingAffine;//gizmos 不需要缩放
 						scaling = math::float3(getScreenScaleCompensation(translation)) * 100.0f;//新的缩放，根据屏幕高度来调整
-						noScalingNoRotationAffine = math::scaling(scaling) * math::translation(translation);
+						noScalingAffine = math::scaling(scaling) * rotation.toAffine() * math::translation(translation);
 
 						std::shared_ptr<GStaticMesh> gStaticMesh = Collision3D::pick(mousePosition.x, mousePosition.y, m_width, m_height,
 							getPespectiveMatrix(), getWorldToViewMatrix(),
-							m_currentGizmos, math::float4x4(math::affineToHomogeneous(noScalingNoRotationAffine)), m_debugDrawWorldPos);
+							m_currentGizmos, math::float4x4(math::affineToHomogeneous(noScalingAffine)), m_debugDrawWorldPos);
 
 						if (gStaticMesh) //点击到了
 						{
@@ -404,6 +409,65 @@ namespace GuGu {
 							}
 						}
 					}
+					else if (m_gizmos == Gizmos::Scale)
+					{
+						//scale
+						math::float3 translation;
+						math::float3 scaling;
+						math::quat rotation;
+						math::affine3 affine = math::affine3(m_pickedGameObject->getComponent<TransformComponent>()->GetLocalToWorldTransform());
+						math::decomposeAffine(affine, &translation, &rotation, &scaling);
+						math::affine3 noScalingAffine;//gizmos 不需要缩放
+						scaling = math::float3(getScreenScaleCompensation(translation)) * 100.0f;//新的缩放，根据屏幕高度来调整
+						noScalingAffine = math::scaling(scaling) * rotation.toAffine() * math::translation(translation);
+
+						std::shared_ptr<GStaticMesh> gStaticMesh = Collision3D::pick(mousePosition.x, mousePosition.y, m_width, m_height,
+							getPespectiveMatrix(), getWorldToViewMatrix(),
+							m_currentGizmos, math::float4x4(math::affineToHomogeneous(noScalingAffine)), m_debugDrawWorldPos);
+
+						if (gStaticMesh) //点击到了
+						{
+							//判断是选取了哪个轴
+							for (uint32_t i = 0; i < m_currentGizmos.size(); ++i)
+							{
+								if (m_currentGizmos[i] == gStaticMesh)
+								{
+									m_currentGizmosIndex = i;
+									m_currentMousePositionX = mousePosition.x;
+									m_currentMousePositionY = mousePosition.y;
+									if (m_gizmos == Gizmos::Scale)
+									{
+										math::float3 worldRayPos;
+										//math::float3 worldRayDir;
+										Collision3D::calculateRayOriginAndRayDir(m_width / 2.0f, m_height / 2.0f, m_width, m_height,
+											getPespectiveMatrix(), getWorldToViewMatrix(), worldRayPos, m_planeNormal);
+										//射线和经过物体原点的平面相交
+										Collision3D::intersectsWithPlane(worldRayPos, getForwardDirection(), m_planeNormal,
+											math::float3(m_pickedGameObject->getComponent<TransformComponent>()->getTranslation()), m_lastRayIntersectPoint);
+										m_pickedObjectDragStartWorldPosition = m_pickedGameObject->getComponent<TransformComponent>()->getTranslation();
+										if (m_currentGizmosIndex <= 1) //y
+										{
+											math::quat tmpQuat = math::quat(m_pickedGameObject->getComponent<TransformComponent>()->getRotation());
+											m_worldObjectAxis = math::normalize(math::applyQuat(tmpQuat, math::float3(0, 1, 0)));
+										}
+										else if (m_currentGizmosIndex <= 3) //x
+										{
+											math::quat tmpQuat = math::quat(m_pickedGameObject->getComponent<TransformComponent>()->getRotation());
+											m_worldObjectAxis = math::normalize(math::applyQuat(tmpQuat, math::float3(1, 0, 0)));
+										}
+										else if (m_currentGizmosIndex <= 5) //z
+										{
+											math::quat tmpQuat = math::quat(m_pickedGameObject->getComponent<TransformComponent>()->getRotation());
+											m_worldObjectAxis = math::normalize(math::applyQuat(tmpQuat, math::float3(0, 0, 1)));
+										}
+									}
+									m_bdragging = true;//开始拖动
+									//GuGu_LOGD("trigger dragging");
+									break;
+								}
+							}
+						}
+					}
 				}	
 			}
 			else
@@ -453,7 +517,7 @@ namespace GuGu {
 							float deltaTheta = theta - m_lastTheta;
 
 							m_lastTheta = theta;
-							GuGu_LOGD("变化幅度{%f}", deltaTheta);
+							//GuGu_LOGD("变化幅度{%f}", deltaTheta);
 							//转换成旋转
 							math::dquat rotation = m_pickedGameObject->getComponent<TransformComponent>()->getRotation();
 							math::dquat newrotation = rotation * math::rotationQuat(math::double3(0, deltaTheta * fElapsedTimeSecond * 100.0f, 0));//叠加在新的旋转上
@@ -528,6 +592,31 @@ namespace GuGu {
 						//}
 					}
 				}
+				else if (m_gizmos == Gizmos::Scale)
+				{
+					math::float2 mousePosition = InputManager::getInputManager().getMousePosition();
+					math::float3 worldRayPos;
+					math::float3 worldRayDir;
+					Collision3D::calculateRayOriginAndRayDir(mousePosition.x, mousePosition.y, m_width, m_height,
+						getPespectiveMatrix(), getWorldToViewMatrix(), worldRayPos, worldRayDir);
+					math::float3 intersectPos;
+					if (Collision3D::intersectsWithPlane(worldRayPos, worldRayDir, m_planeNormal,
+						math::float3(m_pickedObjectDragStartWorldPosition), intersectPos))
+					{				
+						math::float3 delta = intersectPos - m_lastRayIntersectPoint;
+						m_lastRayIntersectPoint = intersectPos;
+						float projection = math::dot(delta, m_worldObjectAxis);
+						//GuGu_LOGD("%f\n", projection);
+						math::float3 movement = projection * m_worldObjectAxis * m_distance * fElapsedTimeSecond * 10.0f;
+						math::double3 scaling = m_pickedGameObject->getComponent<TransformComponent>()->getScaling();
+						scaling = scaling + math::double3(movement);
+						//if (scaling.x > 0.1f || scaling.y > 0.1f || scaling.z > 0.1f)
+						//{
+						//	GuGu_LOGD("new scaling {%f, %f, %f}", scaling.x, scaling.y, scaling.z);
+						//}			
+						m_pickedGameObject->getComponent<TransformComponent>()->SetScaling(scaling);
+					}
+				}
 			}
 		}
 
@@ -557,6 +646,8 @@ namespace GuGu {
 			return m_moveGizmos;
 		else if (m_gizmos == Gizmos::Rotation)
 			return m_rotateGizmos;
+		else if (m_gizmos == Gizmos::Scale)
+			return m_scaleGizmos;
 		return m_moveGizmos;
 	}
 	std::vector<std::shared_ptr<GStaticMesh>>& EditorViewportClient::getGizmos()
@@ -565,6 +656,8 @@ namespace GuGu {
 			return m_moveGizmos;
 		else if (m_gizmos == Gizmos::Rotation)
 			return m_rotateGizmos;
+		else if (m_gizmos == Gizmos::Scale)
+			return m_scaleGizmos;
 		return m_moveGizmos;
 	}
 	math::float4 EditorViewportClient::getGizmosColor(uint32_t index) const 
@@ -583,6 +676,15 @@ namespace GuGu {
 			if (index <= 0)
 				return math::float4(0.0f, 1.0f, 0.0f, 1.0f);
 			else if (index <= 1)
+				return math::float4(1.0f, 0.0f, 0.0f, 1.0f);
+			else
+				return math::float4(0.0f, 0.0f, 1.0f, 1.0f);
+		}
+		if (m_gizmos == Gizmos::Scale)
+		{
+			if (index <= 1)
+				return math::float4(0.0f, 1.0f, 0.0f, 1.0f);
+			else if (index <= 3)
 				return math::float4(1.0f, 0.0f, 0.0f, 1.0f);
 			else
 				return math::float4(0.0f, 0.0f, 1.0f, 1.0f);
@@ -647,6 +749,19 @@ namespace GuGu {
 		{
 			return { 0, 1, 2 };//0, 1, 2
 		}
+		else if (m_gizmos == Gizmos::Scale)
+		{
+			std::vector<uint32_t> gizmosRenderSort = { 0, 1, 2, 3, 4, 5 };
+			std::sort(gizmosRenderSort.begin(), gizmosRenderSort.end(), [&](const uint32_t& lhs, const uint32_t& rhs) {
+				math::float3 pos1 = m_scaleGizmoPos[lhs];
+				math::float3 pos2 = m_scaleGizmoPos[rhs];
+				math::float3 camPos = getCamPos();
+				float distance = (camPos.x - pos1.x) * (camPos.x - pos1.x) + (camPos.y - pos1.y) * (camPos.y - pos1.y) + (camPos.z - pos1.z) * (camPos.z - pos1.z);
+				float distance2 = (camPos.x - pos2.x) * (camPos.x - pos2.x) + (camPos.y - pos2.y) * (camPos.y - pos2.y) + (camPos.z - pos2.z) * (camPos.z - pos2.z);
+				return distance < distance2;
+			});
+			return gizmosRenderSort;
+		}
 
 		return std::vector<uint32_t>();
 	}
@@ -683,8 +798,6 @@ namespace GuGu {
 
 	void EditorViewportClient::makeGizmos()
 	{
-		//移动轴
-		m_moveGizmoPos.resize(6);
 		//绿色
 		GStaticMesh gstaticMesh = GeometryHelper::createCylinder(0.2f, 0.05f, 0.2f, 16, 4, math::affineToHomogeneous(math::translation(math::float3(0.0f, 0.7f, 0.0f))));//轴头
 		m_moveGizmos.push_back(std::shared_ptr<GStaticMesh>(static_cast<GStaticMesh*>(gstaticMesh.Clone())));//垂直于xy平面
@@ -711,7 +824,6 @@ namespace GuGu {
 
 		//旋转轴
 		//绿色，绕y轴旋转
-		m_rotateGizmoPos.resize(3);
 		gstaticMesh = GeometryHelper::createToru(1.0f, 0.015f, 16, 16);
 		m_rotateGizmos.push_back(std::shared_ptr<GStaticMesh>(static_cast<GStaticMesh*>(gstaticMesh.Clone())));
 
@@ -722,6 +834,30 @@ namespace GuGu {
 		//蓝色，绕z轴旋转
 		gstaticMesh = GeometryHelper::createToru(1.0f, 0.015f, 16, 16, math::affineToHomogeneous(math::rotation(math::float3(1, 0, 0), math::radians(90.0f))));
 		m_rotateGizmos.push_back(std::shared_ptr<GStaticMesh>(static_cast<GStaticMesh*>(gstaticMesh.Clone())));
+
+		//绿色，沿着y轴缩放
+		gstaticMesh = GeometryHelper::createCylinder(0.015f, 0.015f, 0.6f, 16, 4, math::affineToHomogeneous(math::translation(math::float3(0.0f, 0.3f, 0.0f))));//圆柱
+		m_scaleGizmos.push_back(std::shared_ptr<GStaticMesh>(static_cast<GStaticMesh*>(gstaticMesh.Clone())));
+		gstaticMesh = GeometryHelper::createBox(0.2f, 0.2f, 0.2f, 0, math::affineToHomogeneous(math::translation(math::float3(0.0f, 0.7f, 0.0f))));//方块
+		m_scaleGizmos.push_back(std::shared_ptr<GStaticMesh>(static_cast<GStaticMesh*>(gstaticMesh.Clone())));
+		m_scaleGizmoPos.push_back(math::float4(0.0f, 0.0f, 0.0f, 1.0f) * math::affineToHomogeneous(math::translation(math::float3(0.0f, 0.5f, 0.0f))));
+		m_scaleGizmoPos.push_back(math::float4(0.0f, 0.0f, 0.0f, 1.0f) * math::affineToHomogeneous(math::translation(math::float3(0.0f, 0.2f, 0.0f))));
+
+		//红色，沿着x轴缩放
+		gstaticMesh = GeometryHelper::createCylinder(0.015f, 0.015f, 0.6f, 16, 4, math::affineToHomogeneous(math::translation(math::float3(0.0f, 0.3f, 0.0f)) * math::rotation(math::float3(0, 0, 1), math::radians(90.0f))));//圆柱
+		m_scaleGizmos.push_back(std::shared_ptr<GStaticMesh>(static_cast<GStaticMesh*>(gstaticMesh.Clone())));
+		gstaticMesh = GeometryHelper::createBox(0.2f, 0.2f, 0.2f, 0, math::affineToHomogeneous(math::translation(math::float3(0.0f, 0.7f, 0.0f)) * math::rotation(math::float3(0, 0, 1), math::radians(90.0f))));//方块
+		m_scaleGizmos.push_back(std::shared_ptr<GStaticMesh>(static_cast<GStaticMesh*>(gstaticMesh.Clone())));
+		m_scaleGizmoPos.push_back(math::float4(0.0f, 0.0f, 0.0f, 1.0f) * math::affineToHomogeneous(math::translation(math::float3(0.0f, 0.5f, 0.0f)) * math::rotation(math::float3(0, 0, 1), math::radians(90.0f))));
+		m_scaleGizmoPos.push_back(math::float4(0.0f, 0.0f, 0.0f, 1.0f) * math::affineToHomogeneous(math::translation(math::float3(0.0f, 0.2f, 0.0f)) * math::rotation(math::float3(0, 0, 1), math::radians(90.0f))));
+
+		//蓝色，沿着z轴缩放
+		gstaticMesh = GeometryHelper::createCylinder(0.015f, 0.015f, 0.6f, 16, 4, math::affineToHomogeneous(math::translation(math::float3(0.0f, 0.3f, 0.0f)) * math::rotation(math::float3(1, 0, 0), math::radians(90.0f))));//圆柱
+		m_scaleGizmos.push_back(std::shared_ptr<GStaticMesh>(static_cast<GStaticMesh*>(gstaticMesh.Clone())));
+		gstaticMesh = GeometryHelper::createBox(0.2f, 0.2f, 0.2f, 0, math::affineToHomogeneous(math::translation(math::float3(0.0f, 0.7f, 0.0f)) * math::rotation(math::float3(1, 0, 0), math::radians(90.0f))));//方块
+		m_scaleGizmos.push_back(std::shared_ptr<GStaticMesh>(static_cast<GStaticMesh*>(gstaticMesh.Clone())));
+		m_scaleGizmoPos.push_back(math::float4(0.0f, 0.0f, 0.0f, 1.0f) * math::affineToHomogeneous(math::translation(math::float3(0.0f, 0.5f, 0.0f)) * math::rotation(math::float3(1, 0, 0), math::radians(90.0f))));
+		m_scaleGizmoPos.push_back(math::float4(0.0f, 0.0f, 0.0f, 1.0f) * math::affineToHomogeneous(math::translation(math::float3(0.0f, 0.2f, 0.0f)) * math::rotation(math::float3(1, 0, 0), math::radians(90.0f))));
 
 		m_currentGizmos = m_moveGizmos;
 	}
