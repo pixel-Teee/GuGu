@@ -84,6 +84,8 @@ namespace GuGu {
 		void setViewportState(ViewportState state) override;
 
 		virtual float getScreenScaleCompensation(math::float3 objWorldPos) const override;
+
+		Gizmos getCurrentGizmosType() const override;
 	private:
 		std::weak_ptr<ViewportWidget> m_viewportWidget;
 

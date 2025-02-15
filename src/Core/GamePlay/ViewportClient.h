@@ -15,6 +15,13 @@ namespace GuGu {
 			Editor,
 			Runtime
 		};
+
+		enum Gizmos
+		{
+			Move,
+			Rotation,
+			Scale
+		};
 		ViewportClient();
 
 		virtual ~ViewportClient();
@@ -66,5 +73,7 @@ namespace GuGu {
 		virtual std::vector<uint32_t> getGizmosRenderSort() const = 0;
 
 		virtual float getScreenScaleCompensation(math::float3 objWorldPos) const = 0;
+
+		virtual Gizmos getCurrentGizmosType() const = 0;
 	};
 }

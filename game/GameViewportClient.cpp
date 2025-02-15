@@ -122,6 +122,11 @@ namespace GuGu {
 		return 0;
 	}
 
+	GuGu::ViewportClient::Gizmos GameViewportClient::getCurrentGizmosType() const
+	{
+		return Gizmos::Move;
+	}
+
 	GuGu::math::float4x4 GameViewportClient::getWorldToViewMatrix() const
 	{
 		throw std::logic_error("The method or operation is not implemented.");

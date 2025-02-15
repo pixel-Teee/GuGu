@@ -289,55 +289,118 @@ namespace GuGu {
 			
 				if (!m_bdragging)
 				{
-					math::float3 translation;
-					math::float3 scaling;
-					math::quat rotation;
-					math::affine3 affine = math::affine3(m_pickedGameObject->getComponent<TransformComponent>()->GetLocalToWorldTransform());
-					math::decomposeAffine(affine, &translation, &rotation, &scaling);
-					math::affine3 noScalingAffine;//gizmos 不需要缩放
-					scaling = math::float3(getScreenScaleCompensation(translation)) * 100.0f;
-					noScalingAffine = math::scaling(scaling) * rotation.toAffine() * math::translation(translation);
-
-					std::shared_ptr<GStaticMesh> gStaticMesh = Collision3D::pick(mousePosition.x, mousePosition.y, m_width, m_height,
-						getPespectiveMatrix(), getWorldToViewMatrix(),
-						m_currentGizmos, math::float4x4(math::affineToHomogeneous(noScalingAffine)), m_debugDrawWorldPos);
-					GuGu_LOGD("click gizmos");
-					if (gStaticMesh)
+					if (m_gizmos == Gizmos::Move)
 					{
-						//判断是选取了哪个轴
-						for (uint32_t i = 0; i < m_currentGizmos.size(); ++i)
+						math::float3 translation;
+						math::float3 scaling;
+						math::quat rotation;
+						math::affine3 affine = math::affine3(m_pickedGameObject->getComponent<TransformComponent>()->GetLocalToWorldTransform());
+						math::decomposeAffine(affine, &translation, &rotation, &scaling);
+						math::affine3 noScalingNoRotationAffine;//gizmos 不需要缩放
+						scaling = math::float3(getScreenScaleCompensation(translation)) * 100.0f;//新的缩放，根据屏幕高度来调整
+						noScalingNoRotationAffine = math::scaling(scaling) * math::translation(translation);
+
+						std::shared_ptr<GStaticMesh> gStaticMesh = Collision3D::pick(mousePosition.x, mousePosition.y, m_width, m_height,
+							getPespectiveMatrix(), getWorldToViewMatrix(),
+							m_currentGizmos, math::float4x4(math::affineToHomogeneous(noScalingNoRotationAffine)), m_debugDrawWorldPos);
+
+						if (gStaticMesh) //点击到了
 						{
-							if (m_currentGizmos[i] == gStaticMesh)
+							//判断是选取了哪个轴
+							for (uint32_t i = 0; i < m_currentGizmos.size(); ++i)
 							{
-								m_currentGizmosIndex = i;
-								m_currentMousePositionX = mousePosition.x;
-								m_currentMousePositionY = mousePosition.y;
-								math::float3 worldRayPos;
-								//math::float3 worldRayDir;
-								Collision3D::calculateRayOriginAndRayDir(m_width / 2.0f, m_height / 2.0f, m_width, m_height,
-									getPespectiveMatrix(), getWorldToViewMatrix(), worldRayPos, m_planeNormal);
-								//射线和经过物体原点的平面相交
-								Collision3D::intersectsWithPlane(worldRayPos, m_planeNormal, m_planeNormal,
-									math::float3(m_pickedGameObject->getComponent<TransformComponent>()->getTranslation()), m_lastRayIntersectPoint);
-								m_pickedObjectDragStartWorldPosition = m_pickedGameObject->getComponent<TransformComponent>()->getTranslation();
-								if (m_currentGizmosIndex <= 1) //y
+								if (m_currentGizmos[i] == gStaticMesh)
 								{
-									math::quat tmpQuat = math::quat(m_pickedGameObject->getComponent<TransformComponent>()->getRotation());
-									m_worldObjectAxis = math::normalize(math::applyQuat(tmpQuat, math::float3(0, 1, 0)));
+									m_currentGizmosIndex = i;
+									m_currentMousePositionX = mousePosition.x;
+									m_currentMousePositionY = mousePosition.y;
+									if (m_gizmos == Gizmos::Move)
+									{
+										math::float3 worldRayPos;
+										//math::float3 worldRayDir;
+										Collision3D::calculateRayOriginAndRayDir(m_width / 2.0f, m_height / 2.0f, m_width, m_height,
+											getPespectiveMatrix(), getWorldToViewMatrix(), worldRayPos, m_planeNormal);
+										//射线和经过物体原点的平面相交
+										Collision3D::intersectsWithPlane(worldRayPos, getForwardDirection(), m_planeNormal,
+											math::float3(m_pickedGameObject->getComponent<TransformComponent>()->getTranslation()), m_lastRayIntersectPoint);
+										m_pickedObjectDragStartWorldPosition = m_pickedGameObject->getComponent<TransformComponent>()->getTranslation();
+										if (m_currentGizmosIndex <= 1) //y
+										{
+											math::quat tmpQuat = math::quat(m_pickedGameObject->getComponent<TransformComponent>()->getRotation());
+											m_worldObjectAxis = math::normalize(math::applyQuat(tmpQuat, math::float3(0, 1, 0)));
+										}
+										else if (m_currentGizmosIndex <= 3) //x
+										{
+											math::quat tmpQuat = math::quat(m_pickedGameObject->getComponent<TransformComponent>()->getRotation());
+											m_worldObjectAxis = math::normalize(math::applyQuat(tmpQuat, math::float3(1, 0, 0)));
+										}
+										else if (m_currentGizmosIndex <= 5) //z
+										{
+											math::quat tmpQuat = math::quat(m_pickedGameObject->getComponent<TransformComponent>()->getRotation());
+											m_worldObjectAxis = math::normalize(math::applyQuat(tmpQuat, math::float3(0, 0, 1)));
+										}
+									}
+									m_bdragging = true;//开始拖动
+									//GuGu_LOGD("trigger dragging");
+									break;
 								}
-								else if (m_currentGizmosIndex <= 3) //x
+							}
+						}
+					}				
+					else if (m_gizmos == Gizmos::Rotation)
+					{
+						math::float3 translation;
+						math::float3 scaling;
+						math::quat rotation;
+						math::affine3 affine = math::affine3(m_pickedGameObject->getComponent<TransformComponent>()->GetLocalToWorldTransform());
+						math::decomposeAffine(affine, &translation, &rotation, &scaling);
+						math::affine3 noScalingNoRotationAffine;//gizmos 不需要缩放
+						scaling = math::float3(getScreenScaleCompensation(translation)) * 100.0f;//新的缩放，根据屏幕高度来调整
+						noScalingNoRotationAffine = math::scaling(scaling) * math::translation(translation);
+
+						std::shared_ptr<GStaticMesh> gStaticMesh = Collision3D::pick(mousePosition.x, mousePosition.y, m_width, m_height,
+							getPespectiveMatrix(), getWorldToViewMatrix(),
+							m_currentGizmos, math::float4x4(math::affineToHomogeneous(noScalingNoRotationAffine)), m_debugDrawWorldPos);
+
+						if (gStaticMesh) //点击到了
+						{
+							//判断是选取了哪个轴
+							for (uint32_t i = 0; i < m_currentGizmos.size(); ++i)
+							{
+								if (m_currentGizmos[i] == gStaticMesh)
 								{
-									math::quat tmpQuat = math::quat(m_pickedGameObject->getComponent<TransformComponent>()->getRotation());
-									m_worldObjectAxis = math::normalize(math::applyQuat(tmpQuat, math::float3(1, 0, 0)));
+									m_currentGizmosIndex = i;
+									m_currentMousePositionX = mousePosition.x;
+									m_currentMousePositionY = mousePosition.y;
+
+									math::float3 worldRayPos;
+									math::float3 worldRayNormal;
+									//math::float3 worldRayDir;
+									Collision3D::calculateRayOriginAndRayDir(mousePosition.x, mousePosition.y, m_width, m_height,
+										getPespectiveMatrix(), getWorldToViewMatrix(), worldRayPos, worldRayNormal);
+									//射线和x环对应的yz平面相交，或者y环对应的xz平面相交，或者z环对应的xy平面
+									if (i == 0) //绿色，绕y轴旋转
+									{
+										Collision3D::intersectsWithPlane(worldRayPos, worldRayNormal, math::float3(0, 1, 0),
+											math::float3(m_pickedGameObject->getComponent<TransformComponent>()->getTranslation()), m_lastRayIntersectPoint);
+										m_lastTheta = std::atan2f(m_lastRayIntersectPoint.z, m_lastRayIntersectPoint.x);
+									}
+									else if (i == 1) //红色，绕x轴旋转
+									{
+										Collision3D::intersectsWithPlane(worldRayPos, worldRayNormal, math::float3(1, 0, 0),
+											math::float3(m_pickedGameObject->getComponent<TransformComponent>()->getTranslation()), m_lastRayIntersectPoint);
+										m_lastTheta = std::atan2f(m_lastRayIntersectPoint.z, m_lastRayIntersectPoint.y);
+									}
+									else if (i == 3) //蓝色，绕z轴旋转
+									{
+										Collision3D::intersectsWithPlane(worldRayPos, worldRayNormal, math::float3(0, 0, 1),
+											math::float3(m_pickedGameObject->getComponent<TransformComponent>()->getTranslation()), m_lastRayIntersectPoint);
+										m_lastTheta = std::atan2f(m_lastRayIntersectPoint.y, m_lastRayIntersectPoint.x);
+									}			
+									m_bdragging = true;//开始拖动
+									//GuGu_LOGD("trigger dragging");
+									break;
 								}
-								else if (m_currentGizmosIndex <= 5) //z
-								{
-									math::quat tmpQuat = math::quat(m_pickedGameObject->getComponent<TransformComponent>()->getRotation());
-									m_worldObjectAxis = math::normalize(math::applyQuat(tmpQuat, math::float3(0, 0, 1)));
-								}
-								m_bdragging = true;//开始拖动
-								//GuGu_LOGD("trigger dragging");
-								break;
 							}
 						}
 					}
@@ -369,43 +432,100 @@ namespace GuGu {
 						translation = translation + math::double3(movement);
 						m_pickedGameObject->getComponent<TransformComponent>()->SetTranslation(translation);
 					}
-					//else
-					//{
-					//	GuGu_LOGD("no intersect");
-					//}
 				}
 				else if (m_gizmos == Gizmos::Rotation)
 				{
-					math::float2 mouseDelta = InputManager::getInputManager().getMouseDelta();
-					if (m_currentGizmosIndex <= 1) //y
+					math::float2 mousePosition = InputManager::getInputManager().getMousePosition();
+					if (m_currentGizmosIndex <= 0) //y
 					{
-						if (mouseDelta.y != 0)
+						math::float3 worldRayPos;
+						math::float3 worldRayNormal;
+						//math::float3 worldRayDir;
+						Collision3D::calculateRayOriginAndRayDir(mousePosition.x, mousePosition.y, m_width, m_height,
+							getPespectiveMatrix(), getWorldToViewMatrix(), worldRayPos, worldRayNormal);
+
+						math::float3 intersectPos;
+						if (Collision3D::intersectsWithPlane(worldRayPos, worldRayNormal, math::float3(0, 1, 0),
+							math::float3(m_pickedGameObject->getComponent<TransformComponent>()->getTranslation()), intersectPos))
 						{
+							float theta = std::atan2f(intersectPos.z, intersectPos.x);
+
+							float deltaTheta = theta - m_lastTheta;
+
+							m_lastTheta = theta;
+							GuGu_LOGD("变化幅度{%f}", deltaTheta);
+							//转换成旋转
 							math::dquat rotation = m_pickedGameObject->getComponent<TransformComponent>()->getRotation();
-							//translation[1] += -mouseDelta.y * fElapsedTimeSecond * 0.2;
-							math::dquat newrotation = rotation * math::rotationQuat(math::double3(0.0f, mouseDelta.x * fElapsedTimeSecond * 0.2, 0.0f));
+							math::dquat newrotation = rotation * math::rotationQuat(math::double3(0, deltaTheta * fElapsedTimeSecond * 100.0f, 0));//叠加在新的旋转上
 							m_pickedGameObject->getComponent<TransformComponent>()->SetRotation(newrotation);
 						}
+						//if (mouseDelta.y != 0)
+						//{
+						//	math::dquat rotation = m_pickedGameObject->getComponent<TransformComponent>()->getRotation();
+						//	//translation[1] += -mouseDelta.y * fElapsedTimeSecond * 0.2;
+						//	math::dquat newrotation = rotation * math::rotationQuat(math::double3(0.0f, mouseDelta.x * fElapsedTimeSecond * 0.2, 0.0f));
+						//	m_pickedGameObject->getComponent<TransformComponent>()->SetRotation(newrotation);
+						//}
 					}
-					else if (m_currentGizmosIndex <= 3) //x
+					else if (m_currentGizmosIndex <= 1) //x
 					{
-						if (mouseDelta.x != 0)
+						math::float3 worldRayPos;
+						math::float3 worldRayNormal;
+						//math::float3 worldRayDir;
+						Collision3D::calculateRayOriginAndRayDir(mousePosition.x, mousePosition.y, m_width, m_height,
+							getPespectiveMatrix(), getWorldToViewMatrix(), worldRayPos, worldRayNormal);
+
+						math::float3 intersectPos;
+						if (Collision3D::intersectsWithPlane(worldRayPos, worldRayNormal, math::float3(1, 0, 0),
+							math::float3(m_pickedGameObject->getComponent<TransformComponent>()->getTranslation()), intersectPos))
 						{
+							float theta = std::atan2f(intersectPos.z, intersectPos.y);
+
+							float deltaTheta = theta - m_lastTheta;
+							//GuGu_LOGD("绕x轴旋转{%f}", deltaTheta);
+							m_lastTheta = theta;
+							//转换成旋转
 							math::dquat rotation = m_pickedGameObject->getComponent<TransformComponent>()->getRotation();
-							//translation[1] += -mouseDelta.y * fElapsedTimeSecond * 0.2;
-							math::dquat newrotation = rotation * math::rotationQuat(math::double3(mouseDelta.y * fElapsedTimeSecond * 0.2, 0.0f, 0.0f));
+							math::dquat newrotation = rotation * math::rotationQuat(math::double3(deltaTheta * fElapsedTimeSecond * 100.0f, 0, 0));//叠加在新的旋转上
 							m_pickedGameObject->getComponent<TransformComponent>()->SetRotation(newrotation);
 						}
+						//if (mouseDelta.x != 0)
+						//{
+						//	math::dquat rotation = m_pickedGameObject->getComponent<TransformComponent>()->getRotation();
+						//	//translation[1] += -mouseDelta.y * fElapsedTimeSecond * 0.2;
+						//	math::dquat newrotation = rotation * math::rotationQuat(math::double3(mouseDelta.y * fElapsedTimeSecond * 0.2, 0.0f, 0.0f));
+						//	m_pickedGameObject->getComponent<TransformComponent>()->SetRotation(newrotation);
+						//}
 					}
-					else if (m_currentGizmosIndex <= 5) //z
+					else if (m_currentGizmosIndex <= 2) //z
 					{
-						if (mouseDelta.x != 0)
+						math::float3 worldRayPos;
+						math::float3 worldRayNormal;
+						//math::float3 worldRayDir;
+						Collision3D::calculateRayOriginAndRayDir(mousePosition.x, mousePosition.y, m_width, m_height,
+							getPespectiveMatrix(), getWorldToViewMatrix(), worldRayPos, worldRayNormal);
+
+						math::float3 intersectPos;
+						if (Collision3D::intersectsWithPlane(worldRayPos, worldRayNormal, math::float3(0, 0, 1),
+							math::float3(m_pickedGameObject->getComponent<TransformComponent>()->getTranslation()), intersectPos))
 						{
+							float theta = std::atan2f(intersectPos.y, intersectPos.x);
+
+							float deltaTheta = theta - m_lastTheta;
+							//GuGu_LOGD("绕z轴旋转{%f}", deltaTheta);
+							m_lastTheta = theta;
+							//转换成旋转
 							math::dquat rotation = m_pickedGameObject->getComponent<TransformComponent>()->getRotation();
-							//translation[1] += -mouseDelta.y * fElapsedTimeSecond * 0.2;
-							math::dquat newrotation = rotation * math::rotationQuat(math::double3(0.0f, 0.0f, mouseDelta.y * fElapsedTimeSecond * 0.2));
+							math::dquat newrotation = rotation * math::rotationQuat(math::double3(0, 0, deltaTheta * fElapsedTimeSecond * 100.0f));//叠加在新的旋转上
 							m_pickedGameObject->getComponent<TransformComponent>()->SetRotation(newrotation);
 						}
+						//if (mouseDelta.x != 0)
+						//{
+						//	math::dquat rotation = m_pickedGameObject->getComponent<TransformComponent>()->getRotation();
+						//	//translation[1] += -mouseDelta.y * fElapsedTimeSecond * 0.2;
+						//	math::dquat newrotation = rotation * math::rotationQuat(math::double3(0.0f, 0.0f, mouseDelta.y * fElapsedTimeSecond * 0.2));
+						//	m_pickedGameObject->getComponent<TransformComponent>()->SetRotation(newrotation);
+						//}
 					}
 				}
 			}
@@ -556,6 +676,11 @@ namespace GuGu {
 		return distance * std::tanf(math::radians(m_fov) * 0.5f) / m_height;
 	}
 
+	ViewportClient::Gizmos EditorViewportClient::getCurrentGizmosType() const
+	{
+		return m_gizmos;
+	}
+
 	void EditorViewportClient::makeGizmos()
 	{
 		//移动轴
@@ -586,7 +711,7 @@ namespace GuGu {
 
 		//旋转轴
 		//绿色，绕y轴旋转
-		m_rotateGizmoPos.resize(6);
+		m_rotateGizmoPos.resize(3);
 		gstaticMesh = GeometryHelper::createToru(1.0f, 0.015f, 16, 16);
 		m_rotateGizmos.push_back(std::shared_ptr<GStaticMesh>(static_cast<GStaticMesh*>(gstaticMesh.Clone())));
 

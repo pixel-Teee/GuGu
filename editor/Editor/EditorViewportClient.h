@@ -87,6 +87,8 @@ namespace GuGu {
 		virtual void setViewportState(ViewportState state) override;
 
 		virtual float getScreenScaleCompensation(math::float3 objWorldPos) const override;
+
+		virtual Gizmos getCurrentGizmosType() const override;
 	private:
 		void makeGizmos();
 
@@ -123,13 +125,6 @@ namespace GuGu {
 		bool m_bShowGizmos;
 		std::shared_ptr<GameObject> m_pickedGameObject;
 
-		enum Gizmos
-		{
-			Move,
-			Rotation,
-			Scale
-		};
-
 		Gizmos m_gizmos = Gizmos::Move;
 		std::vector<std::shared_ptr<GStaticMesh>> m_currentGizmos;
 		std::vector<std::shared_ptr<GStaticMesh>> m_moveGizmos;
@@ -145,6 +140,7 @@ namespace GuGu {
 		std::vector<std::shared_ptr<GStaticMesh>> m_rotateGizmos;
 		std::vector<math::float3> m_rotateGizmoPos;
 		uint32_t m_currentRotateGizmosIndex = 0;
+		float m_lastTheta = 0;
 
 		math::float4 m_debugDrawWorldPos = math::float4(1.0f);
 
