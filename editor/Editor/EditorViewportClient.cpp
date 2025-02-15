@@ -419,7 +419,7 @@ namespace GuGu {
 						math::decomposeAffine(affine, &translation, &rotation, &scaling);
 						math::affine3 noScalingAffine;//gizmos 不需要缩放
 						scaling = math::float3(getScreenScaleCompensation(translation)) * 100.0f;//新的缩放，根据屏幕高度来调整
-						noScalingAffine = math::scaling(scaling) * rotation.toAffine() * math::translation(translation);
+						noScalingAffine = math::scaling(scaling) * math::affine3(m_pickedGameObject->getComponent<TransformComponent>()->getRotation().toAffine()) * math::translation(translation);
 
 						std::shared_ptr<GStaticMesh> gStaticMesh = Collision3D::pick(mousePosition.x, mousePosition.y, m_width, m_height,
 							getPespectiveMatrix(), getWorldToViewMatrix(),
@@ -600,16 +600,41 @@ namespace GuGu {
 					Collision3D::calculateRayOriginAndRayDir(mousePosition.x, mousePosition.y, m_width, m_height,
 						getPespectiveMatrix(), getWorldToViewMatrix(), worldRayPos, worldRayDir);
 					math::float3 intersectPos;
+					//---test---
+					//math::float3 translation;
+					//math::float3 scaling;
+					//math::quat rotation;
+					//math::affine3 affine = math::affine3(m_pickedGameObject->getComponent<TransformComponent>()->GetLocalToWorldTransform());
+					//math::decomposeAffine(affine, &translation, &rotation, &scaling);
+					//GuGu_LOGD("{x:%f, y:%f, z:%f, w:%f}", rotation.x, rotation.y, rotation.z, rotation.w);
+					//---test---
 					if (Collision3D::intersectsWithPlane(worldRayPos, worldRayDir, m_planeNormal,
 						math::float3(m_pickedObjectDragStartWorldPosition), intersectPos))
 					{				
 						math::float3 delta = intersectPos - m_lastRayIntersectPoint;
 						m_lastRayIntersectPoint = intersectPos;
 						float projection = math::dot(delta, m_worldObjectAxis);
-						//GuGu_LOGD("%f\n", projection);
-						math::float3 movement = projection * m_worldObjectAxis * m_distance * fElapsedTimeSecond * 10.0f;
+						
+						float scaleFactor = 1.0f + projection * fElapsedTimeSecond * 20.0f;
 						math::double3 scaling = m_pickedGameObject->getComponent<TransformComponent>()->getScaling();
-						scaling = scaling + math::double3(movement);
+						if (m_currentGizmosIndex <= 1)
+						{
+							//GuGu_LOGD("y\n");
+							//GuGu_LOGD("%f\n", projection);
+							scaling.y *= scaleFactor;
+						}
+						else if (m_currentGizmosIndex <= 3)
+						{
+							//GuGu_LOGD("x\n");
+							//GuGu_LOGD("%f\n", projection);
+							scaling.x *= scaleFactor;
+						}
+						else if (m_currentGizmosIndex <= 5)
+						{
+							//GuGu_LOGD("z\n");
+							//GuGu_LOGD("%f\n", projection);
+							scaling.z *= scaleFactor;
+						}
 						//if (scaling.x > 0.1f || scaling.y > 0.1f || scaling.z > 0.1f)
 						//{
 						//	GuGu_LOGD("new scaling {%f, %f, %f}", scaling.x, scaling.y, scaling.z);
