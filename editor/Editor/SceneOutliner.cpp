@@ -4,4 +4,9 @@
 
 namespace GuGu {
 
+	void SceneOutliner::init(const BuilderArguments& arguments)
+	{
+		
+	}
+
 }

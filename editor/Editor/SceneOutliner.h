@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ISceneOutliner.h"
+#include <Core/UI/UIMacros.h>
 
 namespace GuGu {
 	class SceneOutliner : public ISceneOutliner
@@ -9,6 +10,16 @@ namespace GuGu {
 		SceneOutliner() {}
 
 		virtual ~SceneOutliner() {}
+
+		struct BuilderArguments : public Arguments<SceneOutliner>
+		{
+			BuilderArguments() {}
+
+			~BuilderArguments() = default;
+		};
+
+		void init(const BuilderArguments& arguments);
+
 	private:
 
 	};
