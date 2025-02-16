@@ -525,6 +525,10 @@ namespace GuGu {
 		for (uint32_t i = 0; i < numSubdivisions; ++i)
 			subdivide(box, numSubdivisions);
 
+		box.m_totalIndices = box.m_indexData.size();
+		box.m_totalVertices = box.m_positionData.size();
+		box.m_objectSpaceBounds = dm::box3(box.m_positionData.size(), box.m_positionData.data());
+
 		return box;
 	}
 
