@@ -119,34 +119,37 @@ namespace GuGu {
 
 			PlatformMisc::getSaveFilePathAndFileName(rootWindow, initDir, filePath, fileName, filterArray);
 
-			//get current level
-			std::shared_ptr<Level> currentLevel = World::getWorld()->getCurrentLevel();
-			nlohmann::json levelJson = AssetManager::getAssetManager().serializeJson(currentLevel);
-			GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
-
-			levelJson["GUID"] = guidStr.getStr();
-			GuGuUtf8Str fileContent = levelJson.dump();
-
-			GuGuUtf8Str noFileExtensionsFileName = fileName;
-			int32_t dotPos = noFileExtensionsFileName.findLastOf(".");
-			if (dotPos != -1)
+			if (fileName != "")
 			{
-				noFileExtensionsFileName = noFileExtensionsFileName.substr(0, dotPos);
-			}
+				//get current level
+				std::shared_ptr<Level> currentLevel = World::getWorld()->getCurrentLevel();
+				nlohmann::json levelJson = AssetManager::getAssetManager().serializeJson(currentLevel);
+				GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
 
-			//GuGuUtf8Str registerFilePath = filePath;
-			//dotPos = filePath.findLastOf(".");
-			//if (dotPos != -1)
-			//{
-			//	registerFilePath = filePath.substr(0, dotPos);
-			//}					
-			GuGuUtf8Str outputFilePath = ouputDir + "/" + noFileExtensionsFileName + ".json";
+				levelJson["GUID"] = guidStr.getStr();
+				GuGuUtf8Str fileContent = levelJson.dump();
 
-			AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<Level>().ID));
-			//输出到目录
-			AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
-			AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
-			AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
+				GuGuUtf8Str noFileExtensionsFileName = fileName;
+				int32_t dotPos = noFileExtensionsFileName.findLastOf(".");
+				if (dotPos != -1)
+				{
+					noFileExtensionsFileName = noFileExtensionsFileName.substr(0, dotPos);
+				}
+
+				//GuGuUtf8Str registerFilePath = filePath;
+				//dotPos = filePath.findLastOf(".");
+				//if (dotPos != -1)
+				//{
+				//	registerFilePath = filePath.substr(0, dotPos);
+				//}					
+				GuGuUtf8Str outputFilePath = ouputDir + "/" + noFileExtensionsFileName + ".json";
+
+				AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<Level>().ID));
+				//输出到目录
+				AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
+				AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
+				AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
+			}		
 		}
 
 		updateView();
@@ -459,6 +462,7 @@ namespace GuGu {
 										}
 										else if (m_currentGizmosIndex <= 3) //x
 										{
+											GuGu_LOGD("X Axis");
 											math::quat tmpQuat = math::quat(m_pickedGameObject->getComponent<TransformComponent>()->getRotation());
 											m_worldObjectAxis = math::normalize(math::applyQuat(tmpQuat, math::float3(1, 0, 0)));
 										}
