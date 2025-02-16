@@ -20,7 +20,10 @@ namespace GuGu {
 			m_fileHandle = CreateFile(path.getUtf16String().c_str(), GENERIC_READ, 0, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 			break;
 		}
-		case FileMode::OnlyWrite:
+		case FileMode::OnlyWrite: //覆盖写
+			m_fileHandle = CreateFile(path.getUtf16String().c_str(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+			break;
+		case FileMode::AppendWrite: //追加写
 			m_fileHandle = CreateFile(path.getUtf16String().c_str(), GENERIC_WRITE, 0, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 			break;
 		}
@@ -29,6 +32,10 @@ namespace GuGu {
 		{
 			GuGu_LOGD("open file error");
 			m_fileHandle = NULL;
+		}
+		if (fileMode == FileMode::AppendWrite)
+		{
+			SetFilePointer(m_fileHandle, 0, NULL, FILE_END);
 		}
 	}
 	void WindowsGuGuFile::CloseFile()
