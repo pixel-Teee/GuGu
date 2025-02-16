@@ -1486,8 +1486,10 @@ namespace GuGu {
 				math::float3 translation;
 				math::float3 scaling;
 				math::quat rotation;
-				math::affine3 affine = math::affine3(inViewportClient->getSelectedItems()->getComponent<TransformComponent>()->GetLocalToWorldTransform());
-				math::decomposeAffine(affine, &translation, &rotation, &scaling);
+				std::shared_ptr<TransformComponent> transform = inViewportClient->getSelectedItems()->getComponent<TransformComponent>();
+				translation = math::float3(transform->getTranslation());
+				scaling = math::float3(transform->getScaling());
+				rotation = math::quat(transform->getRotation());
 				math::affine3 noScalingAffine;//gizmos 不需要缩放
 				scaling = math::float3(inViewportClient->getScreenScaleCompensation(translation)) * 100.0f;
 				//GuGu_LOGD("%f", scaling.x);
@@ -1501,7 +1503,7 @@ namespace GuGu {
 				}		
 				else if (inViewportClient->getCurrentGizmosType() == ViewportClient::Scale)
 				{
-					noScalingAffine = math::scaling(scaling) * math::affine3(inViewportClient->getSelectedItems()->getComponent<TransformComponent>()->getRotation().toAffine()) * math::translation(translation);
+					noScalingAffine = math::scaling(scaling) * rotation.toAffine() * math::translation(translation);
 				}
 				modelConstants.worldMatrix = math::float4x4(math::affineToHomogeneous(noScalingAffine));
 				modelConstants.camWorldPos = inViewportClient->getCamPos();

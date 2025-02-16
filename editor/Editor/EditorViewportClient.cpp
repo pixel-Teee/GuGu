@@ -299,8 +299,10 @@ namespace GuGu {
 						math::float3 translation;
 						math::float3 scaling;
 						math::quat rotation;
-						math::affine3 affine = math::affine3(m_pickedGameObject->getComponent<TransformComponent>()->GetLocalToWorldTransform());
-						math::decomposeAffine(affine, &translation, &rotation, &scaling);
+						std::shared_ptr<TransformComponent> transform = m_pickedGameObject->getComponent<TransformComponent>();
+						translation = math::float3(transform->getTranslation());
+						scaling = math::float3(transform->getScaling());
+						rotation = math::quat(transform->getRotation());
 						math::affine3 noScalingAffine;//gizmos 不需要缩放
 						scaling = math::float3(getScreenScaleCompensation(translation)) * 100.0f;//新的缩放，根据屏幕高度来调整
 						noScalingAffine = math::scaling(scaling) * rotation.toAffine() * math::translation(translation);
@@ -357,11 +359,13 @@ namespace GuGu {
 						math::float3 translation;
 						math::float3 scaling;
 						math::quat rotation;
-						math::affine3 affine = math::affine3(m_pickedGameObject->getComponent<TransformComponent>()->GetLocalToWorldTransform());
-						math::decomposeAffine(affine, &translation, &rotation, &scaling);
+						std::shared_ptr<TransformComponent> transform = m_pickedGameObject->getComponent<TransformComponent>();
+						translation = math::float3(transform->getTranslation());
+						scaling = math::float3(transform->getScaling());
+						rotation = math::quat(transform->getRotation());
 						math::affine3 noScalingNoRotationAffine;//gizmos 不需要缩放
 						scaling = math::float3(getScreenScaleCompensation(translation)) * 100.0f;//新的缩放，根据屏幕高度来调整
-						noScalingNoRotationAffine = math::scaling(scaling) * math::translation(translation);
+						noScalingNoRotationAffine = math::scaling(scaling)  * math::translation(translation);
 
 						std::shared_ptr<GStaticMesh> gStaticMesh = Collision3D::pick(mousePosition.x, mousePosition.y, m_width, m_height,
 							getPespectiveMatrix(), getWorldToViewMatrix(),
@@ -415,11 +419,14 @@ namespace GuGu {
 						math::float3 translation;
 						math::float3 scaling;
 						math::quat rotation;
-						math::affine3 affine = math::affine3(m_pickedGameObject->getComponent<TransformComponent>()->GetLocalToWorldTransform());
-						math::decomposeAffine(affine, &translation, &rotation, &scaling);
+
+						std::shared_ptr<TransformComponent> transform = m_pickedGameObject->getComponent<TransformComponent>();
+						translation = math::float3(transform->getTranslation());
+						scaling = math::float3(transform->getScaling());
+						rotation = math::quat(transform->getRotation());
 						math::affine3 noScalingAffine;//gizmos 不需要缩放
 						scaling = math::float3(getScreenScaleCompensation(translation)) * 100.0f;//新的缩放，根据屏幕高度来调整
-						noScalingAffine = math::scaling(scaling) * math::affine3(m_pickedGameObject->getComponent<TransformComponent>()->getRotation().toAffine()) * math::translation(translation);
+						noScalingAffine = math::scaling(scaling) * rotation.toAffine() * math::translation(translation);
 
 						std::shared_ptr<GStaticMesh> gStaticMesh = Collision3D::pick(mousePosition.x, mousePosition.y, m_width, m_height,
 							getPespectiveMatrix(), getWorldToViewMatrix(),
@@ -600,14 +607,6 @@ namespace GuGu {
 					Collision3D::calculateRayOriginAndRayDir(mousePosition.x, mousePosition.y, m_width, m_height,
 						getPespectiveMatrix(), getWorldToViewMatrix(), worldRayPos, worldRayDir);
 					math::float3 intersectPos;
-					//---test---
-					//math::float3 translation;
-					//math::float3 scaling;
-					//math::quat rotation;
-					//math::affine3 affine = math::affine3(m_pickedGameObject->getComponent<TransformComponent>()->GetLocalToWorldTransform());
-					//math::decomposeAffine(affine, &translation, &rotation, &scaling);
-					//GuGu_LOGD("{x:%f, y:%f, z:%f, w:%f}", rotation.x, rotation.y, rotation.z, rotation.w);
-					//---test---
 					if (Collision3D::intersectsWithPlane(worldRayPos, worldRayDir, m_planeNormal,
 						math::float3(m_pickedObjectDragStartWorldPosition), intersectPos))
 					{				
@@ -619,26 +618,19 @@ namespace GuGu {
 						math::double3 scaling = m_pickedGameObject->getComponent<TransformComponent>()->getScaling();
 						if (m_currentGizmosIndex <= 1)
 						{
-							//GuGu_LOGD("y\n");
-							//GuGu_LOGD("%f\n", projection);
+							//GuGu_LOGD("y axis");
 							scaling.y *= scaleFactor;
 						}
 						else if (m_currentGizmosIndex <= 3)
 						{
-							//GuGu_LOGD("x\n");
-							//GuGu_LOGD("%f\n", projection);
+							//GuGu_LOGD("x axis");
 							scaling.x *= scaleFactor;
 						}
 						else if (m_currentGizmosIndex <= 5)
 						{
-							//GuGu_LOGD("z\n");
-							//GuGu_LOGD("%f\n", projection);
+							//GuGu_LOGD("z axis");
 							scaling.z *= scaleFactor;
 						}
-						//if (scaling.x > 0.1f || scaling.y > 0.1f || scaling.z > 0.1f)
-						//{
-						//	GuGu_LOGD("new scaling {%f, %f, %f}", scaling.x, scaling.y, scaling.z);
-						//}			
 						m_pickedGameObject->getComponent<TransformComponent>()->SetScaling(scaling);
 					}
 				}
