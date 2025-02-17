@@ -23,7 +23,11 @@ namespace GuGu {
         );
 
         bool bHaveFillerColumn = false;
-
+		for (int32_t slotIndex = 0; slotIndex < inArgs.m_slots.size(); ++slotIndex)
+		{
+			std::shared_ptr<GColumn> column = inArgs.m_slots[slotIndex];
+			m_columns.push_back(column);
+		}
 	}
 
 }

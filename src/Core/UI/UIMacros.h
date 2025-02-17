@@ -112,6 +112,15 @@ namespace GuGu {
 		m##Name.push_back(std::move(inValue));\
 		return static_cast<BuilderArguments*>(this)->Me();\
 	}
+//这个相对于ARGUMENT_SLOT，ARGUMENT_SLOT是槽参数，槽参数存放了槽指针，而这个则是直接构造，将参数作为槽的参数放入
+#define ARGUMENT_SUPPORTS_SLOT_WITH_ARGS(Type) \
+	std::vector<std::shared_ptr<Type>> m_slots;\
+	BuilderArguments& operator+(const typename Type::BuilderArguments& argumentsForNewSlot) \
+	{ \
+		m_slots.push_back(std::make_shared<Type>(argumentsForNewSlot));\
+		return static_cast<BuilderArguments*>(this)->Me();\
+	}
+
 #define ARGUMENT_ATTRIBUTE(Type, Name)\
 	Attribute<Type> m##Name;\
 	BuilderArguments& Name(Attribute<Type> inValue)\
