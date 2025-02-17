@@ -367,4 +367,24 @@ namespace GuGu {
 		GOnDragDetected m_onDragDectedHandler;
 	};
 
+	template<typename ItemType>
+	class MultiColumnTableRow : public TableRow<ItemType>
+	{
+	public:
+		virtual std::shared_ptr<Widget> generateWidgetForColumn(const GuGuUtf8Str& inColumnName) = 0;
+
+		typedef MultiColumnTableRow<ItemType> SuperRowType;
+
+		typedef typename TableRow<ItemType>::BuilderArguments TableRowArgs;
+
+	protected:
+		void init(const TableRowArgs& arguments, const std::shared_ptr<TableViewBase>& inOwnerTableView)
+		{
+
+		}
+
+	private:
+		std::shared_ptr<HorizontalBox> m_box;
+		std::unordered_map<GuGuUtf8Str, std::shared_ptr<Widget>> m_columnIdToSlotContents;
+	};
 }
