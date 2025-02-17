@@ -298,4 +298,63 @@ namespace GuGu {
 		std::shared_ptr<Brush> m_handleHighlightBrush;
 		SplitterStyle& setHandleHighlightBrush(const std::shared_ptr<Brush>& inHandleHighlightBrush) { m_handleHighlightBrush = inHandleHighlightBrush; return *this; }
 	};
+
+	struct TableColumnHeaderStyle : public Style
+	{
+		TableColumnHeaderStyle() {}
+
+		virtual ~TableColumnHeaderStyle() {}
+
+		//当一个列主要以升序使用的图片
+		std::shared_ptr<Brush> m_sortPrimaryAscendingImage;
+		TableColumnHeaderStyle& setSortPrimaryAscendingImage(const std::shared_ptr<Brush>& inSortPrimaryAscendingImage) { m_sortPrimaryAscendingImage = inSortPrimaryAscendingImage; return *this; }
+
+		//当一个列主要以降序使用的图片
+		std::shared_ptr<Brush> m_sortPrimaryDesendingImage;
+		TableColumnHeaderStyle& setSortPrimaryDescendingImage(const std::shared_ptr<Brush>& inSortPrimaryDescendingImage) { m_sortPrimaryDesendingImage = inSortPrimaryDescendingImage; return *this; }
+
+		//当一个次级列主要以升序使用的图片
+		std::shared_ptr<Brush> m_sortSecondaryAscendingImage;
+		TableColumnHeaderStyle& setSortSecondaryAscendingImage(const std::shared_ptr<Brush>& inSortSecondaryAscendingImage) { m_sortSecondaryAscendingImage = inSortSecondaryAscendingImage; return *this; }
+
+		//当一个次级列主要以降序使用的图片
+		std::shared_ptr<Brush> m_sortSecondaryDescendingImage;
+		TableColumnHeaderStyle& setSortSecondaryDescendingImage(const std::shared_ptr<Brush>& inSortSecondaryDescendingImage) { m_sortSecondaryDescendingImage = inSortSecondaryDescendingImage; return *this; }
+
+		std::shared_ptr<Brush> m_normalBrush;
+		TableColumnHeaderStyle& setNormalBrush(const std::shared_ptr<Brush>& inNormalBrush) { m_normalBrush = inNormalBrush; return *this; }
+
+		std::shared_ptr<Brush> m_hoveredBrush;
+		TableColumnHeaderStyle& setHoveredBrush(const std::shared_ptr<Brush>& inHoveredBrush) { m_hoveredBrush = inHoveredBrush; return *this; }
+
+		std::shared_ptr<Brush> m_menuDropDownImage;
+		TableColumnHeaderStyle& setMenuDropDownImage(const std::shared_ptr<Brush>& inMenuDropDownImage) { m_menuDropDownImage = inMenuDropDownImage; return *this; }
+
+		std::shared_ptr<Brush> m_menuDropDownNormalBorderBrush;
+		TableColumnHeaderStyle& setMenuDropDownNormalBorderBrush(const std::shared_ptr<Brush>& inMenuDropDownNormalBorderBrush) { m_menuDropDownNormalBorderBrush = inMenuDropDownNormalBorderBrush; return *this;}
+
+		std::shared_ptr<Brush> m_menuDropDownHoveredBorderBrush;
+		TableColumnHeaderStyle& setMenuDropDownHoveredBorderBrush(const std::shared_ptr<Brush>& inMenuDropDownHoveredBorderBrush) { m_menuDropDownHoveredBorderBrush = inMenuDropDownHoveredBorderBrush; return *this;}
+	};
+
+	struct HeaderRowStyle : public Style
+	{
+		HeaderRowStyle() {}
+
+		virtual ~HeaderRowStyle() {}
+
+		std::shared_ptr<TableColumnHeaderStyle> m_columnStyle;
+		HeaderRowStyle& setColumnStyle(const std::shared_ptr<TableColumnHeaderStyle>& inColumnStyle) { m_columnStyle = inColumnStyle; return *this;}
+
+		std::shared_ptr<TableColumnHeaderStyle> m_lastColumnStyle;
+		HeaderRowStyle& setLastColumnStyle(const std::shared_ptr<TableColumnHeaderStyle>& inLastColumnStyle) { m_lastColumnStyle = inLastColumnStyle; return *this; }
+
+		std::shared_ptr<SplitterStyle> m_columnSplitterStyle;
+		HeaderRowStyle& setColumnSplitterStyle(const std::shared_ptr<SplitterStyle>& inColumnSplitterStyle) { m_columnSplitterStyle = inColumnSplitterStyle; return *this; }
+
+		std::shared_ptr<Brush> m_backgroundBrush;
+		HeaderRowStyle& setBackgroundBrush(const std::shared_ptr<Brush>& inBackgroundBrush) { m_backgroundBrush = inBackgroundBrush; return *this; }
+
+		//todo:添加 fore ground color
+	};
 }

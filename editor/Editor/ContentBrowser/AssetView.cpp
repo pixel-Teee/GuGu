@@ -305,6 +305,8 @@ namespace GuGu {
 		{
 			return Reply::Handled().beginDragDrop(AssetDragDrop::New(draggedAssets, draggedAssetPaths));
 		}
+
+		return Reply::Unhandled();
 	}
 
 	std::vector<AssetData> AssetView::getSelectedAssets() const
