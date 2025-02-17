@@ -392,7 +392,14 @@ namespace GuGu {
 				inOwnerTableView
 			);
 
-			//todo:
+			std::shared_ptr<HeaderRow> headerRow = inOwnerTableView->getHeaderRow();//header row
+			
+			this->generateColumns(headerRow);
+		}
+
+		void generateColumns(const std::shared_ptr<HeaderRow>& inColumnHeaders)
+		{
+			
 		}
 
 	private:

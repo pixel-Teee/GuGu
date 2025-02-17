@@ -169,6 +169,8 @@ namespace GuGu {
 
 		math::float2 getItemSize() const;
 
+		std::shared_ptr<HeaderRow> getHeaderRow() const;
+
 		void appendWidget(const std::shared_ptr<ITableRow>& widgetToAppend);
 
 		void insertWidget(const std::shared_ptr<ITableRow>& widgetToAppend);

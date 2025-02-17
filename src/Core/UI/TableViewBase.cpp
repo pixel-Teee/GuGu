@@ -424,7 +424,12 @@ namespace GuGu {
         return itemDimensions.toVector2d();
     }
 
-    void TableViewBase::appendWidget(const std::shared_ptr<ITableRow>& widgetToAppend)
+	std::shared_ptr<GuGu::HeaderRow> TableViewBase::getHeaderRow() const
+	{
+        return m_headerRow;
+	}
+
+	void TableViewBase::appendWidget(const std::shared_ptr<ITableRow>& widgetToAppend)
     {
         m_itemsPanel->addSlot()
         (
