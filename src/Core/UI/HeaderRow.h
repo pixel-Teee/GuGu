@@ -4,6 +4,39 @@
 #include "Splitter.h" //splitter
 
 namespace GuGu {
+	enum class HeaderComboVisibility
+	{
+		Always, //显示 drop down 完全的透明度
+
+		Ghosted,
+
+		OnHover //只有悬浮的时候，才显示 drop down
+	};
+
+	namespace ColumnSortMode
+	{
+		enum Type
+		{
+			None = 0,
+
+			Ascending = 1,
+
+			Descending = 2
+		};
+	}
+
+	namespace ColumnSortPriority
+	{
+		enum Type
+		{
+			None,
+			Primary = 0,
+			Secondary = 2,
+			Max
+		};
+	}
+	using OnWidthChanged = std::function<void(float)>;
+	using OnSortModeChanged = std::function<void(ColumnSortPriority::Type, const GuGuUtf8Str&, ColumnSortMode::Type)>;
 	class HeaderRow : public Border
 	{
 	public:
@@ -19,7 +52,26 @@ namespace GuGu {
 				~BuilderArguments() = default;
 
 				ARGUMENT_VALUE(GuGuUtf8Str, ColumnId)
-				
+				ARGUMENT_ATTRIBUTE(GuGuUtf8Str, DefaultLabel)
+				ARGUMENT_ATTRIBUTE(GuGuUtf8Str, DefaultTooltip)
+				ARGUMENT_ATTRIBUTE(float, FillWidth)
+				ARGUMENT_VALUE(std::optional<float>, FixedWidth)
+				UI_EVENT(OnWidthChanged, onWidthChanged)
+
+				ARGUMENT_NAMED_SLOT(SingleChildSlot, headerContent)
+				ARGUMENT_VALUE(HorizontalAlignment, hAlignHeader)
+				ARGUMENT_VALUE(VerticalAlignment, vAlignHeader)
+				ARGUMENT_VALUE(std::optional<Padding>, headerContentPadding)
+				ARGUMENT_VALUE(HeaderComboVisibility, headerComboVisibility)
+
+				ARGUMENT_NAMED_SLOT(SingleChildSlot, MenuContent)
+
+				ARGUMENT_VALUE(HorizontalAlignment, hAlignCell)
+				ARGUMENT_VALUE(VerticalAlignment, vAlignCell)
+
+				ARGUMENT_ATTRIBUTE(ColumnSortMode::Type, sortMode)
+				ARGUMENT_ATTRIBUTE(ColumnSortPriority::Type, sortPriority)
+				UI_EVENT(OnSortModeChanged, onSort)
 			};
 
 			GColumn(const BuilderArguments& inArgs)
@@ -28,6 +80,16 @@ namespace GuGu {
 
 			//这一列的ID
 			GuGuUtf8Str m_columnId;
+
+			Attribute<GuGuUtf8Str> m_defaultText;
+
+			Attribute<GuGuUtf8Str> m_defaultTooltip;
+
+			Attribute<float> m_width;
+
+			float m_defaultWidth;
+
+			OnWidthChanged m_onWidthChanged;
 		};
 
 		static GColumn::BuilderArguments Column(const GuGuUtf8Str& inColumnId)
