@@ -380,7 +380,19 @@ namespace GuGu {
 	protected:
 		void init(const TableRowArgs& arguments, const std::shared_ptr<TableViewBase>& inOwnerTableView)
 		{
+			TableRow<ITreeItem>::init(
+				TableRowArgs()
+				.Style(arguments.mstyle)
+				.padding(arguments.mpadding)
+				.onDragDetected(arguments.monDragDetected)
+				.Content
+				(
+					WIDGET_ASSIGN_NEW(HorizontalBox, m_box)
+				),
+				inOwnerTableView
+			);
 
+			//todo:
 		}
 
 	private:
