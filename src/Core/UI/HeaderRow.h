@@ -4,6 +4,7 @@
 #include "Splitter.h" //splitter
 
 namespace GuGu {
+	class TableColumnHeader;
 	enum class HeaderComboVisibility
 	{
 		Always, //显示 drop down 完全的透明度
@@ -124,6 +125,8 @@ namespace GuGu {
 		void init(const BuilderArguments& inArgs);
 
 	private:
+		void regenerateWidgets();
+
 		std::shared_ptr<HeaderRowStyle> m_style;
 		SplitterResizeMode::Type m_resizeMode;
 		math::float2 m_scrollBarThickness;

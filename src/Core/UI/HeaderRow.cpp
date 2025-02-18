@@ -1,6 +1,8 @@
 #include <pch.h>
 
 #include "HeaderRow.h"
+#include <Core/UI/Splitter.h>
+#include <Core/UI/BoxPanel.h>
 
 namespace GuGu {
     HeaderRow::HeaderRow()
@@ -28,6 +30,15 @@ namespace GuGu {
 			std::shared_ptr<GColumn> column = inArgs.m_slots[slotIndex];
 			m_columns.push_back(column);
 		}
+	}
+
+	void HeaderRow::regenerateWidgets()
+	{
+        const float splitterHandleDetectionSize = 5.0f;
+
+        std::shared_ptr<Splitter> splitter;
+
+        //std::shared_ptr<HorizontalBox> box = 
 	}
 
 }
