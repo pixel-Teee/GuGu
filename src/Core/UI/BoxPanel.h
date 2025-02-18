@@ -144,6 +144,31 @@ namespace GuGu {
 			return HorizontalBoxSlot::SlotBuilderArguments(std::make_shared<HorizontalBoxSlot>());
 		}
 
+		HorizontalBoxSlot::SlotBuilderArguments addSlot()
+		{
+			return insertSlot(-1);
+		}
+
+		HorizontalBoxSlot::SlotBuilderArguments insertSlot(int32_t index = -1)
+		{
+			if (index == -1)
+			{
+				std::shared_ptr<HorizontalBoxSlot> boxSlot = std::make_shared<HorizontalBoxSlot>();
+				HorizontalBoxSlot::SlotBuilderArguments slotArguments(boxSlot);
+				boxSlot->init(shared_from_this(), slotArguments);
+				m_childrens.push_back(std::static_pointer_cast<BoxPanelSlot>(std::static_pointer_cast<SlotBase>(boxSlot)));
+				return slotArguments;
+			}
+			else
+			{
+				std::shared_ptr<HorizontalBoxSlot> boxSlot = std::make_shared<HorizontalBoxSlot>();
+				HorizontalBoxSlot::SlotBuilderArguments slotArguments(boxSlot);
+				boxSlot->init(shared_from_this(), slotArguments);
+				m_childrens.insert(m_childrens.begin() + index, std::static_pointer_cast<BoxPanelSlot>(std::static_pointer_cast<SlotBase>(boxSlot)));
+				return slotArguments;
+			}
+		}
+
 		struct BuilderArguments : public Arguments<HorizontalBox>
 		{
 			BuilderArguments() = default;

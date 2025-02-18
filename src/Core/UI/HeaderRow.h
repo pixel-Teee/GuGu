@@ -26,6 +26,18 @@ namespace GuGu {
 		};
 	}
 
+	namespace ColumnSizeMode
+	{
+		enum Type
+		{
+			Fill = 0,
+
+			Fixed = 1,
+
+			Manual = 2
+		};
+	}
+
 	namespace ColumnSortPriority
 	{
 		enum Type
@@ -91,6 +103,25 @@ namespace GuGu {
 			float m_defaultWidth;
 
 			OnWidthChanged m_onWidthChanged;
+
+			ColumnSizeMode::Type m_sizeRule;
+
+			std::shared_ptr<Widget> m_headerContent;
+			std::shared_ptr<Widget> m_headerMenuContent;
+
+			HorizontalAlignment m_headerHAlignment;
+			VerticalAlignment m_headerVAlignment;
+			std::optional<Padding> m_headerContentPadding;
+			HeaderComboVisibility m_headerComboVisibility;
+
+			HorizontalAlignment m_cellHAlignment;
+			VerticalAlignment m_cellVAlignment;
+
+			Attribute<ColumnSortMode::Type> m_sortMode;
+			Attribute<ColumnSortPriority::Type> m_sortPriority;
+			OnSortModeChanged m_onSortModeChanged;
+
+			Attribute<bool> m_shouldGenerateWidget;
 		};
 
 		static GColumn::BuilderArguments Column(const GuGuUtf8Str& inColumnId)
