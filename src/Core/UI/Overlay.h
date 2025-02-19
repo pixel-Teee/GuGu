@@ -26,7 +26,7 @@ namespace GuGu {
 			void init(std::shared_ptr<Widget> inParentWidget,const SlotBuilderArguments& builderArguments)
 			{
 				m_parentWidget = inParentWidget;
-				m_childWidget->setParentWidget(inParentWidget);
+				//m_childWidget->setParentWidget(inParentWidget);
 			}
 
 			struct SlotBuilderArguments : public Slot<OverlaySlot>::SlotBuilderArguments
@@ -65,7 +65,7 @@ namespace GuGu {
 
 		static OverlaySlot::SlotBuilderArguments Slot();
 
-		OverlaySlot& addSlot(int32_t zOrder = -1);
+		OverlaySlot::SlotBuilderArguments addSlot(int32_t zOrder = -1);
 
 		void removeSlot(int32_t zOrder = -1);
 

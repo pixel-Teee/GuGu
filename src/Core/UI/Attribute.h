@@ -9,6 +9,8 @@ namespace GuGu {
 	class Attribute
 	{
 	public:
+		using Getter = std::function<ObjectType(void)>;
+
 		Attribute()
 			: m_value()
 			, m_bIsSet(false)
@@ -105,6 +107,19 @@ namespace GuGu {
 			return m_getter.operator bool();
 		}
 
+		template<class SourceType>
+		void bindRaw(SourceType* inUserObject, ObjectType(SourceType::* inConstMethodPtr)()const)
+		{
+			m_bIsSet = true;
+			m_getter = std::bind(inConstMethodPtr, inUserObject);
+		}
+
+		void bind(const Getter& getter)
+		{
+			m_bIsSet = true;
+			m_getter = getter;
+		}
+
 	private:
 		Attribute(const std::function<ObjectType(void)>& inGetter, bool bExplicitConstructor)
 			: m_value()
@@ -118,6 +133,6 @@ namespace GuGu {
 
 		bool m_bIsSet;
 
-		std::function<ObjectType(void)> m_getter;
+		Getter m_getter;
 	};
 }

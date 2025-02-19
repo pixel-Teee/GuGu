@@ -91,6 +91,23 @@ namespace GuGu {
 			: m_columnId(inArgs.mColumnId)
 			{}
 
+			float getWidth() const
+			{
+				return m_width.Get();
+			}
+
+			void setWidth(float newWidth)
+			{
+				if (m_onWidthChanged)
+				{
+					m_onWidthChanged(newWidth);
+				}
+				else
+				{
+					m_width = newWidth;
+				}
+			}
+
 			//这一列的ID
 			GuGuUtf8Str m_columnId;
 
@@ -163,6 +180,8 @@ namespace GuGu {
 		math::float2 m_scrollBarThickness;
 		Attribute<Visibility> m_scrollBarVisibility;
 
+		//关于各种各样的 columns 的信息
 		std::vector<std::shared_ptr<GColumn>> m_columns;
+		std::vector<std::shared_ptr<TableColumnHeader>> m_headerWidgets;
 	};
 }

@@ -60,7 +60,6 @@ namespace GuGu {
 
             std::shared_ptr<Brush> folderTintImage = EditorStyleSet::getStyleSet()->getBrush("CloseFolder_128x128");
             itemContentsOverlay->addSlot()
-            .setChildWidget
             (
                 WIDGET_NEW(ImageWidget)
                 .brush(folderTintImage)
@@ -76,7 +75,6 @@ namespace GuGu {
                 {
 					std::shared_ptr<Brush> assetImage = EditorStyleSet::getStyleSet()->getBrush("MeshAssetIcon");
 					itemContentsOverlay->addSlot()
-						.setChildWidget
 						(
 							WIDGET_NEW(ImageWidget)
 							.brush(assetImage)
@@ -86,7 +84,6 @@ namespace GuGu {
                 {
 					std::shared_ptr<Brush> assetImage = EditorStyleSet::getStyleSet()->getBrush("LevelIcon");
 					itemContentsOverlay->addSlot()
-						.setChildWidget
 						(
 							WIDGET_NEW(ImageWidget)
 							.brush(assetImage)

@@ -8,6 +8,9 @@
 #include <Core/UI/Overlay.h>
 #include <Core/UI/NullWidget.h>
 #include <Core/UI/Box.h>
+#include <Core/UI/Spacer.h>
+#include <Core/UI/ImageWidget.h>
+#include <Core/UI/Border.h>
 
 namespace GuGu {
     class TableColumnHeader : public CompoundWidget
@@ -51,14 +54,21 @@ namespace GuGu {
 
             if (column.m_headerContent == NullWidget::getNullWidget())
             {
-                //todo:处理这里的内容
+                if (!column.m_defaultText.IsSet())
+                {
+                    labelText = GuGuUtf8Str(column.m_columnId + "[LabelMissing]");
+                }
+
+                if (!column.m_defaultTooltip.IsSet())
+                {
+                    tooltipText = labelText;
+                }
             }
 
             std::shared_ptr<HorizontalBox> box;
             std::shared_ptr<Overlay> overlay = WIDGET_NEW(Overlay);
 
             overlay->addSlot(0)
-			.setChildWidget
 			(
 				WIDGET_ASSIGN_NEW(HorizontalBox, box)
 			);
@@ -79,9 +89,58 @@ namespace GuGu {
             box->addSlot()
             .StretchWidth(1.0f)
 			(
-				primaryContent
+				primaryContent //标题内容
 			);
+
+            if (column.m_headerMenuContent != NullWidget::getNullWidget())
+            {
+
+            }
+
+            overlay->addSlot(1)
+				.setHorizontalAlignment(HorizontalAlignment::Center)
+				.setVerticalAlignment(VerticalAlignment::Top)
+            (
+				WIDGET_NEW(ImageWidget)
+				.brush(this, &TableColumnHeader::getSortingBrush)
+				.visibility(Attribute<Visibility>::CreateSP(this, &TableColumnHeader::getSortModeVisibility))
+            );
+
+			m_childWidget = std::make_shared<SingleChildSlot>();
+			m_childWidget->m_parentWidget = shared_from_this();
+            m_childWidget->m_childWidget = 
+            WIDGET_NEW(Border)
+            .brush(this, &TableColumnHeader::getHeaderBackgroundBrush)
+            .horizontalAlignment(column.m_headerHAlignment)
+            .verticalAlignment(column.m_headerVAlignment)
+            .padding(column.m_headerContentPadding.value_or(adjustedDefaultHeaderContentPadding))
+            .Content
+            (
+                overlay
+            );
+            m_childWidget->m_childWidget->setParentWidget(shared_from_this());
         }
+
+        ColumnSortMode::Type getSortMode() const
+        {
+            return m_sortMode.Get();
+        }
+
+        std::shared_ptr<Brush> getHeaderBackgroundBrush() const
+        {
+            return m_style->m_normalBrush;
+        }
+
+        std::shared_ptr<Brush> getSortingBrush() const
+        {
+            return m_style->m_sortSecondaryAscendingImage;
+        }
+
+        Visibility getSortModeVisibility() const
+        {
+            return Visibility::Visible;
+        }
+
     private:
         //现在的排序模式
         Attribute<ColumnSortMode::Type> m_sortMode;
@@ -118,26 +177,201 @@ namespace GuGu {
         m_style = inArgs.mStyle;
         m_resizeMode = inArgs.mresizeMode;
 
+        //背景板
         Border::init(Border::BuilderArguments()
             .padding(0)
             .brush(m_style->m_backgroundBrush)
         );
 
+        //拷贝列信息
         bool bHaveFillerColumn = false;
 		for (int32_t slotIndex = 0; slotIndex < inArgs.m_slots.size(); ++slotIndex)
 		{
 			std::shared_ptr<GColumn> column = inArgs.m_slots[slotIndex];
 			m_columns.push_back(column);
 		}
+
+        //生成针对所有列的控件
+        regenerateWidgets();
 	}
 
 	void HeaderRow::regenerateWidgets()
 	{
         const float splitterHandleDetectionSize = 5.0f;
+        m_headerWidgets.clear();
 
         std::shared_ptr<Splitter> splitter;
 
-        //std::shared_ptr<HorizontalBox> box = 
+        std::shared_ptr<HorizontalBox> box = 
+            WIDGET_NEW(HorizontalBox)
+            + HorizontalBox::Slot()
+            .StretchWidth(1.0f)
+            (
+                WIDGET_ASSIGN_NEW(Splitter, splitter)
+                .splitterStyle(m_style->m_columnSplitterStyle)
+                .resizeMode(m_resizeMode)
+                .physicalSplitterHandleSize(0.0f)
+                .hitDetectionSplitterHandleSize(splitterHandleDetectionSize) //todo:添加 get row size for slot index
+            )
+            + HorizontalBox::Slot()
+            .FixedWidth()
+            .setPadding(0.0f)
+            (
+                WIDGET_NEW(Spacer)
+                .size(m_scrollBarThickness)
+                .visibility(m_scrollBarVisibility)
+            );
+
+        //构造针对所有列的控件
+        {
+            const float halfSplitterDetectionSize = (splitterHandleDetectionSize + 2) / 2;
+
+            //填充表示这些列的控件到槽里面
+            std::shared_ptr<TableColumnHeader> newlyMadeHeader;
+            for (int32_t slotIndex = 0; slotIndex < m_columns.size(); ++slotIndex)
+            {
+                GColumn& someColumn = *m_columns[slotIndex];
+                if (someColumn.m_shouldGenerateWidget.Get(true))
+                {
+                    //追踪上一个我们构造的 header
+                    std::shared_ptr<TableColumnHeader> precedingHeader = newlyMadeHeader;
+                    newlyMadeHeader.reset();
+
+                    //left is half splitter detection size
+                    //right is half splitter detection size
+                    Padding defaultPadding = Padding(halfSplitterDetectionSize, 0, halfSplitterDetectionSize, 0);
+
+                    std::shared_ptr<TableColumnHeader> newHeader = 
+                        WIDGET_ASSIGN_NEW(TableColumnHeader, newlyMadeHeader, someColumn, defaultPadding)
+                        .Style((slotIndex + 1 == m_columns.size()) ? m_style->m_lastColumnStyle : m_style->m_columnStyle);
+
+                    m_headerWidgets.push_back(newlyMadeHeader);
+
+                    switch (someColumn.m_sizeRule)
+                    {
+                        case ColumnSizeMode::Fill:
+                        {
+                            Attribute<float> widthBinding;
+                            widthBinding.bindRaw(&someColumn, &GColumn::getWidth);
+
+                            std::function<void(float)> func = std::bind(&GColumn::setWidth, &someColumn, std::placeholders::_1);
+
+                            //添加可缩放的cell
+                            splitter->addSlot()
+                            .value(widthBinding)
+                            .sizeRule(Splitter::FractionOfParent)
+                            .onSlotResized(func)
+                             (
+                                newHeader
+                             );
+
+                            break;
+                        }
+                        case ColumnSizeMode::Fixed:
+                        {
+                            //add fixed size cell
+                            splitter->addSlot()
+                            .sizeRule(Splitter::SizeToContent)
+                            (
+                                WIDGET_NEW(BoxWidget)
+                                .WidthOverride(someColumn.getWidth())
+                                .Content
+                                (
+                                    newHeader
+                                )
+                            );
+                            break;
+                        }
+                        case ColumnSizeMode::Manual:
+                        {
+                            //把缩放 grip 放在列的最后，不使用 splitter ，是因为他没有我们需要的缩放行为
+                            const float gripSize = 5.0f;
+                            std::shared_ptr<Border> sizingGrip = WIDGET_NEW(Border)
+                            .padding(0.0f)
+                            .brush(CoreStyle::getStyleSet()->getBrush("NoBorder"))
+                            .Content
+                            (
+                                WIDGET_NEW(Spacer)
+                                .size(math::float2(gripSize, gripSize))
+                            );//todo:添加 cursor 响应
+
+                            std::weak_ptr<Border> weakSizingGrip = sizingGrip;
+                            auto sizingGrip_OnMouseButtonDown = [&someColumn, weakSizingGrip](const WidgetGeometry&, const PointerEvent&)->Reply
+                            {
+                                std::shared_ptr<Border> sizingGripPtr = weakSizingGrip.lock();
+                                if(sizingGripPtr)
+                                {
+                                    return Reply::Handled().captureMouse(sizingGripPtr);
+                                }
+                                return Reply::Unhandled();
+                            };
+
+							auto sizingGrip_OnMouseButtonUp = [&someColumn, weakSizingGrip](const WidgetGeometry&, const PointerEvent&)->Reply
+							{
+								std::shared_ptr<Border> sizingGripPtr = weakSizingGrip.lock();
+								if (sizingGripPtr && sizingGripPtr->hasMouseCapture())
+								{
+									return Reply::Handled().releaseMouseCapture();
+								}
+								return Reply::Unhandled();
+							};
+
+							auto sizingGrip_OnMouseMove = [&someColumn, weakSizingGrip](const WidgetGeometry&, const PointerEvent& inPointerEvent)->Reply
+							{
+								std::shared_ptr<Border> sizingGripPtr = weakSizingGrip.lock();
+								if (sizingGripPtr && sizingGripPtr->hasMouseCapture())
+								{
+                                    const float newWith = someColumn.getWidth() + inPointerEvent.getCursorDelta().x;
+                                    someColumn.setWidth(std::max(20.0f, newWith));
+									return Reply::Handled();
+								}
+								return Reply::Unhandled();
+							};
+
+                            sizingGrip->setOnMouseButtonDown(sizingGrip_OnMouseButtonDown);
+                            sizingGrip->setOnMouseButtonUp(sizingGrip_OnMouseButtonUp);
+                            sizingGrip->setOnMouseMove(sizingGrip_OnMouseMove);
+
+                            //这个函数创建 optional size ，值为 desired width
+                            auto getColumnWidthAsOptionalSize = [&someColumn]()->OptionalSize
+                            {
+                               const float desiredWidth = someColumn.getWidth();
+                               return OptionalSize(desiredWidth);
+                            };
+
+							Attribute<OptionalSize> widthBinding;
+							widthBinding.bind(getColumnWidthAsOptionalSize);
+
+                            //add resizeable cell
+                            splitter->addSlot()
+                            .sizeRule(Splitter::SizeToContent)
+                            (
+                                WIDGET_NEW(BoxWidget)
+                                .WidthOverride(widthBinding)
+                                .Content
+                                (
+                                    WIDGET_NEW(Overlay)
+                                    + Overlay::Slot()
+                                    (
+                                        newHeader
+                                    )
+                                    + Overlay::Slot()
+                                    .setHorizontalAlignment(HorizontalAlignment::Right)
+                                    (
+                                        sizingGrip
+                                    )
+                                )
+                            );
+
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        //把 box 放到 border 上
+        setContent(box);
 	}
 
 }

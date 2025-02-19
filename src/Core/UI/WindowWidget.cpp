@@ -506,7 +506,7 @@ namespace GuGu {
 		, m_hostWindow(initHostWindow)
 		, m_overlay(initOverlay)
 	{
-		m_overlay->addSlot().setChildWidget
+		m_overlay->addSlot()
 		(
 			initPopupContent
 		);

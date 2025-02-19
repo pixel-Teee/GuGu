@@ -42,11 +42,11 @@ namespace GuGu {
 			math::float2 locationInWindow = math::inverse(parentWindow->getLocalToScreenTransform()).transformPoint(inLocation);
 			math::float2 locationInPanel = locationInWindow - panelInWindow;
 
-			OverlaySlot& overlaySlot = addSlot();
-			overlaySlot.setHorizontalAlignment(HorizontalAlignment::Left);
-			overlaySlot.setVerticalAlignment(VerticalAlignment::Top);
-			overlaySlot.setPadding(Padding(locationInPanel.x, locationInPanel.y, 0, 0));
-			overlaySlot.setChildWidget(inMenu->getContent());
+			addSlot()
+			.setHorizontalAlignment(HorizontalAlignment::Left)
+			.setVerticalAlignment(VerticalAlignment::Top)
+			.setPadding(Padding(locationInPanel.x, locationInPanel.y, 0, 0))
+			(inMenu->getContent());
 		}
 
 		void onMenuClosed(std::shared_ptr<IMenu> inMenu)

@@ -12,6 +12,9 @@
 #include "UIRenderPass.h"//move this
 
 namespace GuGu{
+    GuGuUtf8Str nameMouseButtonDown("MouseButtonDown");
+    GuGuUtf8Str nameMouseButtonUp("MouseButtonUp");
+    GuGuUtf8Str nameMouseButtonMove("MouseMove");
 
     Widget::Widget()
         : m_widgetClipping(WidgetClipping::Inherit)
@@ -117,11 +120,25 @@ namespace GuGu{
 
     Reply Widget::OnMouseButtonDown(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
     {
+        if (const PointerEventHandler* event = getPointerEvent(nameMouseButtonDown))
+        {
+            if (event->operator bool()) //is bound
+            {
+                return (*event)(myGeometry, inMouseEvent);
+            }
+        }
         return Reply::Unhandled();
     }
     Reply Widget::OnMouseButtonUp(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
     {
-        return Reply::Unhandled();
+		if (const PointerEventHandler* event = getPointerEvent(nameMouseButtonUp))
+		{
+			if (event->operator bool()) //is bound
+			{
+				return (*event)(myGeometry, inMouseEvent);
+			}
+		}
+		return Reply::Unhandled();
     }
     Reply Widget::OnMouseButtonDoubleClick(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
     {
@@ -129,8 +146,14 @@ namespace GuGu{
     }
     Reply Widget::OnMouseMove(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
     {
-        //GuGu_LOGD("{%f, %f}", inMouseEvent.m_screenSpacePosition.x, inMouseEvent.m_screenSpacePosition.y);
-        return Reply::Unhandled();
+		if (const PointerEventHandler* event = getPointerEvent(nameMouseButtonMove))
+		{
+			if (event->operator bool()) //is bound
+			{
+				return (*event)(myGeometry, inMouseEvent);
+			}
+		}
+		return Reply::Unhandled();
     }
     void Widget::OnMouseEnter(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
     {
@@ -369,5 +392,49 @@ namespace GuGu{
     {
         return m_toolTip;
     }
+
+	const PointerEventHandler* Widget::getPointerEvent(const GuGuUtf8Str eventName) const
+	{
+		auto it = std::find_if(m_pointerEvents.begin(), m_pointerEvents.end(), [&eventName](const auto& testPair)
+		{
+			return testPair.first == eventName;
+		});
+        if (it != m_pointerEvents.end())
+        {
+            return &it->second;
+        }
+        return nullptr;
+	}
+
+	void Widget::setPointerEvent(const GuGuUtf8Str& eventName, PointerEventHandler& inEvent)
+	{
+        auto it = std::find_if(m_pointerEvents.begin(), m_pointerEvents.end(), [&eventName](const auto& testPair)
+        {
+            return testPair.first == eventName;
+        });
+        if (it != m_pointerEvents.end())
+        {
+            it->second = inEvent;
+        }
+        else
+        {
+            m_pointerEvents.push_back({eventName, inEvent});
+        }
+	}
+
+	void Widget::setOnMouseButtonDown(PointerEventHandler eventHandler)
+	{
+        setPointerEvent(nameMouseButtonDown, eventHandler);
+	}
+
+	void Widget::setOnMouseButtonUp(PointerEventHandler eventHandler)
+	{
+        setPointerEvent(nameMouseButtonUp, eventHandler);
+	}
+
+	void Widget::setOnMouseMove(PointerEventHandler eventHandler)
+	{
+        setPointerEvent(nameMouseButtonMove, eventHandler);
+	}
 
 }

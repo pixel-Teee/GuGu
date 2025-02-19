@@ -101,7 +101,7 @@ namespace GuGu {
 	{
 		return OverlaySlot::SlotBuilderArguments(std::make_shared<OverlaySlot>());
 	}
-	Overlay::OverlaySlot& Overlay::addSlot(int32_t zOrder)
+	Overlay::OverlaySlot::SlotBuilderArguments Overlay::addSlot(int32_t zOrder)
 	{
 		std::shared_ptr<OverlaySlot> newSlot = std::make_shared<OverlaySlot>();
 		if (zOrder == -1)
@@ -128,7 +128,10 @@ namespace GuGu {
 		}
 
 		newSlot->m_zOrder = zOrder;
-		return *newSlot;
+
+		OverlaySlot::SlotBuilderArguments slotArguments(newSlot);
+		newSlot->init(shared_from_this(), slotArguments);
+		return slotArguments;
 	}
 	void Overlay::removeSlot(int32_t zOrder)
 	{

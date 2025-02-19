@@ -61,6 +61,9 @@ namespace GuGu{
     class WeakWidgetPath;
     class WidgetPath;
     class IToolTip;
+
+    using PointerEventHandler = std::function<Reply(const WidgetGeometry&, const PointerEvent&)>;
+
     class Widget : public std::enable_shared_from_this<Widget>
     {
     public:
@@ -180,6 +183,15 @@ namespace GuGu{
 
         std::shared_ptr<IToolTip> getToolTip() const;
 
+        const PointerEventHandler* getPointerEvent(const GuGuUtf8Str eventName) const;
+
+        void setPointerEvent(const GuGuUtf8Str& eventName, PointerEventHandler& inEvent);
+
+        void setOnMouseButtonDown(PointerEventHandler eventHandler);
+
+        void setOnMouseButtonUp(PointerEventHandler eventHandler);
+
+        void setOnMouseMove(PointerEventHandler eventHandler);
     protected:
         std::weak_ptr<Widget> m_parentWidget;
         WidgetGeometry m_geometry;
@@ -196,5 +208,8 @@ namespace GuGu{
 		bool m_hovered;
 
         std::shared_ptr<IToolTip> m_toolTip;
+
+        //events
+        std::vector<std::pair<GuGuUtf8Str, PointerEventHandler>> m_pointerEvents;
     };
 }
