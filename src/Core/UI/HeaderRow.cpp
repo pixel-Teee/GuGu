@@ -89,17 +89,62 @@ namespace GuGu {
             box->addSlot()
             .StretchWidth(1.0f)
 			(
-				primaryContent //±êÌâÄÚÈİ
+				primaryContent //æ ‡é¢˜å†…å®¹
 			);
 
             if (column.m_headerMenuContent != NullWidget::getNullWidget())
             {
+                //æ·»åŠ  drop down æŒ‰é’®ï¼Œå¦‚æœ menu content å·²ç»è¢«æè¿°
 
+                box->addSlot()
+                .FixedWidth()
+                (
+                    WIDGET_ASSIGN_NEW(Overlay, m_menuOverlay)
+                    .visibility(Attribute<Visibility>::CreateSP(this, &TableColumnHeader::getMenuOverlayVisibility))
+                    + Overlay::Slot()
+                    (
+                        WIDGET_NEW(Spacer)
+                        .size(math::float2(12.0f, 0.0f))
+                    )
+                    + Overlay::Slot()
+                    (
+                        WIDGET_NEW(Border)
+                        .padding(Padding(0.0f, 0.0f, adjustedDefaultHeaderContentPadding.right, 0.0f))
+                        .brush(this, &TableColumnHeader::getComboButtonBorderBrush)
+                        .Content
+                        (
+                            WIDGET_ASSIGN_NEW(ComboButton, m_comboButton)
+                            .hasDownArrow(false)
+                            .buttonStyle(CoreStyle::getStyleSet()->getStyle<ButtonStyle>("NoBorder"))
+                            .contentPadding(Padding(0.0))
+                            .buttonContent
+                            (
+                                WIDGET_NEW(Spacer)
+                                .size(math::float2(14.0f, 0.0f))
+                            )
+                            .menuContent
+                            (
+                                 m_contextMenuContent
+                            )
+                        )
+                    )
+                    + Overlay::Slot()
+                    .setHorizontalAlignment(HorizontalAlignment::Center)
+                    .setVerticalAlignment(VerticalAlignment::Center)
+                    .setPadding(Padding(0, 0, 0, 2))
+                    (       
+                        WIDGET_NEW(ImageWidget)
+                        .brush(m_style->m_menuDropDownImage)
+                        .visibility(Visibility::HitTestInvisible)   
+                    )
+                );
+
+                adjustedDefaultHeaderContentPadding.right = 0.0f;
             }
 
             overlay->addSlot(1)
-				.setHorizontalAlignment(HorizontalAlignment::Center)
-				.setVerticalAlignment(VerticalAlignment::Top)
+			.setHorizontalAlignment(HorizontalAlignment::Center)
+			.setVerticalAlignment(VerticalAlignment::Top)
             (
 				WIDGET_NEW(ImageWidget)
 				.brush(this, &TableColumnHeader::getSortingBrush)
@@ -141,10 +186,20 @@ namespace GuGu {
             return Visibility::Visible;
         }
 
+        Visibility getMenuOverlayVisibility() const 
+        {
+            return Visibility::Visible;
+        }
+
+        std::shared_ptr<Brush> getComboButtonBorderBrush() const
+        {
+            return nullptr;
+        }
+
     private:
-        //ÏÖÔÚµÄÅÅĞòÄ£Ê½
+        //ç°åœ¨çš„æ’åºæ¨¡å¼
         Attribute<ColumnSortMode::Type> m_sortMode;
-        //ÏÖÔÚµÄÅÅĞòË³Ğò
+        //ç°åœ¨çš„æ’åºé¡ºåº
         Attribute<ColumnSortPriority::Type> m_sortPriority;
 
         OnSortModeChanged m_onSortModeChanged;
@@ -153,7 +208,7 @@ namespace GuGu {
 
         std::shared_ptr<ComboButton> m_comboButton;
 
-        //combo button µÄ¿É¼ûĞÔ
+        //combo button çš„å¯è§æ€§
         HeaderComboVisibility m_comboVisibility;
 
         std::shared_ptr<Overlay> m_menuOverlay;
@@ -177,13 +232,13 @@ namespace GuGu {
         m_style = inArgs.mStyle;
         m_resizeMode = inArgs.mresizeMode;
 
-        //±³¾°°å
+        //èƒŒæ™¯æ¿
         Border::init(Border::BuilderArguments()
             .padding(0)
             .brush(m_style->m_backgroundBrush)
         );
 
-        //¿½±´ÁĞĞÅÏ¢
+        //æ‹·è´åˆ—ä¿¡æ¯
         bool bHaveFillerColumn = false;
 		for (int32_t slotIndex = 0; slotIndex < inArgs.m_slots.size(); ++slotIndex)
 		{
@@ -191,7 +246,7 @@ namespace GuGu {
 			m_columns.push_back(column);
 		}
 
-        //Éú³ÉÕë¶ÔËùÓĞÁĞµÄ¿Ø¼ş
+        //ç”Ÿæˆé’ˆå¯¹æ‰€æœ‰åˆ—çš„æ§ä»¶
         regenerateWidgets();
 	}
 
@@ -211,7 +266,7 @@ namespace GuGu {
                 .splitterStyle(m_style->m_columnSplitterStyle)
                 .resizeMode(m_resizeMode)
                 .physicalSplitterHandleSize(0.0f)
-                .hitDetectionSplitterHandleSize(splitterHandleDetectionSize) //todo:Ìí¼Ó get row size for slot index
+                .hitDetectionSplitterHandleSize(splitterHandleDetectionSize) //todo:æ·»åŠ  get row size for slot index
             )
             + HorizontalBox::Slot()
             .FixedWidth()
@@ -222,18 +277,18 @@ namespace GuGu {
                 .visibility(m_scrollBarVisibility)
             );
 
-        //¹¹ÔìÕë¶ÔËùÓĞÁĞµÄ¿Ø¼ş
+        //æ„é€ é’ˆå¯¹æ‰€æœ‰åˆ—çš„æ§ä»¶
         {
             const float halfSplitterDetectionSize = (splitterHandleDetectionSize + 2) / 2;
 
-            //Ìî³ä±íÊ¾ÕâĞ©ÁĞµÄ¿Ø¼şµ½²ÛÀïÃæ
+            //å¡«å……è¡¨ç¤ºè¿™äº›åˆ—çš„æ§ä»¶åˆ°æ§½é‡Œé¢
             std::shared_ptr<TableColumnHeader> newlyMadeHeader;
             for (int32_t slotIndex = 0; slotIndex < m_columns.size(); ++slotIndex)
             {
                 GColumn& someColumn = *m_columns[slotIndex];
                 if (someColumn.m_shouldGenerateWidget.Get(true))
                 {
-                    //×·×ÙÉÏÒ»¸öÎÒÃÇ¹¹ÔìµÄ header
+                    //è¿½è¸ªä¸Šä¸€ä¸ªæˆ‘ä»¬æ„é€ çš„ header
                     std::shared_ptr<TableColumnHeader> precedingHeader = newlyMadeHeader;
                     newlyMadeHeader.reset();
 
@@ -256,7 +311,7 @@ namespace GuGu {
 
                             std::function<void(float)> func = std::bind(&GColumn::setWidth, &someColumn, std::placeholders::_1);
 
-                            //Ìí¼Ó¿ÉËõ·ÅµÄcell
+                            //æ·»åŠ å¯ç¼©æ”¾çš„cell
                             splitter->addSlot()
                             .value(widthBinding)
                             .sizeRule(Splitter::FractionOfParent)
@@ -284,7 +339,7 @@ namespace GuGu {
                         }
                         case ColumnSizeMode::Manual:
                         {
-                            //°ÑËõ·Å grip ·ÅÔÚÁĞµÄ×îºó£¬²»Ê¹ÓÃ splitter £¬ÊÇÒòÎªËûÃ»ÓĞÎÒÃÇĞèÒªµÄËõ·ÅĞĞÎª
+                            //æŠŠç¼©æ”¾ grip æ”¾åœ¨åˆ—çš„æœ€åï¼Œä¸ä½¿ç”¨ splitter ï¼Œæ˜¯å› ä¸ºä»–æ²¡æœ‰æˆ‘ä»¬éœ€è¦çš„ç¼©æ”¾è¡Œä¸º
                             const float gripSize = 5.0f;
                             std::shared_ptr<Border> sizingGrip = WIDGET_NEW(Border)
                             .padding(0.0f)
@@ -293,7 +348,7 @@ namespace GuGu {
                             (
                                 WIDGET_NEW(Spacer)
                                 .size(math::float2(gripSize, gripSize))
-                            );//todo:Ìí¼Ó cursor ÏìÓ¦
+                            );//todo:æ·»åŠ  cursor å“åº”
 
                             std::weak_ptr<Border> weakSizingGrip = sizingGrip;
                             auto sizingGrip_OnMouseButtonDown = [&someColumn, weakSizingGrip](const WidgetGeometry&, const PointerEvent&)->Reply
@@ -332,7 +387,7 @@ namespace GuGu {
                             sizingGrip->setOnMouseButtonUp(sizingGrip_OnMouseButtonUp);
                             sizingGrip->setOnMouseMove(sizingGrip_OnMouseMove);
 
-                            //Õâ¸öº¯Êı´´½¨ optional size £¬ÖµÎª desired width
+                            //è¿™ä¸ªå‡½æ•°åˆ›å»º optional size ï¼Œå€¼ä¸º desired width
                             auto getColumnWidthAsOptionalSize = [&someColumn]()->OptionalSize
                             {
                                const float desiredWidth = someColumn.getWidth();
@@ -370,7 +425,7 @@ namespace GuGu {
             }
         }
 
-        //°Ñ box ·Åµ½ border ÉÏ
+        //æŠŠ box æ”¾åˆ° border ä¸Š
         setContent(box);
 	}
 

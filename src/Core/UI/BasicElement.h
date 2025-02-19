@@ -95,6 +95,12 @@ namespace GuGu {
 			, right(uniformPadding)
 			, bottom(uniformPadding)
 		{}
+		Padding(float horizontal, float vertical)
+			: left(horizontal)
+			, top(vertical)
+			, right(horizontal)
+			, bottom(vertical)
+		{}
 
 		math::float2 getFixedSize() const
 		{
