@@ -4,7 +4,7 @@
 #include <vector>
 
 namespace GuGu {
-	namespace SceneOutlinear
+	namespace SceneOutlinerNameSpace
 	{
 		struct ITreeItem : public std::enable_shared_from_this<ITreeItem>
 		{

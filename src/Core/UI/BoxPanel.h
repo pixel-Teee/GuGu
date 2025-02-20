@@ -86,6 +86,7 @@ namespace GuGu {
 
 		virtual uint32_t getSlotsNumber() const override;
 
+		void clearChildren();
 	protected:
 
 		const Orientation m_orientation;
@@ -231,6 +232,8 @@ namespace GuGu {
 		{
 			return VerticalBoxSlot::SlotBuilderArguments(std::make_shared<VerticalBoxSlot>());
 		}
+
+		VerticalBox::VerticalBoxSlot::SlotBuilderArguments addSlot();
 
 		VerticalBox::VerticalBoxSlot::SlotBuilderArguments insertSlot(int32_t insertAtIndex);
 

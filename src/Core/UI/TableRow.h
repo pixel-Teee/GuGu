@@ -380,9 +380,9 @@ namespace GuGu {
 	protected:
 		void init(const TableRowArgs& arguments, const std::shared_ptr<TableViewBase>& inOwnerTableView)
 		{
-			TableRow<ITreeItem>::init(
+			TableRow<ItemType>::init(
 				TableRowArgs()
-				.Style(arguments.mstyle)
+				.Style(arguments.mStyle)
 				.padding(arguments.mpadding)
 				.onDragDetected(arguments.monDragDetected)
 				.Content
@@ -399,11 +399,14 @@ namespace GuGu {
 
 		void generateColumns(const std::shared_ptr<HeaderRow>& inColumnHeaders)
 		{
-			
+			m_box->clearChildren();
+			const std::vector<std::shared_ptr<HeaderRow::GColumn>>& columns = inColumnHeaders->getColumns();
+			const int32_t numColumns = columns.size();
+			std::map<GuGuUtf8Str, std::shared_ptr<Widget>> newColumnIdToSlotContents;
 		}
 
 	private:
 		std::shared_ptr<HorizontalBox> m_box;
-		std::unordered_map<GuGuUtf8Str, std::shared_ptr<Widget>> m_columnIdToSlotContents;
+		std::map<GuGuUtf8Str, std::shared_ptr<Widget>> m_columnIdToSlotContents;
 	};
 }

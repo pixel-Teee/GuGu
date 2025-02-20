@@ -1,6 +1,6 @@
 #include <pch.h>
 
-#include "OutlinearTreeView.h"
+#include "SceneOutlinerFwd.h"
 
 namespace GuGu {
 

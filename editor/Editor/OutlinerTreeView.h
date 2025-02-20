@@ -1,0 +1,49 @@
+#pragma once
+
+#include <Core/UI/TreeView.h>
+#include "SceneOutlinerFwd.h"
+
+namespace GuGu {
+	namespace SceneOutlinerNameSpace
+	{
+		class OutlinerTreeView : public TreeView<TreeItemPtr> //ITreeItem
+		{
+		public:
+			//struct BuilderArguments : public Arguments<OutlinerTreeView>
+			//{
+			//	BuilderArguments() {}
+			//
+			//	~BuilderArguments() = default;
+			//};
+
+			void init(const BuilderArguments& arguments, std::shared_ptr<SceneOutliner> owner);
+		protected:
+
+			std::weak_ptr<SceneOutliner> m_sceneOutlinerWeak;
+		};
+
+		class SceneOutlinerTreeRow : public MultiColumnTableRow<TreeItemPtr>
+		{
+		public:
+			struct BuilderArguments : public Arguments<SceneOutlinerTreeRow>
+			{
+				BuilderArguments() {}
+			
+				~BuilderArguments() = default;
+
+				ARGUMENT_VALUE(TreeItemPtr, item)
+			};
+
+			void init(const BuilderArguments& arguments, const std::shared_ptr<OutlinerTreeView>& outlinerTreeView, std::shared_ptr<SceneOutliner> sceneOutliner);
+
+			std::shared_ptr<Widget> generateWidgetForColumn(const GuGuUtf8Str& inColumnName) override;
+
+		private:
+			std::weak_ptr<SceneOutliner> m_sceneOutlinerWeak;
+
+			std::weak_ptr<ITreeItem> m_item;
+
+
+		};
+	}
+}

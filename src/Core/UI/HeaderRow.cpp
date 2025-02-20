@@ -74,7 +74,7 @@ namespace GuGu {
 			);
 
             std::shared_ptr<Widget> primaryContent = column.m_headerContent;
-            if (primaryContent == NullWidget::nullWidget)
+            if (primaryContent == NullWidget::getNullWidget())
             {
                 primaryContent = WIDGET_NEW(BoxWidget)
                 .padding(m_onSortModeChanged ? Padding(0, 2, 0, 2) : Padding(0, 4, 0, 4))
@@ -164,6 +164,8 @@ namespace GuGu {
                 overlay
             );
             m_childWidget->m_childWidget->setParentWidget(shared_from_this());
+
+            //这个 table column header 一个文本标题右边带了一个 combo button ，可以展开
         }
 
         ColumnSortMode::Type getSortMode() const
@@ -173,27 +175,53 @@ namespace GuGu {
 
         std::shared_ptr<Brush> getHeaderBackgroundBrush() const
         {
+            if (IsHovered() && m_sortMode.IsBound())
+            {
+                return m_style->m_hoveredBrush;
+            }
             return m_style->m_normalBrush;
         }
 
         std::shared_ptr<Brush> getSortingBrush() const
         {
-            return m_style->m_sortSecondaryAscendingImage;
+            ColumnSortPriority::Type columnSortPriority = m_sortPriority.Get();
+
+            return (m_sortMode.Get() == ColumnSortMode::Ascending ?
+                   (m_sortPriority.Get() == ColumnSortPriority::Secondary ? m_style->m_sortSecondaryAscendingImage : m_style->m_sortPrimaryAscendingImage) :
+                   (m_sortPriority.Get() == ColumnSortPriority::Secondary ? m_style->m_sortSecondaryDescendingImage : m_style->m_sortPrimaryDesendingImage));
         }
 
         Visibility getSortModeVisibility() const
         {
-            return Visibility::Visible;
+            return (m_sortMode.Get() != ColumnSortMode::None) ? Visibility::HitTestInvisible : Visibility::Hidden;
         }
 
+        //combo button 的可见性性质函数
         Visibility getMenuOverlayVisibility() const 
         {
+            if (m_comboVisibility == HeaderComboVisibility::OnHover)
+            {
+                if (!m_comboButton || !(IsHovered() || m_comboButton->isOpen()))
+                {
+                    return Visibility::Collapsed;
+                }
+            }
+
             return Visibility::Visible;
         }
 
         std::shared_ptr<Brush> getComboButtonBorderBrush() const
         {
-            return nullptr;
+            if (m_comboButton && (m_comboButton->IsHovered() || m_comboButton->isOpen()))
+            {
+                return m_style->m_menuDropDownHoveredBorderBrush;
+            }
+            if(IsHovered() || m_comboVisibility == HeaderComboVisibility::Always)
+            {
+                return m_style->m_menuDropDownNormalBorderBrush;
+            }
+
+            return CoreStyle::getStyleSet()->getBrush("NoBorder");
         }
 
     private:
@@ -248,6 +276,11 @@ namespace GuGu {
 
         //生成针对所有列的控件
         regenerateWidgets();
+	}
+
+	const std::vector<std::shared_ptr<HeaderRow::GColumn>>& HeaderRow::getColumns() const
+	{
+        return m_columns;
 	}
 
 	void HeaderRow::regenerateWidgets()

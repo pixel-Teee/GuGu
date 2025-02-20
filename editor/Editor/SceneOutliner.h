@@ -1,26 +1,43 @@
 #pragma once
 
 #include "ISceneOutliner.h"
+#include "SceneOutlinerFwd.h" //一些前向声明
 #include <Core/UI/UIMacros.h>
 
 namespace GuGu {
-	class SceneOutliner : public ISceneOutliner
+	class ITableRow;
+	class HeaderRow;
+	class TableViewBase;
+	namespace SceneOutlinerNameSpace
 	{
-	public:
-		SceneOutliner() {}
-
-		virtual ~SceneOutliner() {}
-
-		struct BuilderArguments : public Arguments<SceneOutliner>
+		class OutlinerTreeView;
+		class SceneOutliner : public ISceneOutliner
 		{
-			BuilderArguments() {}
+		public:
+			SceneOutliner() {}
 
-			~BuilderArguments() = default;
+			virtual ~SceneOutliner() {}
+
+			struct BuilderArguments : public Arguments<SceneOutliner>
+			{
+				BuilderArguments() {}
+
+				~BuilderArguments() = default;
+			};
+
+			void init(const BuilderArguments& arguments);
+
+			Visibility getEmptyLabelVisibility() const;
+		private:
+
+			std::shared_ptr<ITableRow> onGenerateRowForOutlinerTree(TreeItemPtr item, const std::shared_ptr<TableViewBase>& ownerTable);
+
+			//scene outliner 的 header row
+			std::shared_ptr<HeaderRow> m_headerRowWidget;
+
+			std::vector<TreeItemPtr> m_rootTreeItems;
+
+			std::shared_ptr<OutlinerTreeView> m_outlinerTreeView;
 		};
-
-		void init(const BuilderArguments& arguments);
-
-	private:
-
-	};
+	}
 }
