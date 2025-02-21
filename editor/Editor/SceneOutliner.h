@@ -8,6 +8,7 @@ namespace GuGu {
 	class ITableRow;
 	class HeaderRow;
 	class TableViewBase;
+	class ISceneOutlinerColumn;
 	namespace SceneOutlinerNameSpace
 	{
 		class OutlinerTreeView;
@@ -28,7 +29,14 @@ namespace GuGu {
 			void init(const BuilderArguments& arguments);
 
 			Visibility getEmptyLabelVisibility() const;
+
+		public:
+			const std::map<GuGuUtf8Str, std::shared_ptr<ISceneOutlinerColumn>>& getColumns() const
+			{
+				return m_columns;
+			}
 		private:
+			std::map<GuGuUtf8Str, std::shared_ptr<ISceneOutlinerColumn>> m_columns;
 
 			std::shared_ptr<ITableRow> onGenerateRowForOutlinerTree(TreeItemPtr item, const std::shared_ptr<TableViewBase>& ownerTable);
 

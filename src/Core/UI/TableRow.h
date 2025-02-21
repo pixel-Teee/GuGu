@@ -421,7 +421,7 @@ namespace GuGu {
 					}
 					else
 					{
-						cellContents = generateWidgetForColumn(column.m_columnId);
+						cellContents = generateWidgetForColumn(column.m_columnId);//生成列的内容
 					}
 
 					if (cellContents != NullWidget::getNullWidget())

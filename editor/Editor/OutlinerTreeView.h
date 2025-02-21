@@ -36,6 +36,9 @@ namespace GuGu {
 
 			void init(const BuilderArguments& arguments, const std::shared_ptr<OutlinerTreeView>& outlinerTreeView, std::shared_ptr<SceneOutliner> sceneOutliner);
 
+			//这个函数是由 MultiColumnTableRow::init 调用，进行生成
+
+			//SceneOutlinerTreeRow::init->SceneOutlinerTreeRow::generateWidgetForColumn->ISceneOutlinerColumn::constructRowWidget
 			std::shared_ptr<Widget> generateWidgetForColumn(const GuGuUtf8Str& inColumnName) override;
 
 		private:
