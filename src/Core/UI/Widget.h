@@ -192,6 +192,8 @@ namespace GuGu{
         void setOnMouseButtonUp(PointerEventHandler eventHandler);
 
         void setOnMouseMove(PointerEventHandler eventHandler);
+
+        void setClipping(WidgetClipping inClipping);
     protected:
         std::weak_ptr<Widget> m_parentWidget;
         WidgetGeometry m_geometry;

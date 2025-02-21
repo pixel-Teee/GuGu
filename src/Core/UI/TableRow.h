@@ -8,6 +8,8 @@
 #include "BoxPanel.h"
 #include "CoreStyle.h"
 #include "WidgetDelegates.h"
+#include "NullWidget.h"
+#include "Box.h"
 
 namespace GuGu {
 	class TableViewBase;
@@ -400,9 +402,97 @@ namespace GuGu {
 		void generateColumns(const std::shared_ptr<HeaderRow>& inColumnHeaders)
 		{
 			m_box->clearChildren();
-			const std::vector<std::shared_ptr<HeaderRow::GColumn>>& columns = inColumnHeaders->getColumns();
+			const std::vector<std::shared_ptr<HeaderRow::GColumn>>& columns = inColumnHeaders->getColumns();//中间管理列类型的数据
 			const int32_t numColumns = columns.size();
 			std::map<GuGuUtf8Str, std::shared_ptr<Widget>> newColumnIdToSlotContents;
+
+			for (int32_t columnIndex = 0; columnIndex < numColumns; ++columnIndex)
+			{
+				const HeaderRow::GColumn& column = *columns[columnIndex];
+				if (column.m_shouldGenerateWidget.Get(true))
+				{
+					auto it = m_columnIdToSlotContents.find(column.m_columnId);
+					std::shared_ptr<Widget> existingWidget = nullptr;
+					std::shared_ptr<Widget> cellContents = NullWidget::getNullWidget();
+					if (it != m_columnIdToSlotContents.end())
+					{
+						existingWidget = it->second;
+						cellContents = existingWidget;
+					}
+					else
+					{
+						cellContents = generateWidgetForColumn(column.m_columnId);
+					}
+
+					if (cellContents != NullWidget::getNullWidget())
+					{
+						cellContents->setClipping(WidgetClipping::OnDemand);
+					}
+
+					switch (column.m_sizeRule)
+					{
+						case ColumnSizeMode::Fill:
+						{
+							Attribute<float> widthBinding;
+							widthBinding.bindRaw(&column, &HeaderRow::GColumn::getWidth);
+
+							m_box->addSlot()
+							.setHorizontalAlignment(column.m_cellHAlignment)
+							.setVerticalAlignment(column.m_cellVAlignment)
+							.StretchWidth(widthBinding)
+							(
+								cellContents
+							);		
+							break;
+						}
+						case ColumnSizeMode::Fixed:
+						{
+							m_box->addSlot()
+							.FixedWidth()
+							(
+								WIDGET_NEW(BoxWidget)
+								.WidthOverride(column.m_width.Get())
+								.HAlign(column.m_cellHAlignment)
+								.VAlign(column.m_cellVAlignment)
+								.Clip(WidgetClipping::OnDemand)
+								.Content
+								(
+									cellContents
+								)
+							);
+							break;
+						}
+						case ColumnSizeMode::Manual:
+						{
+							auto getColumnWidthAsOptionalSize = [&column]()->OptionalSize
+							{
+								const float fixedWidth = column.getWidth();
+								return OptionalSize(fixedWidth);
+							};
+
+							Attribute<OptionalSize> widthBinding;
+							widthBinding.bind(getColumnWidthAsOptionalSize);
+
+							m_box->addSlot()
+							.FixedWidth()
+							(
+								WIDGET_NEW(BoxWidget)
+								.HAlign(column.m_cellHAlignment)
+								.VAlign(column.m_cellVAlignment)
+								.Clip(WidgetClipping::OnDemand)
+								.Content
+								(
+									cellContents
+								)
+							);
+							break;
+						}
+					}
+
+					newColumnIdToSlotContents.insert({column.m_columnId, cellContents});
+				}
+			}
+			m_columnIdToSlotContents = newColumnIdToSlotContents;
 		}
 
 	private:

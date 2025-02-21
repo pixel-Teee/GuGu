@@ -114,6 +114,13 @@ namespace GuGu {
 			m_getter = std::bind(inConstMethodPtr, inUserObject);
 		}
 
+		template<class SourceType>
+		void bindRaw(const SourceType* inUserObject, ObjectType(SourceType::* inConstMethodPtr)()const)
+		{
+			m_bIsSet = true;
+			m_getter = std::bind(inConstMethodPtr, inUserObject);
+		}
+
 		void bind(const Getter& getter)
 		{
 			m_bIsSet = true;

@@ -9,7 +9,9 @@ namespace GuGu {
 	{
 		Inherit, //don't clip
 
-		ClipToBounds
+		ClipToBounds,
+
+		OnDemand
 	};
 	class ClippingZone
 	{

@@ -289,6 +289,15 @@ namespace GuGu{
         case WidgetClipping::ClipToBounds:
             bClipToBounds = true;
             break;
+        case WidgetClipping::OnDemand://固定大小大于实际大小，会被裁剪
+            const float overflowEpsilon = 1.0f;
+            const math::float2& currentSize = getFixedSize();
+            const math::float2& localSize = allottedGeometry.getLocalSize();
+            bClipToBounds =
+                (currentSize.x - overflowEpsilon) > localSize.x ||
+                (currentSize.y - overflowEpsilon) > localSize.y;
+
+            break;
         }
 
         if (bClipToBounds)
@@ -435,6 +444,14 @@ namespace GuGu{
 	void Widget::setOnMouseMove(PointerEventHandler eventHandler)
 	{
         setPointerEvent(nameMouseButtonMove, eventHandler);
+	}
+
+	void Widget::setClipping(WidgetClipping inClipping)
+	{
+        if (m_widgetClipping != inClipping)
+        {
+            m_widgetClipping = inClipping;
+        }
 	}
 
 }
