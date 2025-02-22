@@ -283,6 +283,40 @@ namespace GuGu {
         return m_columns;
 	}
 
+	void HeaderRow::clearColumns()
+	{
+        const bool bHadColumnsItems = m_columns.size() > 0;
+        m_columns.clear();
+        if (bHadColumnsItems)
+        {
+            //todo:添加委托
+        }
+
+        regenerateWidgets();
+	}
+
+	void HeaderRow::addColumn(const GColumn::BuilderArguments& newColumnArgs)
+	{
+        std::shared_ptr<GColumn> newColumn = std::make_shared<GColumn>(newColumnArgs);
+        addColumn(newColumn);
+	}
+
+	void HeaderRow::addColumn(std::shared_ptr<GColumn> newColumn)
+	{
+        int32_t insertIndex = m_columns.size();
+        insertColumn(newColumn, insertIndex);
+	}
+
+	void HeaderRow::insertColumn(std::shared_ptr<GColumn> newColumn, int32_t insertIndex)
+	{
+        auto it = m_columns.begin() + insertIndex;
+
+        m_columns.insert(it, newColumn);
+
+        //todo:添加 columns changed 委托
+        regenerateWidgets();
+	}
+
 	void HeaderRow::regenerateWidgets()
 	{
         const float splitterHandleDetectionSize = 5.0f;

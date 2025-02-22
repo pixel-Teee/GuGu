@@ -33,6 +33,7 @@
 #include "ContentBrowser/ContentBrowser.h"
 #include "ContentBrowser/PathView.h"
 #include "WindowTitleBar.h"
+#include "SceneOutliner.h"
 
 #include <Core/GamePlay/World.h>
 
@@ -198,7 +199,7 @@ namespace GuGu {
 								.cornerRadius(math::float4(5.0f, 5.0f, 5.0f, 5.0f))
 								.Content
 								(
-									NullWidget::getNullWidget()
+									WIDGET_NEW(SceneOutlinerNameSpace::SceneOutliner)
 								)
 							)
 						)		

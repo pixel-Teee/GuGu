@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SceneOutlinerFwd.h"
+#include <Core/UI/HeaderRow.h>
 
 namespace GuGu {
 	class Widget;
@@ -12,5 +13,9 @@ namespace GuGu {
 
 		virtual const std::shared_ptr<Widget> constructRowWidget(SceneOutlinerNameSpace::TreeItemPtr treeItem, 
 		const TableRow<SceneOutlinerNameSpace::TreeItemPtr>& row) = 0;
+
+		virtual HeaderRow::GColumn::BuilderArguments constructHeaderRowColumn() = 0;
+
+		virtual GuGuUtf8Str getColumnID() = 0;
 	};
 }

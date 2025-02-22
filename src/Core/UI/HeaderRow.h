@@ -173,6 +173,13 @@ namespace GuGu {
 		void init(const BuilderArguments& inArgs);
 
 		const std::vector<std::shared_ptr<GColumn>>& getColumns() const;
+
+		void clearColumns();
+
+		void addColumn(const GColumn::BuilderArguments& newColumnArgs);
+		void addColumn(std::shared_ptr<GColumn> newColumn);
+
+		void insertColumn(std::shared_ptr<GColumn> newColumn, int32_t insertIndex);
 	private:
 		void regenerateWidgets();
 

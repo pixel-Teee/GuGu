@@ -36,6 +36,8 @@ namespace GuGu {
 				return m_columns;
 			}
 		private:
+			void setupColumns(HeaderRow& headerRow);
+
 			std::map<GuGuUtf8Str, std::shared_ptr<ISceneOutlinerColumn>> m_columns;
 
 			std::shared_ptr<ITableRow> onGenerateRowForOutlinerTree(TreeItemPtr item, const std::shared_ptr<TableViewBase>& ownerTable);
@@ -46,6 +48,8 @@ namespace GuGu {
 			std::vector<TreeItemPtr> m_rootTreeItems;
 
 			std::shared_ptr<OutlinerTreeView> m_outlinerTreeView;
+
+			uint8_t m_bNeedsColumnRefresh : 1;
 		};
 	}
 }
