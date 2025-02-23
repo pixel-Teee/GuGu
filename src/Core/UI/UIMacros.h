@@ -7,6 +7,7 @@
 #include "Visibility.h"
 
 namespace GuGu {
+	//clang 支持不加 typename，但是 msvc 需要，如果WidgetType是个模板类
 #if !defined(__clang__)
 	#define TYPENAME_OUTSIDE_TEMPLATE
 #endif
