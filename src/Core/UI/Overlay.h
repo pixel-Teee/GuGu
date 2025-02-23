@@ -84,21 +84,21 @@ namespace GuGu {
 
 			virtual ~ScopedWidgetSlotArguments()
 			{
-				if (m_slot != nullptr)
+				if (SlotType::SlotBuilderArguments::m_slot != nullptr)
 				{
 					if (m_index == -1)
 					{
 						//std::shared_ptr<SlotType> boxSlot = std::make_shared<SlotType>();
 						//SlotType::SlotBuilderArguments slotArguments(boxSlot);
-						m_slot->init(m_parentWidget, *this);
-						m_childrens.push_back(std::static_pointer_cast<SlotType>(std::static_pointer_cast<SlotBase>(m_slot)));
+                        SlotType::SlotBuilderArguments::m_slot->init(m_parentWidget, *this);
+						m_childrens.push_back(std::static_pointer_cast<SlotType>(std::static_pointer_cast<SlotBase>(SlotType::SlotBuilderArguments::m_slot)));
 					}
 					else
 					{
 						//std::shared_ptr<SlotType> boxSlot = std::make_shared<SlotType>();
 						//SlotType::SlotBuilderArguments slotArguments(boxSlot);
-						m_slot->init(m_parentWidget, *this);
-						m_childrens.insert(m_childrens.begin() + m_index, std::static_pointer_cast<SlotType>(std::static_pointer_cast<SlotBase>(m_slot)));
+                        SlotType::SlotBuilderArguments::m_slot->init(m_parentWidget, *this);
+						m_childrens.insert(m_childrens.begin() + m_index, std::static_pointer_cast<SlotType>(std::static_pointer_cast<SlotBase>(SlotType::SlotBuilderArguments::m_slot)));
 					}
 				}
 			}
