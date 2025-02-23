@@ -237,6 +237,51 @@ namespace GuGu {
 
 			m_styles.insert({ u8"StartAndStop", checkBoxStyle });
 		}
+
+		{
+			std::shared_ptr<TableColumnHeaderStyle> columnStyle = std::make_shared<TableColumnHeaderStyle>();
+			std::shared_ptr<Brush> normalColumnBrush = std::make_shared<Brush>();
+			normalColumnBrush->m_tiling = false;
+			normalColumnBrush->m_texturePath = u8"asset/white.png";
+			normalColumnBrush->m_tintColor = beige3;
+			normalColumnBrush->m_drawAs = BrushDrawType::Type::Image;
+			columnStyle->setNormalBrush(normalColumnBrush);
+			columnStyle->setHoveredBrush(normalColumnBrush);
+			columnStyle->setSortPrimaryAscendingImage(noResource);
+			columnStyle->setSortPrimaryDescendingImage(noResource);
+			columnStyle->setSortSecondaryAscendingImage(noResource);
+			columnStyle->setSortSecondaryDescendingImage(noResource);
+			columnStyle->setMenuDropDownImage(noResource);
+			columnStyle->setMenuDropDownNormalBorderBrush(noResource);
+			columnStyle->setMenuDropDownHoveredBorderBrush(noResource);
+
+			std::shared_ptr<TableColumnHeaderStyle> lastColumnStyle = columnStyle;
+
+			std::shared_ptr<SplitterStyle> splitterStyle = std::make_shared<SplitterStyle>();
+			std::shared_ptr<Brush> normalBrush = std::make_shared<Brush>();
+			normalBrush->m_tiling = false;
+			normalBrush->m_texturePath = u8"asset/white.png";
+			normalBrush->m_tintColor = beige8;
+			normalBrush->m_drawAs = BrushDrawType::Type::Image;
+
+			std::shared_ptr<Brush> highlightBrush = std::make_shared<Brush>();
+			normalBrush->m_tiling = false;
+			normalBrush->m_texturePath = u8"asset/white.png";
+			normalBrush->m_tintColor = beige5;
+			normalBrush->m_drawAs = BrushDrawType::Type::Image;
+
+			splitterStyle->setHandleNormalBrush(normalBrush);
+			splitterStyle->setHandleHighlightBrush(highlightBrush);
+
+			//header row style
+			std::shared_ptr<HeaderRowStyle> headerRowStyle = std::make_shared<HeaderRowStyle>();
+			headerRowStyle->setBackgroundBrush(noResource);
+			headerRowStyle->setColumnStyle(columnStyle);
+			headerRowStyle->setLastColumnStyle(lastColumnStyle);
+			headerRowStyle->setColumnSplitterStyle(splitterStyle);	
+
+			m_styles.insert({ u8"SceneOutliner.header", headerRowStyle });
+		}
 	}
 	EditorStyleSet::~EditorStyleSet()
 	{

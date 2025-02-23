@@ -7,6 +7,8 @@
 #include <Core/UI/TextBlockWidget.h>
 #include "OutlinerTreeView.h"
 #include "SceneOutlinerGutter.h"
+#include "SceneOutlinerItemLabelColumn.h"
+#include "Editor/StyleSet/EditorStyleSet.h"
 
 namespace GuGu {
 	namespace SceneOutlinerNameSpace
@@ -16,6 +18,7 @@ namespace GuGu {
 			m_bNeedsColumnRefresh = true;
 
 			m_headerRowWidget = WIDGET_NEW(HeaderRow)
+								.Style(EditorStyleSet::getStyleSet()->getStyle<HeaderRowStyle>("SceneOutliner.header"))
 								.visibility(Visibility::Visible);//后续加个 optionals 在参数里面
 
 			setupColumns(*m_headerRowWidget);
@@ -24,6 +27,7 @@ namespace GuGu {
 
 			verticalBox->addSlot()
 			.StretchHeight(1.0f)
+			.setPadding(Padding(10.0f, 10.0f, 10.0f, 10.0f))
 			(
 				WIDGET_NEW(Overlay)
 				+ Overlay::Slot()
@@ -62,8 +66,9 @@ namespace GuGu {
 			headerRow.clearColumns();
 
 			std::vector<GuGuUtf8Str> sortedIDs;
-			sortedIDs.reserve(1);
+			sortedIDs.reserve(2);
 			sortedIDs.push_back("0");//sort id
+			sortedIDs.push_back("1");
 
 			for (const GuGuUtf8Str& id : sortedIDs)
 			{
@@ -73,6 +78,10 @@ namespace GuGu {
 				{
 					column = std::make_shared<SceneOutlinerGutter>(*std::static_pointer_cast<ISceneOutliner>(shared_from_this()));
 				}
+				if (id == "1")
+				{
+					column = std::make_shared<SceneOutlinerItemLabelColumn>(*std::static_pointer_cast<ISceneOutliner>(shared_from_this()));
+				}
 				if (column)
 				{
 					m_columns.insert({ column->getColumnID(), column });
@@ -81,6 +90,9 @@ namespace GuGu {
 				auto columnArgs = column->constructHeaderRowColumn();//column 的构造参数
 
 				//todo:添加 sort mode 和 on sort
+
+				if (id == "1")
+					columnArgs.DefaultLabel("ItemLabel");//标签
 
 				headerRow.addColumn(columnArgs);
 			}

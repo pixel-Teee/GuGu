@@ -101,14 +101,15 @@ namespace GuGu {
 	{
 		return OverlaySlot::SlotBuilderArguments(std::make_shared<OverlaySlot>());
 	}
-	Overlay::OverlaySlot::SlotBuilderArguments Overlay::addSlot(int32_t zOrder)
+	Overlay::ScopedWidgetSlotArguments<Overlay::OverlaySlot> Overlay::addSlot(int32_t zOrder)
 	{
+		int32_t index = -1;
 		std::shared_ptr<OverlaySlot> newSlot = std::make_shared<OverlaySlot>();
 		if (zOrder == -1)
 		{
 			zOrder = (m_childrens.size() == 0) ? 0 : (m_childrens[m_childrens.size() - 1]->m_zOrder + 1);
 
-			this->m_childrens.push_back(newSlot);
+			//this->m_childrens.push_back(newSlot);
 		}
 		else
 		{
@@ -123,15 +124,16 @@ namespace GuGu {
 					break;
 				}
 			}
-
-			this->m_childrens.insert(m_childrens.begin() + curSlotIndex, newSlot);
+			index = curSlotIndex;
+			//this->m_childrens.insert(m_childrens.begin() + curSlotIndex, newSlot);
 		}
 
-		newSlot->m_zOrder = zOrder;
+		//newSlot->m_zOrder = zOrder;
 
-		OverlaySlot::SlotBuilderArguments slotArguments(newSlot);
-		newSlot->init(shared_from_this(), slotArguments);
-		return slotArguments;
+		//OverlaySlot::SlotBuilderArguments slotArguments(newSlot);
+		//newSlot->init(shared_from_this(), slotArguments);
+		
+		return Overlay::ScopedWidgetSlotArguments<Overlay::OverlaySlot>(std::make_shared<OverlaySlot>(zOrder), this->m_childrens, index, std::static_pointer_cast<Overlay>(shared_from_this()));
 	}
 	void Overlay::removeSlot(int32_t zOrder)
 	{

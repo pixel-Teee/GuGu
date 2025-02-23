@@ -52,7 +52,7 @@ namespace GuGu {
             Attribute<GuGuUtf8Str> labelText = column.m_defaultText;
             Attribute<GuGuUtf8Str> tooltipText = column.m_defaultTooltip;
 
-            if (column.m_headerContent == NullWidget::getNullWidget())
+            if (column.m_headerContent == NullWidget::getNullWidget())//header content 没提供，就会使用一个默认的文本
             {
                 if (!column.m_defaultText.IsSet())
                 {
@@ -78,11 +78,13 @@ namespace GuGu {
             {
                 primaryContent = WIDGET_NEW(BoxWidget)
                 .padding(m_onSortModeChanged ? Padding(0, 2, 0, 2) : Padding(0, 4, 0, 4))
+                .HAlign(HorizontalAlignment::Left)
                 .VAlign(VerticalAlignment::Center)
                 .Content
                 (
                     WIDGET_NEW(TextBlockWidget)
                     .text(labelText)//todo:add tooltip
+                    .textColor(math::float4(0.19f, 0.16f, 0.13f, 1.0f)) //beige 9
                 );
             };
 
@@ -142,6 +144,9 @@ namespace GuGu {
                 adjustedDefaultHeaderContentPadding.right = 0.0f;
             }
 
+            //HorizontalBox由combo button和一个label组合而成
+            //overlay 由这个HorizontalBox和ImageWidget叠在一起，ImageWidget居中，HorizontalBox居左
+            //ImageWidget是一个三角形，表示顺序
             overlay->addSlot(1)
 			.setHorizontalAlignment(HorizontalAlignment::Center)
 			.setVerticalAlignment(VerticalAlignment::Top)
@@ -186,6 +191,7 @@ namespace GuGu {
         {
             ColumnSortPriority::Type columnSortPriority = m_sortPriority.Get();
 
+            //默认降序
             return (m_sortMode.Get() == ColumnSortMode::Ascending ?
                    (m_sortPriority.Get() == ColumnSortPriority::Secondary ? m_style->m_sortSecondaryAscendingImage : m_style->m_sortPrimaryAscendingImage) :
                    (m_sortPriority.Get() == ColumnSortPriority::Secondary ? m_style->m_sortSecondaryDescendingImage : m_style->m_sortPrimaryDesendingImage));

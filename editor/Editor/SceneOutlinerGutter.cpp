@@ -27,10 +27,10 @@ namespace GuGu {
 		HeaderRow::GColumn::BuilderArguments SceneOutlinerGutter::constructHeaderRowColumn()
 		{
 			return HeaderRow::Column(getColumnID())
-				   .FixedWidth(16.0f)
+				   .FixedWidth(4.0f)
 				   .headerContent
 				   (
-						WIDGET_NEW(Spacer)
+						WIDGET_NEW(Spacer)//列头(Header)的内容
 				   );
 		}
 	}

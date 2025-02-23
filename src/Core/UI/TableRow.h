@@ -14,7 +14,7 @@
 namespace GuGu {
 	class TableViewBase;
     //class ListView;
-    template <typename ItemType> class ListView;
+    template<typename ItemType> class ListView;
 	template<typename ItemType>
 	class TableRow : public ITableRow, public Border
 	{
@@ -168,7 +168,10 @@ namespace GuGu {
 		{
 			std::shared_ptr<ITypedTableView<ItemType>> ownerTable = m_ownerTablePtr.lock();
 
+			//note:这个转换需要ListView的定义，但是为了避免循环包含，所以包含 table row 的时候，需要包含 list view
 			std::shared_ptr<TableViewBase> ownerTableViewBase = std::static_pointer_cast<ListView<ItemType>>(ownerTable);
+
+			//todo:实现这个函数
 
 			Reply reply = Reply::Unhandled().releaseMouseCapture();
 

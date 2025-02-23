@@ -144,7 +144,7 @@ namespace GuGu {
 // 										.text(u8"Test")
 // 										.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
 // 									)
-									NullWidget::getNullWidget()
+									WIDGET_NEW(SceneOutlinerNameSpace::SceneOutliner)
 								)
 							)
 							+ Splitter::Slot()
@@ -199,7 +199,7 @@ namespace GuGu {
 								.cornerRadius(math::float4(5.0f, 5.0f, 5.0f, 5.0f))
 								.Content
 								(
-									WIDGET_NEW(SceneOutlinerNameSpace::SceneOutliner)
+									NullWidget::getNullWidget()
 								)
 							)
 						)		

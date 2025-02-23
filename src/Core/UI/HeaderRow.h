@@ -2,6 +2,7 @@
 
 #include "Border.h"
 #include "Splitter.h" //splitter
+#include "NullWidget.h"
 
 namespace GuGu {
 	class TableColumnHeader;
@@ -60,6 +61,21 @@ namespace GuGu {
 			{
 				BuilderArguments()
 				: mColumnId()
+				, mDefaultLabel()
+				, mDefaultTooltip()
+				, mFillWidth(1.0f)
+				, mFixedWidth()
+				, monWidthChanged()
+				//, mheaderContent()
+				, mhAlignHeader(HorizontalAlignment::Stretch)
+				, mvAlignHeader(VerticalAlignment::Stretch)
+				, mheaderContentPadding()
+				, mheaderComboVisibility(HeaderComboVisibility::OnHover)
+				, mMenuContent()
+				, mhAlignCell(HorizontalAlignment::Stretch)
+				, mvAlignCell(VerticalAlignment::Stretch)
+				, msortMode(ColumnSortMode::None)
+				, monSort()
 				{}
 
 				~BuilderArguments() = default;
@@ -68,6 +84,7 @@ namespace GuGu {
 				ARGUMENT_ATTRIBUTE(GuGuUtf8Str, DefaultLabel)
 				ARGUMENT_ATTRIBUTE(GuGuUtf8Str, DefaultTooltip)
 				ARGUMENT_ATTRIBUTE(float, FillWidth)
+				ARGUMENT_ATTRIBUTE(float, ManualWidth)
 				ARGUMENT_VALUE(std::optional<float>, FixedWidth)
 				UI_EVENT(OnWidthChanged, onWidthChanged)
 
@@ -89,7 +106,65 @@ namespace GuGu {
 
 			GColumn(const BuilderArguments& inArgs)
 			: m_columnId(inArgs.mColumnId)
-			{}
+			, m_defaultText(inArgs.mDefaultLabel)
+			, m_defaultTooltip(inArgs.mDefaultTooltip)
+			, m_width(1.0f)
+			, m_defaultWidth(1.0f)
+			, m_onWidthChanged(inArgs.monWidthChanged)
+			, m_sizeRule(ColumnSizeMode::Fill)
+			//, m_headerContent(inArgs.mheaderContent->getChildWidget())
+			//, m_headerMenuContent(inArgs.mMenuContent->getChildWidget())
+			, m_headerHAlignment(inArgs.mhAlignHeader)
+			, m_headerVAlignment(inArgs.mvAlignHeader)
+			, m_headerContentPadding(inArgs.mheaderContentPadding)
+			, m_headerComboVisibility(inArgs.mheaderComboVisibility)
+			, m_cellHAlignment(inArgs.mhAlignCell)
+			, m_cellVAlignment(inArgs.mvAlignCell)
+			, m_sortMode(inArgs.msortMode)
+			, m_sortPriority(inArgs.msortPriority)
+			, m_onSortModeChanged(inArgs.monSort)
+			, m_shouldGenerateWidget(true)
+			{
+				if (inArgs.mheaderContent != nullptr)
+				{
+					m_headerContent = inArgs.mheaderContent->getChildWidget();
+				}
+				else
+				{
+					m_headerContent = NullWidget::getNullWidget();
+				}
+				if (inArgs.mMenuContent != nullptr)
+				{
+					m_headerMenuContent = inArgs.mMenuContent->getChildWidget();
+				}
+				else
+				{
+					m_headerMenuContent = NullWidget::getNullWidget();
+				}
+
+				if (inArgs.mFixedWidth.has_value())
+				{
+					m_width = inArgs.mFixedWidth.value();
+					m_sizeRule = ColumnSizeMode::Fixed;
+				}
+				else if (inArgs.mManualWidth.IsSet())
+				{
+					m_width = inArgs.mManualWidth;
+					m_sizeRule = ColumnSizeMode::Manual;
+				}
+				else if (inArgs.mFillWidth.IsSet())
+				{
+					m_width = inArgs.mFillWidth;
+					m_sizeRule = ColumnSizeMode::Fill;
+				}
+				else
+				{
+					m_width = inArgs.mFillWidth;
+					m_sizeRule = ColumnSizeMode::Fill;
+				}
+
+				m_defaultWidth = m_width.Get();
+			}
 
 			float getWidth() const
 			{
@@ -156,7 +231,9 @@ namespace GuGu {
 
 		struct BuilderArguments : public Arguments<HeaderRow>
 		{
-			BuilderArguments() {}
+			BuilderArguments()
+				: mresizeMode(SplitterResizeMode::Fill)
+			{}
 
 			~BuilderArguments() = default;
 

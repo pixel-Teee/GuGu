@@ -107,24 +107,9 @@ namespace GuGu {
 		return Splitter::SplitterSlot::SlotBuilderArguments(std::make_shared<SplitterSlot>());
 	}
 
-	Splitter::SplitterSlot::SlotBuilderArguments Splitter::addSlot(int32_t atIndex /*= -1*/)
+	Splitter::ScopedWidgetSlotArguments<Splitter::SplitterSlot> Splitter::addSlot(int32_t atIndex /*= -1*/)
 	{
-		if (atIndex == -1)
-		{
-			std::shared_ptr<SplitterSlot> splitterSlot = std::make_shared<SplitterSlot>();
-			SplitterSlot::SlotBuilderArguments slotArguments(splitterSlot);
-			splitterSlot->init(shared_from_this(), slotArguments);
-			m_childrens.push_back(std::static_pointer_cast<SplitterSlot>(std::static_pointer_cast<SlotBase>(splitterSlot)));
-			return slotArguments;
-		}
-		else
-		{
-			std::shared_ptr<SplitterSlot> splitterSlot = std::make_shared<SplitterSlot>();
-			SplitterSlot::SlotBuilderArguments slotArguments(splitterSlot);
-			splitterSlot->init(shared_from_this(), slotArguments);
-			m_childrens.insert(m_childrens.begin() + atIndex, std::static_pointer_cast<SplitterSlot>(std::static_pointer_cast<SlotBase>(splitterSlot)));
-			return slotArguments;
-		}
+		return Splitter::ScopedWidgetSlotArguments<Splitter::SplitterSlot>(std::make_shared<SplitterSlot>(), m_childrens, atIndex, std::static_pointer_cast<Splitter>(shared_from_this()));
 	}
 
 	uint32_t Splitter::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)

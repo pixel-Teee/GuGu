@@ -274,31 +274,32 @@ namespace GuGu {
 		m_visibilityAttribute = arguments.mVisibility;
 	}
 
-	VerticalBox::VerticalBoxSlot::SlotBuilderArguments VerticalBox::addSlot()
+	VerticalBox::ScopedWidgetSlotArguments<VerticalBox::VerticalBoxSlot> VerticalBox::addSlot()
 	{
 		return insertSlot(-1);//push back
 	}
 
-	VerticalBox::VerticalBoxSlot::SlotBuilderArguments
+	VerticalBox::ScopedWidgetSlotArguments<VerticalBox::VerticalBoxSlot>
     VerticalBox::insertSlot(int32_t insertAtIndex) 
 	{
-		if (insertAtIndex == -1)
-		{
-			std::shared_ptr<VerticalBoxSlot> boxSlot = std::make_shared<VerticalBoxSlot>();
-			VerticalBoxSlot::SlotBuilderArguments slotArguments(boxSlot);
-			boxSlot->init(shared_from_this(), slotArguments);
-			m_childrens.push_back(std::static_pointer_cast<BoxPanelSlot>(std::static_pointer_cast<SlotBase>(boxSlot)));
-			return slotArguments;
-		}
-		else
-		{
-			std::shared_ptr<VerticalBox::VerticalBoxSlot> slot = std::make_shared<VerticalBox::VerticalBoxSlot>();
-			if (insertAtIndex == -1)
-				insertAtIndex = m_childrens.size();
-			auto it = m_childrens.begin() + insertAtIndex;
-			std::shared_ptr<BoxPanelSlot> boxPanelSlot = std::static_pointer_cast<BoxPanelSlot>(std::static_pointer_cast<SlotBase>(slot));
-			m_childrens.insert(it, boxPanelSlot);//在指定位置插入 slot
-			return VerticalBox::VerticalBoxSlot::SlotBuilderArguments(slot);
-		}
+		//if (insertAtIndex == -1)
+		//{
+		//	std::shared_ptr<VerticalBoxSlot> boxSlot = std::make_shared<VerticalBoxSlot>();
+		//	VerticalBoxSlot::SlotBuilderArguments slotArguments(boxSlot);
+		//	//boxSlot->init(shared_from_this(), slotArguments);
+		//	m_childrens.push_back(std::static_pointer_cast<BoxPanelSlot>(std::static_pointer_cast<SlotBase>(boxSlot)));
+		//	return slotArguments;
+		//}
+		//else
+		//{
+		//	std::shared_ptr<VerticalBox::VerticalBoxSlot> slot = std::make_shared<VerticalBox::VerticalBoxSlot>();
+		//	if (insertAtIndex == -1)
+		//		insertAtIndex = m_childrens.size();
+		//	auto it = m_childrens.begin() + insertAtIndex;
+		//	std::shared_ptr<BoxPanelSlot> boxPanelSlot = std::static_pointer_cast<BoxPanelSlot>(std::static_pointer_cast<SlotBase>(slot));
+		//	m_childrens.insert(it, boxPanelSlot);//在指定位置插入 slot
+		//	return VerticalBox::VerticalBoxSlot::SlotBuilderArguments(slot);
+		//}
+		return ScopedWidgetSlotArguments(std::make_shared<VerticalBoxSlot>(), this->m_childrens, insertAtIndex, shared_from_this());
     }
 }

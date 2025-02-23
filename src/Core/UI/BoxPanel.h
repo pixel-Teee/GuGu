@@ -88,6 +88,45 @@ namespace GuGu {
 
 		void clearChildren();
 	protected:
+		template<typename SlotType>
+		struct ScopedWidgetSlotArguments : public SlotType::SlotBuilderArguments
+		{
+			ScopedWidgetSlotArguments(std::shared_ptr<SlotType> inSlot, std::vector<std::shared_ptr<BoxPanelSlot>>& inChildren, int32_t index,
+				std::shared_ptr<Widget> inParentWidget)
+				: SlotType::SlotBuilderArguments(inSlot)
+				, m_childrens(inChildren)
+				, m_index(index)
+				, m_parentWidget(inParentWidget)
+			{}
+
+			virtual ~ScopedWidgetSlotArguments()
+			{
+				if (m_slot != nullptr)
+				{
+					if (m_index == -1)
+					{
+						//std::shared_ptr<SlotType> boxSlot = std::make_shared<SlotType>();
+						//SlotType::SlotBuilderArguments slotArguments(boxSlot);
+						m_slot->init(m_parentWidget, *this);
+						m_childrens.push_back(std::static_pointer_cast<BoxPanelSlot>(std::static_pointer_cast<SlotBase>(m_slot)));
+					}
+					else
+					{
+						//std::shared_ptr<SlotType> boxSlot = std::make_shared<SlotType>();
+						//SlotType::SlotBuilderArguments slotArguments(boxSlot);
+						m_slot->init(m_parentWidget, *this);
+						m_childrens.insert(m_childrens.begin() + m_index, std::static_pointer_cast<BoxPanelSlot>(std::static_pointer_cast<SlotBase>(m_slot)));
+					}
+				}
+			}
+
+		private:
+			std::vector<std::shared_ptr<BoxPanelSlot>>& m_childrens;
+
+			std::shared_ptr<Widget> m_parentWidget;
+
+			int32_t m_index;
+		};
 
 		const Orientation m_orientation;
 
@@ -145,29 +184,30 @@ namespace GuGu {
 			return HorizontalBoxSlot::SlotBuilderArguments(std::make_shared<HorizontalBoxSlot>());
 		}
 
-		HorizontalBoxSlot::SlotBuilderArguments addSlot()
+		HorizontalBox::ScopedWidgetSlotArguments<HorizontalBoxSlot> addSlot()
 		{
 			return insertSlot(-1);
 		}
 
-		HorizontalBoxSlot::SlotBuilderArguments insertSlot(int32_t index = -1)
+		HorizontalBox::ScopedWidgetSlotArguments<HorizontalBoxSlot> insertSlot(int32_t index = -1)
 		{
-			if (index == -1)
-			{
-				std::shared_ptr<HorizontalBoxSlot> boxSlot = std::make_shared<HorizontalBoxSlot>();
-				HorizontalBoxSlot::SlotBuilderArguments slotArguments(boxSlot);
-				boxSlot->init(shared_from_this(), slotArguments);
-				m_childrens.push_back(std::static_pointer_cast<BoxPanelSlot>(std::static_pointer_cast<SlotBase>(boxSlot)));
-				return slotArguments;
-			}
-			else
-			{
-				std::shared_ptr<HorizontalBoxSlot> boxSlot = std::make_shared<HorizontalBoxSlot>();
-				HorizontalBoxSlot::SlotBuilderArguments slotArguments(boxSlot);
-				boxSlot->init(shared_from_this(), slotArguments);
-				m_childrens.insert(m_childrens.begin() + index, std::static_pointer_cast<BoxPanelSlot>(std::static_pointer_cast<SlotBase>(boxSlot)));
-				return slotArguments;
-			}
+			//if (index == -1)
+			//{
+			//	std::shared_ptr<HorizontalBoxSlot> boxSlot = std::make_shared<HorizontalBoxSlot>();
+			//	HorizontalBoxSlot::SlotBuilderArguments slotArguments(boxSlot);
+			//	boxSlot->init(shared_from_this(), slotArguments);
+			//	m_childrens.push_back(std::static_pointer_cast<BoxPanelSlot>(std::static_pointer_cast<SlotBase>(boxSlot)));
+			//	return slotArguments;
+			//}
+			//else
+			//{
+			//	std::shared_ptr<HorizontalBoxSlot> boxSlot = std::make_shared<HorizontalBoxSlot>();
+			//	HorizontalBoxSlot::SlotBuilderArguments slotArguments(boxSlot);
+			//	boxSlot->init(shared_from_this(), slotArguments);
+			//	m_childrens.insert(m_childrens.begin() + index, std::static_pointer_cast<BoxPanelSlot>(std::static_pointer_cast<SlotBase>(boxSlot)));
+			//	return slotArguments;
+			//}
+			return ScopedWidgetSlotArguments(std::make_shared<HorizontalBoxSlot>(), this->m_childrens, index, shared_from_this());
 		}
 
 		struct BuilderArguments : public Arguments<HorizontalBox>
@@ -233,9 +273,9 @@ namespace GuGu {
 			return VerticalBoxSlot::SlotBuilderArguments(std::make_shared<VerticalBoxSlot>());
 		}
 
-		VerticalBox::VerticalBoxSlot::SlotBuilderArguments addSlot();
+		VerticalBox::ScopedWidgetSlotArguments<VerticalBoxSlot> addSlot();
 
-		VerticalBox::VerticalBoxSlot::SlotBuilderArguments insertSlot(int32_t insertAtIndex);
+		VerticalBox::ScopedWidgetSlotArguments<VerticalBoxSlot> insertSlot(int32_t insertAtIndex);
 
 		struct BuilderArguments : public Arguments<VerticalBox>
 		{

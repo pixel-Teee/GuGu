@@ -8,7 +8,7 @@ namespace GuGu {
 	class ISceneOutliner;
 	namespace SceneOutlinerNameSpace
 	{
-		//显示 actor 的具体信息，用于 SceneOutliner
+		//显示 actor 的具体信息，用于 SceneOutliner，带有眼睛图标的 visibility
 		class SceneOutlinerGutter : public ISceneOutlinerColumn
 		{
 		public:

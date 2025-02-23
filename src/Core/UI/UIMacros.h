@@ -81,6 +81,31 @@ namespace GuGu {
 		{
 			return T2RequiredArgs<Arg0Type&&, Arg1Type&&>(std::forward<Arg0Type>(inArg0), std::forward<Arg1Type>(inArg1));
 		}
+
+		template<typename Arg0Type, typename Arg1Type, typename Arg2Type>
+		struct T3RequiredArgs
+		{
+			T3RequiredArgs(Arg0Type&& inArg0, Arg1Type&& inArg1, Arg2Type&& inArg2)
+				: m_arg0(inArg0)
+				, m_arg1(inArg1)
+				, m_arg2(inArg2)
+			{}
+
+			template<class WidgetType>
+			void callConstruct(const std::shared_ptr<WidgetType>& onWidget, const typename WidgetType::BuilderArguments& withNamedArgs) const
+			{
+				onWidget->init(withNamedArgs, std::forward<Arg0Type>(m_arg0), std::forward<Arg1Type>(m_arg1), std::forward<Arg2Type>(m_arg2));
+			}
+			Arg0Type& m_arg0;
+			Arg1Type& m_arg1;
+			Arg2Type& m_arg2;
+		};
+
+		template<typename Arg0Type, typename Arg1Type, typename Arg2Type>
+		T3RequiredArgs<Arg0Type&&, Arg1Type&&, Arg2Type&&> makeRequiredArgs(Arg0Type&& inArg0, Arg1Type&& inArg1, Arg2Type&& inArg2)
+		{
+			return T3RequiredArgs<Arg0Type&&, Arg1Type&&, Arg2Type&&>(std::forward<Arg0Type>(inArg0), std::forward<Arg1Type>(inArg1), std::forward<Arg2Type>(inArg2));
+		}
 	}
 
 	template<typename WidgetType, typename RequiredArgsPayloadType>
