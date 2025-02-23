@@ -180,8 +180,8 @@ namespace GuGu {
 			}
 			else
 			{
-				std::shared_ptr<TableRow<ItemType>> newListItemWidget;
-				WIDGET_ASSIGN_NEW(TableRow<ItemType>, newListItemWidget, std::static_pointer_cast<TableViewBase>(shared_from_this()))
+				std::shared_ptr<TableRow<ItemType>> newListItemWidget = 
+				WIDGET_NEW(TableRow<ItemType>, std::static_pointer_cast<TableViewBase>(shared_from_this()))
 				.Content
 				(
 					WIDGET_NEW(TextBlockWidget)

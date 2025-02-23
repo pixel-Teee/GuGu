@@ -11,7 +11,7 @@ namespace GuGu {
 	struct PaintArgs;
 	class WidgetGeometry;
 	class ElementList;
-	class Style;
+	struct Style;
 	class TextBlockLayout
 	{
 	public:

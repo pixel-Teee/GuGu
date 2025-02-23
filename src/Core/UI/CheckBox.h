@@ -10,7 +10,7 @@ namespace GuGu {
 	using OnCheckStateChanged = std::function<void(CheckBoxState)>;
 
 	class Brush;
-	class CheckBoxStyle;
+	struct CheckBoxStyle;
 	class SingleChildSlot;
 	class CheckBox : public Widget
 	{

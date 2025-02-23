@@ -11,7 +11,7 @@ namespace GuGu {
 	class ITableRow;
 	class Border;
 	class AssetTileView;
-	class AssetViewItem;
+	struct AssetViewItem;
 	class TableViewBase;
 	//显示过滤的资产的 widget
 	class AssetView : public CompoundWidget

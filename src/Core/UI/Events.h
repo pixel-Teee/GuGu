@@ -181,8 +181,8 @@ namespace GuGu {
 	{
 	public:
 		KeyEvent(const Key inKey, const ModifierKeysState& inModifierKeys, const uint32_t inCharacterCode, const int32_t inKeyCode)
-			: m_key(inKey)
-			, InputEvent(inModifierKeys)
+			: InputEvent(inModifierKeys)
+			, m_key(inKey)
 			, m_characterCode(inCharacterCode)
 			, m_keyCode(inKeyCode)
 		{}

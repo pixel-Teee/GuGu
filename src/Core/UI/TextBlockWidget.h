@@ -12,7 +12,7 @@
 namespace GuGu {
 	class GuGuUtf8Str;
 	class TextInfo;
-	class TextBlockStyle;
+	struct TextBlockStyle;
 	class TextBlockWidget : public Widget
 	{
 	public:

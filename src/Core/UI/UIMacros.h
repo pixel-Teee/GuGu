@@ -7,6 +7,14 @@
 #include "Visibility.h"
 
 namespace GuGu {
+#if !defined(__clang__)
+	#define TYPENAME_OUTSIDE_TEMPLATE
+#endif
+
+#ifndef TYPENAME_OUTSIDE_TEMPLATE
+	#define TYPENAME_OUTSIDE_TEMPLATE typename
+#endif
+
 	template<typename...>
 	struct functionTraits;
 
@@ -249,10 +257,10 @@ namespace GuGu {
 	std::shared_ptr<SlotType> m##Name;
 
 #define WIDGET_NEW(WidgetType, ...) \
-	makeDecl<WidgetType>(#WidgetType, __FILE__, __LINE__, RequiredArgs::makeRequiredArgs(__VA_ARGS__)) << WidgetType::BuilderArguments()
+	makeDecl<WidgetType>(#WidgetType, __FILE__, __LINE__, RequiredArgs::makeRequiredArgs(__VA_ARGS__)) << TYPENAME_OUTSIDE_TEMPLATE WidgetType::BuilderArguments()
 
 #define WIDGET_ASSIGN_NEW(WidgetType, OutValue, ...) \
-	OutValue = makeDecl<WidgetType>(#WidgetType, __FILE__, __LINE__, RequiredArgs::makeRequiredArgs(__VA_ARGS__)) << WidgetType::BuilderArguments()
+	OutValue = makeDecl<WidgetType>(#WidgetType, __FILE__, __LINE__, RequiredArgs::makeRequiredArgs(__VA_ARGS__)) << TYPENAME_OUTSIDE_TEMPLATE WidgetType::BuilderArguments()
 
 	template<typename WidgetType, typename RequiredArgsPayloadType>
 	WidgetConstruct<WidgetType, RequiredArgsPayloadType> makeDecl(const GuGuUtf8Str& typeStr, const GuGuUtf8Str& createLocation, int32_t line, RequiredArgsPayloadType&& inRequiredArgs)
