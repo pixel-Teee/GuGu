@@ -3,7 +3,7 @@
 #include "ObjectTreeLabel.h"
 #include "ISceneOutliner.h"
 #include "ObjectTreeItem.h"
-#include "StyleSet/EditorStyleSet.h"
+#include <Editor/StyleSet/EditorStyleSet.h>
 #include <Core/UI/BoxPanel.h> 
 
 namespace GuGu {

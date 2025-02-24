@@ -33,7 +33,7 @@
 #include "ContentBrowser/ContentBrowser.h"
 #include "ContentBrowser/PathView.h"
 #include "WindowTitleBar.h"
-#include "SceneOutliner.h"
+#include "SceneOutliner/SceneOutliner.h"
 
 #include <Core/GamePlay/World.h>
 
