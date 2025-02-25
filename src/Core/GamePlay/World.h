@@ -2,6 +2,8 @@
 
 #include <Core/Math/MyMath.h>
 
+#include <functional>
+
 namespace GuGu {
 	struct AssetData;
 	class Level;
@@ -40,6 +42,8 @@ namespace GuGu {
 		void renderLevel(Demo* demoPass);
 
 		void switchState(WorldState state);
+
+		std::function<void()> m_onLevelChanged;
 	private:
 		std::shared_ptr<ViewportClient> m_viewportClient;
 

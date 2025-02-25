@@ -8,5 +8,6 @@ namespace GuGu {
 	public:
 		virtual ~ISceneOutliner() {}
 
+		virtual void refresh() = 0;
 	};
 }

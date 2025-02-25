@@ -20,6 +20,7 @@ namespace GuGu {
 			auto mainContent = WIDGET_NEW(HorizontalBox)
 			//main actor label
 			+ HorizontalBox::Slot()
+			.FixedWidth()
 			.setVerticalAlignment(VerticalAlignment::Center)
 			(
 				WIDGET_NEW(TextBlockWidget)

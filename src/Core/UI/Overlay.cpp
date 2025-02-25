@@ -76,7 +76,7 @@ namespace GuGu {
 		{
 			const OverlaySlot& curChild = *m_childrens[childIndex];
 			//todo:add visibility check
-			const Visibility childVisibility = getSlot(0)->getChildWidget()->getVisibility();
+			const Visibility childVisibility = getSlot(childIndex)->getChildWidget()->getVisibility();
 
 			if (arrangedWidgetArray.accepts(childVisibility)) //数组的可见性是否接受widget的可见性
 			{

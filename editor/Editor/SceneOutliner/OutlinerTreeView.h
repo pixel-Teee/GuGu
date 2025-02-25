@@ -32,6 +32,8 @@ namespace GuGu {
 				~BuilderArguments() = default;
 
 				ARGUMENT_VALUE(TreeItemPtr, item)
+
+				ARGUMENT_ATTRIBUTE(std::shared_ptr<TableRowStyle>, Style)
 			};
 
 			void init(const BuilderArguments& arguments, const std::shared_ptr<OutlinerTreeView>& outlinerTreeView, std::shared_ptr<SceneOutliner> sceneOutliner);

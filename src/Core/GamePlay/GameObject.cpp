@@ -93,7 +93,7 @@ namespace GuGu {
 		m_parentGameObject = inGameObject;
 	}
 
-	const GuGu::GuGuUtf8Str& GameObject::getGameObjectLabel() const
+	GuGu::GuGuUtf8Str GameObject::getGameObjectLabel() const
 	{
 		return typeof(GameObject).GetName();
 	}

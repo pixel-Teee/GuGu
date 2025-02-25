@@ -18,8 +18,10 @@ namespace GuGu {
 		{
 			m_item = arguments.mitem;
 			m_sceneOutlinerWeak = sceneOutliner;
+			//m_style = arguments.mStyle.Get();
 
 			auto args = SuperRowType::BuilderArguments();
+			args.mStyle = arguments.mStyle.Get();
 
 			MultiColumnTableRow::init(args, outlinerTreeView);
 		}
