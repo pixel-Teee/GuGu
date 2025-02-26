@@ -36,6 +36,17 @@ namespace GuGu {
 			(
 				WIDGET_NEW(Overlay)
 				+ Overlay::Slot()
+				.setHorizontalAlignment(HorizontalAlignment::Stretch)
+				.setVerticalAlignment(VerticalAlignment::Stretch)
+				(
+					WIDGET_NEW(Border)
+					.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("beige5"))
+					.Content
+					(
+						NullWidget::getNullWidget()
+					)
+				)
+				+ Overlay::Slot()
 				.setHorizontalAlignment(HorizontalAlignment::Center)
 				.setVerticalAlignment(VerticalAlignment::Center)
 				(
@@ -65,6 +76,14 @@ namespace GuGu {
 			populate();
 
 			World::getWorld()->m_onLevelChanged = std::bind(&SceneOutliner::onLevelChanged, this);
+
+			//std::shared_ptr<Border> border = 
+			//WIDGET_NEW(Border)
+			//.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("beige5"))
+			//.Content
+			//(
+			//	verticalBox
+			//);
 
 			m_childWidget = std::make_shared<SingleChildSlot>();
 			m_childWidget->m_childWidget = verticalBox;
