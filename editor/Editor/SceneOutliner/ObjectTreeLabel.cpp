@@ -21,6 +21,7 @@ namespace GuGu {
 			//main actor label
 			+ HorizontalBox::Slot()
 			.FixedWidth()
+			.setHorizontalAlignment(HorizontalAlignment::Left)
 			.setVerticalAlignment(VerticalAlignment::Center)
 			(
 				WIDGET_NEW(TextBlockWidget)

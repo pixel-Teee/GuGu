@@ -1,15 +1,15 @@
 #include <pch.h>
 
 #include "SceneOutliner.h"
-#include <Core/UI/HeaderRow.h>
-#include <Core/UI/BoxPanel.h>
-#include <Core/UI/Overlay.h>
-#include <Core/UI/TextBlockWidget.h>
-#include "OutlinerTreeView.h"
 #include "SceneOutlinerGutter.h"
 #include "SceneOutlinerItemLabelColumn.h"
 #include "Editor/StyleSet/EditorStyleSet.h"
 #include "ObjectTreeItem.h"
+#include "OutlinerTreeView.h"
+#include <Core/UI/HeaderRow.h>
+#include <Core/UI/BoxPanel.h>
+#include <Core/UI/Overlay.h>
+#include <Core/UI/TextBlockWidget.h>
 #include <Core/GamePlay/World.h>
 #include <Core/GamePlay/Level.h>
 
@@ -22,6 +22,9 @@ namespace GuGu {
 			m_bSortDirty = true;
 			m_bNeedsColumnRefresh = true;
 
+			m_sortByName = BuiltInColumnTypes::Label();//根据标签列来排序
+			m_sortMode = ColumnSortMode::Ascending;//升序排序默认
+
 			m_headerRowWidget = WIDGET_NEW(HeaderRow)
 								.Style(EditorStyleSet::getStyleSet()->getStyle<HeaderRowStyle>("SceneOutliner.header"))
 								.visibility(Visibility::Visible);//后续加个 optionals 在参数里面
@@ -29,6 +32,8 @@ namespace GuGu {
 			setupColumns(*m_headerRowWidget);
 
 			std::shared_ptr<VerticalBox> verticalBox = WIDGET_NEW(VerticalBox);
+
+			//todo：加个搜索框
 
 			verticalBox->addSlot()
 			.StretchHeight(1.0f)
@@ -39,19 +44,21 @@ namespace GuGu {
 				.setHorizontalAlignment(HorizontalAlignment::Stretch)
 				.setVerticalAlignment(VerticalAlignment::Stretch)
 				(
-					WIDGET_NEW(Border)
+					WIDGET_NEW(Border) //背景
 					.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("beige5"))
 					.Content
 					(
 						NullWidget::getNullWidget()
 					)
 				)
-				+ Overlay::Slot()
+				+ Overlay::Slot() //没东西的时候，显示空
 				.setHorizontalAlignment(HorizontalAlignment::Center)
 				.setVerticalAlignment(VerticalAlignment::Center)
 				(
 					WIDGET_NEW(TextBlockWidget)
 					.visibility(Attribute<Visibility>::CreateSP(this, &SceneOutliner::getEmptyLabelVisibility))
+					.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+					.text("Empty Label")
 				)
 				+ Overlay::Slot()
 				.setHorizontalAlignment(HorizontalAlignment::Stretch)
@@ -72,7 +79,7 @@ namespace GuGu {
 				)
 			);
 
-			//todo: populate
+			//填充数据集
 			populate();
 
 			World::getWorld()->m_onLevelChanged = std::bind(&SceneOutliner::onLevelChanged, this);

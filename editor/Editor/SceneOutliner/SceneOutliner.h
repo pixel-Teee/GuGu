@@ -2,6 +2,7 @@
 
 #include "ISceneOutliner.h"
 #include "SceneOutlinerFwd.h" //一些前向声明
+#include <Core/UI/HeaderRow.h> //ColumnSortMode 
 #include <Core/UI/UIMacros.h>
 
 namespace GuGu {
@@ -13,7 +14,7 @@ namespace GuGu {
 	{
 		class OutlinerTreeView;
 
-		struct PendingTreeOperation
+		struct PendingTreeOperation //应用在 tree view 的一些操作
 		{
 			enum Type{ Added, Removed, Moved};
 
@@ -86,17 +87,26 @@ namespace GuGu {
 			//scene outliner 的 header row
 			std::shared_ptr<HeaderRow> m_headerRowWidget;
 
+			//根层级的 tree items
 			std::vector<TreeItemPtr> m_rootTreeItems;
 
 			std::shared_ptr<OutlinerTreeView> m_outlinerTreeView;
 
+			//应用到树上的一些操作，每次最多应用500次
 			std::vector<PendingTreeOperation> m_pendingOperations;
 
+			//刷新列数据，比如增加一列，或者减少一列，改变列的属性，即 header row widget
 			uint8_t m_bNeedsColumnRefresh : 1;
 
+			//完整的刷新
 			bool m_bFullRefresh : 1;
 
 			bool m_bSortDirty : 1;
+
+			//根据哪一列去排序
+			GuGuUtf8Str m_sortByName;
+			//当前选择的排序方式
+			ColumnSortMode::Type m_sortMode;
 		};
 	}
 }
