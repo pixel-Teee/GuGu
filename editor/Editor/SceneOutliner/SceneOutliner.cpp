@@ -29,6 +29,7 @@ namespace GuGu {
 								.Style(EditorStyleSet::getStyleSet()->getStyle<HeaderRowStyle>("SceneOutliner.header"))
 								.visibility(Visibility::Visible);//后续加个 optionals 在参数里面
 
+			//创建列头，以及如何描述构造每列的widget和标头的widget
 			setupColumns(*m_headerRowWidget);
 
 			std::shared_ptr<VerticalBox> verticalBox = WIDGET_NEW(VerticalBox);
@@ -200,7 +201,7 @@ namespace GuGu {
 			std::vector<GuGuUtf8Str> sortedIDs;
 			sortedIDs.reserve(2);
 			sortedIDs.push_back("0");//sort id
-			sortedIDs.push_back("1");
+			sortedIDs.push_back("1");//sort id
 
 			for (const GuGuUtf8Str& id : sortedIDs)
 			{
