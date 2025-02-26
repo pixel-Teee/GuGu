@@ -67,8 +67,12 @@ namespace GuGu {
 
 		virtual void privateOnItemRightClicked(ItemType theItem, const PointerEvent& mouseEvent) = 0;
 
+		virtual bool privateOnItemClicked(ItemType theItem) = 0;
+
 		virtual std::shared_ptr<Widget> asWidget() = 0;
 
 		virtual std::vector<ItemType> getSelectedItems() const = 0;
+
+		virtual SelectionMode::Type privateGetSelectionMode() const = 0;
 	};
 }

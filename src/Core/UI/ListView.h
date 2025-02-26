@@ -474,6 +474,16 @@ namespace GuGu {
 			this->onRightMouseButtonUp(mouseEvent);
 		}
 
+		virtual bool privateOnItemClicked(ItemType theItem) override
+		{
+			if (m_onDoubleClick)
+			{
+				m_onDoubleClick(theItem);
+				return true;//handled
+			}
+			return false;//not handled
+		}
+
 		virtual std::shared_ptr<Widget> asWidget() override
 		{
 			return shared_from_this();
@@ -511,6 +521,11 @@ namespace GuGu {
 
 			privateSetItemSelection(inItem, bSelected, selectInfo != SelectInfo::Direct);
 			privateSignalSelectionChanged(selectInfo);
+		}
+
+		virtual SelectionMode::Type privateGetSelectionMode() const override
+		{
+			return m_selectionMode.Get();
 		}
 	private:
 		friend class WidgetGenerator;

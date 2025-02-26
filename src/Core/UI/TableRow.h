@@ -118,6 +118,8 @@ namespace GuGu {
 		virtual Reply OnMouseButtonDown(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent) override
 		{
 			std::shared_ptr<ITypedTableView<ItemType>> ownerTable = m_ownerTablePtr.lock();
+			m_bChangedSelectionOnMouseDown = false;
+			m_bDragWasDected = false;
 
 			if (inMouseEvent.m_effectingButton == Keys::LeftMouseButton)
 			{
@@ -133,7 +135,7 @@ namespace GuGu {
 						{
 							ownerTable->privateClearSelection();
 							ownerTable->privateSetItemSelection(myItem, true, true);
-
+							m_bChangedSelectionOnMouseDown = true;
 							ownerTable->privateSignalSelectionChanged(SelectInfo::Direct);
 						}
 
@@ -171,11 +173,54 @@ namespace GuGu {
 			//note:这个转换需要ListView的定义，但是为了避免循环包含，所以包含 table row 的时候，需要包含 list view
 			std::shared_ptr<TableViewBase> ownerTableViewBase = std::static_pointer_cast<ListView<ItemType>>(ownerTable);
 
-			//todo:实现这个函数
+			if(inMouseEvent.getEffectingButton() == Keys::LeftMouseButton)
+			{
+				Reply reply = Reply::Unhandled().releaseMouseCapture();
 
-			Reply reply = Reply::Unhandled().releaseMouseCapture();
+				if (m_bChangedSelectionOnMouseDown)
+				{
+					reply = Reply::Handled().releaseMouseCapture();
+				}
 
-			return reply;
+				const bool bIsUnderMouse = myGeometry.isUnderLocation(inMouseEvent.m_screenSpacePosition);
+
+				if (hasMouseCapture())
+				{
+					if (bIsUnderMouse && !m_bDragWasDected)
+					{
+						switch (getSelectionMode())
+						{
+							case SelectionMode::SingleToggle:
+							{
+								if (!m_bChangedSelectionOnMouseDown)
+								{
+									ownerTable->privateClearSelection();
+									ownerTable->privateSignalSelectionChanged(SelectInfo::OnMouseClick);
+								}
+								reply = Reply::Handled().releaseMouseCapture();
+								break;
+							}
+						}
+
+						if (const ItemType* myItemPtr = getItemForThis(ownerTable))
+						{
+							if (ownerTable->privateOnItemClicked(*myItemPtr))
+							{
+								reply = Reply::Handled().releaseMouseCapture();
+							}
+						}
+
+						if (m_bChangedSelectionOnMouseDown && !m_bDragWasDected)
+						{
+							ownerTable->privateSignalSelectionChanged(SelectInfo::OnMouseClick);
+						}
+
+						return reply;
+					}
+				}
+			}
+
+			return Reply::Unhandled();
 		}
 
 		virtual Reply OnMouseButtonDoubleClick(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent) override
@@ -279,6 +324,12 @@ namespace GuGu {
 				return Reply::Unhandled();
 			}
 		}
+
+		virtual SelectionMode::Type getSelectionMode() const override
+		{
+			const std::shared_ptr<ITypedTableView<ItemType>> ownerTable = m_ownerTablePtr.lock();
+			return ownerTable->privateGetSelectionMode();
+		}
 	protected:
 		void initInternal(const BuilderArguments& inArgs, const std::shared_ptr<TableViewBase>& inOwnerTableView)
 		{
@@ -370,6 +421,10 @@ namespace GuGu {
 		std::shared_ptr<TableRowStyle> m_style;
 
 		GOnDragDetected m_onDragDectedHandler;
+
+		bool m_bChangedSelectionOnMouseDown;
+
+		bool m_bDragWasDected;
 	};
 
 	template<typename ItemType>

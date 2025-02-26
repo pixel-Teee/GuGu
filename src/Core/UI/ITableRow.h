@@ -1,5 +1,7 @@
 #pragma once
 
+#include "ITypedTableView.h"//SelectionMode::Type
+
 namespace GuGu {
 	class Widget;
 	class ITableRow
@@ -26,5 +28,7 @@ namespace GuGu {
 		virtual bool isItemExpanded() const = 0;
 
 		virtual void toggleExpansion() = 0;
+
+		virtual SelectionMode::Type getSelectionMode() const = 0;
 	};
 }
