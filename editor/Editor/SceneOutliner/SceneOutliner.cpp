@@ -105,6 +105,7 @@ namespace GuGu {
 
 		void SceneOutliner::populate()
 		{
+			//发生了距离的变化
 			bool bMadeAnySignificantChanges = false;
 			//填充列表数据
 			if (m_bFullRefresh)
@@ -176,6 +177,7 @@ namespace GuGu {
 
 		bool SceneOutliner::addItemToTree(TreeItemPtr inItem)
 		{
+			//unfiltered表示添加一个未过滤的item到树里面
 			addUnfilteredItemToTree(inItem);
 
 			return true;
@@ -183,9 +185,44 @@ namespace GuGu {
 
 		void SceneOutliner::addUnfilteredItemToTree(TreeItemPtr item)
 		{
-			//todo:find parent
+			TreeItemPtr parent = ensureParentForItem(item);
 
-			m_rootTreeItems.push_back(item);
+			const TreeItemID itemId = item->getID();
+			//m_rootTreeItems.push_back(item);
+
+			if (m_treeItemMap.find(itemId) != m_treeItemMap.end())
+			{
+				GuGu_LOGE("tree item error");
+			}
+
+			m_treeItemMap.insert({itemId, item});
+			if (parent)
+			{
+				parent->addChild(item);
+			}
+			else
+			{
+				m_rootTreeItems.push_back(item);
+			}
+		}
+
+		TreeItemPtr SceneOutliner::ensureParentForItem(TreeItemPtr item)
+		{
+			TreeItemPtr parent = item->findParent(m_treeItemMap);
+			if (parent)
+			{
+				return parent;
+			}
+			else
+			{
+				auto newParent = item->createParent();
+				if (newParent)
+				{
+					addUnfilteredItemToTree(newParent);
+					return newParent;
+				}
+			}
+			return nullptr;
 		}
 
 		void SceneOutliner::emptyTreeItems()

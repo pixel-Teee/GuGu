@@ -10,7 +10,7 @@ namespace GuGu {
 
 	namespace SceneOutlinerNameSpace
 	{
-		void ObjectTreeLabel::init(const BuilderArguments& arguments, ObjectTreeItem& objectItem, ISceneOutliner& sceneOutliner, const TableRow<TreeItemPtr>& inRow)
+		void ObjectTreeLabel::init(const BuilderArguments& arguments, ObjectTreeItem& objectItem, ISceneOutliner& sceneOutliner, const TableRow<SceneOutlinerNameSpace::TreeItemPtr>& inRow)
 		{
 			m_weakSceneOutliner = std::static_pointer_cast<ISceneOutliner>(sceneOutliner.shared_from_this());
 

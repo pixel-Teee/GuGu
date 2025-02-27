@@ -7,7 +7,6 @@
 #include <Core/UI/TableRow.h>
 
 namespace GuGu {
-	
 	struct ObjectTreeItem : public SceneOutlinerNameSpace::ITreeItem
 	{
 	public:
@@ -20,8 +19,15 @@ namespace GuGu {
 
 		virtual GuGuUtf8Str getDisplayString() const override;
 
+		virtual SceneOutlinerNameSpace::TreeItemPtr findParent(const SceneOutlinerNameSpace::TreeItemMap& existingItems) const override;
+
+		virtual SceneOutlinerNameSpace::TreeItemPtr createParent() const override;
+
+		virtual SceneOutlinerNameSpace::TreeItemID getID() const override;
+
 		mutable std::weak_ptr<GameObject> m_gameObject;
 
 		GuGuUtf8Str m_gameObjectLabel;
 	};
+	
 }

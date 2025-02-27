@@ -17,6 +17,14 @@ namespace GuGu {
 			virtual GuGuUtf8Str getDisplayString() const = 0;
 
 			virtual std::shared_ptr<Widget> generateLabelWidget(ISceneOutliner& outliner, const TableRow<SceneOutlinerNameSpace::TreeItemPtr>& inRow) { return NullWidget::getNullWidget(); }
+
+			virtual TreeItemPtr findParent(const TreeItemMap& existingItems) const = 0;
+
+			virtual TreeItemPtr createParent() const = 0;
+
+			virtual TreeItemID getID() const = 0;//索引 game object 用的
+
+			void addChild(TreeItemPtr child);
 		protected:
 			mutable std::weak_ptr<ITreeItem> m_parent;
 

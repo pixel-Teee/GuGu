@@ -2,6 +2,7 @@
 
 #include "ISceneOutliner.h"
 #include "SceneOutlinerFwd.h" //一些前向声明
+#include "SceneOutlinerStandaloneTypes.h"//TreeItemID
 #include <Core/UI/HeaderRow.h> //ColumnSortMode 
 #include <Core/UI/UIMacros.h>
 
@@ -74,6 +75,8 @@ namespace GuGu {
 
 			void addUnfilteredItemToTree(TreeItemPtr item);
 
+			TreeItemPtr ensureParentForItem(TreeItemPtr item);
+
 			void emptyTreeItems();
 
 			void setupColumns(HeaderRow& headerRow);
@@ -107,6 +110,8 @@ namespace GuGu {
 			GuGuUtf8Str m_sortByName;
 			//当前选择的排序方式
 			ColumnSortMode::Type m_sortMode;
+
+			TreeItemMap m_treeItemMap;//实际的对象的ID，比如GameObject的名字对应的TreeItem，方便索引
 		};
 	}
 }
