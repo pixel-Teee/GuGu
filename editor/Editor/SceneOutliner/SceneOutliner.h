@@ -81,6 +81,8 @@ namespace GuGu {
 
 			void setupColumns(HeaderRow& headerRow);
 
+			//ISceneOutlinerColumn描述了标头和每行怎么构造 widget
+			//key描述了列的名字
 			std::map<GuGuUtf8Str, std::shared_ptr<ISceneOutlinerColumn>> m_columns;
 
 			std::shared_ptr<ITableRow> onGenerateRowForOutlinerTree(TreeItemPtr item, const std::shared_ptr<TableViewBase>& ownerTable);
