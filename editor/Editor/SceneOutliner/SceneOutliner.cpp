@@ -76,6 +76,8 @@ namespace GuGu {
 
 					.onGetChildren(this, &SceneOutliner::onGetChildrenForOutlinerTree)
 
+					.onMouseButtonDoubleClick(this, &SceneOutliner::onOutlinerTreeDoubleClick)
+
 					.itemHeight(18)
 				)
 			);
@@ -279,6 +281,20 @@ namespace GuGu {
 
 		void SceneOutliner::onGetChildrenForOutlinerTree(TreeItemPtr inParent, std::vector<TreeItemPtr>& outChildren)
 		{
+
+		}
+
+		void SceneOutliner::onOutlinerTreeDoubleClick(TreeItemPtr treeItem)
+		{
+			//onOutlinerTreeDoubleClick
+		}
+
+		void SceneOutliner::onOutlinerTreeSelectionChanged(TreeItemPtr treeItem, SelectInfo::Type selectInfo)
+		{
+			if (selectInfo == SelectInfo::Direct) //通过代码设置
+			{
+				return;
+			}
 
 		}
 

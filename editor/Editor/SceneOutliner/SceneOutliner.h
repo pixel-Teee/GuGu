@@ -68,6 +68,10 @@ namespace GuGu {
 
 			void onLevelChanged();
 		private:
+			void onOutlinerTreeDoubleClick(TreeItemPtr treeItem);
+
+			void onOutlinerTreeSelectionChanged(TreeItemPtr treeItem, SelectInfo::Type selectInfo);
+
 			//重新填充整棵树
 			void rePopulateEntireTree();
 

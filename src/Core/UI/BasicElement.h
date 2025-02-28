@@ -222,13 +222,13 @@ namespace GuGu {
 	{
 		enum Type
 		{
-			OnKeyPress,
+			OnKeyPress,//通过键盘按下
 
-			OnNavigation,
+			OnNavigation,//用户导航到 item
 
-			OnMouseClick,
+			OnMouseClick,//用户点击 item
 
-			Direct
+			Direct //通过代码设置
 		};
 	}
 

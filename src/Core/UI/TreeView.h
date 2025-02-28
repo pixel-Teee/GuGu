@@ -57,6 +57,7 @@ namespace GuGu {
 		using OnGetChildren = typename WidgetDelegates<ItemType>::OnGetChildren;
 		using OnExpansionChanged = typename WidgetDelegates<ItemType>::OnExpansionChanged;
 		using OnSelectionChanged = typename WidgetDelegates<ItemType>::OnSelectionChanged;
+		using OnMouseButtonDoubleClick = typename WidgetDelegates<ItemType>::OnMouseButtonDoubleClick;
 		using ItemSet = std::unordered_set<ItemType>;
 		using SparseItemMap = std::unordered_map<ItemType, SparseItemInfo>;
 	public:
@@ -95,6 +96,8 @@ namespace GuGu {
 
 			UI_EVENT(OnSelectionChanged, onSelectionChanged)
 
+			UI_EVENT(OnMouseButtonDoubleClick, onMouseButtonDoubleClick)
+
 			ARGUMENT_ATTRIBUTE(SelectionMode::Type, selectionMode)
 
 			ARGUMENT_ATTRIBUTE(float, itemHeight)
@@ -117,6 +120,7 @@ namespace GuGu {
 			this->m_treeItemsSource = arguments.mtreeItemSource;//利用这个 tree items source 去生成 list view 的 items source
 			this->m_onExpansionChanged = arguments.monExpansionChanged;
 			this->m_onSelectionChanged = arguments.monSelectionChanged;
+			this->m_onDoubleClick = arguments.monMouseButtonDoubleClick;
 			this->m_selectionMode = arguments.mselectionMode;
 
 			TableViewBase::constructChildren(0, arguments.mitemHeight, ListItemAlignment::LeftAligned, arguments.mheaderRow, arguments.mexternalScrollbar,
