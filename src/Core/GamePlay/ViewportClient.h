@@ -2,11 +2,12 @@
 
 #include <Core/Math/MyMath.h>
 #include <Renderer/nvrhi.h>
+#include <functional>
 
 namespace GuGu {
-	class ViewportWidget;
 	class GStaticMesh;
 	class GameObject;
+	class ViewportWidget;
 	class ViewportClient
 	{
 	public:
@@ -75,5 +76,14 @@ namespace GuGu {
 		virtual float getScreenScaleCompensation(math::float3 objWorldPos) const = 0;
 
 		virtual Gizmos getCurrentGizmosType() const = 0;
+
+		//------暂时放在这里------
+		using GameObjectSelectionChangedEvent = std::function<void(const std::vector<GameObject*>&, bool)>;
+		virtual GameObjectSelectionChangedEvent& onGameObjectSelectionChanged() { return m_gameObjectSelectionChangedEvent; }
+
+		virtual void broadcastGameObjectSelectionChanged(const std::vector<GameObject*>& newSelection, bool bForceRefresh);
+		//------暂时放在这里------
+	private:
+		GameObjectSelectionChangedEvent m_gameObjectSelectionChangedEvent;
 	};
 }

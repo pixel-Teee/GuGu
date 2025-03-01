@@ -67,7 +67,9 @@ namespace GuGu {
 
 		void setParentGameObject(const std::weak_ptr<GameObject>& inGameObject);
 
-		const GuGuUtf8Str& getGameObjectLabel() const;
+		const GuGuUtf8Str& getGameObjectName() const;
+
+		uint32_t getId() const;
 	protected:
 		Array<std::shared_ptr<Component>> m_components;
 
@@ -76,5 +78,7 @@ namespace GuGu {
 		std::weak_ptr<GameObject> m_parentGameObject;
 
 		GuGuUtf8Str m_name;
+
+		uint32_t m_id;//don't save
 	};
 }

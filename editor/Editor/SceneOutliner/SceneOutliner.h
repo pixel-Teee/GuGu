@@ -3,6 +3,7 @@
 #include "ISceneOutliner.h"
 #include "SceneOutlinerFwd.h" //一些前向声明
 #include "SceneOutlinerStandaloneTypes.h"//TreeItemID
+#include "ObjectTreeItem.h"
 #include <Core/UI/HeaderRow.h> //ColumnSortMode 
 #include <Core/UI/UIMacros.h>
 
@@ -23,6 +24,32 @@ namespace GuGu {
 
 			TreeItemPtr m_item;
 		};
+
+		//存储了一个选中的 items 的集合
+		struct SceneOutlinerItemSelection
+		{
+			mutable std::vector<std::weak_ptr<ITreeItem>> m_selectedItems;//ObjectTreeItems
+
+			SceneOutlinerItemSelection() {}
+
+			SceneOutlinerItemSelection(const std::vector<TreeItemPtr>& inSelectedItems);
+
+			SceneOutlinerItemSelection(OutlinerTreeView& tree);
+
+			template<typename DataType>
+			std::vector<DataType> getData() const
+			{
+				std::vector<DataType> result;
+				for (std::weak_ptr<ITreeItem>& item : m_selectedItems)
+				{
+					std::shared_ptr<ObjectTreeItem> objectTreeItem = std::static_pointer_cast<ObjectTreeItem>(item.lock());//todo:这里以后要修复
+					//DataType data;
+					result.push_back(static_cast<DataType>(objectTreeItem->m_gameObject.lock().get()));
+				}
+				return result;
+			}
+		};
+
 		class SceneOutliner : public ISceneOutliner
 		{
 		public:

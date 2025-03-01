@@ -6,6 +6,7 @@
 #include "Editor/StyleSet/EditorStyleSet.h"
 #include "ObjectTreeItem.h"
 #include "OutlinerTreeView.h"
+#include "ObjectBrowingMode.h"
 #include <Core/UI/HeaderRow.h>
 #include <Core/UI/BoxPanel.h>
 #include <Core/UI/Overlay.h>
@@ -78,14 +79,14 @@ namespace GuGu {
 
 					.onMouseButtonDoubleClick(this, &SceneOutliner::onOutlinerTreeDoubleClick)
 
+					.onSelectionChanged(this, &SceneOutliner::onOutlinerTreeSelectionChanged)
+
 					.itemHeight(18)
 				)
 			);
 
 			//填充数据集
 			populate();
-
-			World::getWorld()->m_onLevelChanged = std::bind(&SceneOutliner::onLevelChanged, this);
 
 			//std::shared_ptr<Border> border = 
 			//WIDGET_NEW(Border)
@@ -94,6 +95,7 @@ namespace GuGu {
 			//(
 			//	verticalBox
 			//);
+			m_mode = std::make_shared<ObjectBrowsingMode>(this);
 
 			m_childWidget = std::make_shared<SingleChildSlot>();
 			m_childWidget->m_childWidget = verticalBox;
@@ -296,6 +298,22 @@ namespace GuGu {
 				return;
 			}
 
+			//SceneOutlinerItemSelection selection(treeItem);
+			m_mode->onItemSelectionChanged(treeItem, selectInfo, SceneOutlinerItemSelection(*m_outlinerTreeView));
+		}
+
+		SceneOutlinerItemSelection::SceneOutlinerItemSelection(const std::vector<TreeItemPtr>& inSelectedItems)
+		{
+			for (const auto& item : inSelectedItems)
+			{
+				m_selectedItems.push_back(item);
+			}
+		}
+
+		SceneOutlinerItemSelection::SceneOutlinerItemSelection(OutlinerTreeView& tree)
+		: SceneOutlinerItemSelection(tree.getSelectedItems())
+		{
+			 
 		}
 
 	}

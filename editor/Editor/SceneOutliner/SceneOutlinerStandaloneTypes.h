@@ -26,7 +26,7 @@ namespace GuGu {
 
 			TreeItemID(const std::shared_ptr<GameObject> inGameObject)
 			: m_type(Type::Object)
-			, m_gameObjectName(inGameObject->getGameObjectLabel()) //todo:fix this
+			, m_gameObjectIndex(inGameObject->getId()) //todo:fix this
 			{}
 
 			TreeItemID(const GuGuUtf8Str& inFolder) 
@@ -47,7 +47,7 @@ namespace GuGu {
 
 			Type m_type;
 
-			GuGuUtf8Str m_gameObjectName;
+			uint32_t m_gameObjectIndex;
 			GuGuUtf8Str m_folderName;
 		};
 	}

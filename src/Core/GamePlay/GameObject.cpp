@@ -8,6 +8,9 @@ namespace GuGu {
 	GameObject::GameObject()
 	{
 		m_name = typeof(GameObject).GetName();
+
+		static uint32_t id = 0;
+		m_id = ++id;
 	}
 	GameObject::~GameObject()
 	{
@@ -94,10 +97,15 @@ namespace GuGu {
 		m_parentGameObject = inGameObject;
 	}
 
-	const GuGuUtf8Str& GameObject::getGameObjectLabel() const
+	const GuGuUtf8Str& GameObject::getGameObjectName() const
 	{
 		//return typeof(GameObject).GetName();
 		return m_name;
+	}
+
+	uint32_t GameObject::getId() const
+	{
+		return m_id;//只在运行期间有效
 	}
 
 }

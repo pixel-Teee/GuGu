@@ -9,4 +9,10 @@ namespace GuGu {
 	ViewportClient::~ViewportClient()
 	{
 	}
+
+	void ViewportClient::broadcastGameObjectSelectionChanged(const std::vector<GameObject*>& newSelection, bool bForceRefresh)
+	{
+		m_gameObjectSelectionChangedEvent(newSelection, bForceRefresh);
+	}
+
 }

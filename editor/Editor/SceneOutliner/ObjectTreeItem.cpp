@@ -8,7 +8,7 @@ namespace GuGu {
 	ObjectTreeItem::ObjectTreeItem(std::shared_ptr<GameObject> inObject)
 		: m_gameObject(inObject)
 	{
-		m_gameObjectLabel = inObject->getGameObjectLabel();
+		m_gameObjectLabel = inObject->getGameObjectName();
 	}
 
 	std::shared_ptr<Widget> ObjectTreeItem::generateLabelWidget(ISceneOutliner& outliner, const TableRow<SceneOutlinerNameSpace::TreeItemPtr>& inRow)
@@ -62,6 +62,6 @@ namespace GuGu {
 
 	SceneOutlinerNameSpace::TreeItemID ObjectTreeItem::getID() const
 	{
-		return m_gameObjectLabel;
+		return m_gameObject.lock();
 	}
 }
