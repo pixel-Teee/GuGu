@@ -18,5 +18,10 @@ namespace GuGu {
 
 		~DetailsView();
 
+	private:
+		std::shared_ptr<DetailTree> constructTreeView();
+
+		//tree view
+		std::shared_ptr<DetailTree> m_detailTree;
 	};
 }
