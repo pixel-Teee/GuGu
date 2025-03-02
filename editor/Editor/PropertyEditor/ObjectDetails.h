@@ -5,10 +5,10 @@
 
 namespace GuGu {
 	class IDetailsView;
-	class ActorDetails : public CompoundWidget
+	class ObjectDetails : public CompoundWidget
 	{
 	public:
-		struct BuilderArguments : public Arguments<ActorDetails>
+		struct BuilderArguments : public Arguments<ObjectDetails>
 		{
 			BuilderArguments() {}
 
@@ -17,7 +17,7 @@ namespace GuGu {
 
 		void init(const BuilderArguments& arguments);
 
-		~ActorDetails();
+		~ObjectDetails();
 	private:
 		std::shared_ptr<IDetailsView> m_detailsView;
 	};

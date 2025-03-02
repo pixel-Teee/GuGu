@@ -4,12 +4,12 @@
 
 namespace GuGu {
 
-	void ActorDetails::init(const BuilderArguments& arguments)
+	void ObjectDetails::init(const BuilderArguments& arguments)
 	{
 
 	}
 
-	ActorDetails::~ActorDetails()
+	ObjectDetails::~ObjectDetails()
 	{
 
 	}
