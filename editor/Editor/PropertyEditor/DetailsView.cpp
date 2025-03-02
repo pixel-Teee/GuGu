@@ -4,11 +4,15 @@
 #include <Core/UI/NullWidget.h>
 #include <Core/UI/BoxPanel.h>
 #include <Core/UI/Overlay.h>
+#include "DetailsViewObjectFilter.h"//DetailsViewObjectRoot
+#include "DetailsViewGenericObjectFilter.h"
 
 namespace GuGu {
 
 	void DetailsView::init(const BuilderArguments& arguments)
 	{
+		m_objectFilter = std::make_shared<DetailsViewDefaultObjectFilter>();
+
 		std::shared_ptr<VerticalBox> verticalBox = WIDGET_NEW(VerticalBox);
 
 		verticalBox->addSlot()
@@ -30,6 +34,39 @@ namespace GuGu {
 	DetailsView::~DetailsView()
 	{
 
+	}
+
+	void DetailsView::setObjects(const std::vector<GameObject*>& inObjects, bool bForceRefresh /*= false*/, bool bOverrideLock /*= false*/)
+	{
+		//m_unfilteredSelectedObjects.reserve(inObjects.size());
+		//for (GameObject* inObject : inObjects)
+		//{
+		//	if (inObject)
+		//	{
+		//		m_unfilteredSelectedObjects.push_back()
+		//	}
+		//}
+	}
+
+	void DetailsView::setObjects(const std::vector<std::weak_ptr<GameObject>>& inObjects, bool bForceRefresh /*= false*/, bool bOverrideLock /*= false*/)
+	{
+		m_unfilteredSelectedObjects.reserve(inObjects.size());
+
+		std::vector<GameObject*> objects;
+		for (std::weak_ptr<GameObject> inObject : inObjects)
+		{
+			if (inObject.lock())
+			{
+				m_unfilteredSelectedObjects.push_back(inObject);
+				objects.push_back(inObject.lock().get());//raw pointer
+			}
+		}
+		setObjectArrayPrivate(objects);
+	}
+
+	void DetailsView::setObjectArrayPrivate(const std::vector<GameObject*>& inObjects)
+	{
+		const std::vector<DetailsViewObjectRoot> roots = m_objectFilter->filterObjects(inObjects);
 	}
 
 	std::shared_ptr<DetailTree> DetailsView::constructTreeView()
