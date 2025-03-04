@@ -4,6 +4,7 @@
 #include <Core/UI/UIMacros.h>
 
 namespace GuGu {
+	class DetailsViewObjectFilter;
 	class DetailsView : public DetailsViewBase
 	{
 	public:
