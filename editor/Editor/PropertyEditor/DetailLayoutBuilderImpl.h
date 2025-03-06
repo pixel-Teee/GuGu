@@ -16,5 +16,7 @@ namespace GuGu {
 
 
 		DetailNodeList m_filteredRootTreeNodes;
+
+		DetailNodeList m_allRootTreeNodes;
 	};
 }

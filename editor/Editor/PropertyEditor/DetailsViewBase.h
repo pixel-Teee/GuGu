@@ -24,6 +24,8 @@ namespace GuGu {
 
 		virtual RootPropertyNodeList& getRootNodes() = 0;
 	protected:
+		void updatePropertyMaps();
+
 		//tree 中可见的 root tree nodes
 		DetailNodeList m_rootTreeNodes;//用来构造 tree view
 

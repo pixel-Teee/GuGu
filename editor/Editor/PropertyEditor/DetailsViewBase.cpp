@@ -64,4 +64,9 @@ namespace GuGu {
 		m_detailTree->requestTreeRefresh();
 	}
 
+	void DetailsViewBase::updatePropertyMaps()
+	{
+		m_rootTreeNodes.clear();
+	}
+
 }
