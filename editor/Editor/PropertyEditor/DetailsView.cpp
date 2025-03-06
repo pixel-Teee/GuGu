@@ -36,6 +36,11 @@ namespace GuGu {
 
 	}
 
+	RootPropertyNodeList& DetailsView::getRootNodes()
+	{
+		return m_rootPropertyNodes;
+	}
+
 	void DetailsView::setObjects(const std::vector<GameObject*>& inObjects, bool bForceRefresh /*= false*/, bool bOverrideLock /*= false*/)
 	{
 		//m_unfilteredSelectedObjects.reserve(inObjects.size());
