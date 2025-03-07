@@ -23,7 +23,10 @@ namespace GuGu {
 		void refreshTree();
 
 		virtual RootPropertyNodeList& getRootNodes() = 0;
+
+		virtual void updateSinglePropertyMap(std::shared_ptr<ComplexPropertyNode> inRootPropertyNode, DetailLayoutData& layoutData, bool bIsExternal) override;
 	protected:
+		//更新属性 map 用于访问，当自定义 details view 的时候，生成默认的 layout 对于属性
 		void updatePropertyMaps();
 
 		//tree 中可见的 root tree nodes

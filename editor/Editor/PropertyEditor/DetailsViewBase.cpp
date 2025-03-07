@@ -64,9 +64,31 @@ namespace GuGu {
 		m_detailTree->requestTreeRefresh();
 	}
 
+	void DetailsViewBase::updateSinglePropertyMap(std::shared_ptr<ComplexPropertyNode> inRootPropertyNode, DetailLayoutData& layoutData, bool bIsExternal)
+	{
+		std::shared_ptr<DetailLayoutBuilderImpl> detailLayout = std::make_shared<DetailLayoutBuilderImpl>();
+		layoutData.m_detailLayout = detailLayout;//builder impl
+
+		std::shared_ptr<ComplexPropertyNode> rootPropertyNode = inRootPropertyNode;
+		assert(rootPropertyNode != nullptr);
+
+		layoutData.m_detailLayout->generateDetailLayout();//生成 tree node
+	}
+
 	void DetailsViewBase::updatePropertyMaps()
 	{
-		m_rootTreeNodes.clear();
+		m_rootTreeNodes.clear();//detail tree node vector
+
+		//属性节点表
+		RootPropertyNodeList& rootPropertyNodes = getRootNodes();//complex property node vector
+
+		m_detailLayouts.resize(rootPropertyNodes.size());
+
+		for (int32_t rootNodeIndex = 0; rootNodeIndex < rootPropertyNodes.size(); ++rootNodeIndex)
+		{
+			DetailLayoutData& layoutData = m_detailLayouts[rootNodeIndex];
+			updateSinglePropertyMap(rootPropertyNodes[rootNodeIndex], layoutData, false);//生成 tree node(用于显示的)
+		}
 	}
 
 }
