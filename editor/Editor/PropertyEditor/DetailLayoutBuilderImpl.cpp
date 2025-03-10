@@ -21,6 +21,7 @@ namespace GuGu {
 		m_allRootTreeNodes.clear();
 
 		std::vector<std::shared_ptr<DetailCategoryImpl>> simpleCategories;//tree nodes
+		std::vector<std::shared_ptr<DetailCategoryImpl>> advancedOnlyCategories;//tree nodes
 		//todo:排序 category
 
 		while (m_customCategoryMap.size() > 0)
@@ -29,6 +30,7 @@ namespace GuGu {
 			m_customCategoryMap.clear();
 
 			//todo:build categories
+			buildCategories(customCategoryMapCopy, simpleCategories, advancedOnlyCategories);
 		}
 
 		DetailNodeList categoryNodes;
@@ -45,5 +47,26 @@ namespace GuGu {
 
 		m_allRootTreeNodes = categoryNodes;
 	}
+
+	void DetailLayoutBuilderImpl::buildCategories(const CategoryMap& categoryMap, 
+		std::vector<std::shared_ptr<DetailCategoryImpl>>& outSimpleCategories, 
+		std::vector<std::shared_ptr<DetailCategoryImpl>>& outAdvancedCategories)
+	{
+		for (const auto& item : categoryMap)
+		{
+			std::shared_ptr<DetailCategoryImpl> detailCategory = item.second;
+
+			std::shared_ptr<ComplexPropertyNode> rootPropertyNode = getRootNode();
+			const bool bCategoryHidden = false;
+			if (!bCategoryHidden)
+			{
+				detailCategory->generateLayout();
+
+				outSimpleCategories.push_back(detailCategory);
+			}
+		}
+	}
+
+
 
 }

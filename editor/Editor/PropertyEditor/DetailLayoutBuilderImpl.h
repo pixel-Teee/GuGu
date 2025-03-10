@@ -17,6 +17,13 @@ namespace GuGu {
 
 		void generateDetailLayout();
 
+		//构建可以显示的目录
+		void buildCategories(const CategoryMap& categoryMap, 
+							std::vector<std::shared_ptr<DetailCategoryImpl>>& outSimpleCategories,
+							std::vector<std::shared_ptr<DetailCategoryImpl>>& outAdvancedCategories);
+
+		std::shared_ptr<ComplexPropertyNode> getRootNode() const { return m_rootNode.lock(); }
+
 	private:
 		DetailNodeList m_filteredRootTreeNodes;
 
