@@ -5,6 +5,7 @@
 
 namespace GuGu {
 	class DetailsViewObjectFilter;
+	struct DetailsViewObjectRoot;
 	class DetailsView : public DetailsViewBase
 	{
 	public:
@@ -27,6 +28,10 @@ namespace GuGu {
 		//------IDetailsView------
 	private:
 		void setObjectArrayPrivate(const std::vector<GameObject*>& inObjects);
+
+		void preSetObject(int32_t inNewNumObjects);
+		
+		void postSetObjects(const std::vector<DetailsViewObjectRoot>& roots);
 
 		std::shared_ptr<DetailTree> constructTreeView();
 

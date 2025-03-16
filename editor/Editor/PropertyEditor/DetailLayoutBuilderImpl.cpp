@@ -5,7 +5,8 @@
 
 namespace GuGu {
 
-	DetailLayoutBuilderImpl::DetailLayoutBuilderImpl()
+	DetailLayoutBuilderImpl::DetailLayoutBuilderImpl(std::shared_ptr<ComplexPropertyNode>& inRootNode)
+		: m_rootNode(inRootNode)
 	{
 
 	}

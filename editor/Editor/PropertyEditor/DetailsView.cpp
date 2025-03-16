@@ -6,6 +6,7 @@
 #include <Core/UI/Overlay.h>
 #include "DetailsViewObjectFilter.h"//DetailsViewObjectRoot
 #include "DetailsViewGenericObjectFilter.h"
+#include "ObjectPropertyNode.h"
 
 namespace GuGu {
 
@@ -71,7 +72,41 @@ namespace GuGu {
 
 	void DetailsView::setObjectArrayPrivate(const std::vector<GameObject*>& inObjects)
 	{
-		const std::vector<DetailsViewObjectRoot> roots = m_objectFilter->filterObjects(inObjects);
+		const std::vector<DetailsViewObjectRoot> roots = m_objectFilter->filterObjects(inObjects);//一个 details view object root 可以存放多个objects
+
+		preSetObject(roots.size());//创建 root property nodes(由 object property node 创建的数组)
+
+		for (int32_t rootIndex = 0; rootIndex < roots.size(); ++rootIndex)
+		{
+			const DetailsViewObjectRoot& root = roots[rootIndex];
+
+			ObjectPropertyNode* rootNode = m_rootPropertyNodes[rootIndex]->asObjectNode();
+
+			for (GameObject* object : root.m_objects)
+			{
+				if (object != nullptr) //把 objects 放入 property node 里面
+				{
+					rootNode->addObject(object); //属性节点
+				}
+			}
+		}
+
+		postSetObjects(roots);
+	}
+
+	void DetailsView::preSetObject(int32_t inNewNumObjects)
+	{
+		m_rootPropertyNodes.reserve(inNewNumObjects);
+		for (int32_t newRootIndex = 0; newRootIndex < inNewNumObjects; ++newRootIndex)
+		{
+			m_rootPropertyNodes.push_back(std::make_shared<ObjectPropertyNode>());
+		}
+	}
+
+	void DetailsView::postSetObjects(const std::vector<DetailsViewObjectRoot>& roots)
+	{
+		updatePropertyMaps();
+		updateFilteredDetails();//获取由updatePropertyMaps生成的root tree nodes，并刷新树
 	}
 
 	std::shared_ptr<DetailTree> DetailsView::constructTreeView()

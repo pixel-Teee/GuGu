@@ -8,7 +8,7 @@ namespace GuGu {
 	class DetailLayoutBuilderImpl : public IDetailLayoutBuilder
 	{
 	public:
-		DetailLayoutBuilderImpl();
+		DetailLayoutBuilderImpl(std::shared_ptr<ComplexPropertyNode>& inRootNode);
 
 		virtual ~DetailLayoutBuilderImpl();
 
