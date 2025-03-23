@@ -105,6 +105,17 @@ namespace GuGu {
 
 	void DetailsView::postSetObjects(const std::vector<DetailsViewObjectRoot>& roots)
 	{
+		PropertyNodeInitParams initParams;
+		initParams.m_parentNode = nullptr;
+		initParams.m_property = nullptr;
+		//后续增加数组
+
+		for (std::shared_ptr<ComplexPropertyNode>& complexRootNode : m_rootPropertyNodes)
+		{
+			ObjectPropertyNode* rootPropertyNode = complexRootNode->asObjectNode();
+			rootPropertyNode->initNode(initParams);
+		}
+
 		updatePropertyMaps();
 		updateFilteredDetails();//获取由updatePropertyMaps生成的root tree nodes，并刷新树
 	}

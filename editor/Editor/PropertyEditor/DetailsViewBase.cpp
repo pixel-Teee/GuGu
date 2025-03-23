@@ -74,8 +74,10 @@ namespace GuGu {
 		std::shared_ptr<ComplexPropertyNode> rootPropertyNode = inRootPropertyNode;
 		assert(rootPropertyNode != nullptr);
 
+		DetailLayoutHelpers::UpdatePropertyMapArgs updateArgs;
+		updateArgs.m_layoutData = &layoutData;
 		//这里是关键，这里会构造DetailLayoutBuilderImpl的CategoryMap(即字符串对应的DetailCategoryImpl)
-		DetailLayoutHelpers::updateSinglePropertyMapRecursive(*rootPropertyNode, "", rootPropertyNode.get());
+		DetailLayoutHelpers::updateSinglePropertyMapRecursive(*rootPropertyNode, "", rootPropertyNode.get(), updateArgs);
 
 		layoutData.m_detailLayout->generateDetailLayout();//生成 tree node
 	}
