@@ -3,6 +3,7 @@
 #include "PropertyEditorTitle.h"
 #include "PropertyEditor.h"
 #include <Core/UI/TextBlockWidget.h>
+#include <Editor/StyleSet/EditorStyleSet.h>
 
 namespace GuGu {
 
@@ -12,7 +13,8 @@ namespace GuGu {
 
 		std::shared_ptr<TextBlockWidget> nameTextBlock;
 		nameTextBlock = WIDGET_NEW(TextBlockWidget)
-						.text(inPropertyEditor->getDisplayName());
+						.text(inPropertyEditor->getDisplayName())
+						.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"));
 
 		m_childWidget = std::make_shared<SingleChildSlot>();
 		m_childWidget->m_parentWidget = shared_from_this();

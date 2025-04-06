@@ -16,8 +16,8 @@ namespace GuGu {
 	}
 	void ImageWidget::init(const BuilderArguments& arguments)
 	{
-		if(arguments.mbrush.Get())
-			m_imageBursh = arguments.mbrush;
+		//if(arguments.mbrush.Get())
+		m_imageBursh = arguments.mbrush;
 		m_widgetClipping = arguments.mClip;
 		m_visibilityAttribute = arguments.mVisibility;
 	}

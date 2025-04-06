@@ -31,6 +31,7 @@ namespace GuGu {
 						 );
 
 				std::shared_ptr<Widget> nameWidget = m_widgetRow.m_nameWidget.m_widget;
+				widget = nameWidget;
 			}
 		}
 

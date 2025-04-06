@@ -16,7 +16,7 @@ namespace GuGu {
 		WIDGET_NEW(HorizontalBox)
 		+ HorizontalBox::Slot()
 		.setPadding(Padding(0, 1, 0, 1))
-		.StretchWidth(1.0f)
+		.FixedWidth()
 		(
 			WIDGET_NEW(Border)
 			.Content

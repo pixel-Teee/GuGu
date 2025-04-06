@@ -1,6 +1,7 @@
 #include <pch.h>
 
 #include "DetailCategoryTableRow.h"
+#include "DetailExpanderArrow.h"
 #include <Editor/StyleSet/EditorStyleSet.h>
 
 namespace GuGu {
@@ -10,6 +11,14 @@ namespace GuGu {
 		m_ownerTreeNode = inOwnerTreeNode;
 
 		std::shared_ptr<HorizontalBox> headerBox = WIDGET_NEW(HorizontalBox)
+			+ HorizontalBox::Slot()
+			.setHorizontalAlignment(HorizontalAlignment::Left)
+			.setVerticalAlignment(VerticalAlignment::Center)
+			.setPadding(Padding(2, 0, 0, 0))
+			.FixedWidth()
+			(
+				WIDGET_NEW(DetailExpanderArrow, std::static_pointer_cast<DetailCategoryTableRow>(shared_from_this()))
+			)
 			+ HorizontalBox::Slot()
 			.setVerticalAlignment(VerticalAlignment::Center)
 			.setPadding(Padding(4, 0, 0, 0))
