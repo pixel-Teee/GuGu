@@ -50,6 +50,7 @@ namespace GuGu {
 			(
 				WIDGET_NEW(Border)
 				.padding(0)
+				.brush(CoreStyle::getStyleSet()->getBrush("NoBorder"))
 				.Content
 				(
 					widget

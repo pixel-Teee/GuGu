@@ -98,6 +98,7 @@ namespace GuGu {
 
 	void DetailsView::preSetObject(int32_t inNewNumObjects)
 	{
+		m_rootPropertyNodes.clear();
 		m_rootPropertyNodes.reserve(inNewNumObjects);
 		for (int32_t newRootIndex = 0; newRootIndex < inNewNumObjects; ++newRootIndex)
 		{

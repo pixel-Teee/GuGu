@@ -19,6 +19,7 @@ namespace GuGu {
 		.FixedWidth()
 		(
 			WIDGET_NEW(Border)
+			.brush(CoreStyle::getStyleSet()->getBrush("NoBorder"))
 			.Content
 			(
 				WIDGET_NEW(PropertyEditorTitle, m_propertyEditor)
