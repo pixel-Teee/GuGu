@@ -42,9 +42,12 @@ namespace GuGu {
 				std::vector<DataType> result;
 				for (std::weak_ptr<ITreeItem>& item : m_selectedItems)
 				{
-					std::shared_ptr<ObjectTreeItem> objectTreeItem = std::static_pointer_cast<ObjectTreeItem>(item.lock());//todo:这里以后要修复
-					//DataType data;
-					result.push_back(static_cast<DataType>(objectTreeItem->m_gameObject.lock().get()));
+					if (item.lock())
+					{
+						std::shared_ptr<ObjectTreeItem> objectTreeItem = std::static_pointer_cast<ObjectTreeItem>(item.lock());//todo:这里以后要修复
+						//DataType data;
+						result.push_back(static_cast<DataType>(objectTreeItem->m_gameObject.lock().get()));
+					}	
 				}
 				return result;
 			}

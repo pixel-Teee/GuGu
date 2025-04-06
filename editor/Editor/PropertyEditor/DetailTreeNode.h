@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IDetailTreeNode.h"
+#include <Core/GuGuUtf8Str.h>
 #include <vector>
 
 namespace GuGu {
@@ -16,6 +17,10 @@ namespace GuGu {
 		virtual void getChildren(DetailNodeList& outChildren) = 0;
 
 		virtual std::shared_ptr<ITableRow> generateWidgetForTableView(const std::shared_ptr<TableViewBase>& ownerTable) = 0;
+
+		virtual GuGuUtf8Str getNodeName() const = 0;
+
+		void setParentNode(std::weak_ptr<DetailTreeNode> inParentNode) { m_parentNode = inParentNode; }
 	private:
 		std::weak_ptr<DetailTreeNode> m_parentNode;
 	};

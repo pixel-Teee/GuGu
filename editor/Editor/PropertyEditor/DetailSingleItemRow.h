@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DetailTableRowBase.h"
+#include "DetailWidgetRow.h" //detail widget row，存放控件
 
 namespace GuGu {
 	class PropertyNode;
@@ -23,7 +24,7 @@ namespace GuGu {
 
 	private:
 		DetailLayoutCustomization* m_customization;
-		//DetailWidgetRow m_widgetRow;
+		DetailWidgetRow m_widgetRow;
 		std::shared_ptr<PropertyNode> m_swappablePropertyNode;
 		std::shared_ptr<Button> m_expanderArrow;
 

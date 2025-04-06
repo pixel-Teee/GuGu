@@ -24,6 +24,7 @@ namespace GuGu {
 
 		std::shared_ptr<ComplexPropertyNode> getRootNode() const { return m_rootNode.lock(); }
 
+		DetailCategoryImpl& defaultCategory(GuGuUtf8Str categoryName);
 	private:
 		DetailNodeList m_filteredRootTreeNodes;
 
@@ -32,5 +33,7 @@ namespace GuGu {
 		CategoryMap m_customCategoryMap;
 
 		std::weak_ptr<ComplexPropertyNode> m_rootNode;
+
+		CategoryMap m_defaultCategoryMap;
 	};
 }

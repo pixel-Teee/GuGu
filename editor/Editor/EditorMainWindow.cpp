@@ -34,6 +34,7 @@
 #include "ContentBrowser/PathView.h"
 #include "WindowTitleBar.h"
 #include "SceneOutliner/SceneOutliner.h"
+#include "PropertyEditor/ObjectDetails.h"
 
 #include <Core/GamePlay/World.h>
 
@@ -199,7 +200,7 @@ namespace GuGu {
 								.cornerRadius(math::float4(5.0f, 5.0f, 5.0f, 5.0f))
 								.Content
 								(
-									NullWidget::getNullWidget()
+									WIDGET_ASSIGN_NEW(ObjectDetails, m_objectDetails)
 								)
 							)
 						)		
@@ -234,6 +235,9 @@ namespace GuGu {
 		}
 
 		//std::shared_ptr<TileView<GuGuUtf8Str>> test = WIDGET_NEW(TileView<GuGuUtf8Str>);
+		std::function<void(const std::vector<GameObject*>&, bool)> gameObjectSelectionChangedEvent = std::bind(&EditorMainWindow::refreshDetailsView, this, std::placeholders::_1, std::placeholders::_2);
+		std::shared_ptr<ViewportClient> viewportClient = m_viewportWidget->getViewportClient();
+		viewportClient->setGameObjectSelectionChangedEvent(gameObjectSelectionChangedEvent);
 	}
 
 	Reply EditorMainWindow::openFileMenu()
@@ -309,6 +313,12 @@ namespace GuGu {
 	{
 		m_viewportWidget->setRenderTarget(renderTarget);
 	}
+
+	void EditorMainWindow::refreshDetailsView(const std::vector<GameObject*>& inObjects, bool bForceRefresh)
+	{
+		m_objectDetails->setObjects(inObjects, bForceRefresh);
+	}
+
 	std::shared_ptr<EditorMainWindow> CreateEditorMainWindow()
 	{
 		//register style set

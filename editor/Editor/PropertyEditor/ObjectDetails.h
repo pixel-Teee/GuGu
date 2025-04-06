@@ -5,6 +5,7 @@
 
 namespace GuGu {
 	class IDetailsView;
+	class GameObject;
 	class ObjectDetails : public CompoundWidget
 	{
 	public:
@@ -18,6 +19,8 @@ namespace GuGu {
 		void init(const BuilderArguments& arguments);
 
 		~ObjectDetails();
+
+		void setObjects(const std::vector<GameObject*>& inObjects, bool bForceRefresh = false);
 	private:
 		std::shared_ptr<IDetailsView> m_detailsView;
 	};

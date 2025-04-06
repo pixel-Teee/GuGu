@@ -79,7 +79,8 @@ namespace GuGu {
 
 		//------暂时放在这里------
 		using GameObjectSelectionChangedEvent = std::function<void(const std::vector<GameObject*>&, bool)>;
-		virtual GameObjectSelectionChangedEvent& onGameObjectSelectionChanged() { return m_gameObjectSelectionChangedEvent; }
+		//virtual GameObjectSelectionChangedEvent& onGameObjectSelectionChanged() { return m_gameObjectSelectionChangedEvent; }
+		void setGameObjectSelectionChangedEvent(std::function<void(const std::vector<GameObject*>&, bool)> inGameObjectSelectionChangedEvent);
 
 		virtual void broadcastGameObjectSelectionChanged(const std::vector<GameObject*>& newSelection, bool bForceRefresh);
 		//------暂时放在这里------

@@ -4,6 +4,10 @@
 
 namespace GuGu {
 	class PropertyNode;
+	class CategoryPropertyNode;
+	class ItemPropertyNode;
+	class ObjectPropertyNode;
+	class ComplexPropertyNode;
 	struct PropertyNodeInitParams
 	{
 		//这个节点的父节点
@@ -22,8 +26,40 @@ namespace GuGu {
 		void rebuildChildren();
 
 		virtual void initChildNodes() = 0;
+
+		meta::Field* getField() { return m_property; }
+		const meta::Field* getField() const { return m_property; }
+
+		int32_t getNumChildNodes() const { return m_childNodes.size(); }
+
+		std::shared_ptr<PropertyNode>& getChildNode(const int32_t childIndex)
+		{
+			return m_childNodes[childIndex];
+		}
+
+		virtual CategoryPropertyNode* asCategoryNode() { return nullptr; }
+		virtual const CategoryPropertyNode* asCategoryNode() const { return nullptr; }
+		virtual ItemPropertyNode* asItemPropertyNode() { return nullptr; }
+		virtual const ItemPropertyNode* asItemPropertyNode() const { return nullptr; }
+		virtual ObjectPropertyNode* asObjectNode() { return nullptr; }
+		virtual const ObjectPropertyNode* asObjectNode() const { return nullptr; }
+		virtual ComplexPropertyNode* asComplexNode() { return nullptr; }
+		virtual const ComplexPropertyNode* asComplexNode() const { return nullptr; }
+
+		void addChildNode(std::shared_ptr<PropertyNode> inNode);
+
+		PropertyNode* getParentNode() { return m_parentNodeWeakPtr.lock().get(); }
+		const PropertyNode* getParentNode() const { return m_parentNodeWeakPtr.lock().get(); }
+
+		ComplexPropertyNode* findComplexParent();
+
+		ObjectPropertyNode* findObjectItemParent();
+
+		virtual GuGuUtf8Str getDisplayName() const { return ""; }
 	protected:
 		void destoryTree();
+
+		virtual void initBeforeNodeFlags() {}
 
 		std::vector<std::shared_ptr<PropertyNode>> m_childNodes;
 
@@ -43,5 +79,9 @@ namespace GuGu {
 
 		virtual ObjectPropertyNode* asObjectNode() { return nullptr; }
 		virtual const ObjectPropertyNode* asObjectNode() const { return nullptr; }
+		virtual ComplexPropertyNode* asComplexNode() { return this; }
+		virtual const ComplexPropertyNode* asComplexNode() const { return this; }
+
+		virtual std::vector<meta::Type> getAllStructures() = 0;
 	};
 }

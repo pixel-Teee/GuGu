@@ -9,6 +9,8 @@ namespace GuGu {
 	class ViewportWidget;
 	class Button;
 	class CheckBox;
+	class ObjectDetails;
+	class GameObject;
 	class EditorMainWindow : public WindowWidget
 	{
 	public:
@@ -47,6 +49,8 @@ namespace GuGu {
 		void switchEditorAndRuntime(CheckBoxState inCheckBoxState);
 
 		void setRenderTarget(nvrhi::TextureHandle renderTarget);
+
+		void refreshDetailsView(const std::vector<GameObject*>&, bool);
 	private:
 
 		std::shared_ptr<ViewportWidget> m_viewportWidget;
@@ -56,6 +60,8 @@ namespace GuGu {
 		std::shared_ptr<Button> m_saveLevelButton;
 
 		std::shared_ptr<CheckBox> m_switchEditorAndRuntime;
+
+		std::shared_ptr<ObjectDetails> m_objectDetails;
 	};
 
 	std::shared_ptr<EditorMainWindow> CreateEditorMainWindow();

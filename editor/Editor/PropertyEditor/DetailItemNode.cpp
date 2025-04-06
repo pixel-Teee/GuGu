@@ -1,12 +1,16 @@
 #include <pch.h>
 
 #include "DetailItemNode.h"
+#include "PropertyNode.h"
+#include "DetailSingleItemRow.h"//DetailSingleItemRow widget
 
 namespace GuGu {
 
-	DetailItemNode::DetailItemNode()
+	DetailItemNode::DetailItemNode(const DetailLayoutCustomization& inCustomization, std::shared_ptr<DetailCategoryImpl> inParentCategory)
+		: m_customization(inCustomization)
+		, m_parentCategory(inParentCategory)
 	{
-
+		setParentNode(inParentCategory);
 	}
 
 	DetailItemNode::~DetailItemNode()
@@ -21,7 +25,20 @@ namespace GuGu {
 
 	std::shared_ptr<GuGu::ITableRow> DetailItemNode::generateWidgetForTableView(const std::shared_ptr<TableViewBase>& ownerTable)
 	{
-		return nullptr;
+		if (m_customization.hasPropertyNode() && m_customization.getPropertyNode()->asCategoryNode())
+		{
+			//return WIDGET_NEW()
+			return nullptr;
+		}
+		else
+		{
+			return WIDGET_NEW(DetailSingleItemRow, &m_customization, false, shared_from_this(), ownerTable);
+		}
+	}
+
+	void DetailItemNode::initialize()
+	{
+
 	}
 
 }

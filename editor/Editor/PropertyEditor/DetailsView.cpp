@@ -44,14 +44,16 @@ namespace GuGu {
 
 	void DetailsView::setObjects(const std::vector<GameObject*>& inObjects, bool bForceRefresh /*= false*/, bool bOverrideLock /*= false*/)
 	{
-		//m_unfilteredSelectedObjects.reserve(inObjects.size());
-		//for (GameObject* inObject : inObjects)
-		//{
-		//	if (inObject)
-		//	{
-		//		m_unfilteredSelectedObjects.push_back()
-		//	}
-		//}
+// 		m_unfilteredSelectedObjects.reserve(inObjects.size());
+// 		for (GameObject* inObject : inObjects)
+// 		{
+// 			if (inObject)
+// 			{
+// 				m_unfilteredSelectedObjects.push_back()
+// 			}
+// 		}
+
+		setObjectArrayPrivate(inObjects);
 	}
 
 	void DetailsView::setObjects(const std::vector<std::weak_ptr<GameObject>>& inObjects, bool bForceRefresh /*= false*/, bool bOverrideLock /*= false*/)
