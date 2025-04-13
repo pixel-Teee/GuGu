@@ -71,7 +71,35 @@ namespace GuGu {
 
 	void DetailPropertyRow::makeValueWidget(DetailWidgetRow& row)
 	{
+		VerticalAlignment verticalAlignment = VerticalAlignment::Center;
+		HorizontalAlignment horizontalAlignment = HorizontalAlignment::Left;
 
+		std::optional<float> minWidth;
+		std::optional<float> maxWidth;
+
+		std::shared_ptr<HorizontalBox> valueWidget =
+		WIDGET_NEW(HorizontalBox);
+		if (m_propertyEditor)
+		{
+			std::shared_ptr<PropertyValueWidget> propertyValue;
+			valueWidget->addSlot()
+			.FixedWidth()
+			(
+				WIDGET_ASSIGN_NEW(PropertyValueWidget, propertyValue, m_propertyEditor)
+			);
+
+			minWidth = propertyValue->getMinFixedWidth();
+			maxWidth = propertyValue->getMaxFixedWidth();
+		}
+
+		row.valueContent()
+		.setHorizontalAlignment(horizontalAlignment)
+		.setVerticalAlignment(verticalAlignment)
+		.minFixedWidth(minWidth)
+		.maxFixedWidth(maxWidth)
+		(
+			valueWidget	
+		);
 	}
 
 }

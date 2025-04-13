@@ -36,6 +36,18 @@ namespace GuGu {
 			m_horizontalAlignment = inAlignment;
 			return *this;
 		}
+
+		DetailWidgetDecl& minFixedWidth(std::optional<float> minWidth)
+		{
+			m_minWidth = minWidth;
+			return *this;
+		}
+
+		DetailWidgetDecl& maxFixedWidth(std::optional<float> maxWidth)
+		{
+			m_maxWidth = maxWidth;
+			return *this;
+		}
 	public:
 		std::shared_ptr<Widget> m_widget;
 		HorizontalAlignment m_horizontalAlignment;
@@ -55,6 +67,8 @@ namespace GuGu {
 		virtual GuGuUtf8Str getRowName() const override { return m_rowTagName; }
 
 		DetailWidgetDecl& nameContent() { return m_nameWidget; }
+
+		DetailWidgetDecl& valueContent() { return m_valueWidget; }
 	public:
 		//属性名
 		DetailWidgetDecl m_nameWidget;

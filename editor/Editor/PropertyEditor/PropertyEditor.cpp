@@ -27,4 +27,14 @@ namespace GuGu {
 		return "";
 	}
 
+	std::shared_ptr<PropertyNode> PropertyEditor::getPropertyNode() const
+	{
+		return m_propertyNode;
+	}
+
+	const meta::Field* PropertyEditor::getField() const
+	{
+		return m_propertyNode->getField();
+	}
+
 }
