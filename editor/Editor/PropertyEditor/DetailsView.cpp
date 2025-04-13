@@ -4,6 +4,7 @@
 #include <Core/UI/NullWidget.h>
 #include <Core/UI/BoxPanel.h>
 #include <Core/UI/Overlay.h>
+#include <Editor/StyleSet/EditorStyleSet.h>
 #include "DetailsViewObjectFilter.h"//DetailsViewObjectRoot
 #include "DetailsViewGenericObjectFilter.h"
 #include "ObjectPropertyNode.h"
@@ -18,12 +19,17 @@ namespace GuGu {
 
 		verticalBox->addSlot()
 		.StretchHeight(1)
-		.setPadding(Padding(0, 0, 0, 0))
+		.setPadding(Padding(10, 10, 10, 10))
 		(
 			WIDGET_NEW(Overlay)
 			+ Overlay::Slot()
 			(
-				constructTreeView()
+				WIDGET_NEW(Border) //背景
+				.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("beige5"))
+				.Content
+				(
+					constructTreeView()
+				)
 			)
 		);
 

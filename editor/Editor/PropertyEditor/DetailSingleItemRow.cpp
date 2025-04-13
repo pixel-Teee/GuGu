@@ -3,6 +3,7 @@
 #include  "DetailSingleItemRow.h"
 #include  "DetailCategoryBuilderImpl.h"//DetailLayoutCustomization
 #include  <Core/UI/Box.h>//box widget
+#include  <Editor/StyleSet/EditorStyleSet.h>
 
 namespace GuGu {
 
@@ -71,6 +72,7 @@ namespace GuGu {
 
 		TableRow<std::shared_ptr<DetailTreeNode>>::initInternal(
 			TableRow::BuilderArguments()
+			.Style(EditorStyleSet::getStyleSet()->getStyle<TableRowStyle>(u8"tablerow.beige"))
 			.Content
 			(
 				NullWidget::getNullWidget()
