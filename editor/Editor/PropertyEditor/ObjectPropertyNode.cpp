@@ -34,22 +34,22 @@ namespace GuGu {
 
 	}
 
-	void ObjectPropertyNode::addObject(GameObject* inObject)
+	void ObjectPropertyNode::addObject(meta::Object* inObject)
 	{
 		m_objects.push_back(inObject);
 	}
 
-	void ObjectPropertyNode::addObjects(const std::vector<GameObject*>& inObjects)
+	void ObjectPropertyNode::addObjects(const std::vector<meta::Object*>& inObjects)
 	{
 		m_objects.insert(m_objects.end(), inObjects.begin(), inObjects.end());//append
 	}
 
-	GuGu::GameObject* ObjectPropertyNode::getObject(int32_t inIndex)
+	meta::Object* ObjectPropertyNode::getObject(int32_t inIndex)
 	{
 		return m_objects[inIndex];
 	}
 
-	const GuGu::GameObject* ObjectPropertyNode::getObject(int32_t inIndex) const
+	const meta::Object* ObjectPropertyNode::getObject(int32_t inIndex) const
 	{
 		return m_objects[inIndex];
 	}
@@ -66,6 +66,28 @@ namespace GuGu {
 		std::vector<meta::Type> retVal;
 		retVal.push_back(m_baseClass);
 		return retVal;//todo:修复这个
+	}
+
+	meta::Object* ObjectPropertyNode::getInstanceAsObject(int32_t index) const
+	{
+		return m_objects[index];
+	}
+
+	meta::Variant ObjectPropertyNode::getOwnerFieldVarint(const meta::Variant& startVarint)
+	{
+		for (int32_t i = 0; i < m_objects.size(); ++i)
+		{
+			meta::Object& object = startVarint.GetValue<meta::Object>();
+			if (m_objects[i] == &object)
+			{
+				return startVarint;
+			}
+		}
+		if (m_parentNodeWeakPtr.lock())
+		{
+			return m_parentNodeWeakPtr.lock()->getOwnerFieldVarint(startVarint);
+		}
+		return meta::Variant();
 	}
 
 	void ObjectPropertyNode::initChildNodes()
@@ -85,7 +107,7 @@ namespace GuGu {
 
 		for (int32_t x = 0; x < m_objects.size(); ++x)
 		{
-			GameObject* gameObject = m_objects[x];
+			meta::Object* gameObject = m_objects[x];
 			if (gameObject)
 			{
 				//get class
@@ -104,7 +126,7 @@ namespace GuGu {
 		std::set<meta::Type> classesToConsider;
 		for (int32_t i = 0; i < getNumObjects(); ++i)
 		{
-			GameObject* tempObject = getObject(i);
+			meta::Object* tempObject = getObject(i);
 			classesToConsider.insert(tempObject->GetType());
 		}
 
@@ -122,12 +144,9 @@ namespace GuGu {
 		std::set<meta::Type> componentTypes;
 		for (int32_t i = 0; i < getNumObjects(); ++i)
 		{
-			GameObject* tempObject = getObject(i);
-			Array<std::shared_ptr<Component>> components = tempObject->getComponents();
-			for (int32_t j = 0; j < components.size(); ++j)
-			{
-				componentTypes.insert(components[j]->GetType());
-			}
+			meta::Object* tempObject = getObject(i);
+
+			componentTypes.insert(tempObject->GetType());
 		}
 		for (auto& type : componentTypes)
 		{

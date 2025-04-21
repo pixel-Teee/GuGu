@@ -5,6 +5,7 @@
 
 namespace GuGu {
 	class PropertyNode;
+	class IPropertyHandle;
 	class PropertyEditor
 	{
 	public:
@@ -14,8 +15,13 @@ namespace GuGu {
 
 		std::shared_ptr<PropertyNode> getPropertyNode() const;
 
+		//get property handle
+		std::shared_ptr<IPropertyHandle> getPropertyHandle() const;
+
 		const meta::Field* getField() const;
 	private:
 		std::shared_ptr<PropertyNode> m_propertyNode;
+
+		std::shared_ptr<IPropertyHandle> m_propertyHandle;
 	};
 }

@@ -13,6 +13,8 @@ namespace GuGu {
 		virtual const ItemPropertyNode* asItemPropertyNode() const override { return this; }
 
 		virtual GuGuUtf8Str getDisplayName() const override;
+
+		virtual meta::Variant getOwnerFieldVarint(const meta::Variant& startVarint) override;
 	protected:
 		virtual void initChildNodes() override;
 	};

@@ -82,6 +82,15 @@ namespace GuGu {
 		return nullptr;
 	}
 
+	meta::Variant PropertyNode::getOwnerFieldVarint(const meta::Variant& startVarint)
+	{
+		if (m_parentNodeWeakPtr.lock())
+		{
+			return m_parentNodeWeakPtr.lock()->getOwnerFieldVarint(startVarint);
+		}
+		return meta::Variant();//nothing
+	}
+
 	void PropertyNode::destoryTree()
 	{
 		m_childNodes.clear();

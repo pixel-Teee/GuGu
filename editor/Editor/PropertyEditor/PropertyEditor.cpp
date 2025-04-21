@@ -2,13 +2,17 @@
 
 #include "PropertyEditor.h"
 #include "ItemPropertyNode.h"
+#include "PropertyHandleImp.h"//PropertyHandleFloat
 
 namespace GuGu {
 
 	PropertyEditor::PropertyEditor(const std::shared_ptr<PropertyNode>& inPropertyNode)
 		: m_propertyNode(inPropertyNode)
 	{
-
+		if (PropertyHandleFloat::supports(inPropertyNode))
+		{
+			m_propertyHandle = std::make_shared<PropertyHandleFloat>(inPropertyNode);
+		}
 	}
 
 	GuGuUtf8Str PropertyEditor::getDisplayName() const
@@ -30,6 +34,11 @@ namespace GuGu {
 	std::shared_ptr<PropertyNode> PropertyEditor::getPropertyNode() const
 	{
 		return m_propertyNode;
+	}
+
+	std::shared_ptr<IPropertyHandle> PropertyEditor::getPropertyHandle() const
+	{
+		return m_propertyHandle;
 	}
 
 	const meta::Field* PropertyEditor::getField() const

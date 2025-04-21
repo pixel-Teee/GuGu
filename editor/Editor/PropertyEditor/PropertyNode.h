@@ -56,6 +56,9 @@ namespace GuGu {
 		ObjectPropertyNode* findObjectItemParent();
 
 		virtual GuGuUtf8Str getDisplayName() const { return ""; }
+
+		virtual meta::Variant getOwnerFieldVarint(const meta::Variant& startVarint);
+
 	protected:
 		void destoryTree();
 
@@ -71,6 +74,7 @@ namespace GuGu {
 		meta::Field* m_property;
 	};
 	class ObjectPropertyNode;
+	class GameObject;
 	class ComplexPropertyNode : public PropertyNode
 	{
 	public:
@@ -83,5 +87,9 @@ namespace GuGu {
 		virtual const ComplexPropertyNode* asComplexNode() const { return this; }
 
 		virtual std::vector<meta::Type> getAllStructures() = 0;
+
+		virtual int32_t getInstancesNum() const = 0;
+
+		virtual meta::Object* getInstanceAsObject(int32_t index) const = 0;
 	};
 }

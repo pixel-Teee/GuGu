@@ -8,6 +8,7 @@
 #include "DetailsViewObjectFilter.h"//DetailsViewObjectRoot
 #include "DetailsViewGenericObjectFilter.h"
 #include "ObjectPropertyNode.h"
+#include <Core/GamePlay/GameObject.h>
 
 namespace GuGu {
 
@@ -94,7 +95,11 @@ namespace GuGu {
 			{
 				if (object != nullptr) //把 objects 放入 property node 里面
 				{
-					rootNode->addObject(object); //属性节点
+					Array<std::shared_ptr<Component>>& components = object->getComponents();
+					for (int32_t i = 0; i < components.size(); ++i)
+					{
+						rootNode->addObject(components[i].get()); //属性节点
+					}
 				}
 			}
 		}

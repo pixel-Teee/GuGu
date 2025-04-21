@@ -6,6 +6,7 @@
 #include <Core/Reflection/Field.h>
 
 #include "PropertyEditor.h"
+#include "PropertyHandle.h"
 
 namespace GuGu {
 	template<typename NumericType>
@@ -40,7 +41,8 @@ namespace GuGu {
 			WIDGET_ASSIGN_NEW(NumericEntryBox<NumericType>, m_primaryWidget)
 			.allowSpain(true) //todo:修复这个
 			.value(Attribute<std::optional<NumericType>>(this, &PropertyEditorNumeric<NumericType>::onGetValue)) //要显示的值
-			.onValueChanged(this, &PropertyEditorNumeric<NumericType>::onValueChanged);
+			.onValueChanged(this, &PropertyEditorNumeric<NumericType>::onValueChanged)
+			.onValueCommitted(this, &PropertyEditorNumeric<NumericType>::onValueCommitted);
 		}
 
 		static bool supports(const std::shared_ptr<PropertyEditor>& inPropertyEditor)
@@ -60,7 +62,16 @@ namespace GuGu {
 
 		void onValueChanged(NumericType newValue)
 		{
+			const std::shared_ptr<IPropertyHandle> propertyHandle = m_propertyEditor->getPropertyHandle();
 
+			propertyHandle->setValue(newValue);
+		}
+
+		void onValueCommitted(NumericType newValue, TextCommit::Type commitInfo)
+		{
+			const std::shared_ptr<IPropertyHandle> propertyHandle = m_propertyEditor->getPropertyHandle();
+
+			propertyHandle->setValue(newValue);
 		}
 	private:
 		template<typename T, typename U = void>

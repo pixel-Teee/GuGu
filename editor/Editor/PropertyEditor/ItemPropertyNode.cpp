@@ -20,6 +20,29 @@ namespace GuGu {
 		return m_property->GetName();
 	}
 
+	meta::Variant ItemPropertyNode::getOwnerFieldVarint(const meta::Variant& startVarint)
+	{
+		meta::Variant result;
+		meta::Field* field = getField();
+		meta::Type parentType = field->GetClassType();
+		if (m_parentNodeWeakPtr.lock())
+		{
+			meta::Variant parentVarint = m_parentNodeWeakPtr.lock()->getOwnerFieldVarint(startVarint);
+			//has this field?
+			std::vector<meta::Field> checkField = meta::ReflectionDatabase::Instance().types[parentVarint.GetType().GetID()].fields;
+			bool haveThisField = false;
+			for (size_t i = 0; i < checkField.size(); ++i)
+			{
+				if (checkField[i].GetType() == field->GetType())
+					haveThisField = true;
+			}
+
+			if(parentVarint != meta::Variant() && haveThisField)
+				result = field->GetValue(parentVarint);
+		}
+		return result;
+	}
+
 	void ItemPropertyNode::initChildNodes()
 	{
 		meta::Field* field = getField();
