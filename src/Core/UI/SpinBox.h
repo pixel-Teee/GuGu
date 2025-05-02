@@ -149,6 +149,7 @@ namespace GuGu {
 					WIDGET_ASSIGN_NEW(TextBlockWidget, m_textBlock)
 					.text(this, &SpinBox<NumericType>::getValueAsText) //todo: 添加文本的最小宽度和对齐方式
 					.visibility(Visibility::Visible)
+					.textColor(math::float4(1.0f, 1.0f, 1.0f, 1.0f))
 				)
 				+ HorizontalBox::Slot()
 				.StretchWidth(1.0f)
@@ -162,6 +163,7 @@ namespace GuGu {
 					.visibility(Visibility::Collapsed)
 					.SelecAllTextWhenFocus(true) //当获取焦点的时候，选中所有文本
 					.SelectAllTextOnCommit(arguments.mSelectAllTextOnCommit) //当按下enter键之类的时候，是否选中所有文本
+					//.textColor(math::float4(1.0f, 1.0f, 1.0f, 1.0f))
 				)
 			);
 

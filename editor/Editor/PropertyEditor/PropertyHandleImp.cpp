@@ -19,8 +19,8 @@ namespace GuGu {
 
 	PropertyAccess::Result PropertyValueImpl::getValueData(meta::Variant& fieldValue)
 	{
-		std::vector<meta::Object*> objectsToRead;
 		std::shared_ptr<PropertyNode> propertyNodeLock = m_propertyNode.lock();
+		std::vector<meta::Object*> objectsToRead;
 		ComplexPropertyNode* complexNode = propertyNodeLock->findComplexParent();
 		if (complexNode)
 		{
@@ -31,19 +31,30 @@ namespace GuGu {
 			}
 		}
 
+		//获取当前字段所在结构体的variant
+		std::vector<meta::Variant> owners;
+		for (int32_t i = 0; i < objectsToRead.size(); ++i)
+		{
+			meta::Variant startVarint = ObjectVariant(objectsToRead[i]);
+			if (propertyNodeLock->getParentNode() != nullptr)
+			{
+				meta::Variant owner = propertyNodeLock->getParentNode()->getOwnerFieldVarint(startVarint);
+				if (owner != meta::Variant())
+					owners.push_back(owner);
+			}
+		}
+
 		PropertyAccess::Result result = PropertyAccess::Success;
 		//modify
 		meta::Field* field = propertyNodeLock->getField();
-		for (int32_t i = 0; i < objectsToRead.size(); ++i)
+		for (int32_t i = 0; i < owners.size(); ++i)
 		{
-			meta::Field curField = meta::ReflectionDatabase::Instance().types[objectsToRead[i]->GetType().GetID()].GetField(field->GetName().getStr());//have this field?
-
-			meta::Variant instance = ObjectVariant(objectsToRead[i]);
+			meta::Field curField = meta::ReflectionDatabase::Instance().types[owners[i].GetType().GetID()].GetField(field->GetName().getStr());//have this field?
 			if (curField.GetType() == field->GetType())
 			{
+				meta::Variant& instance = owners[i];
 				fieldValue = propertyNodeLock->getField()->GetValue(instance);
 			}
-			//meta::Variant fieldValue;	
 		}
 
 		return result;
@@ -82,7 +93,7 @@ namespace GuGu {
 			{
 				meta::Variant owner = inPropertyNode->getParentNode()->getOwnerFieldVarint(startVarint);
 				if (owner != meta::Variant())
-					owners.push_back(owner);
+					owners.push_back(std::move(owner));
 			}	
 		}
 

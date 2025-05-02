@@ -26,6 +26,14 @@ namespace GuGu {
 
 			const std::shared_ptr<PropertyNode> propertyNode = inPropertyEditor->getPropertyNode();
 			const meta::Field* field = inPropertyEditor->getField();
+			m_childWidget = std::make_shared<SingleChildSlot>();
+			m_childWidget->m_parentWidget = shared_from_this();
+			m_childWidget->m_childWidget =
+			WIDGET_ASSIGN_NEW(NumericEntryBox<NumericType>, m_primaryWidget)
+			.allowSpain(true) //todo:修复这个
+			.value(Attribute<std::optional<NumericType>>(this, &PropertyEditorNumeric<NumericType>::onGetValue)) //要显示的值
+			.onValueChanged(this, &PropertyEditorNumeric<NumericType>::onValueChanged)
+			.onValueCommitted(this, &PropertyEditorNumeric<NumericType>::onValueCommitted);
 		}
 
 		void getFixedWidth(float& outMinFixedWidth, float& outMaxFixedWidth)
@@ -34,15 +42,6 @@ namespace GuGu {
 
 			outMinFixedWidth = 125.0f;
 			outMaxFixedWidth = 125.0f;
-
-			m_childWidget = std::make_shared<SingleChildSlot>();
-			m_childWidget->m_parentWidget = shared_from_this();
-			m_childWidget->m_childWidget = 
-			WIDGET_ASSIGN_NEW(NumericEntryBox<NumericType>, m_primaryWidget)
-			.allowSpain(true) //todo:修复这个
-			.value(Attribute<std::optional<NumericType>>(this, &PropertyEditorNumeric<NumericType>::onGetValue)) //要显示的值
-			.onValueChanged(this, &PropertyEditorNumeric<NumericType>::onValueChanged)
-			.onValueCommitted(this, &PropertyEditorNumeric<NumericType>::onValueCommitted);
 		}
 
 		static bool supports(const std::shared_ptr<PropertyEditor>& inPropertyEditor)
@@ -55,9 +54,10 @@ namespace GuGu {
 		{
 			NumericType numericVal;
 
-			//const std::shared_ptr<IPropertyHandle> propertyHandle = 
+			const std::shared_ptr<IPropertyHandle> propertyHandle = m_propertyEditor->getPropertyHandle();
+			propertyHandle->getValue(numericVal);
 
-			return std::optional<NumericType>();
+			return numericVal;
 		}
 
 		void onValueChanged(NumericType newValue)
