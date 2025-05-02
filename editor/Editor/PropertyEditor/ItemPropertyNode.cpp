@@ -1,6 +1,7 @@
 #include <pch.h>
 
 #include "ItemPropertyNode.h"
+#include "ObjectPropertyNode.h"
 #include <Core/Reflection/ReflectionDatabase.h>
 
 namespace GuGu {
@@ -33,12 +34,12 @@ namespace GuGu {
 			bool haveThisField = false;
 			for (size_t i = 0; i < checkField.size(); ++i)
 			{
-				if (checkField[i].GetType() == field->GetType())
+				if ((checkField[i].GetType() == field->GetType()) && (checkField[i].GetName() == field->GetName()))
 					haveThisField = true;
 			}
 
 			if(parentVarint != meta::Variant() && haveThisField)
-				result = field->GetValue(parentVarint);
+				result = field->GetValueReference(parentVarint);
 		}
 		return result;
 	}
@@ -46,7 +47,7 @@ namespace GuGu {
 	void ItemPropertyNode::initChildNodes()
 	{
 		meta::Field* field = getField();
-		if (field->GetType().IsClass())//class
+		if (field->GetType().IsStruct()) //struct
 		{
 			auto& fields = meta::ReflectionDatabase::Instance().types[field->GetType().GetID()].fields;
 			for (auto& field : fields)
@@ -59,6 +60,28 @@ namespace GuGu {
 				newItemNode->initNode(initParams);
 				addChildNode(newItemNode);
 			}
+		}
+		else if (field->GetType().IsClass())//class
+		{
+			ObjectPropertyNode* parentObjectNode = findObjectItemParent();
+
+			std::shared_ptr<ObjectPropertyNode> newObjectNode = std::make_shared<ObjectPropertyNode>();
+			for (int32_t i = 0; i < parentObjectNode->getNumObjects(); ++i)
+			{
+				meta::Object* object = parentObjectNode->getObject(i);
+				meta::Variant instance = ObjectVariant(object);
+
+				meta::Object& fieldObject = field->GetValue(instance).GetValue<meta::Object>();//获取字段对应的object
+
+				newObjectNode->addObject(&fieldObject);
+			}
+
+			PropertyNodeInitParams initParams;
+			initParams.m_parentNode = shared_from_this();
+			initParams.m_property = field;
+
+			newObjectNode->initNode(initParams);
+			addChildNode(newObjectNode);
 		}
 	}
 

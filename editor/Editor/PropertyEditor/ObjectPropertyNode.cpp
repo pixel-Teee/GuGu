@@ -154,7 +154,7 @@ namespace GuGu {
 		}
 
 		meta::Type gameObjectType = typeof(GameObject);
-		if (m_baseClass == gameObjectType)
+		if (true)
 		{
 			//展示目录
 			for (const GuGuUtf8Str& fullCategoryPath : sortedCategories)

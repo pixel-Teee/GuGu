@@ -23,6 +23,7 @@ namespace GuGu {
 			bool isSharedPointer : 1;//是否为共享指针
 			bool isWeakPointer : 1;//是否为弱指针
 			bool isClass : 1; //是否为类
+			bool isStruct : 1; //是否为标准布局
 
 			//todo:添加 meta 管理器
 

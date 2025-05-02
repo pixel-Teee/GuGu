@@ -119,14 +119,15 @@ namespace GuGu {
 				m_currentLevel = m_editorLevel;
 			}
 		}
-
-		m_onLevelChanged();
+		if(m_onLevelChanged)
+			m_onLevelChanged();
 	}
 
 	void World::setLevel(std::shared_ptr<Level> inLevel)
 	{
 		m_currentLevel = inLevel;
-		m_onLevelChanged();
+		if (m_onLevelChanged)
+			m_onLevelChanged();
 	}
 
 	void World::update(float fElapsedTimeSeconds)

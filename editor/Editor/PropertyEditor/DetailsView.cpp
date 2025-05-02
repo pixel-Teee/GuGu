@@ -95,7 +95,7 @@ namespace GuGu {
 			{
 				if (object != nullptr) //把 objects 放入 property node 里面
 				{
-					Array<std::shared_ptr<Component>>& components = object->getComponents();
+					const Array<std::shared_ptr<Component>>& components = object->getComponents();
 					for (int32_t i = 0; i < components.size(); ++i)
 					{
 						rootNode->addObject(components[i].get()); //属性节点

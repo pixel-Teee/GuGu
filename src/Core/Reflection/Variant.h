@@ -70,7 +70,7 @@ namespace GuGu {
 			Variant(const Variant& rhs);
 
 			//右值
-			Variant(Variant&& rhs);
+			Variant(Variant&& rhs) noexcept;
 
 			~Variant(void);
 

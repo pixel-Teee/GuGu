@@ -75,6 +75,8 @@ namespace GuGu {
 
 			bool IsClass(void) const;
 
+			bool IsStruct(void) const;
+
 			bool IsArray(void) const;
 
 			//获取对于这个类型可读的名称

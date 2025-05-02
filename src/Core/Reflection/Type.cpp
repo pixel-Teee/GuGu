@@ -131,6 +131,12 @@ namespace GuGu {
 		{
 			return gDatabase.types[m_id].isClass;
 		}
+
+		bool Type::IsStruct(void) const
+		{
+			return gDatabase.types[m_id].isStruct;
+		}
+
 		GuGuUtf8Str Type::GetName() const
 		{
 			auto& name = gDatabase.types[m_id].name;

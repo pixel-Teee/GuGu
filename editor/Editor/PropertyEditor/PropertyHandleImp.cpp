@@ -78,9 +78,12 @@ namespace GuGu {
 		for (int32_t i = 0; i < objectsToModify.size(); ++i)
 		{
 			meta::Variant startVarint = ObjectVariant(objectsToModify[i]);
-			meta::Variant owner = inPropertyNode->getOwnerFieldVarint(startVarint);
-			if(owner != meta::Variant())
-				owners.push_back(owner);
+			if (inPropertyNode->getParentNode() != nullptr)
+			{
+				meta::Variant owner = inPropertyNode->getParentNode()->getOwnerFieldVarint(startVarint);
+				if (owner != meta::Variant())
+					owners.push_back(owner);
+			}	
 		}
 
 		std::string actualStr = inValue.getStr();
@@ -93,7 +96,7 @@ namespace GuGu {
 			meta::Field curField = meta::ReflectionDatabase::Instance().types[owners[i].GetType().GetID()].GetField(field->GetName().getStr());//have this field?
 			if (curField.GetType() == field->GetType())
 			{
-				meta::Variant instance = owners[i];
+				meta::Variant& instance = owners[i];
 				meta::Variant fieldValue(actualValue);
 				inPropertyNode->getField()->SetValue(instance, fieldValue);
 			}

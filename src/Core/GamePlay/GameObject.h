@@ -55,7 +55,7 @@ namespace GuGu {
 
 		void setComponents(const Array<std::shared_ptr<Component>>& components);
 
-		Array<std::shared_ptr<Component>> getComponents();
+		Array<std::shared_ptr<Component>>& getComponents();
 
 		void setChildrens(const Array<std::shared_ptr<GameObject>>& childrens);
 

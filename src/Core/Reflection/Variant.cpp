@@ -11,7 +11,7 @@ namespace GuGu {
 			, m_base(nullptr)
 		{
 		}
-		Variant::Variant(Variant&& rhs)
+		Variant::Variant(Variant&& rhs) noexcept
 			: m_isConst(rhs.m_isConst)
 			, m_base(rhs.m_base)
 		{
@@ -20,7 +20,8 @@ namespace GuGu {
 		}
 		Variant::~Variant(void)
 		{
-			delete m_base;
+			if(m_base != nullptr)
+				delete m_base;
 		}
 		Variant& Variant::operator=(const Variant& rhs)
 		{
@@ -51,6 +52,7 @@ namespace GuGu {
 		void Variant::Swap(Variant& other)
 		{
 			std::swap(m_base, other.m_base);
+			std::swap(m_isConst, other.m_isConst);
 		}
 		int Variant::ToInt(void) const
 		{
