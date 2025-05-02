@@ -64,7 +64,7 @@ namespace GuGu {
 	{
 		m_components = components;
 	}
-	Array<std::shared_ptr<Component>>& GameObject::getComponents()
+	Array<std::shared_ptr<Component>> GameObject::getComponents()
 	{
 		return m_components;
 	}
