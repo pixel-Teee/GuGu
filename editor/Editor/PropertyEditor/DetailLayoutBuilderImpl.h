@@ -5,6 +5,8 @@
 #include "PropertyRowGenerator.h"//CategoryMap
 
 namespace GuGu {
+	class IPropertyHandle;
+	class PropertyNode;
 	class DetailLayoutBuilderImpl : public IDetailLayoutBuilder
 	{
 	public:
@@ -25,6 +27,8 @@ namespace GuGu {
 		std::shared_ptr<ComplexPropertyNode> getRootNode() const { return m_rootNode.lock(); }
 
 		DetailCategoryImpl& defaultCategory(GuGuUtf8Str categoryName);
+
+		std::shared_ptr<IPropertyHandle> getPropertyHandle(std::shared_ptr<PropertyNode> propertyNodePtr) const;
 	private:
 		DetailNodeList m_filteredRootTreeNodes;
 

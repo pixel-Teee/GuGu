@@ -2,6 +2,7 @@
 
 #include "DetailItemNode.h"
 #include "PropertyNode.h"
+#include "DetailPropertyRow.h"
 #include "DetailSingleItemRow.h"//DetailSingleItemRow widget
 
 namespace GuGu {
@@ -38,7 +39,15 @@ namespace GuGu {
 
 	void DetailItemNode::initialize()
 	{
+		if (m_customization.hasPropertyNode())
+		{
+			initPropertyEditor();
+		}
+	}
 
+	void DetailItemNode::initPropertyEditor()
+	{
+		m_customization.m_propertyRow->onItemNodeInitialized(m_parentCategory.lock());
 	}
 
 }

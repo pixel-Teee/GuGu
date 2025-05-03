@@ -4,6 +4,10 @@
 #include "PropertyNode.h"
 #include "PropertyEditor.h"
 #include "PropertyEditorHelps.h"//PropertyNameWidget
+#include "IPropertyTypeCustomization.h"
+#include "DetailCategoryBuilderImpl.h"
+#include "PropertyEditorManager.h"
+#include "DetailLayoutBuilderImpl.h"
 #include <Core/UI/BoxPanel.h>
 
 namespace GuGu {
@@ -12,6 +16,7 @@ namespace GuGu {
 		: m_propertyNode(inPropertyNode)
 		, m_parentCategory(inParentCategory)
 	{
+		m_propertyHandle = inParentCategory->getParentLayoutImpl().getPropertyHandle(inPropertyNode);
 		if (m_propertyNode)
 		{
 			std::shared_ptr<PropertyNode> propertyNodeRef = m_propertyNode;
@@ -27,8 +32,9 @@ namespace GuGu {
 	{
 		DetailWidgetRow row;
 
-		makeNameOrKeyWidget(row);
-		makeValueWidget(row);
+		//如果m_customPropertyWidget存在，就用m_customPropertyWidget
+		makeNameOrKeyWidget(row, m_customPropertyWidget);
+		makeValueWidget(row, m_customPropertyWidget);
 
 		return row;
 	}
@@ -42,7 +48,27 @@ namespace GuGu {
 		return inPropertyEditor;
 	}
 
-	void DetailPropertyRow::makeNameOrKeyWidget(DetailWidgetRow& row)
+	void DetailPropertyRow::onItemNodeInitialized(std::shared_ptr<DetailCategoryImpl> inParentCategory)
+	{
+		std::shared_ptr<IPropertyTypeCustomization>& customTypeInterface = getTypeInterface();
+		if (!m_customPropertyWidget && customTypeInterface)
+		{
+			m_customPropertyWidget = std::make_shared<DetailWidgetRow>();
+
+			customTypeInterface->customizeHeader(m_propertyHandle, *m_customPropertyWidget);
+		}
+	}
+
+	std::shared_ptr<IPropertyTypeCustomization> DetailPropertyRow::getTypeInterface()
+	{
+		if (m_propertyNode && m_parentCategory.lock())
+		{
+			return PropertyEditorManager::getPropertyEditorManager()->getPropertyTypeCustomization(m_propertyNode);
+		}
+		return nullptr;
+	}
+
+	void DetailPropertyRow::makeNameOrKeyWidget(DetailWidgetRow& row, std::shared_ptr<DetailWidgetRow> inCustomPropertyWidget)
 	{
 		VerticalAlignment verticalAlignment = VerticalAlignment::Center;
 		HorizontalAlignment horizontalAlignment = HorizontalAlignment::Stretch;
@@ -51,7 +77,11 @@ namespace GuGu {
 			.Clip(WidgetClipping::OnDemand);
 
 		std::shared_ptr<Widget> nameWidget = NullWidget::getNullWidget();
-		if (m_propertyEditor)
+		if (inCustomPropertyWidget)
+		{
+			nameWidget = inCustomPropertyWidget->m_nameWidget.m_widget;
+		}
+		else if (m_propertyEditor)
 		{
 			nameWidget = WIDGET_NEW(PropertyNameWidget, m_propertyEditor);
 		}
@@ -69,7 +99,7 @@ namespace GuGu {
 		);
 	}
 
-	void DetailPropertyRow::makeValueWidget(DetailWidgetRow& row)
+	void DetailPropertyRow::makeValueWidget(DetailWidgetRow& row, std::shared_ptr<DetailWidgetRow> inCustomPropertyWidget)
 	{
 		VerticalAlignment verticalAlignment = VerticalAlignment::Center;
 		HorizontalAlignment horizontalAlignment = HorizontalAlignment::Left;
@@ -77,9 +107,17 @@ namespace GuGu {
 		std::optional<float> minWidth;
 		std::optional<float> maxWidth;
 
-		std::shared_ptr<HorizontalBox> valueWidget =
-		WIDGET_NEW(HorizontalBox);
-		if (m_propertyEditor)
+		std::shared_ptr<HorizontalBox> valueWidget = WIDGET_NEW(HorizontalBox);
+
+		if (inCustomPropertyWidget)
+		{
+			valueWidget->addSlot()
+			.FixedWidth()
+			(
+				inCustomPropertyWidget->m_nameWidget.m_widget
+			);
+		}
+		else if (m_propertyEditor)
 		{
 			std::shared_ptr<PropertyValueWidget> propertyValue;
 			valueWidget->addSlot()
@@ -91,6 +129,7 @@ namespace GuGu {
 			minWidth = propertyValue->getMinFixedWidth();
 			maxWidth = propertyValue->getMaxFixedWidth();
 		}
+
 
 		row.valueContent()
 		.setHorizontalAlignment(horizontalAlignment)

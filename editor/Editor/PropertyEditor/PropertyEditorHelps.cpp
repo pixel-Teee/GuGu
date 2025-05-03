@@ -41,9 +41,17 @@ namespace GuGu {
 		m_valueEditorWidget = constructPropertyEditorWidget(inPropertyEditor);
 
 		m_childWidget = std::make_shared<SingleChildSlot>();
-		m_childWidget->m_parentWidget = shared_from_this();
-		m_childWidget->m_childWidget = m_valueEditorWidget;
-		m_childWidget->setVerticalAlignment(VerticalAlignment::Center);
+		
+		if (m_valueEditorWidget != nullptr)
+		{
+			m_childWidget->m_parentWidget = shared_from_this();
+			m_childWidget->m_childWidget = m_valueEditorWidget;
+			m_childWidget->setVerticalAlignment(VerticalAlignment::Center);
+		}
+		else
+		{
+			m_childWidget->m_childWidget = NullWidget::getNullWidget();
+		}
 	}
 
 	std::shared_ptr<Widget> PropertyValueWidget::constructPropertyEditorWidget(std::shared_ptr<PropertyEditor>& inPropertyEditor)

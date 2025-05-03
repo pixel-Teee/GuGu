@@ -2,6 +2,7 @@
 
 #include "DetailLayoutBuilderImpl.h"
 #include "DetailCategoryBuilderImpl.h" //目录树节点
+#include "PropertyHandleImp.h"
 
 namespace GuGu {
 
@@ -94,13 +95,31 @@ namespace GuGu {
 		}
 		else
 		{
-			m_defaultCategoryMap.insert({ categoryName, std::make_shared<DetailCategoryImpl>() });
+			m_defaultCategoryMap.insert({ categoryName, std::make_shared<DetailCategoryImpl>(categoryName, std::static_pointer_cast<DetailLayoutBuilderImpl>(shared_from_this())) });
 			categoryImpl = m_defaultCategoryMap.find(categoryName)->second;
 
 			categoryImpl->setDisplayName(categoryName);
 		}
 
 		return *categoryImpl;
+	}
+
+	std::shared_ptr<IPropertyHandle> DetailLayoutBuilderImpl::getPropertyHandle(std::shared_ptr<PropertyNode> propertyNodePtr) const
+	{
+		std::shared_ptr<IPropertyHandle> propertyHandle;
+		if (propertyNodePtr)
+		{
+			std::shared_ptr<PropertyNode> propertyNode = propertyNodePtr;
+			if (PropertyHandleFloat::supports(propertyNode)) //todo:这个后面要封装成函数
+			{
+				propertyHandle = std::make_shared<PropertyHandleFloat>(propertyNode);
+			}
+		}
+		else
+		{
+			//invalid handle
+		}
+		return propertyHandle;
 	}
 
 }

@@ -20,6 +20,8 @@ namespace GuGu {
 
 		void initialize();
 	private:
+		void initPropertyEditor();
+
 		DetailLayoutCustomization m_customization;
 
 		std::weak_ptr<DetailCategoryImpl> m_parentCategory;

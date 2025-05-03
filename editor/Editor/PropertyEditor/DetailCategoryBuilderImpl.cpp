@@ -7,10 +7,11 @@
 
 namespace GuGu {
 
-	DetailCategoryImpl::DetailCategoryImpl()
+	DetailCategoryImpl::DetailCategoryImpl(const GuGuUtf8Str& categoryName, std::shared_ptr<DetailLayoutBuilderImpl> inDetailLayoutBuilderImpl)
 		: m_headerContentWidget(nullptr)
 	{
-
+		m_categoryName = categoryName;
+		m_detailLayoutBuilder = inDetailLayoutBuilderImpl;
 	}
 
 	DetailCategoryImpl::~DetailCategoryImpl()
@@ -88,6 +89,8 @@ namespace GuGu {
 		for (const DetailLayoutCustomization& customization : customizationList)
 		{
 			std::shared_ptr<DetailItemNode> newNode = std::make_shared<DetailItemNode>(customization, shared_from_this());
+
+			newNode->initialize();
 
 			outNodeList.push_back(newNode);
 		}

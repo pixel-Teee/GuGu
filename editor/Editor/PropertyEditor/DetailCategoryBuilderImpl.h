@@ -66,10 +66,11 @@ namespace GuGu {
 
 	};
 	
+	class DetailLayoutBuilderImpl;
 	class DetailCategoryImpl : public IDetailCategoryBuilder, public DetailTreeNode, public std::enable_shared_from_this<DetailCategoryImpl>
 	{
 	public:
-		DetailCategoryImpl();
+		DetailCategoryImpl(const GuGuUtf8Str& categoryName, std::shared_ptr<DetailLayoutBuilderImpl> inDetailLayoutBuilderImpl);
 
 		virtual ~DetailCategoryImpl();
 
@@ -95,6 +96,8 @@ namespace GuGu {
 		virtual const GuGuUtf8Str& getDisplayName() const override { return m_displayName; }
 
 		void setDisplayName(GuGuUtf8Str inCategoryName);
+
+		DetailLayoutBuilderImpl& getParentLayoutImpl() const { return *m_detailLayoutBuilder.lock(); }
 	private:
 		//生成儿子的所有布局
 		void generateChildrenForLayouts();
@@ -116,5 +119,7 @@ namespace GuGu {
 		std::shared_ptr<Widget> m_headerContentWidget;
 
 		GuGuUtf8Str m_displayName;
+
+		std::weak_ptr<DetailLayoutBuilderImpl> m_detailLayoutBuilder;
 	};
 }
