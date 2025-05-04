@@ -330,13 +330,13 @@ namespace GuGu {
 				type.AddConstructor<TransformComponent, true, true>();
 
 				type.AddField<TransformComponent, math::double3>("m_Translation",
-					(meta::FieldGetter<TransformComponent, math::double3, true>::Signature)&TransformComponent::getTranslation,
+					(meta::FieldGetter<TransformComponent, math::double3&, true>::Signature)&TransformComponent::getTranslation,
 					(meta::FieldSetter<TransformComponent, math::double3, true>::Signature)&TransformComponent::SetTranslation);
 				type.AddField<TransformComponent, math::dquat>("m_Rotation",
 					(meta::FieldGetter<TransformComponent, math::dquat, true>::Signature)&TransformComponent::getRotation,
 					(meta::FieldSetter<TransformComponent, math::dquat, true>::Signature)&TransformComponent::SetRotation);
 				type.AddField<TransformComponent, math::double3>("m_Scaling",
-					(meta::FieldGetter<TransformComponent, math::double3, true>::Signature)&TransformComponent::getScaling,
+					(meta::FieldGetter<TransformComponent, math::double3&, true>::Signature)&TransformComponent::getScaling,
 					(meta::FieldSetter<TransformComponent, math::double3, true>::Signature)&TransformComponent::SetScaling);
 
 				type.AddField<TransformComponent, std::weak_ptr<GameObject>>("m_owner",

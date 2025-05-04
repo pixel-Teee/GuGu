@@ -13,6 +13,10 @@ namespace GuGu {
 		{
 			m_propertyHandle = std::make_shared<PropertyHandleFloat>(inPropertyNode);
 		}
+		else if (PropertyHandleDouble::supports(inPropertyNode))
+		{
+			m_propertyHandle = std::make_shared<PropertyHandleDouble>(inPropertyNode);
+		}
 	}
 
 	GuGuUtf8Str PropertyEditor::getDisplayName() const

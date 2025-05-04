@@ -114,7 +114,7 @@ namespace GuGu {
 			valueWidget->addSlot()
 			.FixedWidth()
 			(
-				inCustomPropertyWidget->m_nameWidget.m_widget
+				inCustomPropertyWidget->m_valueWidget.m_widget
 			);
 		}
 		else if (m_propertyEditor)

@@ -55,7 +55,8 @@ namespace GuGu {
 			NumericType numericVal;
 
 			const std::shared_ptr<IPropertyHandle> propertyHandle = m_propertyEditor->getPropertyHandle();
-			propertyHandle->getValue(numericVal);
+			if(propertyHandle)
+				propertyHandle->getValue(numericVal);
 
 			return numericVal;
 		}
@@ -82,7 +83,12 @@ namespace GuGu {
 		template<typename U>
 		struct TTypeToProperty<float, U>
 		{
-			static bool match(const meta::Field* inField) { return inField->GetType().IsFloatingPoint(); }//todo:修复这个，要更进一步区分float，double
+			static bool match(const meta::Field* inField) { return inField->GetType() == typeof(float); }
+		};
+		template<typename U>
+		struct TTypeToProperty<double, U>
+		{
+			static bool match(const meta::Field* inField) { return inField->GetType() == typeof(double); }
 		};
 		std::shared_ptr<PropertyEditor> m_propertyEditor;
 

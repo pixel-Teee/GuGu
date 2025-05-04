@@ -19,11 +19,11 @@ namespace GuGu {
 	template<typename...>
 	struct functionTraits;
 
-	template<typename R, typename Class, typename... Args>
-	struct functionTraits<Class, std::function<R(Args...)>> {
-		using ConstMethod = R(Class::*)(Args...) const;
-		using Method = R(Class::*)(Args...);
-		static const uint32_t ParamCount = sizeof...(Args);
+	template<typename R, typename Class, typename... Args, typename... Vars>
+	struct functionTraits<Class, std::function<R(Args...)>, Vars...> {
+		using ConstMethod = R(Class::*)(Args..., Vars...) const;
+		using Method = R(Class::*)(Args..., Vars...);
+		static const uint32_t ParamCount = sizeof...(Args) + sizeof...(Vars);
 	};
 
 	namespace RequiredArgs
@@ -259,27 +259,29 @@ namespace GuGu {
 		m##EventName = std::move(inFunctor); \
 		return static_cast<BuilderArguments*>(this)->Me(); \
 	}\
-	template<class Class>\
-	BuilderArguments& EventName(Class* inObject, typename functionTraits<Class, Type>::ConstMethod inConstMethodPtr) \
+	template<class Class, typename... VarTypes>\
+	BuilderArguments& EventName(Class* inObject, typename functionTraits<Class, Type, VarTypes...>::ConstMethod inConstMethodPtr, VarTypes... vars) \
 	{\
-		if constexpr (functionTraits<Class, Type>::ParamCount == 0) \
-			m##EventName = std::bind(inConstMethodPtr, inObject); \
-		else if constexpr (functionTraits<Class, Type>::ParamCount == 1) \
-			m##EventName = std::bind(inConstMethodPtr, inObject, std::placeholders::_1); \
-		else if constexpr (functionTraits<Class, Type>::ParamCount == 2) \
-			m##EventName = std::bind(inConstMethodPtr, inObject, std::placeholders::_1, std::placeholders::_2); \
+		constexpr int32_t paramCount = functionTraits<Class, Type, VarTypes...>::ParamCount - sizeof...(VarTypes);\
+		if constexpr (paramCount == 0) \
+			m##EventName = std::bind(inConstMethodPtr, inObject, std::forward<VarTypes>(vars)...); \
+		else if constexpr (paramCount == 1) \
+			m##EventName = std::bind(inConstMethodPtr, inObject, std::placeholders::_1, std::forward<VarTypes>(vars)...); \
+		else if constexpr (paramCount == 2) \
+			m##EventName = std::bind(inConstMethodPtr, inObject, std::placeholders::_1, std::placeholders::_2, std::forward<VarTypes>(vars)...); \
 		return static_cast<BuilderArguments*>(this)->Me(); \
 	}\
-	template<class Class>\
-	BuilderArguments& EventName(Class* inObject, typename functionTraits<Class, Type>::Method inMethodPtr) \
+	template<class Class, typename... VarTypes>\
+	BuilderArguments& EventName(Class* inObject, typename functionTraits<Class, Type, VarTypes...>::Method inMethodPtr, VarTypes... vars) \
 	{\
-		if constexpr (functionTraits<Class, Type>::ParamCount == 0) \
-			m##EventName = std::bind(inMethodPtr, inObject); \
-		else if constexpr (functionTraits<Class, Type>::ParamCount == 1) \
-			m##EventName = std::bind(inMethodPtr, inObject, std::placeholders::_1); \
-		else if constexpr (functionTraits<Class, Type>::ParamCount == 2) \
-			m##EventName = std::bind(inMethodPtr, inObject, std::placeholders::_1, std::placeholders::_2); \
-			return static_cast<BuilderArguments*>(this)->Me(); \
+		constexpr int32_t paramCount = functionTraits<Class, Type, VarTypes...>::ParamCount - sizeof...(VarTypes);\
+		if constexpr (paramCount == 0) \
+			m##EventName = std::bind(inMethodPtr, inObject, std::forward<VarTypes>(vars)...); \
+		else if constexpr (paramCount == 1) \
+			m##EventName = std::bind(inMethodPtr, inObject, std::placeholders::_1, std::forward<VarTypes>(vars)...); \
+		else if constexpr (paramCount == 2) \
+			m##EventName = std::bind(inMethodPtr, inObject, std::placeholders::_1, std::placeholders::_2, std::forward<VarTypes>(vars)...); \
+		return static_cast<BuilderArguments*>(this)->Me(); \
 	}
 #define SLOT_CONTENT(SlotType, Name) \
 	std::shared_ptr<SlotType> m##Name;

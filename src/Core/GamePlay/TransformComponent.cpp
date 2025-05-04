@@ -82,12 +82,22 @@ namespace GuGu {
 		return m_Translation;
 	}
 
+	math::double3& TransformComponent::getTranslation()
+	{
+		return m_Translation;
+	}
+
 	math::dquat TransformComponent::getRotation() const
 	{
 		return m_Rotation;
 	}
 
 	math::double3 TransformComponent::getScaling() const
+	{
+		return m_Scaling;
+	}
+
+	math::double3& TransformComponent::getScaling()
 	{
 		return m_Scaling;
 	}

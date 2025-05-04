@@ -3,6 +3,9 @@
 #include "PropertyHandleImp.h"
 #include "PropertyNode.h"
 #include "ObjectPropertyNode.h"
+#include "PropertyEditor.h"
+#include "PropertyEditorHelps.h"
+#include <Core/UI/NullWidget.h>
 #include <Core/Reflection/Field.h>
 #include <Core/Reflection/Object.h>
 #include <Core/Reflection/Variant.h>
@@ -98,22 +101,51 @@ namespace GuGu {
 		}
 
 		std::string actualStr = inValue.getStr();
-		float actualValue = std::stof(actualStr);
+		//float actualValue = std::stof(actualStr);
 		PropertyAccess::Result result = PropertyAccess::Success;
 		//modify
 		meta::Field* field = inPropertyNode->getField();
+		meta::Variant fieldValue;//
+		if (field->GetType() == typeof(float))
+		{
+			fieldValue = std::stof(actualStr);
+		}
+		else if (field->GetType() == typeof(double))
+		{
+			fieldValue = std::stod(actualStr);
+		}
 		for (int32_t i = 0; i < owners.size(); ++i)
 		{
 			meta::Field curField = meta::ReflectionDatabase::Instance().types[owners[i].GetType().GetID()].GetField(field->GetName().getStr());//have this field?
 			if (curField.GetType() == field->GetType())
 			{
 				meta::Variant& instance = owners[i];
-				meta::Variant fieldValue(actualValue);
+				
 				inPropertyNode->getField()->SetValue(instance, fieldValue);
 			}
 		}
 		
 		return result;
+	}
+
+	int32_t PropertyValueImpl::getNumChildren() const
+	{
+		std::shared_ptr<PropertyNode> propertyNodeLock = m_propertyNode.lock();
+		if (propertyNodeLock)
+		{
+			return propertyNodeLock->getNumChildNodes();
+		}
+		return 0;
+	}
+
+	std::shared_ptr<PropertyNode> PropertyValueImpl::getChildNode(int32_t childIndex) const
+	{
+		std::shared_ptr<PropertyNode> propertyNodeLock = m_propertyNode.lock();
+		if (propertyNodeLock)
+		{
+			return propertyNodeLock->getChildNode(childIndex);
+		}
+		return 0;
 	}
 
 #define IMPLEMENT_PROPERTY_ACCESSOR(ValueType)\
@@ -127,11 +159,62 @@ namespace GuGu {
 	}\
 
 	IMPLEMENT_PROPERTY_ACCESSOR(float)
+	IMPLEMENT_PROPERTY_ACCESSOR(double)
+	IMPLEMENT_PROPERTY_ACCESSOR(math::double3)
 
 	PropertyHandleBase::PropertyHandleBase(std::shared_ptr<PropertyNode> propertyNode)
 		: m_implementation(std::make_shared<PropertyValueImpl>(propertyNode))
 	{
 
+	}
+
+	std::shared_ptr<Widget> PropertyHandleBase::createPropertyNameWidget(const GuGuUtf8Str& nameOverride /*= ""*/)
+	{
+		if (m_implementation && m_implementation->getPropertyNode())
+		{
+			std::shared_ptr<PropertyEditor> propertyEditor = std::make_shared<PropertyEditor>(m_implementation->getPropertyNode());
+
+			return WIDGET_NEW(PropertyNameWidget, propertyEditor);
+		}
+
+		return NullWidget::getNullWidget();
+	}
+
+	PropertyAccess::Result PropertyHandleBase::getNumChildren(uint32_t& outNumChildren) const
+	{
+		outNumChildren = m_implementation->getNumChildren();
+		return PropertyAccess::Success;
+	}
+
+	std::shared_ptr<IPropertyHandle> PropertyHandleBase::getChildHandle(uint32_t index) const
+	{
+		std::shared_ptr<PropertyNode> propertyNode = m_implementation->getChildNode(index);
+		if (propertyNode)
+		{
+			if (PropertyHandleFloat::supports(propertyNode)) //todo:这个后面要封装成函数
+			{
+				return std::make_shared<PropertyHandleFloat>(propertyNode);
+			}
+			else if (PropertyHandleDouble::supports(propertyNode))
+			{
+				return std::make_shared<PropertyHandleDouble>(propertyNode);
+			}
+			else if (PropertyHandleVector3::supports(propertyNode))
+			{
+				return std::make_shared<PropertyHandleVector3>(propertyNode);
+			}
+		}
+		return nullptr;
+	}
+
+	const meta::Field* PropertyHandleBase::getField() const
+	{
+		std::shared_ptr<PropertyNode> propertyNode = m_implementation->getPropertyNode();
+		if (propertyNode && propertyNode->getField())
+		{
+			return propertyNode->getField();
+		}
+		return nullptr;
 	}
 
 #define IMPLEMENT_PROPERTY_VALUE(ClassName)\
@@ -148,7 +231,7 @@ namespace GuGu {
 		{
 			return false;
 		}
-		return field->GetType().IsFloatingPoint();//todo:修复这个
+		return field->GetType() == typeof(float);
 	}
 
 	PropertyAccess::Result PropertyHandleFloat::getValue(float& outValue) const
@@ -167,6 +250,72 @@ namespace GuGu {
 
 		char buffer[64];
 		std::sprintf(buffer, "%f", inValue);
+		GuGuUtf8Str valueStr(buffer);
+		res = m_implementation->importText(valueStr);
+
+		return res;
+	}
+
+
+	PropertyHandleVector3::PropertyHandleVector3(std::shared_ptr<PropertyNode> propertyNode)
+		: PropertyHandleBase(propertyNode)
+	{
+
+	}
+
+	bool PropertyHandleVector3::supports(std::shared_ptr<PropertyNode> propertyNode)
+	{
+		meta::Field* field = propertyNode->getField();
+		if (field == nullptr)
+		{
+			return false;
+		}
+		return field->GetType() == typeof(math::double3);
+	}
+
+	PropertyAccess::Result PropertyHandleVector3::getValue(math::double3& outValue) const
+	{
+		return PropertyAccess::Result::Success;
+	}
+
+	PropertyAccess::Result PropertyHandleVector3::setValue(const math::double3& inValue)
+	{
+		return PropertyAccess::Result::Success;
+	}
+
+	PropertyHandleDouble::PropertyHandleDouble(std::shared_ptr<PropertyNode> propertyNode)
+		: PropertyHandleBase(propertyNode)
+	{
+
+	}
+
+	bool PropertyHandleDouble::supports(std::shared_ptr<PropertyNode> propertyNode)
+	{
+		meta::Field* field = propertyNode->getField();
+		if (field == nullptr)
+		{
+			return false;
+		}
+		return field->GetType() == typeof(double);
+	}
+
+
+	PropertyAccess::Result PropertyHandleDouble::getValue(double& outValue) const
+	{
+		meta::Variant fieldValue;
+		PropertyAccess::Result res = m_implementation->getValueData(fieldValue);
+		//outValue = m_implementation->getPropertyValue();
+		outValue = fieldValue.ToDouble();
+
+		return res;
+	}
+
+	PropertyAccess::Result PropertyHandleDouble::setValue(const double& inValue)
+	{
+		PropertyAccess::Result res;
+
+		char buffer[64];
+		std::sprintf(buffer, "%.3lf", inValue);
 		GuGuUtf8Str valueStr(buffer);
 		res = m_implementation->importText(valueStr);
 

@@ -72,6 +72,14 @@ namespace GuGu {
 
 				propertyWidget = numericWidget;
 			}
+			else if (PropertyEditorNumeric<double>::supports(inPropertyEditor))
+			{
+				std::shared_ptr<PropertyEditorNumeric<double>> numericWidget;
+				WIDGET_ASSIGN_NEW(PropertyEditorNumeric<double>, numericWidget, inPropertyEditor);
+				numericWidget->getFixedWidth(m_minFixedWidth, m_maxFixedWidth);
+
+				propertyWidget = numericWidget;
+			}
 		}
 
 		if (!propertyWidget)

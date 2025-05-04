@@ -114,6 +114,11 @@ namespace GuGu {
 			{
 				propertyHandle = std::make_shared<PropertyHandleFloat>(propertyNode);
 			}
+			else if (PropertyHandleVector3::supports(propertyNode))
+			{
+				propertyHandle = std::make_shared<PropertyHandleVector3>(propertyNode);
+			}
+			propertyHandle = std::make_shared<PropertyHandleVector3>(propertyNode);//todo:修复这个
 		}
 		else
 		{

@@ -31,8 +31,10 @@ namespace GuGu {
 		void SetTranslation(math::double3 translation);
 
 		math::double3 getTranslation() const;
+		math::double3& getTranslation();
 		math::dquat getRotation() const;
 		math::double3 getScaling() const;
+		math::double3& getScaling();
 
 		virtual meta::Type GetType() const override;
 	private:
