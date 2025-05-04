@@ -15,6 +15,7 @@ namespace GuGu {
 	DetailPropertyRow::DetailPropertyRow(std::shared_ptr<PropertyNode> inPropertyNode, std::shared_ptr<DetailCategoryImpl> inParentCategory)
 		: m_propertyNode(inPropertyNode)
 		, m_parentCategory(inParentCategory)
+		, m_bCachedCustomTypeInterface(false)
 	{
 		m_propertyHandle = inParentCategory->getParentLayoutImpl().getPropertyHandle(inPropertyNode);
 		if (m_propertyNode)
@@ -50,12 +51,16 @@ namespace GuGu {
 
 	void DetailPropertyRow::onItemNodeInitialized(std::shared_ptr<DetailCategoryImpl> inParentCategory)
 	{
-		std::shared_ptr<IPropertyTypeCustomization>& customTypeInterface = getTypeInterface();
-		if (!m_customPropertyWidget && customTypeInterface)
+		if (!m_bCachedCustomTypeInterface)
 		{
-			m_customPropertyWidget = std::make_shared<DetailWidgetRow>();
+			m_bCachedCustomTypeInterface = true;
+			m_cachedCustomTypeInterface = getTypeInterface();//创建结构体自定义控件的面板
+			if (!m_customPropertyWidget && m_cachedCustomTypeInterface)
+			{
+				m_customPropertyWidget = std::make_shared<DetailWidgetRow>();
 
-			customTypeInterface->customizeHeader(m_propertyHandle, *m_customPropertyWidget);
+				m_cachedCustomTypeInterface->customizeHeader(m_propertyHandle, *m_customPropertyWidget);
+			}
 		}
 	}
 

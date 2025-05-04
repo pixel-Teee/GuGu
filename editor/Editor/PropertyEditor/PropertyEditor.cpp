@@ -3,20 +3,14 @@
 #include "PropertyEditor.h"
 #include "ItemPropertyNode.h"
 #include "PropertyHandleImp.h"//PropertyHandleFloat
+#include "PropertyEditorHelps.h"//getPropertyHandle 辅助函数
 
 namespace GuGu {
 
 	PropertyEditor::PropertyEditor(const std::shared_ptr<PropertyNode>& inPropertyNode)
 		: m_propertyNode(inPropertyNode)
 	{
-		if (PropertyHandleFloat::supports(inPropertyNode))
-		{
-			m_propertyHandle = std::make_shared<PropertyHandleFloat>(inPropertyNode);
-		}
-		else if (PropertyHandleDouble::supports(inPropertyNode))
-		{
-			m_propertyHandle = std::make_shared<PropertyHandleDouble>(inPropertyNode);
-		}
+		m_propertyHandle = PropertyEditorHelps::getPropertyHandle(inPropertyNode);
 	}
 
 	GuGuUtf8Str PropertyEditor::getDisplayName() const

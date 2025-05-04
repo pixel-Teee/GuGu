@@ -3,6 +3,7 @@
 #include "Component.h"
 #include <Core/Math/MyMath.h>
 #include <nvrhi.h>
+#include <Renderer/Color.h>
 
 namespace GuGu {
 	class MaterialComponent : public Component
@@ -18,7 +19,7 @@ namespace GuGu {
 
 		virtual meta::Type GetType() const override;
 
-		math::float3 m_albedo;
+		Color m_albedo;
 		float m_metallic;
 		float m_roughness;
 		float m_ao;

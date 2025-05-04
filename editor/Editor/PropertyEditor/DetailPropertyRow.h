@@ -38,5 +38,9 @@ namespace GuGu {
 		std::shared_ptr<DetailWidgetRow> m_customPropertyWidget;//自定义控件，针对color，math::float4等
 
 		std::shared_ptr<IPropertyHandle> m_propertyHandle;
+
+		std::shared_ptr<IPropertyTypeCustomization> m_cachedCustomTypeInterface;
+
+		bool m_bCachedCustomTypeInterface;
 	};
 }

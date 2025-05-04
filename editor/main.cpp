@@ -26,6 +26,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
 {
 	GuGu::GuGuUtf8Str str(u8"windows platform entry point");
 
+//     GuGu::GuGuUtf8Str gutterStr("Gutter");
+//     GuGu::GuGuUtf8Str itemLabelStr("ItemLabel");
+//     bool aRes = gutterStr < itemLabelStr;
+//     bool bRes = itemLabelStr < gutterStr;
+// 
+//     GuGu::GuGuUtf8Str transformComponentStr("TransformComponent");
+//     bool cRes = transformComponentStr < transformComponentStr;
+
+    //GuGu::GuGuUtf8Str ColorStr("Color");
+    //GuGu::GuGuUtf8Str ColorStr2("Color");
+    //bool q1 = ColorStr < ColorStr2;
+    //bool q2 = ColorStr2 < ColorStr;
+    //bool res = (!(ColorStr < ColorStr2) && !(ColorStr2 < ColorStr));
+
 	if (::GetConsoleWindow() == NULL)
 	{
 		if (::AllocConsole())

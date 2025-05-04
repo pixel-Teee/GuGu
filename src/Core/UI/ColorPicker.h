@@ -3,6 +3,7 @@
 #include "Widget.h"
 #include "UIMacros.h"
 #include "WidgetDelegates.h"
+#include "CompoundWidget.h"
 
 #include "WindowWidget.h"//window widget
 
@@ -34,7 +35,7 @@ namespace GuGu {
 	class ComboButton;
 
 	//颜色拾取器
-	class ColorPicker : public Widget
+	class ColorPicker : public CompoundWidget
 	{
 	public:
 		struct BuilderArguments : public Arguments<ColorPicker>
@@ -134,15 +135,15 @@ namespace GuGu {
 
 		void init(const BuilderArguments& arguments);
 
-		virtual uint32_t onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer) override;
-
-		virtual math::float2 ComputeFixedSize(float inLayoutScaleMultiplier) override;
-
-		virtual void AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) const override;
-
-		virtual SlotBase* getSlot(uint32_t index) const override;
-
-		virtual uint32_t getSlotsNumber() const override;
+		//virtual uint32_t onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer) override;
+		//
+		//virtual math::float2 ComputeFixedSize(float inLayoutScaleMultiplier) override;
+		//
+		//virtual void AllocationChildActualSpace(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray) const override;
+		//
+		//virtual SlotBase* getSlot(uint32_t index) const override;
+		//
+		//virtual uint32_t getSlotsNumber() const override;
 	private:
 
 		Attribute<math::float4> m_targetColorAttribute;//linear color

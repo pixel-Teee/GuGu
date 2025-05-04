@@ -5,7 +5,7 @@
 namespace GuGu {
 	MaterialComponent::MaterialComponent()
 	{
-		m_albedo = math::float3(1.0f, 0.8f, 1.0f);
+		m_albedo = Color(1.0f, 0.8f, 1.0f, 1.0f);
 		m_metallic = 0.05f;
 		m_roughness = 0.1f;
 		m_ao = 0.0f;

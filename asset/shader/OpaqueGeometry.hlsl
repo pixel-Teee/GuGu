@@ -13,7 +13,7 @@ cbuffer cbSkinned : register(b1)
 #endif
 cbuffer cbPbr : register(b2)
 {
-    float3 albedo;
+    float4 albedo;
     float metallic;
     float roughness;
     float ao;
@@ -87,7 +87,7 @@ void main_ps(
 )
 {
     
-    float3 Albedo = t_Texture.Sample(s_Sampler, i_uv).xyz * albedo;
+    float3 Albedo = t_Texture.Sample(s_Sampler, i_uv).xyz * albedo.xyz;
     //o_color = t_Texture.Sample(s_Sampler, i_uv);
     
     float3 N = normalize(i_normal);

@@ -480,8 +480,10 @@ namespace GuGu {
     }
 	bool GuGuUtf8Str::operator==(const GuGuUtf8Str& rhs) const {
 		//bool result = true;
-		if (m_len != rhs.m_len) return false;
-		for (int32_t i = 0; m_str[i] && rhs.m_str[i]; ++i)
+		uint32_t aCount = this->getTotalByteCount();
+		uint32_t bCount = rhs.getTotalByteCount();
+		if(aCount != bCount) return false;
+		for (int32_t i = 0; i < aCount; ++i)
 		{
 			if (m_str[i] != rhs.m_str[i]) return false;
 		}
@@ -493,33 +495,31 @@ namespace GuGu {
 	}
 	bool GuGuUtf8Str::operator<(const GuGuUtf8Str& rhs) const
 	{
-		GuGuUtf8Str a, b;
-		if (this->getTotalByteCount() > rhs.getTotalByteCount())
+		//GuGuUtf8Str a, b;
+		uint32_t aCount = this->getTotalByteCount();
+		uint32_t bCount = rhs.getTotalByteCount();
+		uint32_t minCount = std::min(aCount, bCount);
+		for (uint32_t i = 0; i < minCount; ++i)
 		{
-			a = rhs;
-			b = *this;
-			for (int32_t index = 0; index < a.getTotalByteCount(); ++index)
-			{
-				if (a.m_str[index] < b.m_str[index])
-					return false;
-			}
-			if (a.getTotalByteCount() < b.getTotalByteCount())
+			if (m_str[i] < rhs.m_str[i])
+				return true;
+			else if (m_str[i] > rhs.m_str[i])
 				return false;
 		}
-		else
-		{
-			a = *this;
-			b = rhs;
-			for (int32_t index = 0; index < a.getTotalByteCount(); ++index)
-			{
-				if (a.m_str[index] < b.m_str[index])
-					return true;
-			}
-			if (a.getTotalByteCount() < b.getTotalByteCount())
-				return true;
-		}
-
-		return false;
+		return aCount < bCount;
+		
+		//for (uint32_t i = 0; (i < aCount) && (i < bCount); ++i)
+		//{
+		//	if (m_str[i] < rhs.m_str[i])
+		//		return true;
+		//	else if (m_str[i] > rhs.m_str[i])
+		//		return false;
+		//}
+		//if (aCount < bCount)
+		//	return true;
+		//
+		//return false;
+		
 	}
 	GuGuUtf8Str GuGuUtf8Str::operator[](size_t pos) const
 	{

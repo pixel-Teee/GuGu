@@ -48,4 +48,12 @@ namespace GuGu {
 
 		float m_maxFixedWidth;
 	};
+
+	class IPropertyHandle;
+	class PropertyNode;
+	namespace PropertyEditorHelps
+	{
+		std::shared_ptr<IPropertyHandle> getPropertyHandle(std::shared_ptr<PropertyNode> inPropertyNode);
+	}
+	
 }

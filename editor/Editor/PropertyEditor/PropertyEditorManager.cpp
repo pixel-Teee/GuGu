@@ -4,6 +4,7 @@
 #include "IPropertyTypeCustomization.h"
 #include "Vector4StructCustomization.h"
 #include "VectorStructCustomization.h"
+#include "ColorStructCustomization.h"
 #include "PropertyNode.h"
 #include <Core/Reflection/Field.h>
 #include <Core/GuGuUtf8Str.h>
@@ -12,10 +13,11 @@ namespace GuGu {
 
 	PropertyEditorManager::PropertyEditorManager()
 	{
-		registerCustomPropertyTypeLayout("math::float4", std::make_shared<Vector4StructCustomization>());
-		registerCustomPropertyTypeLayout("math::double4", std::make_shared<Vector4StructCustomization>());
-		registerCustomPropertyTypeLayout("math::float3", std::make_shared<VectorStructCustomization>());
-		registerCustomPropertyTypeLayout("math::double3", std::make_shared<VectorStructCustomization>());
+		registerCustomPropertyTypeLayout("math::float4", Vector4StructCustomization::create); //四分量
+		registerCustomPropertyTypeLayout("math::double4", Vector4StructCustomization::create); //四分量
+		registerCustomPropertyTypeLayout("math::float3", VectorStructCustomization::create); //三分量
+		registerCustomPropertyTypeLayout("math::double3", VectorStructCustomization::create); //三分量
+		registerCustomPropertyTypeLayout("Color", ColorStructCustomization::create);
 	}
 
 	PropertyEditorManager::~PropertyEditorManager()
@@ -23,9 +25,9 @@ namespace GuGu {
 
 	}
 
-	void PropertyEditorManager::registerCustomPropertyTypeLayout(const GuGuUtf8Str& propertyTypeName, std::shared_ptr<IPropertyTypeCustomization> inPropertyTypeLayout)
+	void PropertyEditorManager::registerCustomPropertyTypeLayout(const GuGuUtf8Str& propertyTypeName, OnGetPropertyTypeCustomizationInstance inPropertyTypeLayoutGenerateCallback)
 	{
-		m_globalPropertyTypeToLayoutMap.insert({ propertyTypeName, inPropertyTypeLayout });
+		m_globalPropertyTypeToLayoutMap.insert({ propertyTypeName, inPropertyTypeLayoutGenerateCallback });
 	}
 
 	bool PropertyEditorManager::isCustomizedStruct(const meta::Field* field)
@@ -40,7 +42,7 @@ namespace GuGu {
 	{
 		const GuGuUtf8Str& typeName = inPropertyNode->getField()->GetType().GetName();//check?
 		if (m_globalPropertyTypeToLayoutMap.find(typeName) != m_globalPropertyTypeToLayoutMap.end())
-			return m_globalPropertyTypeToLayoutMap[typeName];
+			return m_globalPropertyTypeToLayoutMap[typeName]();//execute func
 		return nullptr;
 	}
 

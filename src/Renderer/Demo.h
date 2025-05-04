@@ -128,7 +128,7 @@ namespace GuGu {
 		};
 
 		struct PbrMaterial {
-			math::float3 albedo;
+			Color albedo;
 			float metallic;
 			float roughness;
 			float ao;

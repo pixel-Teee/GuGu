@@ -105,7 +105,7 @@ namespace GuGu {
 		PropertyAccess::Result result = PropertyAccess::Success;
 		//modify
 		meta::Field* field = inPropertyNode->getField();
-		meta::Variant fieldValue;//
+		meta::Variant fieldValue;//todo:这里以后要调用反射类型的虚函数，进行不同的派发
 		if (field->GetType() == typeof(float))
 		{
 			fieldValue = std::stof(actualStr);
@@ -189,22 +189,7 @@ namespace GuGu {
 	std::shared_ptr<IPropertyHandle> PropertyHandleBase::getChildHandle(uint32_t index) const
 	{
 		std::shared_ptr<PropertyNode> propertyNode = m_implementation->getChildNode(index);
-		if (propertyNode)
-		{
-			if (PropertyHandleFloat::supports(propertyNode)) //todo:这个后面要封装成函数
-			{
-				return std::make_shared<PropertyHandleFloat>(propertyNode);
-			}
-			else if (PropertyHandleDouble::supports(propertyNode))
-			{
-				return std::make_shared<PropertyHandleDouble>(propertyNode);
-			}
-			else if (PropertyHandleVector3::supports(propertyNode))
-			{
-				return std::make_shared<PropertyHandleVector3>(propertyNode);
-			}
-		}
-		return nullptr;
+		return PropertyEditorHelps::getPropertyHandle(propertyNode);
 	}
 
 	const meta::Field* PropertyHandleBase::getField() const

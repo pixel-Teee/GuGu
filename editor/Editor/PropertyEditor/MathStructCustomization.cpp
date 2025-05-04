@@ -46,56 +46,52 @@ namespace GuGu {
 	}
 
 	template<typename NumericType>
-	std::optional<NumericType> MathStructCustomization::onGetValue(std::shared_ptr<IPropertyHandle> weakHandlePtr) const
+	std::optional<NumericType> MathStructCustomization::onGetValue(std::weak_ptr<IPropertyHandle> weakHandlePtr) const
 	{
 		NumericType numericVal = 0;
-		//if (weakHandlePtr.lock())
-		//{
-		//	std::shared_ptr<IPropertyHandle> handleLocked = weakHandlePtr.lock();
-		//	if (handleLocked->getValue(numericVal) == PropertyAccess::Success)
-		//	{
-		//		return std::optional<NumericType>(numericVal);
-		//	}
-		//}
-		weakHandlePtr->getValue(numericVal);
-		return std::optional<NumericType>(numericVal);
-
+		if (weakHandlePtr.lock())
+		{
+			std::shared_ptr<IPropertyHandle> handleLocked = weakHandlePtr.lock();
+			if (handleLocked->getValue(numericVal) == PropertyAccess::Success)
+			{
+				return std::optional<NumericType>(numericVal);
+			}
+		}
 		return std::optional<NumericType>();
 	}
 
 	template<typename NumericType>
-	void MathStructCustomization::onValueChanged(NumericType newValue, std::shared_ptr<IPropertyHandle> weakHandlePtr)
+	void MathStructCustomization::onValueChanged(NumericType newValue, std::weak_ptr<IPropertyHandle> weakHandlePtr)
 	{
 		setValue(newValue, weakHandlePtr);
 	}
 
 	template<typename NumericType>
-	void MathStructCustomization::onValueCommitted(NumericType newValue, TextCommit::Type commitType, std::shared_ptr<IPropertyHandle> weakHandlePtr)
+	void MathStructCustomization::onValueCommitted(NumericType newValue, TextCommit::Type commitType, std::weak_ptr<IPropertyHandle> weakHandlePtr)
 	{
 		setValue(newValue, weakHandlePtr);
 	}
 
 	template<typename NumericType>
-	void MathStructCustomization::setValue(NumericType newValue, std::shared_ptr<IPropertyHandle> weakHandlePtr)
+	void MathStructCustomization::setValue(NumericType newValue, std::weak_ptr<IPropertyHandle> weakHandlePtr)
 	{
-		//if (weakHandlePtr.lock())
-		//{
-		//	weakHandlePtr.lock()->setValue(newValue);
-		//}
-		weakHandlePtr->setValue(newValue);
+		if (weakHandlePtr.lock())
+		{
+			weakHandlePtr.lock()->setValue(newValue);
+		}
 	}
 
 	template<typename NumericType>
 	std::shared_ptr<Widget> MathStructCustomization::makeNumericWidget(std::shared_ptr<IPropertyHandle>& structPropertyHandle, std::shared_ptr<IPropertyHandle>& propertyHandle)
 	{
 		std::weak_ptr<IPropertyHandle> weakHandlePtr = propertyHandle;
-		//auto func = std::bind(&MathStructCustomization::onValueChanged<NumericType>, this, std::placeholders::_1, weakHandlePtr);
+
 		return
 			WIDGET_NEW(NumericEntryBox<NumericType>)
 			.allowSpain(true) //todo:修复这个
-			.value(this, &MathStructCustomization::onGetValue<NumericType>, propertyHandle) //要显示的值
-			.onValueChanged(this, &MathStructCustomization::onValueChanged<NumericType>, propertyHandle)
-			.onValueCommitted(this, &MathStructCustomization::onValueCommitted<NumericType>, propertyHandle);
+			.value(this, &MathStructCustomization::onGetValue<NumericType>, weakHandlePtr) //要显示的值
+			.onValueChanged(this, &MathStructCustomization::onValueChanged<NumericType>, weakHandlePtr)
+			.onValueCommitted(this, &MathStructCustomization::onValueCommitted<NumericType>, weakHandlePtr);
 	}
 
 	void MathStructCustomization::makeHeaderRow(std::shared_ptr<IPropertyHandle> propertyHandle, DetailWidgetRow& headerRow)

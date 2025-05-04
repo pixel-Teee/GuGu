@@ -14,6 +14,8 @@
 #include <Core/GamePlay/MaterialComponent.h>
 #include <Core/GamePlay/CameraComponent.h>
 
+#include <Renderer/Color.h>
+
 #include <Core/AssetManager/AssetData.h>
 
 namespace GuGu {
@@ -169,6 +171,35 @@ namespace GuGu {
 			type.AddField<math::vector<uint16_t, 4>, uint16_t>("w",
 				(meta::FieldGetter<math::vector<uint16_t, 4>, uint16_t, false>::Signature)& math::vector<uint16_t, 4>::w,
 				(meta::FieldSetter<math::vector<uint16_t, 4>, uint16_t, false>::Signature)& math::vector<uint16_t, 4>::w);
+		}
+
+		//color
+		{
+			auto id = db.AllocateType("Color");
+			auto& type = db.types[id];
+			meta::TypeInfo<Color>::Register(id, type, true);
+
+			type.AddConstructor<Color, false, false>();
+
+			type.AddConstructor<Color, true, false>();
+
+			type.SetArrayConstructor<Color>();
+
+			type.AddField<Color, float>("r",
+				(meta::FieldGetter<Color, float, false>::Signature) & Color::r,
+				(meta::FieldSetter<Color, float, false>::Signature) & Color::r);
+
+			type.AddField<Color, float>("g",
+				(meta::FieldGetter<Color, float, false>::Signature) & Color::g,
+				(meta::FieldSetter<Color, float, false>::Signature) & Color::g);
+
+			type.AddField<Color, float>("b",
+				(meta::FieldGetter<Color, float, false>::Signature) & Color::b,
+				(meta::FieldSetter<Color, float, false>::Signature) & Color::b);
+
+			type.AddField<Color, float>("a",
+				(meta::FieldGetter<Color, float, false>::Signature) & Color::a,
+				(meta::FieldSetter<Color, float, false>::Signature) & Color::a);
 		}
 
 		//meta::object
@@ -473,9 +504,9 @@ namespace GuGu {
 
 				meta::TypeInfo<MaterialComponent>::Defined = true;
 
-				type.AddField<MaterialComponent, math::float3>("m_albedo",
-					(meta::FieldGetter<MaterialComponent, math::float3, false>::Signature)& MaterialComponent::m_albedo,
-					(meta::FieldSetter<MaterialComponent, math::float3, false>::Signature)& MaterialComponent::m_albedo);
+				type.AddField<MaterialComponent, Color>("m_albedo",
+					(meta::FieldGetter<MaterialComponent, Color, false>::Signature)& MaterialComponent::m_albedo,
+					(meta::FieldSetter<MaterialComponent, Color, false>::Signature)& MaterialComponent::m_albedo);
 
 				type.AddField<MaterialComponent, float>("m_metallic",
 					(meta::FieldGetter<MaterialComponent, float, false>::Signature)& MaterialComponent::m_metallic,

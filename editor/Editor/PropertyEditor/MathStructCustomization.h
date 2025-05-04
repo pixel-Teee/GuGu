@@ -22,16 +22,16 @@ namespace GuGu {
 		std::shared_ptr<Widget> makeNumericWidget(std::shared_ptr<IPropertyHandle>& structPropertyHandle, std::shared_ptr<IPropertyHandle>& propertyHandle);
 
 		template<typename NumericType>
-		void onValueCommitted(NumericType newValue, TextCommit::Type commitType, std::shared_ptr<IPropertyHandle> weakHandlePtr);
+		void onValueCommitted(NumericType newValue, TextCommit::Type commitType, std::weak_ptr<IPropertyHandle> weakHandlePtr);
 
 		template<typename NumericType>
-		void onValueChanged(NumericType newValue, std::shared_ptr<IPropertyHandle> weakHandlePtr);
+		void onValueChanged(NumericType newValue, std::weak_ptr<IPropertyHandle> weakHandlePtr);
 
 		template<typename NumericType>
-		std::optional<NumericType> onGetValue(std::shared_ptr<IPropertyHandle> weakHandlePtr) const;
+		std::optional<NumericType> onGetValue(std::weak_ptr<IPropertyHandle> weakHandlePtr) const;
 
 		template<typename NumericType>
-		void setValue(NumericType newValue, std::shared_ptr<IPropertyHandle> weakHandlePtr);
+		void setValue(NumericType newValue, std::weak_ptr<IPropertyHandle> weakHandlePtr);
 	protected:
 		virtual void makeHeaderRow(std::shared_ptr<IPropertyHandle> propertyHandle, DetailWidgetRow& headerRow);
 

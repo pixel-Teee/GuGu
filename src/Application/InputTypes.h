@@ -18,6 +18,8 @@ namespace GuGu {
 		const GuGuUtf8Str& getKeyName() const;
 
 		friend bool operator==(const Key& keyA, const Key& keyB) { return keyA.m_keyName == keyB.m_keyName; }
+
+		friend bool operator!=(const Key& keyA, const Key& keyB) { return !(keyA == keyB); }
 	private:
 		GuGuUtf8Str m_keyName;
 	};

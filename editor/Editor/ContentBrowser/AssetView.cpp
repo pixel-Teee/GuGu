@@ -43,6 +43,7 @@ namespace GuGu {
 		createCurrentView();
 
 		m_childWidget->m_childWidget = verticalBox;
+		m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 	}
 	AssetView::~AssetView()
 	{

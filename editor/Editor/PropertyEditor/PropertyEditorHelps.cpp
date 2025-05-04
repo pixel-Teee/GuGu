@@ -4,6 +4,7 @@
 #include "PropertyEditorTitle.h"
 #include "PropertyNode.h"
 #include "PropertyEditor.h"
+#include "PropertyHandleImp.h"//property handle float/double
 #include <Core/UI/BoxPanel.h>
 #include <Core/UI/Border.h>
 
@@ -93,4 +94,25 @@ namespace GuGu {
 		return propertyWidget;
 	}
 
+	namespace PropertyEditorHelps
+	{
+		std::shared_ptr<IPropertyHandle> getPropertyHandle(std::shared_ptr<PropertyNode> inPropertyNode)
+		{
+			std::shared_ptr<IPropertyHandle> propertyHandle;
+
+			if (PropertyHandleFloat::supports(inPropertyNode))
+			{
+				propertyHandle = std::make_shared<PropertyHandleFloat>(inPropertyNode);
+			}
+			else if (PropertyHandleDouble::supports(inPropertyNode))
+			{
+				propertyHandle = std::make_shared<PropertyHandleDouble>(inPropertyNode);
+			}
+			else if (PropertyHandleVector3::supports(inPropertyNode))
+			{
+				propertyHandle = std::make_shared<PropertyHandleVector3>(inPropertyNode);
+			}
+			return propertyHandle;
+		}
+	}
 }

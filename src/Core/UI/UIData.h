@@ -1,10 +1,9 @@
 #pragma once
 
 #include <Core/Math/MyMath.h>
-
 #include <Core/GuGuUtf8Str.h>
-
 #include <Core/UI/BasicElement.h>
+#include <Renderer/Color.h>
 
 #include <functional>
 
@@ -48,7 +47,7 @@ namespace GuGu {
 		float yWorldPos = 0.0f;
 		float zWorldPos = 0.0f;
 
-		math::float3 color = math::float3(1.0f, 1.0f, 1.0f);
+		Color color = Color(1.0f, 1.0f, 1.0f, 1.0f);
 
 		GridProperties m_gridProperties;
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "PropertyEditorDelegates.h"
+
 namespace GuGu {
 	class GuGuUtf8Str;
 	class IPropertyTypeCustomization;
@@ -17,13 +19,13 @@ namespace GuGu {
 
 		static std::shared_ptr<PropertyEditorManager>& getPropertyEditorManager();
 
-		void registerCustomPropertyTypeLayout(const GuGuUtf8Str& propertyTypeName, std::shared_ptr<IPropertyTypeCustomization> inPropertyTypeLayout);
+		void registerCustomPropertyTypeLayout(const GuGuUtf8Str& propertyTypeName, OnGetPropertyTypeCustomizationInstance inPropertyTypeLayoutGenerateCallback);
 
 		bool isCustomizedStruct(const meta::Field* field);
 
 		std::shared_ptr<IPropertyTypeCustomization> getPropertyTypeCustomization(std::shared_ptr<PropertyNode> inPropertyNode);
 	private:
 
-		std::map<GuGuUtf8Str, std::shared_ptr<IPropertyTypeCustomization>> m_globalPropertyTypeToLayoutMap;
+		std::map<GuGuUtf8Str, OnGetPropertyTypeCustomizationInstance> m_globalPropertyTypeToLayoutMap;
 	};
 }
