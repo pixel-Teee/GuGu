@@ -678,6 +678,15 @@ namespace GuGu {
 		}
 	}
 
+	GuGuUtf8Str GuGuUtf8Str::trim() const
+	{
+		int32_t start = 0;
+		while (start < m_len && m_str[start] == ' ') ++start;
+		int32_t end = len() - 1;
+		while (end >= 0 && m_str[end] == ' ') --end;
+		return (start <= end) ? substr(start, end - start + 1) : "";
+	}
+
 	std::ostream& operator<<(std::ostream& out, const GuGuUtf8Str& str)
 	{
 		for (size_t i = 0; i < str.m_totalByteCount; ++i)

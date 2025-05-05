@@ -55,4 +55,16 @@ namespace GuGu {
 		return Color(hue, saturation, value, a);
 	}
 
+	GuGuUtf8Str Color::toStr() const
+	{
+		char buf[64];
+		std::sprintf(buf, "(r = %f, g = %f, b = %f, a = %f)", r, g, b, a);
+		return buf;
+	}
+
+	void Color::initFromStr(const GuGuUtf8Str& str)
+	{
+		std::sscanf(str.getStr(), "(r = %f, g = %f, b = %f, a = %f)", &r, &g, &b, &a);
+	}
+
 }

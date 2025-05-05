@@ -11,8 +11,31 @@
 #include <Core/Reflection/Variant.h>
 #include <Core/GamePlay/GameObject.h>
 #include <Core/Reflection/ReflectionDatabase.h>
+#include <Renderer/Color.h>
 
 namespace GuGu {
+
+	std::vector<GuGuUtf8Str> splitByComma(const GuGuUtf8Str& str)
+	{
+		std::vector<GuGuUtf8Str> pairs;
+		int32_t start = 0;
+		for (int32_t i = 0; i < str.len(); ++i)
+		{
+			if (str[i] == ",")
+			{
+				GuGuUtf8Str pair = str.substr(start, i - start);
+				pairs.push_back(pair);
+
+				start = i + 1;
+				while (start < str.len() && str[start] == " ") ++start;
+			}
+		}
+
+		GuGuUtf8Str last = str.substr(start);
+		last.trim();
+		if (last.len()) pairs.push_back(last);
+		return pairs;
+	}
 
 	PropertyValueImpl::PropertyValueImpl(std::shared_ptr<PropertyNode> inPropertyNode)
 		: m_propertyNode(inPropertyNode)
@@ -114,6 +137,44 @@ namespace GuGu {
 		{
 			fieldValue = std::stod(actualStr);
 		}
+		else if (field->GetType() == typeof(Color))
+		{		
+			//解析字符串
+			//去除两边的括号
+			GuGuUtf8Str ridBracket = inValue.substr(1, inValue.len() - 2);
+			//按逗号分割键值对
+			std::vector<GuGuUtf8Str> pairs = splitByComma(ridBracket);
+			
+			//解析键值对
+			Color color;
+			meta::Variant colorInstance(color);
+			for (const GuGuUtf8Str& pair : pairs)
+			{
+				int32_t eqPos = pair.find("=");
+				if (eqPos == -1) continue;
+
+				GuGuUtf8Str key = pair.substr(0, eqPos);
+				key = key.trim();
+				GuGuUtf8Str value = pair.substr(eqPos + 1);
+				value = value.trim();
+
+				GuGuUtf8Str propertyName = key;
+				meta::Type colorType = typeof(Color);
+				meta::Field field = meta::ReflectionDatabase::Instance().types[colorType.GetID()].GetField(propertyName.getStr());
+				if (field.IsValid())
+				{
+					if (field.GetType() == typeof(float))
+					{
+						field.SetValue(colorInstance, std::stof(value.getStr()));
+					}
+					else if (field.GetType() == typeof(double))
+					{
+						field.SetValue(colorInstance, std::stod(value.getStr()));
+					}
+				}
+			}
+			fieldValue = std::move(colorInstance);
+		}
 		for (int32_t i = 0; i < owners.size(); ++i)
 		{
 			meta::Field curField = meta::ReflectionDatabase::Instance().types[owners[i].GetType().GetID()].GetField(field->GetName().getStr());//have this field?
@@ -126,6 +187,45 @@ namespace GuGu {
 		}
 		
 		return result;
+	}
+
+	PropertyAccess::Result PropertyValueImpl::setValueAsString(const GuGuUtf8Str& inValue)
+	{
+		PropertyAccess::Result result = PropertyAccess::Fail;
+
+		std::shared_ptr<PropertyNode> propertyNodeLocked = m_propertyNode.lock();
+		if (propertyNodeLocked)
+		{
+			meta::Field* nodeProperty = propertyNodeLocked->getField();
+
+			GuGuUtf8Str value = inValue;
+
+			//todo:对字符串进行一些处理，去除空格
+
+			importText(value, propertyNodeLocked.get());
+
+			result = PropertyAccess::Success;
+		}
+
+		return result;
+	}
+
+	PropertyAccess::Result PropertyValueImpl::getValueAsDisplayString(GuGuUtf8Str& outString)
+	{
+		std::shared_ptr<PropertyNode> propertyNodeLocked = m_propertyNode.lock();
+
+		PropertyAccess::Result res = PropertyAccess::Success;
+
+		if (propertyNodeLocked)
+		{
+			res = propertyNodeLocked->getPropertyValueString(outString);
+		}
+		else
+		{
+			res = PropertyAccess::Fail;
+		}
+
+		return res;
 	}
 
 	int32_t PropertyValueImpl::getNumChildren() const
@@ -190,6 +290,16 @@ namespace GuGu {
 	{
 		std::shared_ptr<PropertyNode> propertyNode = m_implementation->getChildNode(index);
 		return PropertyEditorHelps::getPropertyHandle(propertyNode);
+	}
+
+	PropertyAccess::Result PropertyHandleBase::setValueFromFormattedString(const GuGuUtf8Str& inValue)
+	{
+		return m_implementation->setValueAsString(inValue);
+	}
+
+	PropertyAccess::Result PropertyHandleBase::getValueAsFormattedString(GuGuUtf8Str& outValue) const
+	{
+		return m_implementation->getValueAsDisplayString(outValue);
 	}
 
 	const meta::Field* PropertyHandleBase::getField() const

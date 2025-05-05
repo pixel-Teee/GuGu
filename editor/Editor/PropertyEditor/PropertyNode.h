@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Reflection/Field.h>
+#include "PropertyEditorManager.h"
 
 namespace GuGu {
 	class PropertyNode;
@@ -59,6 +60,7 @@ namespace GuGu {
 
 		virtual meta::Variant getOwnerFieldVarint(const meta::Variant& startVarint);
 
+		PropertyAccess::Result getPropertyValueString(GuGuUtf8Str& outString);
 	protected:
 		void destoryTree();
 

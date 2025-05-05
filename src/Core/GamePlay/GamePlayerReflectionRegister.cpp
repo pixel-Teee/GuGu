@@ -452,9 +452,9 @@ namespace GuGu {
 
 				type.AddConstructor<LightComponent, true, true>();
 
-				type.AddField<LightComponent, math::float4>("m_lightColor",
-					(meta::FieldGetter<LightComponent, math::float4, false>::Signature) & LightComponent::m_lightColor,
-					(meta::FieldSetter<LightComponent, math::float4, false>::Signature) & LightComponent::m_lightColor);
+				type.AddField<LightComponent, Color>("m_lightColor",
+					(meta::FieldGetter<LightComponent, Color, false>::Signature) & LightComponent::m_lightColor,
+					(meta::FieldSetter<LightComponent, Color, false>::Signature) & LightComponent::m_lightColor);
 
 				type.AddField<LightComponent, math::float4>("m_lightPosition",
 					(meta::FieldGetter<LightComponent, math::float4, false>::Signature)& LightComponent::m_lightPosition,

@@ -5,9 +5,10 @@
 #include "PropertyHandle.h"
 #include <Core/UI/ColorBlock.h>
 #include <Core/UI/Events.h>
-#include <Core/UI/ColorPicker.h>
 #include <Core/UI/Box.h>
 #include <Core/UI/Border.h>
+
+#include <Editor/UI/ColorPicker.h>
 
 namespace GuGu {
 
@@ -40,12 +41,15 @@ namespace GuGu {
 
 	void ColorStructCustomization::createColorPicker(bool bUseAlpha)
 	{
+		Color initialColor;
+		getColor(initialColor);
 		ColorPickerArgs pickerArgs;
 		{
 			pickerArgs.m_bUseAlpha = !bUseAlpha;
 			pickerArgs.m_parentWidget = m_colorPickerParentWidget;
 			pickerArgs.m_onColorCommitted = std::bind(&ColorStructCustomization::onSetColorFromColorPicker, this, std::placeholders::_1);
 			pickerArgs.m_parentWidget = m_colorPickerParentWidget;
+			pickerArgs.m_initialColorOverride = initialColor;
 			pickerArgs.m_bOpenAsMenu = false;
 		}
 
@@ -89,13 +93,29 @@ namespace GuGu {
 
 	void ColorStructCustomization::onSetColorFromColorPicker(Color newColor)
 	{
+		GuGuUtf8Str colorStr = newColor.toStr();
+		m_structPropertyHandle->setValueFromFormattedString(colorStr);
+	}
 
+	PropertyAccess::Result ColorStructCustomization::getColor(Color& outColor) const
+	{
+		outColor.a = 1.0f;
+
+		GuGuUtf8Str strValue;
+		PropertyAccess::Result result = m_structPropertyHandle->getValueAsFormattedString(strValue);
+
+		if (result == PropertyAccess::Success)
+		{
+			outColor.initFromStr(strValue);
+		}
+
+		return result;
 	}
 
 	Color ColorStructCustomization::onGetColorForColorBlock() const
 	{
-		Color color(0.4f, 0.3f, 0.7f, 1.0f);
-		//to get color
+		Color color;
+		getColor(color);
 		return color;
 	}
 

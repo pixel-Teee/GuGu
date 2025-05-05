@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Widget.h"
-#include "UIMacros.h"
-#include "WidgetDelegates.h"
-#include "CompoundWidget.h"
+#include <Core/UI/Widget.h>
+#include <Core/UI/UIMacros.h>
+#include <Core/UI/WidgetDelegates.h>
+#include <Core/UI/CompoundWidget.h>
 
-#include "WindowWidget.h"//window widget
+#include <Core/UI/WindowWidget.h>//window widget
 
 namespace GuGu {
 	using OnColorPickerCancelled = std::function<void(math::float4)>;//linear color
@@ -158,6 +158,8 @@ namespace GuGu {
 	protected:
 		void generateInlineColorPickerContent();
 
+		void generateDefaultColorPickerContent();
+
 		std::shared_ptr<Widget> makeColorSlider(ColorPickerChannels channel) const;
 
 		void setColors(const Color& inColor);
@@ -179,6 +181,8 @@ namespace GuGu {
 		void updateColorPick();
 
 		void handleColorSpectrumValueChanged(Color newValue);
+
+		Reply handleOkButtonClicked();
 	private:
 
 		Attribute<Color> m_targetColorAttribute;//linear color
@@ -314,7 +318,7 @@ namespace GuGu {
 
 		SimpleDelegate m_onInteractivePickEnd;
 
-		math::float4 m_initialColorOverride;//linear color
+		Color m_initialColorOverride;//linear color
 
 		std::shared_ptr<Widget> m_optionalOwningDetailsView;
 

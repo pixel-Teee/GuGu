@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Math/MyMath.h>
+#include <Core/GuGuUtf8Str.h>
 
 namespace GuGu {
 	struct Color
@@ -27,5 +28,8 @@ namespace GuGu {
 		Color HSVToLinearRGB() const;
 
 		Color LinearRGBToHSV() const;
+
+		GuGuUtf8Str toStr() const;
+		void initFromStr(const GuGuUtf8Str& str);
 	};
 }

@@ -3,6 +3,15 @@
 #include "PropertyEditorDelegates.h"
 
 namespace GuGu {
+	namespace PropertyAccess
+	{
+		enum Result
+		{
+			NultipleValue,
+			Fail,
+			Success
+		};
+	}
 	class GuGuUtf8Str;
 	class IPropertyTypeCustomization;
 	class PropertyNode;

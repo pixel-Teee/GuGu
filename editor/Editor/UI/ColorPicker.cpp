@@ -1,7 +1,7 @@
 #include <pch.h>
 
 #include "ColorPicker.h"
-#include "ColorWheel.h"
+#include <Core/UI/ColorWheel.h>
 #include <Application/Application.h>
 #include <Core/UI/Border.h>
 #include <Core/UI/NullWidget.h>
@@ -10,6 +10,11 @@
 #include <Core/UI/ComplexGradient.h>
 #include <Core/UI/Slider.h>
 #include <Core/UI/SimpleGradient.h>
+#include <Core/UI/Button.h>
+#include <Core/UI/TextBlockWidget.h>
+#include <Core/UI/Spacer.h>
+
+#include <Editor/StyleSet/EditorStyleSet.h>
 
 namespace GuGu {
     const math::float2 ColorPicker::DEFAULT_WINDOW_SIZE = math::float2(441, 537);//默认窗口大小
@@ -164,6 +169,15 @@ namespace GuGu {
         setNewTargetColorHsv(newValue);
 	}
 
+	Reply ColorPicker::handleOkButtonClicked()
+	{
+        updateColorPick();
+
+        m_parentWindowPtr.lock()->requestDestroyWindow();
+
+        return Reply::Handled();
+	}
+
 	const double ColorPicker::MAX_ALLOWED_UPDATE_TIME = 0.1f;
 
     ColorPicker::ColorPicker()
@@ -193,7 +207,7 @@ namespace GuGu {
         }
         else
         {
-
+            generateDefaultColorPickerContent();
         }
     }
    
@@ -224,14 +238,91 @@ namespace GuGu {
          )
          + HorizontalBox::Slot()
          .FixedWidth()
+         .setPadding(Padding(4.0f, 0.0f))
          (
              makeColorSlider(ColorPickerChannels::Value) //明度
          )
          + HorizontalBox::Slot()
          .FixedWidth()
+         .setPadding(Padding(4.0f, 0.0f))
          (
              alphaSlider //透明度
          );
+
+		m_childWidget->m_childWidget->setParentWidget(shared_from_this());
+	}
+
+	void ColorPicker::generateDefaultColorPickerContent()
+	{
+        std::shared_ptr<Widget> alphaSlider = NullWidget::getNullWidget();
+        if (m_bUseAlpha.Get())
+        {
+            alphaSlider = makeColorSlider(ColorPickerChannels::Alpha);
+        }
+
+		m_childWidget = std::make_shared<SingleChildSlot>();
+		m_childWidget->m_parentWidget = shared_from_this();
+		m_childWidget->m_childWidget = 
+		WIDGET_NEW(Border)
+		.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("grayColor"))
+		.Content
+		(
+            WIDGET_NEW(VerticalBox)
+            + VerticalBox::Slot()
+            .FixedHeight()
+		    (
+			    WIDGET_NEW(HorizontalBox)
+			    + HorizontalBox::Slot()
+			    .StretchWidth(1.0f)
+			    .setHorizontalAlignment(HorizontalAlignment::Center)
+			    (
+				    WIDGET_NEW(ColorWheel)
+				    .SelectedColor(this, &ColorPicker::getCurrentColor)
+				    .OnValueChanged(this, &ColorPicker::handleColorSpectrumValueChanged)
+			    )
+			    + HorizontalBox::Slot()
+			    .FixedWidth()
+			    .setPadding(Padding(4.0f, 0.0f))
+			    (
+				    makeColorSlider(ColorPickerChannels::Saturation) //饱和度
+			    )
+			    + HorizontalBox::Slot()
+			    .FixedWidth()
+			    .setPadding(Padding(4.0f, 0.0f))
+			    (
+				    makeColorSlider(ColorPickerChannels::Value) //明度
+			    )
+			    + HorizontalBox::Slot()
+			    .FixedWidth()
+			    .setPadding(Padding(4.0f, 0.0f))
+			    (
+				    alphaSlider //透明度
+			    )
+		    )
+            + VerticalBox::Slot()
+            .FixedHeight()
+            (
+			    WIDGET_NEW(HorizontalBox)
+			    + HorizontalBox::Slot()
+                .StretchWidth(1.0f)
+                (
+                    WIDGET_NEW(Spacer)
+                )
+                + HorizontalBox::Slot()
+                .FixedWidth()
+                (
+				    WIDGET_NEW(Button)
+				    .buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+                    .Clicked(this, &ColorPicker::handleOkButtonClicked)
+				    .Content
+				    (
+					    WIDGET_NEW(TextBlockWidget)
+					    .text(u8"OK")
+					    .textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+				    )
+                )
+            )
+        );
 
 		m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 	}
@@ -296,6 +387,7 @@ namespace GuGu {
 	bool openColorPicker(const ColorPickerArgs& args)
     {
 		destroyColorPicker();
+#ifdef WIN32
 		bool result = false;
 
         Color oldColor = args.m_initialColorOverride;
@@ -308,18 +400,6 @@ namespace GuGu {
 
         std::shared_ptr<WindowWidget> window = nullptr;
         std::shared_ptr<Border> windowContent = WIDGET_NEW(Border);
-
-        std::shared_ptr<ColorPicker> createColorPicker = WIDGET_NEW(ColorPicker)
-                                                        .targetColorAttribute(oldColor)
-                                                        .targetFColors(args.m_colorArray ? *args.m_colorArray : std::vector<Color*>())
-                                                        .targetColorChannels(args.m_colorChannelsArray ? *args.m_colorChannelsArray : std::vector<ColorChannels*>())
-                                                        .useAlpha(args.m_bUseAlpha)
-                                                        .onColorCommitted(args.m_onColorCommitted)
-                                                        .preColorCommitted(args.m_preColorCommitted)
-                                                        .parentWindow(window)
-                                                        .displayInlineVersion(true);
-        
-        windowContent->setContent(createColorPicker);
 
         if (args.m_bOpenAsMenu)
         {
@@ -344,6 +424,19 @@ namespace GuGu {
                      );
         }
 
+
+		std::shared_ptr<ColorPicker> createColorPicker = WIDGET_NEW(ColorPicker)
+			.targetColorAttribute(oldColor)
+			.targetFColors(args.m_colorArray ? *args.m_colorArray : std::vector<Color*>())
+			.targetColorChannels(args.m_colorChannelsArray ? *args.m_colorChannelsArray : std::vector<ColorChannels*>())
+			.useAlpha(args.m_bUseAlpha)
+			.onColorCommitted(args.m_onColorCommitted)
+			.preColorCommitted(args.m_preColorCommitted)
+			.parentWindow(window);
+		    //.displayInlineVersion(true);
+
+		windowContent->setContent(createColorPicker);
+
 		if (args.m_parentWidget)
 		{
 			WidgetPath widgetPath;
@@ -356,7 +449,7 @@ namespace GuGu {
             Application::getApplication()->showWindow(window);
         }
 		
-
+#endif
         return false;
     }
     void destroyColorPicker()

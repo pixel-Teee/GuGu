@@ -2,6 +2,7 @@
 
 #include "Component.h"
 #include <Core/Math/MyMath.h>
+#include <Renderer/Color.h>
 
 namespace GuGu {
 	class LightComponent : public Component
@@ -19,7 +20,7 @@ namespace GuGu {
 	
 		math::float4 m_lightPosition;
 
-		math::float4 m_lightColor;
+		Color m_lightColor;
 	};
 }
 

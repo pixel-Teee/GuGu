@@ -79,6 +79,9 @@ namespace GuGu {
 		friend std::ostream& operator<<(std::ostream& out, const GuGuUtf8Str& str);
     
 		void stringSplit(const char* split, std::vector<GuGuUtf8Str>& res) const;
+
+		//去除字符串前后的空格
+		GuGuUtf8Str trim() const;
 	private:
 		char* m_str;
 		int32_t m_capacity;

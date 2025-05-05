@@ -1,17 +1,9 @@
 #pragma once
 
 #include <Core/Math/MyMath.h>
+#include "PropertyEditorManager.h"//PropertyAccess::Result
 
 namespace GuGu {
-	namespace PropertyAccess
-	{
-		enum Result
-		{
-			NultipleValue,
-			Fail,
-			Success
-		};
-	}
 	class Widget;
 	class GuGuUtf8Str;
 	namespace meta {
@@ -34,6 +26,9 @@ namespace GuGu {
 		virtual PropertyAccess::Result getValue(math::double3& outValue) const = 0;
 
 		virtual PropertyAccess::Result getNumChildren(uint32_t& outNumChildren) const = 0;
+
+		virtual PropertyAccess::Result setValueFromFormattedString(const GuGuUtf8Str& inValue) = 0;
+		virtual PropertyAccess::Result getValueAsFormattedString(GuGuUtf8Str& outValue) const = 0;
 
 		virtual std::shared_ptr<IPropertyHandle> getChildHandle(uint32_t index) const = 0;
 

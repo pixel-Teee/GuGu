@@ -19,6 +19,10 @@ namespace GuGu {
 
 		PropertyAccess::Result importText(const GuGuUtf8Str& inValue, PropertyNode* inPropertyNode);
 
+		PropertyAccess::Result setValueAsString(const GuGuUtf8Str& inValue);
+
+		PropertyAccess::Result getValueAsDisplayString(GuGuUtf8Str& outString);
+
 		std::shared_ptr<PropertyNode> getPropertyNode() const { return m_propertyNode.lock(); }
 
 		int32_t getNumChildren() const;
@@ -44,6 +48,10 @@ namespace GuGu {
 		virtual PropertyAccess::Result getNumChildren(uint32_t& outNumChildren) const override;
 
 		virtual std::shared_ptr<IPropertyHandle> getChildHandle(uint32_t index) const override;
+
+		virtual PropertyAccess::Result setValueFromFormattedString(const GuGuUtf8Str& inValue) override;
+
+		virtual PropertyAccess::Result getValueAsFormattedString(GuGuUtf8Str& outValue) const override;
 
 		virtual const meta::Field* getField() const override;
 

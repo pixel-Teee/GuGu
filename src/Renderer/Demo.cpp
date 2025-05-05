@@ -1069,7 +1069,7 @@ namespace GuGu {
 				if (lightCount < m_maxLightCounts)
 				{
 					light.lightPositions[lightCount] = lightComponent->m_lightPosition;
-					light.lightColors[lightCount] = lightComponent->m_lightColor;
+					light.lightColors[lightCount] = lightComponent->m_lightColor.toFloat4() * math::float4(1000.0f, 1000.0f, 1000.0f, 1.0f);
 				}
 
 				const math::affine3& worldMatrix = transformComponent->GetLocalToWorldTransformFloat();
@@ -1299,18 +1299,18 @@ namespace GuGu {
 					.setInitialState(
 					nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
 					true));
-				PbrMaterial pbrMaterial;
-				pbrMaterial.albedo = materialComponent->m_albedo;
-				pbrMaterial.metallic = materialComponent->m_metallic;;
-				pbrMaterial.roughness = materialComponent->m_roughness;
-				pbrMaterial.ao = materialComponent->m_ao;
-				m_CommandList->writeBuffer(materialComponent->m_bufferHandle, &pbrMaterial, sizeof(pbrMaterial));
 			}
+			PbrMaterial pbrMaterial;
+			pbrMaterial.albedo = materialComponent->m_albedo;
+			pbrMaterial.metallic = materialComponent->m_metallic;;
+			pbrMaterial.roughness = materialComponent->m_roughness;
+			pbrMaterial.ao = materialComponent->m_ao;
+			m_CommandList->writeBuffer(materialComponent->m_bufferHandle, &pbrMaterial, sizeof(pbrMaterial));
 
 			if (lightCount < m_maxLightCounts)
 			{
 				light.lightPositions[lightCount] = lightComponent->m_lightPosition;
-				light.lightColors[lightCount] = lightComponent->m_lightColor;
+				light.lightColors[lightCount] = lightComponent->m_lightColor.toFloat4() * math::float4(1000.0f, 1000.0f, 1000.0f, 1.0f);
 			}
 			
 			const math::affine3& worldMatrix = transformComponent->GetLocalToWorldTransformFloat();

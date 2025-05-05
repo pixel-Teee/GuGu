@@ -1,6 +1,7 @@
 #pragma once
 
 #include "MathStructCustomization.h"
+#include "PropertyEditorManager.h"
 #include <Renderer/Color.h>
 
 namespace GuGu {
@@ -23,6 +24,7 @@ namespace GuGu {
 		virtual void makeHeaderRow(std::shared_ptr<IPropertyHandle> propertyHandle, DetailWidgetRow& headerRow) override;
 
 		void onSetColorFromColorPicker(Color newColor);
+		PropertyAccess::Result getColor(Color& outColor) const;
 
 		Color onGetColorForColorBlock() const;
 	protected:

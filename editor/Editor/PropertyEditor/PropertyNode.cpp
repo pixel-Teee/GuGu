@@ -1,6 +1,7 @@
 #include <pch.h>
 
 #include "PropertyNode.h"
+#include <Core/Reflection/ReflectionDatabase.h>
 
 namespace GuGu {
 
@@ -89,6 +90,62 @@ namespace GuGu {
 			return m_parentNodeWeakPtr.lock()->getOwnerFieldVarint(startVarint);
 		}
 		return meta::Variant();//nothing
+	}
+
+	PropertyAccess::Result PropertyNode::getPropertyValueString(GuGuUtf8Str& outString)
+	{
+		PropertyAccess::Result result = PropertyAccess::Result::Fail;
+
+		meta::Type curType = getField()->GetType();
+		if (curType.IsValid())
+		{
+			auto& fields = meta::ReflectionDatabase::Instance().types[curType.GetID()].fields;
+
+			std::vector<meta::Object*> objectsToRead;
+			ComplexPropertyNode* complexNode = findComplexParent();
+			if (complexNode)
+			{
+				const int32_t numObjects = complexNode->getInstancesNum();
+				for (int32_t index = 0; index < numObjects; ++index)
+				{
+					objectsToRead.push_back(complexNode->getInstanceAsObject(index));
+				}
+			}
+
+			//获取当前字段所在结构体的variant
+			std::vector<meta::Variant> owners;
+			for (int32_t i = 0; i < objectsToRead.size(); ++i)
+			{
+				meta::Variant startVarint = ObjectVariant(objectsToRead[i]);
+				meta::Variant owner = getOwnerFieldVarint(startVarint);
+				if (owner != meta::Variant())
+					owners.push_back(owner);
+			}
+
+			if (owners.size() > 0)
+			{
+				outString += "(";
+				for (int32_t i = 0; i < fields.size(); ++i)
+				{
+					meta::Field curField = meta::ReflectionDatabase::Instance().types[owners[0].GetType().GetID()].GetField(fields[i].GetName().getStr());//have this field?
+					if ((curField.GetType() == fields[i].GetType()) && (curField.GetName() == fields[i].GetName()))
+					{
+						meta::Variant& instance = owners[0];
+						meta::Variant fieldValue = fields[i].GetValue(instance);
+
+						outString += curField.GetName() + " = ";
+						outString += fieldValue.ToString();
+						if(i != fields.size() - 1)
+							outString += ", ";
+					}
+				}
+				outString += ")";
+			}
+			
+			result = PropertyAccess::Success;
+		}
+
+		return result;
 	}
 
 	void PropertyNode::destoryTree()
