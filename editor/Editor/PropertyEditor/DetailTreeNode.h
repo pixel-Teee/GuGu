@@ -8,7 +8,10 @@ namespace GuGu {
 	class DetailTreeNode;//detail tree node
 	class ITableRow;
 	class TableViewBase;
+	class IDetailsViewPrivate;
+	class IDetailsView;
 	using DetailNodeList = std::vector<std::shared_ptr<DetailTreeNode>>;
+	class DetailCategoryImpl;
 	class DetailTreeNode : public IDetailTreeNode
 	{
 	public:
@@ -21,6 +24,12 @@ namespace GuGu {
 		virtual GuGuUtf8Str getNodeName() const = 0;
 
 		void setParentNode(std::weak_ptr<DetailTreeNode> inParentNode) { m_parentNode = inParentNode; }
+
+		virtual IDetailsViewPrivate* getDetailsView() const = 0;
+
+		virtual IDetailsView* getNodeDetailsView() const = 0;
+
+		virtual std::shared_ptr<DetailCategoryImpl> getParentCategory() const { return std::shared_ptr<DetailCategoryImpl>(); }
 	private:
 		std::weak_ptr<DetailTreeNode> m_parentNode;
 	};

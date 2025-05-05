@@ -19,6 +19,12 @@ namespace GuGu {
 		virtual GuGuUtf8Str getNodeName() const override { return m_customization.getName(); }
 
 		void initialize();
+
+		virtual IDetailsViewPrivate* getDetailsView() const override;
+
+		virtual IDetailsView* getNodeDetailsView() const override;
+
+		virtual std::shared_ptr<DetailCategoryImpl> getParentCategory() const override;
 	private:
 		void initPropertyEditor();
 

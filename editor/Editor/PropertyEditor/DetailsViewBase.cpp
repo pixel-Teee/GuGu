@@ -68,7 +68,7 @@ namespace GuGu {
 
 	void DetailsViewBase::updateSinglePropertyMap(std::shared_ptr<ComplexPropertyNode> inRootPropertyNode, DetailLayoutData& layoutData, bool bIsExternal)
 	{
-		std::shared_ptr<DetailLayoutBuilderImpl> detailLayout = std::make_shared<DetailLayoutBuilderImpl>(inRootPropertyNode);
+		std::shared_ptr<DetailLayoutBuilderImpl> detailLayout = std::make_shared<DetailLayoutBuilderImpl>(inRootPropertyNode, std::static_pointer_cast<IDetailsViewPrivate>(shared_from_this()));
 		layoutData.m_detailLayout = detailLayout;//builder impl
 
 		std::shared_ptr<ComplexPropertyNode> rootPropertyNode = inRootPropertyNode;

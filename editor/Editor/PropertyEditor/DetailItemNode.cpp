@@ -45,6 +45,23 @@ namespace GuGu {
 		}
 	}
 
+	IDetailsViewPrivate* DetailItemNode::getDetailsView() const
+	{
+		std::shared_ptr<DetailCategoryImpl> category = getParentCategory();
+		return category ? category->getDetailsView() : nullptr;
+	}
+
+	IDetailsView* DetailItemNode::getNodeDetailsView() const
+	{
+		std::shared_ptr<DetailCategoryImpl> category = getParentCategory();
+		return category ? category->getNodeDetailsView() : nullptr;
+	}
+
+	std::shared_ptr<DetailCategoryImpl> DetailItemNode::getParentCategory() const
+	{
+		return m_parentCategory.lock();
+	}
+
 	void DetailItemNode::initPropertyEditor()
 	{
 		m_customization.m_propertyRow->onItemNodeInitialized(m_parentCategory.lock());

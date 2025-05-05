@@ -79,6 +79,11 @@ namespace GuGu {
 		setObjectArrayPrivate(objects);
 	}
 
+	DetailColumnSizeData& DetailsView::getColumnSizeData()
+	{
+		return m_columnSizeData;
+	}
+
 	void DetailsView::setObjectArrayPrivate(const std::vector<GameObject*>& inObjects)
 	{
 		const std::vector<DetailsViewObjectRoot> roots = m_objectFilter->filterObjects(inObjects);//一个 details view object root 可以存放多个objects

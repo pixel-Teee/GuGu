@@ -65,7 +65,9 @@ namespace GuGu {
 			struct SlotBuilderArguments : public Slot<SplitterSlot>::SlotBuilderArguments
 			{
 				SlotBuilderArguments(std::shared_ptr<SplitterSlot> inSlot)
-					: Slot<SplitterSlot>::SlotBuilderArguments(inSlot) {}
+					: Slot<SplitterSlot>::SlotBuilderArguments(inSlot)
+					, m_sizingRule(FractionOfParent)
+					{}
 				virtual ~SlotBuilderArguments() {};
 
 				SlotBuilderArguments& value(const Attribute<float>& inValue)

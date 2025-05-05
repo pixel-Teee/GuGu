@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DetailsViewBase.h"
+#include "IDetailPropertyRow.h"
 #include <Core/UI/UIMacros.h>
 
 namespace GuGu {
@@ -26,6 +27,8 @@ namespace GuGu {
 		virtual void setObjects(const std::vector<GameObject*>& inObjects, bool bForceRefresh = false, bool bOverrideLock = false) override;
 		virtual void setObjects(const std::vector<std::weak_ptr<GameObject>>& inObjects, bool bForceRefresh = false, bool bOverrideLock = false) override;
 		//------IDetailsView------
+
+		virtual DetailColumnSizeData& getColumnSizeData();
 	private:
 		void setObjectArrayPrivate(const std::vector<GameObject*>& inObjects);
 
@@ -42,5 +45,7 @@ namespace GuGu {
 
 		//一组 game object 的确切的属性树的根属性节点
 		std::vector<std::shared_ptr<ComplexPropertyNode>> m_rootPropertyNodes;
+
+		DetailColumnSizeData m_columnSizeData;
 	};
 }

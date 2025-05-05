@@ -7,10 +7,11 @@
 namespace GuGu {
 	class IPropertyHandle;
 	class PropertyNode;
+	class IDetailsViewPrivate;
 	class DetailLayoutBuilderImpl : public IDetailLayoutBuilder
 	{
 	public:
-		DetailLayoutBuilderImpl(std::shared_ptr<ComplexPropertyNode>& inRootNode);
+		DetailLayoutBuilderImpl(std::shared_ptr<ComplexPropertyNode>& inRootNode, const std::shared_ptr<IDetailsViewPrivate>& inDetailsView);
 
 		virtual ~DetailLayoutBuilderImpl();
 
@@ -29,6 +30,8 @@ namespace GuGu {
 		DetailCategoryImpl& defaultCategory(GuGuUtf8Str categoryName);
 
 		std::shared_ptr<IPropertyHandle> getPropertyHandle(std::shared_ptr<PropertyNode> propertyNodePtr) const;
+
+		IDetailsViewPrivate* getDetailsView() { return m_detailsView; }
 	private:
 		DetailNodeList m_filteredRootTreeNodes;
 
@@ -39,5 +42,7 @@ namespace GuGu {
 		std::weak_ptr<ComplexPropertyNode> m_rootNode;
 
 		CategoryMap m_defaultCategoryMap;
+
+		IDetailsViewPrivate* m_detailsView;
 	};
 }

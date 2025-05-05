@@ -4,6 +4,8 @@
 #include  "DetailCategoryBuilderImpl.h"//DetailLayoutCustomization
 #include  <Core/UI/Box.h>//box widget
 #include  <Editor/StyleSet/EditorStyleSet.h>
+#include  "IDetailsViewPrivate.h"
+#include  "IDetailPropertyRow.h"
 
 namespace GuGu {
 
@@ -14,6 +16,8 @@ namespace GuGu {
 
 		std::shared_ptr<Widget> widget = NullWidget::getNullWidget();
 		const bool bIsValidTreeNode = true;
+		IDetailsViewPrivate* detailsView = inOwnerTreeNode->getDetailsView();
+		DetailColumnSizeData& columnSizeData = detailsView->getColumnSizeData();
 
 		//const bool bIsValidTreeNode = true;
 		if (bIsValidTreeNode)
@@ -35,10 +39,14 @@ namespace GuGu {
 				std::shared_ptr<Widget> valueWidget = m_widgetRow.m_valueWidget.m_widget;
 
 				splitter->addSlot()
+				.value(columnSizeData.m_nameColumnWidth)
+				.onSlotResized(columnSizeData.m_onNameColumnResized)
 				(
 					nameWidget
 				);
 				splitter->addSlot()
+				.value(columnSizeData.m_valueColumnWidth)
+				.onSlotResized(columnSizeData.m_onValueColumnResized)
 				(
 					valueWidget
 				);

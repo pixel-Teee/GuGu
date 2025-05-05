@@ -6,8 +6,9 @@
 
 namespace GuGu {
 
-	DetailLayoutBuilderImpl::DetailLayoutBuilderImpl(std::shared_ptr<ComplexPropertyNode>& inRootNode)
+	DetailLayoutBuilderImpl::DetailLayoutBuilderImpl(std::shared_ptr<ComplexPropertyNode>& inRootNode, const std::shared_ptr<IDetailsViewPrivate>& inDetailsView)
 		: m_rootNode(inRootNode)
+		, m_detailsView(inDetailsView.get())
 	{
 
 	}

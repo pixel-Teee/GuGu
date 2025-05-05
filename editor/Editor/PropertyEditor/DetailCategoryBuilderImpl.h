@@ -98,6 +98,10 @@ namespace GuGu {
 		void setDisplayName(GuGuUtf8Str inCategoryName);
 
 		DetailLayoutBuilderImpl& getParentLayoutImpl() const { return *m_detailLayoutBuilder.lock(); }
+
+		virtual IDetailsViewPrivate* getDetailsView() const override;
+
+		virtual IDetailsView* getNodeDetailsView() const override;
 	private:
 		//生成儿子的所有布局
 		void generateChildrenForLayouts();

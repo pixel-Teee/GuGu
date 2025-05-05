@@ -4,6 +4,8 @@
 #include "DetailItemNode.h"
 #include "DetailPropertyRow.h"
 #include "DetailCategoryTableRow.h"
+#include "IDetailsViewPrivate.h"
+#include "DetailLayoutBuilderImpl.h"
 
 namespace GuGu {
 
@@ -62,6 +64,21 @@ namespace GuGu {
 	void DetailCategoryImpl::setDisplayName(GuGuUtf8Str inCategoryName)
 	{
 		m_displayName = inCategoryName;
+	}
+
+	IDetailsViewPrivate* DetailCategoryImpl::getDetailsView() const
+	{
+		std::shared_ptr<DetailLayoutBuilderImpl> detailLayoutBuilderPtr = m_detailLayoutBuilder.lock();
+		if (detailLayoutBuilderPtr)
+		{
+			return detailLayoutBuilderPtr->getDetailsView();
+		}
+		return nullptr;
+	}
+
+	IDetailsView* DetailCategoryImpl::getNodeDetailsView() const
+	{
+		return getDetailsView();
 	}
 
 	std::shared_ptr<ITableRow> DetailCategoryImpl::generateWidgetForTableView(const std::shared_ptr<TableViewBase>& ownerTable)
