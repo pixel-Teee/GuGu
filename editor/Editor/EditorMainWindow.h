@@ -5,6 +5,10 @@
 #include <Renderer/nvrhi.h> //render pass
 
 namespace GuGu {
+	namespace SceneOutlinerNameSpace
+	{
+		class SceneOutliner;
+	}
 	class MenuAnchor;
 	class ViewportWidget;
 	class Button;
@@ -62,6 +66,8 @@ namespace GuGu {
 		std::shared_ptr<CheckBox> m_switchEditorAndRuntime;
 
 		std::shared_ptr<ObjectDetails> m_objectDetails;
+
+		std::shared_ptr<SceneOutlinerNameSpace::SceneOutliner> m_sceneOutliner;
 	};
 
 	std::shared_ptr<EditorMainWindow> CreateEditorMainWindow();

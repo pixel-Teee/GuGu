@@ -1,6 +1,7 @@
 #include <pch.h>
 
 #include "Level.h"
+#include "World.h"
 
 namespace GuGu {
 	Level::Level()
@@ -56,5 +57,8 @@ namespace GuGu {
 	void Level::addGameObject(std::shared_ptr<GameObject> inGameObject)
 	{
 		m_objects.push_back(inGameObject);
+
+		if(World::getWorld()->m_onLevelChanged)
+			World::getWorld()->m_onLevelChanged();
 	}
 }
