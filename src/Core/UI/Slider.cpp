@@ -28,6 +28,7 @@ namespace GuGu {
 		m_onValueChanged = arguments.mOnValueChanged;
 		m_isFocusable = arguments.mIsFocusable;
 		m_visibilityAttribute = arguments.mVisibility;
+		m_sliderBarColor = arguments.msliderBarColor;
 	}
 	uint32_t Slider::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
@@ -98,7 +99,7 @@ namespace GuGu {
 		auto thumbImage = getThumbImage();
 		ElementList::addBoxElement(elementList,
 			sliderGeometry.getChildGeometry(barSize, barTopLeft),
-			barImage->m_tintColor,
+			barImage->m_tintColor * m_sliderBarColor.Get().toFloat4(),
 			barImage,
 			layer
 		);
@@ -134,11 +135,19 @@ namespace GuGu {
 	}
 	Reply Slider::OnMouseButtonDown(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent)
 	{
-		return Reply::Unhandled().captureMouse(shared_from_this());
+		if (inMouseEvent.getEffectingButton() == Keys::LeftMouseButton)
+		{
+			return Reply::Handled().captureMouse(shared_from_this());
+		}
+		return Reply::Unhandled();
 	}
 	Reply Slider::OnMouseButtonUp(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent)
 	{
-		return Reply::Unhandled().releaseMouseCapture();
+		if (inMouseEvent.getEffectingButton() == Keys::LeftMouseButton)
+		{
+			return Reply::Handled().releaseMouseCapture();
+		}
+		return Reply::Unhandled();
 	}
 	Reply Slider::OnMouseMove(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent)
 	{
@@ -146,6 +155,7 @@ namespace GuGu {
 		{
 			//m_valueAttribute.Set(0.6);
 			commitValue(positionToValue(geometry, inMouseEvent.m_screenSpacePosition));
+			return Reply::Handled();
 		}
 
 		return Reply::Unhandled();

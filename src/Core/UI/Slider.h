@@ -21,6 +21,7 @@ namespace GuGu {
 			BuilderArguments()	
 				: morientation(Orientation::Horizontal)
 				, mIsFocusable(true)
+				, msliderBarColor(Color(1.0f, 1.0f, 1.0f, 1.0f))//white
 			{
 				mClip = WidgetClipping::Inherit;
 			}
@@ -36,6 +37,8 @@ namespace GuGu {
 			ARGUMENT_VALUE(bool, IsFocusable)
 
 			UI_EVENT(OnFloatValueChanged, OnValueChanged)
+
+			ARGUMENT_ATTRIBUTE(Color, sliderBarColor)
 		};
 
 		void init(const BuilderArguments& arguments);
@@ -69,6 +72,8 @@ namespace GuGu {
 		Orientation m_orientation;
 
 		std::shared_ptr<SliderStyle> m_sliderStyle;
+
+		Attribute<Color> m_sliderBarColor;
 
 		Attribute<float> m_valueAttribute;
 

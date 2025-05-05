@@ -31,7 +31,7 @@ namespace GuGu {
 		struct BuilderArguments : public Arguments<ColorBlock>
 		{
 			BuilderArguments() 
-				: mColor(math::float4(1.0f, 1.0f, 1.0f, 1.0f))
+				: mcolor(Color(1.0f, 1.0f, 1.0f, 1.0f))
 				, mAlphaBackgroundBrush(CoreStyle::getStyleSet()->getBrush("colorPicker.AlphaBckground"))
 				, mcornerRadius(0.0f)
 				, mcolorIsHsv(false)
@@ -45,7 +45,7 @@ namespace GuGu {
 			~BuilderArguments() = default;
 
 			//用于显示的颜色
-			ARGUMENT_ATTRIBUTE(math::float4, Color)
+			ARGUMENT_ATTRIBUTE(Color, color)
 
 			//用于显示的背景颜色
 			ARGUMENT_ATTRIBUTE(std::shared_ptr<Brush>, AlphaBackgroundBrush)
@@ -77,7 +77,7 @@ namespace GuGu {
 		void makeSection(std::vector<GradientStop>& outGradientStop, math::float2 startPt, math::float2 endPt, math::float4 color, bool bIgnoreAlpha) const;
 	private:
 		//用于显示这个颜色块的颜色
-		Attribute<math::float4> m_color;
+		Attribute<Color> m_color;
 
 		std::shared_ptr<Brush> m_alphaBackgroundBrush;//透明度背景画刷
 

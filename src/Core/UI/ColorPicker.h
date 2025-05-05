@@ -10,6 +10,17 @@
 namespace GuGu {
 	using OnColorPickerCancelled = std::function<void(math::float4)>;//linear color
 
+	enum class ColorPickerChannels
+	{
+		Red,
+		Green,
+		Blue,
+		Alpha,
+		Hue,
+		Saturation,
+		Value
+	};
+
 	//枚举颜色拾取器模式
 	enum class ColorPickerModes
 	{
@@ -41,7 +52,7 @@ namespace GuGu {
 		struct BuilderArguments : public Arguments<ColorPicker>
 		{
 			BuilderArguments()
-				: mtargetColorAttribute(math::float4(1.0f, 1.0f, 1.0f, 1.0f))
+				: mtargetColorAttribute(Color(1.0f, 1.0f, 1.0f, 1.0f))
 				, mtargetFColors()
 				, mtargetLinearColors()
 				, mtargetColorChannels()
@@ -66,16 +77,16 @@ namespace GuGu {
 			~BuilderArguments() = default;
 
 			//被作为 attribute 的目标的颜色
-			ARGUMENT_ATTRIBUTE(math::float4, targetColorAttribute)
+			ARGUMENT_ATTRIBUTE(Color, targetColorAttribute)
 
 			//颜色数组的指针，颜色拾取器的目标
-			ARGUMENT_ATTRIBUTE(std::vector<math::float4*>, targetFColors) //FColors
+			ARGUMENT_ATTRIBUTE(std::vector<Color*>, targetFColors) //FColors
 
 			//线性颜色数组的指针，颜色拾取器的目标
-			ARGUMENT_ATTRIBUTE(std::vector<math::float4*>, targetLinearColors)
+			ARGUMENT_ATTRIBUTE(std::vector<Color*>, targetLinearColors)
 
 			//这个颜色拾取器目标的颜色指针的数组
-			ARGUMENT_ATTRIBUTE(std::vector<ColorChannels>, targetColorChannels)
+			ARGUMENT_ATTRIBUTE(std::vector<ColorChannels*>, targetColorChannels)
 
 			//是否 alpha 值被开启
 			ARGUMENT_ATTRIBUTE(bool, useAlpha)
@@ -144,18 +155,42 @@ namespace GuGu {
 		//virtual SlotBase* getSlot(uint32_t index) const override;
 		//
 		//virtual uint32_t getSlotsNumber() const override;
+	protected:
+		void generateInlineColorPickerContent();
+
+		std::shared_ptr<Widget> makeColorSlider(ColorPickerChannels channel) const;
+
+		void setColors(const Color& inColor);
+
+		Color getCurrentColor() const;
+	private:
+		Color handleColorSliderEndColor(ColorPickerChannels channel) const;
+
+		Color handleColorSliderStartColor(ColorPickerChannels channel) const;
+
+		void handleColorSpinBoxValueChanged(float newValue, ColorPickerChannels channel);
+
+		bool setNewTargetColorRgb(const Color& newValue, bool bForceUpdate = false);
+		bool setNewTargetColorHsv(const Color& newValue, bool bForceUpdate = false);
+
+		bool applyNewTargetColor(bool bForceUpdate = false);
+
+		void updateColorPickMouseUp();
+		void updateColorPick();
+
+		void handleColorSpectrumValueChanged(Color newValue);
 	private:
 
-		Attribute<math::float4> m_targetColorAttribute;//linear color
+		Attribute<Color> m_targetColorAttribute;//linear color
 
 		//现在被拾取的颜色，在 hsv 中
-		math::float4 m_currentColorHSV;
+		Color m_currentColorHSV;
 
 		//现在被拾取的颜色，在 rgb 中
-		math::float4 m_currentColorRGB;
+		Color m_currentColorRGB;
 
 		//在 hsv 下修改的老的颜色
-		math::float4 m_oldColor;
+		Color m_oldColor;
 
 		//颜色终止动画的点
 		math::float4 m_colorEnd;
@@ -176,9 +211,9 @@ namespace GuGu {
 		bool m_bPerfIsTooSlowToUpdate;
 
 		//这个颜色拾取器目标的颜色指针的数组
-		std::vector<math::float4*> m_targetFColors;//FColor
+		std::vector<Color*> m_targetFColors;//FColor
 
-		std::vector<math::float4*> m_targetLinearColors;//linear colors
+		std::vector<Color*> m_targetLinearColors;//linear colors
 
 		std::vector<ColorChannels> m_targetColorChannels;
 
@@ -261,11 +296,11 @@ namespace GuGu {
 
 		std::optional<bool> m_bSRGBOverride;
 
-		const std::vector<math::float4*>* m_colorArray;//FColor
+		const std::vector<Color*>* m_colorArray;//FColor
 
-		const std::vector<math::float4*>* m_linearColorArray;//linear color
+		const std::vector<Color*>* m_linearColorArray;//linear color
 
-		const std::vector<ColorChannels>* m_colorChannelsArray;
+		const std::vector<ColorChannels*>* m_colorChannelsArray;
 
 		OnLinearColorValueChanged m_onColorCommitted;
 

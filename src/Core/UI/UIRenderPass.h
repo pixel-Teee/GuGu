@@ -150,9 +150,9 @@ namespace GuGu {
 		GuGuUtf8Str m_selectUINode;
 
 		std::shared_ptr<ColorWheel> m_colorWheel;
-		void setColor(math::float4 inColor);
+		void setColor(Color inColor);
 		math::float4 m_color = math::float4(0.0f, 0.0f, 1.0f, 1.0f);
-		math::float4 getColor() const;//for color block
+		Color getColor() const;//for color block
 
 		std::vector<std::shared_ptr<WindowWidget>> m_windows;//window widgets
 

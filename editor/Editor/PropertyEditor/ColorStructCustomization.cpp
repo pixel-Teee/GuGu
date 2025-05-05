@@ -6,6 +6,8 @@
 #include <Core/UI/ColorBlock.h>
 #include <Core/UI/Events.h>
 #include <Core/UI/ColorPicker.h>
+#include <Core/UI/Box.h>
+#include <Core/UI/Border.h>
 
 namespace GuGu {
 
@@ -16,8 +18,24 @@ namespace GuGu {
 
 	std::shared_ptr<Widget> ColorStructCustomization::createColorWidget(std::weak_ptr<IPropertyHandle>)
 	{
-		return WIDGET_ASSIGN_NEW(ColorBlock, m_colorPickerParentWidget)
-			   .OnMouseButtonDown(this, &ColorStructCustomization::onMouseButtonDownColorBlock);
+		return WIDGET_NEW(BoxWidget)
+		.padding(Padding(4.0f, 0, 4.0f, 0.0f))
+		.VAlign(VerticalAlignment::Center)
+		.Content
+		(
+			WIDGET_NEW(Border)
+			.padding(1.0f)
+			.verticalAlignment(VerticalAlignment::Center)
+			.horizontalAlignment(HorizontalAlignment::Center)
+			.Content
+			(
+				WIDGET_ASSIGN_NEW(ColorBlock, m_colorPickerParentWidget)
+				.OnMouseButtonDown(this, &ColorStructCustomization::onMouseButtonDownColorBlock)
+				.color(this, &ColorStructCustomization::onGetColorForColorBlock)
+				.Size(math::float2(70.0f, 20.0f))
+				.cornerRadius(math::float4(4.0f, 4.0f, 4.0f, 4.0f))
+			)
+		);
 	}
 
 	void ColorStructCustomization::createColorPicker(bool bUseAlpha)
@@ -26,6 +44,9 @@ namespace GuGu {
 		{
 			pickerArgs.m_bUseAlpha = !bUseAlpha;
 			pickerArgs.m_parentWidget = m_colorPickerParentWidget;
+			pickerArgs.m_onColorCommitted = std::bind(&ColorStructCustomization::onSetColorFromColorPicker, this, std::placeholders::_1);
+			pickerArgs.m_parentWidget = m_colorPickerParentWidget;
+			pickerArgs.m_bOpenAsMenu = false;
 		}
 
 		openColorPicker(pickerArgs);
@@ -64,6 +85,18 @@ namespace GuGu {
 		(
 			colorWidget
 		);
+	}
+
+	void ColorStructCustomization::onSetColorFromColorPicker(Color newColor)
+	{
+
+	}
+
+	Color ColorStructCustomization::onGetColorForColorBlock() const
+	{
+		Color color(0.4f, 0.3f, 0.7f, 1.0f);
+		//to get color
+		return color;
 	}
 
 }

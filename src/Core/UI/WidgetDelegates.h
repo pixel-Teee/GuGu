@@ -3,6 +3,7 @@
 #include <functional>
 
 #include <Core/GuGuUtf8Str.h>
+#include <Renderer/Color.h>
 
 #include "BasicElement.h"
 #include "Reply.h"
@@ -41,7 +42,7 @@ namespace GuGu {
 	using SimpleDelegate = std::function<void()>;
 
 	//当颜色改变的时候，进行通知
-	using OnLinearColorValueChanged = std::function<void(math::float4)>;
+	using OnLinearColorValueChanged = std::function<void(Color)>;
 
 	using PointerEventHandler = std::function<Reply(const WidgetGeometry&, const PointerEvent&)>;
 

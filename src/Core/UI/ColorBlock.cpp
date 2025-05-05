@@ -19,7 +19,7 @@ namespace GuGu {
 	}
 	void ColorBlock::init(const BuilderArguments& arguments)
 	{
-		m_color = arguments.mColor;
+		m_color = arguments.mcolor;
 		m_alphaBackgroundBrush = arguments.mAlphaBackgroundBrush.Get();
 		m_gradientCornerRaidus = arguments.mcornerRadius;//圆角半径
 		m_colorBlockSize = arguments.mSize;
@@ -33,7 +33,7 @@ namespace GuGu {
 	{
 		ColorBlockAlphaDisplayMode displayMode = m_alphaDisplayMode.Get();
 		bool bIgnoreAlpha = displayMode == ColorBlockAlphaDisplayMode::Ignore;
-		math::float4 inColor = m_color.Get();
+		math::float4 inColor = m_color.Get().toFloat4();
 
 		if (m_colorIsHsv.Get())
 		{

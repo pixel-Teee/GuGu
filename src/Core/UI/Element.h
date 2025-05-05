@@ -1,14 +1,15 @@
 #pragma once
 
 #include "WidgetGeometry.h"
+#include <Renderer/Color.h>
 
 namespace GuGu {
 	struct GradientStop //渐变点
 	{
 		math::float2 m_position;
-		math::float4 m_color;
+		Color m_color;
 
-		GradientStop(const math::float2& inPosition, const math::float4& inColor)
+		GradientStop(const math::float2& inPosition, const Color& inColor)
 			: m_position(inPosition), m_color(inColor)
 		{}
 	};

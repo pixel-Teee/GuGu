@@ -21,7 +21,7 @@ namespace GuGu {
 
 			~BuilderArguments() = default;
 
-			ARGUMENT_ATTRIBUTE(math::float4, SelectedColor)
+			ARGUMENT_ATTRIBUTE(Color, SelectedColor)
 
 			UI_EVENT(SimpleDelegate, OnMouseCaptureBegin)
 
@@ -48,7 +48,7 @@ namespace GuGu {
 		std::shared_ptr<Brush> m_image;
 
 		//被用户选择的现在的颜色，范围处于[0, 1]的颜色
-		Attribute<math::float4> m_selectedColor;
+		Attribute<Color> m_selectedColor;
 
 		//用于展示的颜色选择器
 		std::shared_ptr<Brush> m_selectorImage;

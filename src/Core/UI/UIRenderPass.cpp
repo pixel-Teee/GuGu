@@ -1695,11 +1695,11 @@ namespace GuGu {
 								.FixedWidth()
 								(
 									WIDGET_NEW(ColorBlock)
-									.Color(math::float4(0.4f, 1.0f, 1.0f, 0.2f))
+									.color(math::float4(0.4f, 1.0f, 1.0f, 0.2f))
 									.showBackgroundForAlpha(true)
 									.cornerRadius(math::float4(4.0f, 4.0f, 4.0f, 4.0f))
 									.alphaDisplayMode(ColorBlockAlphaDisplayMode::Separete)
-									.Color(this, &UIRenderPass::getColor)
+									.color(this, &UIRenderPass::getColor)
 									.colorIsHsv(true)
 									//.Size(math::float2(260.0f, 16.0f))
 								)
@@ -1855,11 +1855,11 @@ namespace GuGu {
 	{
 		m_selectUINode = item;
 	}
-	void UIRenderPass::setColor(math::float4 inColor)
+	void UIRenderPass::setColor(Color inColor)
 	{
-		m_color = inColor;
+		m_color = inColor.toFloat4();
 	}
-	math::float4 UIRenderPass::getColor() const
+	Color UIRenderPass::getColor() const
 	{
 		return m_color;
 	}

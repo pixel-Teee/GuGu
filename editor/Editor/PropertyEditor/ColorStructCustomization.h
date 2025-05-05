@@ -1,6 +1,7 @@
 #pragma once
 
 #include "MathStructCustomization.h"
+#include <Renderer/Color.h>
 
 namespace GuGu {
 	class WidgetGeometry;
@@ -21,6 +22,9 @@ namespace GuGu {
 		virtual void customizeHeader(std::shared_ptr<IPropertyHandle> propertyHandle, DetailWidgetRow& headerRow) override;
 		virtual void makeHeaderRow(std::shared_ptr<IPropertyHandle> propertyHandle, DetailWidgetRow& headerRow) override;
 
+		void onSetColorFromColorPicker(Color newColor);
+
+		Color onGetColorForColorBlock() const;
 	protected:
 		std::shared_ptr<IPropertyHandle> m_structPropertyHandle;
 

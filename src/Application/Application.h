@@ -161,6 +161,10 @@ namespace GuGu {
 
 		void requestDestroyWindow(std::shared_ptr<WindowWidget> windowToDestroy);
 
+		void destroyWindowsImmediately();
+
+		std::shared_ptr<WindowWidget> addWindowAsNativeChild(std::shared_ptr<WindowWidget> inWindowWidget, std::shared_ptr<WindowWidget> inParentWindow);
+
 		//parent widget (菜单的父控件)，通过查找父控件的 widget path 中是否有一个打开的菜单来决定新菜单的等级
 		//可选的完整的父亲的控件路径，如果提供的话，如果没提供的话，那么就会生成一条路径到InParentWidget
 		std::shared_ptr<IMenu> pushMenu(const std::shared_ptr<Widget>& inParentWidget,
@@ -230,6 +234,8 @@ namespace GuGu {
 		std::shared_ptr<WindowWidget> getOrCreateTooltipWindow();
 
 		void resetTooltipWindow();
+
+		void arrangeWindowToFrontVirtual(std::vector<std::shared_ptr<WindowWidget>>& windows, const std::shared_ptr<WindowWidget>& windowToBringToFront);
 	protected:
 		std::shared_ptr<Renderer> m_renderer;
 
@@ -287,6 +293,8 @@ namespace GuGu {
 		std::weak_ptr<WindowWidget> m_toolTipWindowPtr;
 
 		std::weak_ptr<WindowWidget> m_dragDropWindowPtr;
+
+		std::vector<std::shared_ptr<WindowWidget>> m_windowsDestroyQueue;
 	};
 	std::shared_ptr<Application> CreateApplicationFactory();
 }

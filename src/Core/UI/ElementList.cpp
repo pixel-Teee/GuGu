@@ -744,13 +744,13 @@ namespace GuGu {
 
 			if (stopIndex == 0)
 			{
-				boxBatch->m_vertices.emplace_back(math::float4(startUV.x, startUV.y, 1.0f, 1.0f), transform.transformPoint(startPt), curStop.m_color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
-				boxBatch->m_vertices.emplace_back(math::float4(endUV.x, endUV.y, 1.0f, 1.0f), transform.transformPoint(endPt), curStop.m_color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+				boxBatch->m_vertices.emplace_back(math::float4(startUV.x, startUV.y, 1.0f, 1.0f), transform.transformPoint(startPt), curStop.m_color.toFloat4(), math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+				boxBatch->m_vertices.emplace_back(math::float4(endUV.x, endUV.y, 1.0f, 1.0f), transform.transformPoint(endPt), curStop.m_color.toFloat4(), math::float4(1.0f, 1.0f, 1.0f, 1.0f));
 			}
 			else
 			{
-				boxBatch->m_vertices.emplace_back(math::float4(startUV.x, startUV.y, 1.0f, 1.0f), transform.transformPoint(startPt), curStop.m_color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
-				boxBatch->m_vertices.emplace_back(math::float4(endUV.x, endUV.y, 1.0f, 1.0f), transform.transformPoint(endPt), curStop.m_color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+				boxBatch->m_vertices.emplace_back(math::float4(startUV.x, startUV.y, 1.0f, 1.0f), transform.transformPoint(startPt), curStop.m_color.toFloat4(), math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+				boxBatch->m_vertices.emplace_back(math::float4(endUV.x, endUV.y, 1.0f, 1.0f), transform.transformPoint(endPt), curStop.m_color.toFloat4(), math::float4(1.0f, 1.0f, 1.0f, 1.0f));
 				//boxBatch->m_vertices.emplace_back(math::float4(0.0f, 1.0f, 1.0f, 1.0f), transform.transformPoint(bottomLeft), curStop.m_color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
 				//boxBatch->m_vertices.emplace_back(math::float4(1.0f, 0.0f, 1.0f, 1.0f), transform.transformPoint(topRight), curStop.m_color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
 

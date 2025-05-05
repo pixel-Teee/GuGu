@@ -155,6 +155,10 @@ namespace GuGu {
 		void setContent(const std::shared_ptr<Widget>& inWidget);
 
 		static std::shared_ptr<WindowWidget> makeCursorDecorator();
+
+		void addChildWindow(const std::shared_ptr<WindowWidget>& inChildWindow);
+
+		std::vector<std::shared_ptr<WindowWidget>>& getChildWindows();
 	protected:
 		std::shared_ptr<Window> m_nativeWindow;
 		std::shared_ptr<SingleChildSlot> m_childWidget;
@@ -189,5 +193,7 @@ namespace GuGu {
 		float m_titleBarSize;
 
 		bool m_bIsPopupWindow;
+
+		std::vector<std::shared_ptr<WindowWidget>> m_childWindows;
 	};
 }

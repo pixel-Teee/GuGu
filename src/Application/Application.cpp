@@ -675,21 +675,73 @@ namespace GuGu{
 	{
 		//todo:call menu stack OnWindowDestroyed
 
-		//真正的销毁
-		m_renderer->onWindowDestroyed(windowToDestroy);
-
-		windowToDestroy->destroyNativeWindow();
-
-		auto it = std::find(m_windowWidgets.begin(), m_windowWidgets.end(), windowToDestroy);
-		if (it != m_windowWidgets.end())
+		//递归收集子窗口
+		struct local
 		{
-			m_windowWidgets.erase(it);
+			static void helper(const std::shared_ptr<WindowWidget> windowToDestroy, std::vector<std::shared_ptr<WindowWidget>>& outWindowDestroyQueue)
+			{
+				std::vector<std::shared_ptr<WindowWidget>>& childWindows = windowToDestroy->getChildWindows();
+
+				if (childWindows.size() > 0)
+				{
+					for (int32_t childIndex = 0; childIndex < childWindows.size(); ++childIndex)
+					{
+						helper(childWindows[childIndex], outWindowDestroyQueue);
+					}
+				}
+
+				outWindowDestroyQueue.push_back(windowToDestroy);
+			}
+		};
+
+		local::helper(windowToDestroy, m_windowsDestroyQueue);//收集完毕所有窗口，销毁队列里面待销毁的窗口
+
+		destroyWindowsImmediately();
+	}
+
+	void Application::destroyWindowsImmediately()
+	{
+		for (int32_t i = 0; i < m_windowsDestroyQueue.size(); ++i)
+		{
+			//真正的销毁
+			m_renderer->onWindowDestroyed(m_windowsDestroyQueue[i]);
+
+			m_windowsDestroyQueue[i]->destroyNativeWindow();
+
+			auto it = std::find(m_windowWidgets.begin(), m_windowWidgets.end(), m_windowsDestroyQueue[i]);
+			if (it != m_windowWidgets.end())
+			{
+				m_windowWidgets.erase(it);
+			}
 		}
-		//没有窗口，则要退出应用程序
-		if (m_windowWidgets.size() == 0)
+
+		m_windowsDestroyQueue.clear();
+
+		bool bHaveAnyRegularWindow = false;
+		//没有常规窗口，则要退出应用程序
+		for (size_t i = 0; i < m_windowWidgets.size(); ++i)
+		{
+			if (m_windowWidgets[i]->isRegularWindow())
+			{
+				bHaveAnyRegularWindow = true;
+			}
+		}
+		if (bHaveAnyRegularWindow == false)
 		{
 			setExit(true);
 		}
+	}
+
+	std::shared_ptr<WindowWidget> Application::addWindowAsNativeChild(std::shared_ptr<WindowWidget> inWindowWidget, std::shared_ptr<WindowWidget> inParentWindow)
+	{
+		inParentWindow->addChildWindow(inWindowWidget);
+
+		//if(inParentWindow->getNativeWindow())
+
+		makeWindow(inWindowWidget);
+		showWindow(inWindowWidget);
+
+		return inWindowWidget;
 	}
 
 	std::shared_ptr<IMenu> Application::pushMenu(const std::shared_ptr<Widget>& inParentWidget, const WidgetPath& inOwnerPath, const std::shared_ptr<Widget>& inContent, const math::float2& summonLocation, const bool bFocusImmediately, const math::float2& summonLocationSize, std::optional<PopupMethod> method, const bool bIsCollapsedByParent)
@@ -802,6 +854,32 @@ namespace GuGu{
 			m_toolTipWindowPtr.lock()->requestDestroyWindow();
 		}	
 		m_toolTipWindowPtr.reset();
+	}
+
+	void Application::arrangeWindowToFrontVirtual(std::vector<std::shared_ptr<WindowWidget>>& windows, const std::shared_ptr<WindowWidget>& windowToBringToFront)
+	{
+		auto it = std::find(windows.begin(), windows.end(), windowToBringToFront);
+		if (it != windows.end())
+			windows.erase(it);
+		if (windows.size() == 0)
+		{
+			windows.push_back(windowToBringToFront);
+		}
+		else
+		{
+			//在数组越后面，排在越靠前
+			int32_t windowIndex = windows.size() - 1;
+			for (; windowIndex >= 0; --windowIndex)
+			{
+				//非常规窗口(弹窗)排在常规窗口的前面
+				if ((!windowToBringToFront->isRegularWindow() || windows[windowIndex]->isRegularWindow()))
+				{
+					break;
+				}
+			}
+
+			windows.insert(windows.begin() + windowIndex + 1, windowToBringToFront);
+		}
 	}
 
 	bool Application::processMouseButtonDownEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
@@ -1547,6 +1625,8 @@ namespace GuGu{
 		for (int32_t windowIndex = windows.size() - 1; windowIndex >= 0; --windowIndex)
 		{
 			const std::shared_ptr<WindowWidget>& window = windows[windowIndex];
+
+			WidgetPath resultingPath = locateWidgetUnderMouse(screenSpaceMouseCoordinate, window->getChildWindows());
 
 			//todo:检查是否处于最小化，或者可见
 			std::shared_ptr<Widget> collisionWidget = locateWidgetInWindow(window->getNativeWindow(), screenSpaceMouseCoordinate);

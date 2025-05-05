@@ -501,6 +501,25 @@ namespace GuGu {
 			.FocusWhenFirstShown(false);
 		return newWindow;
 	}
+
+	void WindowWidget::addChildWindow(const std::shared_ptr<WindowWidget>& inChildWindow)
+	{
+		std::shared_ptr<WindowWidget> previousParent = inChildWindow->m_parentWindow.lock();
+		if (previousParent)
+		{
+			//todo:实现这里
+		}
+
+		inChildWindow->m_parentWindow = std::static_pointer_cast<WindowWidget>(shared_from_this());
+		
+		Application::getApplication()->arrangeWindowToFrontVirtual(m_childWindows, inChildWindow);
+	}
+
+	std::vector<std::shared_ptr<WindowWidget>>& WindowWidget::getChildWindows()
+	{
+		return m_childWindows;
+	}
+
 	OverlayPopupLayer::OverlayPopupLayer(const std::shared_ptr<WindowWidget>& initHostWindow, const std::shared_ptr<Widget>& initPopupContent, std::shared_ptr<Overlay> initOverlay)
 		: PopupLayer(initHostWindow, initPopupContent)
 		, m_hostWindow(initHostWindow)

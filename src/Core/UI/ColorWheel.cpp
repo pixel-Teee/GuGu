@@ -84,8 +84,8 @@ namespace GuGu {
 	}
 	math::float2 ColorWheel::calcRelativePositionFromCenter() const
 	{
-		float hue = m_selectedColor.Get().x;//r
-		float saturation = m_selectedColor.Get().y;//g
+		float hue = m_selectedColor.Get().r;//r
+		float saturation = m_selectedColor.Get().g;//g
 		float angle = hue / 180.0f * 3.1415926535f;
 		float radius = saturation;
 
@@ -106,7 +106,7 @@ namespace GuGu {
 				angle += 2.0f * 3.1415926535f;
 			}
 
-			math::float4 newColor = m_selectedColor.Get();
+			math::float4 newColor = m_selectedColor.Get().toFloat4();
 			{
 				newColor.x = angle * 180.0f * (0.31830988618f);//INV_PI
 				newColor.y = std::min(relativeRadius, 1.0f);
