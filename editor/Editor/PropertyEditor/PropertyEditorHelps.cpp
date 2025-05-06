@@ -5,6 +5,7 @@
 #include "PropertyNode.h"
 #include "PropertyEditor.h"
 #include "PropertyHandleImp.h"//property handle float/double
+#include "PropertyEditorAsset.h"
 #include <Core/UI/BoxPanel.h>
 #include <Core/UI/Border.h>
 
@@ -82,6 +83,14 @@ namespace GuGu {
 
 				propertyWidget = numericWidget;
 			}
+			else if (PropertyEditorAsset::supports(inPropertyEditor))
+			{
+				std::shared_ptr<PropertyEditorAsset> assetWidget;
+				WIDGET_ASSIGN_NEW(PropertyEditorAsset, assetWidget, inPropertyEditor);
+				assetWidget->getFixedWidth(m_minFixedWidth, m_maxFixedWidth);
+
+				propertyWidget = assetWidget;
+			}
 		}
 
 		if (!propertyWidget)
@@ -113,6 +122,11 @@ namespace GuGu {
 			{
 				propertyHandle = std::make_shared<PropertyHandleVector3>(inPropertyNode);
 			}
+			else if (PropertyHandleObject::supports(inPropertyNode))
+			{
+				propertyHandle = std::make_shared<PropertyHandleObject>(inPropertyNode);
+			}
+			
 			return propertyHandle;
 		}
 	}

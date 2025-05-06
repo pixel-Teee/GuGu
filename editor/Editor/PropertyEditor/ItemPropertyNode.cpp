@@ -3,6 +3,7 @@
 #include "ItemPropertyNode.h"
 #include "ObjectPropertyNode.h"
 #include <Core/Reflection/ReflectionDatabase.h>
+#include <Core/AssetManager/AssetData.h>
 
 namespace GuGu {
 
@@ -47,7 +48,9 @@ namespace GuGu {
 	void ItemPropertyNode::initChildNodes()
 	{
 		meta::Field* field = getField();
-		if (field->GetType().IsStruct()) //struct
+		if (field->GetType().IsWeakPtr()) //hack
+			return;
+		if (field->GetType().IsStruct() || field->GetType() == typeof(std::shared_ptr<AssetData>)) //struct
 		{
 			auto& fields = meta::ReflectionDatabase::Instance().types[field->GetType().GetID()].fields;
 			for (auto& field : fields)

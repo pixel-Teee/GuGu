@@ -6,6 +6,7 @@
 namespace GuGu {
 	class Widget;
 	class GuGuUtf8Str;
+	struct AssetData;
 	namespace meta {
 		class Field;
 	}
@@ -29,6 +30,9 @@ namespace GuGu {
 
 		virtual PropertyAccess::Result setValueFromFormattedString(const GuGuUtf8Str& inValue) = 0;
 		virtual PropertyAccess::Result getValueAsFormattedString(GuGuUtf8Str& outValue) const = 0;
+
+		virtual PropertyAccess::Result getValue(AssetData& outValue) const = 0;
+		virtual PropertyAccess::Result setValue(const AssetData& inValue) = 0;
 
 		virtual std::shared_ptr<IPropertyHandle> getChildHandle(uint32_t index) const = 0;
 

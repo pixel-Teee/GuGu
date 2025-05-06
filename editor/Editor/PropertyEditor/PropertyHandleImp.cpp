@@ -261,6 +261,7 @@ namespace GuGu {
 	IMPLEMENT_PROPERTY_ACCESSOR(float)
 	IMPLEMENT_PROPERTY_ACCESSOR(double)
 	IMPLEMENT_PROPERTY_ACCESSOR(math::double3)
+	IMPLEMENT_PROPERTY_ACCESSOR(AssetData)
 
 	PropertyHandleBase::PropertyHandleBase(std::shared_ptr<PropertyNode> propertyNode)
 		: m_implementation(std::make_shared<PropertyValueImpl>(propertyNode))
@@ -318,6 +319,7 @@ namespace GuGu {
 	{}
 
 	IMPLEMENT_PROPERTY_VALUE(PropertyHandleFloat)
+	IMPLEMENT_PROPERTY_VALUE(PropertyHandleObject)
 
 	bool PropertyHandleFloat::supports(std::shared_ptr<PropertyNode> propertyNode)
 	{
@@ -415,6 +417,26 @@ namespace GuGu {
 		res = m_implementation->importText(valueStr);
 
 		return res;
+	}
+
+	bool PropertyHandleObject::supports(std::shared_ptr<PropertyNode> propertyNode)
+	{
+		meta::Field* field = propertyNode->getField();
+		if (field == nullptr)
+		{
+			return false;
+		}
+		return field->GetType() == typeof(std::shared_ptr<AssetData>);
+	}
+
+	PropertyAccess::Result PropertyHandleObject::getValue(AssetData& outValue) const
+	{
+		return PropertyAccess::Result::Success;
+	}
+
+	PropertyAccess::Result PropertyHandleObject::setValue(const AssetData& inValue)
+	{
+		return PropertyAccess::Result::Success;
 	}
 
 }

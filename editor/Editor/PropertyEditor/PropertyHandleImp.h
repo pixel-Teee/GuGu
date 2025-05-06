@@ -8,6 +8,7 @@ namespace GuGu {
 	}
 	class PropertyNode;
 	class GuGuUtf8Str;
+	struct AssetData;
 	class PropertyValueImpl
 	{
 	public:
@@ -38,6 +39,7 @@ namespace GuGu {
 	virtual PropertyAccess::Result getValue(ValueType& outValue) const override;
 
 	class Widget;
+
 	class PropertyHandleBase : public IPropertyHandle
 	{
 	public:
@@ -58,6 +60,7 @@ namespace GuGu {
 		DECLARE_PROPERTY_ACCESSOR(float)
 		DECLARE_PROPERTY_ACCESSOR(double)
 		DECLARE_PROPERTY_ACCESSOR(math::double3)
+		DECLARE_PROPERTY_ACCESSOR(AssetData)
 	protected:
 		std::shared_ptr<PropertyValueImpl> m_implementation;
 	};
@@ -77,7 +80,7 @@ namespace GuGu {
 	public:
 		PropertyHandleVector3(std::shared_ptr<PropertyNode> propertyNode);
 		static bool supports(std::shared_ptr<PropertyNode> propertyNode);
-		virtual PropertyAccess::Result getValue(math::double3& outValue) const;
+		virtual PropertyAccess::Result getValue(math::double3& outValue) const override;
 		virtual PropertyAccess::Result setValue(const math::double3& inValue) override;
 	};
 
@@ -86,8 +89,16 @@ namespace GuGu {
 	public:
 		PropertyHandleDouble(std::shared_ptr<PropertyNode> propertyNode);
 		static bool supports(std::shared_ptr<PropertyNode> propertyNode);
-		virtual PropertyAccess::Result getValue(double& outValue) const;
+		virtual PropertyAccess::Result getValue(double& outValue) const override;
 		virtual PropertyAccess::Result setValue(const double& inValue) override;
 	};
-
+	
+	class PropertyHandleObject : public PropertyHandleBase
+	{
+	public:
+		PropertyHandleObject(std::shared_ptr<PropertyNode> propertyNode);
+		static bool supports(std::shared_ptr<PropertyNode> propertyNode);
+		virtual PropertyAccess::Result getValue(AssetData& outValue) const override;
+		virtual PropertyAccess::Result setValue(const AssetData& inValue) override;
+	};
 }
