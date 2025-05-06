@@ -10,14 +10,21 @@ namespace GuGu {
 	class ComboButton;
 	class PropertyEditor;
 	class Brush;
+	struct AssetData;
+	class IPropertyHandle;
 	class PropertyEditorAsset : public CompoundWidget
 	{
 	public:
 		struct BuilderArguments : public Arguments<PropertyEditorAsset>
 		{
-			BuilderArguments() { }
+			BuilderArguments() 
+			: mpropertyHandle(nullptr)
+			{}
 
 			~BuilderArguments() = default;
+
+			ARGUMENT_VALUE(std::shared_ptr<IPropertyHandle>, propertyHandle)
+			ARGUMENT_VALUE(std::vector<std::shared_ptr<AssetData>>, ownerAssetDataArray)
 		};
 
 		static bool supports(const std::shared_ptr<PropertyEditor>& inPropertyEditor);
@@ -38,5 +45,12 @@ namespace GuGu {
 		void getFixedWidth(float& outMinFixedWidth, float& outMaxFixedWidth);
 	private:
 		std::shared_ptr<ComboButton> m_assetComboButton;
+
+		std::shared_ptr<PropertyEditor> m_propertyEditor;
+
+		std::shared_ptr<IPropertyHandle> m_propertyHandle;
+
+		//填充可选择的资产使用
+		std::vector<std::shared_ptr<AssetData>> m_ownerAssetDataArray;
 	};
 }

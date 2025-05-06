@@ -38,6 +38,10 @@ namespace GuGu {
 
 	void PropertyEditorAsset::init(const BuilderArguments& arguments, const std::shared_ptr<PropertyEditor>& inPropertyEditor)
 	{
+		m_propertyEditor = inPropertyEditor;
+		m_propertyHandle = arguments.mpropertyHandle;
+		m_ownerAssetDataArray = arguments.mownerAssetDataArray;
+
 		m_assetComboButton = WIDGET_NEW(ComboButton)
 		.onGetMenuContent(this, &PropertyEditorAsset::onGetMenuContent)
 		.buttonContent
