@@ -11,4 +11,16 @@ namespace GuGu {
 			Max
 		};
 	}
+
+	struct AssetPickerConfig
+	{
+		AssetViewType::Type m_initialAssetViewType;
+
+		AssetPickerConfig()
+		: m_initialAssetViewType(AssetViewType::Tile)
+		{}
+	};
+	class Widget;
+	std::shared_ptr<Widget> createAssetPicker(const AssetPickerConfig& assetPickerConfig);
+
 }
