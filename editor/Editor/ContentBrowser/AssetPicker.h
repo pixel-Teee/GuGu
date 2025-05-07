@@ -2,6 +2,7 @@
 
 #include <Core/UI/CompoundWidget.h>
 #include <Core/UI/UIMacros.h>
+#include <Core/AssetManager/ARFilter.h>
 #include "ContentBrowserSingleton.h"
 
 namespace GuGu {
@@ -25,5 +26,7 @@ namespace GuGu {
 
 	private:
 		std::shared_ptr<AssetView> m_assetViewPtr;
+
+		ARFilter m_currentBackendFilter;
 	};
 }

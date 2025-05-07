@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Core/AssetManager/ARFilter.h>
+
 namespace GuGu {
 	namespace AssetViewType
 	{
@@ -15,6 +17,8 @@ namespace GuGu {
 	struct AssetPickerConfig
 	{
 		AssetViewType::Type m_initialAssetViewType;
+
+		ARFilter m_filter;
 
 		AssetPickerConfig()
 		: m_initialAssetViewType(AssetViewType::Tile)

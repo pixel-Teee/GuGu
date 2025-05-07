@@ -53,11 +53,38 @@ namespace GuGu {
 		Attribute<float> m_itemWidth;
 	};
 
+	class GAssetListItem : public GAssetViewItem
+	{
+	public:
+		struct BuilderArguments : public Arguments<GAssetListItem>
+		{
+			BuilderArguments()
+				: mitemHeight(16)
+			{}
+
+			~BuilderArguments() = default;
+
+			ARGUMENT_ATTRIBUTE(float, itemHeight)
+
+			ARGUMENT_VALUE(std::shared_ptr<AssetViewItem>, assetItem)
+		};
+
+		void init(const BuilderArguments& arguments);
+
+		OptionalSize getThumbnailBoxSize() const;
+
+		Attribute<float> m_itemHeight;
+	};
+
 	class AssetTileView : public TileView<std::shared_ptr<AssetViewItem>>
 	{
 	public:
 		virtual bool supportsKeyboardFocus() const { return true; }
 	};
 
-
+	class AssetListView : public ListView<std::shared_ptr<AssetViewItem>>
+	{
+	public:
+		virtual bool supportsKeyboardFocus() const { return true; }
+	};
 }

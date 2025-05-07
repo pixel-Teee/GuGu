@@ -2,6 +2,8 @@
 
 #include <Core/UI/CompoundWidget.h>
 #include <Core/UI/UIMacros.h>
+#include <Core/Reflection/Type.h>
+#include "PropertyEditorManager.h"//PropertyAccess::Result
 
 namespace GuGu {
 	namespace meta {
@@ -43,6 +45,8 @@ namespace GuGu {
 		GuGuUtf8Str onGetAssetName() const;
 
 		void getFixedWidth(float& outMinFixedWidth, float& outMaxFixedWidth);
+
+		PropertyAccess::Result getValue(AssetData& outValue) const;
 	private:
 		std::shared_ptr<ComboButton> m_assetComboButton;
 
@@ -52,5 +56,9 @@ namespace GuGu {
 
 		//填充可选择的资产使用
 		std::vector<std::shared_ptr<AssetData>> m_ownerAssetDataArray;
+
+		meta::Type m_objectClass;
+
+		std::vector<meta::Type> m_allowedClassFilters;
 	};
 }

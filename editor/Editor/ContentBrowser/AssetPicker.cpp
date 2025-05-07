@@ -17,13 +17,22 @@ namespace GuGu {
 
 	void AssetPicker::init(const BuilderArguments& arguments)
 	{
+		m_currentBackendFilter = arguments.massetPickerConfig.m_filter;//filter
+
 		std::shared_ptr<VerticalBox> verticalBox = WIDGET_NEW(VerticalBox);
 
 		verticalBox->addSlot()
 		.StretchHeight(1.0f)
 		(
 			WIDGET_ASSIGN_NEW(AssetView, m_assetViewPtr)
+			.initialBackendFilter(m_currentBackendFilter)
+			.initialViewType(arguments.massetPickerConfig.m_initialAssetViewType)
 		);
+
+		m_childWidget = std::make_shared<SingleChildSlot>();
+		m_childWidget->m_parentWidget = shared_from_this();
+		m_childWidget->m_childWidget = verticalBox;
+		m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 	}
 
 }

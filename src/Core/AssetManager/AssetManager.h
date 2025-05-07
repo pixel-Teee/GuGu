@@ -32,6 +32,8 @@ namespace GuGu {
 
 		void traverseDirectoryAndFile(std::function<void(GuGuUtf8Str, bool)> enumerateCallBack);
 
+		void traverseDirectoryAndFile(const GuGuUtf8Str& relativePath, std::function<void(GuGuUtf8Str, bool)> enumerateCallBack);
+
 		GuGuUtf8Str getRootPath() const;
 
 		GuGuUtf8Str getActualPhysicalPath(const GuGuUtf8Str& relativePath);

@@ -17,13 +17,15 @@ namespace GuGu {
 	void AssetView::init(const BuilderArguments& arguments)
 	{
 		m_tileViewThumbnailSize = 64;
-
+		m_listViewThumbnailSize = 64;
 		m_childWidget = std::make_shared<SingleChildSlot>();
 		m_childWidget->m_parentWidget = shared_from_this();
 		//m_childWidget->m_childWidget->setParentWidget(shared_from_this());
-		m_currentViewType = AssetViewType::Tile;
+		//m_currentViewType = AssetViewType::Tile;
 		m_onGetAssetContextMenu = arguments.monGetAssetContextMenu;
 		m_onPathSelected = arguments.monPathSelected;
+		m_backendFilter = arguments.minitialBackendFilter;
+		m_currentViewType = arguments.minitialViewType;
 		//create path view
 		std::shared_ptr<VerticalBox> verticalBox = WIDGET_NEW(VerticalBox)	
 		+ VerticalBox::Slot()
@@ -52,27 +54,43 @@ namespace GuGu {
 	void AssetView::createCurrentView()
 	{
 		m_tileView.reset();
+		m_listView.reset();
 
 		std::shared_ptr<Widget> newView = NullWidget::getNullWidget();
 		switch (m_currentViewType)
 		{
 		case AssetViewType::Tile:
 			m_tileView = createTileView();
+			m_viewContainer->setContent(m_tileView);
+			break;
+		case AssetViewType::List:
+			m_listView = createListView();
+			m_viewContainer->setContent(m_listView);
 			break;
 		default:
 			break;
 		}
-		m_viewContainer->setContent(m_tileView);
 	}
 	std::shared_ptr<AssetTileView> AssetView::createTileView()
 	{
 		return WIDGET_NEW(AssetTileView)
-				.ListItemSource(&m_filteredAssetItems)
-				.onGenerateTile(this, &AssetView::makeTileViewWidget)
-				.itemHeight(92.0f)
-				.onContextMenuOpening(this, &AssetView::onGetContextMenuContent)
-				.onMouseButtonDoubleClick(this, &AssetView::onListMouseButtonDoubleClick);
+			.ListItemSource(&m_filteredAssetItems)
+			.onGenerateTile(this, &AssetView::makeTileViewWidget)
+			.itemHeight(92.0f)
+			.onContextMenuOpening(this, &AssetView::onGetContextMenuContent)
+			.onMouseButtonDoubleClick(this, &AssetView::onListMouseButtonDoubleClick);
 	}
+
+	std::shared_ptr<GuGu::AssetListView> AssetView::createListView()
+	{
+		return WIDGET_NEW(AssetListView)
+			.ListItemSource(&m_filteredAssetItems)
+			.onGenerateRow(this, &AssetView::makeListViewWidget)
+			.itemHeight(92.0f)
+			//.onContextMenuOpening(this, &AssetView::onGetContextMenuContent)
+			.onMouseButtonDoubleClick(this, &AssetView::onListMouseButtonDoubleClick);
+	}
+
 	std::shared_ptr<ITableRow> AssetView::makeTileViewWidget(std::shared_ptr<AssetViewItem> assetItem, const std::shared_ptr<TableViewBase>& ownerTable)
 	{
 		if (!assetItem)
@@ -131,6 +149,66 @@ namespace GuGu {
 			return nullptr;
 		}
 	}
+
+	std::shared_ptr<GuGu::ITableRow> AssetView::makeListViewWidget(std::shared_ptr<AssetViewItem> assetItem, const std::shared_ptr<TableViewBase>& ownerTable)
+	{
+		if (!assetItem)
+		{
+			return WIDGET_NEW(TableRow<std::shared_ptr<AssetViewAsset>>, ownerTable);
+		}
+
+		if (assetItem->getType() == AssetItemType::Folder)
+		{
+			std::shared_ptr<AssetViewFolder> folderItem = std::static_pointer_cast<AssetViewFolder>(assetItem);
+			std::shared_ptr<TableRow<std::shared_ptr<AssetViewItem>>> tableRowWidget;
+
+			WIDGET_ASSIGN_NEW(TableRow<std::shared_ptr<AssetViewItem>>, tableRowWidget, ownerTable)
+				.Style(EditorStyleSet::getStyleSet()->getStyle<TableRowStyle>(u8"tablerow.assetview"))
+				.Content
+				(
+					WIDGET_NEW(GAssetListItem)
+					.assetItem(assetItem)
+					.itemHeight(this, &AssetView::getListViewItemHeight)
+				);
+
+			tableRowWidget->setToolTipText(folderItem->m_folderName);
+
+			//std::shared_ptr<GAssetTileItem> item = WIDGET_NEW(GAssetTileItem)
+			//	.assetItem(assetItem)
+			//	.itemWidth(this, &AssetView::getTileViewItemWidth);
+			//
+			//tableRowWidget->setContent(item);
+			return tableRowWidget;
+		}
+		else
+		{
+			std::shared_ptr<AssetViewAsset> assetItemAsAsset = std::static_pointer_cast<AssetViewAsset>(assetItem);
+
+			if (assetItemAsAsset)
+			{
+				std::shared_ptr<TableRow<std::shared_ptr<AssetViewItem>>> tableRowWidget;
+
+				WIDGET_ASSIGN_NEW(TableRow<std::shared_ptr<AssetViewItem>>, tableRowWidget, ownerTable)
+					.Style(EditorStyleSet::getStyleSet()->getStyle<TableRowStyle>(u8"tablerow.assetview"))
+					.Content
+					(
+						WIDGET_NEW(GAssetListItem)
+						.assetItem(assetItem)
+						.itemHeight(this, &AssetView::getListViewItemHeight)
+					)
+					.onDragDetected(this, &AssetView::onDraggingAssetItem);
+
+				GuGuUtf8Str assetType = meta::Type(assetItemAsAsset->m_data.m_assetType).GetName();
+				GuGuUtf8Str tooltip = "filePath:" + assetItemAsAsset->m_data.m_filePath + "\r\n" + "assetType:" + assetType;
+				tableRowWidget->setToolTipText(tooltip);
+
+				return tableRowWidget;
+			}
+
+			return nullptr;
+		}
+	}
+
 	void AssetView::setSourcesData(const GuGuUtf8Str& inSourcesData)
 	{
 		m_soucesData = inSourcesData;
@@ -146,19 +224,57 @@ namespace GuGu {
 	{
 		m_filteredAssetItems.clear();
 
+		const bool bShowAll = m_backendFilter.isEmpty();
+
 		GuGuUtf8Str searchPath = m_soucesData + "/";
 		searchPath = m_soucesData.substr(searchPath.findFirstOf("/") + 1);
 		std::vector<AssetData> assetItems;
-		AssetManager::getAssetManager().getSubPaths(searchPath, [&](GuGuUtf8Str path, bool isDirectory) {
-			if (!isDirectory)
-			{
-				//check is asset
-				if (AssetManager::getAssetManager().isInAssetRegistry(path))
+		if (bShowAll)
+		{
+			AssetManager::getAssetManager().getSubPaths(searchPath, [&](GuGuUtf8Str path, bool isDirectory) {
+				if (!isDirectory)
 				{
-					assetItems.push_back(AssetManager::getAssetManager().getAssetData(path));
+					//check is asset
+					if (AssetManager::getAssetManager().isInAssetRegistry(path))
+					{
+						assetItems.push_back(AssetManager::getAssetManager().getAssetData(path));
+					}
 				}
+			});
+		}
+		else
+		{
+			//recusive
+			const bool bRecurse = shouldFilterRecursively();
+
+			if (bRecurse)
+			{
+				//递归当前目录下的所有资产
+				AssetManager::getAssetManager().traverseDirectoryAndFile(searchPath, [&](GuGuUtf8Str path, bool isDirectory) {
+					if (!isDirectory)
+					{
+						//check is asset
+						if (AssetManager::getAssetManager().isInAssetRegistry(path))
+						{
+							assetItems.push_back(AssetManager::getAssetManager().getAssetData(path));
+						}
+					}
+				});
 			}
-		});
+			else
+			{
+				AssetManager::getAssetManager().getSubPaths(searchPath, [&](GuGuUtf8Str path, bool isDirectory) {
+					if (!isDirectory)
+					{
+						//check is asset
+						if (AssetManager::getAssetManager().isInAssetRegistry(path))
+						{
+							assetItems.push_back(AssetManager::getAssetManager().getAssetData(path));
+						}
+					}
+				});
+			}
+		}
 
 		for (const AssetData& assetData : assetItems)
 		{
@@ -273,6 +389,11 @@ namespace GuGu {
 		return m_tileViewThumbnailSize;
 	}
 
+	float AssetView::getListViewItemHeight() const
+	{
+		return m_listViewThumbnailSize;
+	}
+
 	void AssetView::onListMouseButtonDoubleClick(std::shared_ptr<AssetViewItem> assetItem)
 	{
 		//todo:做更多检查
@@ -322,6 +443,14 @@ namespace GuGu {
 			}
 		}
 		return selectedAssets;
+	}
+
+	bool AssetView::shouldFilterRecursively()
+	{
+		if (!m_backendFilter.isEmpty())
+		{
+			return true;
+		}
 	}
 
 }

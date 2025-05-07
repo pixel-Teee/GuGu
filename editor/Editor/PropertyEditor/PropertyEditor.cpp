@@ -39,7 +39,7 @@ namespace GuGu {
 		return m_propertyHandle;
 	}
 
-	const meta::Field* PropertyEditor::getField() const
+	meta::Field* PropertyEditor::getField() const
 	{
 		return m_propertyNode->getField();
 	}

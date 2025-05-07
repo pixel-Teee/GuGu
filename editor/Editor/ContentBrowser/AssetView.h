@@ -6,11 +6,13 @@
 #include "ContentBrowserSingleton.h"
 #include "ContentBrowserDelegates.h"
 #include <Core/AssetManager/AssetData.h>
+#include <Core/AssetManager/ARFilter.h>
 
 namespace GuGu {
 	class ITableRow;
 	class Border;
 	class AssetTileView;
+	class AssetListView;
 	struct AssetViewItem;
 	class TableViewBase;
 	//显示过滤的资产的 widget
@@ -19,13 +21,19 @@ namespace GuGu {
 	public:
 		struct BuilderArguments : public Arguments<AssetView>
 		{
-			BuilderArguments() {}
+			BuilderArguments()
+			: minitialViewType(AssetViewType::Type::Tile)
+			{}
 
 			~BuilderArguments() = default;
 
 			UI_EVENT(OnGetAssetContextMenu, onGetAssetContextMenu)
 
 			UI_EVENT(OnPathSelected, onPathSelected)
+
+			ARGUMENT_VALUE(ARFilter, initialBackendFilter)
+
+			ARGUMENT_VALUE(AssetViewType::Type, initialViewType)
 		};
 
 		void init(const BuilderArguments& arguments);
@@ -37,7 +45,11 @@ namespace GuGu {
 
 		std::shared_ptr<AssetTileView> createTileView();
 
+		std::shared_ptr<AssetListView> createListView();
+
 		std::shared_ptr<ITableRow> makeTileViewWidget(std::shared_ptr<AssetViewItem> assetItem, const std::shared_ptr<TableViewBase>& ownerTable);
+
+		std::shared_ptr<ITableRow> makeListViewWidget(std::shared_ptr<AssetViewItem> assetItem, const std::shared_ptr<TableViewBase>& ownerTable);
 
 		void setSourcesData(const GuGuUtf8Str& inSourcesData);
 
@@ -65,6 +77,8 @@ namespace GuGu {
 
 		float getTileViewItemWidth() const;
 
+		float getListViewItemHeight() const;
+
 		void onListMouseButtonDoubleClick(std::shared_ptr<AssetViewItem> assetItem);
 
 		void clearSelection();
@@ -72,6 +86,8 @@ namespace GuGu {
 		Reply onDraggingAssetItem(const WidgetGeometry& myGeometry, const PointerEvent& mouseEvent);
 
 		std::vector<AssetData> getSelectedAssets() const;
+
+		bool shouldFilterRecursively();
 	private:
 
 		GuGuUtf8Str m_soucesData;//当前所处于的文件夹
@@ -82,6 +98,8 @@ namespace GuGu {
 		std::shared_ptr<Border> m_viewContainer;
 
 		std::shared_ptr<AssetTileView> m_tileView;
+
+		std::shared_ptr<AssetListView> m_listView;
 
 		AssetViewType::Type m_currentViewType;
 
@@ -95,6 +113,10 @@ namespace GuGu {
 
 		int32_t m_tileViewThumbnailSize;
 
+		int32_t m_listViewThumbnailSize;
+
 		OnPathSelected m_onPathSelected;
+
+		ARFilter m_backendFilter;
 	};
 }

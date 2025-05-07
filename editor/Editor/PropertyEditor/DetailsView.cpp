@@ -37,6 +37,7 @@ namespace GuGu {
 		m_childWidget = std::make_shared<SingleChildSlot>();
 		m_childWidget->m_parentWidget = shared_from_this();
 		m_childWidget->m_childWidget = verticalBox;
+		m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 	}
 
 	DetailsView::~DetailsView()

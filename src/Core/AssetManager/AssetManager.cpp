@@ -123,6 +123,11 @@ namespace GuGu {
 		traverseDirectoryAndFile_private(m_nativeFileSystem->getNativeFilePath(), enumerateCallBack);
 	}
 
+	void AssetManager::traverseDirectoryAndFile(const GuGuUtf8Str& relativePath, std::function<void(GuGuUtf8Str, bool)> enumerateCallBack)
+	{
+		traverseDirectoryAndFile_private(m_nativeFileSystem->getNativeFilePath() + "/" + relativePath, enumerateCallBack);
+	}
+
 	GuGuUtf8Str AssetManager::getRootPath() const
 	{
 		//return m_nativeFileSystem->getNativeFilePath();

@@ -134,4 +134,94 @@ namespace GuGu {
         return OptionalSize(m_itemWidth.Get());
     }
 
+	void GAssetListItem::init(const BuilderArguments& arguments)
+	{
+        GAssetViewItem::init(GAssetViewItem::BuilderArguments()
+            .assetItem(arguments.massetItem));
+
+        m_itemHeight= arguments.mitemHeight;
+
+        std::shared_ptr<Overlay> itemContentsOverlay =
+        WIDGET_NEW(Overlay);
+
+        if (isFolder())
+        {
+            //std::shared_ptr<AssetViewFolder> assetFolderItem = std::static_pointer_cast<AssetViewFolder>(m_assetItem);
+
+            std::shared_ptr<Brush> folderTintImage = EditorStyleSet::getStyleSet()->getBrush("CloseFolder_128x128");
+            itemContentsOverlay->addSlot()
+            (
+                WIDGET_NEW(ImageWidget)
+                .brush(folderTintImage)
+            );
+        }
+        else
+		{
+            std::shared_ptr<AssetViewAsset> assetViewAsset = std::static_pointer_cast<AssetViewAsset>(m_assetItem);
+
+            if (assetViewAsset)
+            {
+                if (assetViewAsset->m_data.m_assetType.GetID() == meta::TypeIDs<GStaticMesh>::ID)
+                {
+					std::shared_ptr<Brush> assetImage = EditorStyleSet::getStyleSet()->getBrush("MeshAssetIcon");
+					itemContentsOverlay->addSlot()
+						(
+							WIDGET_NEW(ImageWidget)
+							.brush(assetImage)
+						);
+                }	
+                else if (assetViewAsset->m_data.m_assetType.GetID() == meta::TypeIDs<Level>::ID)
+                {
+					std::shared_ptr<Brush> assetImage = EditorStyleSet::getStyleSet()->getBrush("LevelIcon");
+					itemContentsOverlay->addSlot()
+						(
+							WIDGET_NEW(ImageWidget)
+							.brush(assetImage)
+						);
+                }
+            }	
+        }
+
+        std::shared_ptr<Border> border = WIDGET_NEW(Border)
+        .BorderBackgroundColor(math::float4(1.0f, 1.0f, 1.0f, 0.0f))//transparent
+        .Content
+        (
+            WIDGET_NEW(VerticalBox)
+            + VerticalBox::Slot()
+            .FixedHeight()
+            .setHorizontalAlignment(HorizontalAlignment::Center)
+            (
+                WIDGET_NEW(BoxWidget)
+                .WidthOverride(this, &GAssetListItem::getThumbnailBoxSize) //64
+                .HeightOverride(this, &GAssetListItem::getThumbnailBoxSize) //64
+                .Content
+                (
+                    WIDGET_NEW(Border)
+                    .BorderBackgroundColor(math::float4(0.0f, 0.0f, 0.0f, 0.0f))//transparent
+                    .Content
+                    (
+                        itemContentsOverlay
+                    )
+                )
+            )
+            +VerticalBox::Slot()
+            .FixedHeight()
+            .setHorizontalAlignment(HorizontalAlignment::Center)
+            .setVerticalAlignment(VerticalAlignment::Center)
+            (
+                WIDGET_NEW(TextBlockWidget)
+                .text(getNameText())
+                .textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+            )
+        );
+
+        m_childWidget->m_childWidget = border;
+        m_childWidget->m_childWidget->setParentWidget(border);
+	}
+
+	OptionalSize GAssetListItem::getThumbnailBoxSize() const
+	{
+        return OptionalSize(m_itemHeight.Get());
+	}
+
 }

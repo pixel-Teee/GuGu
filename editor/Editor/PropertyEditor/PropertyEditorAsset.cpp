@@ -3,6 +3,8 @@
 #include "PropertyEditorAsset.h"
 #include "PropertyNode.h"
 #include "PropertyEditor.h"
+#include "PropertyCustomizationHelpers.h"
+#include "PropertyHandle.h"
 #include <Core/AssetManager/AssetData.h>
 #include <Core/UI/BoxPanel.h>
 #include <Core/UI/ComboButton.h>
@@ -41,6 +43,10 @@ namespace GuGu {
 		m_propertyEditor = inPropertyEditor;
 		m_propertyHandle = arguments.mpropertyHandle;
 		m_ownerAssetDataArray = arguments.mownerAssetDataArray;
+
+		meta::Field* field = inPropertyEditor->getField();
+		m_objectClass = field->GetType();
+		m_allowedClassFilters.push_back(m_objectClass);
 
 		m_assetComboButton = WIDGET_NEW(ComboButton)
 		.onGetMenuContent(this, &PropertyEditorAsset::onGetMenuContent)
@@ -102,7 +108,11 @@ namespace GuGu {
 
 	std::shared_ptr<Widget> PropertyEditorAsset::onGetMenuContent()
 	{
-		return NullWidget::getNullWidget();
+		AssetData value;
+		getValue(value);
+
+		//return PropertyCustomizationHelpers::makeAssetPickerWithMenu(m_allowedClassFilters);
+		return PropertyCustomizationHelpers::makeAssetPickerWithMenu(value, m_allowedClassFilters);
 	}
 
 	std::shared_ptr<Brush> PropertyEditorAsset::getStatusIcon() const
@@ -119,6 +129,12 @@ namespace GuGu {
 	{
 		outMinFixedWidth = 250.0f;
 		outMaxFixedWidth = 350.0f;
+	}
+
+	PropertyAccess::Result PropertyEditorAsset::getValue(AssetData& outValue) const
+	{
+		//获取资产路径
+		return PropertyAccess::Result::Success;
 	}
 
 }
