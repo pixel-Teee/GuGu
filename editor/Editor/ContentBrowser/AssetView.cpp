@@ -256,7 +256,11 @@ namespace GuGu {
 						//check is asset
 						if (AssetManager::getAssetManager().isInAssetRegistry(path))
 						{
-							assetItems.push_back(AssetManager::getAssetManager().getAssetData(path));
+							const AssetData& assetData = AssetManager::getAssetManager().getAssetData(path);
+							if (assetData.m_assetType.GetName() == m_backendFilter.m_classNames[0]) //todo:先只筛选一个
+							{
+								assetItems.push_back(assetData);
+							}
 						}
 					}
 				});
@@ -283,6 +287,10 @@ namespace GuGu {
 	}
 	void AssetView::refreshFolders()
 	{
+		if (shouldFilterRecursively())
+		{
+			return;
+		}
 		std::vector<GuGuUtf8Str> assetPathsToShow;
 		assetPathsToShow.push_back(m_soucesData);
 
@@ -451,6 +459,7 @@ namespace GuGu {
 		{
 			return true;
 		}
+		return false;
 	}
 
 }

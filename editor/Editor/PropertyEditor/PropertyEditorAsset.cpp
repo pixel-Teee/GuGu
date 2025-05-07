@@ -44,9 +44,13 @@ namespace GuGu {
 		m_propertyHandle = arguments.mpropertyHandle;
 		m_ownerAssetDataArray = arguments.mownerAssetDataArray;
 
-		meta::Field* field = inPropertyEditor->getField();
-		m_objectClass = field->GetType();
-		m_allowedClassFilters.push_back(m_objectClass);
+		if (inPropertyEditor)
+		{
+			AssetData assetData;
+			inPropertyEditor->getPropertyHandle()->getValue(assetData);
+			m_objectClass = assetData.m_assetType;
+			m_allowedClassFilters.push_back(m_objectClass);
+		}
 
 		m_assetComboButton = WIDGET_NEW(ComboButton)
 		.onGetMenuContent(this, &PropertyEditorAsset::onGetMenuContent)
@@ -133,7 +137,7 @@ namespace GuGu {
 
 	PropertyAccess::Result PropertyEditorAsset::getValue(AssetData& outValue) const
 	{
-		//获取资产路径
+		//鑾峰彇璧勪骇璺緞
 		return PropertyAccess::Result::Success;
 	}
 

@@ -31,4 +31,12 @@ namespace GuGu {
 		, m_assetType(assetType)
 	{
 	}
+
+	GuGuUtf8Str AssetData::toString() const
+	{
+		char buf[128];
+		std::sprintf(buf, "(m_filePath = %s, m_fileName = %s, m_assetType = %d)", m_filePath.getStr(), m_fileName.getStr(), m_assetType.GetID());
+		return buf;
+	}
+
 }

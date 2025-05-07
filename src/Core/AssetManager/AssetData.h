@@ -22,6 +22,8 @@ namespace GuGu {
 
 		AssetData(const GuGuUtf8Str& filePath, const GuGuUtf8Str& fileName, meta::Type assetType);
 
+		GuGuUtf8Str toString() const;
+
 		std::shared_ptr<meta::Object> m_loadedResource; //加载好后的资源
 	};
 }

@@ -10,7 +10,9 @@
 #include <Core/Reflection/Object.h>
 #include <Core/Reflection/Variant.h>
 #include <Core/GamePlay/GameObject.h>
+#include <Core/AssetManager/AssetData.h>
 #include <Core/Reflection/ReflectionDatabase.h>
+#include <Core/AssetManager/AssetManager.h>
 #include <Renderer/Color.h>
 
 namespace GuGu {
@@ -71,7 +73,7 @@ namespace GuGu {
 		}
 
 		PropertyAccess::Result result = PropertyAccess::Success;
-		//modify
+		//read
 		meta::Field* field = propertyNodeLock->getField();
 		for (int32_t i = 0; i < owners.size(); ++i)
 		{
@@ -174,6 +176,14 @@ namespace GuGu {
 				}
 			}
 			fieldValue = std::move(colorInstance);
+		}
+		else if (field->GetType() == typeof(std::shared_ptr<AssetData>))
+		{
+			GGuid guid(inValue);
+
+			std::shared_ptr<AssetData> assetData;
+			meta::Variant assetDataInstance(AssetManager::getAssetManager().loadAsset(guid));
+			fieldValue = std::move(assetDataInstance);
 		}
 		for (int32_t i = 0; i < owners.size(); ++i)
 		{
@@ -431,12 +441,21 @@ namespace GuGu {
 
 	PropertyAccess::Result PropertyHandleObject::getValue(AssetData& outValue) const
 	{
-		return PropertyAccess::Result::Success;
+		meta::Variant fieldValue;
+		PropertyAccess::Result res = m_implementation->getValueData(fieldValue);
+		//outValue = m_implementation->getPropertyValue();
+		outValue = *fieldValue.GetValue<std::shared_ptr<AssetData>>();
+
+		return res;
 	}
 
 	PropertyAccess::Result PropertyHandleObject::setValue(const AssetData& inValue)
 	{
-		return PropertyAccess::Result::Success;
+		PropertyAccess::Result res;
+		GuGuUtf8Str valueStr = AssetManager::getAssetManager().getGuid(std::make_shared<AssetData>(inValue)).getGuid();
+		res = m_implementation->importText(valueStr);
+
+		return res;
 	}
 
 }

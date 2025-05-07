@@ -33,6 +33,15 @@ namespace GuGu {
 		m_childWidget->m_parentWidget = shared_from_this();
 		m_childWidget->m_childWidget = verticalBox;
 		m_childWidget->m_childWidget->setParentWidget(shared_from_this());
+
+		//实际路径
+		const GuGuUtf8Str defaultPath = "content";
+
+		//将content实际路径转换为虚拟路径
+		std::vector<GuGuUtf8Str> selectedPaths;
+		selectedPaths.push_back(defaultPath);
+		m_assetViewPtr->setSourcesData(defaultPath);
+		m_assetViewPtr->requestSlowFullListRefresh();
 	}
 
 }
