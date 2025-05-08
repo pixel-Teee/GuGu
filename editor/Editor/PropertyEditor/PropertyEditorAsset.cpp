@@ -116,7 +116,8 @@ namespace GuGu {
 		getValue(value);
 
 		//return PropertyCustomizationHelpers::makeAssetPickerWithMenu(m_allowedClassFilters);
-		return PropertyCustomizationHelpers::makeAssetPickerWithMenu(value, m_allowedClassFilters);
+		OnAssetSelected assetSelected = std::bind(&PropertyEditorAsset::onAssetSelected, this, std::placeholders::_1);
+		return PropertyCustomizationHelpers::makeAssetPickerWithMenu(value, m_allowedClassFilters, assetSelected);
 	}
 
 	std::shared_ptr<Brush> PropertyEditorAsset::getStatusIcon() const
@@ -139,6 +140,21 @@ namespace GuGu {
 	{
 		//获取资产路径
 		return PropertyAccess::Result::Success;
+	}
+
+	void PropertyEditorAsset::onAssetSelected(const AssetData& assetData)
+	{
+		setValue(assetData);
+	}
+
+	void PropertyEditorAsset::setValue(const AssetData& assetData)
+	{
+		m_assetComboButton->setIsOpen(false);
+
+		if (m_propertyEditor)
+		{
+			m_propertyEditor->getPropertyHandle()->setValue(assetData);
+		}
 	}
 
 }

@@ -26,6 +26,7 @@ namespace GuGu {
 		m_onPathSelected = arguments.monPathSelected;
 		m_backendFilter = arguments.minitialBackendFilter;
 		m_currentViewType = arguments.minitialViewType;
+		m_onAssetSelectionChanged = arguments.monAssetSelectionChanged;
 		//create path view
 		std::shared_ptr<VerticalBox> verticalBox = WIDGET_NEW(VerticalBox)	
 		+ VerticalBox::Slot()
@@ -78,7 +79,8 @@ namespace GuGu {
 			.onGenerateTile(this, &AssetView::makeTileViewWidget)
 			.itemHeight(92.0f)
 			.onContextMenuOpening(this, &AssetView::onGetContextMenuContent)
-			.onMouseButtonDoubleClick(this, &AssetView::onListMouseButtonDoubleClick);
+			.onMouseButtonDoubleClick(this, &AssetView::onListMouseButtonDoubleClick)
+			.onSelectionChanged(this, &AssetView::assetSelectionChanged);
 	}
 
 	std::shared_ptr<GuGu::AssetListView> AssetView::createListView()
@@ -88,7 +90,8 @@ namespace GuGu {
 			.onGenerateRow(this, &AssetView::makeListViewWidget)
 			.itemHeight(92.0f)
 			//.onContextMenuOpening(this, &AssetView::onGetContextMenuContent)
-			.onMouseButtonDoubleClick(this, &AssetView::onListMouseButtonDoubleClick);
+			.onMouseButtonDoubleClick(this, &AssetView::onListMouseButtonDoubleClick)
+			.onSelectionChanged(this, &AssetView::assetSelectionChanged);
 	}
 
 	std::shared_ptr<ITableRow> AssetView::makeTileViewWidget(std::shared_ptr<AssetViewItem> assetItem, const std::shared_ptr<TableViewBase>& ownerTable)
@@ -460,6 +463,17 @@ namespace GuGu {
 			return true;
 		}
 		return false;
+	}
+
+	void AssetView::assetSelectionChanged(std::shared_ptr<AssetViewItem> assetItem, SelectInfo::Type selectInfo)
+	{
+		if (assetItem && assetItem->getType() != AssetItemType::Folder)
+		{
+			if (m_onAssetSelectionChanged)
+			{
+				m_onAssetSelectionChanged(std::static_pointer_cast<AssetViewAsset>(assetItem)->m_data, selectInfo);
+			}
+		}
 	}
 
 }

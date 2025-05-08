@@ -9,6 +9,7 @@
 #include <Core/AssetManager/ARFilter.h>
 
 namespace GuGu {
+	using OnAssetSelectionChanged = std::function<void(const AssetData&, SelectInfo::Type)>;
 	class ITableRow;
 	class Border;
 	class AssetTileView;
@@ -30,6 +31,8 @@ namespace GuGu {
 			UI_EVENT(OnGetAssetContextMenu, onGetAssetContextMenu)
 
 			UI_EVENT(OnPathSelected, onPathSelected)
+
+			UI_EVENT(OnAssetSelectionChanged, onAssetSelectionChanged)
 
 			ARGUMENT_VALUE(ARFilter, initialBackendFilter)
 
@@ -88,6 +91,8 @@ namespace GuGu {
 		std::vector<AssetData> getSelectedAssets() const;
 
 		bool shouldFilterRecursively();
+
+		void assetSelectionChanged(std::shared_ptr<AssetViewItem> assetItem, SelectInfo::Type selectInfo);
 	private:
 
 		GuGuUtf8Str m_soucesData;//当前所处于的文件夹
@@ -118,5 +123,7 @@ namespace GuGu {
 		OnPathSelected m_onPathSelected;
 
 		ARFilter m_backendFilter;
+
+		OnAssetSelectionChanged m_onAssetSelectionChanged;
 	};
 }

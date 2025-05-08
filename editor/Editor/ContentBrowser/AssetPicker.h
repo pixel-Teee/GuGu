@@ -24,9 +24,12 @@ namespace GuGu {
 
 		void init(const BuilderArguments& arguments);
 
+		void handleAssetSelectionChanged(const AssetData& inAssetData, SelectInfo::Type inSelectInfo);
 	private:
 		std::shared_ptr<AssetView> m_assetViewPtr;
 
 		ARFilter m_currentBackendFilter;
+
+		OnAssetSelected m_onAssetSelected;
 	};
 }

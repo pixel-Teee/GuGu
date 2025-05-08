@@ -3,6 +3,7 @@
 #include <Core/UI/CompoundWidget.h>
 #include <Core/UI/UIMacros.h>
 #include <Core/AssetManager/AssetData.h>
+#include "PropertyCustomizationHelpers.h"
 
 namespace GuGu {
 	class PropertyMenuAssetPicker : public CompoundWidget
@@ -16,6 +17,8 @@ namespace GuGu {
 
 			ARGUMENT_VALUE(AssetData, initialObject)
 			ARGUMENT_VALUE(std::vector<meta::Type>, allowedClasses)
+
+			UI_EVENT(OnAssetSelected, onAssetSelected)
 		};
 		PropertyMenuAssetPicker();
 

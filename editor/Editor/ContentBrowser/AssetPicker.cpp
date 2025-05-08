@@ -18,7 +18,7 @@ namespace GuGu {
 	void AssetPicker::init(const BuilderArguments& arguments)
 	{
 		m_currentBackendFilter = arguments.massetPickerConfig.m_filter;//filter
-
+		m_onAssetSelected = arguments.massetPickerConfig.m_onAssetSelected;
 		std::shared_ptr<VerticalBox> verticalBox = WIDGET_NEW(VerticalBox);
 
 		verticalBox->addSlot()
@@ -27,6 +27,7 @@ namespace GuGu {
 			WIDGET_ASSIGN_NEW(AssetView, m_assetViewPtr)
 			.initialBackendFilter(m_currentBackendFilter)
 			.initialViewType(arguments.massetPickerConfig.m_initialAssetViewType)
+			.onAssetSelectionChanged(this, &AssetPicker::handleAssetSelectionChanged)
 		);
 
 		m_childWidget = std::make_shared<SingleChildSlot>();
@@ -42,6 +43,17 @@ namespace GuGu {
 		selectedPaths.push_back(defaultPath);
 		m_assetViewPtr->setSourcesData(defaultPath);
 		m_assetViewPtr->requestSlowFullListRefresh();
+	}
+
+	void AssetPicker::handleAssetSelectionChanged(const AssetData& inAssetData, SelectInfo::Type inSelectInfo)
+	{
+		if (inSelectInfo != SelectInfo::Direct)
+		{
+			if (m_onAssetSelected)
+			{
+				m_onAssetSelected(inAssetData);
+			}
+		}
 	}
 
 }

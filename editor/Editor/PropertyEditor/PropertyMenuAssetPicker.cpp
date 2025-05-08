@@ -24,6 +24,7 @@ namespace GuGu {
 		std::shared_ptr<Widget> menuContent;
 		AssetPickerConfig assetPickerConfig;
 		assetPickerConfig.m_initialAssetViewType = AssetViewType::List;//asset view 显示的方式
+		assetPickerConfig.m_onAssetSelected = arguments.monAssetSelected;
 		if (m_allowedClasses.size() == 1 && m_allowedClasses[0] == typeof(meta::Object))
 		{
 			assetPickerConfig.m_filter.m_classNames.clear();

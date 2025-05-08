@@ -47,6 +47,10 @@ namespace GuGu {
 		void getFixedWidth(float& outMinFixedWidth, float& outMaxFixedWidth);
 
 		PropertyAccess::Result getValue(AssetData& outValue) const;
+
+		void onAssetSelected(const AssetData& assetData);
+
+		void setValue(const AssetData& assetData);
 	private:
 		std::shared_ptr<ComboButton> m_assetComboButton;
 

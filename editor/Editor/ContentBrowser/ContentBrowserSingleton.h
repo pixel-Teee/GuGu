@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/AssetManager/ARFilter.h>
+#include <Editor/PropertyEditor/PropertyCustomizationHelpers.h>
 
 namespace GuGu {
 	namespace AssetViewType
@@ -19,6 +20,8 @@ namespace GuGu {
 		AssetViewType::Type m_initialAssetViewType;
 
 		ARFilter m_filter;
+
+		OnAssetSelected m_onAssetSelected;
 
 		AssetPickerConfig()
 		: m_initialAssetViewType(AssetViewType::Tile)

@@ -7,11 +7,12 @@ namespace GuGu {
 
 	namespace PropertyCustomizationHelpers
 	{
-		std::shared_ptr<Widget> makeAssetPickerWithMenu(const AssetData& initialObject, const std::vector<meta::Type>& allowClasses)
+		std::shared_ptr<Widget> makeAssetPickerWithMenu(const AssetData& initialObject, const std::vector<meta::Type>& allowClasses, OnAssetSelected onSet)
 		{
 			return WIDGET_NEW(PropertyMenuAssetPicker)
 				   .initialObject(initialObject)
-				   .allowedClasses(allowClasses);
+				   .allowedClasses(allowClasses)
+				   .onAssetSelected(onSet);
 		}
 	}
 }
