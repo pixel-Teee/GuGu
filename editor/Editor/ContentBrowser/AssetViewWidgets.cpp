@@ -11,6 +11,7 @@
 #include <Core/Model/StaticMesh.h> //GStaticMesh
 #include <Core/GamePlay/Level.h> //Level
 #include <Core/Reflection/Type.h>
+#include <Core/Texture/GTexture.h>
 
 namespace GuGu {
     void GAssetViewItem::init(const BuilderArguments& arguments)
@@ -83,6 +84,15 @@ namespace GuGu {
                 else if (assetViewAsset->m_data.m_assetType.GetID() == meta::TypeIDs<Level>::ID)
                 {
 					std::shared_ptr<Brush> assetImage = EditorStyleSet::getStyleSet()->getBrush("LevelIcon");
+					itemContentsOverlay->addSlot()
+						(
+							WIDGET_NEW(ImageWidget)
+							.brush(assetImage)
+						);
+                }
+                else if (assetViewAsset->m_data.m_assetType.GetID() == meta::TypeIDs<GTexture>::ID)
+				{
+					std::shared_ptr<Brush> assetImage = EditorStyleSet::getStyleSet()->getBrush("TextureAssetIcon");
 					itemContentsOverlay->addSlot()
 						(
 							WIDGET_NEW(ImageWidget)
@@ -179,6 +189,15 @@ namespace GuGu {
 							.brush(assetImage)
 						);
                 }
+				else if (assetViewAsset->m_data.m_assetType.GetID() == meta::TypeIDs<GTexture>::ID)
+				{
+					std::shared_ptr<Brush> assetImage = EditorStyleSet::getStyleSet()->getBrush("TextureAssetIcon");
+					itemContentsOverlay->addSlot()
+						(
+							WIDGET_NEW(ImageWidget)
+							.brush(assetImage)
+						);
+				}
             }	
         }
 

@@ -58,6 +58,7 @@ namespace GuGu {
 			DEFAULT_TYPE_HANDLER(bool);
 			DEFAULT_TYPE_HANDLER(float);
 			DEFAULT_TYPE_HANDLER(double);
+			DEFAULT_TYPE_HANDLER(uint8_t);
 
 			template<typename U = T>
 			GuGuUtf8Str getString(typename std::enable_if<!std::is_arithmetic<U>::value>::type* = nullptr) const;

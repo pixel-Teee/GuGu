@@ -29,4 +29,15 @@ namespace GuGu {
 	{
 		return meta::Type(typeof(MaterialComponent));
 	}
+
+	std::shared_ptr<GuGu::AssetData> MaterialComponent::getAlbeoTextureAsset() const
+	{
+		return m_albedoTexture;
+	}
+
+	void MaterialComponent::setAlbeoTextureAsset(const std::shared_ptr<AssetData> inAssetData)
+	{
+		m_albedoTexture = inAssetData;
+	}
+
 }

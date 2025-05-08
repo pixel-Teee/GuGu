@@ -38,6 +38,7 @@ namespace GuGu {
 			REGISTER_NATIVE_TYPE_VARIANTS_W_ARRAY(float);
 			REGISTER_NATIVE_TYPE_VARIANTS_W_ARRAY(double);
 			REGISTER_NATIVE_TYPE_VARIANTS_W_ARRAY(GuGuUtf8Str);
+			REGISTER_NATIVE_TYPE_VARIANTS_W_ARRAY(uint8_t);
 
 			auto& stringType = types[typeidof(GuGuUtf8Str)];
 

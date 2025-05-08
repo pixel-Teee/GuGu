@@ -108,6 +108,7 @@ namespace GuGu {
 		DEFAULT_TYPE_HANDLER_IMPL(bool);
 		DEFAULT_TYPE_HANDLER_IMPL(float);
 		DEFAULT_TYPE_HANDLER_IMPL(double);
+		DEFAULT_TYPE_HANDLER_IMPL(uint8_t);
 
 		template<typename T>
 		template<typename U>

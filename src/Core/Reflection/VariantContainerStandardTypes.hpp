@@ -61,6 +61,7 @@ namespace GuGu{
         DECLARE_STANDARD_VARIANT(float);
         DECLARE_STANDARD_VARIANT(double);
         DECLARE_STANDARD_VARIANT(GuGuUtf8Str);
+        DECLARE_STANDARD_VARIANT(uint8_t);
 	}
 }
 

@@ -6,6 +6,8 @@
 #include <Renderer/Color.h>
 
 namespace GuGu {
+	//class GTexture;
+	struct AssetData;
 	class MaterialComponent : public Component
 	{
 	public:
@@ -19,10 +21,16 @@ namespace GuGu {
 
 		virtual meta::Type GetType() const override;
 
+		std::shared_ptr<AssetData> getAlbeoTextureAsset() const;
+
+		void setAlbeoTextureAsset(const std::shared_ptr<AssetData> inAssetData);
+
 		Color m_albedo;
 		float m_metallic;
 		float m_roughness;
 		float m_ao;
 		nvrhi::BufferHandle m_bufferHandle;
+
+		std::shared_ptr<AssetData> m_albedoTexture;
 	};
 }

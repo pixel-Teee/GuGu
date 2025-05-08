@@ -387,5 +387,58 @@ namespace GuGu {
 			return new VariantContainer<GuGuUtf8Str>(m_value);
 		}
 		#pragma endregion
+
+		#pragma region uint8_t
+		VariantContainer<uint8_t>::VariantContainer(const uint8_t& value)
+			: m_value(value) { }
+
+		VariantContainer<uint8_t>::VariantContainer(const uint8_t&& value)
+			: m_value(std::move(value)) { }
+
+		Type VariantContainer<uint8_t>::GetType(void) const
+		{
+			return typeof(uint8_t);
+		}
+
+		void* VariantContainer<uint8_t>::GetPtr(void) const
+		{
+			return const_cast<void*>(
+				reinterpret_cast<const void*>(
+					std::addressof(m_value)
+					)
+				);
+		}
+
+		int VariantContainer<uint8_t>::ToInt(void) const
+		{
+			return m_value;
+		}
+
+		bool VariantContainer<uint8_t>::ToBool(void) const
+		{
+			return m_value == 0 ? false : true;
+		}
+
+		float VariantContainer<uint8_t>::ToFloat(void) const
+		{
+			return static_cast<float>(m_value);
+		}
+
+		double VariantContainer<uint8_t>::ToDouble(void) const
+		{
+			return static_cast<double>(m_value);
+		}
+
+		GuGuUtf8Str VariantContainer<uint8_t>::ToString(void) const
+		{
+			return std::to_string(m_value);
+		}
+
+		VariantBase* VariantContainer<uint8_t>::Clone(void) const
+		{
+			return new VariantContainer<uint8_t>(m_value);
+		}
+
+		#pragma endregion
 	}
 }

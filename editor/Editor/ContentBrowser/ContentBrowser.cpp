@@ -14,6 +14,7 @@
 #include <Editor/StyleSet/EditorStyleSet.h>
 
 #include <ModelImporter/ModelImporter.h>
+#include <TextureImporter/TextureImporter.h>
 
 #include <Core/Guid.h>
 
@@ -95,6 +96,7 @@ namespace GuGu {
 		GuGuUtf8Str sourcesData = m_assetView->getSourcesData();//当前所处于的文件夹
 
 		std::shared_ptr<Button> importModelButton;
+		std::shared_ptr<Button> importTextureButton;
 		std::shared_ptr<Widget> menuContent;
 		menuContent = 
 		WIDGET_NEW(Border)
@@ -131,17 +133,41 @@ namespace GuGu {
 						)	
 					)
 				)
+				+ VerticalBox::Slot()
+				.FixedHeight()
+				(
+					WIDGET_ASSIGN_NEW(Button, importTextureButton)
+					.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+					.Content
+					(
+						WIDGET_NEW(HorizontalBox)
+						+ HorizontalBox::Slot()
+						.FixedWidth()
+						(
+							WIDGET_NEW(ImageWidget)
+							.brush(EditorStyleSet::getStyleSet()->getBrush("ImportTexture_Icon"))
+							)
+						+ HorizontalBox::Slot()
+						.setPadding(Padding(5.0f, 0.0f, 5.0f, 0.0f))
+						.FixedWidth()
+						(
+							WIDGET_NEW(TextBlockWidget)
+							.text(u8"Import Texture")
+							.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+						)
+					)
+				)
 			)
 		);
 
-		importModelButton->setOnClicked(
+		importTextureButton->setOnClicked(
 			OnClicked([=]() {
 				GuGuUtf8Str initDir = sourcesData + "/";
 				std::vector<GuGuUtf8Str> filterArray;
-				filterArray.push_back("FBX(*.fbx)\0");
-				filterArray.push_back("*.fbx\0");
-				filterArray.push_back("OBJ(*.obj)\0");
-				filterArray.push_back("*.obj\0");
+				filterArray.push_back("JPG(*.jpg)\0");
+				filterArray.push_back("*.jpg\0");
+				filterArray.push_back("PNG(*.png)\0");
+				filterArray.push_back("*.png\0");
 				initDir = sourcesData.substr(initDir.findFirstOf("/"));
 				initDir = AssetManager::getAssetManager().getActualPhysicalPath(initDir);
 				GuGuUtf8Str fileName;
@@ -150,12 +176,12 @@ namespace GuGu {
 
 				if (fileName != "")
 				{
-					//import model
-					ModelImporter modelImporter;
-					nlohmann::json modelJson = modelImporter.loadModel(filePath);
+					//import texture
+					TextureImporter textureImporter;
+					nlohmann::json textureJson = textureImporter.loadTexture(filePath);
 					GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
-					modelJson["GUID"] = guidStr.getStr();
-					GuGuUtf8Str fileContent = modelJson.dump();
+					textureJson["GUID"] = guidStr.getStr();
+					GuGuUtf8Str fileContent = textureJson.dump();
 
 					GuGuUtf8Str noFileExtensionsFileName = fileName;
 					int32_t dotPos = noFileExtensionsFileName.findLastOf(".");
@@ -172,7 +198,7 @@ namespace GuGu {
 					//}					
 					GuGuUtf8Str outputFilePath = sourcesData + "/" + noFileExtensionsFileName + ".json";
 
-					AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GStaticMesh>().ID));
+					AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GTexture>().ID));
 					//输出到目录
 					AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
 					AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());

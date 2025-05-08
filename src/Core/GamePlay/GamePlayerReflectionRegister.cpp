@@ -7,6 +7,7 @@
 #include <Core/Reflection/Array.h>
 
 #include <Core/Model/StaticMesh.h>
+#include <Core/Texture/GTexture.h>
 #include <Core/GamePlay/Level.h>
 #include <Core/GamePlay/TransformComponent.h>
 #include <Core/GamePlay/StaticMeshComponent.h>
@@ -520,6 +521,10 @@ namespace GuGu {
 					(meta::FieldGetter<MaterialComponent, float, false>::Signature)& MaterialComponent::m_ao,
 					(meta::FieldSetter<MaterialComponent, float, false>::Signature)& MaterialComponent::m_ao);
 
+				type.AddField<MaterialComponent, std::shared_ptr<AssetData>>("m_albedoTexture",
+					(meta::FieldGetter<MaterialComponent, std::shared_ptr<AssetData>, true>::Signature)& MaterialComponent::getAlbeoTextureAsset,
+					(meta::FieldSetter<MaterialComponent, std::shared_ptr<AssetData>, true>::Signature)& MaterialComponent::setAlbeoTextureAsset);
+
 				type.AddField<MaterialComponent, std::weak_ptr<GameObject>>("m_owner",
 					(meta::FieldGetter<MaterialComponent, std::weak_ptr<GameObject>&, true>::Signature)& MaterialComponent::getParentGameObject,
 					(meta::FieldSetter<MaterialComponent, std::weak_ptr<GameObject>&, true>::Signature)& MaterialComponent::setParentGameObject);
@@ -650,6 +655,69 @@ namespace GuGu {
 				auto id = db.AllocateType("GStaticMeshWeakPtr");
 				auto& type = db.types[id];
 				meta::TypeInfo<std::weak_ptr<GStaticMesh>>::Register(id, type, false);
+			}
+		}
+
+		{
+			auto id = db.AllocateType("GTexture");
+			auto& type = db.types[id];
+			meta::TypeInfo<GTexture>::Register(id, type, true);
+
+			auto typeID = typeidof(GTexture);
+			if (typeID != meta::InvalidTypeID && !meta::TypeInfo<GTexture>::Defined)
+			{
+				auto& type = db.types[typeID];
+
+				//array constructor
+				type.SetArrayConstructor<GTexture>();
+
+				type.AddConstructor<GTexture, false, false>();
+
+				type.AddConstructor<GTexture, true, true>();
+
+				type.LoadBaseClasses(db, id, { typeof(meta::Object) });
+
+				type.AddField<GTexture, Array<uint8_t>>("m_data",
+					(meta::FieldGetter<GTexture, Array<uint8_t>, false>::Signature)& GTexture::m_data,
+					(meta::FieldSetter<GTexture, Array<uint8_t>, false>::Signature)& GTexture::m_data);
+				type.AddField<GTexture, uint32_t>("m_format",
+					(meta::FieldGetter<GTexture, uint32_t, false>::Signature)& GTexture::m_format,
+					(meta::FieldSetter<GTexture, uint32_t, false>::Signature)& GTexture::m_format);
+				type.AddField<GTexture, uint32_t>("m_width",
+					(meta::FieldGetter<GTexture, uint32_t, false>::Signature)& GTexture::m_width,
+					(meta::FieldSetter<GTexture, uint32_t, false>::Signature)& GTexture::m_width);
+				type.AddField<GTexture, uint32_t>("m_height",
+					(meta::FieldGetter<GTexture, uint32_t, false>::Signature)& GTexture::m_height,
+					(meta::FieldSetter<GTexture, uint32_t, false>::Signature)& GTexture::m_height);
+				type.AddField<GTexture, uint32_t>("m_format",
+					(meta::FieldGetter<GTexture, uint32_t, false>::Signature)& GTexture::m_depth,
+					(meta::FieldSetter<GTexture, uint32_t, false>::Signature)& GTexture::m_depth);
+				type.AddField<GTexture, uint32_t>("m_arraySize",
+					(meta::FieldGetter<GTexture, uint32_t, false>::Signature)& GTexture::m_arraySize,
+					(meta::FieldSetter<GTexture, uint32_t, false>::Signature)& GTexture::m_arraySize);
+				type.AddField<GTexture, uint32_t>("m_dimension",
+					(meta::FieldGetter<GTexture, uint32_t, false>::Signature) & GTexture::m_dimension,
+					(meta::FieldSetter<GTexture, uint32_t, false>::Signature) & GTexture::m_dimension);
+				type.AddField<GTexture, uint32_t>("m_arraySize",
+					(meta::FieldGetter<GTexture, uint32_t, false>::Signature)& GTexture::m_mipLevels,
+					(meta::FieldSetter<GTexture, uint32_t, false>::Signature)& GTexture::m_mipLevels);
+				type.AddField<GTexture, uint32_t>("m_originalBitsPerPixel",
+					(meta::FieldGetter<GTexture, uint32_t, false>::Signature)& GTexture::m_originalBitsPerPixel,
+					(meta::FieldSetter<GTexture, uint32_t, false>::Signature)& GTexture::m_originalBitsPerPixel);
+
+				meta::TypeInfo<GTexture>::Defined = true;
+			}
+
+			{
+				auto id = db.AllocateType("GTexturePtr");
+				auto& type = db.types[id];
+				meta::TypeInfo<std::shared_ptr<GTexture>>::Register(id, type, false);
+			}
+
+			{
+				auto id = db.AllocateType("GTextureWeakPtr");
+				auto& type = db.types[id];
+				meta::TypeInfo<std::weak_ptr<GTexture>>::Register(id, type, false);
 			}
 		}
 	}

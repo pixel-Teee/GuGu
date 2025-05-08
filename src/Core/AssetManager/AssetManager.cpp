@@ -14,6 +14,7 @@
 #include <Core/Reflection/ReflectionDatabase.h>
 #include <Core/GamePlay/TransformComponent.h>
 #include <Core/Model/StaticMesh.h>
+#include <Core/Texture/GTexture.h>
 
 namespace GuGu {
 	AssetManager::AssetManager()
@@ -331,7 +332,7 @@ namespace GuGu {
 		//number, or non-associative enum
 		if (type.IsPrimitive()) //todo:add get property serialize as number
 		{
-			if (type.IsFloatingPoint() || !type.IsSigned())
+			if (type.IsFloatingPoint())
 			{
 				return instance.ToDouble();
 			}
@@ -764,10 +765,19 @@ namespace GuGu {
 					int32_t numberBytesHavedReaded = 0;
 					AssetManager::getAssetManager().getRootFileSystem()->ReadFile((void*)fileContent, fileSize, numberBytesHavedReaded);
 					AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
-					GuGuUtf8Str modelJson(fileContent);
-					//load asset
-					std::shared_ptr<meta::Object> loadedObject = AssetManager::getAssetManager().deserializeJson<GStaticMesh>(nlohmann::json::parse(modelJson.getStr()));
-					item.second->m_loadedResource = loadedObject;
+					GuGuUtf8Str json(fileContent);
+					if (item.second->m_assetType == typeof(GStaticMesh))
+					{
+						//load asset
+						std::shared_ptr<meta::Object> loadedObject = AssetManager::getAssetManager().deserializeJson<GStaticMesh>(nlohmann::json::parse(json.getStr()));
+						item.second->m_loadedResource = loadedObject;
+					}
+					else if(item.second->m_assetType == typeof(GTexture))
+					{
+						//load asset
+						std::shared_ptr<meta::Object> loadedObject = AssetManager::getAssetManager().deserializeJson<GTexture>(nlohmann::json::parse(json.getStr()));
+						item.second->m_loadedResource = loadedObject;
+					}
 					//AssetManager::getAssetManager().deserializeJson(nlohmann::json::parse(modelJson.getStr()))
 
 					delete[] fileContent;
