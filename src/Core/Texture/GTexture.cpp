@@ -12,7 +12,7 @@ namespace GuGu {
 		m_arraySize = 1;
 		m_mipLevels = 1;
 		m_dimension = static_cast<uint32_t>(nvrhi::TextureDimension::Unknown);
-		m_originalBitsPerPixel = 0;
+		m_bytesPerPixel = 0;
 	}
 	GTexture::~GTexture()
 	{
@@ -23,8 +23,8 @@ namespace GuGu {
 		this->m_dataLayout.resize(1);
 		this->m_dataLayout[0].resize(1);
 		this->m_dataLayout[0][0].dataOffset = 0;
-		this->m_dataLayout[0][0].rowPitch = static_cast<size_t>(m_width * m_originalBitsPerPixel);
-		this->m_dataLayout[0][0].dataSize = static_cast<size_t>(m_width * m_height * m_originalBitsPerPixel);
+		this->m_dataLayout[0][0].rowPitch = static_cast<size_t>(m_width * m_bytesPerPixel);
+		this->m_dataLayout[0][0].dataSize = static_cast<size_t>(m_width * m_height * m_bytesPerPixel);
 	}
 
 	void GTexture::Update(float fElapsedTimeSeconds)
@@ -48,7 +48,7 @@ namespace GuGu {
 		texture->m_dimension = m_dimension;
 		texture->m_mipLevels = m_mipLevels;
 		texture->m_data = m_data;
-		texture->m_originalBitsPerPixel = m_originalBitsPerPixel;
+		texture->m_bytesPerPixel = m_bytesPerPixel;
 		texture->m_dataLayout = m_dataLayout;
 		return texture;
 	}
@@ -63,7 +63,7 @@ namespace GuGu {
 		output["arraySize"] = m_arraySize;
 		output["dimension"] = m_dimension;
 		output["mipLevels"] = m_mipLevels;
-		output["originalBitsPerPixel"] = m_originalBitsPerPixel;
+		output["bytesPerPixel"] = m_bytesPerPixel;
 		output["data"] = nlohmann::json::array();
 		for (size_t i = 0; i < m_data.size(); ++i)
 		{
@@ -80,7 +80,7 @@ namespace GuGu {
 		m_arraySize = input["arraySize"];
 		m_dimension = input["dimension"];
 		m_mipLevels = input["mipLevels"];
-		m_originalBitsPerPixel = input["originalBitsPerPixel"];
+		m_bytesPerPixel = input["bytesPerPixel"];
 		nlohmann::json textureData = input["data"];
 		m_data.resize(textureData.size());
 		for (int32_t i = 0; i < textureData.size(); ++i)

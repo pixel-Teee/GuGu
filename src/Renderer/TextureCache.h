@@ -69,6 +69,7 @@ namespace GuGu{
         void FinalizeTexture(std::shared_ptr<GTexture> gTexture, CommonRenderPasses* passes, nvrhi::ICommandList* commandList);
     public:
         TextureCache(nvrhi::IDevice* device, std::shared_ptr<FileSystem> fileSysem);
+        TextureCache();
         virtual ~TextureCache();
 
         std::shared_ptr<LoadedTexture> LoadTextureFromFile(const GuGuUtf8Str& path, bool sRGB, CommonRenderPasses* passes, nvrhi::ICommandList* commandList);

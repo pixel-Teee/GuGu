@@ -88,6 +88,8 @@ namespace GuGu {
 
 		GGuid getGuid(std::shared_ptr<AssetData> inAssetData);
 
+		GGuid getGuid(const GuGuUtf8Str& filePath, meta::Type assetType);
+
 		std::shared_ptr<AssetData> loadAsset(GGuid guid);
 	private:
 		//遍历目录和文件

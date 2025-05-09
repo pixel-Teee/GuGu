@@ -1,6 +1,8 @@
 #include <pch.h>
 
 #include "MaterialComponent.h"
+#include <Core/AssetManager/AssetManager.h>
+#include <Core/Texture/GTexture.h>
 
 namespace GuGu {
 	MaterialComponent::MaterialComponent()
@@ -9,6 +11,10 @@ namespace GuGu {
 		m_metallic = 0.05f;
 		m_roughness = 0.1f;
 		m_ao = 0.0f;
+
+		GuGuUtf8Str noFileExtensionsFileName = "white";
+		GuGuUtf8Str outputFilePath = "content/" + noFileExtensionsFileName + ".json";
+		m_albedoTexture = AssetManager::getAssetManager().loadAsset(AssetManager::getAssetManager().getGuid(outputFilePath, typeof(GTexture)));
 	}
 	MaterialComponent::~MaterialComponent()
 	{
@@ -20,6 +26,7 @@ namespace GuGu {
 		materialComponent->m_metallic = m_metallic;
 		materialComponent->m_roughness = m_roughness;
 		materialComponent->m_ao = m_ao;
+		materialComponent->m_albedoTexture = m_albedoTexture;
 		return materialComponent;
 	}
 	void MaterialComponent::Update(float fElapsedTimeSeconds)
@@ -38,6 +45,11 @@ namespace GuGu {
 	void MaterialComponent::setAlbeoTextureAsset(const std::shared_ptr<AssetData> inAssetData)
 	{
 		m_albedoTexture = inAssetData;
+	}
+
+	std::shared_ptr<GTexture> MaterialComponent::getAlbedoTexture() const
+	{
+		return std::static_pointer_cast<GTexture>(m_albedoTexture->m_loadedResource);
 	}
 
 }

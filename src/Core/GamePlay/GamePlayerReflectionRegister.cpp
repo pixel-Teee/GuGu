@@ -689,7 +689,7 @@ namespace GuGu {
 				type.AddField<GTexture, uint32_t>("m_height",
 					(meta::FieldGetter<GTexture, uint32_t, false>::Signature)& GTexture::m_height,
 					(meta::FieldSetter<GTexture, uint32_t, false>::Signature)& GTexture::m_height);
-				type.AddField<GTexture, uint32_t>("m_format",
+				type.AddField<GTexture, uint32_t>("m_depth",
 					(meta::FieldGetter<GTexture, uint32_t, false>::Signature)& GTexture::m_depth,
 					(meta::FieldSetter<GTexture, uint32_t, false>::Signature)& GTexture::m_depth);
 				type.AddField<GTexture, uint32_t>("m_arraySize",
@@ -701,9 +701,9 @@ namespace GuGu {
 				type.AddField<GTexture, uint32_t>("m_arraySize",
 					(meta::FieldGetter<GTexture, uint32_t, false>::Signature)& GTexture::m_mipLevels,
 					(meta::FieldSetter<GTexture, uint32_t, false>::Signature)& GTexture::m_mipLevels);
-				type.AddField<GTexture, uint32_t>("m_originalBitsPerPixel",
-					(meta::FieldGetter<GTexture, uint32_t, false>::Signature)& GTexture::m_originalBitsPerPixel,
-					(meta::FieldSetter<GTexture, uint32_t, false>::Signature)& GTexture::m_originalBitsPerPixel);
+				type.AddField<GTexture, uint32_t>("m_bytesPerPixel",
+					(meta::FieldGetter<GTexture, uint32_t, false>::Signature)& GTexture::m_bytesPerPixel,
+					(meta::FieldSetter<GTexture, uint32_t, false>::Signature)& GTexture::m_bytesPerPixel);
 
 				meta::TypeInfo<GTexture>::Defined = true;
 			}

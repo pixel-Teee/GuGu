@@ -56,6 +56,39 @@ namespace GuGu {
 			uint32_t assetTypeId = item.at("AssetType").get<uint32_t>();
 			m_guidToAssetMap.insert({ key, std::make_shared<AssetData>(filePath, fileName, meta::Type(assetTypeId))});
 		}
+
+		//查看资产记录表里面有没有白色贴图，如果没有，生成一张默认的白色贴图
+#if WIN32
+		{
+			GuGuUtf8Str noFileExtensionsFileName = "white";
+			GuGuUtf8Str outputFilePath = "content/" + noFileExtensionsFileName + ".json";
+			if (isInAssetRegistry(outputFilePath) == false)
+			{
+				std::shared_ptr<GTexture> whiteTexture = std::make_shared<GTexture>();
+				whiteTexture->m_width = 1;
+				whiteTexture->m_height = 1;
+				whiteTexture->m_mipLevels = 1;
+				whiteTexture->m_bytesPerPixel = 4 * 8;
+				whiteTexture->m_dimension = static_cast<uint32_t>(nvrhi::TextureDimension::Texture2D);
+				whiteTexture->m_data.resize(1 * 1 * 4);
+				whiteTexture->m_data[0] = 255;
+				whiteTexture->m_data[1] = 255;
+				whiteTexture->m_data[2] = 255;
+				whiteTexture->m_data[3] = 1; //(255, 255, 255, 1)
+				whiteTexture->m_format = static_cast<uint32_t>(nvrhi::Format::RGBA8_UNORM);
+
+				nlohmann::json whiteTextureJson = serializeJson(whiteTexture);
+				GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
+				whiteTextureJson["GUID"] = guidStr.getStr();
+				GuGuUtf8Str fileContent = whiteTextureJson.dump();
+
+				registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GTexture>().ID));
+				getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
+				getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
+				getRootFileSystem()->CloseFile();
+			}
+		}
+#endif
 	}
 	AssetManager::~AssetManager()
 	{
@@ -450,6 +483,8 @@ namespace GuGu {
 				return { static_cast<float>(value.get<float>()) };
 			else if (type == typeof(double))
 				return { value.get<double>() };
+			else if (type == typeof(uint8_t))
+				return { value.get<uint8_t>() };
 		}
 		else if (type.IsEnum())
 		{
@@ -744,6 +779,16 @@ namespace GuGu {
 		for (const auto& item : m_guidToAssetMap)
 		{
 			if (item.second->m_filePath == inAssetData->m_filePath)
+				return item.first;
+		}
+		return GGuid();//nothing
+	}
+
+	GGuid AssetManager::getGuid(const GuGuUtf8Str& filePath, meta::Type assetType)
+	{
+		for (const auto& item : m_guidToAssetMap)
+		{
+			if (item.second->m_filePath == filePath && item.second->m_assetType == assetType)
 				return item.first;
 		}
 		return GGuid();//nothing

@@ -37,7 +37,7 @@ namespace GuGu {
 		uint32_t m_arraySize;
 		uint32_t m_dimension;
 		uint32_t m_mipLevels;
-		uint32_t m_originalBitsPerPixel = 0;
+		uint32_t m_bytesPerPixel = 0;
 		std::vector<std::vector<TextureSubresourceData>> m_dataLayout;
 		//GuGuUtf8Str m_debugName;
 		Array<uint8_t> m_data;

@@ -5,6 +5,7 @@
 #include <Core/UI/UIData.h>
 #include <Core/UI/BasicElement.h>
 #include <Core/Model/GeometryHelper.h>
+#include "TextureCache.h"
 
 namespace GuGu {
 	class BindingCache;
@@ -29,6 +30,7 @@ namespace GuGu {
 		nvrhi::BufferHandle m_skinnedMatrix;
 		bool m_isSkinned = false;
 		nvrhi::BufferHandle m_pbrMaterial;
+		nvrhi::TextureHandle m_albedoTexture;
 		GStaticMesh* m_staticMesh;
 	};
 	//struct UIData;
@@ -64,6 +66,7 @@ namespace GuGu {
 		std::shared_ptr<RootFileSystem> m_rootFileSystem;
 
 		nvrhi::CommandListHandle m_CommandList;
+		TextureCache m_textureCache;
 
 		std::shared_ptr<BufferGroup> m_buffers;
 		std::shared_ptr<MeshInfo> m_meshInfo;

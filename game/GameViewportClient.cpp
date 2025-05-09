@@ -168,7 +168,7 @@ namespace GuGu {
 		.ScreenPosition(math::float2(0.0f, 0.0f));
 
 		AssetData assetData;
-		assetData.m_filePath = "content/level2.json";
+		assetData.m_filePath = "content/level1.json";
 		assetData.m_fileName = "level1";
 		assetData.m_assetType = typeof(Level);
 		World::getWorld()->loadLevel(assetData);

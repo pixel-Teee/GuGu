@@ -29,6 +29,7 @@
 #include <Core/GamePlay/CameraComponent.h>
 #include <Core/Model/StaticMesh.h>
 #include <Core/GamePlay/ViewportClient.h>
+#include <Core/Texture/GTexture.h>
 
 namespace GuGu {
 	inline void AppendBufferRange(nvrhi::BufferRange& range, size_t size, uint64_t& currentBufferSize)
@@ -635,10 +636,10 @@ namespace GuGu {
 
 		m_SkinnedBindingLayout = GetDevice()->createBindingLayout(layoutDesc);
 
-		TextureCache textureCache(GetDevice(), m_rootFileSystem);
+		m_textureCache = TextureCache(GetDevice(), m_rootFileSystem);
 		//todo:load texture
 		GuGuUtf8Str textureFileName = u8"asset/fun.jpg";
-		std::shared_ptr <LoadedTexture> texture = textureCache.LoadTextureFromFile(
+		std::shared_ptr <LoadedTexture> texture = m_textureCache.LoadTextureFromFile(
 			textureFileName, true, nullptr, m_CommandList);
 		m_Texture = texture->texture;
 
@@ -1058,12 +1059,16 @@ namespace GuGu {
 						.setInitialState(
 							nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
 								true));
-					PbrMaterial pbrMaterial;
-					pbrMaterial.albedo = materialComponent->m_albedo;
-					pbrMaterial.metallic = materialComponent->m_metallic;;
-					pbrMaterial.roughness = materialComponent->m_roughness;
-					pbrMaterial.ao = materialComponent->m_ao;
-					m_CommandList->writeBuffer(materialComponent->m_bufferHandle, &pbrMaterial, sizeof(pbrMaterial));
+				}
+				PbrMaterial pbrMaterial;
+				pbrMaterial.albedo = materialComponent->m_albedo;
+				pbrMaterial.metallic = materialComponent->m_metallic;;
+				pbrMaterial.roughness = materialComponent->m_roughness;
+				pbrMaterial.ao = materialComponent->m_ao;
+				m_CommandList->writeBuffer(materialComponent->m_bufferHandle, &pbrMaterial, sizeof(pbrMaterial));
+				if (materialComponent->getAlbedoTexture()->m_texture == nullptr)
+				{
+					m_textureCache.FinalizeTexture(materialComponent->getAlbedoTexture(), m_commonRenderPass.get(), m_CommandList);
 				}
 
 				if (lightCount < m_maxLightCounts)
@@ -1081,6 +1086,7 @@ namespace GuGu {
 				drawItem.meshGeometry = m_meshInfo->geometries[0].get();
 				drawItem.m_worldMatrix = m_ConstantBuffers[i];
 				drawItem.m_pbrMaterial = materialComponent->m_bufferHandle;
+				drawItem.m_albedoTexture = materialComponent->getAlbedoTexture()->m_texture;
 				drawItem.m_isSkinned = false;
 				m_drawItems.push_back(drawItem);
 
@@ -1136,7 +1142,7 @@ namespace GuGu {
 						nvrhi::BindingSetItem::ConstantBuffer(2, m_drawItems[i].m_pbrMaterial),
 						nvrhi::BindingSetItem::ConstantBuffer(3, m_LightBuffers),
 						nvrhi::BindingSetItem::ConstantBuffer(4, m_PassBuffers),
-						nvrhi::BindingSetItem::Texture_SRV(0, m_commonRenderPass->m_whiteTexture),
+						nvrhi::BindingSetItem::Texture_SRV(0, m_drawItems[i].m_albedoTexture),
 						nvrhi::BindingSetItem::Sampler(0, m_pointWrapSampler)
 					};
 					bindingSet = GetDevice()->createBindingSet(desc, m_BindingLayout);
@@ -1149,7 +1155,7 @@ namespace GuGu {
 						nvrhi::BindingSetItem::ConstantBuffer(2, m_drawItems[i].m_pbrMaterial),
 						nvrhi::BindingSetItem::ConstantBuffer(3, m_LightBuffers),
 						nvrhi::BindingSetItem::ConstantBuffer(4, m_PassBuffers),
-						nvrhi::BindingSetItem::Texture_SRV(0, m_commonRenderPass->m_whiteTexture),
+						nvrhi::BindingSetItem::Texture_SRV(0, m_drawItems[i].m_albedoTexture),
 						nvrhi::BindingSetItem::Sampler(0, m_pointWrapSampler)
 					};
 					bindingSet = GetDevice()->createBindingSet(desc, m_SkinnedBindingLayout);
@@ -1306,7 +1312,10 @@ namespace GuGu {
 			pbrMaterial.roughness = materialComponent->m_roughness;
 			pbrMaterial.ao = materialComponent->m_ao;
 			m_CommandList->writeBuffer(materialComponent->m_bufferHandle, &pbrMaterial, sizeof(pbrMaterial));
-
+			if (materialComponent->getAlbedoTexture()->m_texture == nullptr)
+			{
+				m_textureCache.FinalizeTexture(materialComponent->getAlbedoTexture(), m_commonRenderPass.get(), m_CommandList);
+			}
 			if (lightCount < m_maxLightCounts)
 			{
 				light.lightPositions[lightCount] = lightComponent->m_lightPosition;
@@ -1322,6 +1331,7 @@ namespace GuGu {
 			drawItem.meshGeometry = m_meshInfo->geometries[0].get();
 			drawItem.m_worldMatrix = m_ConstantBuffers[i];
 			drawItem.m_pbrMaterial = materialComponent->m_bufferHandle;
+			drawItem.m_albedoTexture = materialComponent->getAlbedoTexture()->m_texture;
 			drawItem.m_isSkinned = false;
 			m_drawItems.push_back(drawItem);
 
@@ -1377,7 +1387,8 @@ namespace GuGu {
 					nvrhi::BindingSetItem::ConstantBuffer(2, m_drawItems[i].m_pbrMaterial),
 					nvrhi::BindingSetItem::ConstantBuffer(3, m_LightBuffers),
 					nvrhi::BindingSetItem::ConstantBuffer(4, m_PassBuffers),
-					nvrhi::BindingSetItem::Texture_SRV(0, m_commonRenderPass->m_whiteTexture),
+					//nvrhi::BindingSetItem::Texture_SRV(0, m_commonRenderPass->m_whiteTexture),
+					nvrhi::BindingSetItem::Texture_SRV(0, m_drawItems[i].m_albedoTexture),
 					nvrhi::BindingSetItem::Sampler(0, m_pointWrapSampler)
 				};
 				bindingSet = GetDevice()->createBindingSet(desc, m_BindingLayout);
@@ -1390,7 +1401,8 @@ namespace GuGu {
 					nvrhi::BindingSetItem::ConstantBuffer(2, m_drawItems[i].m_pbrMaterial),
 					nvrhi::BindingSetItem::ConstantBuffer(3, m_LightBuffers),
 					nvrhi::BindingSetItem::ConstantBuffer(4, m_PassBuffers),
-					nvrhi::BindingSetItem::Texture_SRV(0, m_commonRenderPass->m_whiteTexture),
+					//nvrhi::BindingSetItem::Texture_SRV(0, m_commonRenderPass->m_whiteTexture),
+					nvrhi::BindingSetItem::Texture_SRV(0, m_drawItems[i].m_albedoTexture),
 					nvrhi::BindingSetItem::Sampler(0, m_pointWrapSampler)
 				};
 				bindingSet = GetDevice()->createBindingSet(desc, m_SkinnedBindingLayout);

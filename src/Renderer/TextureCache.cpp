@@ -20,7 +20,12 @@ namespace GuGu{
 
     }
 
-    TextureCache::~TextureCache() {
+	TextureCache::TextureCache()
+	{
+        //nothing
+	}
+
+	TextureCache::~TextureCache() {
         //todo:add reset
     }
 

@@ -87,7 +87,7 @@ namespace GuGu {
 		m_currentLoadTexture->m_width = static_cast<uint32_t>(width);
 		m_currentLoadTexture->m_height = static_cast<uint32_t>(height);
 		m_currentLoadTexture->m_mipLevels = 1;
-		m_currentLoadTexture->m_originalBitsPerPixel = static_cast<uint32_t>(originalChannels) * (is_hdr ? 32 : 8);
+		m_currentLoadTexture->m_bytesPerPixel = bytesPerPixel;
 		m_currentLoadTexture->m_dimension = static_cast<uint32_t>(nvrhi::TextureDimension::Texture2D);
 		m_currentLoadTexture->m_data.resize(width * height * bytesPerPixel);
 		memcpy(m_currentLoadTexture->m_data.data(), bitmap, width * height * bytesPerPixel);
