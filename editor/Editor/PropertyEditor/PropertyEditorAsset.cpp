@@ -12,6 +12,8 @@
 #include <Core/UI/ImageWidget.h>
 #include <Core/UI/Box.h>
 
+#include <Editor/StyleSet/EditorStyleSet.h>
+
 namespace GuGu {
 
 	bool PropertyEditorAsset::supports(const std::shared_ptr<PropertyEditor>& inPropertyEditor)
@@ -54,6 +56,7 @@ namespace GuGu {
 
 		m_assetComboButton = WIDGET_NEW(ComboButton)
 		.onGetMenuContent(this, &PropertyEditorAsset::onGetMenuContent)
+		//.method(std::optional<PopupMethod>(PopupMethod::CreateNewWindow))
 		.buttonContent
 		(
 			WIDGET_NEW(HorizontalBox)
@@ -71,6 +74,7 @@ namespace GuGu {
 			(
 				WIDGET_NEW(TextBlockWidget)
 				.text(this, &PropertyEditorAsset::onGetAssetName)
+				.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
 			)
 		);
 
@@ -127,7 +131,16 @@ namespace GuGu {
 
 	GuGuUtf8Str PropertyEditorAsset::onGetAssetName() const
 	{
-		return u8"kksk";
+		AssetData assetData;
+		getValue(assetData);
+		
+		GuGuUtf8Str baseName = assetData.m_fileName;
+		if (baseName.findLastOf(".") != -1)
+		{
+			baseName = baseName.substr(0, baseName.findLastOf("."));
+		}
+
+		return baseName;
 	}
 
 	void PropertyEditorAsset::getFixedWidth(float& outMinFixedWidth, float& outMaxFixedWidth)
@@ -138,8 +151,13 @@ namespace GuGu {
 
 	PropertyAccess::Result PropertyEditorAsset::getValue(AssetData& outValue) const
 	{
+		PropertyAccess::Result result = PropertyAccess::Result::Fail;
 		//获取资产路径
-		return PropertyAccess::Result::Success;
+		if (m_propertyEditor)
+		{
+			result = m_propertyEditor->getPropertyHandle()->getValue(outValue);
+		}
+		return result;
 	}
 
 	void PropertyEditorAsset::onAssetSelected(const AssetData& assetData)

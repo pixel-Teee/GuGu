@@ -124,6 +124,11 @@ namespace GuGu {
 
 		m_widgetClipping = arguments.mClip;
 		m_visibilityAttribute = arguments.mVisibility;
+
+		//if (m_method == PopupMethod::CreateNewWindow)
+		//{
+		//		m_bUseApplicationMenuStack = true;
+		//}
 	}
 	uint32_t MenuAnchor::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{
