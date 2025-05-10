@@ -331,6 +331,22 @@ namespace GuGu {
 						{
 							//打开pop-up
 							std::shared_ptr<IMenu> newMenu = Application::getApplication()->pushMenu(shared_from_this(), myWidgetPath, menuContent, newPosition, bFocusMenu, newWindowSize, m_methodInUse.getPopupMethod(), m_bIsCollapsedByParent);
+
+							if (newMenu->getOwnedWindow())
+							{
+								m_popUpMenuPtr = newMenu;
+								//todo:添加回调
+								m_popupWindowPtr = newMenu->getOwnedWindow();
+							}
+							else
+							{
+								if (std::shared_ptr<IMenu> pinned = m_popUpMenuPtr.lock())
+								{
+									pinned->dismiss();
+								}
+
+								resetPopupMenuContent();
+							}
 						}
 					}
 					else
@@ -365,9 +381,9 @@ namespace GuGu {
 			else
 			{
 				//close pop up
-				if (m_popUpMenuPtr.expired() != 0)
+				if (m_popUpMenuPtr.lock())
 				{
-					//m_popUpMenuPtr.lock()->dismiss();
+					m_popUpMenuPtr.lock()->dismiss();
 				}
 
 				resetPopupMenuContent();//重置菜单
