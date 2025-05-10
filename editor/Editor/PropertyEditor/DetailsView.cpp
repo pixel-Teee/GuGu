@@ -20,6 +20,7 @@ namespace GuGu {
 
 		verticalBox->addSlot()
 		.StretchHeight(1)
+		//.FixedHeight()
 		.setPadding(Padding(10, 10, 10, 10))
 		(
 			WIDGET_NEW(Overlay)
@@ -27,6 +28,7 @@ namespace GuGu {
 			(
 				WIDGET_NEW(Border) //背景
 				.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("beige5"))
+				.verticalAlignment(VerticalAlignment::Stretch)
 				.Content
 				(
 					constructTreeView()
@@ -143,6 +145,7 @@ namespace GuGu {
 	std::shared_ptr<DetailTree> DetailsView::constructTreeView()
 	{
 		return WIDGET_ASSIGN_NEW(DetailTree, m_detailTree)
+			   .visibility(Visibility::Visible)
 			   .treeItemSource(&m_rootTreeNodes)
 			   .onGenerateRow(this, &DetailsView::onGenerateRowForDetailTree)
 			   .onGetChildren(this, &DetailsView::onGetChildrenForDetailTree);

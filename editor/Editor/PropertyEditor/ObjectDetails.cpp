@@ -13,8 +13,8 @@ namespace GuGu {
 		std::shared_ptr<DetailsView> detailsView = WIDGET_NEW(DetailsView);
 
 		m_detailsView = detailsView;
-
 		m_childWidget->m_childWidget = detailsView;
+		m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 	}
 
 	ObjectDetails::~ObjectDetails()

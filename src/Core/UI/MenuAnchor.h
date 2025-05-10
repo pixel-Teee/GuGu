@@ -28,7 +28,7 @@ namespace GuGu {
 				, mplacement(MenuPlacementBelowAnchor)
 				, mfitInWindow(true)
 				, mshouldDeferPaintingAfterWindowContent(false)//todo:这个暂时改为false，后续改为true，延迟绘制的能力还没添加
-				, museApplicationMenuStack(false)//todo:这个暂时改为false，后续改为true，
+				, museApplicationMenuStack(true)//todo:这个暂时改为false，后续改为true，
 				, misCollapsedByParent(false)
 				, mapplyWidgetStyleToMenu(true)
 			{}

@@ -56,7 +56,7 @@ namespace GuGu {
 
 		m_assetComboButton = WIDGET_NEW(ComboButton)
 		.onGetMenuContent(this, &PropertyEditorAsset::onGetMenuContent)
-		//.method(std::optional<PopupMethod>(PopupMethod::CreateNewWindow))
+		.method(std::optional<PopupMethod>(PopupMethod::CreateNewWindow))
 		.buttonContent
 		(
 			WIDGET_NEW(HorizontalBox)

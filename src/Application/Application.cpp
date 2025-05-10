@@ -464,7 +464,13 @@ namespace GuGu{
 		{		
 			//for (int32_t j = i; j < widgets.size(); ++j)
 			//	m_focusWidgetsPath.push_back(widgets[j]);
-			setFocus(requestedFocusRecepient, widgetPath);
+
+			WidgetPath pathToWidget;
+			const bool bFound = findPathToWidget(m_windowWidgets, requestedFocusRecepient, pathToWidget);
+			if (bFound)
+			{
+				setFocus(requestedFocusRecepient, pathToWidget);
+			}	
 		}
 	}
 
