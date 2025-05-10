@@ -152,6 +152,11 @@ namespace GuGu {
 			return gDatabase.types[m_id].baseClasses;
 		}
 
+		const Type::Set& Type::GetDerivedClasses() const
+		{
+			return gDatabase.types[m_id].derivedClasses;
+		}
+
 		Type Type::GetDecayedType(void) const
 		{
 			GuGu_LOGD("Type::GetDecayedType() not implemented");

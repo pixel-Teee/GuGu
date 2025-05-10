@@ -57,7 +57,7 @@ namespace GuGu {
 
 	void GameObject::addComponent(std::shared_ptr<Component> inComponent)
 	{
-		inComponent->setParentGameObject(shared_from_this());
+		inComponent->setParentGameObject(std::static_pointer_cast<GameObject>(shared_from_this()));
 		m_components.push_back(inComponent);
 	}
 	void GameObject::setComponents(const Array<std::shared_ptr<Component>>& components)
@@ -95,7 +95,7 @@ namespace GuGu {
 		m_childrens = childrens;
 		for (const auto& children : m_childrens)
 		{
-			children->setParentGameObject(shared_from_this());
+			children->setParentGameObject(std::static_pointer_cast<GameObject>(shared_from_this()));
 		}
 	}
 

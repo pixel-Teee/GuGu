@@ -84,6 +84,8 @@ namespace GuGu {
 
 			const Set& GetBaseClasses() const;
 
+			const Set& GetDerivedClasses() const;
+
 			Type GetDecayedType(void) const;
 
 			Type GetArrayType(void) const;
