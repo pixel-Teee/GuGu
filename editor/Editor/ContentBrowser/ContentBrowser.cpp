@@ -59,9 +59,15 @@ namespace GuGu {
 			.cornerRadius(math::float4(5.0f, 5.0f, 5.0f, 5.0f))
 			.Content
 			(
-				WIDGET_ASSIGN_NEW(AssetView, m_assetView)
-				.onGetAssetContextMenu(this, &ContentBrowser::onGetAssetContextMenu)
-				.onPathSelected(this, &ContentBrowser::folderEntered)
+				WIDGET_NEW(Border)
+				.padding(Padding(10.0f, 10.0f, 10.0f, 10.0f))
+				.BorderBackgroundColor(math::float4(0.3f, 0.2f, 0.7f, 0.0f))//transparent
+				.Content
+				(
+					WIDGET_ASSIGN_NEW(AssetView, m_assetView)
+					.onGetAssetContextMenu(this, &ContentBrowser::onGetAssetContextMenu)
+					.onPathSelected(this, &ContentBrowser::folderEntered)
+				)
 			)
 		);
 
@@ -146,7 +152,7 @@ namespace GuGu {
 						(
 							WIDGET_NEW(ImageWidget)
 							.brush(EditorStyleSet::getStyleSet()->getBrush("ImportTexture_Icon"))
-							)
+						)
 						+ HorizontalBox::Slot()
 						.setPadding(Padding(5.0f, 0.0f, 5.0f, 0.0f))
 						.FixedWidth()

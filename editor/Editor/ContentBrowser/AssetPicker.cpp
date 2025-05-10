@@ -1,7 +1,10 @@
 #include <pch.h>
 #include "AssetPicker.h"
 #include <Core/UI/BoxPanel.h>
+#include <Core/UI/Box.h>
+#include <Core/UI/Border.h>
 #include "AssetView.h"
+#include <Editor/StyleSet/EditorStyleSet.h>
 
 namespace GuGu {
 
@@ -24,10 +27,16 @@ namespace GuGu {
 		verticalBox->addSlot()
 		.StretchHeight(1.0f)
 		(
-			WIDGET_ASSIGN_NEW(AssetView, m_assetViewPtr)
-			.initialBackendFilter(m_currentBackendFilter)
-			.initialViewType(arguments.massetPickerConfig.m_initialAssetViewType)
-			.onAssetSelectionChanged(this, &AssetPicker::handleAssetSelectionChanged)
+			WIDGET_NEW(Border)
+			.padding(Padding(2.0f, 2.0f, 2.0f, 2.0f))
+			.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("beige6"))
+			.Content
+			(
+				WIDGET_ASSIGN_NEW(AssetView, m_assetViewPtr)
+				.initialBackendFilter(m_currentBackendFilter)
+				.initialViewType(arguments.massetPickerConfig.m_initialAssetViewType)
+				.onAssetSelectionChanged(this, &AssetPicker::handleAssetSelectionChanged)
+			)
 		);
 
 		m_childWidget = std::make_shared<SingleChildSlot>();

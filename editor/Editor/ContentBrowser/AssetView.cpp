@@ -30,7 +30,6 @@ namespace GuGu {
 		//create path view
 		std::shared_ptr<VerticalBox> verticalBox = WIDGET_NEW(VerticalBox)	
 		+ VerticalBox::Slot()
-		.setPadding(Padding(10.0f, 10.0f, 10.0f, 10.0f))
 		.StretchHeight(1.0)
 		(
 			WIDGET_NEW(Overlay)
