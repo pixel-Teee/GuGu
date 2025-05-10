@@ -58,7 +58,12 @@ namespace GuGu {
 	{
 		m_objects.push_back(inGameObject);
 
-		if(World::getWorld()->m_onLevelChanged)
-			World::getWorld()->m_onLevelChanged();
+		if (!World::getWorld()->m_onLevelChanged.empty())
+		{
+			for (uint32_t i = 0; i < World::getWorld()->m_onLevelChanged.size(); ++i)
+			{
+				World::getWorld()->m_onLevelChanged[i]();
+			}
+		}
 	}
 }

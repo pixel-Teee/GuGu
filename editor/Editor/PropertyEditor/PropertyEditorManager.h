@@ -18,7 +18,7 @@ namespace GuGu {
 	namespace meta {
 		class Field;
 	}
-
+	//class ObjectDetails;
 	class PropertyEditorManager
 	{
 	public:
@@ -33,8 +33,14 @@ namespace GuGu {
 		bool isCustomizedStruct(const meta::Field* field);
 
 		std::shared_ptr<IPropertyTypeCustomization> getPropertyTypeCustomization(std::shared_ptr<PropertyNode> inPropertyNode);
+
+		//void addDetailsView(std::shared_ptr<ObjectDetails> inDetailsView);
+		//
+		//void refreshDetailsView(const std::vector<GameObject*>& inObjects, bool bForceRefresh);
 	private:
 
 		std::map<GuGuUtf8Str, OnGetPropertyTypeCustomizationInstance> m_globalPropertyTypeToLayoutMap;
+		
+		//std::vector<std::weak_ptr<ObjectDetails>> m_allDetailsView;
 	};
 }

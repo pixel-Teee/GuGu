@@ -9,7 +9,7 @@ namespace GuGu {
 	ObjectModeInteractive::ObjectModeInteractive(const ObjectModeParams& params)
 		: ObjectMode(params)
 	{
-		World::getWorld()->m_onLevelChanged = std::bind(&ObjectModeInteractive::onLevelChanged, this);
+		World::getWorld()->m_onLevelChanged.push_back(std::bind(&ObjectModeInteractive::onLevelChanged, this));
 	}
 
 	ObjectModeInteractive::~ObjectModeInteractive()

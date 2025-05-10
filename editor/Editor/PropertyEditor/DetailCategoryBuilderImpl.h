@@ -102,6 +102,8 @@ namespace GuGu {
 		virtual IDetailsViewPrivate* getDetailsView() const override;
 
 		virtual IDetailsView* getNodeDetailsView() const override;
+
+		//std::shared_ptr<Widget> onGetContextMenuContent() const;
 	private:
 		//生成儿子的所有布局
 		void generateChildrenForLayouts();

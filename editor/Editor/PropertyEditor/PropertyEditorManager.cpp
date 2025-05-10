@@ -6,6 +6,7 @@
 #include "VectorStructCustomization.h"
 #include "ColorStructCustomization.h"
 #include "PropertyNode.h"
+#include "ObjectDetails.h"
 #include <Core/Reflection/Field.h>
 #include <Core/GuGuUtf8Str.h>
 
@@ -45,6 +46,20 @@ namespace GuGu {
 			return m_globalPropertyTypeToLayoutMap[typeName]();//execute func
 		return nullptr;
 	}
+
+	//void PropertyEditorManager::addDetailsView(std::shared_ptr<ObjectDetails> inDetailsView)
+	//{
+	//	m_allDetailsView.push_back(inDetailsView);
+	//}
+
+	//void PropertyEditorManager::refreshDetailsView(const std::vector<GameObject*>& inObjects, bool bForceRefresh)
+	//{
+	//	//todo:以后要修复
+	//	for (int32_t i = 0; i < m_allDetailsView.size(); ++i)
+	//	{
+	//		m_allDetailsView[i].lock()->setObjects(inObjects, bForceRefresh);
+	//	}
+	//}
 
 	std::shared_ptr<PropertyEditorManager>& PropertyEditorManager::getPropertyEditorManager()
 	{

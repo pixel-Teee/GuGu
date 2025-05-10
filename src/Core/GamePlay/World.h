@@ -43,7 +43,7 @@ namespace GuGu {
 
 		void switchState(WorldState state);
 
-		std::function<void()> m_onLevelChanged;
+		std::vector<std::function<void()>> m_onLevelChanged;
 	private:
 		std::shared_ptr<ViewportClient> m_viewportClient;
 

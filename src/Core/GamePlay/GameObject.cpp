@@ -64,6 +64,28 @@ namespace GuGu {
 	{
 		m_components = components;
 	}
+
+	void GameObject::deleteComponent(const GuGuUtf8Str& componentTypeName)
+	{
+		//could not delete transform component
+		if (componentTypeName == typeof(TransformComponent).GetName())
+			return;
+		int32_t foundPos = -1;
+		for (int32_t i = 0; i < m_components.size(); ++i)
+		{
+			if (m_components[i]->GetType() == meta::Type::GetFromName(componentTypeName))
+			{
+				foundPos = i;
+				break;
+			}
+		}
+		if (foundPos != -1)
+		{
+			//delete
+			m_components.erase(m_components.begin() + foundPos);
+		}
+	}
+
 	Array<std::shared_ptr<Component>> GameObject::getComponents()
 	{
 		return m_components;

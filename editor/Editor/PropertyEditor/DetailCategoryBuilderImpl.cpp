@@ -6,6 +6,13 @@
 #include "DetailCategoryTableRow.h"
 #include "IDetailsViewPrivate.h"
 #include "DetailLayoutBuilderImpl.h"
+#include "PropertyNode.h"
+#include "ObjectPropertyNode.h"
+#include <Core/UI/Button.h>
+#include <Core/Reflection/Object.h>
+#include <Core/GamePlay/GameObject.h>
+#include <Core/GamePlay/World.h>
+#include <Editor/StyleSet/EditorStyleSet.h>
 
 namespace GuGu {
 
@@ -81,13 +88,69 @@ namespace GuGu {
 		return getDetailsView();
 	}
 
+	//std::shared_ptr<Widget> DetailCategoryImpl::onGetContextMenuContent() const
+	//{
+	//	GuGuUtf8Str categoryName = getCategoryName();
+	//	//menu
+	//	if (m_detailLayoutBuilder.lock())
+	//	{
+	//		std::shared_ptr<ComplexPropertyNode> propertyNode = m_detailLayoutBuilder.lock()->getRootNode();
+	//		if (propertyNode)
+	//		{
+	//			ObjectPropertyNode* objectPropertyNode = propertyNode->asObjectNode();
+	//			if (objectPropertyNode)
+	//			{
+	//				for (int32_t i = 0; i < objectPropertyNode->getNumChildNodes(); ++i)
+	//				{
+	//					meta::Object* object = objectPropertyNode->getInstanceAsObject(i);
+	//					if (object->GetType() == meta::Type::GetFromName(categoryName))
+	//					{
+	//						//delete this object and refresh details view
+	//						return WIDGET_NEW(Button)
+	//							.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+	//							.ClickedLambda([=]() {
+	//								//meta::Variant startVarint = ObjectVariant(object);
+	//								Component* comp = static_cast<Component*>(object);
+	//								if (comp != nullptr)
+	//								{
+	//									std::shared_ptr<GameObject> parentGameObject = comp->getParentGameObject().lock();
+	//									//meta::Variant owner = objectPropertyNode->getParentNode()->getOwnerFieldVarint(startVarint);
+	//									if (parentGameObject)
+	//									{
+	//										//delete component
+	//										parentGameObject->deleteComponent(comp->GetType().GetName());
+	//										//refresh details view
+	//										std::vector<GameObject*> gameObjects;
+	//										gameObjects.push_back(parentGameObject.get());
+	//										getDetailsView()->setObjects(gameObjects, true);
+	//										//World::getWorld()->m_onLevelChanged = std::bind(&ObjectModeInteractive::onLevelChanged, this);
+	//									}
+	//								}
+	//								
+	//								return Reply::Handled();
+	//							})
+	//							.Content
+	//							(
+	//								WIDGET_NEW(TextBlockWidget)
+	//								.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+	//								.text("delete component")
+	//							);
+	//					}
+	//				}
+	//			}
+	//		}
+	//	}
+	//	return NullWidget::getNullWidget();
+	//}
+
 	std::shared_ptr<ITableRow> DetailCategoryImpl::generateWidgetForTableView(const std::shared_ptr<TableViewBase>& ownerTable)
 	{
 		std::shared_ptr<Widget> headerContent = m_headerContentWidget;
 
-		return WIDGET_NEW(DetailCategoryTableRow, shared_from_this(), ownerTable)
+		return WIDGET_NEW(DetailCategoryTableRow, shared_from_this(), ownerTable, m_detailLayoutBuilder.lock())
 			   .displayName(getDisplayName())
 			   .headerContent(headerContent);
+			   //.onContextMenuOpening(this, &DetailCategoryImpl::onGetContextMenuContent);
 	}
 
 	void DetailCategoryImpl::generateChildrenForLayouts()

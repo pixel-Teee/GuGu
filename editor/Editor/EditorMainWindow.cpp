@@ -35,6 +35,7 @@
 #include "WindowTitleBar.h"
 #include "SceneOutliner/SceneOutliner.h"
 #include "PropertyEditor/ObjectDetails.h"
+#include <Editor/PropertyEditor/PropertyEditorManager.h>
 
 #include <Core/GamePlay/World.h>
 
@@ -238,6 +239,9 @@ namespace GuGu {
 		std::function<void(const std::vector<GameObject*>&, bool)> gameObjectSelectionChangedEvent = std::bind(&EditorMainWindow::refreshDetailsView, this, std::placeholders::_1, std::placeholders::_2);
 		std::shared_ptr<ViewportClient> viewportClient = m_viewportWidget->getViewportClient();
 		viewportClient->setGameObjectSelectionChangedEvent(gameObjectSelectionChangedEvent);
+
+		//PropertyEditorManager::getPropertyEditorManager()->addDetailsView(m_objectDetails);
+
 	}
 
 	Reply EditorMainWindow::openFileMenu()
