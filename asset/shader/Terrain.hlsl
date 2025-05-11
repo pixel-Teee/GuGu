@@ -15,11 +15,11 @@ cbuffer TerrainProperties : register(b1)
 }
 
 Texture2D t_HeightTexture : register(t0);
-Texture2D t_BlendTexture : register(t0);
-Texture2D t_TerrainTexture1 : register(t1);
-Texture2D t_TerrainTexture2 : register(t2);
-Texture2D t_TerrainTexture3 : register(t3);
-Texture2D t_TerrainTexture4 : register(t4);
+Texture2D t_BlendTexture : register(t1);
+Texture2D t_TerrainTexture1 : register(t2);
+Texture2D t_TerrainTexture2 : register(t3);
+Texture2D t_TerrainTexture3 : register(t4);
+Texture2D t_TerrainTexture4 : register(t5);
 SamplerState s_Sampler : register(s0);
 
 void main_vs(
@@ -53,6 +53,10 @@ void main_ps(
     float4 color2 = t_TerrainTexture2.Sample(s_Sampler, i_uv).xyzw;
     float4 color3 = t_TerrainTexture3.Sample(s_Sampler, i_uv).xyzw;
     float4 color4 = t_TerrainTexture4.Sample(s_Sampler, i_uv).xyzw;
-    float4 totalColor = color1 * weight.x + color2 * weight.y + color3 * weight.z + color4 * weight.w;
+    float leftWeight = (1.0 - weight.x - weight.y - weight.z);
+    float4 totalColor = color1 * float4(weight.x, weight.x, weight.x, 1.0) + 
+                        color2 * float4(weight.y, weight.y, weight.y, 1.0) +
+                        color3 * float4(weight.z, weight.z, weight.z, 1.0) +
+                        color4 * float4(leftWeight, leftWeight, leftWeight, 1.0);
     o_color = float4(totalColor.xyz, 1.0f);
 }

@@ -840,9 +840,9 @@ namespace GuGu {
 		//------gizmos------
 
 		//------terrain------
-		m_terrainVertexShader = shaderFactory->CreateShader("asset/shader/terrain.hlsl", "main_vs", nullptr,
+		m_terrainVertexShader = shaderFactory->CreateShader("asset/shader/Terrain.hlsl", "main_vs", nullptr,
 			nvrhi::ShaderType::Vertex);
-		m_terrainPixelShader = shaderFactory->CreateShader("asset/shader/terrain.hlsl", "main_ps", nullptr,
+		m_terrainPixelShader = shaderFactory->CreateShader("asset/shader/Terrain.hlsl", "main_ps", nullptr,
 			nvrhi::ShaderType::Pixel);
 		layoutDesc.bindings = {
 			nvrhi::BindingLayoutItem::ConstantBuffer(0), //normal tranform
@@ -1092,6 +1092,20 @@ namespace GuGu {
 			m_Pipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
+		if (!m_terrainPipeline)
+		{
+			nvrhi::GraphicsPipelineDesc psoDesc;
+			psoDesc.VS = m_terrainVertexShader; //terrain
+			psoDesc.PS = m_terrainPixelShader; //terrain
+			psoDesc.inputLayout = m_terrainInputLayout; //顶点属性
+			psoDesc.bindingLayouts = { m_terrainBindingLayout }; //constant buffer 这些
+			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+			//psoDesc.renderState.rasterState.fillMode = nvrhi::RasterFillMode::Wireframe;
+			psoDesc.renderState.depthStencilState.depthTestEnable = true;
+			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
+			m_terrainPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
+		}
+
 		m_drawItems.clear();
 
 		m_CommandList->open();
@@ -1298,7 +1312,135 @@ namespace GuGu {
 				args.startIndexLocation = 0;
 				m_CommandList->drawIndexed(args);
 			}
+
+			//draw terrain
+			nvrhi::GraphicsState terrainGraphicsState;
+			terrainGraphicsState.pipeline = m_terrainPipeline;
+			terrainGraphicsState.framebuffer = inViewportClient->getFramebuffer();
+			terrainGraphicsState.viewport.addViewportAndScissorRect(viewport);
+			for (size_t i = 0; i < gameObjects.size(); ++i)
+			{
+				std::shared_ptr<TransformComponent> transformComponent = gameObjects[i]->getComponent<TransformComponent>();
+				std::shared_ptr<TerrainComponent> terrainComponent = gameObjects[i]->getComponent<TerrainComponent>();
+				if (transformComponent && terrainComponent)
+				{
+					if (terrainComponent->m_indexBufferHandle == nullptr || terrainComponent->m_vertexBufferHandle == nullptr)
+					{
+						createTerrainVertexBufferAndIndexBuffer(terrainComponent);
+					}
+
+					if (terrainComponent->getHeightTexture()->m_texture == nullptr)
+					{
+						m_textureCache.FinalizeTexture(terrainComponent->getHeightTexture(), m_commonRenderPass.get(), m_CommandList);
+					}
+					if (terrainComponent->getTerrainTexture1()->m_texture == nullptr)
+					{
+						m_textureCache.FinalizeTexture(terrainComponent->getTerrainTexture1(), m_commonRenderPass.get(), m_CommandList);
+					}
+					if (terrainComponent->getTerrainTexture2()->m_texture == nullptr)
+					{
+						m_textureCache.FinalizeTexture(terrainComponent->getTerrainTexture2(), m_commonRenderPass.get(), m_CommandList);
+					}
+					if (terrainComponent->getTerrainTexture3()->m_texture == nullptr)
+					{
+						m_textureCache.FinalizeTexture(terrainComponent->getTerrainTexture3(), m_commonRenderPass.get(), m_CommandList);
+					}
+					if (terrainComponent->getTerrainTexture4()->m_texture == nullptr)
+					{
+						m_textureCache.FinalizeTexture(terrainComponent->getTerrainTexture4(), m_commonRenderPass.get(), m_CommandList);
+					}
+					if (terrainComponent->getBlendTexture()->m_texture == nullptr)
+					{
+						m_textureCache.FinalizeTexture(terrainComponent->getBlendTexture(), m_commonRenderPass.get(), m_CommandList);
+					}
+					if (!terrainComponent->m_terrainConstantBuffer)
+					{
+						terrainComponent->m_terrainConstantBuffer = GetDevice()->createBuffer(
+							nvrhi::utils::CreateStaticConstantBufferDesc(
+								sizeof(TerrainConstantBufferEntry), "TerrainConstantBufferEntry")
+							.setInitialState(
+								nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
+									true));
+					}
+					if (terrainComponent->m_terrainPropertiesConstantBuffer.empty())
+					{
+						terrainComponent->m_terrainPropertiesConstantBuffer.resize(terrainComponent->m_terrainCols * terrainComponent->m_terrainRows);
+					}
+				}
+				else
+				{
+					continue;
+				}
+				TerrainConstantBufferEntry terrainConstants;
+				terrainConstants.viewProjMatrix = viewProjMatrix;
+				terrainConstants.worldMatrix = math::affineToHomogeneous(transformComponent->GetLocalToWorldTransformFloat());
+				//get the global matrix to fill constant buffer		
+				m_CommandList->writeBuffer(terrainComponent->m_terrainConstantBuffer, &terrainConstants, sizeof(TerrainConstantBufferEntry));
+
+				math::float2 terrainSize = math::float2((float)terrainComponent->m_rows * (float)terrainComponent->m_tileSize, (float)terrainComponent->m_cols * (float)terrainComponent->m_tileSize);
+				math::float2 terrainBeginXZ = math::float2(-(float)terrainComponent->m_terrainRows * terrainSize.x * 0.5f, -(float)terrainComponent->m_terrainCols * terrainSize.y * 0.5f);
+				for (uint32_t i = 0; i < terrainComponent->m_terrainRows; ++i)
+				{
+					for (uint32_t j = 0; j < terrainComponent->m_terrainCols; ++j)
+					{
+						uint32_t index = i * terrainComponent->m_terrainCols + j;
+						if (!terrainComponent->m_terrainPropertiesConstantBuffer[index])
+						{
+							terrainComponent->m_terrainPropertiesConstantBuffer[index] = GetDevice()->createBuffer(
+								nvrhi::utils::CreateStaticConstantBufferDesc(
+									sizeof(TerrainPropertiesBuffer), "TerrainPropertiesBuffer")
+								.setInitialState(
+									nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
+										true));
+						}
+						math::float2 offsetXZ = math::float2(terrainBeginXZ.x + j * terrainSize.x, terrainBeginXZ.y + i * terrainSize.y);
+						TerrainPropertiesBuffer propertiesBuffer;
+						propertiesBuffer.m_heightScale = 10.0f;
+						propertiesBuffer.m_beginXZ = terrainBeginXZ;
+						propertiesBuffer.m_xzOffset = offsetXZ;
+						m_CommandList->writeBuffer(terrainComponent->m_terrainPropertiesConstantBuffer[index], &propertiesBuffer, sizeof(TerrainPropertiesBuffer));
+						//draw terrain
+						nvrhi::BindingSetHandle terrainBindingSet;
+						nvrhi::BindingSetDesc desc;
+						//nvrhi::BindingSetHandle bindingSet;
+						desc.bindings = {
+								nvrhi::BindingSetItem::ConstantBuffer(0, terrainComponent->m_terrainConstantBuffer),
+								nvrhi::BindingSetItem::ConstantBuffer(1, terrainComponent->m_terrainPropertiesConstantBuffer[index]),
+								nvrhi::BindingSetItem::Texture_SRV(0, terrainComponent->getHeightTexture()->m_texture),
+								nvrhi::BindingSetItem::Texture_SRV(1, terrainComponent->getBlendTexture()->m_texture),
+								nvrhi::BindingSetItem::Texture_SRV(2, terrainComponent->getTerrainTexture1()->m_texture),
+								nvrhi::BindingSetItem::Texture_SRV(3, terrainComponent->getTerrainTexture2()->m_texture),
+								nvrhi::BindingSetItem::Texture_SRV(4, terrainComponent->getTerrainTexture3()->m_texture),
+								nvrhi::BindingSetItem::Texture_SRV(5, terrainComponent->getTerrainTexture4()->m_texture),
+								nvrhi::BindingSetItem::Sampler(0, m_pointWrapSampler),
+						};
+						terrainBindingSet = GetDevice()->createBindingSet(desc, m_terrainBindingLayout);
+
+						terrainGraphicsState.bindings = { terrainBindingSet };
+
+						terrainGraphicsState.vertexBuffers = {
+							{terrainComponent->m_vertexBufferHandle, 0, 0},
+						};
+
+						terrainGraphicsState.indexBuffer = {
+							terrainComponent->m_indexBufferHandle, nvrhi::Format::R32_UINT, 0
+						};
+
+						terrainGraphicsState.setPipeline(m_terrainPipeline);
+						m_CommandList->setGraphicsState(terrainGraphicsState);
+
+						// Draw the model.
+						nvrhi::DrawArguments args;
+						args.vertexCount = terrainComponent->m_indexData.size();
+						args.instanceCount = 1;
+						args.startVertexLocation = 0;
+						args.startIndexLocation = 0;
+						m_CommandList->drawIndexed(args);
+					}
+				}
+			}
 		}
+
 		m_CommandList->close();
 		GetDevice()->executeCommandList(m_CommandList);
 	}
@@ -1642,7 +1784,7 @@ namespace GuGu {
 					}
 					math::float2 offsetXZ = math::float2(terrainBeginXZ.x + j * terrainSize.x, terrainBeginXZ.y + i * terrainSize.y);
 					TerrainPropertiesBuffer propertiesBuffer;
-					propertiesBuffer.m_heightScale = 0.0f;
+					propertiesBuffer.m_heightScale = 10.0f;
 					propertiesBuffer.m_beginXZ = terrainBeginXZ;
 					propertiesBuffer.m_xzOffset = offsetXZ;
 					m_CommandList->writeBuffer(terrainComponent->m_terrainPropertiesConstantBuffer[index], &propertiesBuffer, sizeof(TerrainPropertiesBuffer));
