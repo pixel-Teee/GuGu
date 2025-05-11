@@ -8,6 +8,7 @@
 #include "SceneOutlinerStandaloneTypes.h"//class SceneOutlinerCommonLabelData
 
 namespace GuGu {
+	class IMenu;
 	class GameObject;
 	struct ObjectTreeItem;
 	namespace SceneOutlinerNameSpace
@@ -27,9 +28,16 @@ namespace GuGu {
 				const TableRow<TreeItemPtr>& inRow);
 
 			GuGuUtf8Str getDisplayText() const;
+
+			Reply OnMouseButtonDown(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent);
+
+			Reply rightClick();
 		private:
 			std::weak_ptr<ObjectTreeItem> m_treeItemPtr;
 			std::weak_ptr<GameObject> m_objectPtr;
+
+			//右键打开的菜单
+			std::shared_ptr<IMenu> m_menu;
 		};
 	}
 	

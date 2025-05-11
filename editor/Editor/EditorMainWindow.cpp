@@ -146,7 +146,7 @@ namespace GuGu {
 // 										.text(u8"Test")
 // 										.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
 // 									)
-									WIDGET_ASSIGN_NEW(SceneOutlinerNameSpace::SceneOutliner, m_sceneOutliner)
+									WIDGET_ASSIGN_NEW(SceneOutlinerNameSpace::SceneOutliner, m_sceneOutliner, shared_from_this())
 								)
 							)
 							+ Splitter::Slot()

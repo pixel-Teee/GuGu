@@ -66,4 +66,33 @@ namespace GuGu {
 			}
 		}
 	}
+
+	void Level::deleteGameObject(std::shared_ptr<GameObject> inGameObject)
+	{
+		//delete game object
+		int32_t foundPos = -1;
+		if (inGameObject != nullptr)
+		{
+			for (int32_t i = 0; i < m_objects.size(); ++i)
+			{
+				if (m_objects[i] == inGameObject)//delete
+				{
+					foundPos = i;
+					break;
+				}
+			}
+			if (foundPos != -1)
+				m_objects.erase(m_objects.begin() + foundPos);
+
+			//refresh
+			if (!World::getWorld()->m_onLevelChanged.empty())
+			{
+				for (uint32_t i = 0; i < World::getWorld()->m_onLevelChanged.size(); ++i)
+				{
+					World::getWorld()->m_onLevelChanged[i]();
+				}
+			}
+		}
+	}
+
 }

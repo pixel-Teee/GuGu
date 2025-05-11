@@ -12,6 +12,7 @@ namespace GuGu {
 	class HeaderRow;
 	class TableViewBase;
 	class ISceneOutlinerColumn;
+	class IMenu;
 	namespace SceneOutlinerNameSpace
 	{
 		class OutlinerTreeView;
@@ -52,7 +53,7 @@ namespace GuGu {
 				return result;
 			}
 		};
-
+		
 		class SceneOutliner : public ISceneOutliner
 		{
 		public:
@@ -67,10 +68,15 @@ namespace GuGu {
 				~BuilderArguments() = default;
 			};
 
-			void init(const BuilderArguments& arguments);
+			void init(const BuilderArguments& arguments, std::shared_ptr<Widget> inParentWindow);
 
 			Visibility getEmptyLabelVisibility() const;
 
+			Reply OnMouseButtonDown(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent);
+
+			Reply rightClick();
+
+			virtual std::shared_ptr<Widget> getParentWindow() const override;
 		public:
 			const std::map<GuGuUtf8Str, std::shared_ptr<ISceneOutlinerColumn>>& getColumns() const
 			{
@@ -148,6 +154,12 @@ namespace GuGu {
 			ColumnSortMode::Type m_sortMode;
 
 			TreeItemMap m_treeItemMap;//实际的对象的ID，比如GameObject的名字对应的TreeItem，方便索引
+
+			//右键空白区域打开的菜单
+			std::shared_ptr<GuGu::IMenu> m_menu;
+
+			//父窗口
+			std::weak_ptr<Widget> m_parentWindow;
 		};
 	}
 }

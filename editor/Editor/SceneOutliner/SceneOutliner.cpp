@@ -11,14 +11,21 @@
 #include <Core/UI/BoxPanel.h>
 #include <Core/UI/Overlay.h>
 #include <Core/UI/TextBlockWidget.h>
+#include <Core/UI/Button.h>
+#include <Core/UI/WidgetPath.h>
+#include <Core/UI/IMenu.h>
 #include <Core/GamePlay/World.h>
 #include <Core/GamePlay/Level.h>
+#include <Core/GamePlay/TransformComponent.h>
+#include <Application/Application.h>
 
 namespace GuGu {
 	namespace SceneOutlinerNameSpace
 	{
-		void SceneOutliner::init(const BuilderArguments& arguments)
+		void SceneOutliner::init(const BuilderArguments& arguments, std::shared_ptr<Widget> inParentWindow)
 		{
+			m_parentWindow = inParentWindow;
+
 			m_bFullRefresh = true;
 			m_bSortDirty = true;
 			m_bNeedsColumnRefresh = true;
@@ -106,6 +113,45 @@ namespace GuGu {
 		Visibility SceneOutliner::getEmptyLabelVisibility() const
 		{
 			return (m_rootTreeItems.size() > 0) ? Visibility::Collapsed : Visibility::Visible;
+		}
+
+		Reply SceneOutliner::OnMouseButtonDown(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent)
+		{
+			if (inMouseEvent.getEffectingButton() == Keys::RightMouseButton)
+			{
+				std::shared_ptr<Widget> menuContent;
+				menuContent = WIDGET_NEW(Button)
+					.Clicked(this, &SceneOutliner::rightClick)
+					.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+					.Content
+					(
+						WIDGET_NEW(TextBlockWidget)
+						.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+						.text("add game object")
+					);
+
+				WidgetPath widgetPath = WidgetPath();
+				m_menu = Application::getApplication()->pushMenu(shared_from_this(), widgetPath, menuContent, inMouseEvent.m_screenSpacePosition);
+				
+				return Reply::Handled();
+			}
+			return Reply::Unhandled();
+		}
+
+		Reply SceneOutliner::rightClick()
+		{
+			m_menu->dismiss();
+			//add object
+			std::shared_ptr<GameObject> gameObject = std::make_shared<GameObject>();
+			std::shared_ptr<TransformComponent> transformComponent = std::make_shared<TransformComponent>();
+			gameObject->addComponent(transformComponent);
+			World::getWorld()->getCurrentLevel()->addGameObject(gameObject);
+			return Reply::Handled();
+		}
+
+		std::shared_ptr<Widget> SceneOutliner::getParentWindow() const
+		{
+			return m_parentWindow.lock();
 		}
 
 		void SceneOutliner::populate()

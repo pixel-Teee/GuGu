@@ -30,6 +30,8 @@ namespace GuGu {
 		void setGameObjects(const Array<std::shared_ptr<GameObject>>& gameObjects);
 
 		void addGameObject(std::shared_ptr<GameObject> inGameObject);
+
+		void deleteGameObject(std::shared_ptr<GameObject> inGameObject);
 	private:
 		Array<std::shared_ptr<GameObject>> m_objects; //all game objects
 	};

@@ -12,6 +12,8 @@ namespace GuGu {
 		virtual void refresh() = 0;
 
 		const std::shared_ptr<ISceneOutlinerMode> getMode() const { return m_mode; }
+
+		virtual std::shared_ptr<Widget> getParentWindow() const = 0;
 	protected:
 		std::shared_ptr<ISceneOutlinerMode> m_mode;
 	};

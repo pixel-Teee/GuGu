@@ -4,7 +4,13 @@
 #include "ISceneOutliner.h"
 #include "ObjectTreeItem.h"
 #include <Editor/StyleSet/EditorStyleSet.h>
+#include <Editor/EditorMainWindow.h>
 #include <Core/UI/BoxPanel.h> 
+#include <Core/UI/Button.h>
+#include <Core/UI/WidgetPath.h>
+#include <Core/GamePlay/Level.h>
+#include <Core/GamePlay/World.h>
+#include <Application/Application.h>
 
 namespace GuGu {
 
@@ -42,6 +48,56 @@ namespace GuGu {
 				return GuGuUtf8Str(treeItem->getDisplayString());
 			}
 			return GuGuUtf8Str();
+		}
+
+		Reply ObjectTreeLabel::OnMouseButtonDown(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent)
+		{
+
+			if (inMouseEvent.getEffectingButton() == Keys::RightMouseButton)
+			{
+				std::shared_ptr<Widget> menuContent;
+				menuContent = WIDGET_NEW(Button)
+					.Clicked(this, &ObjectTreeLabel::rightClick)
+					.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+					.Content
+					(
+						WIDGET_NEW(TextBlockWidget)
+						.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+						.text("delete game object")
+					);
+
+				WidgetPath widgetPath = WidgetPath();
+				m_menu = Application::getApplication()->pushMenu(shared_from_this(), widgetPath, menuContent, inMouseEvent.m_screenSpacePosition);
+
+				return Reply::Handled();
+			}
+			return Reply::Unhandled();
+		}
+
+		Reply ObjectTreeLabel::rightClick()
+		{
+			m_menu->dismiss();
+			//delete object
+			
+			World::getWorld()->getCurrentLevel()->deleteGameObject(m_objectPtr.lock());
+	
+			if (m_weakSceneOutliner.lock())
+			{
+				m_weakSceneOutliner.lock()->refresh();
+				//m_weakSceneOutliner.lock()->
+				std::shared_ptr<Widget> parentWindow = m_weakSceneOutliner.lock()->getParentWindow();
+				if (parentWindow)
+				{
+					std::shared_ptr<EditorMainWindow> parentWindowLocked = std::static_pointer_cast<EditorMainWindow>(parentWindow);
+					if (parentWindowLocked)
+					{
+						std::vector<GameObject*> emptyGameObjects;
+						parentWindowLocked->refreshDetailsView(emptyGameObjects, true);
+					}
+				}
+			}
+
+			return Reply::Handled();
 		}
 
 	}
