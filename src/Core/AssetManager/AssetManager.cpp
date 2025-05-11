@@ -15,6 +15,7 @@
 #include <Core/GamePlay/TransformComponent.h>
 #include <Core/Model/StaticMesh.h>
 #include <Core/Texture/GTexture.h>
+#include <Core/Model/GeometryHelper.h>
 
 namespace GuGu {
 	AssetManager::AssetManager()
@@ -83,6 +84,25 @@ namespace GuGu {
 				GuGuUtf8Str fileContent = whiteTextureJson.dump();
 
 				registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GTexture>().ID));
+				getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
+				getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
+				getRootFileSystem()->CloseFile();
+			}
+		}
+		{
+			GuGuUtf8Str noFileExtensionsFileName = "defaultCube";
+			GuGuUtf8Str outputFilePath = "content/" + noFileExtensionsFileName + ".json";
+			if (isInAssetRegistry(outputFilePath) == false)
+			{
+				GStaticMesh tempCube = GeometryHelper::createBox(1, 1, 1, 1);
+				std::shared_ptr<GStaticMesh> cube = std::shared_ptr<GStaticMesh>(static_cast<GStaticMesh*>(tempCube.Clone()));
+
+				nlohmann::json cubeModelJson = serializeJson(cube);
+				GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
+				cubeModelJson["GUID"] = guidStr.getStr();
+				GuGuUtf8Str fileContent = cubeModelJson.dump();
+
+				registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GStaticMesh>().ID));
 				getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
 				getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
 				getRootFileSystem()->CloseFile();

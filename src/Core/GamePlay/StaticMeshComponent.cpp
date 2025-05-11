@@ -2,11 +2,15 @@
 
 #include "StaticMeshComponent.h"
 #include <Core/AssetManager/AssetData.h>
+#include <Core/AssetManager/AssetManager.h>
 
 namespace GuGu {
 	StaticMeshComponent::StaticMeshComponent()
 	{
 		m_staticMeshAsset = std::make_shared<AssetData>();
+		GuGuUtf8Str noFileExtensionsFileName = "defaultCube";
+		GuGuUtf8Str outputFilePath = "content/" + noFileExtensionsFileName + ".json";
+		m_staticMeshAsset = AssetManager::getAssetManager().loadAsset(AssetManager::getAssetManager().getGuid(outputFilePath, typeof(GStaticMesh)));
 	}
 	StaticMeshComponent::~StaticMeshComponent()
 	{
