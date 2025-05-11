@@ -27,6 +27,7 @@
 #include <Core/GamePlay/LightComponent.h>
 #include <Core/GamePlay/MaterialComponent.h>
 #include <Core/GamePlay/CameraComponent.h>
+#include <Core/GamePlay/TerrainComponent.h>
 #include <Core/Model/StaticMesh.h>
 #include <Core/GamePlay/ViewportClient.h>
 #include <Core/Texture/GTexture.h>
@@ -162,6 +163,71 @@ namespace GuGu {
 			nvrhi::ResourceStates state = nvrhi::ResourceStates::VertexBuffer | nvrhi::ResourceStates::ShaderResource;
 
 			m_CommandList->setPermanentBufferState(staticMesh.m_vertexBuffer, state);
+			m_CommandList->commitBarriers();
+		}
+	}
+
+	void Demo::createTerrainVertexBufferAndIndexBuffer(std::shared_ptr<TerrainComponent> terrainComponent)
+	{
+		std::vector<uint32_t>& indexData = terrainComponent->m_indexData;
+		std::vector<math::float3>& positionData = terrainComponent->m_vertexData;
+
+		if (!indexData.empty() && !terrainComponent->m_indexBufferHandle)
+		{
+			nvrhi::BufferDesc bufferDesc;
+			bufferDesc.isIndexBuffer = true;
+			bufferDesc.byteSize = indexData.size() * sizeof(uint32_t);
+			bufferDesc.debugName = "IndexBuffer";
+			bufferDesc.canHaveTypedViews = true;
+			bufferDesc.canHaveRawViews = true;
+			bufferDesc.format = nvrhi::Format::R32_UINT;
+			//bufferDesc.isAccelStructBuildInput = m_RayTracingSupported;
+
+			terrainComponent->m_indexBufferHandle = GetDevice()->createBuffer(bufferDesc);
+
+			m_CommandList->beginTrackingBufferState(terrainComponent->m_indexBufferHandle, nvrhi::ResourceStates::Common);
+
+			m_CommandList->writeBuffer(terrainComponent->m_indexBufferHandle, indexData.data(), indexData.size() * sizeof(uint32_t));
+
+			nvrhi::ResourceStates state = nvrhi::ResourceStates::IndexBuffer | nvrhi::ResourceStates::ShaderResource;
+
+			m_CommandList->setPermanentBufferState(terrainComponent->m_indexBufferHandle, state);
+			m_CommandList->commitBarriers();
+		}
+
+		if (!terrainComponent->m_vertexBufferHandle)
+		{
+			nvrhi::BufferDesc bufferDesc;
+			bufferDesc.isVertexBuffer = true;
+			bufferDesc.byteSize = 0;
+			bufferDesc.debugName = "VertexBuffer";
+			bufferDesc.canHaveTypedViews = true;
+			bufferDesc.canHaveRawViews = true;
+
+			if (!positionData.empty())
+			{
+				nvrhi::BufferRange bufferRange;
+				bufferRange.byteSize = 0;
+				bufferRange.byteOffset = 0;
+				AppendBufferRange(bufferRange,
+					positionData.size() * sizeof(positionData[0]), bufferDesc.byteSize);
+			}
+
+			terrainComponent->m_vertexBufferHandle = GetDevice()->createBuffer(bufferDesc);
+
+			m_CommandList->beginTrackingBufferState(terrainComponent->m_vertexBufferHandle, nvrhi::ResourceStates::Common);
+
+			if (!positionData.empty())
+			{
+				nvrhi::BufferRange bufferRange;
+				bufferRange.byteSize = positionData.size() * sizeof(positionData[0]);
+				bufferRange.byteOffset = 0;
+				m_CommandList->writeBuffer(terrainComponent->m_vertexBufferHandle, positionData.data(), bufferRange.byteSize, bufferRange.byteOffset);
+			}
+
+			nvrhi::ResourceStates state = nvrhi::ResourceStates::VertexBuffer | nvrhi::ResourceStates::ShaderResource;
+
+			m_CommandList->setPermanentBufferState(terrainComponent->m_vertexBufferHandle, state);
 			m_CommandList->commitBarriers();
 		}
 	}
@@ -773,6 +839,37 @@ namespace GuGu {
 		}
 		//------gizmos------
 
+		//------terrain------
+		m_terrainVertexShader = shaderFactory->CreateShader("asset/shader/terrain.hlsl", "main_vs", nullptr,
+			nvrhi::ShaderType::Vertex);
+		m_terrainPixelShader = shaderFactory->CreateShader("asset/shader/terrain.hlsl", "main_ps", nullptr,
+			nvrhi::ShaderType::Pixel);
+		layoutDesc.bindings = {
+			nvrhi::BindingLayoutItem::ConstantBuffer(0), //normal tranform
+			nvrhi::BindingLayoutItem::ConstantBuffer(1), //ambient color
+			nvrhi::BindingLayoutItem::Texture_SRV(0), //terrain height
+			nvrhi::BindingLayoutItem::Texture_SRV(1), //terrain color1
+			nvrhi::BindingLayoutItem::Texture_SRV(2), //terrain color2
+			nvrhi::BindingLayoutItem::Texture_SRV(3), //terrain color3
+			nvrhi::BindingLayoutItem::Texture_SRV(4), //terrain color4
+			nvrhi::BindingLayoutItem::Texture_SRV(5), //blend texture
+			nvrhi::BindingLayoutItem::Sampler(0) //sampler
+		};
+		m_terrainBindingLayout = GetDevice()->createBindingLayout(layoutDesc);
+
+		nvrhi::VertexAttributeDesc terrainAttributes[] = {
+			nvrhi::VertexAttributeDesc()
+						.setName("POSITION")
+						.setFormat(nvrhi::Format::RGB32_FLOAT)
+						.setOffset(0)
+						.setBufferIndex(0)
+						.setElementStride(sizeof(math::float3))
+		};
+		m_terrainInputLayout = GetDevice()->createInputLayout(terrainAttributes,
+			uint32_t(std::size(terrainAttributes)),
+			m_terrainVertexShader);
+		//------terrain------
+
 		m_CommandList->close();
 		GetDevice()->executeCommandList(m_CommandList);
 
@@ -1248,6 +1345,20 @@ namespace GuGu {
 			m_gizmosPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
+		if (!m_terrainPipeline)
+		{
+			nvrhi::GraphicsPipelineDesc psoDesc;
+			psoDesc.VS = m_terrainVertexShader; //terrain
+			psoDesc.PS = m_terrainPixelShader; //terrain
+			psoDesc.inputLayout = m_terrainInputLayout; //顶点属性
+			psoDesc.bindingLayouts = { m_terrainBindingLayout }; //constant buffer 这些
+			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+			//psoDesc.renderState.rasterState.fillMode = nvrhi::RasterFillMode::Wireframe;
+			psoDesc.renderState.depthStencilState.depthTestEnable = true;
+			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
+			m_terrainPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
+		}
+
 		m_drawItems.clear();
 
 		m_CommandList->open();
@@ -1447,6 +1558,133 @@ namespace GuGu {
 			args.startVertexLocation = 0;
 			args.startIndexLocation = 0;
 			m_CommandList->drawIndexed(args);	
+		}
+
+		//draw terrain
+		nvrhi::GraphicsState terrainGraphicsState;
+		terrainGraphicsState.pipeline = m_terrainPipeline;
+		terrainGraphicsState.framebuffer = inViewportClient->getFramebuffer();
+		terrainGraphicsState.viewport.addViewportAndScissorRect(viewport);
+		for (size_t i = 0; i < gameObjects.size(); ++i)
+		{
+			std::shared_ptr<TransformComponent> transformComponent = gameObjects[i]->getComponent<TransformComponent>();
+			std::shared_ptr<TerrainComponent> terrainComponent = gameObjects[i]->getComponent<TerrainComponent>();
+			if (transformComponent && terrainComponent)
+			{
+				if (terrainComponent->m_indexBufferHandle == nullptr || terrainComponent->m_vertexBufferHandle == nullptr)
+				{
+					createTerrainVertexBufferAndIndexBuffer(terrainComponent);
+				}
+
+				if (terrainComponent->getHeightTexture()->m_texture == nullptr)
+				{
+					m_textureCache.FinalizeTexture(terrainComponent->getHeightTexture(), m_commonRenderPass.get(), m_CommandList);
+				}
+				if (terrainComponent->getTerrainTexture1()->m_texture == nullptr)
+				{
+					m_textureCache.FinalizeTexture(terrainComponent->getTerrainTexture1(), m_commonRenderPass.get(), m_CommandList);
+				}
+				if (terrainComponent->getTerrainTexture2()->m_texture == nullptr)
+				{
+					m_textureCache.FinalizeTexture(terrainComponent->getTerrainTexture2(), m_commonRenderPass.get(), m_CommandList);
+				}
+				if (terrainComponent->getTerrainTexture3()->m_texture == nullptr)
+				{
+					m_textureCache.FinalizeTexture(terrainComponent->getTerrainTexture3(), m_commonRenderPass.get(), m_CommandList);
+				}
+				if (terrainComponent->getTerrainTexture4()->m_texture == nullptr)
+				{
+					m_textureCache.FinalizeTexture(terrainComponent->getTerrainTexture4(), m_commonRenderPass.get(), m_CommandList);
+				}
+				if (terrainComponent->getBlendTexture()->m_texture == nullptr)
+				{
+					m_textureCache.FinalizeTexture(terrainComponent->getBlendTexture(), m_commonRenderPass.get(), m_CommandList);
+				}
+				if (!terrainComponent->m_terrainConstantBuffer)
+				{
+					terrainComponent->m_terrainConstantBuffer = GetDevice()->createBuffer(
+						nvrhi::utils::CreateStaticConstantBufferDesc(
+							sizeof(TerrainConstantBufferEntry), "TerrainConstantBufferEntry")
+							.setInitialState(
+							nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
+							true));
+				}
+				if (terrainComponent->m_terrainPropertiesConstantBuffer.empty())
+				{
+					terrainComponent->m_terrainPropertiesConstantBuffer.resize(terrainComponent->m_terrainCols * terrainComponent->m_terrainRows);
+				}
+			}
+			else
+			{
+				continue;
+			}
+			TerrainConstantBufferEntry terrainConstants;
+			terrainConstants.viewProjMatrix = viewProjMatrix;
+			terrainConstants.worldMatrix = math::affineToHomogeneous(transformComponent->GetLocalToWorldTransformFloat());
+			//get the global matrix to fill constant buffer		
+			m_CommandList->writeBuffer(terrainComponent->m_terrainConstantBuffer, &terrainConstants, sizeof(TerrainConstantBufferEntry));
+			
+			math::float2 terrainSize = math::float2((float)terrainComponent->m_rows * (float)terrainComponent->m_tileSize, (float)terrainComponent->m_cols * (float)terrainComponent->m_tileSize);
+			math::float2 terrainBeginXZ = math::float2(-(float)terrainComponent->m_terrainRows * terrainSize.x * 0.5f, -(float)terrainComponent->m_terrainCols * terrainSize.y * 0.5f);
+			for (uint32_t i = 0; i < terrainComponent->m_terrainRows; ++i)
+			{
+				for (uint32_t j = 0; j < terrainComponent->m_terrainCols; ++j)
+				{
+					uint32_t index = i * terrainComponent->m_terrainCols + j;
+					if (!terrainComponent->m_terrainPropertiesConstantBuffer[index])
+					{
+						terrainComponent->m_terrainPropertiesConstantBuffer[index] = GetDevice()->createBuffer(
+							nvrhi::utils::CreateStaticConstantBufferDesc(
+								sizeof(TerrainPropertiesBuffer), "TerrainPropertiesBuffer")
+							.setInitialState(
+								nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
+									true));
+					}
+					math::float2 offsetXZ = math::float2(terrainBeginXZ.x + j * terrainSize.x, terrainBeginXZ.y + i * terrainSize.y);
+					TerrainPropertiesBuffer propertiesBuffer;
+					propertiesBuffer.m_heightScale = 0.0f;
+					propertiesBuffer.m_beginXZ = terrainBeginXZ;
+					propertiesBuffer.m_xzOffset = offsetXZ;
+					m_CommandList->writeBuffer(terrainComponent->m_terrainPropertiesConstantBuffer[index], &propertiesBuffer, sizeof(TerrainPropertiesBuffer));
+					//draw terrain
+					nvrhi::BindingSetHandle terrainBindingSet;
+					nvrhi::BindingSetDesc desc;
+					//nvrhi::BindingSetHandle bindingSet;
+					desc.bindings = {
+							nvrhi::BindingSetItem::ConstantBuffer(0, terrainComponent->m_terrainConstantBuffer),
+							nvrhi::BindingSetItem::ConstantBuffer(1, terrainComponent->m_terrainPropertiesConstantBuffer[index]),
+							nvrhi::BindingSetItem::Texture_SRV(0, terrainComponent->getHeightTexture()->m_texture),
+							nvrhi::BindingSetItem::Texture_SRV(1, terrainComponent->getBlendTexture()->m_texture),
+							nvrhi::BindingSetItem::Texture_SRV(2, terrainComponent->getTerrainTexture1()->m_texture),
+							nvrhi::BindingSetItem::Texture_SRV(3, terrainComponent->getTerrainTexture2()->m_texture),
+							nvrhi::BindingSetItem::Texture_SRV(4, terrainComponent->getTerrainTexture3()->m_texture),
+							nvrhi::BindingSetItem::Texture_SRV(5, terrainComponent->getTerrainTexture4()->m_texture),
+							nvrhi::BindingSetItem::Sampler(0, m_pointWrapSampler),
+					};
+					terrainBindingSet = GetDevice()->createBindingSet(desc, m_terrainBindingLayout);
+
+					terrainGraphicsState.bindings = { terrainBindingSet };
+
+					terrainGraphicsState.vertexBuffers = {
+						{terrainComponent->m_vertexBufferHandle, 0, 0},
+					};
+
+					terrainGraphicsState.indexBuffer = {
+						terrainComponent->m_indexBufferHandle, nvrhi::Format::R32_UINT, 0
+					};
+
+					terrainGraphicsState.setPipeline(m_terrainPipeline);
+					m_CommandList->setGraphicsState(terrainGraphicsState);
+
+					// Draw the model.
+					nvrhi::DrawArguments args;
+					args.vertexCount = terrainComponent->m_indexData.size();
+					args.instanceCount = 1;
+					args.startVertexLocation = 0;
+					args.startIndexLocation = 0;
+					m_CommandList->drawIndexed(args);
+				}
+			}
 		}
 
 		m_CommandList->clearDepthStencilTexture(inViewportClient->getDepthTarget(), nvrhi::AllSubresources, true, 1.0f, true, 0);

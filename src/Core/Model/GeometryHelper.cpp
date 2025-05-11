@@ -197,7 +197,7 @@ namespace GuGu {
 			}
 		}
 
-		staticMesh.m_indexData.push_back(faceCount * 3);
+		staticMesh.m_indexData.reserve(faceCount * 3);
 
 		uint32_t k = 0;
 		for (uint32_t i = 0; i < m - 1; ++i)

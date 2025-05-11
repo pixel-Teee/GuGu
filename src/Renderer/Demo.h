@@ -21,6 +21,7 @@ namespace GuGu {
 	class GStaticMesh;
 	class StaticMeshComponent;
 	class ViewportClient;
+	class TerrainComponent;
 	struct DrawItem
 	{
 		const MeshInfo* mesh;
@@ -56,6 +57,8 @@ namespace GuGu {
 		void renderLevel(const std::shared_ptr<Level> inLevel, std::shared_ptr<ViewportClient> inViewportClient);
 
 		void createVertexBufferAndIndexBuffer(GStaticMesh& staticMesh);
+
+		void createTerrainVertexBufferAndIndexBuffer(std::shared_ptr<TerrainComponent> terrainComponent);
 
 		void initRenderTargetAndDepthTarget(ViewportClient& viewportClient, math::float2 viewportSize);
 	private:
@@ -211,6 +214,25 @@ namespace GuGu {
 			dm::float3 camWorldPos;
 		};
 		//------gizmos------
+
+		//------terrain------
+		nvrhi::ShaderHandle m_terrainVertexShader;
+		nvrhi::ShaderHandle m_terrainPixelShader;
+		nvrhi::InputLayoutHandle m_terrainInputLayout;
+		nvrhi::BindingLayoutHandle m_terrainBindingLayout;
+		nvrhi::BindingSetHandle m_terrainBindingSet;
+		nvrhi::GraphicsPipelineHandle m_terrainPipeline;
+		struct TerrainPropertiesBuffer {
+			dm::float2 m_beginXZ;//x, z方向上的起始偏移
+			dm::float2 m_xzOffset;//x, z方向上的位置偏移
+			float m_heightScale;
+		};
+		struct TerrainConstantBufferEntry {
+			dm::float4x4 viewProjMatrix;
+			dm::float4x4 worldMatrix;
+			dm::float3 camWorldPos;
+		};
+		//------terrain------
 
 		uint32_t m_maxLightCounts = 4;
 	};
