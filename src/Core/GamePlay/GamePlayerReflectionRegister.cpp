@@ -30,7 +30,7 @@ namespace GuGu {
 		{
 			auto id = db.AllocateType("math::float2");
 			auto& type = db.types[id];
-			meta::TypeInfo<math::float2>::Register(id, type, true);
+			meta::TypeInfo<math::float2>::Register(id, type, true, "E73886F1-1745-4885-AC10-A6764668698E");
 
 			type.AddConstructor<math::float2, false, false>();
 
@@ -49,7 +49,7 @@ namespace GuGu {
 		{
 			auto id = db.AllocateType("math::float3");
 			auto& type = db.types[id];
-			meta::TypeInfo<math::float3>::Register(id, type, true);
+			meta::TypeInfo<math::float3>::Register(id, type, true, "84172191-B81E-46A4-B06F-7E5B1F8712D0");
 
 			type.AddConstructor<math::float3, false, false>();
 
@@ -72,7 +72,7 @@ namespace GuGu {
 		{
 			auto id = db.AllocateType("math::float4");
 			auto& type = db.types[id];
-			meta::TypeInfo<math::float4>::Register(id, type, true);
+			meta::TypeInfo<math::float4>::Register(id, type, true, "50C5417E-8CD2-4F6A-A030-78FBA2C55F61");
 
 			type.AddConstructor<math::float4, false, false>();
 
@@ -99,7 +99,7 @@ namespace GuGu {
 		{
 			auto id = db.AllocateType("math::double3");
 			auto& type = db.types[id];
-			meta::TypeInfo<math::double3>::Register(id, type, true);
+			meta::TypeInfo<math::double3>::Register(id, type, true, "35EF324D-9D0A-4A20-82A4-E61BF62C5960");
 
 			type.AddConstructor<math::double3, false, false>();
 
@@ -123,7 +123,7 @@ namespace GuGu {
 		{
 			auto id = db.AllocateType("math::dquat");
 			auto& type = db.types[id];
-			meta::TypeInfo<math::dquat>::Register(id, type, true);
+			meta::TypeInfo<math::dquat>::Register(id, type, true, "A576462F-80EF-4132-9096-AF19E505671B");
 
 			type.AddConstructor<math::dquat, false, false>();
 
@@ -151,7 +151,7 @@ namespace GuGu {
 		{
 			auto id = db.AllocateType("math::vector<uin16_t, 4>");
 			auto& type = db.types[id];
-			meta::TypeInfo<math::vector<uint16_t, 4>>::Register(id, type, true);
+			meta::TypeInfo<math::vector<uint16_t, 4>>::Register(id, type, true, "DD2D2988-9B15-41B1-82F2-2F32D095D4AA");
 
 			type.AddConstructor<math::vector<uint16_t, 4>, false, false>();
 
@@ -180,7 +180,7 @@ namespace GuGu {
 		{
 			auto id = db.AllocateType("GuGu::Color");
 			auto& type = db.types[id];
-			meta::TypeInfo<Color>::Register(id, type, true);
+			meta::TypeInfo<Color>::Register(id, type, true, "87AC627B-14AE-4588-8E3F-80A36AF8C676");
 
 			type.AddConstructor<Color, false, false>();
 
@@ -209,13 +209,13 @@ namespace GuGu {
 		{
 			auto id = db.AllocateType("GuGu::meta::object");
 			auto& type = db.types[id];
-			meta::TypeInfo<meta::Object>::Register(id, type, true);
+			meta::TypeInfo<meta::Object>::Register(id, type, true, "E6023C42-0DA9-4F76-8290-CDB926C881E3");
 		}
 
 		{
 			auto id = db.AllocateType("GuGu::Component");
 			auto& type = db.types[id];
-			meta::TypeInfo<Component>::Register(id, type, true);
+			meta::TypeInfo<Component>::Register(id, type, true, "0955EA47-6CB3-4F4E-929A-A19769B4DD93");
 
 			type.AddField<Component, std::weak_ptr<GameObject>>("m_owner",
 				(meta::FieldGetter<Component, std::weak_ptr<GameObject>&, true>::Signature)& Component::getParentGameObject,
@@ -225,7 +225,7 @@ namespace GuGu {
 		{
 			auto id = db.AllocateType("std::shared_ptr<GuGu::Component>");
 			auto& type = db.types[id];
-			meta::TypeInfo<std::shared_ptr<Component>>::Register(id, type, false);
+			meta::TypeInfo<std::shared_ptr<Component>>::Register(id, type, false, "D7753E39-309C-4C52-BF1D-BCA0F90D6352");
 
 			type.SetArrayConstructor<std::shared_ptr<Component>>();
 		}
@@ -233,19 +233,19 @@ namespace GuGu {
 		{
 			auto id = db.AllocateType("std::weak_ptr<GuGu::Component>");
 			auto& type = db.types[id];
-			meta::TypeInfo<std::weak_ptr<Component>>::Register(id, type, false);
+			meta::TypeInfo<std::weak_ptr<Component>>::Register(id, type, false, "1CA55F88-8D64-445F-AE1B-E6635525E0DA");
 		}
 
 		//game object
 		{
 			auto id = db.AllocateType("GuGu::GameObject");
 			auto& type = db.types[id];
-			meta::TypeInfo<GuGu::GameObject>::Register(id, type, true);
+			meta::TypeInfo<GuGu::GameObject>::Register(id, type, true, "764220D9-31E0-448B-9612-79A47B570367");
 
 			{
 				auto id = db.AllocateType("std::shared_ptr<GuGu::GameObject>");
 				auto& type = db.types[id];
-				meta::TypeInfo<std::shared_ptr<GameObject>>::Register(id, type, false);
+				meta::TypeInfo<std::shared_ptr<GameObject>>::Register(id, type, false, "5126D2F9-FCF4-4020-8BBB-187389965FDE");
 
 				type.SetArrayConstructor<std::shared_ptr<GameObject>>();
 			}
@@ -253,7 +253,7 @@ namespace GuGu {
 			{
 				auto id = db.AllocateType("std::weak_ptr<GuGu::GameObject>");
 				auto& type = db.types[id];
-				meta::TypeInfo<std::weak_ptr<GameObject>>::Register(id, type, false);
+				meta::TypeInfo<std::weak_ptr<GameObject>>::Register(id, type, false, "E3D8C076-BFD3-4FD1-B108-5FBB37169DE3");
 			}
 
 			auto typeID = typeidof(GameObject);
@@ -290,7 +290,7 @@ namespace GuGu {
 		{
 			auto id = db.AllocateType("GuGu::Level");
 			auto& type = db.types[id];
-			meta::TypeInfo<Level>::Register(id, type, true);
+			meta::TypeInfo<Level>::Register(id, type, true, "64CB643F-2C9C-4857-AA01-4F6F995A4CBE");
 
 			auto typeID = typeidof(Level);
 			if (typeID != meta::InvalidTypeID && !meta::TypeInfo<Level>::Defined)
@@ -317,39 +317,39 @@ namespace GuGu {
 		{
 			auto id = db.AllocateType("std::shared_ptr<GuGu::Level>");
 			auto& type = db.types[id];
-			meta::TypeInfo<std::shared_ptr<Level>>::Register(id, type, false);
+			meta::TypeInfo<std::shared_ptr<Level>>::Register(id, type, false, "5078441C-57E0-4322-9294-11D02360F9C9");
 		}
 
 		{
 			auto id = db.AllocateType("std::weak_ptr<GuGu::Level>");
 			auto& type = db.types[id];
-			meta::TypeInfo<std::weak_ptr<Level>>::Register(id, type, false);
+			meta::TypeInfo<std::weak_ptr<Level>>::Register(id, type, false, "A027395A-6B76-474C-89D3-1D56ACC8212F");
 		}
 
 		//资源
 		{
 			auto id = db.AllocateType("GuGu::AssetData");
 			auto& type = db.types[id];
-			meta::TypeInfo<AssetData>::Register(id, type, true);
+			meta::TypeInfo<AssetData>::Register(id, type, true, "5A9DF858-72C3-4EC2-856D-3DF59457D874");
 
 			type.LoadBaseClasses(db, id, { typeof(meta::Object) });
 		}
 		{
 			auto id = db.AllocateType("std::shared_ptr<GuGu::AssetData>");
 			auto& type = db.types[id];
-			meta::TypeInfo<std::shared_ptr<AssetData>>::Register(id, type, false);
+			meta::TypeInfo<std::shared_ptr<AssetData>>::Register(id, type, false, "21C647F2-BF00-4919-85EF-53D77FB3BC07");
 		}
 		{
 			auto id = db.AllocateType("std::weak_ptr<GuGu::AssetData>");
 			auto& type = db.types[id];
-			meta::TypeInfo<std::weak_ptr<AssetData>>::Register(id, type, false);
+			meta::TypeInfo<std::weak_ptr<AssetData>>::Register(id, type, false, "3B42C324-06E4-49D3-AC0F-ADAE86A2DF39");
 		}
 
 		//各种 component
 		{
 			auto id = db.AllocateType("GuGu::TransformComponent");
 			auto& type = db.types[id];
-			meta::TypeInfo<TransformComponent>::Register(id, type, true);
+			meta::TypeInfo<TransformComponent>::Register(id, type, true, "57B43954-87AF-495A-8B58-E15890E621D1");
 
 			auto typeID = typeidof(TransformComponent);
 			if (typeID != meta::InvalidTypeID && !meta::TypeInfo<TransformComponent>::Defined)
@@ -385,20 +385,20 @@ namespace GuGu {
 			{
 				auto id = db.AllocateType("std::shared_ptr<GuGu::TransformComponent>");
 				auto& type = db.types[id];
-				meta::TypeInfo<std::shared_ptr<TransformComponent>>::Register(id, type, false);
+				meta::TypeInfo<std::shared_ptr<TransformComponent>>::Register(id, type, false, "311DBA9A-2885-4656-882D-81FF8EF66502");
 			}
 
 			{
 				auto id = db.AllocateType("std::weak_ptr<GuGu::TransformComponent>");
 				auto& type = db.types[id];
-				meta::TypeInfo<std::weak_ptr<TransformComponent>>::Register(id, type, false);
+				meta::TypeInfo<std::weak_ptr<TransformComponent>>::Register(id, type, false, "DC63130F-4532-4F84-9A37-11567967CEFA");
 			}
 		}
 
 		{
 			auto id = db.AllocateType("GuGu::StaticMeshComponent");
 			auto& type = db.types[id];
-			meta::TypeInfo<StaticMeshComponent>::Register(id, type, true);
+			meta::TypeInfo<StaticMeshComponent>::Register(id, type, true, "303B0EAC-B07E-42E1-B6E9-A56F00E75814");
 
 			auto typeID = typeidof(StaticMeshComponent);
 			if (typeID != meta::InvalidTypeID && !meta::TypeInfo<StaticMeshComponent>::Defined)
@@ -428,20 +428,20 @@ namespace GuGu {
 			{
 				auto id = db.AllocateType("std::shared_ptr<GuGu::StaticMeshComponent>");
 				auto& type = db.types[id];
-				meta::TypeInfo<std::shared_ptr<StaticMeshComponent>>::Register(id, type, false);
+				meta::TypeInfo<std::shared_ptr<StaticMeshComponent>>::Register(id, type, false, "81D20567-8580-45DF-9DC9-785225EC85FF");
 			}
 
 			{
 				auto id = db.AllocateType("std::weak_ptr<GuGu::StaticMeshComponent>");
 				auto& type = db.types[id];
-				meta::TypeInfo<std::weak_ptr<StaticMeshComponent>>::Register(id, type, false);
+				meta::TypeInfo<std::weak_ptr<StaticMeshComponent>>::Register(id, type, false, "E07DC6B1-27A4-4875-B5FF-D49F82FAE211");
 			}
 		}
 
 		{
 			auto id = db.AllocateType("GuGu::LightComponent");
 			auto& type = db.types[id];
-			meta::TypeInfo<LightComponent>::Register(id, type, true);
+			meta::TypeInfo<LightComponent>::Register(id, type, true, "3EF471CA-C9A2-4F2B-AEA9-326276AE4763");
 
 			auto typeID = typeidof(LightComponent);
 			if (typeID != meta::InvalidTypeID && !meta::TypeInfo<LightComponent>::Defined)
@@ -475,13 +475,13 @@ namespace GuGu {
 			{
 				auto id = db.AllocateType("std::shared_ptr<GuGu::LightComponent>");
 				auto& type = db.types[id];
-				meta::TypeInfo<std::shared_ptr<LightComponent>>::Register(id, type, false);
+				meta::TypeInfo<std::shared_ptr<LightComponent>>::Register(id, type, false, "1E0975BC-3D79-466A-A383-C7EAAEB21605");
 			}
 
 			{
 				auto id = db.AllocateType("std::weak_ptr<GuGu::LightComponent>");
 				auto& type = db.types[id];
-				meta::TypeInfo<std::weak_ptr<LightComponent>>::Register(id, type, false);
+				meta::TypeInfo<std::weak_ptr<LightComponent>>::Register(id, type, false, "77075968-2FB0-40BC-A431-C57C530A6724");
 			}
 
 		}
@@ -489,7 +489,7 @@ namespace GuGu {
 		{
 			auto id = db.AllocateType("GuGu::MaterialComponent");
 			auto& type = db.types[id];
-			meta::TypeInfo<MaterialComponent>::Register(id, type, true);
+			meta::TypeInfo<MaterialComponent>::Register(id, type, true, "5B3EA494-8F58-4A28-A623-CCF822CDF3A1");
 
 			auto typeID = typeidof(MaterialComponent);
 			if (typeID != meta::InvalidTypeID && !meta::TypeInfo<MaterialComponent>::Defined)
@@ -535,20 +535,20 @@ namespace GuGu {
 			{
 				auto id = db.AllocateType("std::shared_ptr<GuGu::MaterialComponent>");
 				auto& type = db.types[id];
-				meta::TypeInfo<std::shared_ptr<MaterialComponent>>::Register(id, type, false);
+				meta::TypeInfo<std::shared_ptr<MaterialComponent>>::Register(id, type, false, "B502E20C-C5B2-4118-8B34-BE7284185CE4");
 			}
 
 			{
 				auto id = db.AllocateType("std::weak_ptr<GuGu::MaterialComponent>");
 				auto& type = db.types[id];
-				meta::TypeInfo<std::weak_ptr<MaterialComponent>>::Register(id, type, false);
+				meta::TypeInfo<std::weak_ptr<MaterialComponent>>::Register(id, type, false, "236A394A-0FD7-4339-95BA-C89B254474B9");
 			}
 		}
 
 		{
 			auto id = db.AllocateType("GuGu::TerrainComponent");
 			auto& type = db.types[id];
-			meta::TypeInfo<TerrainComponent>::Register(id, type, true);
+			meta::TypeInfo<TerrainComponent>::Register(id, type, true, "D813E5D9-B950-4941-8577-4C9C78B9C9D1");
 
 			auto typeID = typeidof(TerrainComponent);
 			if (typeID != meta::InvalidTypeID && !meta::TypeInfo<TerrainComponent>::Defined)
@@ -618,20 +618,20 @@ namespace GuGu {
 			{
 				auto id = db.AllocateType("std::shared_ptr<GuGu::TerrainComponent>");
 				auto& type = db.types[id];
-				meta::TypeInfo<std::shared_ptr<TerrainComponent>>::Register(id, type, false);
+				meta::TypeInfo<std::shared_ptr<TerrainComponent>>::Register(id, type, false, "39C665D1-522D-4321-83D4-C1946DC0D84F");
 			}
 
 			{
 				auto id = db.AllocateType("std::weak_ptr<GuGu::TerrainComponent>");
 				auto& type = db.types[id];
-				meta::TypeInfo<std::weak_ptr<TerrainComponent>>::Register(id, type, false);
+				meta::TypeInfo<std::weak_ptr<TerrainComponent>>::Register(id, type, false, "0C93471F-0542-4DE4-9A38-9D6E7E977C4F");
 			}
 		}
 
 		{
 			auto id = db.AllocateType("GuGu::WaterComponent");
 			auto& type = db.types[id];
-			meta::TypeInfo<WaterComponent>::Register(id, type, true);
+			meta::TypeInfo<WaterComponent>::Register(id, type, true, "4BEAE916-760A-4142-9321-5DC622A4B640");
 
 			auto typeID = typeidof(WaterComponent);
 			if (typeID != meta::InvalidTypeID && !meta::TypeInfo<WaterComponent>::Defined)
@@ -689,20 +689,20 @@ namespace GuGu {
 			{
 				auto id = db.AllocateType("std::shared_ptr<GuGu::WaterComponent>");
 				auto& type = db.types[id];
-				meta::TypeInfo<std::shared_ptr<WaterComponent>>::Register(id, type, false);
+				meta::TypeInfo<std::shared_ptr<WaterComponent>>::Register(id, type, false, "5942C0D7-9173-443E-98CC-0DBA19D3C9BA");
 			}
 
 			{
 				auto id = db.AllocateType("std::weak_ptr<GuGu::WaterComponent>");
 				auto& type = db.types[id];
-				meta::TypeInfo<std::weak_ptr<WaterComponent>>::Register(id, type, false);
+				meta::TypeInfo<std::weak_ptr<WaterComponent>>::Register(id, type, false, "E40553A2-248D-49DD-A284-FC35991219C1");
 			}
 		}
 
 		{
 			auto id = db.AllocateType("GuGu::CameraComponent");
 			auto& type = db.types[id];
-			meta::TypeInfo<CameraComponent>::Register(id, type, true);
+			meta::TypeInfo<CameraComponent>::Register(id, type, true, "DE850877-05B1-487C-A11F-CBABB546D177");
 
 			auto typeID = typeidof(CameraComponent);
 			if (typeID != meta::InvalidTypeID && !meta::TypeInfo<CameraComponent>::Defined)
@@ -740,13 +740,13 @@ namespace GuGu {
 			{
 				auto id = db.AllocateType("std::shared_ptr<CameraComponent>");
 				auto& type = db.types[id];
-				meta::TypeInfo<std::shared_ptr<CameraComponent>>::Register(id, type, false);
+				meta::TypeInfo<std::shared_ptr<CameraComponent>>::Register(id, type, false, "D866D79C-DC28-4F6B-AF00-E6E592E3C8A3");
 			}
 
 			{
 				auto id = db.AllocateType("std::weak_ptr<CameraComponent>");
 				auto& type = db.types[id];
-				meta::TypeInfo<std::weak_ptr<CameraComponent>>::Register(id, type, false);
+				meta::TypeInfo<std::weak_ptr<CameraComponent>>::Register(id, type, false, "1E51EEDA-262E-4608-A995-864D1CB5B6C3");
 			}
 		}
 
@@ -754,7 +754,7 @@ namespace GuGu {
 		{
 			auto id = db.AllocateType("GuGu::GStaticMesh");
 			auto& type = db.types[id];
-			meta::TypeInfo<GStaticMesh>::Register(id, type, true);
+			meta::TypeInfo<GStaticMesh>::Register(id, type, true, "C48E6CAE-2E8A-4CD9-A35D-56BF134431C7");
 
 			auto typeID = typeidof(GStaticMesh);
 			if (typeID != meta::InvalidTypeID && !meta::TypeInfo<GStaticMesh>::Defined)
@@ -804,20 +804,20 @@ namespace GuGu {
 			{
 				auto id = db.AllocateType("std::shared_ptr<GuGu::GStaticMesh>");
 				auto& type = db.types[id];
-				meta::TypeInfo<std::shared_ptr<GStaticMesh>>::Register(id, type, false);
+				meta::TypeInfo<std::shared_ptr<GStaticMesh>>::Register(id, type, false, "0D9E6859-B7CD-476C-AF4B-82462328432C");
 			}
 
 			{
 				auto id = db.AllocateType("std::weak_ptr<GuGu::GStaticMesh>");
 				auto& type = db.types[id];
-				meta::TypeInfo<std::weak_ptr<GStaticMesh>>::Register(id, type, false);
+				meta::TypeInfo<std::weak_ptr<GStaticMesh>>::Register(id, type, false, "37092C3B-F3B7-44FA-9508-B0FE6B6D0920");
 			}
 		}
 
 		{
 			auto id = db.AllocateType("GuGu::GTexture");
 			auto& type = db.types[id];
-			meta::TypeInfo<GTexture>::Register(id, type, true);
+			meta::TypeInfo<GTexture>::Register(id, type, true, "026CB8ED-6633-4577-B32C-F3F4D9C2FC22");
 
 			auto typeID = typeidof(GTexture);
 			if (typeID != meta::InvalidTypeID && !meta::TypeInfo<GTexture>::Defined)
@@ -867,14 +867,20 @@ namespace GuGu {
 			{
 				auto id = db.AllocateType("std::shared_ptr<GuGu::GTexture>");
 				auto& type = db.types[id];
-				meta::TypeInfo<std::shared_ptr<GTexture>>::Register(id, type, false);
+				meta::TypeInfo<std::shared_ptr<GTexture>>::Register(id, type, false, "7D876BB5-7FE5-4AAE-82B8-0BB529272FD0");
 			}
 
 			{
 				auto id = db.AllocateType("std::weak_ptr<GuGu::GTexture>");
 				auto& type = db.types[id];
-				meta::TypeInfo<std::weak_ptr<GTexture>>::Register(id, type, false);
+				meta::TypeInfo<std::weak_ptr<GTexture>>::Register(id, type, false, "B73F8372-6560-4AE9-806E-B475B8CD4B09");
 			}
+		}
+
+		meta::Type::List types = meta::Type::GetTypes();
+		for (const auto& type : types)
+		{
+			db.registerGuid(type.getGuid(), type.GetID());
 		}
 	}
 }

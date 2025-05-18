@@ -23,6 +23,8 @@ namespace GuGu {
 
 			std::unordered_map<GuGuUtf8Str, TypeID> ids;//字符串对应的TypeID
 
+			std::unordered_map<GGuid, TypeID> guids;//guid对应的TypeID
+
 			//加入全局变量
 
 			//加入全局函数
@@ -30,6 +32,8 @@ namespace GuGu {
 			static ReflectionDatabase& Instance(void);
 
 			TypeID AllocateType(const GuGuUtf8Str& name);
+
+			void registerGuid(const GGuid& guid, int32_t id);
 		private:
 			TypeID m_nextID;
 		};

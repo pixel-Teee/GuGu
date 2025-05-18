@@ -20,7 +20,7 @@ namespace GuGu {
 		struct isWeakPtr<std::weak_ptr<T>> : std::true_type { };
 
 		template<typename T>
-		void TypeInfo<T>::Register(TypeID id, TypeData& data, bool beingDefined)
+		void TypeInfo<T>::Register(TypeID id, TypeData& data, bool beingDefined, const GuGuUtf8Str& typeGuid)
 		{
 			//已经定义了
 			if (id == Type::Invalid().GetID())
@@ -47,6 +47,9 @@ namespace GuGu {
 
 				//应用平凡属性
 			}
+
+			data.typeGuid = GGuid(typeGuid);
+			//meta::ReflectionDatabase::Instance().registerGuid(data.typeGuid, id);
 		}
 
 		template<typename T>

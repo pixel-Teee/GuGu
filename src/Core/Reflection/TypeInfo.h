@@ -20,7 +20,7 @@ namespace GuGu {
 		{
 			static bool Defined;
 
-			static void Register(TypeID id, TypeData& data, bool beingDefined);
+			static void Register(TypeID id, TypeData& data, bool beingDefined, const GuGuUtf8Str& typeGuid);
 
 		private:
 			template<typename U = T>

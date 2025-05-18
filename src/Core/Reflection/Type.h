@@ -6,7 +6,7 @@
 #include "InvokableConfig.h"
 
 #include <vector>
-
+#include <Core/Guid.h>
 #include <Core/GuGuUtf8Str.h>
 
 #include <json.hpp> //json
@@ -37,6 +37,13 @@ namespace GuGu {
 			bool operator>=(const Type& rhs) const;
 			bool operator==(const Type& rhs) const;
 			bool operator!=(const Type& rhs) const;
+
+			//判断type guid是否相等(用于序列化/反序列化)
+			bool equalGuid(const Type& rhs) const;
+
+			GuGu::GGuid getGuid() const;
+
+			static const Type& getType(const GGuid& guid);
 
 			//获取一个 invalid type 的实例
 			static const Type& Invalid(void);

@@ -272,7 +272,7 @@ namespace GuGu {
 			meta::Variant object = ObjectVariant(item.second);
 			std::string objectIndex = std::to_string(item.first);
 			nlohmann::json jsonObject = serializeJson(object.GetType(), object, context);
-			jsonObject["type"] = object.GetType().GetID();
+			jsonObject["type"] = object.GetType().getGuid().getGuid().getStr();
 			nlohmann::json indexAndObject = nlohmann::json::object();
 			indexAndObject[objectIndex.c_str()] = jsonObject;
 			objectArrays.push_back(indexAndObject);
@@ -587,8 +587,9 @@ namespace GuGu {
 		{
 			for (auto& it : element.items())
 			{
-				uint32_t typeId = it.value()["type"].get<uint32_t>();
-				meta::Type type = meta::Type(typeId);
+				GGuid typeGuid = GuGuUtf8Str(it.value()["type"]);
+				meta::Type type = meta::Type::getType(typeGuid);
+				//meta::Type type = meta::Type(typeId);
 				meta::Constructor constructor = type.GetDynamicConstructor();
 				meta::Variant instance = deserializeJson(type, it.value(), constructor, context);//GStaticMesh
 				meta::Object* object = static_cast<meta::Object*>(instance.getBase()->GetPtr());

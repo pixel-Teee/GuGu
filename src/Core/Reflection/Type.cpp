@@ -56,6 +56,26 @@ namespace GuGu {
 		{
 			return m_id != rhs.m_id;
 		}
+
+		bool Type::equalGuid(const Type& rhs) const
+		{
+			return gDatabase.types[m_id].typeGuid == gDatabase.types[rhs.m_id].typeGuid;
+		}
+
+		GuGu::GGuid Type::getGuid() const
+		{
+			return gDatabase.types[m_id].typeGuid;
+		}
+
+		const Type& Type::getType(const GGuid& guid)
+		{
+			auto& guids = gDatabase.guids;
+			//return guids[guid];
+			if (guids.find(guid) != guids.end())
+				return guids[guid];
+			return InvalidTypeID;
+		}
+
 		const Type& Type::Invalid(void)
 		{
 			static const Type invalid{ InvalidTypeID };

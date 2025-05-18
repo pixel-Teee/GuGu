@@ -6,6 +6,7 @@
 #include "Constructor.h"
 
 #include <Core/GuGuUtf8Str.h>
+#include <Core/Guid.h>
 
 namespace GuGu {
 	
@@ -53,6 +54,9 @@ namespace GuGu {
 			//方法
 
 			//静态方法
+
+			//GUID(用于序列化/反序列化唯一ID)
+			GuGu::GGuid typeGuid;
 
 			TypeData(void);
 			TypeData(const GuGuUtf8Str& name);
