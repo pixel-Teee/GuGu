@@ -15,6 +15,7 @@
 #include <Core/GamePlay/MaterialComponent.h>
 #include <Core/GamePlay/CameraComponent.h>
 #include <Core/GamePlay/TerrainComponent.h>
+#include <Core/GamePlay/WaterComponent.h>
 
 #include <Renderer/Color.h>
 
@@ -624,6 +625,77 @@ namespace GuGu {
 				auto id = db.AllocateType("TerrainComponentWeakPtr");
 				auto& type = db.types[id];
 				meta::TypeInfo<std::weak_ptr<TerrainComponent>>::Register(id, type, false);
+			}
+		}
+
+		{
+			auto id = db.AllocateType("WaterComponent");
+			auto& type = db.types[id];
+			meta::TypeInfo<WaterComponent>::Register(id, type, true);
+
+			auto typeID = typeidof(WaterComponent);
+			if (typeID != meta::InvalidTypeID && !meta::TypeInfo<WaterComponent>::Defined)
+			{
+				auto& type = db.types[typeID];
+
+				//array constructor
+				type.SetArrayConstructor<WaterComponent>();
+
+				type.AddConstructor<WaterComponent, false, false>();
+
+				type.AddConstructor<WaterComponent, true, true>();
+
+				type.LoadBaseClasses(db, typeID, { typeof(Component) });
+
+				meta::TypeInfo<WaterComponent>::Defined = true;
+
+				type.AddField<WaterComponent, std::shared_ptr<AssetData>>("m_mixedColorTexture",
+					(meta::FieldGetter<WaterComponent, std::shared_ptr<AssetData>, false>::Signature) & WaterComponent::m_mixedColorTexture,
+					(meta::FieldSetter<WaterComponent, std::shared_ptr<AssetData>, false>::Signature) & WaterComponent::m_mixedColorTexture);
+
+				type.AddField<WaterComponent, std::shared_ptr<AssetData>>("m_colorTexture",
+					(meta::FieldGetter<WaterComponent, std::shared_ptr<AssetData>, false>::Signature) & WaterComponent::m_colorTexture,
+					(meta::FieldSetter<WaterComponent, std::shared_ptr<AssetData>, false>::Signature) & WaterComponent::m_colorTexture);
+
+				type.AddField<WaterComponent, std::shared_ptr<AssetData>>("m_dirTexture",
+					(meta::FieldGetter<WaterComponent, std::shared_ptr<AssetData>, false>::Signature)& WaterComponent::m_dirTexture,
+					(meta::FieldSetter<WaterComponent, std::shared_ptr<AssetData>, false>::Signature)& WaterComponent::m_dirTexture);
+
+				type.AddField<WaterComponent, uint32_t>("m_waterRows",
+					(meta::FieldGetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_waterRows,
+					(meta::FieldSetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_waterRows);
+
+				type.AddField<WaterComponent, uint32_t>("m_waterCols",
+					(meta::FieldGetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_waterCols,
+					(meta::FieldSetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_waterCols);
+
+				type.AddField<WaterComponent, uint32_t>("m_rows",
+					(meta::FieldGetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_rows,
+					(meta::FieldSetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_rows);
+
+				type.AddField<WaterComponent, uint32_t>("m_cols",
+					(meta::FieldGetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_cols,
+					(meta::FieldSetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_cols);
+
+				type.AddField<WaterComponent, uint32_t>("m_tileSize",
+					(meta::FieldGetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_tileSize,
+					(meta::FieldSetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_tileSize);
+
+				type.AddField<WaterComponent, std::weak_ptr<GameObject>>("m_owner",
+					(meta::FieldGetter<WaterComponent, std::weak_ptr<GameObject>&, true>::Signature) & WaterComponent::getParentGameObject,
+					(meta::FieldSetter<WaterComponent, std::weak_ptr<GameObject>&, true>::Signature) & WaterComponent::setParentGameObject);
+			}
+
+			{
+				auto id = db.AllocateType("WaterComponentSharedPtr");
+				auto& type = db.types[id];
+				meta::TypeInfo<std::shared_ptr<WaterComponent>>::Register(id, type, false);
+			}
+
+			{
+				auto id = db.AllocateType("WaterComponentWeakPtr");
+				auto& type = db.types[id];
+				meta::TypeInfo<std::weak_ptr<WaterComponent>>::Register(id, type, false);
 			}
 		}
 

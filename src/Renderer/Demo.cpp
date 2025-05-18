@@ -28,6 +28,7 @@
 #include <Core/GamePlay/MaterialComponent.h>
 #include <Core/GamePlay/CameraComponent.h>
 #include <Core/GamePlay/TerrainComponent.h>
+#include <Core/GamePlay/WaterComponent.h>
 #include <Core/Model/StaticMesh.h>
 #include <Core/GamePlay/ViewportClient.h>
 #include <Core/Texture/GTexture.h>
@@ -228,6 +229,71 @@ namespace GuGu {
 			nvrhi::ResourceStates state = nvrhi::ResourceStates::VertexBuffer | nvrhi::ResourceStates::ShaderResource;
 
 			m_CommandList->setPermanentBufferState(terrainComponent->m_vertexBufferHandle, state);
+			m_CommandList->commitBarriers();
+		}
+	}
+
+	void Demo::createWaterVertexBufferAndIndexBuffer(std::shared_ptr<WaterComponent> waterComponent)
+	{
+		std::vector<uint32_t>& indexData = waterComponent->m_indexData;
+		std::vector<math::float3>& positionData = waterComponent->m_vertexData;
+
+		if (!indexData.empty() && !waterComponent->m_indexBufferHandle)
+		{
+			nvrhi::BufferDesc bufferDesc;
+			bufferDesc.isIndexBuffer = true;
+			bufferDesc.byteSize = indexData.size() * sizeof(uint32_t);
+			bufferDesc.debugName = "IndexBuffer";
+			bufferDesc.canHaveTypedViews = true;
+			bufferDesc.canHaveRawViews = true;
+			bufferDesc.format = nvrhi::Format::R32_UINT;
+			//bufferDesc.isAccelStructBuildInput = m_RayTracingSupported;
+
+			waterComponent->m_indexBufferHandle = GetDevice()->createBuffer(bufferDesc);
+
+			m_CommandList->beginTrackingBufferState(waterComponent->m_indexBufferHandle, nvrhi::ResourceStates::Common);
+
+			m_CommandList->writeBuffer(waterComponent->m_indexBufferHandle, indexData.data(), indexData.size() * sizeof(uint32_t));
+
+			nvrhi::ResourceStates state = nvrhi::ResourceStates::IndexBuffer | nvrhi::ResourceStates::ShaderResource;
+
+			m_CommandList->setPermanentBufferState(waterComponent->m_indexBufferHandle, state);
+			m_CommandList->commitBarriers();
+		}
+
+		if (!waterComponent->m_vertexBufferHandle)
+		{
+			nvrhi::BufferDesc bufferDesc;
+			bufferDesc.isVertexBuffer = true;
+			bufferDesc.byteSize = 0;
+			bufferDesc.debugName = "VertexBuffer";
+			bufferDesc.canHaveTypedViews = true;
+			bufferDesc.canHaveRawViews = true;
+
+			if (!positionData.empty())
+			{
+				nvrhi::BufferRange bufferRange;
+				bufferRange.byteSize = 0;
+				bufferRange.byteOffset = 0;
+				AppendBufferRange(bufferRange,
+					positionData.size() * sizeof(positionData[0]), bufferDesc.byteSize);
+			}
+
+			waterComponent->m_vertexBufferHandle = GetDevice()->createBuffer(bufferDesc);
+
+			m_CommandList->beginTrackingBufferState(waterComponent->m_vertexBufferHandle, nvrhi::ResourceStates::Common);
+
+			if (!positionData.empty())
+			{
+				nvrhi::BufferRange bufferRange;
+				bufferRange.byteSize = positionData.size() * sizeof(positionData[0]);
+				bufferRange.byteOffset = 0;
+				m_CommandList->writeBuffer(waterComponent->m_vertexBufferHandle, positionData.data(), bufferRange.byteSize, bufferRange.byteOffset);
+			}
+
+			nvrhi::ResourceStates state = nvrhi::ResourceStates::VertexBuffer | nvrhi::ResourceStates::ShaderResource;
+
+			m_CommandList->setPermanentBufferState(waterComponent->m_vertexBufferHandle, state);
 			m_CommandList->commitBarriers();
 		}
 	}
@@ -845,7 +911,7 @@ namespace GuGu {
 		m_terrainPixelShader = shaderFactory->CreateShader("asset/shader/Terrain.hlsl", "main_ps", nullptr,
 			nvrhi::ShaderType::Pixel);
 		layoutDesc.bindings = {
-			nvrhi::BindingLayoutItem::ConstantBuffer(0), //normal tranform
+			nvrhi::BindingLayoutItem::ConstantBuffer(0), //normal transform
 			nvrhi::BindingLayoutItem::ConstantBuffer(1), //ambient color
 			nvrhi::BindingLayoutItem::Texture_SRV(0), //terrain height
 			nvrhi::BindingLayoutItem::Texture_SRV(1), //terrain color1
@@ -869,6 +935,33 @@ namespace GuGu {
 			uint32_t(std::size(terrainAttributes)),
 			m_terrainVertexShader);
 		//------terrain------
+
+		//------water------
+		m_waterVertexShader = shaderFactory->CreateShader("asset/shader/water.hlsl", "main_vs", nullptr,
+			nvrhi::ShaderType::Vertex);
+		m_waterPixelShader = shaderFactory->CreateShader("asset/shader/water.hlsl", "main_ps", nullptr,
+			nvrhi::ShaderType::Pixel);
+		layoutDesc.bindings = {
+			nvrhi::BindingLayoutItem::ConstantBuffer(0), //normal transform
+			nvrhi::BindingLayoutItem::ConstantBuffer(1), //water properties
+			nvrhi::BindingLayoutItem::Texture_SRV(0), //color texture
+			nvrhi::BindingLayoutItem::Texture_SRV(1), //dir texture
+			nvrhi::BindingLayoutItem::Sampler(0) //sampler
+		};
+		m_waterBindingLayout = GetDevice()->createBindingLayout(layoutDesc);
+
+		nvrhi::VertexAttributeDesc waterAttributes[] = {
+			nvrhi::VertexAttributeDesc()
+						.setName("POSITION")
+						.setFormat(nvrhi::Format::RGB32_FLOAT)
+						.setOffset(0)
+						.setBufferIndex(0)
+						.setElementStride(sizeof(math::float3))
+		};
+		m_waterInputLayout = GetDevice()->createInputLayout(waterAttributes,
+			uint32_t(std::size(waterAttributes)),
+			m_waterVertexShader);
+		//------water------
 
 		m_CommandList->close();
 		GetDevice()->executeCommandList(m_CommandList);
@@ -1439,6 +1532,123 @@ namespace GuGu {
 					}
 				}
 			}
+
+			//draw water
+			nvrhi::GraphicsState waterGraphicsState;
+			waterGraphicsState.pipeline = m_waterPipeline;
+			waterGraphicsState.framebuffer = inViewportClient->getFramebuffer();
+			waterGraphicsState.viewport.addViewportAndScissorRect(viewport);
+			for (size_t i = 0; i < gameObjects.size(); ++i)
+			{
+				std::shared_ptr<TransformComponent> transformComponent = gameObjects[i]->getComponent<TransformComponent>();
+				std::shared_ptr<WaterComponent> waterComponent = gameObjects[i]->getComponent<WaterComponent>();
+				if (transformComponent && waterComponent)
+				{
+					if (waterComponent->m_indexBufferHandle == nullptr || waterComponent->m_vertexBufferHandle == nullptr)
+					{
+						createWaterVertexBufferAndIndexBuffer(waterComponent);
+					}
+
+					if (waterComponent->getDirTexture()->m_texture == nullptr)
+					{
+						m_textureCache.FinalizeTexture(waterComponent->getDirTexture(), m_commonRenderPass.get(), m_CommandList);
+					}
+					if (waterComponent->getColorTexture()->m_texture == nullptr)
+					{
+						m_textureCache.FinalizeTexture(waterComponent->getColorTexture(), m_commonRenderPass.get(), m_CommandList);
+					}
+
+					if (!waterComponent->m_waterConstantBuffer)
+					{
+						waterComponent->m_waterConstantBuffer = GetDevice()->createBuffer(
+							nvrhi::utils::CreateStaticConstantBufferDesc(
+								sizeof(WaterConstantBufferEntry), " WaterConstantBufferEntry")
+							.setInitialState(
+								nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
+									true));
+					}
+					if (waterComponent->m_waterPropertiesConstantBuffer.empty())
+					{
+						waterComponent->m_waterPropertiesConstantBuffer.resize(waterComponent->m_waterCols * waterComponent->m_waterRows);
+					}
+				}
+				else
+				{
+					continue;
+				}
+				WaterConstantBufferEntry waterConstants;
+				waterConstants.viewProjMatrix = viewProjMatrix;
+				waterConstants.worldMatrix = math::affineToHomogeneous(transformComponent->GetLocalToWorldTransformFloat());
+				waterConstants.time = m_wallClockTime;
+				//get the global matrix to fill constant buffer		
+				m_CommandList->writeBuffer(waterComponent->m_waterConstantBuffer, &waterConstants, sizeof(WaterConstantBufferEntry));
+
+				math::float2 waterSize = math::float2((float)waterComponent->m_rows * (float)waterComponent->m_tileSize, (float)waterComponent->m_cols * (float)waterComponent->m_tileSize);
+				math::float2 waterBeginXZ = math::float2(-(float)waterComponent->m_waterRows * waterSize.x * 0.5f, -(float)waterComponent->m_waterCols * waterSize.y * 0.5f);
+				for (uint32_t i = 0; i < waterComponent->m_waterRows; ++i)
+				{
+					for (uint32_t j = 0; j < waterComponent->m_waterCols; ++j)
+					{
+						uint32_t index = i * waterComponent->m_waterCols + j;
+						if (!waterComponent->m_waterPropertiesConstantBuffer[index])
+						{
+							waterComponent->m_waterPropertiesConstantBuffer[index] = GetDevice()->createBuffer(
+								nvrhi::utils::CreateStaticConstantBufferDesc(
+									sizeof(WaterPropertiesBuffer), "WaterPropertiesBuffer")
+								.setInitialState(
+									nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
+										true));
+						}
+						int32_t mixedColorImageWidth = waterComponent->getMixedColorTexture()->m_width;
+						int32_t mixedColorImageHeight = waterComponent->getMixedColorTexture()->m_height;
+						int32_t waterImagePx = (i / (float)waterComponent->m_waterRows) * mixedColorImageWidth;
+						int32_t waterImagePy = ((waterComponent->m_waterCols - j - 1) / (float)waterComponent->m_waterCols) * mixedColorImageHeight;
+						math::float3 mixedColor = waterComponent->getMixedColorTexture()->getColor(waterImagePx, waterImagePy);
+						if (mixedColor.x >= 30.0f)
+						{
+							math::float2 offsetXZ = math::float2(waterBeginXZ.x + j * waterSize.x, waterBeginXZ.y + i * waterSize.y);
+							WaterPropertiesBuffer propertiesBuffer;
+							propertiesBuffer.m_heightScale = 10.0f;
+							propertiesBuffer.m_beginXZ = waterBeginXZ;
+							propertiesBuffer.m_xzOffset = offsetXZ;
+							m_CommandList->writeBuffer(waterComponent->m_waterPropertiesConstantBuffer[index], &propertiesBuffer, sizeof(WaterPropertiesBuffer));
+							//draw water
+							nvrhi::BindingSetHandle waterBindingSet;
+							nvrhi::BindingSetDesc desc;
+							//nvrhi::BindingSetHandle bindingSet;
+							desc.bindings = {
+									nvrhi::BindingSetItem::ConstantBuffer(0, waterComponent->m_waterConstantBuffer),
+									nvrhi::BindingSetItem::ConstantBuffer(1, waterComponent->m_waterPropertiesConstantBuffer[index]),
+									nvrhi::BindingSetItem::Texture_SRV(0, waterComponent->getColorTexture()->m_texture),
+									nvrhi::BindingSetItem::Texture_SRV(1, waterComponent->getDirTexture()->m_texture),
+									nvrhi::BindingSetItem::Sampler(0, m_pointWrapSampler),
+							};
+							waterBindingSet = GetDevice()->createBindingSet(desc, m_waterBindingLayout);
+
+							waterGraphicsState.bindings = { waterBindingSet };
+
+							waterGraphicsState.vertexBuffers = {
+								{waterComponent->m_vertexBufferHandle, 0, 0},
+							};
+
+							waterGraphicsState.indexBuffer = {
+								waterComponent->m_indexBufferHandle, nvrhi::Format::R32_UINT, 0
+							};
+
+							waterGraphicsState.setPipeline(m_waterPipeline);
+							m_CommandList->setGraphicsState(waterGraphicsState);
+
+							// Draw the model.
+							nvrhi::DrawArguments args;
+							args.vertexCount = waterComponent->m_indexData.size();
+							args.instanceCount = 1;
+							args.startVertexLocation = 0;
+							args.startIndexLocation = 0;
+							m_CommandList->drawIndexed(args);
+						}
+					}
+				}
+			}
 		}
 
 		m_CommandList->close();
@@ -1499,6 +1709,23 @@ namespace GuGu {
 			psoDesc.renderState.depthStencilState.depthTestEnable = true;
 			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
 			m_terrainPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
+		}
+
+		if (!m_waterPipeline)
+		{
+			nvrhi::GraphicsPipelineDesc psoDesc;
+			psoDesc.VS = m_waterVertexShader; //water
+			psoDesc.PS = m_waterPixelShader; //water
+			psoDesc.inputLayout = m_waterInputLayout; //顶点属性
+			psoDesc.bindingLayouts = { m_waterBindingLayout }; //constant buffer 这些
+			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+			//psoDesc.renderState.rasterState.fillMode = nvrhi::RasterFillMode::Wireframe;
+			psoDesc.renderState.blendState.targets[0].setBlendEnable(true);
+			psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
+			psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
+			psoDesc.renderState.depthStencilState.depthTestEnable = true;
+			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
+			m_waterPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
 		m_drawItems.clear();
@@ -1825,6 +2052,124 @@ namespace GuGu {
 					args.startVertexLocation = 0;
 					args.startIndexLocation = 0;
 					m_CommandList->drawIndexed(args);
+				}
+			}
+		}
+
+		//draw water
+		nvrhi::GraphicsState waterGraphicsState;
+		waterGraphicsState.pipeline = m_waterPipeline;
+		waterGraphicsState.framebuffer = inViewportClient->getFramebuffer();
+		waterGraphicsState.viewport.addViewportAndScissorRect(viewport);
+		for (size_t i = 0; i < gameObjects.size(); ++i)
+		{
+			std::shared_ptr<TransformComponent> transformComponent = gameObjects[i]->getComponent<TransformComponent>();
+			std::shared_ptr<WaterComponent> waterComponent = gameObjects[i]->getComponent<WaterComponent>();
+			if (transformComponent && waterComponent)
+			{
+				if (waterComponent->m_indexBufferHandle == nullptr || waterComponent->m_vertexBufferHandle == nullptr)
+				{
+					createWaterVertexBufferAndIndexBuffer(waterComponent);
+				}
+
+				if (waterComponent->getDirTexture()->m_texture == nullptr)
+				{
+					m_textureCache.FinalizeTexture(waterComponent->getDirTexture(), m_commonRenderPass.get(), m_CommandList);
+				}
+				if (waterComponent->getColorTexture()->m_texture == nullptr)
+				{
+					m_textureCache.FinalizeTexture(waterComponent->getColorTexture(), m_commonRenderPass.get(), m_CommandList);
+				}
+
+				if (!waterComponent->m_waterConstantBuffer)
+				{
+					waterComponent->m_waterConstantBuffer = GetDevice()->createBuffer(
+						nvrhi::utils::CreateStaticConstantBufferDesc(
+							sizeof(WaterConstantBufferEntry), " WaterConstantBufferEntry")
+						.setInitialState(
+							nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
+								true));
+				}
+				if (waterComponent->m_waterPropertiesConstantBuffer.empty())
+				{
+					waterComponent->m_waterPropertiesConstantBuffer.resize(waterComponent->m_waterCols * waterComponent->m_waterRows);
+				}
+			}
+			else
+			{
+				continue;
+			}
+			WaterConstantBufferEntry waterConstants;
+			waterConstants.viewProjMatrix = viewProjMatrix;
+			waterConstants.worldMatrix = math::affineToHomogeneous(transformComponent->GetLocalToWorldTransformFloat());
+			waterConstants.time = m_wallClockTime;
+			//get the global matrix to fill constant buffer		
+			m_CommandList->writeBuffer(waterComponent->m_waterConstantBuffer, &waterConstants, sizeof(WaterConstantBufferEntry));
+
+			math::float2 waterSize = math::float2((float)waterComponent->m_rows * (float)waterComponent->m_tileSize, (float)waterComponent->m_cols * (float)waterComponent->m_tileSize);
+			math::float2 waterBeginXZ = math::float2(-(float)waterComponent->m_waterRows * waterSize.x * 0.5f, -(float)waterComponent->m_waterCols * waterSize.y * 0.5f);
+			for (uint32_t i = 0; i < waterComponent->m_waterRows; ++i)
+			{
+				for (uint32_t j = 0; j < waterComponent->m_waterCols; ++j)
+				{
+					uint32_t index = i * waterComponent->m_waterCols + j;
+					if (!waterComponent->m_waterPropertiesConstantBuffer[index])
+					{
+						waterComponent->m_waterPropertiesConstantBuffer[index] = GetDevice()->createBuffer(
+							nvrhi::utils::CreateStaticConstantBufferDesc(
+								sizeof(WaterPropertiesBuffer), "WaterPropertiesBuffer")
+							.setInitialState(
+								nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
+									true));
+					}
+
+					int32_t mixedColorImageWidth = waterComponent->getMixedColorTexture()->m_width;
+					int32_t mixedColorImageHeight = waterComponent->getMixedColorTexture()->m_height;
+					int32_t waterImagePx = (i / (float)waterComponent->m_waterRows) * mixedColorImageWidth;
+					int32_t waterImagePy = ((waterComponent->m_waterCols - j - 1) / (float)waterComponent->m_waterCols) * mixedColorImageHeight;
+					math::float3 mixedColor = waterComponent->getMixedColorTexture()->getColor(waterImagePx, waterImagePy);
+					if (mixedColor.x >= 30.0f)
+					{
+						math::float2 offsetXZ = math::float2(waterBeginXZ.x + j * waterSize.x, waterBeginXZ.y + i * waterSize.y);
+						WaterPropertiesBuffer propertiesBuffer;
+						propertiesBuffer.m_heightScale = 10.0f;
+						propertiesBuffer.m_beginXZ = waterBeginXZ;
+						propertiesBuffer.m_xzOffset = offsetXZ;
+						m_CommandList->writeBuffer(waterComponent->m_waterPropertiesConstantBuffer[index], &propertiesBuffer, sizeof(WaterPropertiesBuffer));
+						//draw water
+						nvrhi::BindingSetHandle waterBindingSet;
+						nvrhi::BindingSetDesc desc;
+						//nvrhi::BindingSetHandle bindingSet;
+						desc.bindings = {
+								nvrhi::BindingSetItem::ConstantBuffer(0, waterComponent->m_waterConstantBuffer),
+								nvrhi::BindingSetItem::ConstantBuffer(1, waterComponent->m_waterPropertiesConstantBuffer[index]),
+								nvrhi::BindingSetItem::Texture_SRV(0, waterComponent->getColorTexture()->m_texture),
+								nvrhi::BindingSetItem::Texture_SRV(1, waterComponent->getDirTexture()->m_texture),
+								nvrhi::BindingSetItem::Sampler(0, m_pointWrapSampler),
+						};
+						waterBindingSet = GetDevice()->createBindingSet(desc, m_waterBindingLayout);
+
+						waterGraphicsState.bindings = { waterBindingSet };
+
+						waterGraphicsState.vertexBuffers = {
+							{waterComponent->m_vertexBufferHandle, 0, 0},
+						};
+
+						waterGraphicsState.indexBuffer = {
+							waterComponent->m_indexBufferHandle, nvrhi::Format::R32_UINT, 0
+						};
+
+						waterGraphicsState.setPipeline(m_waterPipeline);
+						m_CommandList->setGraphicsState(waterGraphicsState);
+
+						// Draw the model.
+						nvrhi::DrawArguments args;
+						args.vertexCount = waterComponent->m_indexData.size();
+						args.instanceCount = 1;
+						args.startVertexLocation = 0;
+						args.startIndexLocation = 0;
+						m_CommandList->drawIndexed(args);
+					}		
 				}
 			}
 		}

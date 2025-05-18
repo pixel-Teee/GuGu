@@ -89,4 +89,18 @@ namespace GuGu {
 		}
 	}
 
+	math::float3 GTexture::getColor(int32_t x, int32_t y) const
+	{
+		int32_t index = y * m_width + x;
+		if (m_bytesPerPixel == 3)
+		{
+			return math::float3(m_data[index * 3], m_data[index * 3 + 1], m_data[index * 3 + 2]);
+		}
+		else if (m_bytesPerPixel == 4)
+		{
+			return math::float3(m_data[index * 4], m_data[index * 4 + 1], m_data[index * 4 + 2]);
+		}
+		return math::float3(0, 0, 0);
+	}
+
 }

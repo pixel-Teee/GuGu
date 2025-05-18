@@ -22,6 +22,7 @@ namespace GuGu {
 	class StaticMeshComponent;
 	class ViewportClient;
 	class TerrainComponent;
+	class WaterComponent;
 	struct DrawItem
 	{
 		const MeshInfo* mesh;
@@ -59,6 +60,8 @@ namespace GuGu {
 		void createVertexBufferAndIndexBuffer(GStaticMesh& staticMesh);
 
 		void createTerrainVertexBufferAndIndexBuffer(std::shared_ptr<TerrainComponent> terrainComponent);
+
+		void createWaterVertexBufferAndIndexBuffer(std::shared_ptr<WaterComponent> waterComponent);
 
 		void initRenderTargetAndDepthTarget(ViewportClient& viewportClient, math::float2 viewportSize);
 	private:
@@ -233,6 +236,26 @@ namespace GuGu {
 			dm::float3 camWorldPos;
 		};
 		//------terrain------
+
+		//------water------
+		nvrhi::ShaderHandle m_waterVertexShader;
+		nvrhi::ShaderHandle m_waterPixelShader;
+		nvrhi::InputLayoutHandle m_waterInputLayout;
+		nvrhi::BindingLayoutHandle m_waterBindingLayout;
+		nvrhi::BindingSetHandle m_waterBindingSet;
+		nvrhi::GraphicsPipelineHandle m_waterPipeline;
+		struct WaterPropertiesBuffer {
+			dm::float2 m_beginXZ;//x, z方向上的起始偏移
+			dm::float2 m_xzOffset;//x, z方向上的位置偏移
+			float m_heightScale;
+		};
+		struct WaterConstantBufferEntry {
+			dm::float4x4 viewProjMatrix;
+			dm::float4x4 worldMatrix;
+			dm::float3 camWorldPos;
+			float time;
+		};
+		//------water------
 
 		uint32_t m_maxLightCounts = 4;
 	};

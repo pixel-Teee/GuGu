@@ -26,6 +26,8 @@ namespace GuGu {
 		//反序列化
 		virtual void OnDeserialize(const nlohmann::json& input) override;
 
+		math::float3 getColor(int32_t x, int32_t y) const;
+
 		//gpu texture
 		nvrhi::TextureHandle m_texture;
 

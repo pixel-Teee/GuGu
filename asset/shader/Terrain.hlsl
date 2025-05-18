@@ -36,7 +36,7 @@ void main_vs(
     o_uv = float2((x - g_beginXZ.x) / h, 1.0 - (z - g_beginXZ.y) / v);
     
     //height
-    float4 texCoord1 = (t_HeightTexture.SampleLevel(s_Sampler, o_uv, 0) * 2.0 - 1.0);
+    float4 texCoord1 = t_HeightTexture.SampleLevel(s_Sampler, o_uv, 0);
     
     float yOffset = texCoord1.r * g_heightScale;
     o_pos = mul(mul(float4(x, yOffset, z, 1), g_World), g_Transform);
