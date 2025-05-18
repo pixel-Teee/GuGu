@@ -178,7 +178,7 @@ namespace GuGu {
 
 		//color
 		{
-			auto id = db.AllocateType("Color");
+			auto id = db.AllocateType("GuGu::Color");
 			auto& type = db.types[id];
 			meta::TypeInfo<Color>::Register(id, type, true);
 
@@ -207,13 +207,13 @@ namespace GuGu {
 
 		//meta::object
 		{
-			auto id = db.AllocateType("meta::object");
+			auto id = db.AllocateType("GuGu::meta::object");
 			auto& type = db.types[id];
 			meta::TypeInfo<meta::Object>::Register(id, type, true);
 		}
 
 		{
-			auto id = db.AllocateType("Component");
+			auto id = db.AllocateType("GuGu::Component");
 			auto& type = db.types[id];
 			meta::TypeInfo<Component>::Register(id, type, true);
 
@@ -223,7 +223,7 @@ namespace GuGu {
 		}
 
 		{
-			auto id = db.AllocateType("ComponentSharedPtr");
+			auto id = db.AllocateType("std::shared_ptr<GuGu::Component>");
 			auto& type = db.types[id];
 			meta::TypeInfo<std::shared_ptr<Component>>::Register(id, type, false);
 
@@ -231,19 +231,19 @@ namespace GuGu {
 		}
 
 		{
-			auto id = db.AllocateType("ComponentWeakPtr");
+			auto id = db.AllocateType("std::weak_ptr<GuGu::Component>");
 			auto& type = db.types[id];
 			meta::TypeInfo<std::weak_ptr<Component>>::Register(id, type, false);
 		}
 
 		//game object
 		{
-			auto id = db.AllocateType("GameObject");
+			auto id = db.AllocateType("GuGu::GameObject");
 			auto& type = db.types[id];
-			meta::TypeInfo<GameObject>::Register(id, type, true);
+			meta::TypeInfo<GuGu::GameObject>::Register(id, type, true);
 
 			{
-				auto id = db.AllocateType("GameObjectSharedPtr");
+				auto id = db.AllocateType("std::shared_ptr<GuGu::GameObject>");
 				auto& type = db.types[id];
 				meta::TypeInfo<std::shared_ptr<GameObject>>::Register(id, type, false);
 
@@ -251,7 +251,7 @@ namespace GuGu {
 			}
 
 			{
-				auto id = db.AllocateType("GameObjectWeakPtr");
+				auto id = db.AllocateType("std::weak_ptr<GuGu::GameObject>");
 				auto& type = db.types[id];
 				meta::TypeInfo<std::weak_ptr<GameObject>>::Register(id, type, false);
 			}
@@ -288,7 +288,7 @@ namespace GuGu {
 
 		//level
 		{
-			auto id = db.AllocateType("Level");
+			auto id = db.AllocateType("GuGu::Level");
 			auto& type = db.types[id];
 			meta::TypeInfo<Level>::Register(id, type, true);
 
@@ -315,39 +315,39 @@ namespace GuGu {
 		}
 
 		{
-			auto id = db.AllocateType("LevelSharedPtr");
+			auto id = db.AllocateType("std::shared_ptr<GuGu::Level>");
 			auto& type = db.types[id];
 			meta::TypeInfo<std::shared_ptr<Level>>::Register(id, type, false);
 		}
 
 		{
-			auto id = db.AllocateType("LevelWeakPtr");
+			auto id = db.AllocateType("std::weak_ptr<GuGu::Level>");
 			auto& type = db.types[id];
 			meta::TypeInfo<std::weak_ptr<Level>>::Register(id, type, false);
 		}
 
 		//资源
 		{
-			auto id = db.AllocateType("AssetData");
+			auto id = db.AllocateType("GuGu::AssetData");
 			auto& type = db.types[id];
 			meta::TypeInfo<AssetData>::Register(id, type, true);
 
 			type.LoadBaseClasses(db, id, { typeof(meta::Object) });
 		}
 		{
-			auto id = db.AllocateType("AssetDataSharedPtr");
+			auto id = db.AllocateType("std::shared_ptr<GuGu::AssetData>");
 			auto& type = db.types[id];
 			meta::TypeInfo<std::shared_ptr<AssetData>>::Register(id, type, false);
 		}
 		{
-			auto id = db.AllocateType("AssetDataWeakPtr");
+			auto id = db.AllocateType("std::weak_ptr<GuGu::AssetData>");
 			auto& type = db.types[id];
 			meta::TypeInfo<std::weak_ptr<AssetData>>::Register(id, type, false);
 		}
 
 		//各种 component
 		{
-			auto id = db.AllocateType("TransformComponent");
+			auto id = db.AllocateType("GuGu::TransformComponent");
 			auto& type = db.types[id];
 			meta::TypeInfo<TransformComponent>::Register(id, type, true);
 
@@ -383,20 +383,20 @@ namespace GuGu {
 			}
 
 			{
-				auto id = db.AllocateType("TransformComponentSharedPtr");
+				auto id = db.AllocateType("std::shared_ptr<GuGu::TransformComponent>");
 				auto& type = db.types[id];
 				meta::TypeInfo<std::shared_ptr<TransformComponent>>::Register(id, type, false);
 			}
 
 			{
-				auto id = db.AllocateType("TransformComponentWeakPtr");
+				auto id = db.AllocateType("std::weak_ptr<GuGu::TransformComponent>");
 				auto& type = db.types[id];
 				meta::TypeInfo<std::weak_ptr<TransformComponent>>::Register(id, type, false);
 			}
 		}
 
 		{
-			auto id = db.AllocateType("StaticMeshComponent");
+			auto id = db.AllocateType("GuGu::StaticMeshComponent");
 			auto& type = db.types[id];
 			meta::TypeInfo<StaticMeshComponent>::Register(id, type, true);
 
@@ -426,20 +426,20 @@ namespace GuGu {
 			}
 
 			{
-				auto id = db.AllocateType("StaticMeshComponentSharedPtr");
+				auto id = db.AllocateType("std::shared_ptr<GuGu::StaticMeshComponent>");
 				auto& type = db.types[id];
 				meta::TypeInfo<std::shared_ptr<StaticMeshComponent>>::Register(id, type, false);
 			}
 
 			{
-				auto id = db.AllocateType("StaticMeshComponentWeakPtr");
+				auto id = db.AllocateType("std::weak_ptr<GuGu::StaticMeshComponent>");
 				auto& type = db.types[id];
 				meta::TypeInfo<std::weak_ptr<StaticMeshComponent>>::Register(id, type, false);
 			}
 		}
 
 		{
-			auto id = db.AllocateType("LightComponent");
+			auto id = db.AllocateType("GuGu::LightComponent");
 			auto& type = db.types[id];
 			meta::TypeInfo<LightComponent>::Register(id, type, true);
 
@@ -473,13 +473,13 @@ namespace GuGu {
 			}
 
 			{
-				auto id = db.AllocateType("LightComponentSharedPtr");
+				auto id = db.AllocateType("std::shared_ptr<GuGu::LightComponent>");
 				auto& type = db.types[id];
 				meta::TypeInfo<std::shared_ptr<LightComponent>>::Register(id, type, false);
 			}
 
 			{
-				auto id = db.AllocateType("LightComponentWeakPtr");
+				auto id = db.AllocateType("std::weak_ptr<GuGu::LightComponent>");
 				auto& type = db.types[id];
 				meta::TypeInfo<std::weak_ptr<LightComponent>>::Register(id, type, false);
 			}
@@ -487,7 +487,7 @@ namespace GuGu {
 		}
 
 		{
-			auto id = db.AllocateType("MaterialComponent");
+			auto id = db.AllocateType("GuGu::MaterialComponent");
 			auto& type = db.types[id];
 			meta::TypeInfo<MaterialComponent>::Register(id, type, true);
 
@@ -533,20 +533,20 @@ namespace GuGu {
 			}
 
 			{
-				auto id = db.AllocateType("MaterialComponentSharedPtr");
+				auto id = db.AllocateType("std::shared_ptr<GuGu::MaterialComponent>");
 				auto& type = db.types[id];
 				meta::TypeInfo<std::shared_ptr<MaterialComponent>>::Register(id, type, false);
 			}
 
 			{
-				auto id = db.AllocateType("MaterialComponentWeakPtr");
+				auto id = db.AllocateType("std::weak_ptr<GuGu::MaterialComponent>");
 				auto& type = db.types[id];
 				meta::TypeInfo<std::weak_ptr<MaterialComponent>>::Register(id, type, false);
 			}
 		}
 
 		{
-			auto id = db.AllocateType("TerrainComponent");
+			auto id = db.AllocateType("GuGu::TerrainComponent");
 			auto& type = db.types[id];
 			meta::TypeInfo<TerrainComponent>::Register(id, type, true);
 
@@ -616,20 +616,20 @@ namespace GuGu {
 			}
 
 			{
-				auto id = db.AllocateType("TerrainComponentComponentSharedPtr");
+				auto id = db.AllocateType("std::shared_ptr<GuGu::TerrainComponent>");
 				auto& type = db.types[id];
 				meta::TypeInfo<std::shared_ptr<TerrainComponent>>::Register(id, type, false);
 			}
 
 			{
-				auto id = db.AllocateType("TerrainComponentWeakPtr");
+				auto id = db.AllocateType("std::weak_ptr<GuGu::TerrainComponent>");
 				auto& type = db.types[id];
 				meta::TypeInfo<std::weak_ptr<TerrainComponent>>::Register(id, type, false);
 			}
 		}
 
 		{
-			auto id = db.AllocateType("WaterComponent");
+			auto id = db.AllocateType("GuGu::WaterComponent");
 			auto& type = db.types[id];
 			meta::TypeInfo<WaterComponent>::Register(id, type, true);
 
@@ -687,20 +687,20 @@ namespace GuGu {
 			}
 
 			{
-				auto id = db.AllocateType("WaterComponentSharedPtr");
+				auto id = db.AllocateType("std::shared_ptr<GuGu::WaterComponent>");
 				auto& type = db.types[id];
 				meta::TypeInfo<std::shared_ptr<WaterComponent>>::Register(id, type, false);
 			}
 
 			{
-				auto id = db.AllocateType("WaterComponentWeakPtr");
+				auto id = db.AllocateType("std::weak_ptr<GuGu::WaterComponent>");
 				auto& type = db.types[id];
 				meta::TypeInfo<std::weak_ptr<WaterComponent>>::Register(id, type, false);
 			}
 		}
 
 		{
-			auto id = db.AllocateType("CameraComponent");
+			auto id = db.AllocateType("GuGu::CameraComponent");
 			auto& type = db.types[id];
 			meta::TypeInfo<CameraComponent>::Register(id, type, true);
 
@@ -738,13 +738,13 @@ namespace GuGu {
 			}
 
 			{
-				auto id = db.AllocateType("CameraComponentSharedPtr");
+				auto id = db.AllocateType("std::shared_ptr<CameraComponent>");
 				auto& type = db.types[id];
 				meta::TypeInfo<std::shared_ptr<CameraComponent>>::Register(id, type, false);
 			}
 
 			{
-				auto id = db.AllocateType("CameraComponentWeakPtr");
+				auto id = db.AllocateType("std::weak_ptr<CameraComponent>");
 				auto& type = db.types[id];
 				meta::TypeInfo<std::weak_ptr<CameraComponent>>::Register(id, type, false);
 			}
@@ -752,7 +752,7 @@ namespace GuGu {
 
 		//资源
 		{
-			auto id = db.AllocateType("GStaticMesh");
+			auto id = db.AllocateType("GuGu::GStaticMesh");
 			auto& type = db.types[id];
 			meta::TypeInfo<GStaticMesh>::Register(id, type, true);
 
@@ -802,20 +802,20 @@ namespace GuGu {
 			}
 
 			{
-				auto id = db.AllocateType("GStaticMeshPtr");
+				auto id = db.AllocateType("std::shared_ptr<GuGu::GStaticMesh>");
 				auto& type = db.types[id];
 				meta::TypeInfo<std::shared_ptr<GStaticMesh>>::Register(id, type, false);
 			}
 
 			{
-				auto id = db.AllocateType("GStaticMeshWeakPtr");
+				auto id = db.AllocateType("std::weak_ptr<GuGu::GStaticMesh>");
 				auto& type = db.types[id];
 				meta::TypeInfo<std::weak_ptr<GStaticMesh>>::Register(id, type, false);
 			}
 		}
 
 		{
-			auto id = db.AllocateType("GTexture");
+			auto id = db.AllocateType("GuGu::GTexture");
 			auto& type = db.types[id];
 			meta::TypeInfo<GTexture>::Register(id, type, true);
 
@@ -865,13 +865,13 @@ namespace GuGu {
 			}
 
 			{
-				auto id = db.AllocateType("GTexturePtr");
+				auto id = db.AllocateType("std::shared_ptr<GuGu::GTexture>");
 				auto& type = db.types[id];
 				meta::TypeInfo<std::shared_ptr<GTexture>>::Register(id, type, false);
 			}
 
 			{
-				auto id = db.AllocateType("GTextureWeakPtr");
+				auto id = db.AllocateType("std::weak_ptr<GuGu::GTexture>");
 				auto& type = db.types[id];
 				meta::TypeInfo<std::weak_ptr<GTexture>>::Register(id, type, false);
 			}
