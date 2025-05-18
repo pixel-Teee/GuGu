@@ -1199,6 +1199,23 @@ namespace GuGu {
 			m_terrainPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
+		if (!m_waterPipeline)
+		{
+			nvrhi::GraphicsPipelineDesc psoDesc;
+			psoDesc.VS = m_waterVertexShader; //water
+			psoDesc.PS = m_waterPixelShader; //water
+			psoDesc.inputLayout = m_waterInputLayout; //顶点属性
+			psoDesc.bindingLayouts = { m_waterBindingLayout }; //constant buffer 这些
+			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+			//psoDesc.renderState.rasterState.fillMode = nvrhi::RasterFillMode::Wireframe;
+			psoDesc.renderState.blendState.targets[0].setBlendEnable(true);
+			psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
+			psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
+			psoDesc.renderState.depthStencilState.depthTestEnable = true;
+			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
+			m_waterPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
+		}
+
 		m_drawItems.clear();
 
 		m_CommandList->open();

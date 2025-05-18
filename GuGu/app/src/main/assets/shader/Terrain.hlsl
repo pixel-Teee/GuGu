@@ -36,7 +36,7 @@ void main_vs(
     o_uv = float2((x - g_beginXZ.x) / h, 1.0 - (z - g_beginXZ.y) / v);
     
     //height
-    float4 texCoord1 = t_HeightTexture.SampleLevel(s_Sampler, o_uv, 0).xyzw;
+    float4 texCoord1 = t_HeightTexture.SampleLevel(s_Sampler, o_uv, 0);
     
     float yOffset = texCoord1.r * g_heightScale;
     o_pos = mul(mul(float4(x, yOffset, z, 1), g_World), g_Transform);
@@ -53,10 +53,6 @@ void main_ps(
     float4 color2 = t_TerrainTexture2.Sample(s_Sampler, i_uv).xyzw;
     float4 color3 = t_TerrainTexture3.Sample(s_Sampler, i_uv).xyzw;
     float4 color4 = t_TerrainTexture4.Sample(s_Sampler, i_uv).xyzw;
-    float leftWeight = (1.0 - weight.x - weight.y - weight.z);
-    float4 totalColor = color1 * float4(weight.x, weight.x, weight.x, 1.0) + 
-                        color2 * float4(weight.y, weight.y, weight.y, 1.0) +
-                        color3 * float4(weight.z, weight.z, weight.z, 1.0) +
-                        color4 * float4(leftWeight, leftWeight, leftWeight, 1.0);
+    float4 totalColor = color1 * weight.x + color2 * weight.y + color3 * weight.z + color4 * (1.0 - weight.x - weight.y - weight.z);
     o_color = float4(totalColor.xyz, 1.0f);
 }
