@@ -29,6 +29,8 @@ namespace GuGu {
 			template<typename PropertyType>
 			const PropertyType* GetProperty(void) const;
 
+			Variant GetProperty(Type type) const;
+
 			//设置给定的类型
 			void SetProperty(Type type, const MetaProperty* value);
 		private:

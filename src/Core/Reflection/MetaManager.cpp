@@ -20,7 +20,18 @@ namespace GuGu {
 		}
 		MetaManager::~MetaManager(void)
 		{
+			for (auto& prop : m_properties)
+				delete prop.second;
 		}
+
+		meta::Variant MetaManager::GetProperty(Type type) const
+		{
+			auto search = m_properties.find(type);
+			if (search == m_properties.end())
+				return {};
+			return ObjectVariant(search->second);
+		}
+
 		void MetaManager::SetProperty(Type type, const MetaProperty* value)
 		{
 			auto search = m_properties.find(type);
