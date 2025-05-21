@@ -40,92 +40,92 @@ namespace GuGu {
 			auto& type = db.types[id];
 			meta::TypeInfo<math::float2>::Register(id, type, true, "E73886F1-1745-4885-AC10-A6764668698E");
 
-			type.AddConstructor<math::float2, false, false>();
+			type.AddConstructor<math::float2, false, false>({});
 
-			type.AddConstructor<math::float2, true, false>();
+			type.AddConstructor<math::float2, true, false>({});
 
 			type.SetArrayConstructor<math::float2>();
 
 			type.AddField<math::float2, float>("x",
 				(meta::FieldGetter<math::float2, float, false>::Signature) & math::float2::x,
-				(meta::FieldSetter<math::float2, float, false>::Signature) & math::float2::x);
+				(meta::FieldSetter<math::float2, float, false>::Signature) & math::float2::x, {});
 
 			type.AddField<math::float2, float>("y",
 				(meta::FieldGetter<math::float2, float, false>::Signature) & math::float2::y,
-				(meta::FieldSetter<math::float2, float, false>::Signature) & math::float2::y);
+				(meta::FieldSetter<math::float2, float, false>::Signature) & math::float2::y, {});
 		}
 		{
 			auto id = db.AllocateType("math::float3");
 			auto& type = db.types[id];
 			meta::TypeInfo<math::float3>::Register(id, type, true, "84172191-B81E-46A4-B06F-7E5B1F8712D0");
 
-			type.AddConstructor<math::float3, false, false>();
+			type.AddConstructor<math::float3, false, false>({});
 
-			type.AddConstructor<math::float3, true, false>();
+			type.AddConstructor<math::float3, true, false>({});
 
 			type.SetArrayConstructor<math::float3>();
 
 			type.AddField<math::float3, float>("x",
 				(meta::FieldGetter<math::float3, float, false>::Signature) & math::float3::x,
-				(meta::FieldSetter<math::float3, float, false>::Signature) & math::float3::x);
+				(meta::FieldSetter<math::float3, float, false>::Signature) & math::float3::x, {});
 
 			type.AddField<math::float3, float>("y",
 				(meta::FieldGetter<math::float3, float, false>::Signature) & math::float3::y,
-				(meta::FieldSetter<math::float3, float, false>::Signature) & math::float3::y);
+				(meta::FieldSetter<math::float3, float, false>::Signature) & math::float3::y, {});
 
 			type.AddField<math::float3, float>("z",
 				(meta::FieldGetter<math::float3, float, false>::Signature) & math::float3::z,
-				(meta::FieldSetter<math::float3, float, false>::Signature) & math::float3::z);
+				(meta::FieldSetter<math::float3, float, false>::Signature) & math::float3::z, {});
 		}
 		{
 			auto id = db.AllocateType("math::float4");
 			auto& type = db.types[id];
 			meta::TypeInfo<math::float4>::Register(id, type, true, "50C5417E-8CD2-4F6A-A030-78FBA2C55F61");
 
-			type.AddConstructor<math::float4, false, false>();
+			type.AddConstructor<math::float4, false, false>({});
 
-			type.AddConstructor<math::float4, true, false>();
+			type.AddConstructor<math::float4, true, false>({});
 
 			type.SetArrayConstructor<math::float4>();
 
 			type.AddField<math::float4, float>("x",
 				(meta::FieldGetter<math::float4, float, false>::Signature) & math::float4::x,
-				(meta::FieldSetter<math::float4, float, false>::Signature) & math::float4::x);
+				(meta::FieldSetter<math::float4, float, false>::Signature) & math::float4::x, {});
 
 			type.AddField<math::float4, float>("y",
 				(meta::FieldGetter<math::float4, float, false>::Signature) & math::float4::y,
-				(meta::FieldSetter<math::float4, float, false>::Signature) & math::float4::y);
+				(meta::FieldSetter<math::float4, float, false>::Signature) & math::float4::y, {});
 
 			type.AddField<math::float4, float>("z",
 				(meta::FieldGetter<math::float4, float, false>::Signature) & math::float4::z,
-				(meta::FieldSetter<math::float4, float, false>::Signature) & math::float4::z);
+				(meta::FieldSetter<math::float4, float, false>::Signature) & math::float4::z, {});
 
 			type.AddField<math::float4, float>("w",
 				(meta::FieldGetter<math::float4, float, false>::Signature) & math::float4::w,
-				(meta::FieldSetter<math::float4, float, false>::Signature) & math::float4::w);
+				(meta::FieldSetter<math::float4, float, false>::Signature) & math::float4::w, {});
 		}
 		{
 			auto id = db.AllocateType("math::double3");
 			auto& type = db.types[id];
 			meta::TypeInfo<math::double3>::Register(id, type, true, "35EF324D-9D0A-4A20-82A4-E61BF62C5960");
 
-			type.AddConstructor<math::double3, false, false>();
+			type.AddConstructor<math::double3, false, false>({});
 
-			type.AddConstructor<math::double3, true, false>();
+			type.AddConstructor<math::double3, true, false>({});
 
 			type.SetArrayConstructor<math::double3>();
 
 			type.AddField<math::double3, double>("x",
 				(meta::FieldGetter<math::double3, double, false>::Signature) & math::double3::x,
-				(meta::FieldSetter<math::double3, double, false>::Signature) & math::double3::x);
+				(meta::FieldSetter<math::double3, double, false>::Signature) & math::double3::x, {});
 
 			type.AddField<math::double3, double>("y",
 				(meta::FieldGetter<math::double3, double, false>::Signature) & math::double3::y,
-				(meta::FieldSetter<math::double3, double, false>::Signature) & math::double3::y);
+				(meta::FieldSetter<math::double3, double, false>::Signature) & math::double3::y, {});
 
 			type.AddField<math::double3, double>("z",
 				(meta::FieldGetter<math::double3, double, false>::Signature) & math::double3::z,
-				(meta::FieldSetter<math::double3, double, false>::Signature) & math::double3::z);
+				(meta::FieldSetter<math::double3, double, false>::Signature) & math::double3::z, {});
 		}
 
 		{
@@ -133,27 +133,27 @@ namespace GuGu {
 			auto& type = db.types[id];
 			meta::TypeInfo<math::dquat>::Register(id, type, true, "A576462F-80EF-4132-9096-AF19E505671B");
 
-			type.AddConstructor<math::dquat, false, false>();
+			type.AddConstructor<math::dquat, false, false>({});
 
-			type.AddConstructor<math::dquat, true, false>();
+			type.AddConstructor<math::dquat, true, false>({});
 
 			type.SetArrayConstructor<math::dquat>();
 
 			type.AddField<math::dquat, double>("x",
 				(meta::FieldGetter<math::dquat, double, false>::Signature) & math::dquat::x,
-				(meta::FieldSetter<math::dquat, double, false>::Signature) & math::dquat::x);
+				(meta::FieldSetter<math::dquat, double, false>::Signature) & math::dquat::x, {});
 
 			type.AddField<math::dquat, double>("y",
 				(meta::FieldGetter<math::dquat, double, false>::Signature) & math::dquat::y,
-				(meta::FieldSetter<math::dquat, double, false>::Signature) & math::dquat::y);
+				(meta::FieldSetter<math::dquat, double, false>::Signature) & math::dquat::y, {});
 
 			type.AddField<math::dquat, double>("z",
 				(meta::FieldGetter<math::dquat, double, false>::Signature) & math::dquat::z,
-				(meta::FieldSetter<math::dquat, double, false>::Signature) & math::dquat::z);
+				(meta::FieldSetter<math::dquat, double, false>::Signature) & math::dquat::z, {});
 
 			type.AddField<math::dquat, double>("w",
 				(meta::FieldGetter<math::dquat, double, false>::Signature) & math::dquat::w,
-				(meta::FieldSetter<math::dquat, double, false>::Signature) & math::dquat::w);
+				(meta::FieldSetter<math::dquat, double, false>::Signature) & math::dquat::w, {});
 		}
 
 		{
@@ -161,27 +161,27 @@ namespace GuGu {
 			auto& type = db.types[id];
 			meta::TypeInfo<math::vector<uint16_t, 4>>::Register(id, type, true, "DD2D2988-9B15-41B1-82F2-2F32D095D4AA");
 
-			type.AddConstructor<math::vector<uint16_t, 4>, false, false>();
+			type.AddConstructor<math::vector<uint16_t, 4>, false, false>({});
 
-			type.AddConstructor<math::vector<uint16_t, 4>, true, false>();
+			type.AddConstructor<math::vector<uint16_t, 4>, true, false>({});
 
 			type.SetArrayConstructor<math::vector<uint16_t, 4>>();
 
 			type.AddField<math::vector<uint16_t, 4>, uint16_t>("x",
 				(meta::FieldGetter<math::vector<uint16_t, 4>, uint16_t, false>::Signature)& math::vector<uint16_t, 4>::x,
-				(meta::FieldSetter<math::vector<uint16_t, 4>, uint16_t, false>::Signature)& math::vector<uint16_t, 4>::x);
+				(meta::FieldSetter<math::vector<uint16_t, 4>, uint16_t, false>::Signature)& math::vector<uint16_t, 4>::x, {});
 
 			type.AddField<math::vector<uint16_t, 4>, uint16_t>("y",
 				(meta::FieldGetter<math::vector<uint16_t, 4>, uint16_t, false>::Signature)& math::vector<uint16_t, 4>::y,
-				(meta::FieldSetter<math::vector<uint16_t, 4>, uint16_t, false>::Signature)& math::vector<uint16_t, 4>::y);
+				(meta::FieldSetter<math::vector<uint16_t, 4>, uint16_t, false>::Signature)& math::vector<uint16_t, 4>::y, {});
 
 			type.AddField<math::vector<uint16_t, 4>, uint16_t>("z",
 				(meta::FieldGetter<math::vector<uint16_t, 4>, uint16_t, false>::Signature)& math::vector<uint16_t, 4>::z,
-				(meta::FieldSetter<math::vector<uint16_t, 4>, uint16_t, false>::Signature)& math::vector<uint16_t, 4>::z);
+				(meta::FieldSetter<math::vector<uint16_t, 4>, uint16_t, false>::Signature)& math::vector<uint16_t, 4>::z, {});
 
 			type.AddField<math::vector<uint16_t, 4>, uint16_t>("w",
 				(meta::FieldGetter<math::vector<uint16_t, 4>, uint16_t, false>::Signature)& math::vector<uint16_t, 4>::w,
-				(meta::FieldSetter<math::vector<uint16_t, 4>, uint16_t, false>::Signature)& math::vector<uint16_t, 4>::w);
+				(meta::FieldSetter<math::vector<uint16_t, 4>, uint16_t, false>::Signature)& math::vector<uint16_t, 4>::w, {});
 		}
 
 		//color
@@ -190,27 +190,27 @@ namespace GuGu {
 			auto& type = db.types[id];
 			meta::TypeInfo<Color>::Register(id, type, true, "87AC627B-14AE-4588-8E3F-80A36AF8C676");
 
-			type.AddConstructor<Color, false, false>();
+			type.AddConstructor<Color, false, false>({});
 
-			type.AddConstructor<Color, true, false>();
+			type.AddConstructor<Color, true, false>({});
 
 			type.SetArrayConstructor<Color>();
 
 			type.AddField<Color, float>("r",
 				(meta::FieldGetter<Color, float, false>::Signature) & Color::r,
-				(meta::FieldSetter<Color, float, false>::Signature) & Color::r);
+				(meta::FieldSetter<Color, float, false>::Signature) & Color::r, {});
 
 			type.AddField<Color, float>("g",
 				(meta::FieldGetter<Color, float, false>::Signature) & Color::g,
-				(meta::FieldSetter<Color, float, false>::Signature) & Color::g);
+				(meta::FieldSetter<Color, float, false>::Signature) & Color::g, {});
 
 			type.AddField<Color, float>("b",
 				(meta::FieldGetter<Color, float, false>::Signature) & Color::b,
-				(meta::FieldSetter<Color, float, false>::Signature) & Color::b);
+				(meta::FieldSetter<Color, float, false>::Signature) & Color::b, {});
 
 			type.AddField<Color, float>("a",
 				(meta::FieldGetter<Color, float, false>::Signature) & Color::a,
-				(meta::FieldSetter<Color, float, false>::Signature) & Color::a);
+				(meta::FieldSetter<Color, float, false>::Signature) & Color::a, {});
 		}
 
 		//meta::object
@@ -223,7 +223,6 @@ namespace GuGu {
 				std::make_pair(typeof(meta::DisplayName), meta::MetaPropertyInitializer<meta::DisplayName>("Object"))
 			};
 
-			//GuGu_LOGD("%s", "register meta object");
 		}
 
 		{
@@ -233,7 +232,7 @@ namespace GuGu {
 
 			type.AddField<Component, std::weak_ptr<GameObject>>("m_owner",
 				(meta::FieldGetter<Component, std::weak_ptr<GameObject>&, true>::Signature)& Component::getParentGameObject,
-				(meta::FieldSetter<Component, std::weak_ptr<GameObject>&, true>::Signature)& Component::setParentGameObject);
+				(meta::FieldSetter<Component, std::weak_ptr<GameObject>&, true>::Signature)& Component::setParentGameObject, {});
 		}
 
 		{
@@ -256,9 +255,9 @@ namespace GuGu {
 			auto& type = db.types[id];
 			meta::TypeInfo<GuGu::GameObject>::Register(id, type, true, "764220D9-31E0-448B-9612-79A47B570367");
 
-			//type.meta = {
-			//	std::make_pair(typeof(meta::DisplayName), meta::MetaPropertyInitializer<meta::DisplayName>("GameObject"))
-			//};
+			type.meta = {
+				std::make_pair(typeof(meta::DisplayName), meta::MetaPropertyInitializer<meta::DisplayName>("GameObject"))
+			};
 
 			{
 				auto id = db.AllocateType("std::shared_ptr<GuGu::GameObject>");
@@ -282,21 +281,21 @@ namespace GuGu {
 				//array constructor
 				type.SetArrayConstructor<GameObject>();
 
-				type.AddConstructor<GameObject, false, false>();
+				type.AddConstructor<GameObject, false, false>({});
 
-				type.AddConstructor<GameObject, true, true>();
+				type.AddConstructor<GameObject, true, true>({});
 
 				type.AddField<GameObject, Array<std::shared_ptr<Component>>>("m_components",
 					(meta::FieldGetter<GameObject, Array<std::shared_ptr<Component>>, true>::Signature) & GameObject::getComponents,
-					(meta::FieldSetter<GameObject, Array<std::shared_ptr<Component>>, true>::Signature) & GameObject::setComponents);
+					(meta::FieldSetter<GameObject, Array<std::shared_ptr<Component>>, true>::Signature) & GameObject::setComponents, {});
 
 				type.AddField<GameObject, Array<std::shared_ptr<GameObject>>>("m_childrens",
 					(meta::FieldGetter<GameObject, Array<std::shared_ptr<GameObject>>, true>::Signature) & GameObject::getChildrens,
-					(meta::FieldSetter<GameObject, Array<std::shared_ptr<GameObject>>, true>::Signature) & GameObject::setChildrens);
+					(meta::FieldSetter<GameObject, Array<std::shared_ptr<GameObject>>, true>::Signature) & GameObject::setChildrens, {});
 
 				type.AddField<GameObject, std::weak_ptr<GameObject>>("m_parentGameObject",
 					(meta::FieldGetter<GameObject, std::weak_ptr<GameObject>&, true>::Signature)& GameObject::getParentGameObject,
-					(meta::FieldSetter<GameObject, std::weak_ptr<GameObject>&, true>::Signature)& GameObject::setParentGameObject);
+					(meta::FieldSetter<GameObject, std::weak_ptr<GameObject>&, true>::Signature)& GameObject::setParentGameObject, {});
 
 				type.LoadBaseClasses(db, typeID, { typeof(meta::Object) });
 
@@ -318,15 +317,15 @@ namespace GuGu {
 				//array constructor
 				type.SetArrayConstructor<Level>();
 
-				type.AddConstructor<Level, false, false>();
+				type.AddConstructor<Level, false, false>({});
 
-				type.AddConstructor<Level, true, true>();
+				type.AddConstructor<Level, true, true>({});
 
 				type.LoadBaseClasses(db, typeID, {typeof(meta::Object)});
 
 				type.AddField<Level, Array<std::shared_ptr<GameObject>>>("m_objects", 
 					(meta::FieldGetter<Level, Array<std::shared_ptr<GameObject>>&, true>::Signature)&Level::getGameObjects,
-					(meta::FieldSetter<Level, Array<std::shared_ptr<GameObject>>&, true>::Signature)&Level::setGameObjects);
+					(meta::FieldSetter<Level, Array<std::shared_ptr<GameObject>>&, true>::Signature)&Level::setGameObjects, {});
 
 				meta::TypeInfo<Level>::Defined = true;
 			}
@@ -377,27 +376,31 @@ namespace GuGu {
 				//array constructor
 				type.SetArrayConstructor<TransformComponent>();
 
-				type.AddConstructor<TransformComponent, false, false>();
+				type.AddConstructor<TransformComponent, false, false>({});
 
-				type.AddConstructor<TransformComponent, true, true>();
+				type.AddConstructor<TransformComponent, true, true>({});
 
 				type.AddField<TransformComponent, math::double3>("m_Translation",
 					(meta::FieldGetter<TransformComponent, math::double3&, true>::Signature)&TransformComponent::getTranslation,
-					(meta::FieldSetter<TransformComponent, math::double3, true>::Signature)&TransformComponent::SetTranslation);
+					(meta::FieldSetter<TransformComponent, math::double3, true>::Signature)&TransformComponent::SetTranslation, {});
 				type.AddField<TransformComponent, math::dquat>("m_Rotation",
 					(meta::FieldGetter<TransformComponent, math::dquat, true>::Signature)&TransformComponent::getRotation,
-					(meta::FieldSetter<TransformComponent, math::dquat, true>::Signature)&TransformComponent::SetRotation);
+					(meta::FieldSetter<TransformComponent, math::dquat, true>::Signature)&TransformComponent::SetRotation, {});
 				type.AddField<TransformComponent, math::double3>("m_Scaling",
 					(meta::FieldGetter<TransformComponent, math::double3&, true>::Signature)&TransformComponent::getScaling,
-					(meta::FieldSetter<TransformComponent, math::double3, true>::Signature)&TransformComponent::SetScaling);
+					(meta::FieldSetter<TransformComponent, math::double3, true>::Signature)&TransformComponent::SetScaling, {});
 
 				type.AddField<TransformComponent, std::weak_ptr<GameObject>>("m_owner",
 					(meta::FieldGetter<TransformComponent, std::weak_ptr<GameObject>&, true>::Signature)& TransformComponent::getParentGameObject,
-					(meta::FieldSetter<TransformComponent, std::weak_ptr<GameObject>&, true>::Signature)& TransformComponent::setParentGameObject);
+					(meta::FieldSetter<TransformComponent, std::weak_ptr<GameObject>&, true>::Signature)& TransformComponent::setParentGameObject, {});
 
 				type.LoadBaseClasses(db, typeID, { typeof(Component) });
 
 				meta::TypeInfo<TransformComponent>::Defined = true;
+
+				type.meta = {
+					std::make_pair(typeof(meta::DisplayName), meta::MetaPropertyInitializer<meta::DisplayName>("TransformComponent"))
+				};
 			}
 
 			{
@@ -426,19 +429,19 @@ namespace GuGu {
 				//array constructor
 				type.SetArrayConstructor<StaticMeshComponent>();
 
-				type.AddConstructor<StaticMeshComponent, false, false>();
+				type.AddConstructor<StaticMeshComponent, false, false>({});
 
-				type.AddConstructor<StaticMeshComponent, true, true>();
+				type.AddConstructor<StaticMeshComponent, true, true>({});
 
 				type.LoadBaseClasses(db, typeID, { typeof(Component) });
 				
 				type.AddField<StaticMeshComponent, std::shared_ptr<AssetData>>("m_staticMeshAsset",
 					(meta::FieldGetter<StaticMeshComponent, std::shared_ptr<AssetData>, true>::Signature)& StaticMeshComponent::getStaticMeshAsset,
-					(meta::FieldSetter<StaticMeshComponent, std::shared_ptr<AssetData>, true>::Signature)& StaticMeshComponent::setStaticMeshAsset);
+					(meta::FieldSetter<StaticMeshComponent, std::shared_ptr<AssetData>, true>::Signature)& StaticMeshComponent::setStaticMeshAsset, {});
 
 				type.AddField<StaticMeshComponent, std::weak_ptr<GameObject>>("m_owner",
 					(meta::FieldGetter<StaticMeshComponent, std::weak_ptr<GameObject>&, true>::Signature)& StaticMeshComponent::getParentGameObject,
-					(meta::FieldSetter<StaticMeshComponent, std::weak_ptr<GameObject>&, true>::Signature)& StaticMeshComponent::setParentGameObject);
+					(meta::FieldSetter<StaticMeshComponent, std::weak_ptr<GameObject>&, true>::Signature)& StaticMeshComponent::setParentGameObject, {});
 
 				meta::TypeInfo<StaticMeshComponent>::Defined = true;
 			}
@@ -469,21 +472,21 @@ namespace GuGu {
 				//array constructor
 				type.SetArrayConstructor<LightComponent>();
 
-				type.AddConstructor<LightComponent, false, false>();
+				type.AddConstructor<LightComponent, false, false>({});
 
-				type.AddConstructor<LightComponent, true, true>();
+				type.AddConstructor<LightComponent, true, true>({});
 
 				type.AddField<LightComponent, Color>("m_lightColor",
 					(meta::FieldGetter<LightComponent, Color, false>::Signature) & LightComponent::m_lightColor,
-					(meta::FieldSetter<LightComponent, Color, false>::Signature) & LightComponent::m_lightColor);
+					(meta::FieldSetter<LightComponent, Color, false>::Signature) & LightComponent::m_lightColor, {});
 
 				type.AddField<LightComponent, math::float4>("m_lightPosition",
 					(meta::FieldGetter<LightComponent, math::float4, false>::Signature)& LightComponent::m_lightPosition,
-					(meta::FieldSetter<LightComponent, math::float4, false>::Signature)& LightComponent::m_lightPosition);
+					(meta::FieldSetter<LightComponent, math::float4, false>::Signature)& LightComponent::m_lightPosition, {});
 
 				type.AddField<LightComponent, std::weak_ptr<GameObject>>("m_owner",
 					(meta::FieldGetter<LightComponent, std::weak_ptr<GameObject>&, true>::Signature)& LightComponent::getParentGameObject,
-					(meta::FieldSetter<LightComponent, std::weak_ptr<GameObject>&, true>::Signature)& LightComponent::setParentGameObject);
+					(meta::FieldSetter<LightComponent, std::weak_ptr<GameObject>&, true>::Signature)& LightComponent::setParentGameObject, {});
 
 				type.LoadBaseClasses(db, typeID, { typeof(Component) });
 
@@ -517,9 +520,9 @@ namespace GuGu {
 				//array constructor
 				type.SetArrayConstructor<MaterialComponent>();
 
-				type.AddConstructor<MaterialComponent, false, false>();
+				type.AddConstructor<MaterialComponent, false, false>({});
 
-				type.AddConstructor<MaterialComponent, true, true>();
+				type.AddConstructor<MaterialComponent, true, true>({});
 
 				type.LoadBaseClasses(db, typeID, { typeof(Component) });
 
@@ -527,27 +530,27 @@ namespace GuGu {
 
 				type.AddField<MaterialComponent, Color>("m_albedo",
 					(meta::FieldGetter<MaterialComponent, Color, false>::Signature)& MaterialComponent::m_albedo,
-					(meta::FieldSetter<MaterialComponent, Color, false>::Signature)& MaterialComponent::m_albedo);
+					(meta::FieldSetter<MaterialComponent, Color, false>::Signature)& MaterialComponent::m_albedo, {});
 
 				type.AddField<MaterialComponent, float>("m_metallic",
 					(meta::FieldGetter<MaterialComponent, float, false>::Signature)& MaterialComponent::m_metallic,
-					(meta::FieldSetter<MaterialComponent, float, false>::Signature)& MaterialComponent::m_metallic);
+					(meta::FieldSetter<MaterialComponent, float, false>::Signature)& MaterialComponent::m_metallic, {});
 
 				type.AddField<MaterialComponent, float>("m_roughness",
 					(meta::FieldGetter<MaterialComponent, float, false>::Signature)& MaterialComponent::m_roughness,
-					(meta::FieldSetter<MaterialComponent, float, false>::Signature)& MaterialComponent::m_roughness);
+					(meta::FieldSetter<MaterialComponent, float, false>::Signature)& MaterialComponent::m_roughness, {});
 
 				type.AddField<MaterialComponent, float>("m_ao",
 					(meta::FieldGetter<MaterialComponent, float, false>::Signature)& MaterialComponent::m_ao,
-					(meta::FieldSetter<MaterialComponent, float, false>::Signature)& MaterialComponent::m_ao);
+					(meta::FieldSetter<MaterialComponent, float, false>::Signature)& MaterialComponent::m_ao, {});
 
 				type.AddField<MaterialComponent, std::shared_ptr<AssetData>>("m_albedoTexture",
 					(meta::FieldGetter<MaterialComponent, std::shared_ptr<AssetData>, true>::Signature)& MaterialComponent::getAlbeoTextureAsset,
-					(meta::FieldSetter<MaterialComponent, std::shared_ptr<AssetData>, true>::Signature)& MaterialComponent::setAlbeoTextureAsset);
+					(meta::FieldSetter<MaterialComponent, std::shared_ptr<AssetData>, true>::Signature)& MaterialComponent::setAlbeoTextureAsset, {});
 
 				type.AddField<MaterialComponent, std::weak_ptr<GameObject>>("m_owner",
 					(meta::FieldGetter<MaterialComponent, std::weak_ptr<GameObject>&, true>::Signature)& MaterialComponent::getParentGameObject,
-					(meta::FieldSetter<MaterialComponent, std::weak_ptr<GameObject>&, true>::Signature)& MaterialComponent::setParentGameObject);
+					(meta::FieldSetter<MaterialComponent, std::weak_ptr<GameObject>&, true>::Signature)& MaterialComponent::setParentGameObject, {});
 			}
 
 			{
@@ -576,9 +579,9 @@ namespace GuGu {
 				//array constructor
 				type.SetArrayConstructor<TerrainComponent>();
 
-				type.AddConstructor<TerrainComponent, false, false>();
+				type.AddConstructor<TerrainComponent, false, false>({});
 
-				type.AddConstructor<TerrainComponent, true, true>();
+				type.AddConstructor<TerrainComponent, true, true>({});
 
 				type.LoadBaseClasses(db, typeID, { typeof(Component) });
 
@@ -586,51 +589,51 @@ namespace GuGu {
 
 				type.AddField<TerrainComponent, std::shared_ptr<AssetData>>("m_heightTexture",
 					(meta::FieldGetter<TerrainComponent, std::shared_ptr<AssetData>, false>::Signature) & TerrainComponent::m_heightTexture,
-					(meta::FieldSetter<TerrainComponent, std::shared_ptr<AssetData>, false>::Signature) & TerrainComponent::m_heightTexture);
+					(meta::FieldSetter<TerrainComponent, std::shared_ptr<AssetData>, false>::Signature) & TerrainComponent::m_heightTexture, {});
 
 				type.AddField<TerrainComponent, std::shared_ptr<AssetData>>("m_terrainTexture1",
 					(meta::FieldGetter<TerrainComponent, std::shared_ptr<AssetData>, false>::Signature)& TerrainComponent::m_terrainTexture1,
-					(meta::FieldSetter<TerrainComponent, std::shared_ptr<AssetData>, false>::Signature)& TerrainComponent::m_terrainTexture1);
+					(meta::FieldSetter<TerrainComponent, std::shared_ptr<AssetData>, false>::Signature)& TerrainComponent::m_terrainTexture1, {});
 
 				type.AddField<TerrainComponent, std::shared_ptr<AssetData>>("m_terrainTexture2",
 					(meta::FieldGetter<TerrainComponent, std::shared_ptr<AssetData>, false>::Signature)& TerrainComponent::m_terrainTexture2,
-					(meta::FieldSetter<TerrainComponent, std::shared_ptr<AssetData>, false>::Signature)& TerrainComponent::m_terrainTexture2);
+					(meta::FieldSetter<TerrainComponent, std::shared_ptr<AssetData>, false>::Signature)& TerrainComponent::m_terrainTexture2, {});
 
 				type.AddField<TerrainComponent, std::shared_ptr<AssetData>>("m_terrainTexture3",
 					(meta::FieldGetter<TerrainComponent, std::shared_ptr<AssetData>, false>::Signature)& TerrainComponent::m_terrainTexture3,
-					(meta::FieldSetter<TerrainComponent, std::shared_ptr<AssetData>, false>::Signature)& TerrainComponent::m_terrainTexture3);
+					(meta::FieldSetter<TerrainComponent, std::shared_ptr<AssetData>, false>::Signature)& TerrainComponent::m_terrainTexture3, {});
 
 				type.AddField<TerrainComponent, std::shared_ptr<AssetData>>("m_terrainTexture4",
 					(meta::FieldGetter<TerrainComponent, std::shared_ptr<AssetData>, false>::Signature)& TerrainComponent::m_terrainTexture4,
-					(meta::FieldSetter<TerrainComponent, std::shared_ptr<AssetData>, false>::Signature)& TerrainComponent::m_terrainTexture4);
+					(meta::FieldSetter<TerrainComponent, std::shared_ptr<AssetData>, false>::Signature)& TerrainComponent::m_terrainTexture4, {});
 
 				type.AddField<TerrainComponent, std::shared_ptr<AssetData>>("m_blendTexture",
 					(meta::FieldGetter<TerrainComponent, std::shared_ptr<AssetData>, false>::Signature) & TerrainComponent::m_blendTexture,
-					(meta::FieldSetter<TerrainComponent, std::shared_ptr<AssetData>, false>::Signature) & TerrainComponent::m_blendTexture);
+					(meta::FieldSetter<TerrainComponent, std::shared_ptr<AssetData>, false>::Signature) & TerrainComponent::m_blendTexture, {});
 
 				type.AddField<TerrainComponent, uint32_t>("m_terrainRows",
 					(meta::FieldGetter<TerrainComponent, uint32_t, false>::Signature)& TerrainComponent::m_terrainRows,
-					(meta::FieldSetter<TerrainComponent, uint32_t, false>::Signature)& TerrainComponent::m_terrainRows);
+					(meta::FieldSetter<TerrainComponent, uint32_t, false>::Signature)& TerrainComponent::m_terrainRows, {});
 
 				type.AddField<TerrainComponent, uint32_t>("m_terrainCols",
 					(meta::FieldGetter<TerrainComponent, uint32_t, false>::Signature)& TerrainComponent::m_terrainCols,
-					(meta::FieldSetter<TerrainComponent, uint32_t, false>::Signature)& TerrainComponent::m_terrainCols);
+					(meta::FieldSetter<TerrainComponent, uint32_t, false>::Signature)& TerrainComponent::m_terrainCols, {});
 
 				type.AddField<TerrainComponent, uint32_t>("m_rows",
 					(meta::FieldGetter<TerrainComponent, uint32_t, false>::Signature)& TerrainComponent::m_rows,
-					(meta::FieldSetter<TerrainComponent, uint32_t, false>::Signature)& TerrainComponent::m_rows);
+					(meta::FieldSetter<TerrainComponent, uint32_t, false>::Signature)& TerrainComponent::m_rows, {});
 
 				type.AddField<TerrainComponent, uint32_t>("m_cols",
 					(meta::FieldGetter<TerrainComponent, uint32_t, false>::Signature)& TerrainComponent::m_cols,
-					(meta::FieldSetter<TerrainComponent, uint32_t, false>::Signature)& TerrainComponent::m_cols);
+					(meta::FieldSetter<TerrainComponent, uint32_t, false>::Signature)& TerrainComponent::m_cols, {});
 
 				type.AddField<TerrainComponent, uint32_t>("m_tileSize",
 					(meta::FieldGetter<TerrainComponent, uint32_t, false>::Signature)& TerrainComponent::m_tileSize,
-					(meta::FieldSetter<TerrainComponent, uint32_t, false>::Signature)& TerrainComponent::m_tileSize);
+					(meta::FieldSetter<TerrainComponent, uint32_t, false>::Signature)& TerrainComponent::m_tileSize, {});
 
 				type.AddField<TerrainComponent, std::weak_ptr<GameObject>>("m_owner",
 					(meta::FieldGetter<TerrainComponent, std::weak_ptr<GameObject>&, true>::Signature)& TerrainComponent::getParentGameObject,
-					(meta::FieldSetter<TerrainComponent, std::weak_ptr<GameObject>&, true>::Signature)& TerrainComponent::setParentGameObject);
+					(meta::FieldSetter<TerrainComponent, std::weak_ptr<GameObject>&, true>::Signature)& TerrainComponent::setParentGameObject, {});
 			}
 
 			{
@@ -659,9 +662,9 @@ namespace GuGu {
 				//array constructor
 				type.SetArrayConstructor<WaterComponent>();
 
-				type.AddConstructor<WaterComponent, false, false>();
+				type.AddConstructor<WaterComponent, false, false>({});
 
-				type.AddConstructor<WaterComponent, true, true>();
+				type.AddConstructor<WaterComponent, true, true>({});
 
 				type.LoadBaseClasses(db, typeID, { typeof(Component) });
 
@@ -669,39 +672,39 @@ namespace GuGu {
 
 				type.AddField<WaterComponent, std::shared_ptr<AssetData>>("m_mixedColorTexture",
 					(meta::FieldGetter<WaterComponent, std::shared_ptr<AssetData>, false>::Signature) & WaterComponent::m_mixedColorTexture,
-					(meta::FieldSetter<WaterComponent, std::shared_ptr<AssetData>, false>::Signature) & WaterComponent::m_mixedColorTexture);
+					(meta::FieldSetter<WaterComponent, std::shared_ptr<AssetData>, false>::Signature) & WaterComponent::m_mixedColorTexture, {});
 
 				type.AddField<WaterComponent, std::shared_ptr<AssetData>>("m_colorTexture",
 					(meta::FieldGetter<WaterComponent, std::shared_ptr<AssetData>, false>::Signature) & WaterComponent::m_colorTexture,
-					(meta::FieldSetter<WaterComponent, std::shared_ptr<AssetData>, false>::Signature) & WaterComponent::m_colorTexture);
+					(meta::FieldSetter<WaterComponent, std::shared_ptr<AssetData>, false>::Signature) & WaterComponent::m_colorTexture, {});
 
 				type.AddField<WaterComponent, std::shared_ptr<AssetData>>("m_dirTexture",
 					(meta::FieldGetter<WaterComponent, std::shared_ptr<AssetData>, false>::Signature)& WaterComponent::m_dirTexture,
-					(meta::FieldSetter<WaterComponent, std::shared_ptr<AssetData>, false>::Signature)& WaterComponent::m_dirTexture);
+					(meta::FieldSetter<WaterComponent, std::shared_ptr<AssetData>, false>::Signature)& WaterComponent::m_dirTexture, {});
 
 				type.AddField<WaterComponent, uint32_t>("m_waterRows",
 					(meta::FieldGetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_waterRows,
-					(meta::FieldSetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_waterRows);
+					(meta::FieldSetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_waterRows, {});
 
 				type.AddField<WaterComponent, uint32_t>("m_waterCols",
 					(meta::FieldGetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_waterCols,
-					(meta::FieldSetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_waterCols);
+					(meta::FieldSetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_waterCols, {});
 
 				type.AddField<WaterComponent, uint32_t>("m_rows",
 					(meta::FieldGetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_rows,
-					(meta::FieldSetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_rows);
+					(meta::FieldSetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_rows, {});
 
 				type.AddField<WaterComponent, uint32_t>("m_cols",
 					(meta::FieldGetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_cols,
-					(meta::FieldSetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_cols);
+					(meta::FieldSetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_cols, {});
 
 				type.AddField<WaterComponent, uint32_t>("m_tileSize",
 					(meta::FieldGetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_tileSize,
-					(meta::FieldSetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_tileSize);
+					(meta::FieldSetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_tileSize, {});
 
 				type.AddField<WaterComponent, std::weak_ptr<GameObject>>("m_owner",
 					(meta::FieldGetter<WaterComponent, std::weak_ptr<GameObject>&, true>::Signature) & WaterComponent::getParentGameObject,
-					(meta::FieldSetter<WaterComponent, std::weak_ptr<GameObject>&, true>::Signature) & WaterComponent::setParentGameObject);
+					(meta::FieldSetter<WaterComponent, std::weak_ptr<GameObject>&, true>::Signature) & WaterComponent::setParentGameObject, {});
 			}
 
 			{
@@ -730,9 +733,9 @@ namespace GuGu {
 				//array constructor
 				type.SetArrayConstructor<CameraComponent>();
 
-				type.AddConstructor<CameraComponent, false, false>();
+				type.AddConstructor<CameraComponent, false, false>({});
 
-				type.AddConstructor<CameraComponent, true, true>();
+				type.AddConstructor<CameraComponent, true, true>({});
 
 				type.LoadBaseClasses(db, typeID, { typeof(Component) });
 
@@ -740,19 +743,19 @@ namespace GuGu {
 
 				type.AddField<CameraComponent, float>("m_fov",
 					(meta::FieldGetter<CameraComponent, float, true>::Signature)& CameraComponent::getFov,
-					(meta::FieldSetter<CameraComponent, float, true>::Signature)& CameraComponent::setFov);
+					(meta::FieldSetter<CameraComponent, float, true>::Signature)& CameraComponent::setFov, {});
 
 				type.AddField<CameraComponent, float>("m_nearPlane",
 					(meta::FieldGetter<CameraComponent, float, true>::Signature)& CameraComponent::getNearPlane,
-					(meta::FieldSetter<CameraComponent, float, true>::Signature)& CameraComponent::setNearPlane);
+					(meta::FieldSetter<CameraComponent, float, true>::Signature)& CameraComponent::setNearPlane, {});
 
 				type.AddField<CameraComponent, float>("m_farPlane",
 					(meta::FieldGetter<CameraComponent, float, true>::Signature) & CameraComponent::getFarPlane,
-					(meta::FieldSetter<CameraComponent, float, true>::Signature) & CameraComponent::setFarPlane);
+					(meta::FieldSetter<CameraComponent, float, true>::Signature) & CameraComponent::setFarPlane, {});
 
 				type.AddField<CameraComponent, std::weak_ptr<GameObject>>("m_owner",
 					(meta::FieldGetter<CameraComponent, std::weak_ptr<GameObject>&, true>::Signature)& CameraComponent::getParentGameObject,
-					(meta::FieldSetter<CameraComponent, std::weak_ptr<GameObject>&, true>::Signature)& CameraComponent::setParentGameObject);
+					(meta::FieldSetter<CameraComponent, std::weak_ptr<GameObject>&, true>::Signature)& CameraComponent::setParentGameObject, {});
 			}
 
 			{
@@ -782,39 +785,39 @@ namespace GuGu {
 				//array constructor
 				type.SetArrayConstructor<GStaticMesh>();
 
-				type.AddConstructor<GStaticMesh, false, false>();
+				type.AddConstructor<GStaticMesh, false, false>({});
 
-				type.AddConstructor<GStaticMesh, true, true>();
+				type.AddConstructor<GStaticMesh, true, true>({});
 
 				type.LoadBaseClasses(db, id, { typeof(meta::Object) });
 
 				type.AddField<GStaticMesh, Array<uint32_t>>("m_indexData",
 					(meta::FieldGetter<GStaticMesh, Array<uint32_t>, false>::Signature)& GStaticMesh::m_indexData,
-					(meta::FieldSetter<GStaticMesh, Array<uint32_t>, false>::Signature)& GStaticMesh::m_indexData);
+					(meta::FieldSetter<GStaticMesh, Array<uint32_t>, false>::Signature)& GStaticMesh::m_indexData, {});
 				type.AddField<GStaticMesh, Array<math::float3>>("m_positionData",
 					(meta::FieldGetter<GStaticMesh, Array<math::float3>, false>::Signature)& GStaticMesh::m_positionData,
-					(meta::FieldSetter<GStaticMesh, Array<math::float3>, false>::Signature)& GStaticMesh::m_positionData);
+					(meta::FieldSetter<GStaticMesh, Array<math::float3>, false>::Signature)& GStaticMesh::m_positionData, {});
 				type.AddField<GStaticMesh, Array<math::float2>>("m_texCoord1Data",
 					(meta::FieldGetter<GStaticMesh, Array<math::float2>, false>::Signature)& GStaticMesh::m_texCoord1Data,
-					(meta::FieldSetter<GStaticMesh, Array<math::float2>, false>::Signature)& GStaticMesh::m_texCoord1Data);
+					(meta::FieldSetter<GStaticMesh, Array<math::float2>, false>::Signature)& GStaticMesh::m_texCoord1Data, {});
 				type.AddField<GStaticMesh, Array<math::float2>>("m_texCoord2Data",
 					(meta::FieldGetter<GStaticMesh, Array<math::float2>, false>::Signature)& GStaticMesh::m_texCoord2Data,
-					(meta::FieldSetter<GStaticMesh, Array<math::float2>, false>::Signature)& GStaticMesh::m_texCoord2Data);
+					(meta::FieldSetter<GStaticMesh, Array<math::float2>, false>::Signature)& GStaticMesh::m_texCoord2Data, {});
 				type.AddField<GStaticMesh, Array<math::float3>>("m_normalData",
 					(meta::FieldGetter<GStaticMesh, Array<math::float3>, false>::Signature)& GStaticMesh::m_normalData,
-					(meta::FieldSetter<GStaticMesh, Array<math::float3>, false>::Signature)& GStaticMesh::m_normalData);
+					(meta::FieldSetter<GStaticMesh, Array<math::float3>, false>::Signature)& GStaticMesh::m_normalData, {});
 				type.AddField<GStaticMesh, Array<math::float3>>("m_tangentData",
 					(meta::FieldGetter<GStaticMesh, Array<math::float3>, false>::Signature)& GStaticMesh::m_tangentData,
-					(meta::FieldSetter<GStaticMesh, Array<math::float3>, false>::Signature)& GStaticMesh::m_tangentData);
+					(meta::FieldSetter<GStaticMesh, Array<math::float3>, false>::Signature)& GStaticMesh::m_tangentData, {});
 				type.AddField<GStaticMesh, Array<math::float3>>("m_normalData",
 					(meta::FieldGetter<GStaticMesh, Array<math::float3>, false>::Signature)& GStaticMesh::m_normalData,
-					(meta::FieldSetter<GStaticMesh, Array<math::float3>, false>::Signature)& GStaticMesh::m_normalData);
+					(meta::FieldSetter<GStaticMesh, Array<math::float3>, false>::Signature)& GStaticMesh::m_normalData, {});
 				type.AddField<GStaticMesh, Array<math::vector<uint16_t, 4>>>("m_jointData",
 					(meta::FieldGetter<GStaticMesh, Array<math::vector<uint16_t, 4>>, false>::Signature)& GStaticMesh::m_jointData,
-					(meta::FieldSetter<GStaticMesh, Array<math::vector<uint16_t, 4>>, false>::Signature)& GStaticMesh::m_jointData);
+					(meta::FieldSetter<GStaticMesh, Array<math::vector<uint16_t, 4>>, false>::Signature)& GStaticMesh::m_jointData, {});
 				type.AddField<GStaticMesh, Array<math::float4>>("m_weightData",
 					(meta::FieldGetter<GStaticMesh, Array<math::float4>, false>::Signature)& GStaticMesh::m_weightData,
-					(meta::FieldSetter<GStaticMesh, Array<math::float4>, false>::Signature)& GStaticMesh::m_weightData);
+					(meta::FieldSetter<GStaticMesh, Array<math::float4>, false>::Signature)& GStaticMesh::m_weightData, {});
 
 				meta::TypeInfo<GStaticMesh>::Defined = true;
 			}
@@ -845,39 +848,39 @@ namespace GuGu {
 				//array constructor
 				type.SetArrayConstructor<GTexture>();
 
-				type.AddConstructor<GTexture, false, false>();
+				type.AddConstructor<GTexture, false, false>({});
 
-				type.AddConstructor<GTexture, true, true>();
+				type.AddConstructor<GTexture, true, true>({});
 
 				type.LoadBaseClasses(db, id, { typeof(meta::Object) });
 
 				type.AddField<GTexture, Array<uint8_t>>("m_data",
 					(meta::FieldGetter<GTexture, Array<uint8_t>, false>::Signature)& GTexture::m_data,
-					(meta::FieldSetter<GTexture, Array<uint8_t>, false>::Signature)& GTexture::m_data);
+					(meta::FieldSetter<GTexture, Array<uint8_t>, false>::Signature)& GTexture::m_data, {});
 				type.AddField<GTexture, uint32_t>("m_format",
 					(meta::FieldGetter<GTexture, uint32_t, false>::Signature)& GTexture::m_format,
-					(meta::FieldSetter<GTexture, uint32_t, false>::Signature)& GTexture::m_format);
+					(meta::FieldSetter<GTexture, uint32_t, false>::Signature)& GTexture::m_format, {});
 				type.AddField<GTexture, uint32_t>("m_width",
 					(meta::FieldGetter<GTexture, uint32_t, false>::Signature)& GTexture::m_width,
-					(meta::FieldSetter<GTexture, uint32_t, false>::Signature)& GTexture::m_width);
+					(meta::FieldSetter<GTexture, uint32_t, false>::Signature)& GTexture::m_width, {});
 				type.AddField<GTexture, uint32_t>("m_height",
 					(meta::FieldGetter<GTexture, uint32_t, false>::Signature)& GTexture::m_height,
-					(meta::FieldSetter<GTexture, uint32_t, false>::Signature)& GTexture::m_height);
+					(meta::FieldSetter<GTexture, uint32_t, false>::Signature)& GTexture::m_height, {});
 				type.AddField<GTexture, uint32_t>("m_depth",
 					(meta::FieldGetter<GTexture, uint32_t, false>::Signature)& GTexture::m_depth,
-					(meta::FieldSetter<GTexture, uint32_t, false>::Signature)& GTexture::m_depth);
+					(meta::FieldSetter<GTexture, uint32_t, false>::Signature)& GTexture::m_depth, {});
 				type.AddField<GTexture, uint32_t>("m_arraySize",
 					(meta::FieldGetter<GTexture, uint32_t, false>::Signature)& GTexture::m_arraySize,
-					(meta::FieldSetter<GTexture, uint32_t, false>::Signature)& GTexture::m_arraySize);
+					(meta::FieldSetter<GTexture, uint32_t, false>::Signature)& GTexture::m_arraySize, {});
 				type.AddField<GTexture, uint32_t>("m_dimension",
 					(meta::FieldGetter<GTexture, uint32_t, false>::Signature) & GTexture::m_dimension,
-					(meta::FieldSetter<GTexture, uint32_t, false>::Signature) & GTexture::m_dimension);
+					(meta::FieldSetter<GTexture, uint32_t, false>::Signature) & GTexture::m_dimension, {});
 				type.AddField<GTexture, uint32_t>("m_arraySize",
 					(meta::FieldGetter<GTexture, uint32_t, false>::Signature)& GTexture::m_mipLevels,
-					(meta::FieldSetter<GTexture, uint32_t, false>::Signature)& GTexture::m_mipLevels);
+					(meta::FieldSetter<GTexture, uint32_t, false>::Signature)& GTexture::m_mipLevels, {});
 				type.AddField<GTexture, uint32_t>("m_bytesPerPixel",
 					(meta::FieldGetter<GTexture, uint32_t, false>::Signature)& GTexture::m_bytesPerPixel,
-					(meta::FieldSetter<GTexture, uint32_t, false>::Signature)& GTexture::m_bytesPerPixel);
+					(meta::FieldSetter<GTexture, uint32_t, false>::Signature)& GTexture::m_bytesPerPixel, {});
 
 				meta::TypeInfo<GTexture>::Defined = true;
 			}

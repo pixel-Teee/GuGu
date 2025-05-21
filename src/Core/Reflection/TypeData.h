@@ -70,7 +70,7 @@ namespace GuGu {
 			void SetArrayConstructor(void);
 
 			template<typename ClassType, bool IsDynamic, bool IsWrapped, typename ...Args>
-			void AddConstructor();
+			void AddConstructor(const MetaManager::Initializer& meta);
 
 			const Constructor& GetConstructor(
 				const InvokableSignature& signature
@@ -85,7 +85,8 @@ namespace GuGu {
 			void AddField(
 				const std::string& name,
 				GetterReturnType(ClassType::* methodGetter)(void),
-				void (ClassType::* methodSetter)(SetterArgumentType)
+				void (ClassType::* methodSetter)(SetterArgumentType),
+				const MetaManager::Initializer& meta
 			);
 
 			// Const Method Getter, Method Setter
@@ -93,7 +94,8 @@ namespace GuGu {
 			void AddField(
 				const std::string& name,
 				GetterReturnType(ClassType::* methodGetter)(void) const,
-				void (ClassType::* methodSetter)(SetterArgumentType)
+				void (ClassType::* methodSetter)(SetterArgumentType),
+				const MetaManager::Initializer& meta
 			);
 
 
@@ -102,7 +104,8 @@ namespace GuGu {
 			void AddField(
 				const std::string& name,
 				GetterReturnType(ClassType::* methodGetter)(void),
-				typename FieldSetter<ClassType, FieldType, false>::Signature fieldSetter
+				typename FieldSetter<ClassType, FieldType, false>::Signature fieldSetter,
+				const MetaManager::Initializer& meta
 			);
 
 			// Const Method Getter, Field Setter
@@ -110,7 +113,8 @@ namespace GuGu {
 			void AddField(
 				const std::string& name,
 				GetterReturnType(ClassType::* methodGetter)(void) const,
-				typename FieldSetter<ClassType, FieldType, false>::Signature fieldSetter
+				typename FieldSetter<ClassType, FieldType, false>::Signature fieldSetter,
+				const MetaManager::Initializer& meta
 			);
 
 			// Field Getter, Method Setter
@@ -118,7 +122,8 @@ namespace GuGu {
 			void AddField(
 				const std::string& name,
 				typename FieldGetter<ClassType, FieldType, false>::Signature fieldGetter,
-				void (ClassType::* methodSetter)(SetterArgumentType)
+				void (ClassType::* methodSetter)(SetterArgumentType),
+				const MetaManager::Initializer& meta
 			);
 
 			// Field Getter, Field Setter
@@ -126,7 +131,8 @@ namespace GuGu {
 			void AddField(
 				const std::string& name,
 				typename FieldGetter<ClassType, FieldType, false>::Signature fieldGetter,
-				typename FieldSetter<ClassType, FieldType, false>::Signature fieldSetter
+				typename FieldSetter<ClassType, FieldType, false>::Signature fieldSetter,
+				const MetaManager::Initializer& meta
 			);
 
 			const Field& GetField(const std::string& name) const;

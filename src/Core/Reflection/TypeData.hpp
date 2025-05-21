@@ -14,7 +14,7 @@ namespace GuGu {
 			};
 		}
 		template<typename ClassType, bool IsDynamic, bool IsWrapped, typename ...Args>
-		void TypeData::AddConstructor()
+		void TypeData::AddConstructor(const MetaManager::Initializer& meta)
 		{
 			InvokableSignature signature =
 				Invokable::CreateSignature<Args...>();
@@ -26,7 +26,7 @@ namespace GuGu {
 				IsDynamic
 			};
 
-			//ctor.m_meta = meta;
+			ctor.m_meta = meta;
 
 			if (IsDynamic)
 				dynamicConstructors.emplace(signature, ctor);
@@ -37,7 +37,8 @@ namespace GuGu {
 		void TypeData::AddField(
 			const std::string& name,
 			GetterReturnType(ClassType::* methodGetter)(void),
-			void (ClassType::* methodSetter)(SetterArgumentType)
+			void (ClassType::* methodSetter)(SetterArgumentType),
+			const MetaManager::Initializer& meta
 		)
 		{
 			typedef FieldGetter<ClassType, GetterReturnType, true> GetterType;
@@ -60,6 +61,8 @@ namespace GuGu {
 				!methodGetter ? nullptr : new GetterType(methodGetter),
 				!methodSetter ? nullptr : new SetterType(methodSetter)
 			);
+
+			fields.back().m_meta = meta;
 		}
 
 		///////////////////////////////////////////////////////////////////////
@@ -68,7 +71,8 @@ namespace GuGu {
 		void TypeData::AddField(
 			const std::string& name,
 			GetterReturnType(ClassType::* methodGetter)(void) const,
-			void (ClassType::* methodSetter)(SetterArgumentType)
+			void (ClassType::* methodSetter)(SetterArgumentType),
+			const MetaManager::Initializer& meta
 		)
 		{
 			typedef FieldGetter<ClassType, GetterReturnType, true> GetterType;
@@ -91,13 +95,16 @@ namespace GuGu {
 				!methodGetter ? nullptr : new GetterType(methodGetter),
 				!methodSetter ? nullptr : new SetterType(methodSetter)
 			);
+
+			fields.back().m_meta = meta;
 		}
 
 		template<typename ClassType, typename FieldType, typename GetterReturnType>
 		void TypeData::AddField(
 			const std::string& name,
 			GetterReturnType(ClassType::* methodGetter)(void),
-			typename FieldSetter<ClassType, FieldType, false>::Signature fieldSetter
+			typename FieldSetter<ClassType, FieldType, false>::Signature fieldSetter,
+			const MetaManager::Initializer& meta
 		)
 		{
 			typedef FieldGetter<ClassType, GetterReturnType, true> GetterType;
@@ -115,6 +122,7 @@ namespace GuGu {
 				!fieldSetter ? nullptr : new FieldSetter<ClassType, FieldType, false>(fieldSetter)
 			);
 
+			fields.back().m_meta = meta;
 		}
 
 		///////////////////////////////////////////////////////////////////////
@@ -123,7 +131,8 @@ namespace GuGu {
 		void TypeData::AddField(
 			const std::string& name,
 			GetterReturnType(ClassType::* methodGetter)(void) const,
-			typename FieldSetter<ClassType, FieldType, false>::Signature fieldSetter
+			typename FieldSetter<ClassType, FieldType, false>::Signature fieldSetter,
+			const MetaManager::Initializer& meta
 		)
 		{
 			typedef FieldGetter<ClassType, GetterReturnType, true> GetterType;
@@ -141,6 +150,7 @@ namespace GuGu {
 				!fieldSetter ? nullptr : new FieldSetter<ClassType, FieldType, false>(fieldSetter)
 			);
 
+			fields.back().m_meta = meta;
 		}
 
 		///////////////////////////////////////////////////////////////////////
@@ -149,7 +159,8 @@ namespace GuGu {
 		void TypeData::AddField(
 			const std::string& name,
 			typename FieldGetter<ClassType, FieldType, false>::Signature fieldGetter,
-			void (ClassType::* methodSetter)(SetterArgumentType)
+			void (ClassType::* methodSetter)(SetterArgumentType),
+			const MetaManager::Initializer& meta
 		)
 		{
 			typedef FieldSetter<ClassType, SetterArgumentType, true> SetterType;
@@ -167,6 +178,7 @@ namespace GuGu {
 				!methodSetter ? nullptr : new SetterType(methodSetter)
 			);
 
+			fields.back().m_meta = meta;
 		}
 
 		///////////////////////////////////////////////////////////////////////
@@ -175,7 +187,8 @@ namespace GuGu {
 		void TypeData::AddField(
 			const std::string& name,
 			typename FieldGetter<ClassType, FieldType, false>::Signature fieldGetter,
-			typename FieldSetter<ClassType, FieldType, false>::Signature fieldSetter
+			typename FieldSetter<ClassType, FieldType, false>::Signature fieldSetter,
+			const MetaManager::Initializer& meta
 		)
 		{
 			fields.emplace_back(
@@ -186,6 +199,7 @@ namespace GuGu {
 				!fieldSetter ? nullptr : new FieldSetter<ClassType, FieldType, false>(fieldSetter)
 			);
 
+			fields.back().m_meta = meta;
 		}
 
 	}

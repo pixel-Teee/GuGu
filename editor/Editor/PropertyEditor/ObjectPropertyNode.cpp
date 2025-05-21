@@ -4,6 +4,7 @@
 #include "ItemPropertyNode.h"
 
 #include <Core/Reflection/Type.h>
+#include <Core/Reflection/MetaProperty/DisplayName.h>
 #include <Core/Reflection/ReflectionDatabase.h>
 #include <Core/GamePlay/GameObject.h>
 
@@ -256,6 +257,12 @@ namespace GuGu {
 	{
 		//todo:implement get category name
 		GuGuUtf8Str categoryName = currentProperty.GetName();//暂时用组件名字
+
+		//const meta::DisplayName* displayName = currentProperty.GetMeta().GetProperty<meta::DisplayName>();
+		//if (displayName)
+		//{
+		//	categoryName = displayName->m_displayName;
+		//}
 
 		sortedCategories.push_back(categoryName);
 		categoriesFromProperties.insert(categoryName);

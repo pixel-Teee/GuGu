@@ -74,10 +74,10 @@ namespace GuGu {
 		)
 		{
 			// add the good 'ol default constructor
-			data.AddConstructor<T, false, false>();
+			data.AddConstructor<T, false, false>({});
 
 			// add the good 'ol dynamic default constructor
-			data.AddConstructor<T, true, false>();
+			data.AddConstructor<T, true, false>({});
 		}
 	}
 }

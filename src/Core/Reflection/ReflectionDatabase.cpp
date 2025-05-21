@@ -73,8 +73,8 @@ namespace GuGu {
 			auto& stringType = types[typeidof(GuGuUtf8Str)];
 
 			//:显式地为字符串添加构造函数
-			stringType.AddConstructor<GuGuUtf8Str, false, false>();
-			stringType.AddConstructor<GuGuUtf8Str, false, true>();
+			stringType.AddConstructor<GuGuUtf8Str, false, false>({});
+			stringType.AddConstructor<GuGuUtf8Str, false, true>({});
 		}
 		ReflectionDatabase::~ReflectionDatabase()
 		{
