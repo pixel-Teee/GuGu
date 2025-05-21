@@ -4,6 +4,7 @@
 
 #include <Core/Reflection/ReflectionDatabase.h>
 #include <Core/Reflection/TypeInfo.h>
+#include <Core/Reflection/MetaProperty/DisplayName.h>
 #include <Core/Reflection/Array.h>
 
 #include <Core/Model/StaticMesh.h>
@@ -25,6 +26,13 @@ namespace GuGu {
 	void gamePlayerReflectionRegister()
 	{
 		auto& db = meta::ReflectionDatabase::Instance();
+
+		//meta
+		{
+			auto id = db.AllocateType("meta::DisplayName");
+			auto& type = db.types[id];
+			meta::TypeInfo<meta::DisplayName>::Register(id, type, true, "86AC4FFE-0C5A-46F2-BF40-AAE89636AE44");
+		}
 
 		//数学
 		{
@@ -207,9 +215,15 @@ namespace GuGu {
 
 		//meta::object
 		{
-			auto id = db.AllocateType("GuGu::meta::object");
+			auto id = db.AllocateType("GuGu::meta::Object");
 			auto& type = db.types[id];
 			meta::TypeInfo<meta::Object>::Register(id, type, true, "E6023C42-0DA9-4F76-8290-CDB926C881E3");
+
+			type.meta = {
+				std::make_pair(typeof(meta::DisplayName), meta::MetaPropertyInitializer<meta::DisplayName>("Object"))
+			};
+
+			//GuGu_LOGD("%s", "register meta object");
 		}
 
 		{
@@ -241,6 +255,10 @@ namespace GuGu {
 			auto id = db.AllocateType("GuGu::GameObject");
 			auto& type = db.types[id];
 			meta::TypeInfo<GuGu::GameObject>::Register(id, type, true, "764220D9-31E0-448B-9612-79A47B570367");
+
+			//type.meta = {
+			//	std::make_pair(typeof(meta::DisplayName), meta::MetaPropertyInitializer<meta::DisplayName>("GameObject"))
+			//};
 
 			{
 				auto id = db.AllocateType("std::shared_ptr<GuGu::GameObject>");

@@ -167,6 +167,11 @@ namespace GuGu {
 			return name;
 		}
 
+		const meta::MetaManager& Type::GetMeta(void) const
+		{
+			return gDatabase.types[m_id].meta;
+		}
+
 		const Type::Set& Type::GetBaseClasses() const
 		{
 			return gDatabase.types[m_id].baseClasses;

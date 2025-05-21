@@ -18,6 +18,7 @@ namespace GuGu {
 		class Enum;
 		class Variant;
 		class Constructor;
+		class MetaManager;
 		class Type
 		{
 		public:
@@ -88,6 +89,8 @@ namespace GuGu {
 
 			//获取对于这个类型可读的名称
 			GuGuUtf8Str GetName() const;
+
+			const MetaManager& GetMeta(void) const;
 
 			const Set& GetBaseClasses() const;
 

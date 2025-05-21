@@ -72,7 +72,7 @@ namespace GuGu {
 
             if (assetViewAsset)
             {
-                if (assetViewAsset->m_data.m_assetType.GetID() == meta::TypeIDs<GStaticMesh>::ID)
+                if (meta::Type::getType(assetViewAsset->m_data.m_assetTypeGuid).GetID() == meta::TypeIDs<GStaticMesh>::ID)
                 {
 					std::shared_ptr<Brush> assetImage = EditorStyleSet::getStyleSet()->getBrush("MeshAssetIcon");
 					itemContentsOverlay->addSlot()
@@ -81,7 +81,7 @@ namespace GuGu {
 							.brush(assetImage)
 						);
                 }	
-                else if (assetViewAsset->m_data.m_assetType.GetID() == meta::TypeIDs<Level>::ID)
+                else if (meta::Type::getType(assetViewAsset->m_data.m_assetTypeGuid).GetID() == meta::TypeIDs<Level>::ID)
                 {
 					std::shared_ptr<Brush> assetImage = EditorStyleSet::getStyleSet()->getBrush("LevelIcon");
 					itemContentsOverlay->addSlot()
@@ -90,7 +90,7 @@ namespace GuGu {
 							.brush(assetImage)
 						);
                 }
-                else if (assetViewAsset->m_data.m_assetType.GetID() == meta::TypeIDs<GTexture>::ID)
+                else if (meta::Type::getType(assetViewAsset->m_data.m_assetTypeGuid).GetID() == meta::TypeIDs<GTexture>::ID)
 				{
 					std::shared_ptr<Brush> assetImage = EditorStyleSet::getStyleSet()->getBrush("TextureAssetIcon");
 					itemContentsOverlay->addSlot()
@@ -171,7 +171,7 @@ namespace GuGu {
 
             if (assetViewAsset)
             {
-                if (assetViewAsset->m_data.m_assetType.GetID() == meta::TypeIDs<GStaticMesh>::ID)
+                if (meta::Type::getType(assetViewAsset->m_data.m_assetTypeGuid).GetID() == meta::TypeIDs<GStaticMesh>::ID)
                 {
 					std::shared_ptr<Brush> assetImage = EditorStyleSet::getStyleSet()->getBrush("MeshAssetIcon");
 					itemContentsOverlay->addSlot()
@@ -180,7 +180,7 @@ namespace GuGu {
 							.brush(assetImage)
 						);
                 }	
-                else if (assetViewAsset->m_data.m_assetType.GetID() == meta::TypeIDs<Level>::ID)
+                else if (meta::Type::getType(assetViewAsset->m_data.m_assetTypeGuid).GetID() == meta::TypeIDs<Level>::ID)
                 {
 					std::shared_ptr<Brush> assetImage = EditorStyleSet::getStyleSet()->getBrush("LevelIcon");
 					itemContentsOverlay->addSlot()
@@ -189,7 +189,7 @@ namespace GuGu {
 							.brush(assetImage)
 						);
                 }
-				else if (assetViewAsset->m_data.m_assetType.GetID() == meta::TypeIDs<GTexture>::ID)
+				else if (meta::Type::getType(assetViewAsset->m_data.m_assetTypeGuid).GetID() == meta::TypeIDs<GTexture>::ID)
 				{
 					std::shared_ptr<Brush> assetImage = EditorStyleSet::getStyleSet()->getBrush("TextureAssetIcon");
 					itemContentsOverlay->addSlot()

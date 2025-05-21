@@ -170,7 +170,7 @@ namespace GuGu {
 		AssetData assetData;
 		assetData.m_filePath = "content/level1.json";
 		assetData.m_fileName = "level1";
-		assetData.m_assetType = typeof(Level);
+		assetData.m_assetTypeGuid = typeof(Level).getGuid();
 		World::getWorld()->loadLevel(assetData);
 
 		return mainWindow;

@@ -4,6 +4,7 @@
 #include "Field.h"
 #include "Enum.h"
 #include "Constructor.h"
+#include "MetaManager.h"
 
 #include <Core/GuGuUtf8Str.h>
 #include <Core/Guid.h>
@@ -26,7 +27,7 @@ namespace GuGu {
 			bool isClass : 1; //是否为类
 			bool isStruct : 1; //是否为标准布局
 
-			//todo:添加 meta 管理器
+			MetaManager meta;
 
 			GuGuUtf8Str name;
 

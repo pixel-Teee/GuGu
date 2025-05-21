@@ -43,7 +43,7 @@ namespace GuGu {
 	}
 	void World::loadObject(AssetData& assetData) const
 	{
-		if (assetData.m_assetType == meta::Type(meta::TypeIDs<GStaticMesh>::ID))
+		if (meta::Type::getType(assetData.m_assetTypeGuid) == meta::Type(meta::TypeIDs<GStaticMesh>::ID))
 		{
 			std::shared_ptr<GameObject> gameObject = std::make_shared<GameObject>();
 			std::shared_ptr<TransformComponent> transformComponent = std::make_shared<TransformComponent>();
@@ -92,7 +92,7 @@ namespace GuGu {
 
 	void World::loadLevel(AssetData& assetData)
 	{
-		if (assetData.m_assetType == meta::Type(meta::TypeIDs<Level>::ID))
+		if (meta::Type::getType(assetData.m_assetTypeGuid) == meta::Type(meta::TypeIDs<Level>::ID))
 		{
 			GuGuUtf8Str filePath = assetData.m_filePath;
 			AssetManager::getAssetManager().getRootFileSystem()->OpenFile(filePath.getStr(), GuGuFile::FileMode::OnlyRead);

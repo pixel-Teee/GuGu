@@ -54,8 +54,8 @@ namespace GuGu {
 			GGuid key = GuGuUtf8Str(item.at("GUID").get<std::string>());
 			GuGuUtf8Str filePath = item.at("FilePath").get<std::string>();
 			GuGuUtf8Str fileName = item.at("FileName").get<std::string>();
-			uint32_t assetTypeId = item.at("AssetType").get<uint32_t>();
-			m_guidToAssetMap.insert({ key, std::make_shared<AssetData>(filePath, fileName, meta::Type(assetTypeId))});
+			GuGuUtf8Str assetTypeGuid = item.at("AssetType").get<std::string>();
+			m_guidToAssetMap.insert({ key, std::make_shared<AssetData>(filePath, fileName, assetTypeGuid)});
 		}
 
 		//查看资产记录表里面有没有白色贴图，如果没有，生成一张默认的白色贴图
@@ -214,14 +214,15 @@ namespace GuGu {
 	{
 		//GuGuUtf8Str relativePath = "content/" + FilePath::getRelativePathForAsset(filePath, m_nativeFileSystem->getNativeFilePath() + "/").getStr();
 		GuGuUtf8Str relativePath = filePath;
-		m_guidToAssetMap.insert({ guid, std::make_shared<AssetData>(relativePath, fileName, assetType.GetID())});
+		m_guidToAssetMap.insert({ guid, std::make_shared<AssetData>(relativePath, fileName, assetType.getGuid().getGuid())});
 		m_rootFileSystem->OpenFile("content/AssetRgistry.json", GuGuFile::FileMode::OnlyWrite);
 		
 		nlohmann::json newItem = nlohmann::json::object();
 		newItem["GUID"] = guid.getStr();
 		newItem["FilePath"] = relativePath.getStr();
 		newItem["FileName"] = fileName.getStr();
-		newItem["AssetType"] = assetType.GetID();
+		GuGuUtf8Str assetTypeGuid = assetType.getGuid().getGuid();
+		newItem["AssetType"] = assetTypeGuid.getStr();//string
 		m_assetRegistryJson["AssetRegistry"].push_back(newItem);
 		GuGuUtf8Str jsonFileContent = m_assetRegistryJson.dump();
 		m_rootFileSystem->WriteFile((void*)jsonFileContent.getStr(), jsonFileContent.getTotalByteCount());
@@ -809,7 +810,7 @@ namespace GuGu {
 	{
 		for (const auto& item : m_guidToAssetMap)
 		{
-			if (item.second->m_filePath == filePath && item.second->m_assetType == assetType)
+			if (item.second->m_filePath == filePath && meta::Type::getType(item.second->m_assetTypeGuid) == assetType)
 				return item.first;
 		}
 		return GGuid();//nothing
@@ -832,13 +833,13 @@ namespace GuGu {
 					AssetManager::getAssetManager().getRootFileSystem()->ReadFile((void*)fileContent, fileSize, numberBytesHavedReaded);
 					AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
 					GuGuUtf8Str json(fileContent);
-					if (item.second->m_assetType == typeof(GStaticMesh))
+					if (meta::Type::getType(item.second->m_assetTypeGuid) == typeof(GStaticMesh))
 					{
 						//load asset
 						std::shared_ptr<meta::Object> loadedObject = AssetManager::getAssetManager().deserializeJson<GStaticMesh>(nlohmann::json::parse(json.getStr()));
 						item.second->m_loadedResource = loadedObject;
 					}
-					else if(item.second->m_assetType == typeof(GTexture))
+					else if(meta::Type::getType(item.second->m_assetTypeGuid) == typeof(GTexture))
 					{
 						//load asset
 						std::shared_ptr<meta::Object> loadedObject = AssetManager::getAssetManager().deserializeJson<GTexture>(nlohmann::json::parse(json.getStr()));

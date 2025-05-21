@@ -22,6 +22,10 @@ namespace GuGu {
 			typedef std::vector<Variant> PropertyList;
 
 			MetaManager(void);
+			MetaManager(const MetaManager& rhs);
+			MetaManager(const MetaManager&& rhs);
+
+			const MetaManager& operator=(const MetaManager& rhs);
 			MetaManager(const Initializer& properties);//构造函数的初始化参数
 
 			~MetaManager(void);
@@ -33,8 +37,9 @@ namespace GuGu {
 
 			//设置给定的类型
 			void SetProperty(Type type, const MetaProperty* value);
-		private:
 
+		private:
+			void copy(const MetaManager& rhs);
 			//enable register disable (white list methods) 等属性
 			//一个 meta type 及其对应的创建的对象
 			std::map<Type, const MetaProperty*> m_properties;

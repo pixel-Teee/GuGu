@@ -8,7 +8,7 @@ namespace GuGu {
 	{
 		GuGuUtf8Str m_filePath;
 		GuGuUtf8Str m_fileName;
-		meta::Type m_assetType;
+		GGuid m_assetTypeGuid;
 
 		virtual void Update(float fElapsedTimeSeconds) override;
 
@@ -20,7 +20,7 @@ namespace GuGu {
 
 		AssetData() {}
 
-		AssetData(const GuGuUtf8Str& filePath, const GuGuUtf8Str& fileName, meta::Type assetType);
+		AssetData(const GuGuUtf8Str& filePath, const GuGuUtf8Str& fileName, const GuGuUtf8Str& assetTypeGuid);
 
 		GuGuUtf8Str toString() const;
 

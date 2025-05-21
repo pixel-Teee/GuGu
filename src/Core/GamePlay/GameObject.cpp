@@ -4,10 +4,18 @@
 #include "TransformComponent.h"
 #include "LightComponent.h"
 
+#include <Core/Reflection/MetaProperty/DisplayName.h>
+#include <Core/Reflection/MetaManager.h>
+
 namespace GuGu {
 	GameObject::GameObject()
 	{
-		m_name = typeof(GameObject).GetName();
+		const meta::DisplayName* displayName = typeof(GameObject).GetMeta().GetProperty<meta::DisplayName>();
+		if (displayName)
+		{
+			m_name = displayName->m_displayName;
+		}
+		//m_name = typeof(GameObject).GetMeta().GetProperty<meta::DisplayName>()->m_displayName;
 
 		static uint32_t id = 0;
 		m_id = ++id;

@@ -141,7 +141,7 @@ namespace GuGu {
 				)
 				.onDragDetected(this, &AssetView::onDraggingAssetItem);
 
-				GuGuUtf8Str assetType = meta::Type(assetItemAsAsset->m_data.m_assetType).GetName();
+				GuGuUtf8Str assetType = meta::Type::getType(assetItemAsAsset->m_data.m_assetTypeGuid).GetName();
 				GuGuUtf8Str tooltip = "filePath:" + assetItemAsAsset->m_data.m_filePath + "\r\n" + "assetType:" + assetType;
 				tableRowWidget->setToolTipText(tooltip);
 
@@ -200,7 +200,7 @@ namespace GuGu {
 					)
 					.onDragDetected(this, &AssetView::onDraggingAssetItem);
 
-				GuGuUtf8Str assetType = meta::Type(assetItemAsAsset->m_data.m_assetType).GetName();
+				GuGuUtf8Str assetType = meta::Type::getType(assetItemAsAsset->m_data.m_assetTypeGuid).GetName();
 				GuGuUtf8Str tooltip = "filePath:" + assetItemAsAsset->m_data.m_filePath + "\r\n" + "assetType:" + assetType;
 				tableRowWidget->setToolTipText(tooltip);
 
@@ -259,7 +259,7 @@ namespace GuGu {
 						if (AssetManager::getAssetManager().isInAssetRegistry(path))
 						{
 							const AssetData& assetData = AssetManager::getAssetManager().getAssetData(path);
-							if (assetData.m_assetType.GetName() == m_backendFilter.m_classNames[0]) //todo:先只筛选一个
+							if (meta::Type::getType(assetData.m_assetTypeGuid).GetName() == m_backendFilter.m_classNames[0]) //todo:先只筛选一个
 							{
 								assetItems.push_back(assetData);
 							}

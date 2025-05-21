@@ -50,7 +50,7 @@ namespace GuGu {
 		{
 			AssetData assetData;
 			inPropertyEditor->getPropertyHandle()->getValue(assetData);
-			m_objectClass = assetData.m_assetType;
+			m_objectClass = meta::Type::getType(assetData.m_assetTypeGuid);
 			m_allowedClassFilters.push_back(m_objectClass);
 		}
 

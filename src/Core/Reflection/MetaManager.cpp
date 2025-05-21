@@ -7,6 +7,23 @@ namespace GuGu {
 		MetaManager::MetaManager(void)
 		{
 		}
+		MetaManager::MetaManager(const MetaManager& rhs)
+		{
+			copy(rhs);
+		}
+
+		MetaManager::MetaManager(const MetaManager&& rhs)
+			: m_properties(std::move(rhs.m_properties))
+		{
+
+		}
+
+		const MetaManager& MetaManager::operator=(const MetaManager& rhs)
+		{
+			copy(rhs);
+
+			return *this;
+		}
 		MetaManager::MetaManager(const Initializer& properties)
 		{
 			for (auto& prop : properties)
@@ -22,6 +39,7 @@ namespace GuGu {
 		{
 			for (auto& prop : m_properties)
 				delete prop.second;
+			//m_properties.clear();
 		}
 
 		meta::Variant MetaManager::GetProperty(Type type) const
@@ -41,6 +59,15 @@ namespace GuGu {
 				delete search->second;
 
 			m_properties[type] = value;
+		}
+
+		void MetaManager::copy(const MetaManager& rhs)
+		{
+			for (auto& prop : rhs.m_properties)
+			{
+				m_properties[prop.first] =
+					static_cast<MetaProperty*>(prop.second->Clone());
+			}
 		}
 	}
 }
