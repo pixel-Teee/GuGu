@@ -3,6 +3,7 @@
 #include "StaticMeshComponent.h"
 #include <Core/AssetManager/AssetData.h>
 #include <Core/AssetManager/AssetManager.h>
+#include <Core/GamePlay/GameObject.h>
 #include <Core/Reflection/TypeInfo.h>
 
 namespace GuGu {
@@ -27,13 +28,13 @@ namespace GuGu {
 
 			type.LoadBaseClasses(db, typeID, { typeof(Component) });
 
-			type.AddField<StaticMeshComponent, std::shared_ptr<AssetData>>("m_staticMeshAsset",
-				(meta::FieldGetter<StaticMeshComponent, std::shared_ptr<AssetData>, true>::Signature) & StaticMeshComponent::getStaticMeshAsset,
-				(meta::FieldSetter<StaticMeshComponent, std::shared_ptr<AssetData>, true>::Signature) & StaticMeshComponent::setStaticMeshAsset, {});
-
-			type.AddField<StaticMeshComponent, std::weak_ptr<GameObject>>("m_owner",
-				(meta::FieldGetter<StaticMeshComponent, std::weak_ptr<GameObject>&, true>::Signature) & StaticMeshComponent::getParentGameObject,
-				(meta::FieldSetter<StaticMeshComponent, std::weak_ptr<GameObject>&, true>::Signature) & StaticMeshComponent::setParentGameObject, {});
+			//type.AddField<StaticMeshComponent, std::shared_ptr<AssetData>>("m_staticMeshAsset",
+			//	(meta::FieldGetter<StaticMeshComponent, std::shared_ptr<AssetData>, true>::Signature) & StaticMeshComponent::getStaticMeshAsset,
+			//	(meta::FieldSetter<StaticMeshComponent, std::shared_ptr<AssetData>, true>::Signature) & StaticMeshComponent::setStaticMeshAsset, {});
+			//
+			//type.AddField<StaticMeshComponent, std::weak_ptr<GameObject>>("m_owner",
+			//	(meta::FieldGetter<StaticMeshComponent, std::weak_ptr<GameObject>&, true>::Signature) & StaticMeshComponent::getParentGameObject,
+			//	(meta::FieldSetter<StaticMeshComponent, std::weak_ptr<GameObject>&, true>::Signature) & StaticMeshComponent::setParentGameObject, {});
 
 			meta::TypeInfo<StaticMeshComponent>::Defined = true;
 		}
@@ -52,10 +53,32 @@ namespace GuGu {
 		return true;
 	}
 
+	static bool registerStaticMeshComponentFields()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto& type = db.types[typeof(StaticMeshComponent).GetID()];
+		
+		type.AddField<StaticMeshComponent, std::shared_ptr<AssetData>>("m_staticMeshAsset",
+			(meta::FieldGetter<StaticMeshComponent, std::shared_ptr<AssetData>, true>::Signature) & StaticMeshComponent::getStaticMeshAsset,
+			(meta::FieldSetter<StaticMeshComponent, std::shared_ptr<AssetData>, true>::Signature) & StaticMeshComponent::setStaticMeshAsset, {});
+
+		type.AddField<StaticMeshComponent, std::weak_ptr<GameObject>>("m_owner",
+			(meta::FieldGetter<StaticMeshComponent, std::weak_ptr<GameObject>&, true>::Signature) & StaticMeshComponent::getParentGameObject,
+			(meta::FieldSetter<StaticMeshComponent, std::weak_ptr<GameObject>&, true>::Signature) & StaticMeshComponent::setParentGameObject, {});
+		
+		return true;
+	}
+
 	IMPLEMENT_INITIAL_BEGIN(StaticMeshComponent)
 		ADD_PRIORITY(AssetData)
 		ADD_INITIAL_FUNCTION_WITH_PRIORITY(registerStaticMeshComponent)
 	IMPLEMENT_INITIAL_END
+
+	IMPLEMENT_INITIAL_FIELDS_BEGIN(StaticMeshComponent)
+		ADD_PRIORITY_FIELDS(AssetData)
+		ADD_PRIORITY_FIELDS(GameObject)
+		ADD_INITIAL_FIELDS_FUNCTION_WITH_PRIORITY(registerStaticMeshComponentFields)
+	IMPLEMENT_INITIAL_FIELDS_END
 
 	StaticMeshComponent::StaticMeshComponent()
 	{

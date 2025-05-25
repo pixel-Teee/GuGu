@@ -12,10 +12,6 @@ namespace GuGu {
 		auto& type = db.types[id];
 		meta::TypeInfo<Component>::Register(id, type, true, "0955EA47-6CB3-4F4E-929A-A19769B4DD93");
 
-		type.AddField<Component, std::weak_ptr<GameObject>>("m_owner",
-			(meta::FieldGetter<Component, std::weak_ptr<GameObject>&, true>::Signature) & Component::getParentGameObject,
-			(meta::FieldSetter<Component, std::weak_ptr<GameObject>&, true>::Signature) & Component::setParentGameObject, {});
-
 		{
 			auto id = db.AllocateType("std::shared_ptr<GuGu::Component>");
 			auto& type = db.types[id];
@@ -32,9 +28,27 @@ namespace GuGu {
 		return true;
 	}
 
+	static bool registerGuGuComponentFields()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto& type = db.types[typeof(Component).GetID()];
+
+		type.AddField<Component, std::weak_ptr<GameObject>>("m_owner",
+			(meta::FieldGetter<Component, std::weak_ptr<GameObject>&, true>::Signature) & Component::getParentGameObject,
+			(meta::FieldSetter<Component, std::weak_ptr<GameObject>&, true>::Signature) & Component::setParentGameObject, {});
+
+
+		return true;
+	}
+
 	IMPLEMENT_INITIAL_BEGIN(Component)
 		ADD_INITIAL_FUNCTION_WITH_PRIORITY(registerGuGuComponent)
 	IMPLEMENT_INITIAL_END
+
+	IMPLEMENT_INITIAL_FIELDS_BEGIN(Component)
+		ADD_PRIORITY_FIELDS(GameObject)
+		ADD_INITIAL_FIELDS_FUNCTION_WITH_PRIORITY(registerGuGuComponentFields)
+	IMPLEMENT_INITIAL_FIELDS_END
 
     meta::Type Component::GetType() const
     {

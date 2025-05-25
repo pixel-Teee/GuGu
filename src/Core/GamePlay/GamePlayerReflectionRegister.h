@@ -2,8 +2,7 @@
 
 namespace GuGu {
 	//------third party------
-	//static Priority metaDisplayNamePriority;
-	
+
 	static Priority mathfloat2Priority;
 
 	static Priority mathfloat3Priority;

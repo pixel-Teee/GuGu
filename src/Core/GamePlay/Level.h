@@ -8,6 +8,7 @@ namespace GuGu {
 	class Level : public meta::Object {
 	public:
 		DECLARE_INITIAL
+		DECLARE_INITIAL_FIELDS
 
 		Level();
 

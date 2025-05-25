@@ -2,6 +2,7 @@
 
 #include "CameraComponent.h"
 #include <Core/Reflection/TypeInfo.h>
+#include <Core/GamePlay/GameObject.h>
 
 namespace GuGu {
 	static bool registerGuGuCameraComponent()
@@ -58,9 +59,39 @@ namespace GuGu {
 		return true;
 	}
 
+	static bool registerGuGuCameraComponentFields()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto& type = db.types[typeof(CameraComponent).GetID()];
+
+		type.AddField<CameraComponent, float>("m_fov",
+			(meta::FieldGetter<CameraComponent, float, true>::Signature) & CameraComponent::getFov,
+			(meta::FieldSetter<CameraComponent, float, true>::Signature) & CameraComponent::setFov, {});
+
+		type.AddField<CameraComponent, float>("m_nearPlane",
+			(meta::FieldGetter<CameraComponent, float, true>::Signature) & CameraComponent::getNearPlane,
+			(meta::FieldSetter<CameraComponent, float, true>::Signature) & CameraComponent::setNearPlane, {});
+
+		type.AddField<CameraComponent, float>("m_farPlane",
+			(meta::FieldGetter<CameraComponent, float, true>::Signature) & CameraComponent::getFarPlane,
+			(meta::FieldSetter<CameraComponent, float, true>::Signature) & CameraComponent::setFarPlane, {});
+
+		type.AddField<CameraComponent, std::weak_ptr<GameObject>>("m_owner",
+			(meta::FieldGetter<CameraComponent, std::weak_ptr<GameObject>&, true>::Signature) & CameraComponent::getParentGameObject,
+			(meta::FieldSetter<CameraComponent, std::weak_ptr<GameObject>&, true>::Signature) & CameraComponent::setParentGameObject, {});
+		
+		return true;
+	}
+
 	IMPLEMENT_INITIAL_BEGIN(CameraComponent)
+		ADD_PRIORITY(Component)
 		ADD_INITIAL_FUNCTION_WITH_PRIORITY(registerGuGuCameraComponent)
 	IMPLEMENT_INITIAL_END
+
+	IMPLEMENT_INITIAL_FIELDS_BEGIN(CameraComponent)
+		ADD_PRIORITY_FIELDS(GameObject)
+		ADD_INITIAL_FIELDS_FUNCTION_WITH_PRIORITY(registerGuGuCameraComponentFields)
+	IMPLEMENT_INITIAL_FIELDS_END
 
 	CameraComponent::CameraComponent()
 	{

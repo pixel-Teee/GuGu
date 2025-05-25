@@ -8,6 +8,8 @@ namespace GuGu {
 	class Component : public meta::Object{
 	public:
 		DECLARE_INITIAL
+
+		DECLARE_INITIAL_FIELDS
 		virtual meta::Type GetType() const override;
 
 		virtual ~Component() {}

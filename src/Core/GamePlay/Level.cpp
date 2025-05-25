@@ -26,10 +26,6 @@ namespace GuGu {
 
 			type.LoadBaseClasses(db, typeID, { typeof(meta::Object) });
 
-			type.AddField<Level, Array<std::shared_ptr<GameObject>>>("m_objects",
-				(meta::FieldGetter<Level, Array<std::shared_ptr<GameObject>>&, true>::Signature) & Level::getGameObjects,
-				(meta::FieldSetter<Level, Array<std::shared_ptr<GameObject>>&, true>::Signature) & Level::setGameObjects, {});
-
 			meta::TypeInfo<Level>::Defined = true;
 		}
 
@@ -47,10 +43,26 @@ namespace GuGu {
 		return true;
 	}
 
+	static bool registerGuGuLevelFields()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto& type = db.types[typeof(Level).GetID()];
+
+		type.AddField<Level, Array<std::shared_ptr<GameObject>>>("m_objects",
+			(meta::FieldGetter<Level, Array<std::shared_ptr<GameObject>>&, true>::Signature) & Level::getGameObjects,
+			(meta::FieldSetter<Level, Array<std::shared_ptr<GameObject>>&, true>::Signature) & Level::setGameObjects, {});
+		return true;
+	}
+
 	IMPLEMENT_INITIAL_BEGIN(Level)
-		ADD_PRIORITY(GameObject)
+		ADD_PRIORITY(meta::Object)
 		ADD_INITIAL_FUNCTION_WITH_PRIORITY(registerGuGuLevel)
 	IMPLEMENT_INITIAL_END
+
+	IMPLEMENT_INITIAL_FIELDS_BEGIN(Level)
+		ADD_PRIORITY_FIELDS(GameObject)
+		ADD_INITIAL_FIELDS_FUNCTION_WITH_PRIORITY(registerGuGuLevelFields)
+	IMPLEMENT_INITIAL_FIELDS_END
 
 	Level::Level()
 	{

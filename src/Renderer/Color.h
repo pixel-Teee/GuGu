@@ -9,6 +9,7 @@ namespace GuGu {
 		float r, g, b, a;
 
 		DECLARE_INITIAL
+		DECLARE_INITIAL_FIELDS
 
 		Color() : r(0.f), g(0.f), b(0.f), a(0.f) { }
 		Color(float c) : r(c), g(c), b(c), a(c) { }

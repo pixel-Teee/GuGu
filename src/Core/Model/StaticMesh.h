@@ -14,6 +14,7 @@ namespace GuGu{
 	{
 	public:
 		DECLARE_INITIAL
+		DECLARE_INITIAL_FIELDS
 		GStaticMesh();
 
 		virtual ~GStaticMesh();

@@ -28,20 +28,6 @@ namespace GuGu {
 
 				type.AddConstructor<TransformComponent, true, true>({});
 
-				type.AddField<TransformComponent, math::double3>("m_Translation",
-					(meta::FieldGetter<TransformComponent, math::double3&, true>::Signature) & TransformComponent::getTranslation,
-					(meta::FieldSetter<TransformComponent, math::double3, true>::Signature) & TransformComponent::SetTranslation, {});
-				type.AddField<TransformComponent, math::dquat>("m_Rotation",
-					(meta::FieldGetter<TransformComponent, math::dquat, true>::Signature) & TransformComponent::getRotation,
-					(meta::FieldSetter<TransformComponent, math::dquat, true>::Signature) & TransformComponent::SetRotation, {});
-				type.AddField<TransformComponent, math::double3>("m_Scaling",
-					(meta::FieldGetter<TransformComponent, math::double3&, true>::Signature) & TransformComponent::getScaling,
-					(meta::FieldSetter<TransformComponent, math::double3, true>::Signature) & TransformComponent::SetScaling, {});
-
-				type.AddField<TransformComponent, std::weak_ptr<GameObject>>("m_owner",
-					(meta::FieldGetter<TransformComponent, std::weak_ptr<GameObject>&, true>::Signature) & TransformComponent::getParentGameObject,
-					(meta::FieldSetter<TransformComponent, std::weak_ptr<GameObject>&, true>::Signature) & TransformComponent::setParentGameObject, {});
-
 				type.LoadBaseClasses(db, typeID, { typeof(Component) });
 
 				meta::TypeInfo<TransformComponent>::Defined = true;
@@ -66,12 +52,38 @@ namespace GuGu {
 		return true;
 	}
 
+	static bool registerTransformComponentFields()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto& type = db.types[typeof(TransformComponent).GetID()];
+		type.AddField<TransformComponent, math::double3>("m_Translation",
+			(meta::FieldGetter<TransformComponent, math::double3&, true>::Signature) & TransformComponent::getTranslation,
+			(meta::FieldSetter<TransformComponent, math::double3, true>::Signature) & TransformComponent::SetTranslation, {});
+		type.AddField<TransformComponent, math::dquat>("m_Rotation",
+			(meta::FieldGetter<TransformComponent, math::dquat, true>::Signature) & TransformComponent::getRotation,
+			(meta::FieldSetter<TransformComponent, math::dquat, true>::Signature) & TransformComponent::SetRotation, {});
+		type.AddField<TransformComponent, math::double3>("m_Scaling",
+			(meta::FieldGetter<TransformComponent, math::double3&, true>::Signature) & TransformComponent::getScaling,
+			(meta::FieldSetter<TransformComponent, math::double3, true>::Signature) & TransformComponent::SetScaling, {});
+
+		type.AddField<TransformComponent, std::weak_ptr<GameObject>>("m_owner",
+			(meta::FieldGetter<TransformComponent, std::weak_ptr<GameObject>&, true>::Signature) & TransformComponent::getParentGameObject,
+			(meta::FieldSetter<TransformComponent, std::weak_ptr<GameObject>&, true>::Signature) & TransformComponent::setParentGameObject, {});
+		return true;
+	}
+
 	IMPLEMENT_INITIAL_BEGIN(TransformComponent)
-		ADD_PRIORITY(meta::DisplayName)
-		if (!ms_priority.addPriorityThan(&mathdouble3Priority)) return 0; //add priority
-		if (!ms_priority.addPriorityThan(&mathdquatPriority)) return 0; //add priority
+		ADD_PRIORITY(Component)
 		ADD_INITIAL_FUNCTION_WITH_PRIORITY(registerTransformComponent)
 	IMPLEMENT_INITIAL_END
+
+	IMPLEMENT_INITIAL_FIELDS_BEGIN(TransformComponent)
+		ADD_PRIORITY_FIELDS(meta::DisplayName)
+		if (!ms_priority2.addPriorityThan(&mathdouble3Priority)) return 0; //add priority
+		if (!ms_priority2.addPriorityThan(&mathdquatPriority)) return 0; //add priority
+		ADD_PRIORITY_FIELDS(GameObject)
+		ADD_INITIAL_FIELDS_FUNCTION_WITH_PRIORITY(registerTransformComponentFields)
+	IMPLEMENT_INITIAL_FIELDS_END
 	TransformComponent::TransformComponent()
 	{
 	}

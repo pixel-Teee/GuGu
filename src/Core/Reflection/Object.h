@@ -16,6 +16,10 @@ namespace GuGu {
 			static bool registerMainFactory();
 			static bool ms_bRegisterMainFactory;
 			static Priority ms_priority;
+
+			static bool registerMainFactory2();
+			static bool ms_bRegisterMainFactory2;
+			static Priority ms_priority2;
 			//------reflection register------
 			virtual ~Object() {}
 

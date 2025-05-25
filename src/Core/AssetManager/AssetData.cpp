@@ -27,9 +27,19 @@ namespace GuGu {
 		return true;
 	}
 
+	static bool registerGuGuAssetDataFields()
+	{
+		//nothing
+		return true;
+	}
+
 	IMPLEMENT_INITIAL_BEGIN(AssetData)
 		ADD_INITIAL_FUNCTION_WITH_PRIORITY(registerGuGuAssetData)
 	IMPLEMENT_INITIAL_END
+
+	IMPLEMENT_INITIAL_FIELDS_BEGIN(AssetData)
+		ADD_INITIAL_FIELDS_FUNCTION_WITH_PRIORITY(registerGuGuAssetDataFields)
+	IMPLEMENT_INITIAL_FIELDS_END
 
 	void AssetData::Update(float fElapsedTimeSeconds)
 	{

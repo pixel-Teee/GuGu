@@ -27,34 +27,6 @@ namespace GuGu {
 
 				type.LoadBaseClasses(db, id, { typeof(meta::Object) });
 
-				type.AddField<GStaticMesh, Array<uint32_t>>("m_indexData",
-					(meta::FieldGetter<GStaticMesh, Array<uint32_t>, false>::Signature) & GStaticMesh::m_indexData,
-					(meta::FieldSetter<GStaticMesh, Array<uint32_t>, false>::Signature) & GStaticMesh::m_indexData, {});
-				type.AddField<GStaticMesh, Array<math::float3>>("m_positionData",
-					(meta::FieldGetter<GStaticMesh, Array<math::float3>, false>::Signature) & GStaticMesh::m_positionData,
-					(meta::FieldSetter<GStaticMesh, Array<math::float3>, false>::Signature) & GStaticMesh::m_positionData, {});
-				type.AddField<GStaticMesh, Array<math::float2>>("m_texCoord1Data",
-					(meta::FieldGetter<GStaticMesh, Array<math::float2>, false>::Signature) & GStaticMesh::m_texCoord1Data,
-					(meta::FieldSetter<GStaticMesh, Array<math::float2>, false>::Signature) & GStaticMesh::m_texCoord1Data, {});
-				type.AddField<GStaticMesh, Array<math::float2>>("m_texCoord2Data",
-					(meta::FieldGetter<GStaticMesh, Array<math::float2>, false>::Signature) & GStaticMesh::m_texCoord2Data,
-					(meta::FieldSetter<GStaticMesh, Array<math::float2>, false>::Signature) & GStaticMesh::m_texCoord2Data, {});
-				type.AddField<GStaticMesh, Array<math::float3>>("m_normalData",
-					(meta::FieldGetter<GStaticMesh, Array<math::float3>, false>::Signature) & GStaticMesh::m_normalData,
-					(meta::FieldSetter<GStaticMesh, Array<math::float3>, false>::Signature) & GStaticMesh::m_normalData, {});
-				type.AddField<GStaticMesh, Array<math::float3>>("m_tangentData",
-					(meta::FieldGetter<GStaticMesh, Array<math::float3>, false>::Signature) & GStaticMesh::m_tangentData,
-					(meta::FieldSetter<GStaticMesh, Array<math::float3>, false>::Signature) & GStaticMesh::m_tangentData, {});
-				type.AddField<GStaticMesh, Array<math::float3>>("m_normalData",
-					(meta::FieldGetter<GStaticMesh, Array<math::float3>, false>::Signature) & GStaticMesh::m_normalData,
-					(meta::FieldSetter<GStaticMesh, Array<math::float3>, false>::Signature) & GStaticMesh::m_normalData, {});
-				type.AddField<GStaticMesh, Array<math::vector<uint16_t, 4>>>("m_jointData",
-					(meta::FieldGetter<GStaticMesh, Array<math::vector<uint16_t, 4>>, false>::Signature) & GStaticMesh::m_jointData,
-					(meta::FieldSetter<GStaticMesh, Array<math::vector<uint16_t, 4>>, false>::Signature) & GStaticMesh::m_jointData, {});
-				type.AddField<GStaticMesh, Array<math::float4>>("m_weightData",
-					(meta::FieldGetter<GStaticMesh, Array<math::float4>, false>::Signature) & GStaticMesh::m_weightData,
-					(meta::FieldSetter<GStaticMesh, Array<math::float4>, false>::Signature) & GStaticMesh::m_weightData, {});
-
 				meta::TypeInfo<GStaticMesh>::Defined = true;
 			}
 
@@ -72,13 +44,54 @@ namespace GuGu {
 		}
 		return true;
 	}
+	static bool registerGuGuGStaticMeshFields()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+
+		auto& type = db.types[typeof(GStaticMesh).GetID()];	
+
+		type.AddField<GStaticMesh, Array<uint32_t>>("m_indexData",
+			(meta::FieldGetter<GStaticMesh, Array<uint32_t>, false>::Signature) & GStaticMesh::m_indexData,
+			(meta::FieldSetter<GStaticMesh, Array<uint32_t>, false>::Signature) & GStaticMesh::m_indexData, {});
+		type.AddField<GStaticMesh, Array<math::float3>>("m_positionData",
+			(meta::FieldGetter<GStaticMesh, Array<math::float3>, false>::Signature) & GStaticMesh::m_positionData,
+			(meta::FieldSetter<GStaticMesh, Array<math::float3>, false>::Signature) & GStaticMesh::m_positionData, {});
+		type.AddField<GStaticMesh, Array<math::float2>>("m_texCoord1Data",
+			(meta::FieldGetter<GStaticMesh, Array<math::float2>, false>::Signature) & GStaticMesh::m_texCoord1Data,
+			(meta::FieldSetter<GStaticMesh, Array<math::float2>, false>::Signature) & GStaticMesh::m_texCoord1Data, {});
+		type.AddField<GStaticMesh, Array<math::float2>>("m_texCoord2Data",
+			(meta::FieldGetter<GStaticMesh, Array<math::float2>, false>::Signature) & GStaticMesh::m_texCoord2Data,
+			(meta::FieldSetter<GStaticMesh, Array<math::float2>, false>::Signature) & GStaticMesh::m_texCoord2Data, {});
+		type.AddField<GStaticMesh, Array<math::float3>>("m_normalData",
+			(meta::FieldGetter<GStaticMesh, Array<math::float3>, false>::Signature) & GStaticMesh::m_normalData,
+			(meta::FieldSetter<GStaticMesh, Array<math::float3>, false>::Signature) & GStaticMesh::m_normalData, {});
+		type.AddField<GStaticMesh, Array<math::float3>>("m_tangentData",
+			(meta::FieldGetter<GStaticMesh, Array<math::float3>, false>::Signature) & GStaticMesh::m_tangentData,
+			(meta::FieldSetter<GStaticMesh, Array<math::float3>, false>::Signature) & GStaticMesh::m_tangentData, {});
+		type.AddField<GStaticMesh, Array<math::float3>>("m_normalData",
+			(meta::FieldGetter<GStaticMesh, Array<math::float3>, false>::Signature) & GStaticMesh::m_normalData,
+			(meta::FieldSetter<GStaticMesh, Array<math::float3>, false>::Signature) & GStaticMesh::m_normalData, {});
+		type.AddField<GStaticMesh, Array<math::vector<uint16_t, 4>>>("m_jointData",
+			(meta::FieldGetter<GStaticMesh, Array<math::vector<uint16_t, 4>>, false>::Signature) & GStaticMesh::m_jointData,
+			(meta::FieldSetter<GStaticMesh, Array<math::vector<uint16_t, 4>>, false>::Signature) & GStaticMesh::m_jointData, {});
+		type.AddField<GStaticMesh, Array<math::float4>>("m_weightData",
+			(meta::FieldGetter<GStaticMesh, Array<math::float4>, false>::Signature) & GStaticMesh::m_weightData,
+			(meta::FieldSetter<GStaticMesh, Array<math::float4>, false>::Signature) & GStaticMesh::m_weightData, {});
+
+		return true;
+	}
 	IMPLEMENT_INITIAL_BEGIN(GStaticMesh)
-		if (!ms_priority.addPriorityThan(&mathfloat2Priority)) return 0;
-		if (!ms_priority.addPriorityThan(&mathfloat3Priority)) return 0;
-		if (!ms_priority.addPriorityThan(&mathfloat4Priority)) return 0;
-		if (!ms_priority.addPriorityThan(&mathuint16_4Priority)) return 0;
+		ADD_PRIORITY(meta::Object)
 		ADD_INITIAL_FUNCTION_WITH_PRIORITY(registerGuGuGStaticMesh)
 	IMPLEMENT_INITIAL_END
+
+	IMPLEMENT_INITIAL_FIELDS_BEGIN(GStaticMesh)
+		if (!ms_priority2.addPriorityThan(&mathfloat2Priority)) return 0;
+		if (!ms_priority2.addPriorityThan(&mathfloat3Priority)) return 0;
+		if (!ms_priority2.addPriorityThan(&mathfloat4Priority)) return 0;
+		if (!ms_priority2.addPriorityThan(&mathuint16_4Priority)) return 0;
+		ADD_INITIAL_FIELDS_FUNCTION_WITH_PRIORITY(registerGuGuGStaticMeshFields)
+	IMPLEMENT_INITIAL_FIELDS_END
 	GStaticMesh::GStaticMesh()
 	{
 	}

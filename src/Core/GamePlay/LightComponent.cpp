@@ -4,6 +4,7 @@
 #include <Core/Timer.h>
 #include <Core/Reflection/TypeInfo.h>
 #include <Core/GamePlay/GamePlayerReflectionRegister.h>
+#include <Core/GamePlay/GameObject.h>
 
 namespace GuGu {
 	static bool registerGuGuLightComponent()
@@ -25,18 +26,6 @@ namespace GuGu {
 
 			type.AddConstructor<LightComponent, true, true>({});
 
-			type.AddField<LightComponent, Color>("m_lightColor",
-				(meta::FieldGetter<LightComponent, Color, false>::Signature) & LightComponent::m_lightColor,
-				(meta::FieldSetter<LightComponent, Color, false>::Signature) & LightComponent::m_lightColor, {});
-
-			type.AddField<LightComponent, math::float4>("m_lightPosition",
-				(meta::FieldGetter<LightComponent, math::float4, false>::Signature) & LightComponent::m_lightPosition,
-				(meta::FieldSetter<LightComponent, math::float4, false>::Signature) & LightComponent::m_lightPosition, {});
-
-			type.AddField<LightComponent, std::weak_ptr<GameObject>>("m_owner",
-				(meta::FieldGetter<LightComponent, std::weak_ptr<GameObject>&, true>::Signature) & LightComponent::getParentGameObject,
-				(meta::FieldSetter<LightComponent, std::weak_ptr<GameObject>&, true>::Signature) & LightComponent::setParentGameObject, {});
-
 			type.LoadBaseClasses(db, typeID, { typeof(Component) });
 
 			meta::TypeInfo<LightComponent>::Defined = true;
@@ -55,11 +44,37 @@ namespace GuGu {
 		}
 		return true;
 	}
+
+	static bool registerGuGuLightComponentFields()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto& type = db.types[typeof(LightComponent).GetID()];
+		
+		type.AddField<LightComponent, Color>("m_lightColor",
+			(meta::FieldGetter<LightComponent, Color, false>::Signature) & LightComponent::m_lightColor,
+			(meta::FieldSetter<LightComponent, Color, false>::Signature) & LightComponent::m_lightColor, {});
+
+		type.AddField<LightComponent, math::float4>("m_lightPosition",
+			(meta::FieldGetter<LightComponent, math::float4, false>::Signature) & LightComponent::m_lightPosition,
+			(meta::FieldSetter<LightComponent, math::float4, false>::Signature) & LightComponent::m_lightPosition, {});
+
+		type.AddField<LightComponent, std::weak_ptr<GameObject>>("m_owner",
+			(meta::FieldGetter<LightComponent, std::weak_ptr<GameObject>&, true>::Signature) & LightComponent::getParentGameObject,
+			(meta::FieldSetter<LightComponent, std::weak_ptr<GameObject>&, true>::Signature) & LightComponent::setParentGameObject, {});
+
+		return true;
+	}
 	IMPLEMENT_INITIAL_BEGIN(LightComponent)
-		ADD_PRIORITY(Color)
-		if (!ms_priority.addPriorityThan(&mathfloat4Priority)) return 0; //add priority
+		ADD_PRIORITY(Component)
 		ADD_INITIAL_FUNCTION_WITH_PRIORITY(registerGuGuLightComponent)
 	IMPLEMENT_INITIAL_END
+
+	IMPLEMENT_INITIAL_FIELDS_BEGIN(LightComponent)
+		ADD_PRIORITY_FIELDS(Color)
+		ADD_PRIORITY_FIELDS(GameObject)
+		if (!ms_priority2.addPriorityThan(&mathfloat4Priority)) return 0; //add priority
+		ADD_INITIAL_FIELDS_FUNCTION_WITH_PRIORITY(registerGuGuLightComponentFields)
+	IMPLEMENT_INITIAL_FIELDS_END
 	LightComponent::LightComponent()
 	{
 		m_lightPosition = math::float4(0.0f, 0.0f, -10.0f, 1.0f);

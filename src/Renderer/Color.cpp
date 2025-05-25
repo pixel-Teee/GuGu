@@ -18,6 +18,14 @@ namespace GuGu {
 
 		type.SetArrayConstructor<Color>();
 
+		return true;
+	}
+
+	static bool registerGuGuColorFields()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto& type = db.types[typeof(Color).GetID()];
+
 		type.AddField<Color, float>("r",
 			(meta::FieldGetter<Color, float, false>::Signature) & Color::r,
 			(meta::FieldSetter<Color, float, false>::Signature) & Color::r, {});
@@ -38,6 +46,10 @@ namespace GuGu {
 
 	IMPLEMENT_INITIAL_BEGIN(Color)
 		ADD_INITIAL_FUNCTION_WITH_PRIORITY(registerGuGuColor)
+	IMPLEMENT_INITIAL_END
+
+	IMPLEMENT_INITIAL_FIELDS_BEGIN(Color)
+		ADD_INITIAL_FIELDS_FUNCTION_WITH_PRIORITY(registerGuGuColorFields)
 	IMPLEMENT_INITIAL_END
 
 	Color Color::HSVToLinearRGB() const

@@ -28,30 +28,6 @@ namespace GuGu {
 			type.LoadBaseClasses(db, typeID, { typeof(Component) });
 
 			meta::TypeInfo<MaterialComponent>::Defined = true;
-
-			type.AddField<MaterialComponent, Color>("m_albedo",
-				(meta::FieldGetter<MaterialComponent, Color, false>::Signature) & MaterialComponent::m_albedo,
-				(meta::FieldSetter<MaterialComponent, Color, false>::Signature) & MaterialComponent::m_albedo, {});
-
-			type.AddField<MaterialComponent, float>("m_metallic",
-				(meta::FieldGetter<MaterialComponent, float, false>::Signature) & MaterialComponent::m_metallic,
-				(meta::FieldSetter<MaterialComponent, float, false>::Signature) & MaterialComponent::m_metallic, {});
-
-			type.AddField<MaterialComponent, float>("m_roughness",
-				(meta::FieldGetter<MaterialComponent, float, false>::Signature) & MaterialComponent::m_roughness,
-				(meta::FieldSetter<MaterialComponent, float, false>::Signature) & MaterialComponent::m_roughness, {});
-
-			type.AddField<MaterialComponent, float>("m_ao",
-				(meta::FieldGetter<MaterialComponent, float, false>::Signature) & MaterialComponent::m_ao,
-				(meta::FieldSetter<MaterialComponent, float, false>::Signature) & MaterialComponent::m_ao, {});
-
-			type.AddField<MaterialComponent, std::shared_ptr<AssetData>>("m_albedoTexture",
-				(meta::FieldGetter<MaterialComponent, std::shared_ptr<AssetData>, true>::Signature) & MaterialComponent::getAlbeoTextureAsset,
-				(meta::FieldSetter<MaterialComponent, std::shared_ptr<AssetData>, true>::Signature) & MaterialComponent::setAlbeoTextureAsset, {});
-
-			type.AddField<MaterialComponent, std::weak_ptr<GameObject>>("m_owner",
-				(meta::FieldGetter<MaterialComponent, std::weak_ptr<GameObject>&, true>::Signature) & MaterialComponent::getParentGameObject,
-				(meta::FieldSetter<MaterialComponent, std::weak_ptr<GameObject>&, true>::Signature) & MaterialComponent::setParentGameObject, {});
 		}
 
 		{
@@ -68,9 +44,48 @@ namespace GuGu {
 		return true;
 	}
 
+	static bool registerGuGuMaterialComponentFields()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto& type = db.types[typeof(MaterialComponent).GetID()];
+	
+
+		type.AddField<MaterialComponent, Color>("m_albedo",
+			(meta::FieldGetter<MaterialComponent, Color, false>::Signature) & MaterialComponent::m_albedo,
+			(meta::FieldSetter<MaterialComponent, Color, false>::Signature) & MaterialComponent::m_albedo, {});
+
+		type.AddField<MaterialComponent, float>("m_metallic",
+			(meta::FieldGetter<MaterialComponent, float, false>::Signature) & MaterialComponent::m_metallic,
+			(meta::FieldSetter<MaterialComponent, float, false>::Signature) & MaterialComponent::m_metallic, {});
+
+		type.AddField<MaterialComponent, float>("m_roughness",
+			(meta::FieldGetter<MaterialComponent, float, false>::Signature) & MaterialComponent::m_roughness,
+			(meta::FieldSetter<MaterialComponent, float, false>::Signature) & MaterialComponent::m_roughness, {});
+
+		type.AddField<MaterialComponent, float>("m_ao",
+			(meta::FieldGetter<MaterialComponent, float, false>::Signature) & MaterialComponent::m_ao,
+			(meta::FieldSetter<MaterialComponent, float, false>::Signature) & MaterialComponent::m_ao, {});
+
+		type.AddField<MaterialComponent, std::shared_ptr<AssetData>>("m_albedoTexture",
+			(meta::FieldGetter<MaterialComponent, std::shared_ptr<AssetData>, true>::Signature) & MaterialComponent::getAlbeoTextureAsset,
+			(meta::FieldSetter<MaterialComponent, std::shared_ptr<AssetData>, true>::Signature) & MaterialComponent::setAlbeoTextureAsset, {});
+
+		type.AddField<MaterialComponent, std::weak_ptr<GameObject>>("m_owner",
+			(meta::FieldGetter<MaterialComponent, std::weak_ptr<GameObject>&, true>::Signature) & MaterialComponent::getParentGameObject,
+			(meta::FieldSetter<MaterialComponent, std::weak_ptr<GameObject>&, true>::Signature) & MaterialComponent::setParentGameObject, {});
+		
+		return true;
+	}
+
 	IMPLEMENT_INITIAL_BEGIN(MaterialComponent)
 		ADD_INITIAL_FUNCTION_WITH_PRIORITY(registerGuGuMaterialComponent)
 	IMPLEMENT_INITIAL_END
+
+	IMPLEMENT_INITIAL_FIELDS_BEGIN(MaterialComponent)
+		ADD_PRIORITY_FIELDS(Color)
+		ADD_PRIORITY_FIELDS(AssetData)
+		ADD_INITIAL_FIELDS_FUNCTION_WITH_PRIORITY(registerGuGuMaterialComponentFields)
+	IMPLEMENT_INITIAL_FIELDS_END
 
 	MaterialComponent::MaterialComponent()
 	{

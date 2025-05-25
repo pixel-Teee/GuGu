@@ -16,10 +16,6 @@ namespace GuGu {
 		auto& type = db.types[id];
 		meta::TypeInfo<GuGu::GameObject>::Register(id, type, true, "764220D9-31E0-448B-9612-79A47B570367");
 
-		type.meta = {
-			std::make_pair(typeof(meta::DisplayName), meta::MetaPropertyInitializer<meta::DisplayName>("GameObject"))
-		};
-
 		{
 			auto id = db.AllocateType("std::shared_ptr<GuGu::GameObject>");
 			auto& type = db.types[id];
@@ -33,6 +29,17 @@ namespace GuGu {
 			auto& type = db.types[id];
 			meta::TypeInfo<std::weak_ptr<GameObject>>::Register(id, type, false, "E3D8C076-BFD3-4FD1-B108-5FBB37169DE3");
 		}
+
+		return true;
+	}
+	static bool registerGuGuGameObjectFields()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto& type = db.types[typeof(GuGu::GameObject)];
+
+		type.meta = {
+			std::make_pair(typeof(meta::DisplayName), meta::MetaPropertyInitializer<meta::DisplayName>("GameObject"))
+		};
 
 		auto typeID = typeidof(GameObject);
 		if (typeID != meta::InvalidTypeID && !meta::TypeInfo<GameObject>::Defined)
@@ -68,6 +75,11 @@ namespace GuGu {
 		ADD_PRIORITY(Component)
 		ADD_INITIAL_FUNCTION_WITH_PRIORITY(registerGuGuGameObject)
 	IMPLEMENT_INITIAL_END
+
+	IMPLEMENT_INITIAL_FIELDS_BEGIN(GameObject)
+		ADD_PRIORITY_FIELDS(meta::DisplayName)
+		ADD_INITIAL_FIELDS_FUNCTION_WITH_PRIORITY(registerGuGuGameObjectFields)
+	IMPLEMENT_INITIAL_FIELDS_END
 	GameObject::GameObject()
 	{
 		const meta::DisplayName* displayName = typeof(GameObject).GetMeta().GetProperty<meta::DisplayName>();
