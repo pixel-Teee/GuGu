@@ -81,6 +81,7 @@ namespace GuGu {
 				nlohmann::json whiteTextureJson = serializeJson(whiteTexture);
 				GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
 				whiteTextureJson["GUID"] = guidStr.getStr();
+				whiteTextureJson["Version"] = std::to_string(GuGu_Version);
 				GuGuUtf8Str fileContent = whiteTextureJson.dump();
 
 				registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GTexture>().ID));
@@ -100,6 +101,7 @@ namespace GuGu {
 				nlohmann::json cubeModelJson = serializeJson(cube);
 				GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
 				cubeModelJson["GUID"] = guidStr.getStr();
+				cubeModelJson["Version"] = std::to_string(GuGu_Version);
 				GuGuUtf8Str fileContent = cubeModelJson.dump();
 
 				registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GStaticMesh>().ID));

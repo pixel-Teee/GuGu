@@ -16,6 +16,10 @@ namespace GuGu {
 		auto& type = db.types[id];
 		meta::TypeInfo<GuGu::GameObject>::Register(id, type, true, "764220D9-31E0-448B-9612-79A47B570367");
 
+		type.AddConstructor<GuGu::GameObject, false, false>({});
+
+		type.AddConstructor<GuGu::GameObject, true, true>({});
+
 		{
 			auto id = db.AllocateType("std::shared_ptr<GuGu::GameObject>");
 			auto& type = db.types[id];
@@ -35,40 +39,24 @@ namespace GuGu {
 	static bool registerGuGuGameObjectFields()
 	{
 		auto& db = meta::ReflectionDatabase::Instance();
-		auto& type = db.types[typeof(GuGu::GameObject)];
+		auto& type = db.types[typeof(GuGu::GameObject).GetID()];
 
 		type.meta = {
 			std::make_pair(typeof(meta::DisplayName), meta::MetaPropertyInitializer<meta::DisplayName>("GameObject"))
 		};
 
-		auto typeID = typeidof(GameObject);
-		if (typeID != meta::InvalidTypeID && !meta::TypeInfo<GameObject>::Defined)
-		{
-			auto& type = db.types[typeID];
+		type.AddField<GameObject, Array<std::shared_ptr<Component>>>("m_components",
+			(meta::FieldGetter<GameObject, Array<std::shared_ptr<Component>>, true>::Signature) & GameObject::getComponents,
+			(meta::FieldSetter<GameObject, Array<std::shared_ptr<Component>>, true>::Signature) & GameObject::setComponents, {});
 
-			//array constructor
-			type.SetArrayConstructor<GameObject>();
+		type.AddField<GameObject, Array<std::shared_ptr<GameObject>>>("m_childrens",
+			(meta::FieldGetter<GameObject, Array<std::shared_ptr<GameObject>>, true>::Signature) & GameObject::getChildrens,
+			(meta::FieldSetter<GameObject, Array<std::shared_ptr<GameObject>>, true>::Signature) & GameObject::setChildrens, {});
 
-			type.AddConstructor<GameObject, false, false>({});
+		type.AddField<GameObject, std::weak_ptr<GameObject>>("m_parentGameObject",
+			(meta::FieldGetter<GameObject, std::weak_ptr<GameObject>&, true>::Signature) & GameObject::getParentGameObject,
+			(meta::FieldSetter<GameObject, std::weak_ptr<GameObject>&, true>::Signature) & GameObject::setParentGameObject, {});
 
-			type.AddConstructor<GameObject, true, true>({});
-
-			type.AddField<GameObject, Array<std::shared_ptr<Component>>>("m_components",
-				(meta::FieldGetter<GameObject, Array<std::shared_ptr<Component>>, true>::Signature) & GameObject::getComponents,
-				(meta::FieldSetter<GameObject, Array<std::shared_ptr<Component>>, true>::Signature) & GameObject::setComponents, {});
-
-			type.AddField<GameObject, Array<std::shared_ptr<GameObject>>>("m_childrens",
-				(meta::FieldGetter<GameObject, Array<std::shared_ptr<GameObject>>, true>::Signature) & GameObject::getChildrens,
-				(meta::FieldSetter<GameObject, Array<std::shared_ptr<GameObject>>, true>::Signature) & GameObject::setChildrens, {});
-
-			type.AddField<GameObject, std::weak_ptr<GameObject>>("m_parentGameObject",
-				(meta::FieldGetter<GameObject, std::weak_ptr<GameObject>&, true>::Signature) & GameObject::getParentGameObject,
-				(meta::FieldSetter<GameObject, std::weak_ptr<GameObject>&, true>::Signature) & GameObject::setParentGameObject, {});
-
-			type.LoadBaseClasses(db, typeID, { typeof(meta::Object) });
-
-			meta::TypeInfo<GameObject>::Defined = true;
-		}
 		return true;
 	}
 	IMPLEMENT_INITIAL_BEGIN(GameObject)

@@ -30,7 +30,7 @@ namespace GuGu{
     {
         uint32_t backBufferWidth = 1280;
         uint32_t backBufferHeight = 720;
-        uint32_t swapChainBufferCount = 3;
+        uint32_t swapChainBufferCount = 4;
         bool enableNvrhiValidationLayer = false;
         bool vsyncEnabled = false;
         bool enableComputeQueue = false;

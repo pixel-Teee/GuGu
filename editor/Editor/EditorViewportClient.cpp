@@ -125,7 +125,7 @@ namespace GuGu {
 				std::shared_ptr<Level> currentLevel = World::getWorld()->getCurrentLevel();
 				nlohmann::json levelJson = AssetManager::getAssetManager().serializeJson(currentLevel);
 				GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
-
+				levelJson["Version"] = std::to_string(GuGu_Version);
 				levelJson["GUID"] = guidStr.getStr();
 				GuGuUtf8Str fileContent = levelJson.dump();
 

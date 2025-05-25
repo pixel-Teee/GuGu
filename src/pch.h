@@ -15,6 +15,8 @@
 #include <Core/Reflection/ReflectionMacro.h>
 #include <Core/Reflection/ReflectionDatabase.h>
 
+#define GuGu_Version 1.0
+
 #ifdef WIN32
 //------window platform header file------
 #define NOMINMAX

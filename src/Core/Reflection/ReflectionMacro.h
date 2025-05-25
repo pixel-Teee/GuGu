@@ -1,6 +1,8 @@
 #pragma once
 
 //namespace GuGu {
+#define STRINGIFY(x)   #x
+#define CONCAT_SUFFIX(X) STRINGIFY(x) "_Fields"
 
 #define DECLARE_INITIAL \
 	public:\
@@ -48,7 +50,8 @@
 	{\
 		if(!ms_bRegisterMainFactory2)\
 		{\
-			classname::ms_priority2.setDebugName(#classname##"FIELDS");
+			classname::ms_priority2.addPriorityThan(&classname::ms_priority);\
+			classname::ms_priority2.setDebugName(CONCAT_SUFFIX(classname));
 #define IMPLEMENT_INITIAL_FIELDS_END\
 			ms_bRegisterMainFactory2 = true;\
 		}\
