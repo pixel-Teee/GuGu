@@ -13,7 +13,7 @@ namespace GuGu {
 		bool addPriorityThan(Priority* pPriority);
 		uint32_t getPriorityNum();
 
-		Priority& operator=(Priority& rhs);
+		Priority& operator=(const Priority& rhs);
 		bool operator==(Priority& rhs);
 		bool operator!=(Priority& rhs);
 
@@ -22,11 +22,17 @@ namespace GuGu {
 
 		bool operator>=(Priority& rhs);
 		bool operator<=(Priority& rhs);
+
+		void setDebugName(const char* inDebugName);
+
+		const char* getDebugName() const;
 	private:
 		bool checkIsCircle(const Priority* pChecked) const;
 		uint32_t checkPriorityNum();
 
 		uint32_t m_uiProrityNum;//这个是优先级别
 		std::vector<Priority*> m_pPriorityThanList;
+
+		const char* m_debugName;
 	};
 }

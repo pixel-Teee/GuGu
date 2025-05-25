@@ -12,6 +12,11 @@ namespace GuGu {
 		class Object : public std::enable_shared_from_this<Object>
 		{
 		public:
+			//------reflection register------
+			static bool registerMainFactory();
+			static bool ms_bRegisterMainFactory;
+			static Priority ms_priority;
+			//------reflection register------
 			virtual ~Object() {}
 
 			virtual void Update(float fElapsedTimeSeconds) = 0;

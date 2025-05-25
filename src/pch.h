@@ -10,6 +10,11 @@
 #include <set>
 #include <Core/Log.h>
 
+#include <Core/Reflection/Priority.h>
+#include <Core/Reflection/ReflectionMain.h>
+#include <Core/Reflection/ReflectionMacro.h>
+#include <Core/Reflection/ReflectionDatabase.h>
+
 #ifdef WIN32
 //------window platform header file------
 #define NOMINMAX

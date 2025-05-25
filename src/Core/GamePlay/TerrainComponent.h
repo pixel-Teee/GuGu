@@ -9,6 +9,7 @@ namespace GuGu {
 	class TerrainComponent : public Component
 	{
 	public:
+		DECLARE_INITIAL
 		TerrainComponent();
 
 		virtual ~TerrainComponent();

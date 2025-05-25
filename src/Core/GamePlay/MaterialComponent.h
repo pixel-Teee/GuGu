@@ -11,6 +11,7 @@ namespace GuGu {
 	class MaterialComponent : public Component
 	{
 	public:
+		DECLARE_INITIAL
 		MaterialComponent();
 
 		virtual ~MaterialComponent();

@@ -10,6 +10,8 @@ namespace GuGu {
 	class StaticMeshComponent : public Component
 	{
 	public:
+		DECLARE_INITIAL
+
 		StaticMeshComponent();
 
 		virtual ~StaticMeshComponent();

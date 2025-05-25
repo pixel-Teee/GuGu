@@ -59,6 +59,16 @@ namespace GuGu {
 		return (m_uiProrityNum <= rhs.m_uiProrityNum);
 	}
 
+	void Priority::setDebugName(const char* inDebugName)
+	{
+		m_debugName = inDebugName;
+	}
+
+	const char* Priority::getDebugName() const
+	{
+		return m_debugName;
+	}
+
 	bool Priority::checkIsCircle(const Priority* pChecked) const
 	{
 		if (!pChecked)
@@ -75,7 +85,7 @@ namespace GuGu {
 
 	uint32_t Priority::checkPriorityNum() //计算优先级
 	{
-		if (m_uiProrityNum || !m_pPriorityThanList.size())
+		if (m_uiProrityNum || m_pPriorityThanList.empty())
 			return m_uiProrityNum;
 		else
 		{
@@ -111,9 +121,9 @@ namespace GuGu {
 		return (m_uiProrityNum == rhs.m_uiProrityNum);//优先级是否一致
 	}
 
-	Priority& Priority::operator=(Priority& rhs)
+	Priority& Priority::operator=(const Priority& rhs)
 	{
-		rhs.checkPriorityNum();
+		const_cast<Priority&>(rhs).checkPriorityNum();
 		m_uiProrityNum = rhs.m_uiProrityNum;
 		m_pPriorityThanList.clear();
 		m_pPriorityThanList = rhs.m_pPriorityThanList;

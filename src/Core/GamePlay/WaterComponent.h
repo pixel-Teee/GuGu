@@ -9,6 +9,7 @@ namespace GuGu {
 	class WaterComponent : public Component
 	{
 	public:
+		DECLARE_INITIAL
 		WaterComponent();
 
 		virtual ~WaterComponent();

@@ -22,8 +22,9 @@
 
 #include <Core/AssetManager/AssetData.h>
 
-#include <Core/GamePlay/Priority.h>
-#include <Core/GamePlay/ReflectionMain.h>
+#include <Core/Reflection/Priority.h>
+#include <Core/Reflection/ReflectionMain.h>
+#include <Core/Reflection/ReflectionMacro.h>
 
 namespace GuGu {
 	void gamePlayerReflectionRegister()
@@ -901,7 +902,9 @@ namespace GuGu {
 // 			}
 		}
 
-		test();
+		registerThirdParty();
+
+		ReflectionMain::initialize();
 
 		meta::Type::List types = meta::Type::GetTypes();
 		for (const auto& type : types)
@@ -1845,75 +1848,82 @@ namespace GuGu {
 		return true;
 	}
 
-	void test()
+	void registerThirdParty()
 	{
-		Priority metaDisplayNamePriority;
-		ReflectionMain::addInitialTypeFunction(registermetaDisplayName, &metaDisplayNamePriority);
+		//Priority metaDisplayNamePriority;
+		//metaDisplayNamePriority.setDebugName("meta::DisplayName");
+		//ReflectionMain::addInitialTypeFunction(registermetaDisplayName, &metaDisplayNamePriority);
 
-		Priority mathfloat2Priority;
+		//Priority mathfloat2Priority;
+		mathfloat2Priority.setDebugName("math::float2");
 		ReflectionMain::addInitialTypeFunction(registermathfloat2, &mathfloat2Priority);
 
-		Priority mathfloat3Priority;
+		//Priority mathfloat3Priority;
+		mathfloat3Priority.setDebugName("math::float3");
 		ReflectionMain::addInitialTypeFunction(registermathfloat3, &mathfloat3Priority);
 
-		Priority mathfloat4Priority;
+		//Priority mathfloat4Priority;
+		mathfloat4Priority.setDebugName("math::float4");
 		ReflectionMain::addInitialTypeFunction(registermathfloat4, &mathfloat4Priority);
 
-		Priority mathdouble3Priority;
+		//Priority mathdouble3Priority;
+		mathdouble3Priority.setDebugName("math::double3");
 		ReflectionMain::addInitialTypeFunction(registermathdouble3, &mathdouble3Priority);
 
-		Priority mathdquatPriority;
+		//Priority mathdquatPriority;
+		mathdquatPriority.setDebugName("math::dquat");
 		ReflectionMain::addInitialTypeFunction(registermathdquat, &mathdquatPriority);
 
-		Priority mathuint16_4Priority;
+		//Priority mathuint16_4Priority;
+		mathuint16_4Priority.setDebugName("math::uint16_4");
 		ReflectionMain::addInitialTypeFunction(registermathuint16_4, &mathuint16_4Priority);
 
-		Priority guguColorPriority;
-		ReflectionMain::addInitialTypeFunction(registerGuGuColor, &guguColorPriority);
+		//Priority guguColorPriority;
+		//ReflectionMain::addInitialTypeFunction(registerGuGuColor, &guguColorPriority);
 
-		Priority guguMetaObjectPriority;
-		ReflectionMain::addInitialTypeFunction(registerGuGuMetaObject, &guguMetaObjectPriority);
+		//Priority guguMetaObjectPriority;
+		//ReflectionMain::addInitialTypeFunction(registerGuGuMetaObject, &guguMetaObjectPriority);
 
-		Priority guguComponentPriority;
-		ReflectionMain::addInitialTypeFunction(registerGuGuComponent, &guguComponentPriority);
+		//Priority guguComponentPriority;
+		//ReflectionMain::addInitialTypeFunction(registerGuGuComponent, &guguComponentPriority);
 
-		Priority guguGameObjectPriority;
-		ReflectionMain::addInitialTypeFunction(registerGuGuMetaObject, &guguGameObjectPriority);
+		//Priority guguGameObjectPriority;
+		//ReflectionMain::addInitialTypeFunction(registerGuGuGameObject, &guguGameObjectPriority);
 
-		Priority guguLevelPriority;
-		ReflectionMain::addInitialTypeFunction(registerGuGuLevel, &guguLevelPriority);
+		//Priority guguLevelPriority;
+		//ReflectionMain::addInitialTypeFunction(registerGuGuLevel, &guguLevelPriority);
 
-		Priority guguAssetDataPriority;
-		ReflectionMain::addInitialTypeFunction(registerGuGuAssetData, &guguAssetDataPriority);
+		//Priority guguAssetDataPriority;
+		//ReflectionMain::addInitialTypeFunction(registerGuGuAssetData, &guguAssetDataPriority);
 
-		Priority guguTransformComponentPriority;
-		ReflectionMain::addInitialTypeFunction(registerTransformComponent, &guguTransformComponentPriority);
+		//Priority guguTransformComponentPriority;
+		//ReflectionMain::addInitialTypeFunction(registerTransformComponent, &guguTransformComponentPriority);
 
-		Priority guguStaticMeshComponentPriority;
-		ReflectionMain::addInitialTypeFunction(registerStaticMeshComponent, &guguStaticMeshComponentPriority);
+		//Priority guguStaticMeshComponentPriority;
+		//ReflectionMain::addInitialTypeFunction(registerStaticMeshComponent, &guguStaticMeshComponentPriority);
 
-		Priority guguLightComponentPriority;
-		ReflectionMain::addInitialTypeFunction(registerGuGuLightComponent, &guguLightComponentPriority);
+		//Priority guguLightComponentPriority;
+		//ReflectionMain::addInitialTypeFunction(registerGuGuLightComponent, &guguLightComponentPriority);
 
-		Priority guguMaterialComponentPriority;
-		ReflectionMain::addInitialTypeFunction(registerGuGuMaterialComponent, &guguMaterialComponentPriority);
+		//Priority guguMaterialComponentPriority;
+		//ReflectionMain::addInitialTypeFunction(registerGuGuMaterialComponent, &guguMaterialComponentPriority);
 
-		Priority guguTerrainComponentPriority;
-		ReflectionMain::addInitialTypeFunction(registerGuGuTerrainComponent, &guguTerrainComponentPriority);
+		//Priority guguTerrainComponentPriority;
+		//ReflectionMain::addInitialTypeFunction(registerGuGuTerrainComponent, &guguTerrainComponentPriority);
 
-		Priority guguWaterComponentPriority;
-		ReflectionMain::addInitialTypeFunction(registerGuGuWaterComponent, &guguWaterComponentPriority);
+		//Priority guguWaterComponentPriority;
+		//ReflectionMain::addInitialTypeFunction(registerGuGuWaterComponent, &guguWaterComponentPriority);
 
-		Priority guguCameraComponentPriority;
-		ReflectionMain::addInitialTypeFunction(registerGuGuCameraComponent, &guguCameraComponentPriority);
+		//Priority guguCameraComponentPriority;
+		//ReflectionMain::addInitialTypeFunction(registerGuGuCameraComponent, &guguCameraComponentPriority);
 
-		Priority guguGStaticMeshPriority;
-		ReflectionMain::addInitialTypeFunction(registerGuGuGStaticMesh, &guguGStaticMeshPriority);
+		//Priority guguGStaticMeshPriority;
+		//ReflectionMain::addInitialTypeFunction(registerGuGuGStaticMesh, &guguGStaticMeshPriority);
 
-		Priority guguGTexturePriority;
-		ReflectionMain::addInitialTypeFunction(registerGuGuGTexture, &guguGTexturePriority);
+		//Priority guguGTexturePriority;
+		//ReflectionMain::addInitialTypeFunction(registerGuGuGTexture, &guguGTexturePriority);
 
-		ReflectionMain::initialize();
+		//ReflectionMain::initialize();
 	}
 
 }

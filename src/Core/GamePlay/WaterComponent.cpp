@@ -3,9 +3,86 @@
 #include "WaterComponent.h"
 #include <Core/AssetManager/AssetManager.h>
 #include <Core/Texture/GTexture.h>
+#include <Core/Reflection/TypeInfo.h>
 
 namespace GuGu {
+	static bool registerGuGuWaterComponent()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto id = db.AllocateType("GuGu::WaterComponent");
+		auto& type = db.types[id];
+		meta::TypeInfo<WaterComponent>::Register(id, type, true, "4BEAE916-760A-4142-9321-5DC622A4B640");
 
+		auto typeID = typeidof(WaterComponent);
+		if (typeID != meta::InvalidTypeID && !meta::TypeInfo<WaterComponent>::Defined)
+		{
+			auto& type = db.types[typeID];
+
+			//array constructor
+			type.SetArrayConstructor<WaterComponent>();
+
+			type.AddConstructor<WaterComponent, false, false>({});
+
+			type.AddConstructor<WaterComponent, true, true>({});
+
+			type.LoadBaseClasses(db, typeID, { typeof(Component) });
+
+			meta::TypeInfo<WaterComponent>::Defined = true;
+
+			type.AddField<WaterComponent, std::shared_ptr<AssetData>>("m_mixedColorTexture",
+				(meta::FieldGetter<WaterComponent, std::shared_ptr<AssetData>, false>::Signature) & WaterComponent::m_mixedColorTexture,
+				(meta::FieldSetter<WaterComponent, std::shared_ptr<AssetData>, false>::Signature) & WaterComponent::m_mixedColorTexture, {});
+
+			type.AddField<WaterComponent, std::shared_ptr<AssetData>>("m_colorTexture",
+				(meta::FieldGetter<WaterComponent, std::shared_ptr<AssetData>, false>::Signature) & WaterComponent::m_colorTexture,
+				(meta::FieldSetter<WaterComponent, std::shared_ptr<AssetData>, false>::Signature) & WaterComponent::m_colorTexture, {});
+
+			type.AddField<WaterComponent, std::shared_ptr<AssetData>>("m_dirTexture",
+				(meta::FieldGetter<WaterComponent, std::shared_ptr<AssetData>, false>::Signature) & WaterComponent::m_dirTexture,
+				(meta::FieldSetter<WaterComponent, std::shared_ptr<AssetData>, false>::Signature) & WaterComponent::m_dirTexture, {});
+
+			type.AddField<WaterComponent, uint32_t>("m_waterRows",
+				(meta::FieldGetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_waterRows,
+				(meta::FieldSetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_waterRows, {});
+
+			type.AddField<WaterComponent, uint32_t>("m_waterCols",
+				(meta::FieldGetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_waterCols,
+				(meta::FieldSetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_waterCols, {});
+
+			type.AddField<WaterComponent, uint32_t>("m_rows",
+				(meta::FieldGetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_rows,
+				(meta::FieldSetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_rows, {});
+
+			type.AddField<WaterComponent, uint32_t>("m_cols",
+				(meta::FieldGetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_cols,
+				(meta::FieldSetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_cols, {});
+
+			type.AddField<WaterComponent, uint32_t>("m_tileSize",
+				(meta::FieldGetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_tileSize,
+				(meta::FieldSetter<WaterComponent, uint32_t, false>::Signature) & WaterComponent::m_tileSize, {});
+
+			type.AddField<WaterComponent, std::weak_ptr<GameObject>>("m_owner",
+				(meta::FieldGetter<WaterComponent, std::weak_ptr<GameObject>&, true>::Signature) & WaterComponent::getParentGameObject,
+				(meta::FieldSetter<WaterComponent, std::weak_ptr<GameObject>&, true>::Signature) & WaterComponent::setParentGameObject, {});
+		}
+
+		{
+			auto id = db.AllocateType("std::shared_ptr<GuGu::WaterComponent>");
+			auto& type = db.types[id];
+			meta::TypeInfo<std::shared_ptr<WaterComponent>>::Register(id, type, false, "5942C0D7-9173-443E-98CC-0DBA19D3C9BA");
+		}
+
+		{
+			auto id = db.AllocateType("std::weak_ptr<GuGu::WaterComponent>");
+			auto& type = db.types[id];
+			meta::TypeInfo<std::weak_ptr<WaterComponent>>::Register(id, type, false, "E40553A2-248D-49DD-A284-FC35991219C1");
+		}
+		return true;
+	}
+	IMPLEMENT_INITIAL_BEGIN(WaterComponent)
+		ADD_PRIORITY(AssetData)
+		ADD_INITIAL_FUNCTION_WITH_PRIORITY(registerGuGuWaterComponent)
+	IMPLEMENT_INITIAL_END
 	WaterComponent::WaterComponent()
 	{
 		GuGuUtf8Str noFileExtensionsFileName = "white";

@@ -7,6 +7,7 @@ namespace GuGu {
 	class GameObject;
 	class Component : public meta::Object{
 	public:
+		DECLARE_INITIAL
 		virtual meta::Type GetType() const override;
 
 		virtual ~Component() {}

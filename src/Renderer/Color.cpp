@@ -1,8 +1,44 @@
 #include <pch.h>
 
 #include "Color.h"
+#include <Core/Reflection/TypeInfo.h>
 
 namespace GuGu {
+
+	static bool registerGuGuColor()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto id = db.AllocateType("GuGu::Color");
+		auto& type = db.types[id];
+		meta::TypeInfo<Color>::Register(id, type, true, "87AC627B-14AE-4588-8E3F-80A36AF8C676");
+
+		type.AddConstructor<Color, false, false>({});
+
+		type.AddConstructor<Color, true, false>({});
+
+		type.SetArrayConstructor<Color>();
+
+		type.AddField<Color, float>("r",
+			(meta::FieldGetter<Color, float, false>::Signature) & Color::r,
+			(meta::FieldSetter<Color, float, false>::Signature) & Color::r, {});
+
+		type.AddField<Color, float>("g",
+			(meta::FieldGetter<Color, float, false>::Signature) & Color::g,
+			(meta::FieldSetter<Color, float, false>::Signature) & Color::g, {});
+
+		type.AddField<Color, float>("b",
+			(meta::FieldGetter<Color, float, false>::Signature) & Color::b,
+			(meta::FieldSetter<Color, float, false>::Signature) & Color::b, {});
+
+		type.AddField<Color, float>("a",
+			(meta::FieldGetter<Color, float, false>::Signature) & Color::a,
+			(meta::FieldSetter<Color, float, false>::Signature) & Color::a, {});
+		return true;
+	}
+
+	IMPLEMENT_INITIAL_BEGIN(Color)
+		ADD_INITIAL_FUNCTION_WITH_PRIORITY(registerGuGuColor)
+	IMPLEMENT_INITIAL_END
 
 	Color Color::HSVToLinearRGB() const
 	{

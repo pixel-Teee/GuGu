@@ -9,6 +9,7 @@ namespace GuGu {
 	class GameObject : public meta::Object {
 
 	public:
+		DECLARE_INITIAL
 		GameObject();
 
 		virtual ~GameObject();

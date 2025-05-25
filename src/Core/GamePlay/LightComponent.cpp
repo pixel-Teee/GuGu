@@ -2,8 +2,64 @@
 
 #include "LightComponent.h"
 #include <Core/Timer.h>
+#include <Core/Reflection/TypeInfo.h>
+#include <Core/GamePlay/GamePlayerReflectionRegister.h>
 
 namespace GuGu {
+	static bool registerGuGuLightComponent()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto id = db.AllocateType("GuGu::LightComponent");
+		auto& type = db.types[id];
+		meta::TypeInfo<LightComponent>::Register(id, type, true, "3EF471CA-C9A2-4F2B-AEA9-326276AE4763");
+
+		auto typeID = typeidof(LightComponent);
+		if (typeID != meta::InvalidTypeID && !meta::TypeInfo<LightComponent>::Defined)
+		{
+			auto& type = db.types[typeID];
+
+			//array constructor
+			type.SetArrayConstructor<LightComponent>();
+
+			type.AddConstructor<LightComponent, false, false>({});
+
+			type.AddConstructor<LightComponent, true, true>({});
+
+			type.AddField<LightComponent, Color>("m_lightColor",
+				(meta::FieldGetter<LightComponent, Color, false>::Signature) & LightComponent::m_lightColor,
+				(meta::FieldSetter<LightComponent, Color, false>::Signature) & LightComponent::m_lightColor, {});
+
+			type.AddField<LightComponent, math::float4>("m_lightPosition",
+				(meta::FieldGetter<LightComponent, math::float4, false>::Signature) & LightComponent::m_lightPosition,
+				(meta::FieldSetter<LightComponent, math::float4, false>::Signature) & LightComponent::m_lightPosition, {});
+
+			type.AddField<LightComponent, std::weak_ptr<GameObject>>("m_owner",
+				(meta::FieldGetter<LightComponent, std::weak_ptr<GameObject>&, true>::Signature) & LightComponent::getParentGameObject,
+				(meta::FieldSetter<LightComponent, std::weak_ptr<GameObject>&, true>::Signature) & LightComponent::setParentGameObject, {});
+
+			type.LoadBaseClasses(db, typeID, { typeof(Component) });
+
+			meta::TypeInfo<LightComponent>::Defined = true;
+		}
+
+		{
+			auto id = db.AllocateType("std::shared_ptr<GuGu::LightComponent>");
+			auto& type = db.types[id];
+			meta::TypeInfo<std::shared_ptr<LightComponent>>::Register(id, type, false, "1E0975BC-3D79-466A-A383-C7EAAEB21605");
+		}
+
+		{
+			auto id = db.AllocateType("std::weak_ptr<GuGu::LightComponent>");
+			auto& type = db.types[id];
+			meta::TypeInfo<std::weak_ptr<LightComponent>>::Register(id, type, false, "77075968-2FB0-40BC-A431-C57C530A6724");
+		}
+		return true;
+	}
+	IMPLEMENT_INITIAL_BEGIN(LightComponent)
+		ADD_PRIORITY(Color)
+		if (!ms_priority.addPriorityThan(&mathfloat4Priority)) return 0; //add priority
+		ADD_INITIAL_FUNCTION_WITH_PRIORITY(registerGuGuLightComponent)
+	IMPLEMENT_INITIAL_END
 	LightComponent::LightComponent()
 	{
 		m_lightPosition = math::float4(0.0f, 0.0f, -10.0f, 1.0f);

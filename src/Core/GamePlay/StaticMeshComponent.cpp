@@ -3,8 +3,60 @@
 #include "StaticMeshComponent.h"
 #include <Core/AssetManager/AssetData.h>
 #include <Core/AssetManager/AssetManager.h>
+#include <Core/Reflection/TypeInfo.h>
 
 namespace GuGu {
+	static bool registerStaticMeshComponent()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto id = db.AllocateType("GuGu::StaticMeshComponent");
+		auto& type = db.types[id];
+		meta::TypeInfo<StaticMeshComponent>::Register(id, type, true, "303B0EAC-B07E-42E1-B6E9-A56F00E75814");
+
+		auto typeID = typeidof(StaticMeshComponent);
+		if (typeID != meta::InvalidTypeID && !meta::TypeInfo<StaticMeshComponent>::Defined)
+		{
+			auto& type = db.types[typeID];
+
+			//array constructor
+			type.SetArrayConstructor<StaticMeshComponent>();
+
+			type.AddConstructor<StaticMeshComponent, false, false>({});
+
+			type.AddConstructor<StaticMeshComponent, true, true>({});
+
+			type.LoadBaseClasses(db, typeID, { typeof(Component) });
+
+			type.AddField<StaticMeshComponent, std::shared_ptr<AssetData>>("m_staticMeshAsset",
+				(meta::FieldGetter<StaticMeshComponent, std::shared_ptr<AssetData>, true>::Signature) & StaticMeshComponent::getStaticMeshAsset,
+				(meta::FieldSetter<StaticMeshComponent, std::shared_ptr<AssetData>, true>::Signature) & StaticMeshComponent::setStaticMeshAsset, {});
+
+			type.AddField<StaticMeshComponent, std::weak_ptr<GameObject>>("m_owner",
+				(meta::FieldGetter<StaticMeshComponent, std::weak_ptr<GameObject>&, true>::Signature) & StaticMeshComponent::getParentGameObject,
+				(meta::FieldSetter<StaticMeshComponent, std::weak_ptr<GameObject>&, true>::Signature) & StaticMeshComponent::setParentGameObject, {});
+
+			meta::TypeInfo<StaticMeshComponent>::Defined = true;
+		}
+
+		{
+			auto id = db.AllocateType("std::shared_ptr<GuGu::StaticMeshComponent>");
+			auto& type = db.types[id];
+			meta::TypeInfo<std::shared_ptr<StaticMeshComponent>>::Register(id, type, false, "81D20567-8580-45DF-9DC9-785225EC85FF");
+		}
+
+		{
+			auto id = db.AllocateType("std::weak_ptr<GuGu::StaticMeshComponent>");
+			auto& type = db.types[id];
+			meta::TypeInfo<std::weak_ptr<StaticMeshComponent>>::Register(id, type, false, "E07DC6B1-27A4-4875-B5FF-D49F82FAE211");
+		}
+		return true;
+	}
+
+	IMPLEMENT_INITIAL_BEGIN(StaticMeshComponent)
+		ADD_PRIORITY(AssetData)
+		ADD_INITIAL_FUNCTION_WITH_PRIORITY(registerStaticMeshComponent)
+	IMPLEMENT_INITIAL_END
+
 	StaticMeshComponent::StaticMeshComponent()
 	{
 		m_staticMeshAsset = std::make_shared<AssetData>();

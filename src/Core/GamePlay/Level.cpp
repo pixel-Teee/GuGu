@@ -2,8 +2,56 @@
 
 #include "Level.h"
 #include "World.h"
+#include <Core/Reflection/TypeInfo.h>
 
 namespace GuGu {
+	static bool registerGuGuLevel()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto id = db.AllocateType("GuGu::Level");
+		auto& type = db.types[id];
+		meta::TypeInfo<Level>::Register(id, type, true, "64CB643F-2C9C-4857-AA01-4F6F995A4CBE");
+
+		auto typeID = typeidof(Level);
+		if (typeID != meta::InvalidTypeID && !meta::TypeInfo<Level>::Defined)
+		{
+			auto& type = db.types[typeID];
+
+			//array constructor
+			type.SetArrayConstructor<Level>();
+
+			type.AddConstructor<Level, false, false>({});
+
+			type.AddConstructor<Level, true, true>({});
+
+			type.LoadBaseClasses(db, typeID, { typeof(meta::Object) });
+
+			type.AddField<Level, Array<std::shared_ptr<GameObject>>>("m_objects",
+				(meta::FieldGetter<Level, Array<std::shared_ptr<GameObject>>&, true>::Signature) & Level::getGameObjects,
+				(meta::FieldSetter<Level, Array<std::shared_ptr<GameObject>>&, true>::Signature) & Level::setGameObjects, {});
+
+			meta::TypeInfo<Level>::Defined = true;
+		}
+
+		{
+			auto id = db.AllocateType("std::shared_ptr<GuGu::Level>");
+			auto& type = db.types[id];
+			meta::TypeInfo<std::shared_ptr<Level>>::Register(id, type, false, "5078441C-57E0-4322-9294-11D02360F9C9");
+		}
+
+		{
+			auto id = db.AllocateType("std::weak_ptr<GuGu::Level>");
+			auto& type = db.types[id];
+			meta::TypeInfo<std::weak_ptr<Level>>::Register(id, type, false, "A027395A-6B76-474C-89D3-1D56ACC8212F");
+		}
+		return true;
+	}
+
+	IMPLEMENT_INITIAL_BEGIN(Level)
+		ADD_PRIORITY(GameObject)
+		ADD_INITIAL_FUNCTION_WITH_PRIORITY(registerGuGuLevel)
+	IMPLEMENT_INITIAL_END
+
 	Level::Level()
 	{
 	}

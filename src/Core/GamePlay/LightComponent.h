@@ -8,6 +8,7 @@ namespace GuGu {
 	class LightComponent : public Component
 	{
 	public:
+		DECLARE_INITIAL
 		LightComponent();
 
 		virtual ~LightComponent();

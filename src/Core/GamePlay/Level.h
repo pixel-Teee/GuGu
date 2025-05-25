@@ -7,6 +7,8 @@
 namespace GuGu {
 	class Level : public meta::Object {
 	public:
+		DECLARE_INITIAL
+
 		Level();
 
 		virtual ~Level();

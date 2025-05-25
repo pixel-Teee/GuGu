@@ -3,8 +3,99 @@
 #include "TerrainComponent.h"
 #include <Core/AssetManager/AssetManager.h>
 #include <Core/Texture/GTexture.h>
+#include <Core/Reflection/TypeInfo.h>
 
 namespace GuGu {
+	static bool registerGuGuTerrainComponent()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto id = db.AllocateType("GuGu::TerrainComponent");
+		auto& type = db.types[id];
+		meta::TypeInfo<TerrainComponent>::Register(id, type, true, "D813E5D9-B950-4941-8577-4C9C78B9C9D1");
+
+		auto typeID = typeidof(TerrainComponent);
+		if (typeID != meta::InvalidTypeID && !meta::TypeInfo<TerrainComponent>::Defined)
+		{
+			auto& type = db.types[typeID];
+
+			//array constructor
+			type.SetArrayConstructor<TerrainComponent>();
+
+			type.AddConstructor<TerrainComponent, false, false>({});
+
+			type.AddConstructor<TerrainComponent, true, true>({});
+
+			type.LoadBaseClasses(db, typeID, { typeof(Component) });
+
+			meta::TypeInfo<TerrainComponent>::Defined = true;
+
+			type.AddField<TerrainComponent, std::shared_ptr<AssetData>>("m_heightTexture",
+				(meta::FieldGetter<TerrainComponent, std::shared_ptr<AssetData>, false>::Signature) & TerrainComponent::m_heightTexture,
+				(meta::FieldSetter<TerrainComponent, std::shared_ptr<AssetData>, false>::Signature) & TerrainComponent::m_heightTexture, {});
+
+			type.AddField<TerrainComponent, std::shared_ptr<AssetData>>("m_terrainTexture1",
+				(meta::FieldGetter<TerrainComponent, std::shared_ptr<AssetData>, false>::Signature) & TerrainComponent::m_terrainTexture1,
+				(meta::FieldSetter<TerrainComponent, std::shared_ptr<AssetData>, false>::Signature) & TerrainComponent::m_terrainTexture1, {});
+
+			type.AddField<TerrainComponent, std::shared_ptr<AssetData>>("m_terrainTexture2",
+				(meta::FieldGetter<TerrainComponent, std::shared_ptr<AssetData>, false>::Signature) & TerrainComponent::m_terrainTexture2,
+				(meta::FieldSetter<TerrainComponent, std::shared_ptr<AssetData>, false>::Signature) & TerrainComponent::m_terrainTexture2, {});
+
+			type.AddField<TerrainComponent, std::shared_ptr<AssetData>>("m_terrainTexture3",
+				(meta::FieldGetter<TerrainComponent, std::shared_ptr<AssetData>, false>::Signature) & TerrainComponent::m_terrainTexture3,
+				(meta::FieldSetter<TerrainComponent, std::shared_ptr<AssetData>, false>::Signature) & TerrainComponent::m_terrainTexture3, {});
+
+			type.AddField<TerrainComponent, std::shared_ptr<AssetData>>("m_terrainTexture4",
+				(meta::FieldGetter<TerrainComponent, std::shared_ptr<AssetData>, false>::Signature) & TerrainComponent::m_terrainTexture4,
+				(meta::FieldSetter<TerrainComponent, std::shared_ptr<AssetData>, false>::Signature) & TerrainComponent::m_terrainTexture4, {});
+
+			type.AddField<TerrainComponent, std::shared_ptr<AssetData>>("m_blendTexture",
+				(meta::FieldGetter<TerrainComponent, std::shared_ptr<AssetData>, false>::Signature) & TerrainComponent::m_blendTexture,
+				(meta::FieldSetter<TerrainComponent, std::shared_ptr<AssetData>, false>::Signature) & TerrainComponent::m_blendTexture, {});
+
+			type.AddField<TerrainComponent, uint32_t>("m_terrainRows",
+				(meta::FieldGetter<TerrainComponent, uint32_t, false>::Signature) & TerrainComponent::m_terrainRows,
+				(meta::FieldSetter<TerrainComponent, uint32_t, false>::Signature) & TerrainComponent::m_terrainRows, {});
+
+			type.AddField<TerrainComponent, uint32_t>("m_terrainCols",
+				(meta::FieldGetter<TerrainComponent, uint32_t, false>::Signature) & TerrainComponent::m_terrainCols,
+				(meta::FieldSetter<TerrainComponent, uint32_t, false>::Signature) & TerrainComponent::m_terrainCols, {});
+
+			type.AddField<TerrainComponent, uint32_t>("m_rows",
+				(meta::FieldGetter<TerrainComponent, uint32_t, false>::Signature) & TerrainComponent::m_rows,
+				(meta::FieldSetter<TerrainComponent, uint32_t, false>::Signature) & TerrainComponent::m_rows, {});
+
+			type.AddField<TerrainComponent, uint32_t>("m_cols",
+				(meta::FieldGetter<TerrainComponent, uint32_t, false>::Signature) & TerrainComponent::m_cols,
+				(meta::FieldSetter<TerrainComponent, uint32_t, false>::Signature) & TerrainComponent::m_cols, {});
+
+			type.AddField<TerrainComponent, uint32_t>("m_tileSize",
+				(meta::FieldGetter<TerrainComponent, uint32_t, false>::Signature) & TerrainComponent::m_tileSize,
+				(meta::FieldSetter<TerrainComponent, uint32_t, false>::Signature) & TerrainComponent::m_tileSize, {});
+
+			type.AddField<TerrainComponent, std::weak_ptr<GameObject>>("m_owner",
+				(meta::FieldGetter<TerrainComponent, std::weak_ptr<GameObject>&, true>::Signature) & TerrainComponent::getParentGameObject,
+				(meta::FieldSetter<TerrainComponent, std::weak_ptr<GameObject>&, true>::Signature) & TerrainComponent::setParentGameObject, {});
+		}
+
+		{
+			auto id = db.AllocateType("std::shared_ptr<GuGu::TerrainComponent>");
+			auto& type = db.types[id];
+			meta::TypeInfo<std::shared_ptr<TerrainComponent>>::Register(id, type, false, "39C665D1-522D-4321-83D4-C1946DC0D84F");
+		}
+
+		{
+			auto id = db.AllocateType("std::weak_ptr<GuGu::TerrainComponent>");
+			auto& type = db.types[id];
+			meta::TypeInfo<std::weak_ptr<TerrainComponent>>::Register(id, type, false, "0C93471F-0542-4DE4-9A38-9D6E7E977C4F");
+		}
+		return true;
+	}
+
+	IMPLEMENT_INITIAL_BEGIN(TerrainComponent)
+		ADD_PRIORITY(AssetData)
+		ADD_INITIAL_FUNCTION_WITH_PRIORITY(registerGuGuTerrainComponent)
+	IMPLEMENT_INITIAL_END
 
 	TerrainComponent::TerrainComponent()
 	{

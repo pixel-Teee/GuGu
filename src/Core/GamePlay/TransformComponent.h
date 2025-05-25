@@ -10,6 +10,7 @@ namespace GuGu {
 	class TransformComponent : public Component
 	{
 	public:
+		DECLARE_INITIAL
 		TransformComponent();
 
 		virtual ~TransformComponent();

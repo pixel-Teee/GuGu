@@ -9,6 +9,7 @@ namespace GuGu {
 		class DisplayName : public MetaProperty
 		{
 		public:
+			DECLARE_INITIAL
 			DisplayName(const char* inDisplayName);
 
 			DisplayName(const DisplayName& rhs);

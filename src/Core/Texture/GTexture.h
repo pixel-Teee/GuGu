@@ -11,6 +11,7 @@ namespace GuGu {
 	class GTexture : public meta::Object
 	{
 	public:
+		DECLARE_INITIAL
 		GTexture();
 
 		virtual ~GTexture();

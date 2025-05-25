@@ -6,6 +6,7 @@
 namespace GuGu {
 	struct AssetData : public meta::Object
 	{
+		DECLARE_INITIAL
 		GuGuUtf8Str m_filePath;
 		GuGuUtf8Str m_fileName;
 		GGuid m_assetTypeGuid;

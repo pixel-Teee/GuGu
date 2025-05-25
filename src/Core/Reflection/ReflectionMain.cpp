@@ -22,11 +22,12 @@ namespace GuGu {
 	{
 		std::vector<Element>& funcs = *m_pInitialTypeArray;
 		std::sort(funcs.begin(), funcs.end(), [&](const Element& lhs, const Element& rhs) {
-			return lhs.m_pPriority < rhs.m_pPriority;
+			return lhs < rhs;
 		});
 		for (uint32_t i = 0; i < m_pInitialTypeArray->size(); ++i)
 		{
 			Element element = (*m_pInitialTypeArray)[i];
+			GuGu_LOGD("register priority:%d debugname:%s", element.m_pPriority->getPriorityNum(), element.m_pPriority->getDebugName());
 			if (!element.m_func())
 				return false;
 		}

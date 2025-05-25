@@ -6,6 +6,7 @@ namespace GuGu {
 	class CameraComponent : public Component
 	{
 	public:
+		DECLARE_INITIAL
 		CameraComponent();
 
 		virtual ~CameraComponent();

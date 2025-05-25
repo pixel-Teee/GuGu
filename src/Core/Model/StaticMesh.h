@@ -13,6 +13,7 @@ namespace GuGu{
 	class GStaticMesh : public meta::Object
 	{
 	public:
+		DECLARE_INITIAL
 		GStaticMesh();
 
 		virtual ~GStaticMesh();
