@@ -657,6 +657,29 @@ namespace GuGu {
 		}
 	}
 
+	std::shared_ptr<meta::Object> AssetManager::deserializeJsonNormalObject(const nlohmann::json& value)
+	{
+		SerializeDeserializeContext context;
+		context.m_indexToObject.clear();
+		context.m_indexToSharedPtrObject.clear();
+		context.index = 0;
+		deserializeJson(value, context);
+
+		context.m_indexToObject.clear();
+		context.index = 0;
+		for (auto& item : context.m_indexToSharedPtrObject)
+		{
+			//if (item.second->GetType() == typeof(ClassType))
+			//{
+			std::shared_ptr<meta::Object> rootObject = std::static_pointer_cast<meta::Object>(item.second);
+			context.m_indexToSharedPtrObject.clear();
+			return rootObject;
+			//}
+		}
+		//context.m_indexToSharedPtrObject.clear();
+		return nullptr;
+	}
+
 	void AssetManager::linkSharedPtr(nlohmann::json jsonObject, meta::Object* object, SerializeDeserializeContext& context)
 	{
 		auto type = object->GetType();

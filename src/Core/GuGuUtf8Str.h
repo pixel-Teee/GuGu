@@ -82,6 +82,8 @@ namespace GuGu {
 
 		//去除字符串前后的空格
 		GuGuUtf8Str trim() const;
+
+		std::vector<uint8_t> getBinary() const;
 	private:
 		char* m_str;
 		int32_t m_capacity;

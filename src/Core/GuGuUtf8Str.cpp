@@ -687,6 +687,14 @@ namespace GuGu {
 		return (start <= end) ? substr(start, end - start + 1) : "";
 	}
 
+	std::vector<uint8_t> GuGuUtf8Str::getBinary() const
+	{
+		std::vector<uint8_t> res;
+		for (size_t i = 0; i < m_totalByteCount; ++i)
+			res.push_back(m_str[i]);
+		return res;
+	}
+
 	std::ostream& operator<<(std::ostream& out, const GuGuUtf8Str& str)
 	{
 		for (size_t i = 0; i < str.m_totalByteCount; ++i)

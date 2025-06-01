@@ -3,6 +3,7 @@
 #include "Object.h"
 #include <Core/Reflection/MetaProperty/DisplayName.h>
 #include <Core/Reflection/TypeInfo.h>
+#include <Core/AssetManager/AssetManager.h>
 
 namespace GuGu {
 	static bool registerGuGuMetaObject()
@@ -35,5 +36,10 @@ namespace GuGu {
 			ADD_PRIORITY_FIELDS(meta::DisplayName)
 			ADD_INITIAL_FIELDS_FUNCTION_WITH_PRIORITY(registerGuGuMetaObjectFields)
 		IMPLEMENT_INITIAL_FIELDS_END
+
+		void Object::modify()
+		{
+			
+		}
 	}
 }

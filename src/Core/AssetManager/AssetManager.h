@@ -58,6 +58,8 @@ namespace GuGu {
 
 		void deserializeJson(nlohmann::json value, SerializeDeserializeContext& context);
 
+		std::shared_ptr<meta::Object> deserializeJsonNormalObject(const nlohmann::json& value);
+
 		template<typename ClassType>
 		std::shared_ptr<ClassType> deserializeJson(const nlohmann::json& value)
 		{

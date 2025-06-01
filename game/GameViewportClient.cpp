@@ -127,6 +127,11 @@ namespace GuGu {
 		return Gizmos::Move;
 	}
 
+	void GameViewportClient::modifyObject(std::shared_ptr<meta::Object> inObject)
+	{
+		//nothing todo
+	}
+
 	GuGu::math::float4x4 GameViewportClient::getWorldToViewMatrix() const
 	{
 		throw std::logic_error("The method or operation is not implemented.");

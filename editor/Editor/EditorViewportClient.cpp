@@ -14,6 +14,7 @@
 #include <Core/GamePlay/TransformComponent.h>
 #include <Core/Model/GeometryHelper.h>
 #include <Core/AssetManager/AssetManager.h>
+#include <Editor/Transaction/TransactionManager.h>
 
 #ifdef WIN32
 #include <Application/Platform/Windows/WindowsMisc.h>
@@ -815,6 +816,16 @@ namespace GuGu {
 	ViewportClient::Gizmos EditorViewportClient::getCurrentGizmosType() const
 	{
 		return m_gizmos;
+	}
+
+	void EditorViewportClient::modifyObject(std::shared_ptr<meta::Object> inObject)
+	{
+		//拷贝对象的当前状态
+		TransactionManager& transactionManager = TransactionManager::getTransactionManager();
+		Transaction& currentTransaction = transactionManager.getCurrentTransaction();
+
+		transactionManager.modifyObject(inObject);
+
 	}
 
 	void EditorViewportClient::makeGizmos()

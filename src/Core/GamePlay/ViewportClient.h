@@ -5,6 +5,10 @@
 #include <functional>
 
 namespace GuGu {
+	namespace meta
+	{
+		class Object;
+	}
 	class GStaticMesh;
 	class GameObject;
 	class ViewportWidget;
@@ -84,6 +88,9 @@ namespace GuGu {
 
 		virtual void broadcastGameObjectSelectionChanged(const std::vector<GameObject*>& newSelection, bool bForceRefresh);
 		//------暂时放在这里------
+
+		//undo/redo
+		virtual void modifyObject(std::shared_ptr<meta::Object> inObject) = 0;
 	private:
 		GameObjectSelectionChangedEvent m_gameObjectSelectionChangedEvent;
 	};

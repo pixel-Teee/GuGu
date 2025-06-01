@@ -31,7 +31,7 @@ namespace GuGu {
 			virtual void PostLoad() = 0;
 
 			//undo/redo 功能
-			virtual void modify() {}
+			virtual void modify();
 
 			//todo:add serialize and deserialize
 			virtual void OnSerialize(nlohmann::json& output) const {}
