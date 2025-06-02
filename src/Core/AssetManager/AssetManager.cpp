@@ -258,7 +258,7 @@ namespace GuGu {
 		return AssetData();
 	}
 
-	nlohmann::json AssetManager::serializeJson(std::shared_ptr<meta::Object> object)
+	nlohmann::json AssetManager::serializeJson(std::shared_ptr<meta::Object> object, std::function<void(std::unordered_map<uint32_t, std::shared_ptr<meta::Object>>)> callback)
 	{
 		SerializeDeserializeContext context;
 		context.m_indexToObject.clear();
@@ -282,6 +282,11 @@ namespace GuGu {
 		}
 		output["Objects"] = objectArrays;
 		GuGu_LOGD("%s\n", output.dump().c_str());
+
+		if (callback)
+		{
+			callback(context.m_indexToSharedPtrObject);
+		}
 
 		context.m_indexToSharedPtrObject.clear();
 		context.m_indexToObject.clear();

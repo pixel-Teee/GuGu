@@ -4,6 +4,11 @@ namespace GuGu {
 	namespace meta {
 		class Object;
 	}
+	struct DiffContext
+	{
+		std::map<int32_t, std::shared_ptr<meta::Object>> deletedObjects;
+		std::map<int32_t, std::shared_ptr<meta::Object>> addedObjects;
+	};
 	//单个事务
 	struct Transaction
 	{
@@ -14,5 +19,7 @@ namespace GuGu {
 		std::vector<std::vector<uint8_t>> m_afterState;
 
 		std::vector<std::weak_ptr<meta::Object>> m_currentObjects;
+
+		std::vector<DiffContext> m_trackObjects;
 	};
 }

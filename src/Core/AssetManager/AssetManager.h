@@ -48,7 +48,7 @@ namespace GuGu {
 
 		const AssetData& getAssetData(const GuGuUtf8Str& filePath) const;
 
-		nlohmann::json serializeJson(std::shared_ptr<meta::Object> object);
+		nlohmann::json serializeJson(std::shared_ptr<meta::Object> object, std::function<void(std::unordered_map<uint32_t, std::shared_ptr<meta::Object>>)> callback = nullptr);
 
 		void CollisionObjects(meta::Variant& object, SerializeDeserializeContext& context);
 
