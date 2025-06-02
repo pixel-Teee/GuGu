@@ -58,7 +58,7 @@ namespace GuGu {
 
 		void deserializeJson(nlohmann::json value, SerializeDeserializeContext& context);
 
-		std::shared_ptr<meta::Object> deserializeJsonNormalObject(const nlohmann::json& value);
+		std::shared_ptr<meta::Object> deserializeJsonNormalObject(const nlohmann::json& value, meta::Type inType);
 
 		template<typename ClassType>
 		std::shared_ptr<ClassType> deserializeJson(const nlohmann::json& value)
@@ -93,6 +93,8 @@ namespace GuGu {
 		GGuid getGuid(const GuGuUtf8Str& filePath, meta::Type assetType);
 
 		std::shared_ptr<AssetData> loadAsset(GGuid guid);
+
+		nlohmann::json getDiffJson(nlohmann::json lhs, nlohmann::json rhs);
 	private:
 		//遍历目录和文件
 		void traverseDirectoryAndFile_private(const GuGuUtf8Str& directory, std::function<void(GuGuUtf8Str, bool)> enumerateCallBack);

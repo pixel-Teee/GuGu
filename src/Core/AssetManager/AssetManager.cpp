@@ -657,7 +657,7 @@ namespace GuGu {
 		}
 	}
 
-	std::shared_ptr<meta::Object> AssetManager::deserializeJsonNormalObject(const nlohmann::json& value)
+	std::shared_ptr<meta::Object> AssetManager::deserializeJsonNormalObject(const nlohmann::json& value, meta::Type inType)
 	{
 		SerializeDeserializeContext context;
 		context.m_indexToObject.clear();
@@ -669,12 +669,12 @@ namespace GuGu {
 		context.index = 0;
 		for (auto& item : context.m_indexToSharedPtrObject)
 		{
-			//if (item.second->GetType() == typeof(ClassType))
-			//{
-			std::shared_ptr<meta::Object> rootObject = std::static_pointer_cast<meta::Object>(item.second);
-			context.m_indexToSharedPtrObject.clear();
-			return rootObject;
-			//}
+			if (item.second->GetType() == inType) //check type
+			{
+				std::shared_ptr<meta::Object> rootObject = std::static_pointer_cast<meta::Object>(item.second);
+				context.m_indexToSharedPtrObject.clear();
+				return rootObject;
+			}
 		}
 		//context.m_indexToSharedPtrObject.clear();
 		return nullptr;
@@ -882,6 +882,91 @@ namespace GuGu {
 			}
 		}
 		return nullptr;
+	}
+
+	nlohmann::json AssetManager::getDiffJson(nlohmann::json lhs, nlohmann::json rhs)
+	{
+		nlohmann::json result = nlohmann::json::object();
+
+		//类型不同，完全差异(一般不会出现)
+		if (lhs.type() != rhs.type())
+		{
+			result["old"] = lhs;
+			result["new"] = rhs;
+			return result;
+		}
+
+		//基本类型
+		if (!lhs.is_structured())
+		{
+			if (lhs != rhs)
+			{
+				result["old"] = lhs;
+				result["new"] = rhs;
+			}
+			return nullptr;//无差异返回空对象
+		}
+
+		//处理对象类型
+		if (lhs.is_object())
+		{
+			std::vector<std::string> keys;
+			for (auto& item : lhs.items()) keys.push_back(item.key());
+			for (auto& item : rhs.items())
+			{
+				if (lhs.find(item.key()) == lhs.end())
+				{
+					keys.push_back(item.key());//合并键列表
+				}
+			}
+
+			for (const auto& key : keys)
+			{
+				if (lhs.contains(key) && !rhs.contains(key))
+				{
+					result[key] = { {"removed", lhs[key]} }; //键被删除
+				}
+				else if (!lhs.contains(key) && rhs.contains(key))
+				{
+					result[key] = { {"added", rhs[key]} };
+				}
+				else
+				{
+					auto diff = getDiffJson(lhs[key], rhs[key]);
+					if (!diff.empty())
+						result[key] = diff;//字段差异
+				}
+			}
+			return result;
+		}
+
+		//处理数组类型
+		if (lhs.is_array())
+		{
+			for (size_t i = 0; i < std::min(lhs.size(), rhs.size()); ++i)
+			{
+				auto diff = getDiffJson(lhs[i], rhs[i]);
+				if (!diff.empty())
+					result[std::to_string(i)] = diff;//记录索引位置差异
+			}
+
+			//处理数组长度差异
+			if (lhs.size() > rhs.size())
+			{
+				result["_size"] = { {"old", lhs.size()}, {"new", rhs.size()} };
+				for (size_t i = rhs.size(); i < lhs.size(); ++i)
+					result[std::to_string(i)] = { {"removed", lhs[i]} };
+			}
+			else if (rhs.size() > lhs.size())
+			{
+				result["_size"] = { {"old", lhs.size()}, {"new", rhs.size()} };
+				for (size_t i = lhs.size(); i < rhs.size(); ++i)
+					result[std::to_string(i)] = { {"added", rhs[i]} };
+			}
+			return result;
+		}
+
+		return result;//默认返回空对象
 	}
 
 	//遍历目录
