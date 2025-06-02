@@ -35,9 +35,17 @@ namespace GuGu {
 
 		void rollback();
 
+		void preDiff(std::shared_ptr<meta::Object> inObject, const nlohmann::json& diff);
+
 		void applyDiff(std::shared_ptr<meta::Object> inObject, const nlohmann::json& diff);
 
 		void applyFieldDiff(std::shared_ptr<meta::Object> inObject, meta::Field& field, const nlohmann::json& diff);
+
+		struct DiffContext
+		{
+			std::map<int32_t, std::shared_ptr<meta::Object>> deletedObjects;
+			std::map<int32_t, std::shared_ptr<meta::Object>> addedObjects;
+		};
 	private:
 		meta::Variant convertJsonValueToVariantValue(meta::Type& type, nlohmann::json diff);
 		std::stack<Transaction> m_undoStack;

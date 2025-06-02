@@ -95,6 +95,7 @@ namespace GuGu {
 		std::shared_ptr<AssetData> loadAsset(GGuid guid);
 
 		nlohmann::json getDiffJson(nlohmann::json lhs, nlohmann::json rhs);
+
 	private:
 		//遍历目录和文件
 		void traverseDirectoryAndFile_private(const GuGuUtf8Str& directory, std::function<void(GuGuUtf8Str, bool)> enumerateCallBack);

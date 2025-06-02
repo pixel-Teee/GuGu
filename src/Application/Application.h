@@ -10,6 +10,8 @@
 #include <Core/UI/BasicElement.h>
 #include <Core/UI/WidgetPath.h>
 
+#include "CommonDelegate.h"
+
 //#include <memory>
 
 // #include <Core/GamePlay/GameObject.h>
@@ -236,6 +238,8 @@ namespace GuGu {
 		void resetTooltipWindow();
 
 		void arrangeWindowToFrontVirtual(std::vector<std::shared_ptr<WindowWidget>>& windows, const std::shared_ptr<WindowWidget>& windowToBringToFront);
+
+		void setUnhandledKeyDownEventHandler(const OnKeyEvent& newHandler);
 	protected:
 		std::shared_ptr<Renderer> m_renderer;
 
@@ -244,7 +248,7 @@ namespace GuGu {
 		float fps = 0;//one seconds total frame
 		float mfps = 0;//one frame's time
 
-		std::vector<std::shared_ptr<WindowWidget>> m_windowWidgets;
+		std::vector<std::shared_ptr<WindowWidget>> m_windowWidgets;	
 	private:
 		bool processMouseButtonDownEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent);
 
@@ -295,6 +299,8 @@ namespace GuGu {
 		std::weak_ptr<WindowWidget> m_dragDropWindowPtr;
 
 		std::vector<std::shared_ptr<WindowWidget>> m_windowsDestroyQueue;
+
+		OnKeyEvent m_unhandledKeyDownEventHandler;
 	};
 	std::shared_ptr<Application> CreateApplicationFactory();
 }

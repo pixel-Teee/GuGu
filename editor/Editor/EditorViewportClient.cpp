@@ -37,6 +37,9 @@ namespace GuGu {
 		m_viewportState = ViewportClient::Editor;
 		updateView();
 		makeGizmos();
+
+		OnKeyEvent keyEvent = std::bind(&EditorViewportClient::handleUnhandledKeyDownEvent, this, std::placeholders::_1);
+		Application::getApplication()->setUnhandledKeyDownEventHandler(keyEvent);
 	}
 	EditorViewportClient::~EditorViewportClient()
 	{
@@ -826,6 +829,21 @@ namespace GuGu {
 
 		transactionManager.modifyObject(inObject);
 
+	}
+
+	Reply EditorViewportClient::handleUnhandledKeyDownEvent(const KeyEvent& inKeyEvent)
+	{
+		if (inKeyEvent.isControlDown() && inKeyEvent.getKey() == Keys::Z) //ctrl + z
+		{
+			TransactionManager& transactionManager = TransactionManager::getTransactionManager();
+			if (transactionManager.canUndo())
+			{
+				transactionManager.undo();
+				//todo:add notification
+				return Reply::Handled();
+			}
+		}
+		return Reply::Unhandled();
 	}
 
 	void EditorViewportClient::makeGizmos()

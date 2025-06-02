@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/Math/MyMath.h>
+#include <Core/UI/Reply.h>
 #include <Core/GamePlay/ViewportClient.h>
 
 namespace GuGu {
@@ -92,6 +93,8 @@ namespace GuGu {
 
 		//undo/redo
 		virtual void modifyObject(std::shared_ptr<meta::Object> inObject) override;
+
+		Reply handleUnhandledKeyDownEvent(const KeyEvent& inKeyEvent);
 	private:
 		void makeGizmos();
 

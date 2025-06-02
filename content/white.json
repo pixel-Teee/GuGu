@@ -1,1 +1,24 @@
-{"GUID":"A5E09EBB-C293-4728-8A54-8245CE030E41","Objects":[{"1":{"m_arraySize":1,"m_bytesPerPixel":32,"m_data":[255,255,255,1],"m_depth":1,"m_dimension":3,"m_format":19,"m_height":1,"m_width":1,"type":"026CB8ED-6633-4577-B32C-F3F4D9C2FC22"}}],"Version":"1.000000"}
+{
+  "GUID": "A5E09EBB-C293-4728-8A54-8245CE030E41",
+  "Objects": [
+    {
+      "1": {
+        "m_arraySize": 1,
+        "m_bytesPerPixel": 32,
+        "m_data": [
+          255,
+          255,
+          255,
+          1
+        ],
+        "m_depth": 1,
+        "m_dimension": 3,
+        "m_format": 19,
+        "m_height": 1,
+        "m_width": 1,
+        "type": "026CB8ED-6633-4577-B32C-F3F4D9C2FC22"
+      }
+    }
+  ],
+  "Version": "1.000000"
+}

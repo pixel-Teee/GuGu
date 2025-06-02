@@ -17,6 +17,7 @@
 #include <Core/GamePlay/World.h>
 #include <Core/GamePlay/Level.h>
 #include <Core/GamePlay/TransformComponent.h>
+#include <Editor/Transaction/TransactionManager.h>
 #include <Application/Application.h>
 
 namespace GuGu {
@@ -145,7 +146,17 @@ namespace GuGu {
 			std::shared_ptr<GameObject> gameObject = std::make_shared<GameObject>();
 			std::shared_ptr<TransformComponent> transformComponent = std::make_shared<TransformComponent>();
 			gameObject->addComponent(transformComponent);
-			World::getWorld()->getCurrentLevel()->addGameObject(gameObject);
+			std::shared_ptr<Level> currentLevel = World::getWorld()->getCurrentLevel();
+			if (currentLevel)
+			{
+				//undo/redo
+				TransactionManager& transactionManager = TransactionManager::getTransactionManager();
+				transactionManager.beginTransaction();
+				transactionManager.modifyObject(currentLevel);
+				currentLevel->addGameObject(gameObject);
+				transactionManager.commit();
+			}
+
 			return Reply::Handled();
 		}
 

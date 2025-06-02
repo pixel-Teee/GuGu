@@ -888,6 +888,11 @@ namespace GuGu{
 		}
 	}
 
+	void Application::setUnhandledKeyDownEventHandler(const OnKeyEvent& newHandler)
+	{
+		m_unhandledKeyDownEventHandler = newHandler;
+	}
+
 	bool Application::processMouseButtonDownEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
     {
 		if (!m_captorWidgetsPath.isEmpty())
@@ -1339,10 +1344,17 @@ namespace GuGu{
 		for (int32_t i = focusWidgetNumber - 1; i >= 0; --i)
 		{
 			std::shared_ptr<Widget> widget = focusPath.m_widgets.getArrangedWidget(i)->getWidget();
-			widget->OnKeyDown(widget->getWidgetGeometry(), inKeyEvent);
+			reply = widget->OnKeyDown(widget->getWidgetGeometry(), inKeyEvent);
+			if (reply.isEventHandled())
+				break;
 		}
 
-		return true;
+		if (!reply.isEventHandled() && m_unhandledKeyDownEventHandler)
+		{
+			reply = m_unhandledKeyDownEventHandler(inKeyEvent);
+		}
+
+		return reply.isEventHandled();
 	}
 
 	bool Application::processKeyUpEvent(const KeyEvent& inKeyEvent)

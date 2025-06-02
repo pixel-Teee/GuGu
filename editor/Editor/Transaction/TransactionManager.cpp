@@ -78,25 +78,31 @@ namespace GuGu {
 		}
 
 		auto transaction = std::move(m_undoStack.top());
+#ifdef false
 		m_undoStack.pop();
+#endif
 
 		for (size_t i = 0; i < transaction.m_beforeState.size(); ++i)
 		{
 			std::string beforeStateStr(reinterpret_cast<const char*>(transaction.m_beforeState[i].data()), transaction.m_beforeState[i].size());
 			nlohmann::json beforeStateJson = nlohmann::json::parse(beforeStateStr.c_str());
+			std::string afterStateStr(reinterpret_cast<const char*>(transaction.m_afterState[i].data()), transaction.m_afterState[i].size());
+			nlohmann::json afterStateJson = nlohmann::json::parse(afterStateStr.c_str());
 			if (transaction.m_currentObjects[i].lock())
 			{
 				meta::Type objectType = transaction.m_currentObjects[i].lock()->GetType();
-				std::shared_ptr<meta::Object> beforeObject = AssetManager::getAssetManager().deserializeJsonNormalObject(beforeStateJson, objectType);
+				nlohmann::json diff = AssetManager::getAssetManager().getDiffJson(afterStateJson, beforeStateJson);
 				//implement diff and copy
+				GuGu_LOGD("%s", diff.dump().c_str());
 			}
 			else
 			{
 				GuGu_LOGE("missing object");
 			}
 		}
-
+#ifdef false
 		m_redoStack.push(std::move(transaction));
+#endif
 	}
 
 	void TransactionManager::redo()
@@ -174,6 +180,28 @@ namespace GuGu {
 		m_currentTransaction.m_currentObjects.clear();
 	}
 
+	void TransactionManager::preDiff(std::shared_ptr<meta::Object> inObject, const nlohmann::json& diff)
+	{
+		if (!diff.is_object()) return;
+
+		if (diff.contains("Objects"))
+		{
+			nlohmann::json objects = diff["Objects"];
+			for (const auto& [objectId, objectValue] : objects.items()) 
+			{
+				//object id
+				if (objectValue.contains("removed"))
+				{
+
+				}
+				else if (objectValue.contains("added"))
+				{
+
+				}
+			}
+		}
+	}
+
 	void TransactionManager::applyDiff(std::shared_ptr<meta::Object> inObject, const nlohmann::json& diff)
 	{
 		if (!diff.is_object()) return;
@@ -202,7 +230,7 @@ namespace GuGu {
 			//处理嵌套的对象
 			if (!bFound)
 			{
-				
+				applyDiff(inObject, value);
 			}
 		}
 	}
