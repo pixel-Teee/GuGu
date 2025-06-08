@@ -4,22 +4,29 @@ namespace GuGu {
 	namespace meta {
 		class Object;
 	}
-	struct DiffContext
+	struct TrackObject
 	{
-		std::map<int32_t, std::shared_ptr<meta::Object>> deletedObjects;
-		std::map<int32_t, std::shared_ptr<meta::Object>> addedObjects;
+		bool isRoot = false;
+		std::shared_ptr<meta::Object> m_object;
+
+		bool isDelete = false;
+
+		bool operator<(const TrackObject& rhs) const
+		{
+			return m_object < rhs.m_object;
+		}
 	};
+
+	struct ModifyState
+	{
+		nlohmann::json m_beforeState;
+		nlohmann::json m_afterState;
+	};
+
 	//单个事务
 	struct Transaction
 	{
-		//std::vector<uint8_t> m_beforeState;
-		//std::vector<uint8_t> m_afterState;
-		//m_beforeState[0]，m_beforeState[1]，m_beforeState[2]是一个个meta::Object的状态
-		std::vector<std::vector<uint8_t>> m_beforeState;
-		std::vector<std::vector<uint8_t>> m_afterState;
-
-		std::vector<std::weak_ptr<meta::Object>> m_currentObjects;
-
-		std::vector<DiffContext> m_trackObjects;
+		//每个map包含了一个对象的修改(是一个object tree)
+		std::vector<std::map<TrackObject, ModifyState>> m_currentObjects;
 	};
 }
