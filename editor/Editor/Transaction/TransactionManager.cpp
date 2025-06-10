@@ -300,13 +300,6 @@ namespace GuGu {
 
 	void TransactionManager::serializeJson(std::shared_ptr<meta::Object> inObject, bool isBeforeState)
 	{
-		SerializeDeserializeContext context;
-		context.m_indexToObject.clear();
-		context.m_indexToSharedPtrObject.clear();
-		context.index = 0;
-		meta::Variant rootObject = ObjectVariant(inObject.get());
-		collisionObjects(rootObject, context);
-
 		bool findMap = false;
 		int32_t findIndex = -1;
 		for (int32_t index = 0; index < m_currentTransaction.m_currentObjects.size(); ++index)
@@ -330,11 +323,29 @@ namespace GuGu {
 			findIndex = m_currentTransaction.m_currentObjects.size() - 1;
 		}
 
-		for (const auto& item : context.m_indexToObject)
+		//SerializeDeserializeContext context;
+		//context.m_indexToObject.clear();
+		//context.m_indexToSharedPtrObject.clear();
+		//context.index = 0;
+
+		TrackObject rootTrackObject;
+		rootTrackObject.m_object = inObject;
+		rootTrackObject.isRoot = true;
+
+		int32_t maxIndex = 0;
+		for (const auto& item : m_currentTransaction.m_currentObjects[findIndex][rootTrackObject].m_indexToObjects)
 		{
-			meta::Variant object = ObjectVariant(item.second);
+			maxIndex = std::max(maxIndex, item.first);
+		}
+
+		meta::Variant rootObject = ObjectVariant(inObject.get());
+		collisionObjects(rootObject, m_currentTransaction.m_currentObjects[findIndex][rootTrackObject].m_indexToObjects, maxIndex);
+
+		for (const auto& item : m_currentTransaction.m_currentObjects[findIndex])
+		{
+			meta::Variant object = ObjectVariant(item.first.m_object.get());
 			std::string objectIndex = std::to_string(item.first);
-			nlohmann::json jsonObject = serializeJson(object.GetType(), object, context);
+			nlohmann::json jsonObject = serializeJson(object.GetType(), object, m_currentTransaction.m_currentObjects[findIndex][rootTrackObject].m_indexToObjects);
 			nlohmann::json indexAndObject = nlohmann::json::object();
 			indexAndObject[objectIndex.c_str()] = jsonObject;
 
@@ -353,7 +364,7 @@ namespace GuGu {
 		}
 	}
 
-	nlohmann::json TransactionManager::serializeJson(meta::Type type, const meta::Variant& instance, SerializeDeserializeContext& context)
+	nlohmann::json TransactionManager::serializeJson(meta::Type type, const meta::Variant& instance, std::map<int32_t, meta::Object*>& indexToObject)
 	{
 		if (type.IsArray()) //数组
 		{
@@ -365,7 +376,7 @@ namespace GuGu {
 				auto value = wrapper.GetValue(i);//variant
 
 				array.emplace_back(
-					serializeJson(value.GetType(), value, context)
+					serializeJson(value.GetType(), value, indexToObject)
 				);
 			}
 			return array;
@@ -415,7 +426,7 @@ namespace GuGu {
 			if (type.IsSharedPtr())
 			{
 				std::shared_ptr<meta::Object> ptr = *reinterpret_cast<std::shared_ptr<meta::Object>*>(instance.getBase()->GetPtr());
-				for (auto& item : context.m_indexToObject)
+				for (auto& item : indexToObject)
 				{
 					if (item.second == ptr.get())
 						return item.first;//index
@@ -427,7 +438,7 @@ namespace GuGu {
 			{
 				void* ptr = instance.getBase()->GetPtr();
 				std::weak_ptr<meta::Object> object = *reinterpret_cast<std::weak_ptr<meta::Object>*>(ptr);
-				for (auto& item : context.m_indexToObject)
+				for (auto& item : indexToObject)
 				{
 					if (item.second == object.lock().get())
 						return item.first;//index
@@ -445,7 +456,7 @@ namespace GuGu {
 			auto value = field.GetValue(instance);//variant
 
 			//auto json = value.SerializeJson();
-			auto json = serializeJson(field.GetType(), value, context);
+			auto json = serializeJson(field.GetType(), value, indexToObject);
 
 			//value.getBase()->OnSerialize(const_cast<nlohmann::json&>(json));
 
@@ -545,7 +556,7 @@ namespace GuGu {
 
 	}
 
-	void TransactionManager::collisionObjects(meta::Variant& object, SerializeDeserializeContext& context)
+	void TransactionManager::collisionObjects(meta::Variant& object, std::map<int32_t, meta::Object*>& indexToObject, int32_t& currentIndex)
 	{
 		if (object.GetType().IsSharedPtr())
 		{
@@ -571,7 +582,7 @@ namespace GuGu {
 		auto& fields = meta::ReflectionDatabase::Instance().types[type.GetID()].fields;
 
 		bool haveAdded = false;
-		for (const auto& item : context.m_indexToObject)
+		for (const auto& item : indexToObject)
 		{
 			if (item.second == object.getBase()->GetPtr())
 			{
@@ -581,9 +592,9 @@ namespace GuGu {
 		}
 		if (!haveAdded)
 		{
-			++context.index;
+			++currentIndex;
 			meta::Object* insertObject = static_cast<meta::Object*>(object.getBase()->GetPtr());
-			context.m_indexToObject.insert({ context.index, insertObject });
+			indexToObject.insert({ currentIndex, insertObject });
 		}
 
 		meta::Object* metaObject = static_cast<meta::Object*>(object.getBase()->GetPtr());
@@ -610,7 +621,7 @@ namespace GuGu {
 						meta::Variant item = wrapper.GetValue(i);//variant
 						//void* ptr = item.getBase()->GetPtr();
 						//std::shared_ptr<meta::Object> object = *reinterpret_cast<std::shared_ptr<meta::Object>*>(&ptr);
-						collisionObjects(item, context);
+						collisionObjects(item, indexToObject, currentIndex);
 					}
 				}
 			}

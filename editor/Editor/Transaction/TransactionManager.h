@@ -51,14 +51,14 @@ namespace GuGu {
 			std::unordered_map<uint32_t, std::shared_ptr<meta::Object>> m_indexToSharedPtrObject;
 		};
 
-		nlohmann::json serializeJson(meta::Type type, const meta::Variant& instance, SerializeDeserializeContext& context);
+		nlohmann::json serializeJson(meta::Type type, const meta::Variant& instance, std::map<int32_t, meta::Object*>& indexToObject);
 
 		nlohmann::json getDiffJson(const nlohmann::json& lhs, const nlohmann::json& rhs);
 
 		void updateObject(std::shared_ptr<meta::Object> inObject, const nlohmann::json& diffJson);
 	private:
 
-		void collisionObjects(meta::Variant& object, SerializeDeserializeContext& context);
+		void collisionObjects(meta::Variant& object, std::map<int32_t, meta::Object*>& indexToObject, int32_t& currentIndex);
 
 		meta::Variant convertJsonValueToVariantValue(meta::Type& type, nlohmann::json diff);
 		std::stack<Transaction> m_undoStack;

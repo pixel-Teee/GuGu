@@ -19,6 +19,9 @@ namespace GuGu {
 
 	struct ModifyState
 	{
+		//只有 root object 才存这个
+		std::map<int32_t, meta::Object*> m_indexToObjects;
+
 		nlohmann::json m_beforeState;
 		nlohmann::json m_afterState;
 	};
