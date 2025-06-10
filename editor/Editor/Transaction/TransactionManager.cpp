@@ -341,9 +341,9 @@ namespace GuGu {
 		meta::Variant rootObject = ObjectVariant(inObject.get());
 		collisionObjects(rootObject, m_currentTransaction.m_currentObjects[findIndex][rootTrackObject].m_indexToObjects, maxIndex);
 
-		for (const auto& item : m_currentTransaction.m_currentObjects[findIndex])
+		for (const auto& item : m_currentTransaction.m_currentObjects[findIndex][rootTrackObject].m_indexToObjects)
 		{
-			meta::Variant object = ObjectVariant(item.first.m_object.get());
+			meta::Variant object = ObjectVariant(item.second);
 			std::string objectIndex = std::to_string(item.first);
 			nlohmann::json jsonObject = serializeJson(object.GetType(), object, m_currentTransaction.m_currentObjects[findIndex][rootTrackObject].m_indexToObjects);
 			nlohmann::json indexAndObject = nlohmann::json::object();
