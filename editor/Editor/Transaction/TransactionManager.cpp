@@ -602,7 +602,7 @@ namespace GuGu {
 				//增加新的 item
 				if (oldSize < newSize)
 				{
-					for (int32_t index = oldSize + 1; index < newSize; ++index)
+					for (int32_t index = oldSize; index < newSize; ++index)
 					{
 						if (diffJson[std::to_string(index)].contains("added"))
 						{
@@ -613,7 +613,7 @@ namespace GuGu {
 								{
 									meta::Object* pointerToObject = indexToObjects.find(itemValue)->second;
 									std::shared_ptr<meta::Object> objectValue = pointerToObject->shared_from_this();
-									wrapper.Insert(wrapper.Size() - 1, objectValue);
+									wrapper.Insert(index, objectValue);
 								}
 							}
 							else
@@ -622,7 +622,7 @@ namespace GuGu {
 								if (!diffJson[std::to_string(index)].contains("added"))
 								{
 									meta::Variant value = arrayCtor.Invoke();
-									wrapper.Insert(wrapper.Size() - 1, value);
+									wrapper.Insert(index, value);
 									updateObject(value, nonArrayType, diffJson[std::to_string(index)]["added"], indexToObjects);
 								}
 							}

@@ -11,6 +11,7 @@
 #include <Core/GamePlay/Level.h>
 #include <Core/GamePlay/World.h>
 #include <Application/Application.h>
+#include <Editor/Transaction/TransactionManager.h>
 
 namespace GuGu {
 
@@ -79,7 +80,16 @@ namespace GuGu {
 			m_menu->dismiss();
 			//delete object
 			
-			World::getWorld()->getCurrentLevel()->deleteGameObject(m_objectPtr.lock());
+			std::shared_ptr<Level> currentLevel = World::getWorld()->getCurrentLevel();
+			if (currentLevel)
+			{
+				//undo/redo
+				TransactionManager& transactionManager = TransactionManager::getTransactionManager();
+				transactionManager.beginTransaction();
+				transactionManager.modifyObject(currentLevel);
+				World::getWorld()->getCurrentLevel()->deleteGameObject(m_objectPtr.lock());
+				transactionManager.commit();
+			}	
 	
 			if (m_weakSceneOutliner.lock())
 			{
