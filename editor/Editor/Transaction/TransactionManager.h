@@ -55,7 +55,9 @@ namespace GuGu {
 
 		nlohmann::json getDiffJson(const nlohmann::json& lhs, const nlohmann::json& rhs);
 
-		void updateObject(std::shared_ptr<meta::Object> inObject, const nlohmann::json& diffJson);
+		void updateObject(meta::Variant& instance, meta::Type inType, const nlohmann::json& diffJson, const std::map<int32_t, meta::Object*>& indexToObjects);
+
+		meta::Variant convertJsonToPrimitiveValue(meta::Type inType, const nlohmann::json& inJson);
 	private:
 
 		void collisionObjects(meta::Variant& object, std::map<int32_t, meta::Object*>& indexToObject, int32_t& currentIndex);

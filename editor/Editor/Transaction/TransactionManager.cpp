@@ -2,6 +2,8 @@
 
 #include "TransactionManager.h"
 #include <Core/AssetManager/AssetManager.h>
+#include <Core/GamePlay/World.h>
+#include <Core/GamePlay/Level.h>
 
 namespace GuGu {
 
@@ -95,32 +97,60 @@ namespace GuGu {
 			GuGu_LOGD("nothing to undo");
 		}
 
-		auto& transaction = std::move(m_undoStack.top());
-#ifdef false
+		auto transaction = m_undoStack.top();
+
 		m_undoStack.pop();
-#endif
+
 		for (size_t i = 0; i < transaction.m_currentObjects.size(); ++i)
 		{
+			//find root object
+			bool isFindRootObjet = false;
+			std::map<int32_t, meta::Object*> indexToObjects;
 			for (const auto& item : transaction.m_currentObjects[i])
 			{
-				//modify every object
-				const TrackObject& trackObject = item.first;
-				std::shared_ptr<meta::Object> object = trackObject.m_object;
-				//get json to diff
-				const nlohmann::json& beforeState = item.second.m_beforeState;
-				const nlohmann::json& afterState = item.second.m_afterState;
-				//from after to before
-				nlohmann::json diffJson = getDiffJson(afterState, beforeState);
-				if (!diffJson.empty())
+				if (item.first.isRoot)
 				{
-					//modify object
-					updateObject(object, diffJson);
+					isFindRootObjet = true;
+					indexToObjects = item.second.m_indexToObjects;
+					break;
+				}
+			}
+			if (isFindRootObjet)
+			{
+				for (const auto& item : transaction.m_currentObjects[i])
+				{
+					//modify every object
+					const TrackObject& trackObject = item.first;
+					std::shared_ptr<meta::Object> object = trackObject.m_object;
+					//get json to diff
+					const nlohmann::json& beforeState = item.second.m_beforeState;
+					const nlohmann::json& afterState = item.second.m_afterState;
+					if (beforeState.empty() || afterState.empty())
+						continue;
+					GuGu_LOGD("before state:%s", beforeState.dump().c_str());
+					GuGu_LOGD("after state:%s", afterState.dump().c_str());
+					//from after to before
+					nlohmann::json diffJson = getDiffJson(afterState, beforeState);		
+					nlohmann::json diffJson2;
+					for (const auto& item : diffJson.items())
+					{
+						diffJson2 = item.value();
+						break;
+					}
+					if (!diffJson2.empty())
+					{
+						GuGu_LOGD("diff:%s", diffJson2.dump().c_str());
+						//modify object
+						meta::Variant objectVariant = ObjectVariant(object.get());
+						updateObject(objectVariant, objectVariant.GetType(), diffJson2, indexToObjects);
+					}
 				}
 			}
 		}
-#ifdef false
-		m_redoStack.push(std::move(transaction));
-#endif
+		//refresh
+		World::getWorld()->getCurrentLevel()->refreshLevel();
+
+		m_redoStack.push(transaction);
 	}
 
 	void TransactionManager::redo()
@@ -551,9 +581,133 @@ namespace GuGu {
 		return result;//默认返回空对象
 	}
 
-	void TransactionManager::updateObject(std::shared_ptr<meta::Object> inObject, const nlohmann::json& diffJson)
+	void TransactionManager::updateObject(meta::Variant& instance, meta::Type inType, const nlohmann::json& diffJson, const std::map<int32_t, meta::Object*>& indexToObjects)
 	{
+		if (diffJson.empty())
+			return;
 
+		//数组
+		if (inType.IsArray())
+		{
+			auto nonArrayType = inType.GetArrayType();
+			auto wrapper = instance.GetArray();
+			auto arrayCtor = inType.GetArrayConstructor();
+			if (!diffJson["diffSize"].empty()) //数组长度发生变化
+			{
+				int32_t oldSize = diffJson["diffSize"]["old"].get<int32_t>();
+				int32_t newSize = diffJson["diffSize"]["new"].get<int32_t>();
+				if (oldSize > newSize)
+					wrapper.Resize(newSize);
+				
+				//增加新的 item
+				if (oldSize < newSize)
+				{
+					for (int32_t index = oldSize + 1; index < newSize; ++index)
+					{
+						if (diffJson[std::to_string(index)].contains("added"))
+						{
+							if (nonArrayType.IsSharedPtr() || nonArrayType.IsWeakPtr())
+							{
+								int32_t itemValue = diffJson[std::to_string(index)]["added"].get<int32_t>();
+								if (indexToObjects.find(itemValue) != indexToObjects.end())
+								{
+									meta::Object* pointerToObject = indexToObjects.find(itemValue)->second;
+									std::shared_ptr<meta::Object> objectValue = pointerToObject->shared_from_this();
+									wrapper.Insert(wrapper.Size() - 1, objectValue);
+								}
+							}
+							else
+							{
+								//check
+								if (!diffJson[std::to_string(index)].contains("added"))
+								{
+									meta::Variant value = arrayCtor.Invoke();
+									wrapper.Insert(wrapper.Size() - 1, value);
+									updateObject(value, nonArrayType, diffJson[std::to_string(index)]["added"], indexToObjects);
+								}
+							}
+						}
+					}
+				}
+			}
+			//更新修改
+			for (const auto& item : diffJson.items())
+			{
+				if(item.key() == "diffSize")
+					continue;
+				if (!diffJson[item.key()].empty())
+				{
+					if (nonArrayType.IsSharedPtr() || nonArrayType.IsWeakPtr())
+					{
+						nlohmann::json value = diffJson[item.key()];
+						if(value.contains("removed") || value.contains("added"))
+							continue;
+						if (indexToObjects.find(item.value().get<int32_t>()) != indexToObjects.end())
+						{
+							meta::Object* pointerToObject = indexToObjects.find(item.value().get<int32_t>())->second;
+							std::shared_ptr<meta::Object> objectValue = pointerToObject->shared_from_this();
+							wrapper.SetValue(std::stoi(item.key()), objectValue);
+						}
+					}
+					else
+					{
+						//check
+						if (!diffJson[item.key()].contains("added") && !!diffJson[item.key()].contains("removed"))
+							updateObject(wrapper.GetValue(std::stoi(item.key())), nonArrayType, diffJson[std::to_string(std::stoi(item.key()))], indexToObjects);
+					}
+				}
+			}
+		}
+		
+		//object
+		meta::Type instanceType = instance.GetType();
+		auto& fields = meta::ReflectionDatabase::Instance().types[instanceType.GetID()].fields;
+
+		for (auto& field : fields)
+		{
+			if (diffJson[field.GetName().getStr()].empty())
+				continue;
+
+			auto& fieldValue = field.GetValue(instance);//variant
+			meta::Type fieldType = field.GetType();
+			if (fieldType.IsPrimitive())
+			{
+				field.SetValue(instance, convertJsonToPrimitiveValue(fieldType, diffJson[field.GetName().getStr()]["new"]));
+			}
+			else if (fieldType.IsEnum())
+			{
+				if(diffJson[field.GetName().getStr()].is_number())
+					field.SetValue(instance, diffJson[field.GetName().getStr()].get<int32_t>());
+				else
+					field.SetValue(instance, fieldType.GetEnum().GetValue(diffJson[field.GetName().getStr()]["new"].get<std::string>()));
+			}
+			else if (fieldType == typeof(std::shared_ptr<AssetData>))
+			{
+				GGuid guid(diffJson[field.GetName().getStr()]["new"].get<std::string>());
+				field.SetValue(instance, AssetManager::getAssetManager().loadAsset(guid));
+			}
+			else
+			{
+				//object and array
+				updateObject(fieldValue, fieldType, diffJson[field.GetName().getStr()], indexToObjects);
+			}
+		}
+	}
+
+	meta::Variant TransactionManager::convertJsonToPrimitiveValue(meta::Type type, const nlohmann::json& value)
+	{
+		if (type == typeof(int))
+			return { value.get<int>() };
+		else if (type == typeof(unsigned int))
+			return { static_cast<unsigned int>(value.get<unsigned int>()) };
+		else if (type == typeof(bool))
+			return { value.get<bool>() };
+		else if (type == typeof(float))
+			return { static_cast<float>(value.get<float>()) };
+		else if (type == typeof(double))
+			return { value.get<double>() };
+		else if (type == typeof(uint8_t))
+			return { value.get<uint8_t>() };
 	}
 
 	void TransactionManager::collisionObjects(meta::Variant& object, std::map<int32_t, meta::Object*>& indexToObject, int32_t& currentIndex)

@@ -155,4 +155,16 @@ namespace GuGu {
 		}
 	}
 
+	void Level::refreshLevel()
+	{
+		//refresh
+		if (!World::getWorld()->m_onLevelChanged.empty())
+		{
+			for (uint32_t i = 0; i < World::getWorld()->m_onLevelChanged.size(); ++i)
+			{
+				World::getWorld()->m_onLevelChanged[i]();
+			}
+		}
+	}
+
 }

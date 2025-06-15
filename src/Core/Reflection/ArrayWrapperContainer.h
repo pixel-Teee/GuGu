@@ -20,6 +20,8 @@ namespace GuGu {
 			void Remove(size_t index) override;
 
 			size_t Size(void) const override;
+
+			virtual void Resize(size_t newSize) override;
 		private:
 			Array<T>& m_array;
 		};

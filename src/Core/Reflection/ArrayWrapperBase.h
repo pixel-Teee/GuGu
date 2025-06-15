@@ -18,6 +18,8 @@ namespace GuGu {
 			virtual void Remove(size_t index) = 0;
 
 			virtual size_t Size(void) const = 0;
+
+			virtual void Resize(size_t newSize) = 0;
 		};
 	}
 }

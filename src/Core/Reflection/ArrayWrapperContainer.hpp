@@ -41,5 +41,11 @@ namespace GuGu {
 		{
 			return m_array.size();
 		}
+
+		template<typename T>
+		void ArrayWrapperContainer<T>::Resize(size_t newSize)
+		{
+			m_array.resize(newSize);
+		}
 	}
 }

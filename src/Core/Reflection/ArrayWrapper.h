@@ -27,6 +27,8 @@ namespace GuGu {
 
 			bool IsValid(void) const;
 			bool IsConst(void) const;
+
+			void Resize(size_t newSize);
 		private:
 			bool m_isConst;
 

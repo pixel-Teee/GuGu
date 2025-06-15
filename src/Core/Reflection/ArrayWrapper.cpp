@@ -48,5 +48,14 @@ namespace GuGu {
 		{
 			return m_isConst;
 		}
+
+		void ArrayWrapper::Resize(size_t newSize)
+		{
+			assert(!m_isConst);
+
+			if (m_base)
+				m_base->Resize(newSize);
+		}
+
 	}
 }

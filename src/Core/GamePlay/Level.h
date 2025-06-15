@@ -35,6 +35,8 @@ namespace GuGu {
 		void addGameObject(std::shared_ptr<GameObject> inGameObject);
 
 		void deleteGameObject(std::shared_ptr<GameObject> inGameObject);
+
+		void refreshLevel();
 	private:
 		Array<std::shared_ptr<GameObject>> m_objects; //all game objects
 	};
