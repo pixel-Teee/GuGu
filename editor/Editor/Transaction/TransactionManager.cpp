@@ -386,10 +386,12 @@ namespace GuGu {
 			if (isBeforeState)
 			{
 				m_currentTransaction.m_currentObjects[findIndex][trackObject].m_beforeState = indexAndObject;
+				GuGu_LOGD("before state:%s", indexAndObject.dump().c_str());
 			}
 			else
 			{
 				m_currentTransaction.m_currentObjects[findIndex][trackObject].m_afterState = indexAndObject;
+				GuGu_LOGD("after state:%s", indexAndObject.dump().c_str());
 			}
 		}
 	}
@@ -515,6 +517,7 @@ namespace GuGu {
 			{
 				result["old"] = lhs;
 				result["new"] = rhs;
+				return result;
 			}
 			return nullptr;//无差异返回空对象
 		}
@@ -665,7 +668,7 @@ namespace GuGu {
 
 		for (auto& field : fields)
 		{
-			if (diffJson[field.GetName().getStr()].empty())
+			if (!diffJson.contains(field.GetName().getStr()))
 				continue;
 
 			auto& fieldValue = field.GetValue(instance);//variant
@@ -689,7 +692,10 @@ namespace GuGu {
 			else
 			{
 				//object and array
-				updateObject(fieldValue, fieldType, diffJson[field.GetName().getStr()], indexToObjects);
+				if(fieldType.IsArray())
+					updateObject(field.GetValue(instance), fieldType, diffJson[field.GetName().getStr()], indexToObjects);
+				else
+					updateObject(field.GetValueReference(instance), fieldType, diffJson[field.GetName().getStr()], indexToObjects);
 			}
 		}
 	}
@@ -710,6 +716,24 @@ namespace GuGu {
 			return { value.get<uint8_t>() };
 	}
 
+	bool TransactionManager::CheckIsDerivedFromMetaObject(meta::Type currentType)
+	{
+		bool isMetaObject = false;
+		meta::Type::Set baseClassesType = currentType.GetBaseClasses();
+		while (!baseClassesType.empty())
+		{
+			if(*baseClassesType.begin() == typeof(meta::Object))
+				return true;
+			baseClassesType = (*baseClassesType.begin()).GetBaseClasses();
+		}
+		//for (const auto& type : baseClassesType)
+		//{
+		//	if (type == typeof(meta::Object))
+		//		isMetaObject = true;
+		//}
+		return isMetaObject;
+	}
+
 	void TransactionManager::collisionObjects(meta::Variant& object, std::map<int32_t, meta::Object*>& indexToObject, int32_t& currentIndex)
 	{
 		if (object.GetType().IsSharedPtr())
@@ -719,14 +743,7 @@ namespace GuGu {
 		}
 		else
 		{
-			bool isMetaObject = false;
-			auto& baseClassesType = object.GetType().GetBaseClasses();
-			for (const auto& type : baseClassesType)
-			{
-				if (type == typeof(meta::Object))
-					isMetaObject = true;
-			}
-			if (!isMetaObject)
+			if (!CheckIsDerivedFromMetaObject(object.GetType()))
 				return;
 		}
 

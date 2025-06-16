@@ -13,6 +13,7 @@
 #include <Core/AssetManager/AssetData.h>
 #include <Core/Reflection/ReflectionDatabase.h>
 #include <Core/AssetManager/AssetManager.h>
+#include <Editor/Transaction/TransactionManager.h>
 #include <Renderer/Color.h>
 
 namespace GuGu {
@@ -111,6 +112,13 @@ namespace GuGu {
 				objectsToModify.push_back(complexNode->getInstanceAsObject(index));
 			}
 		}
+		//undo/redo
+		TransactionManager& transactionManager = TransactionManager::getTransactionManager();
+		transactionManager.beginTransaction();
+		for (int32_t index = 0; index < objectsToModify.size(); ++index)
+		{
+			transactionManager.modifyObject(objectsToModify[index]->shared_from_this());		
+		}
 
 		//获取当前字段所在结构体的variant
 		std::vector<meta::Variant> owners;
@@ -195,7 +203,8 @@ namespace GuGu {
 				inPropertyNode->getField()->SetValue(instance, fieldValue);
 			}
 		}
-		
+		transactionManager.commit();
+
 		return result;
 	}
 

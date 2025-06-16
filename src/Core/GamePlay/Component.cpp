@@ -12,6 +12,8 @@ namespace GuGu {
 		auto& type = db.types[id];
 		meta::TypeInfo<Component>::Register(id, type, true, "0955EA47-6CB3-4F4E-929A-A19769B4DD93");
 
+		type.LoadBaseClasses(db, id, { typeof(meta::Object) });
+
 		{
 			auto id = db.AllocateType("std::shared_ptr<GuGu::Component>");
 			auto& type = db.types[id];
@@ -42,6 +44,7 @@ namespace GuGu {
 	}
 
 	IMPLEMENT_INITIAL_BEGIN(Component)
+		ADD_PRIORITY(meta::Object)
 		ADD_INITIAL_FUNCTION_WITH_PRIORITY(registerGuGuComponent)
 	IMPLEMENT_INITIAL_END
 
