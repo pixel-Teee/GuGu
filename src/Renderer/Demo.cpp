@@ -1254,17 +1254,29 @@ namespace GuGu {
 			std::memset(light.lightPositions, 0, sizeof(light.lightPositions));
 			std::memset(light.lightColors, 0, sizeof(light.lightColors));
 			//draw level
-
+			const std::vector<std::shared_ptr<GameObject>>& gameObjects = inLevel->getGameObjects();
+			for (size_t i = 0; i < gameObjects.size(); ++i)
+			{
+				std::shared_ptr<LightComponent> lightComponent = gameObjects[i]->getComponent<LightComponent>();
+				if (lightComponent)
+				{
+					if (lightCount < m_maxLightCounts)
+					{
+						light.lightPositions[lightCount] = lightComponent->m_lightPosition;
+						light.lightColors[lightCount] = lightComponent->m_lightColor.toFloat4() * math::float4(1000.0f, 1000.0f, 1000.0f, 1.0f);
+						++lightCount;
+					}
+				}
+			}
 
 			for (size_t i = 0; i < gameObjects.size(); ++i)
 			{
 				std::shared_ptr<TransformComponent> transformComponent = gameObjects[i]->getComponent<TransformComponent>();
 				std::shared_ptr<StaticMeshComponent> staticMeshComponent = gameObjects[i]->getComponent<StaticMeshComponent>();
 				//std::shared_ptr<StaticMeshComponent> staticMeshComponent = m_cylinderMeshComponent;
-				std::shared_ptr<LightComponent> lightComponent = gameObjects[i]->getComponent<LightComponent>();
 				std::shared_ptr<MaterialComponent> materialComponent = gameObjects[i]->getComponent<MaterialComponent>();
 				//todo:修复这里
-				if (transformComponent == nullptr || staticMeshComponent == nullptr || lightComponent == nullptr || materialComponent == nullptr)
+				if (transformComponent == nullptr || staticMeshComponent == nullptr || materialComponent == nullptr)
 					continue;
 				std::shared_ptr<GStaticMesh> staticMesh = staticMeshComponent->getStaticMesh();
 
@@ -1290,12 +1302,6 @@ namespace GuGu {
 				if (materialComponent->getAlbedoTexture()->m_texture == nullptr)
 				{
 					m_textureCache.FinalizeTexture(materialComponent->getAlbedoTexture(), m_commonRenderPass.get(), m_CommandList);
-				}
-
-				if (lightCount < m_maxLightCounts)
-				{
-					light.lightPositions[lightCount] = lightComponent->m_lightPosition;
-					light.lightColors[lightCount] = lightComponent->m_lightColor.toFloat4() * math::float4(1000.0f, 1000.0f, 1000.0f, 1.0f);
 				}
 
 				const math::affine3& worldMatrix = transformComponent->GetLocalToWorldTransformFloat();
@@ -1325,7 +1331,6 @@ namespace GuGu {
 				//pbrMaterial.ao = 0.0f;
 				//m_CommandList->writeBuffer(m_PbrMaterialBuffers[index], &pbrMaterial, sizeof(pbrMaterial));
 				//++index;
-				++lightCount;
 			}
 			m_CommandList->writeBuffer(m_LightBuffers, &light, sizeof(light));
 
@@ -1775,18 +1780,32 @@ namespace GuGu {
 		Light light;
 		std::memset(light.lightPositions, 0, sizeof(light.lightPositions));
 		std::memset(light.lightColors, 0, sizeof(light.lightColors));
+
 		//draw level
 		const std::vector<std::shared_ptr<GameObject>>& gameObjects = inLevel->getGameObjects();
+		for (size_t i = 0; i < gameObjects.size(); ++i)
+		{
+			std::shared_ptr<LightComponent> lightComponent = gameObjects[i]->getComponent<LightComponent>();
+			if (lightComponent)
+			{	
+				if (lightCount < m_maxLightCounts)
+				{
+					light.lightPositions[lightCount] = lightComponent->m_lightPosition;
+					light.lightColors[lightCount] = lightComponent->m_lightColor.toFloat4() * math::float4(1000.0f, 1000.0f, 1000.0f, 1.0f);
+					++lightCount;
+				}
+			}
+		}
 
 		for (size_t i = 0; i < gameObjects.size(); ++i)
 		{
 			std::shared_ptr<TransformComponent> transformComponent = gameObjects[i]->getComponent<TransformComponent>();
 			std::shared_ptr<StaticMeshComponent> staticMeshComponent = gameObjects[i]->getComponent<StaticMeshComponent>();
 			//std::shared_ptr<StaticMeshComponent> staticMeshComponent = m_cylinderMeshComponent;
-			std::shared_ptr<LightComponent> lightComponent = gameObjects[i]->getComponent<LightComponent>();
+			
 			std::shared_ptr<MaterialComponent> materialComponent = gameObjects[i]->getComponent<MaterialComponent>();
 			//todo:修复这里
-			if (transformComponent == nullptr || staticMeshComponent == nullptr || lightComponent == nullptr || materialComponent == nullptr)
+			if (transformComponent == nullptr || staticMeshComponent == nullptr || materialComponent == nullptr)
 				continue;
 			std::shared_ptr<GStaticMesh> staticMesh = staticMeshComponent->getStaticMesh();
 
@@ -1812,11 +1831,6 @@ namespace GuGu {
 			if (materialComponent->getAlbedoTexture()->m_texture == nullptr)
 			{
 				m_textureCache.FinalizeTexture(materialComponent->getAlbedoTexture(), m_commonRenderPass.get(), m_CommandList);
-			}
-			if (lightCount < m_maxLightCounts)
-			{
-				light.lightPositions[lightCount] = lightComponent->m_lightPosition;
-				light.lightColors[lightCount] = lightComponent->m_lightColor.toFloat4() * math::float4(1000.0f, 1000.0f, 1000.0f, 1.0f);
 			}
 			
 			const math::affine3& worldMatrix = transformComponent->GetLocalToWorldTransformFloat();
@@ -1846,7 +1860,6 @@ namespace GuGu {
 			//pbrMaterial.ao = 0.0f;
 			//m_CommandList->writeBuffer(m_PbrMaterialBuffers[index], &pbrMaterial, sizeof(pbrMaterial));
 			//++index;
-			++lightCount;
 		}
 		m_CommandList->writeBuffer(m_LightBuffers, &light, sizeof(light));
 
