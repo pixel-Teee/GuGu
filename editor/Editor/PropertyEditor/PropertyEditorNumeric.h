@@ -65,12 +65,26 @@ namespace GuGu {
 		{
 			const std::shared_ptr<IPropertyHandle> propertyHandle = m_propertyEditor->getPropertyHandle();
 
+			NumericType orgValue(0);
+			if (propertyHandle->getValue(orgValue) != PropertyAccess::Fail)
+			{
+				if (orgValue == newValue)
+					return;
+			}
+
 			propertyHandle->setValue(newValue);
 		}
 
 		void onValueCommitted(NumericType newValue, TextCommit::Type commitInfo)
 		{
 			const std::shared_ptr<IPropertyHandle> propertyHandle = m_propertyEditor->getPropertyHandle();
+
+			NumericType orgValue(0);
+			if (propertyHandle->getValue(orgValue) != PropertyAccess::Fail)
+			{
+				if (orgValue == newValue)
+					return;
+			}
 
 			propertyHandle->setValue(newValue);
 		}
