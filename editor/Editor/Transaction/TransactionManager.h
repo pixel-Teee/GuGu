@@ -58,6 +58,8 @@ namespace GuGu {
 		void updateObject(meta::Variant& instance, meta::Type inType, const nlohmann::json& diffJson, const std::map<int32_t, meta::Object*>& indexToObjects);
 
 		meta::Variant convertJsonToPrimitiveValue(meta::Type inType, const nlohmann::json& inJson);
+
+		bool CheckIsDerivedFromMetaObject(meta::Type currentType);
 	private:
 
 		void collisionObjects(meta::Variant& object, std::map<int32_t, meta::Object*>& indexToObject, int32_t& currentIndex);
