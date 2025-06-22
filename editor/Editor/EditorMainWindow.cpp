@@ -36,6 +36,7 @@
 #include "SceneOutliner/SceneOutliner.h"
 #include "PropertyEditor/ObjectDetails.h"
 #include <Editor/PropertyEditor/PropertyEditorManager.h>
+#include <Editor/Transaction/TransactionManager.h>
 
 #include <Core/GamePlay/World.h>
 
@@ -62,6 +63,9 @@ namespace GuGu {
 			//std::shared_ptr<ViewportWidget> viewportWidget;
 			std::shared_ptr<Button> fileButton;
 
+			std::shared_ptr<Button> undoButton;
+			std::shared_ptr<Button> redoButton;
+
 			WindowWidget::init(
 			WindowWidget::BuilderArguments()
 			.Content
@@ -78,6 +82,7 @@ namespace GuGu {
 						WIDGET_NEW(WindowTitleBar, std::static_pointer_cast<WindowWidget>(shared_from_this()))
 					)
 					+ VerticalBox::Slot()
+					//.setHorizontalAlignment(HorizontalAlignment::Stretch)
 					.FixedHeight()
 					.setPadding(Padding(10.0f, 0.0f, 10.0f, 5.0f))
 					(
@@ -113,6 +118,61 @@ namespace GuGu {
 								.Content
 								(
 									NullWidget::getNullWidget()
+								)
+							)
+						)
+						+ HorizontalBox::Slot()
+						.StretchWidth(1.0)
+						(
+							NullWidget::getNullWidget()
+						)
+						+ HorizontalBox::Slot()
+						.FixedWidth()
+						.setPadding(Padding(5.0f, 0.0f, 0.0f, 0.0f))
+						.setHorizontalAlignment(HorizontalAlignment::Center)
+						(
+							WIDGET_NEW(VerticalBox)
+							+ VerticalBox::Slot()
+							.FixedHeight()
+							(
+								WIDGET_NEW(BoxWidget)
+								.HeightOverride(OptionalSize(38.0f))
+								.WidthOverride(OptionalSize(60.0f))
+								.Content
+								(
+									WIDGET_ASSIGN_NEW(Button, undoButton)
+									.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+									.Content
+									(
+										WIDGET_NEW(TextBlockWidget)
+										.text(u8"undo")
+										.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+									)
+								)
+							)
+						)
+						+ HorizontalBox::Slot()
+						.FixedWidth()
+						.setPadding(Padding(5.0f, 0.0f, 0.0f, 0.0f))
+						.setHorizontalAlignment(HorizontalAlignment::Right)
+						(
+							WIDGET_NEW(VerticalBox)
+							+ VerticalBox::Slot()
+							.FixedHeight()
+							(
+								WIDGET_NEW(BoxWidget)
+								.HeightOverride(OptionalSize(38.0f))
+								.WidthOverride(OptionalSize(60.0f))
+								.Content
+								(
+									WIDGET_ASSIGN_NEW(Button, redoButton)
+									.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+									.Content
+									(
+										WIDGET_NEW(TextBlockWidget)
+										.text(u8"redo")
+										.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+									)
 								)
 							)
 						)
@@ -221,6 +281,9 @@ namespace GuGu {
 
 			fileButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::openFileMenu, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
 			//m_switchEditorAndRuntime->setOnClicked(OnClicked(std::bind(&EditorMainWindow::switchEditorAndRuntime, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
+
+			undoButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::undo, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
+			redoButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::redo, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
 		}
 		else
 		{
@@ -284,6 +347,8 @@ namespace GuGu {
 		m_saveLevelButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::openLevel, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
 
 		m_openFileMenuAnchor->setIsOpen(true);
+
+		m_saveLevelButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::openLevel, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
 		return Reply::Handled();
 	}
 	GuGu::Reply EditorMainWindow::openLevel()
@@ -296,6 +361,28 @@ namespace GuGu {
 
 		GuGuUtf8Str executableFilePath = Application::GetExecutableFilePath();
 		return Reply();
+	}
+
+	Reply EditorMainWindow::undo()
+	{
+		TransactionManager& transactionManager = TransactionManager::getTransactionManager();
+		if (transactionManager.canUndo())
+		{
+			transactionManager.undo();
+			return Reply::Handled();
+		}
+		return Reply::Unhandled();
+	}
+
+	Reply EditorMainWindow::redo()
+	{
+		TransactionManager& transactionManager = TransactionManager::getTransactionManager();
+		if (transactionManager.canRedo())
+		{
+			transactionManager.redo();
+			return Reply::Handled();
+		}
+		return Reply::Unhandled();
 	}
 
 	void EditorMainWindow::switchEditorAndRuntime(CheckBoxState inCheckBoxState)
