@@ -833,14 +833,27 @@ namespace GuGu {
 
 	Reply EditorViewportClient::handleUnhandledKeyDownEvent(const KeyEvent& inKeyEvent)
 	{
-		if (inKeyEvent.isControlDown() && inKeyEvent.getKey() == Keys::Z) //ctrl + z
+		if (inKeyEvent.isControlDown()) //ctrl + z
 		{
-			TransactionManager& transactionManager = TransactionManager::getTransactionManager();
-			if (transactionManager.canUndo())
+			if (inKeyEvent.getKey() == Keys::Z)
 			{
-				transactionManager.undo();
-				//todo:add notification
-				return Reply::Handled();
+				TransactionManager& transactionManager = TransactionManager::getTransactionManager();
+				if (transactionManager.canUndo())
+				{
+					transactionManager.undo();
+					//todo:add notification
+					return Reply::Handled();
+				}
+			}
+			else if (inKeyEvent.getKey() == Keys::Y)
+			{
+				TransactionManager& transactionManager = TransactionManager::getTransactionManager();
+				if (transactionManager.canRedo())
+				{
+					transactionManager.redo();
+					//todo:add notification
+					return Reply::Handled();
+				}
 			}
 		}
 		return Reply::Unhandled();

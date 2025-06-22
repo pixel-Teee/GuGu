@@ -155,36 +155,70 @@ namespace GuGu {
 
 	void TransactionManager::redo()
 	{
-		//if (m_bInTransaction)
-		//{
-		//	GuGu_LOGE("cannot redo during a transaction");
-		//}
-		//
-		//if (m_redoStack.empty())
-		//{
-		//	GuGu_LOGD("nothing to redo");
-		//}
-		//
-		//auto transaction = std::move(m_redoStack.top());
-		//m_redoStack.pop();
-		//
-		//for (size_t i = 0; i < transaction.m_afterState.size(); ++i)
-		//{
-		//	std::string afterStateStr(reinterpret_cast<const char*>(transaction.m_afterState[i].data()), transaction.m_afterState[i].size());
-		//	nlohmann::json afterStateJson = nlohmann::json::parse(afterStateStr.c_str());
-		//	if (transaction.m_currentObjects[i].lock())
-		//	{
-		//		meta::Type objectType = transaction.m_currentObjects[i].lock()->GetType();
-		//		std::shared_ptr<meta::Object> afterObject = AssetManager::getAssetManager().deserializeJsonNormalObject(afterStateJson, objectType);
-		//		//implement diff and copy
-		//	}
-		//	else
-		//	{
-		//		GuGu_LOGE("missing object");
-		//	}	
-		//}
-		//
-		//m_undoStack.push(std::move(transaction));
+		if (m_bInTransaction)
+		{
+			GuGu_LOGE("cannot undo during a transaction");
+		}
+
+		if (m_redoStack.empty())
+		{
+			GuGu_LOGD("nothing to redo");
+		}
+
+		auto transaction = m_redoStack.top();
+
+		m_redoStack.pop();
+
+		for (size_t i = 0; i < transaction.m_currentObjects.size(); ++i)
+		{
+			//find root object
+			bool isFindRootObjet = false;
+			std::map<int32_t, meta::Object*> indexToObjects;
+			for (const auto& item : transaction.m_currentObjects[i])
+			{
+				if (item.first.isRoot)
+				{
+					isFindRootObjet = true;
+					indexToObjects = item.second.m_indexToObjects;
+					break;
+				}
+			}
+			if (isFindRootObjet)
+			{
+				for (const auto& item : transaction.m_currentObjects[i])
+				{
+					//modify every object
+					const TrackObject& trackObject = item.first;
+					std::shared_ptr<meta::Object> object = trackObject.m_object;
+					//get json to diff
+					const nlohmann::json& beforeState = item.second.m_beforeState;
+					const nlohmann::json& afterState = item.second.m_afterState;
+					if (beforeState.empty() || afterState.empty())
+						continue;
+					GuGu_LOGD("before state:%s", beforeState.dump().c_str());
+					GuGu_LOGD("after state:%s", afterState.dump().c_str());
+					//from before to after
+					nlohmann::json diffJson = getDiffJson(beforeState, afterState);
+					nlohmann::json diffJson2;
+					for (const auto& item : diffJson.items())
+					{
+						diffJson2 = item.value();
+						break;
+					}
+					if (!diffJson2.empty())
+					{
+						GuGu_LOGD("diff:%s", diffJson2.dump().c_str());
+						//modify object
+						meta::Variant objectVariant = ObjectVariant(object.get());
+						updateObject(objectVariant, objectVariant.GetType(), diffJson2, indexToObjects);
+					}
+				}
+			}
+		}
+		//refresh
+		World::getWorld()->getCurrentLevel()->refreshLevel();
+
+		m_undoStack.push(transaction);
 	}
 
 	Transaction& TransactionManager::getCurrentTransaction()
