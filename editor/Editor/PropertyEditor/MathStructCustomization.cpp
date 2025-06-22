@@ -75,9 +75,12 @@ namespace GuGu {
 	template<typename NumericType>
 	void MathStructCustomization::setValue(NumericType newValue, std::weak_ptr<IPropertyHandle> weakHandlePtr)
 	{
+		NumericType orginValue;
 		if (weakHandlePtr.lock())
 		{
-			weakHandlePtr.lock()->setValue(newValue);
+			weakHandlePtr.lock()->getValue(orginValue);
+			if(orginValue != newValue)
+				weakHandlePtr.lock()->setValue(newValue);
 		}
 	}
 

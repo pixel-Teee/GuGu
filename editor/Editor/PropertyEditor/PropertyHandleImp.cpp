@@ -117,7 +117,7 @@ namespace GuGu {
 		transactionManager.beginTransaction();
 		for (int32_t index = 0; index < objectsToModify.size(); ++index)
 		{
-			transactionManager.modifyObject(objectsToModify[index]->shared_from_this());		
+			transactionManager.modifyObject(objectsToModify[index]->shared_from_this());
 		}
 
 		//获取当前字段所在结构体的variant
@@ -199,8 +199,8 @@ namespace GuGu {
 			if (curField.GetType() == field->GetType())
 			{
 				meta::Variant& instance = owners[i];
-				
-				inPropertyNode->getField()->SetValue(instance, fieldValue);
+		
+				inPropertyNode->getField()->SetValue(instance, fieldValue);	
 			}
 		}
 		transactionManager.commit();
