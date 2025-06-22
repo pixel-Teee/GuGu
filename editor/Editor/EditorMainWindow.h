@@ -9,6 +9,7 @@ namespace GuGu {
 	{
 		class SceneOutliner;
 	}
+	class Border;
 	class MenuAnchor;
 	class ViewportWidget;
 	class Button;
@@ -72,6 +73,14 @@ namespace GuGu {
 		std::shared_ptr<ObjectDetails> m_objectDetails;
 
 		std::shared_ptr<SceneOutlinerNameSpace::SceneOutliner> m_sceneOutliner;
+
+		std::shared_ptr<Border> m_undoBorder;
+
+		std::shared_ptr<Border> m_redoBorder;
+
+		math::float4 getUndoColor() const;
+
+		math::float4 getRedoColor() const;
 	};
 
 	std::shared_ptr<EditorMainWindow> CreateEditorMainWindow();

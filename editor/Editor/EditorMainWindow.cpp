@@ -140,14 +140,17 @@ namespace GuGu {
 								.WidthOverride(OptionalSize(60.0f))
 								.Content
 								(
+									//WIDGET_ASSIGN_NEW(Border, m_undoBorder)
+									//.BorderBackgroundColor(Attribute<math::float4>(this, &EditorMainWindow::getUndoColor))
+									//.Content
+									//(
 									WIDGET_ASSIGN_NEW(Button, undoButton)
-									.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+									.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"undoButton"))
 									.Content
 									(
-										WIDGET_NEW(TextBlockWidget)
-										.text(u8"undo")
-										.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+										NullWidget::getNullWidget()
 									)
+									//)	
 								)
 							)
 						)
@@ -165,14 +168,17 @@ namespace GuGu {
 								.WidthOverride(OptionalSize(60.0f))
 								.Content
 								(
+									//WIDGET_ASSIGN_NEW(Border, m_undoBorder)
+									//.BorderBackgroundColor(Attribute<math::float4>(this, &EditorMainWindow::getRedoColor))
+									//.Content
+									//(
 									WIDGET_ASSIGN_NEW(Button, redoButton)
-									.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+									.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"redoButton"))
 									.Content
 									(
-										WIDGET_NEW(TextBlockWidget)
-										.text(u8"redo")
-										.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+										NullWidget::getNullWidget()
 									)
+									//)							
 								)
 							)
 						)
@@ -408,6 +414,26 @@ namespace GuGu {
 	void EditorMainWindow::refreshDetailsView(const std::vector<GameObject*>& inObjects, bool bForceRefresh)
 	{
 		m_objectDetails->setObjects(inObjects, bForceRefresh);
+	}
+
+	math::float4 EditorMainWindow::getUndoColor() const
+	{
+		TransactionManager& transactionManager = TransactionManager::getTransactionManager();
+		if (transactionManager.canUndo())
+		{
+			return math::float4(1.0f, 1.0f, 1.0f, 1.0f);
+		}
+		return math::float4(0.3f, 0.3f, 0.3f, 1.0f);
+	}
+
+	math::float4 EditorMainWindow::getRedoColor() const
+	{
+		TransactionManager& transactionManager = TransactionManager::getTransactionManager();
+		if (transactionManager.canRedo())
+		{
+			return math::float4(1.0f, 1.0f, 1.0f, 1.0f);
+		}
+		return math::float4(0.3f, 0.3f, 0.3f, 1.0f);
 	}
 
 	std::shared_ptr<EditorMainWindow> CreateEditorMainWindow()

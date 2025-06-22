@@ -284,6 +284,26 @@ namespace GuGu {
 
 			m_styles.insert({ u8"SceneOutliner.header", headerRowStyle });
 		}
+
+		//undo/redo
+		ADD_IMAGE(Undo_Normal)
+		ADD_IMAGE(Undo_Hover)
+		ADD_IMAGE(Undo_Pressed)
+		ADD_IMAGE(Redo_Normal)
+		ADD_IMAGE(Redo_Hover)
+		ADD_IMAGE(Redo_Pressed)
+		std::shared_ptr<ButtonStyle> undoButton = std::make_shared<ButtonStyle>();
+		undoButton->setNormal(Undo_Normal);
+		undoButton->setHovered(Undo_Hover);
+		undoButton->setPressed(Undo_Pressed);
+		undoButton->setDisabled(noResource);
+		m_styles.insert({ u8"undoButton", undoButton });
+		std::shared_ptr<ButtonStyle> redoButton = std::make_shared<ButtonStyle>();
+		redoButton->setNormal(Redo_Normal);
+		redoButton->setHovered(Redo_Hover);
+		redoButton->setPressed(Redo_Pressed);
+		redoButton->setDisabled(noResource);
+		m_styles.insert({ u8"redoButton", redoButton });
 	}
 	EditorStyleSet::~EditorStyleSet()
 	{
