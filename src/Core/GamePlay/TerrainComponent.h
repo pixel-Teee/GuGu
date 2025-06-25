@@ -25,6 +25,8 @@ namespace GuGu {
 
 		void createTileData();
 
+		math::box3 getObjectSpaceBounds() const;
+
 		std::shared_ptr<GTexture> getHeightTexture() const;
 		std::shared_ptr<GTexture> getTerrainTexture1() const;
 		std::shared_ptr<GTexture> getTerrainTexture2() const;
@@ -57,5 +59,7 @@ namespace GuGu {
 		nvrhi::BufferHandle m_indexBufferHandle;
 		nvrhi::BufferHandle m_terrainConstantBuffer;
 		std::vector<nvrhi::BufferHandle> m_terrainPropertiesConstantBuffer;
+
+		dm::box3 m_objectSpaceBounds;
 	};
 }

@@ -190,6 +190,7 @@ namespace GuGu {
 				float x = -halfWidth + j * dx;
 				m_vertexData.push_back(math::float3(x, 0, z));//no y
 			}
+			
 		}
 
 		m_indexData.reserve(faceCount * 3);
@@ -208,6 +209,15 @@ namespace GuGu {
 				m_indexData.push_back((i + 1) * cols + j);
 			}
 		}
+		//m_objectSpaceBounds = dm::box3(m_vertexData.size(), m_vertexData.data());
+		math::float3 oneBlockSize = math::float3((float)m_rows * (float)m_tileSize, 0, (float)m_cols * (float)m_tileSize);
+		math::float3 beginXZ = math::float3((float)m_terrainRows * oneBlockSize.x * 0.5f, 0, (float)m_terrainCols * oneBlockSize.z * 0.5f);
+		m_objectSpaceBounds = dm::box3(math::float3(-beginXZ.x, 0, -beginXZ.z), math::float3(beginXZ.x, 0, beginXZ.z));
+	}
+
+	math::box3 TerrainComponent::getObjectSpaceBounds() const
+	{
+		return m_objectSpaceBounds;
 	}
 
 	std::shared_ptr<GTexture> TerrainComponent::getHeightTexture() const
