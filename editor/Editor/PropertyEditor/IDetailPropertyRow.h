@@ -6,14 +6,7 @@ namespace GuGu {
 	class DetailColumnSizeData
 	{
 	public:
-		DetailColumnSizeData()
-		{
-			m_valueColumnWidth = 0.7f;
-			m_rightColumnWidthValue = 0.0f;
-
-			m_nameColumnWidth.bindRaw(this, &DetailColumnSizeData::getNameColumnWidth);
-			m_valueColumnWidth.bindRaw(this, &DetailColumnSizeData::getValueColumnWidth);
-		}
+		DetailColumnSizeData();
 
 		Attribute<float> m_nameColumnWidth;
 		Attribute<float> m_valueColumnWidth;
