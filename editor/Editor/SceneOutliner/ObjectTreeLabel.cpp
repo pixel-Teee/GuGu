@@ -53,7 +53,12 @@ namespace GuGu {
 
 		Reply ObjectTreeLabel::OnMouseButtonDown(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent)
 		{
-
+			//if (inMouseEvent.getEffectingButton() == Keys::LeftMouseButton)
+			//{
+			//	//触发拖动
+			//	//detect drag
+			//	return Reply::Handled().detectDrag(shared_from_this(), Keys::LeftMouseButton);
+			//}
 			if (inMouseEvent.getEffectingButton() == Keys::RightMouseButton)
 			{
 				std::shared_ptr<Widget> menuContent;
@@ -107,6 +112,11 @@ namespace GuGu {
 				}
 			}
 
+			return Reply::Handled();
+		}
+
+		Reply ObjectTreeLabel::OnDragDetected(const WidgetGeometry& myGeometry, const PointerEvent& mouseEvent)
+		{
 			return Reply::Handled();
 		}
 
