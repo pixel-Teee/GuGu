@@ -307,9 +307,11 @@ namespace GuGu {
 						math::float3 scaling;
 						math::quat rotation;
 						std::shared_ptr<TransformComponent> transform = m_pickedGameObject->getComponent<TransformComponent>();
-						translation = math::float3(transform->getTranslation());
-						scaling = math::float3(transform->getScaling());
-						rotation = math::quat(transform->getRotation());
+						math::affine3 transformAffine3 = transform->GetLocalToWorldTransformFloat();
+						math::decomposeAffine(transformAffine3, &translation, &rotation, &scaling);
+						//translation = math::float3(transform->getTranslation());
+						//scaling = math::float3(transform->getScaling());
+						//rotation = math::quat(transform->getRotation());
 						math::affine3 noScalingAffine;//gizmos 不需要缩放
 						scaling = math::float3(getScreenScaleCompensation(translation)) * 100.0f;//新的缩放，根据屏幕高度来调整
 						noScalingAffine = math::scaling(scaling) * rotation.toAffine() * math::translation(translation);
@@ -367,9 +369,11 @@ namespace GuGu {
 						math::float3 scaling;
 						math::quat rotation;
 						std::shared_ptr<TransformComponent> transform = m_pickedGameObject->getComponent<TransformComponent>();
-						translation = math::float3(transform->getTranslation());
-						scaling = math::float3(transform->getScaling());
-						rotation = math::quat(transform->getRotation());
+						math::affine3 transformAffine3 = transform->GetLocalToWorldTransformFloat();
+						math::decomposeAffine(transformAffine3, &translation, &rotation, &scaling);
+						//translation = math::float3(transform->getTranslation());
+						//scaling = math::float3(transform->getScaling());
+						//rotation = math::quat(transform->getRotation());
 						math::affine3 noScalingNoRotationAffine;//gizmos 不需要缩放
 						scaling = math::float3(getScreenScaleCompensation(translation)) * 100.0f;//新的缩放，根据屏幕高度来调整
 						noScalingNoRotationAffine = math::scaling(scaling)  * math::translation(translation);
@@ -428,9 +432,11 @@ namespace GuGu {
 						math::quat rotation;
 
 						std::shared_ptr<TransformComponent> transform = m_pickedGameObject->getComponent<TransformComponent>();
-						translation = math::float3(transform->getTranslation());
-						scaling = math::float3(transform->getScaling());
-						rotation = math::quat(transform->getRotation());
+						math::affine3 transformAffine3 = transform->GetLocalToWorldTransformFloat();
+						math::decomposeAffine(transformAffine3, &translation, &rotation, &scaling);
+						//translation = math::float3(transform->getTranslation());
+						//scaling = math::float3(transform->getScaling());
+						//rotation = math::quat(transform->getRotation());
 						math::affine3 noScalingAffine;//gizmos 不需要缩放
 						scaling = math::float3(getScreenScaleCompensation(translation)) * 100.0f;//新的缩放，根据屏幕高度来调整
 						noScalingAffine = math::scaling(scaling) * rotation.toAffine() * math::translation(translation);

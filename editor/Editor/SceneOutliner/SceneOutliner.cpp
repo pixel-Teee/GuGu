@@ -290,6 +290,7 @@ namespace GuGu {
 		void SceneOutliner::emptyTreeItems()
 		{
 			m_rootTreeItems.clear();
+			m_treeItemMap.clear();
 		}
 
 		void SceneOutliner::setupColumns(HeaderRow& headerRow)
@@ -340,7 +341,13 @@ namespace GuGu {
 
 		void SceneOutliner::onGetChildrenForOutlinerTree(TreeItemPtr inParent, std::vector<TreeItemPtr>& outChildren)
 		{
+			for (auto& weakChild : inParent->getChildren())
+			{
+				auto child = weakChild.lock();
+				outChildren.push_back(child);
 
+				//todo:排序
+			}
 		}
 
 		void SceneOutliner::onOutlinerTreeDoubleClick(TreeItemPtr treeItem)

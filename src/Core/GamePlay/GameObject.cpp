@@ -200,6 +200,7 @@ namespace GuGu {
 
 	void GameObject::addChildren(std::shared_ptr<GameObject> children)
 	{
+		children->setParentGameObject(std::static_pointer_cast<GameObject>(shared_from_this()));
 		m_childrens.push_back(children);
 	}
 

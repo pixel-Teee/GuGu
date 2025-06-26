@@ -169,9 +169,29 @@ namespace GuGu {
 					std::shared_ptr<meta::Object> parentObject = m_objectPtr.lock();
 					if (parentObject)
 					{
+						TransactionManager& transactionManager = TransactionManager::getTransactionManager();
+						transactionManager.beginTransaction();
+						transactionManager.modifyObject(World::getWorld()->getCurrentLevel());
 						std::shared_ptr<GameObject> childObject = std::static_pointer_cast<GameObject>(object);
+						std::shared_ptr<GameObject> originParentObject = childObject->getParentGameObject().lock();
+						if (originParentObject)
+						{
+							//termination of relationship
+							Array<std::shared_ptr<GameObject>> childrens = originParentObject->getChildrens();
+							auto it = std::find(childrens.begin(), childrens.end(), childObject);
+							if (it != childrens.end())
+							{
+								childrens.erase(it);
+								transactionManager.modifyObject(originParentObject);
+							}
+						}
+
 						std::shared_ptr<GameObject> parent2Object = std::static_pointer_cast<GameObject>(parentObject);
 						parent2Object->addChildren(childObject);
+						transactionManager.modifyObject(parent2Object);
+						transactionManager.modifyObject(childObject);
+						transactionManager.commit();
+						World::getWorld()->getCurrentLevel()->refreshLevel();
 						return Reply::Handled();
 					}
 				}
