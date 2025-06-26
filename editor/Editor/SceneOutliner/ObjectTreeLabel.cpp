@@ -3,10 +3,12 @@
 #include "ObjectTreeLabel.h"
 #include "ISceneOutliner.h"
 #include "ObjectTreeItem.h"
+#include "ObjectDragDropOperation.h"
 #include <Editor/StyleSet/EditorStyleSet.h>
 #include <Editor/EditorMainWindow.h>
 #include <Core/UI/BoxPanel.h> 
 #include <Core/UI/Button.h>
+#include <Core/UI/ImageWidget.h>
 #include <Core/UI/WidgetPath.h>
 #include <Core/GamePlay/Level.h>
 #include <Core/GamePlay/World.h>
@@ -31,15 +33,38 @@ namespace GuGu {
 			.setHorizontalAlignment(HorizontalAlignment::Left)
 			.setVerticalAlignment(VerticalAlignment::Center)
 			(
-				WIDGET_NEW(TextBlockWidget)
-				.text(Attribute<GuGuUtf8Str>::CreateSP(this, &ObjectTreeLabel::getDisplayText))
-				.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+				WIDGET_NEW(VerticalBox)
+				+ VerticalBox::Slot()
+				.FixedHeight()
+				(
+					WIDGET_NEW(TextBlockWidget)
+					.text(Attribute<GuGuUtf8Str>::CreateSP(this, &ObjectTreeLabel::getDisplayText))
+					.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+				)
+				+ VerticalBox::Slot()
+				.StretchHeight(1.0f)
+				(
+					WIDGET_NEW(BoxWidget)
+					.HeightOverride(10.0f)
+					.Content
+					(
+						WIDGET_NEW(Border)
+						.visibility(Attribute<Visibility>::CreateSP(this, &ObjectTreeLabel::getHoverVisibility))
+						.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+						.Content
+						(
+							NullWidget::getNullWidget()
+						)
+					)
+				)
 			);
 
 			m_childWidget = std::make_shared<SingleChildSlot>();
 			m_childWidget->m_parentWidget = shared_from_this();
 			m_childWidget->m_childWidget = mainContent;
 			m_childWidget->m_childWidget->setParentWidget(shared_from_this());
+
+			m_bDragHover = false;
 		}
 
 		GuGuUtf8Str ObjectTreeLabel::getDisplayText() const
@@ -53,13 +78,13 @@ namespace GuGu {
 
 		Reply ObjectTreeLabel::OnMouseButtonDown(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent)
 		{
-			//if (inMouseEvent.getEffectingButton() == Keys::LeftMouseButton)
-			//{
-			//	//触发拖动
-			//	//detect drag
-			//	return Reply::Handled().detectDrag(shared_from_this(), Keys::LeftMouseButton);
-			//}
-			if (inMouseEvent.getEffectingButton() == Keys::RightMouseButton)
+			if (inMouseEvent.getEffectingButton() == Keys::LeftMouseButton)
+			{
+				//触发拖动
+				//detect drag
+				return Reply::Handled().detectDrag(shared_from_this(), Keys::LeftMouseButton);
+			}
+			else if (inMouseEvent.getEffectingButton() == Keys::RightMouseButton)
 			{
 				std::shared_ptr<Widget> menuContent;
 				menuContent = WIDGET_NEW(Button)
@@ -117,7 +142,48 @@ namespace GuGu {
 
 		Reply ObjectTreeLabel::OnDragDetected(const WidgetGeometry& myGeometry, const PointerEvent& mouseEvent)
 		{
-			return Reply::Handled();
+			if(m_objectPtr.lock())
+				return Reply::Handled().beginDragDrop(ObjectDragDropOperation::New(m_objectPtr.lock()));
+			else
+				return Reply::Unhandled();
+		}
+
+		void ObjectTreeLabel::OnDragEnter(const WidgetGeometry& myGeometry, const DragDropEvent& dragDropEvent)
+		{
+			m_bDragHover = true;
+		}
+
+		void ObjectTreeLabel::OnDragLeave(const DragDropEvent& dragDropEvent)
+		{
+			m_bDragHover = false;
+		}
+
+		Reply ObjectTreeLabel::OnDrop(const WidgetGeometry& myGeometry, const DragDropEvent& dragDropEvent)
+		{
+			std::shared_ptr<ObjectDragDropOperation> operation = dragDropEvent.getOperationAs<ObjectDragDropOperation>();
+			if (operation)
+			{
+				std::shared_ptr<meta::Object> object = operation->getObject();
+				if (object->GetType() == typeof(GameObject))
+				{
+					std::shared_ptr<meta::Object> parentObject = m_objectPtr.lock();
+					if (parentObject)
+					{
+						std::shared_ptr<GameObject> childObject = std::static_pointer_cast<GameObject>(object);
+						std::shared_ptr<GameObject> parent2Object = std::static_pointer_cast<GameObject>(parentObject);
+						parent2Object->addChildren(childObject);
+						return Reply::Handled();
+					}
+				}
+			}
+			return Reply::Unhandled();
+		}
+
+		Visibility ObjectTreeLabel::getHoverVisibility() const
+		{
+			if(m_bDragHover)
+				return Visibility::Visible;
+			return Visibility::Collapsed;
 		}
 
 	}

@@ -74,6 +74,8 @@ namespace GuGu {
 		const GuGuUtf8Str& getGameObjectName() const;
 
 		uint32_t getId() const;
+
+		void addChildren(std::shared_ptr<GameObject> children);
 	protected:
 		Array<std::shared_ptr<Component>> m_components;
 

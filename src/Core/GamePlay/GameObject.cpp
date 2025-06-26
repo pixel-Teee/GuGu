@@ -198,4 +198,9 @@ namespace GuGu {
 		return m_id;//只在运行期间有效
 	}
 
+	void GameObject::addChildren(std::shared_ptr<GameObject> children)
+	{
+		m_childrens.push_back(children);
+	}
+
 }
