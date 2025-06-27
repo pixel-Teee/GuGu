@@ -367,28 +367,28 @@ namespace GuGu {
 	{
 		if (isBeforeState)
 		{
-			bool findMap = false;
+			//bool findMap = false;
 			int32_t findIndex = -1;
-			for (int32_t index = 0; index < m_currentTransaction.m_currentObjects.size(); ++index)
-			{
-				const auto& singleMap = m_currentTransaction.m_currentObjects[index];
-				for (const auto& item : singleMap)
-				{
-					if (item.first.m_object == inObject)
-					{
-						findMap = true;
-						findIndex = index;
-						break;
-					}
-				}
-				if (findMap)
-					break;
-			}
-			if (!findMap)
-			{
-				m_currentTransaction.m_currentObjects.push_back(std::map<TrackObject, ModifyState>());
-				findIndex = m_currentTransaction.m_currentObjects.size() - 1;
-			}
+			//for (int32_t index = 0; index < m_currentTransaction.m_currentObjects.size(); ++index)
+			//{
+			//	const auto& singleMap = m_currentTransaction.m_currentObjects[index];
+			//	for (const auto& item : singleMap)
+			//	{
+			//		if (item.first.m_object == inObject)
+			//		{
+			//			findMap = true;
+			//			findIndex = index;
+			//			break;
+			//		}
+			//	}
+			//	if (findMap)
+			//		break;
+			//}
+			//if (!findMap)
+			//{
+			m_currentTransaction.m_currentObjects.push_back(std::map<TrackObject, ModifyState>());
+			findIndex = m_currentTransaction.m_currentObjects.size() - 1;
+			//}
 			modifyMapIndex = findIndex;
 		}
 		else

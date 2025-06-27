@@ -181,7 +181,7 @@ namespace GuGu {
 						transactionManager.beginTransaction();
 						std::shared_ptr<GameObject> parentObject = gameObject->getParentGameObject().lock();
 						//termination of relationship
-						Array<std::shared_ptr<GameObject>> childrens = parentObject->getChildrens();
+						Array<std::shared_ptr<GameObject>>& childrens = parentObject->getChildrens();
 						auto it = std::find(childrens.begin(), childrens.end(), object);
 						if (it != childrens.end())
 						{

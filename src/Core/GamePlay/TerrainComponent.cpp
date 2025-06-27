@@ -209,7 +209,7 @@ namespace GuGu {
 				m_indexData.push_back((i + 1) * cols + j);
 			}
 		}
-		//10.0f ÊÇ height scale
+		//10.0f æ˜¯ height scale
 		//m_objectSpaceBounds = dm::box3(m_vertexData.size(), m_vertexData.data());
 		math::float3 oneBlockSize = math::float3((float)m_rows * (float)m_tileSize, 0, (float)m_cols * (float)m_tileSize);
 		math::float3 beginXZ = math::float3((float)m_terrainRows * oneBlockSize.x * 0.5f, 0, (float)m_terrainCols * oneBlockSize.z * 0.5f);
