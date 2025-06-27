@@ -36,7 +36,7 @@ namespace GuGu {
 		{			
 			const std::shared_ptr<TransformComponent>& transformComponent = item->getComponent<TransformComponent>();
 			const std::shared_ptr<StaticMeshComponent>& staticMeshComponent = item->getComponent<StaticMeshComponent>();
-			//const std::shared_ptr<TerrainComponent>& terrainComponent = item->getComponent<TerrainComponent>();
+			const std::shared_ptr<TerrainComponent>& terrainComponent = item->getComponent<TerrainComponent>();
 			if (transformComponent && staticMeshComponent)
 			{
 				math::float4x4 invView = math::inverse(viewMatrix);
@@ -79,47 +79,47 @@ namespace GuGu {
 				}
 			}		
 
-			//if (transformComponent && terrainComponent)
-			//{
-			//	math::float4x4 invView = math::inverse(viewMatrix);
-			//	math::float4x4 invWorld = math::float4x4(math::inverse(math::affineToHomogeneous(transformComponent->GetLocalToWorldTransform())));
-			//
-			//	math::float4x4 toLocal = invView * invWorld;
-			//
-			//	math::float4 localRayOrigin = rayOrigin * toLocal;
-			//	math::float4 localRayDir = math::normalize(rayDir * toLocal);
-			//
-			//	math::box3 boundingBox = staticMeshComponent->getStaticMesh()->getObjectSpaceBounds();
-			//
-			//	float tmin = 0.0f;
-			//	if (intersectsWithBox(localRayOrigin, localRayDir, tmin, boundingBox))
-			//	{
-			//		const auto& positions = staticMeshComponent->getStaticMesh()->m_positionData;
-			//		const auto& indices = staticMeshComponent->getStaticMesh()->m_indexData;
-			//		uint32_t triCount = indices.size() / 3;
-			//		tmin = std::numeric_limits<float>::infinity();
-			//		for (uint32_t i = 0; i < triCount; ++i)
-			//		{
-			//			uint32_t i0 = indices[i * 3 + 0];
-			//			uint32_t i1 = indices[i * 3 + 1];
-			//			uint32_t i2 = indices[i * 3 + 2];
-			//
-			//			math::float3 position0 = positions[i0];
-			//			math::float3 position1 = positions[i1];
-			//			math::float3 position2 = positions[i2];
-			//
-			//			float t = 0.0f;
-			//			if (intersectWithTriangle(localRayOrigin, localRayDir, position0, position1, position2, t))
-			//			{
-			//				if (t < tmin)
-			//				{
-			//					tmin = t;
-			//					pickedGameObject = item;
-			//				}
-			//			}
-			//		}
-			//	}
-			//}
+			if (transformComponent && terrainComponent)
+			{
+				math::float4x4 invView = math::inverse(viewMatrix);
+				math::float4x4 invWorld = math::float4x4(math::inverse(math::affineToHomogeneous(transformComponent->GetLocalToWorldTransform())));
+			
+				math::float4x4 toLocal = invView * invWorld;
+			
+				math::float4 localRayOrigin = rayOrigin * toLocal;
+				math::float4 localRayDir = math::normalize(rayDir * toLocal);
+			
+				math::box3 boundingBox = terrainComponent->getObjectSpaceBounds();
+			
+				float tmin = 0.0f;
+				if (intersectsWithBox(localRayOrigin, localRayDir, tmin, boundingBox))
+				{
+					const auto& positions = staticMeshComponent->getStaticMesh()->m_positionData;
+					const auto& indices = staticMeshComponent->getStaticMesh()->m_indexData;
+					uint32_t triCount = indices.size() / 3;
+					tmin = std::numeric_limits<float>::infinity();
+					for (uint32_t i = 0; i < triCount; ++i)
+					{
+						uint32_t i0 = indices[i * 3 + 0];
+						uint32_t i1 = indices[i * 3 + 1];
+						uint32_t i2 = indices[i * 3 + 2];
+			
+						math::float3 position0 = positions[i0];
+						math::float3 position1 = positions[i1];
+						math::float3 position2 = positions[i2];
+			
+						float t = 0.0f;
+						if (intersectWithTriangle(localRayOrigin, localRayDir, position0, position1, position2, t))
+						{
+							if (t < tmin)
+							{
+								tmin = t;
+								pickedGameObject = item;
+							}
+						}
+					}
+				}
+			}
 		}
 
 		return pickedGameObject;
