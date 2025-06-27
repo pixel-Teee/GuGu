@@ -43,7 +43,6 @@ namespace GuGu {
 		{
 			for (const auto& item : m_currentTransaction.m_currentObjects[i])
 			{
-				serializeJson(item.first.m_object, false);
 				if(item.first.isRoot)
 					serializeJson(item.first.m_object, false, i);
 			}
