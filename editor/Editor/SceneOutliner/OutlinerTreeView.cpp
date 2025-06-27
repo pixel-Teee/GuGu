@@ -54,13 +54,13 @@ namespace GuGu {
 			{
 				//第一列，有 expansion arrow
 				return WIDGET_NEW(HorizontalBox)
-					   + HorizontalBox::Slot()
-					   .FixedWidth()
-					   .setPadding(Padding(6, 0, 0, 0))
-					   (
-					   		WIDGET_NEW(ExpanderArrow, std::static_pointer_cast<SceneOutlinerTreeRow>(shared_from_this()))
-					   		.indentAmount(12)
-					   )
+					   // HorizontalBox::Slot()
+					   //FixedWidth()
+					   //setPadding(Padding(6, 0, 0, 0))
+					   //
+					   //	WIDGET_NEW(ExpanderArrow, std::static_pointer_cast<SceneOutlinerTreeRow>(shared_from_this()))
+					   //	.indentAmount(12)
+					   //
 					   + HorizontalBox::Slot()
 					   .StretchWidth(1.0f)
 					   (

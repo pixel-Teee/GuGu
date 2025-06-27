@@ -44,6 +44,8 @@ namespace GuGu {
 			for (const auto& item : m_currentTransaction.m_currentObjects[i])
 			{
 				serializeJson(item.first.m_object, false);
+				if(item.first.isRoot)
+					serializeJson(item.first.m_object, false, i);
 			}
 		}
 
@@ -362,31 +364,39 @@ namespace GuGu {
 		}
 	}
 
-	void TransactionManager::serializeJson(std::shared_ptr<meta::Object> inObject, bool isBeforeState)
+	void TransactionManager::serializeJson(std::shared_ptr<meta::Object> inObject, bool isBeforeState, int32_t modifyMapIndex)
 	{
-		bool findMap = false;
-		int32_t findIndex = -1;
-		for (int32_t index = 0; index < m_currentTransaction.m_currentObjects.size(); ++index)
+		if (isBeforeState)
 		{
-			const auto& singleMap = m_currentTransaction.m_currentObjects[index];
-			for (const auto& item : singleMap)
+			bool findMap = false;
+			int32_t findIndex = -1;
+			for (int32_t index = 0; index < m_currentTransaction.m_currentObjects.size(); ++index)
 			{
-				if (item.first.m_object == inObject)
+				const auto& singleMap = m_currentTransaction.m_currentObjects[index];
+				for (const auto& item : singleMap)
 				{
-					findMap = true;
-					findIndex = index;
-					break;
+					if (item.first.m_object == inObject)
+					{
+						findMap = true;
+						findIndex = index;
+						break;
+					}
 				}
+				if (findMap)
+					break;
 			}
-			if(findMap)
-				break;
+			if (!findMap)
+			{
+				m_currentTransaction.m_currentObjects.push_back(std::map<TrackObject, ModifyState>());
+				findIndex = m_currentTransaction.m_currentObjects.size() - 1;
+			}
+			modifyMapIndex = findIndex;
 		}
-		if (!findMap)
+		else
 		{
-			m_currentTransaction.m_currentObjects.push_back(std::map<TrackObject, ModifyState>());
-			findIndex = m_currentTransaction.m_currentObjects.size() - 1;
+			if(modifyMapIndex == -1)
+				return;
 		}
-
 		//SerializeDeserializeContext context;
 		//context.m_indexToObject.clear();
 		//context.m_indexToSharedPtrObject.clear();
@@ -397,19 +407,19 @@ namespace GuGu {
 		rootTrackObject.isRoot = true;
 
 		int32_t maxIndex = 0;
-		for (const auto& item : m_currentTransaction.m_currentObjects[findIndex][rootTrackObject].m_indexToObjects)
+		for (const auto& item : m_currentTransaction.m_currentObjects[modifyMapIndex][rootTrackObject].m_indexToObjects)
 		{
 			maxIndex = std::max(maxIndex, item.first);
 		}
 
 		meta::Variant rootObject = ObjectVariant(inObject.get());
-		collisionObjects(rootObject, m_currentTransaction.m_currentObjects[findIndex][rootTrackObject].m_indexToObjects, maxIndex);
+		collisionObjects(rootObject, m_currentTransaction.m_currentObjects[modifyMapIndex][rootTrackObject].m_indexToObjects, maxIndex);
 
-		for (const auto& item : m_currentTransaction.m_currentObjects[findIndex][rootTrackObject].m_indexToObjects)
+		for (const auto& item : m_currentTransaction.m_currentObjects[modifyMapIndex][rootTrackObject].m_indexToObjects)
 		{
 			meta::Variant object = ObjectVariant(item.second);
 			std::string objectIndex = std::to_string(item.first);
-			nlohmann::json jsonObject = serializeJson(object.GetType(), object, m_currentTransaction.m_currentObjects[findIndex][rootTrackObject].m_indexToObjects);
+			nlohmann::json jsonObject = serializeJson(object.GetType(), object, m_currentTransaction.m_currentObjects[modifyMapIndex][rootTrackObject].m_indexToObjects);
 			nlohmann::json indexAndObject = nlohmann::json::object();
 			indexAndObject[objectIndex.c_str()] = jsonObject;
 
@@ -419,12 +429,12 @@ namespace GuGu {
 
 			if (isBeforeState)
 			{
-				m_currentTransaction.m_currentObjects[findIndex][trackObject].m_beforeState = indexAndObject;
+				m_currentTransaction.m_currentObjects[modifyMapIndex][trackObject].m_beforeState = indexAndObject;
 				GuGu_LOGD("before state:%s", indexAndObject.dump().c_str());
 			}
 			else
 			{
-				m_currentTransaction.m_currentObjects[findIndex][trackObject].m_afterState = indexAndObject;
+				m_currentTransaction.m_currentObjects[modifyMapIndex][trackObject].m_afterState = indexAndObject;
 				GuGu_LOGD("after state:%s", indexAndObject.dump().c_str());
 			}
 		}
@@ -723,6 +733,21 @@ namespace GuGu {
 				GGuid guid(diffJson[field.GetName().getStr()]["new"].get<std::string>());
 				field.SetValue(instance, AssetManager::getAssetManager().loadAsset(guid));
 			}
+			else if (fieldType.IsArray() == false && (fieldType.IsWeakPtr() || fieldType.IsSharedPtr()))
+			{
+				//field.SetValue
+				if (indexToObjects.find(diffJson[field.GetName().getStr()]["new"].get<int32_t>()) != indexToObjects.end())
+				{
+					meta::Object* pointerToObject = indexToObjects.find(diffJson[field.GetName().getStr()]["new"].get<int32_t>())->second;
+					std::shared_ptr<meta::Object> objectValue = pointerToObject->shared_from_this();
+					field.SetValue(instance, objectValue);
+				}
+				else
+				{
+					std::shared_ptr<meta::Object> emptyValue;
+					field.SetValue(instance, emptyValue);
+				}
+			}
 			else
 			{
 				//object and array
@@ -770,9 +795,15 @@ namespace GuGu {
 
 	void TransactionManager::collisionObjects(meta::Variant& object, std::map<int32_t, meta::Object*>& indexToObject, int32_t& currentIndex)
 	{
+		bool isWeakPtr = object.GetType().IsWeakPtr();
 		if (object.GetType().IsSharedPtr())
 		{
 			std::shared_ptr<meta::Object> metaObject = *static_cast<std::shared_ptr<meta::Object>*>(object.getBase()->GetPtr());
+			object = ObjectVariant(metaObject.get());
+		}
+		else if (isWeakPtr)
+		{
+			std::shared_ptr<meta::Object> metaObject = (*static_cast<std::weak_ptr<meta::Object>*>(object.getBase()->GetPtr())).lock();
 			object = ObjectVariant(metaObject.get());
 		}
 		else
@@ -783,8 +814,6 @@ namespace GuGu {
 
 		//先找出所有的 std::shared_ptr<meta::object> 或者 std::weak_ptr<meta::object>
 		auto type = object.GetType();
-
-		auto& fields = meta::ReflectionDatabase::Instance().types[type.GetID()].fields;
 
 		bool haveAdded = false;
 		for (const auto& item : indexToObject)
@@ -801,9 +830,14 @@ namespace GuGu {
 			meta::Object* insertObject = static_cast<meta::Object*>(object.getBase()->GetPtr());
 			indexToObject.insert({ currentIndex, insertObject });
 		}
+		if (isWeakPtr)
+		{
+			return;
+		}
 
 		meta::Object* metaObject = static_cast<meta::Object*>(object.getBase()->GetPtr());
 		meta::Variant instance = ObjectVariant(metaObject);
+		auto& fields = meta::ReflectionDatabase::Instance().types[type.GetID()].fields;
 		for (auto& field : fields)
 		{
 			auto type = field.GetType();
@@ -827,6 +861,23 @@ namespace GuGu {
 						//void* ptr = item.getBase()->GetPtr();
 						//std::shared_ptr<meta::Object> object = *reinterpret_cast<std::shared_ptr<meta::Object>*>(&ptr);
 						collisionObjects(item, indexToObject, currentIndex);
+					}
+				}
+				else
+				{
+					meta::Variant value = field.GetValue(instance);
+					if (type.IsSharedPtr())
+					{
+						std::shared_ptr<meta::Object> metaObject = *static_cast<std::shared_ptr<meta::Object>*>(value.getBase()->GetPtr());
+						//object = ObjectVariant(metaObject.get());
+						if(metaObject != nullptr)
+							collisionObjects(value, indexToObject, currentIndex);
+					}
+					else if (type.IsWeakPtr())
+					{
+						std::shared_ptr<meta::Object> metaObject = (*static_cast<std::weak_ptr<meta::Object>*>(value.getBase()->GetPtr())).lock();
+						if(metaObject != nullptr)
+							collisionObjects(value, indexToObject, currentIndex);
 					}
 				}
 			}

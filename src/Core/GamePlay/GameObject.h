@@ -63,7 +63,7 @@ namespace GuGu {
 
 		void setChildrens(const Array<std::shared_ptr<GameObject>>& childrens);
 
-		Array<std::shared_ptr<GameObject>> getChildrens();
+		Array<std::shared_ptr<GameObject>>& getChildrens();
 
 		std::weak_ptr<GameObject>& getParentGameObject();
 
