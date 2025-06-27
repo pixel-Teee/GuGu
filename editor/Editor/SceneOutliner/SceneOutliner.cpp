@@ -4,6 +4,7 @@
 #include "SceneOutlinerGutter.h"
 #include "SceneOutlinerItemLabelColumn.h"
 #include "Editor/StyleSet/EditorStyleSet.h"
+#include "ObjectDragDropOperation.h"
 #include "ObjectTreeItem.h"
 #include "OutlinerTreeView.h"
 #include "ObjectBrowingMode.h"
@@ -165,6 +166,39 @@ namespace GuGu {
 			return m_parentWindow.lock();
 		}
 
+		Reply SceneOutliner::OnDrop(const WidgetGeometry& myGeometry, const DragDropEvent& dragDropEvent)
+		{
+			std::shared_ptr<ObjectDragDropOperation> operation = dragDropEvent.getOperationAs<ObjectDragDropOperation>();
+			if (operation)
+			{
+				std::shared_ptr<meta::Object> object = operation->getObject();
+				if (object->GetType() == typeof(GameObject))
+				{
+					std::shared_ptr<GameObject> gameObject = std::static_pointer_cast<GameObject>(object);
+					if (gameObject)
+					{
+						TransactionManager& transactionManager = TransactionManager::getTransactionManager();
+						transactionManager.beginTransaction();
+						std::shared_ptr<GameObject> parentObject = gameObject->getParentGameObject().lock();
+						//termination of relationship
+						Array<std::shared_ptr<GameObject>> childrens = parentObject->getChildrens();
+						auto it = std::find(childrens.begin(), childrens.end(), object);
+						if (it != childrens.end())
+						{
+							transactionManager.modifyObject(parentObject);
+							transactionManager.modifyObject(gameObject);
+							childrens.erase(it);
+							gameObject->setParentGameObject(std::shared_ptr<GameObject>());
+						}
+						transactionManager.commit();
+						World::getWorld()->getCurrentLevel()->refreshLevel();
+						return Reply::Handled();
+					}
+				}
+			}
+			return Reply::Unhandled();
+		}
+
 		void SceneOutliner::populate()
 		{
 			//发生了距离的变化
@@ -290,6 +324,7 @@ namespace GuGu {
 		void SceneOutliner::emptyTreeItems()
 		{
 			m_rootTreeItems.clear();
+			m_treeItemMap.clear();
 		}
 
 		void SceneOutliner::setupColumns(HeaderRow& headerRow)
@@ -340,7 +375,13 @@ namespace GuGu {
 
 		void SceneOutliner::onGetChildrenForOutlinerTree(TreeItemPtr inParent, std::vector<TreeItemPtr>& outChildren)
 		{
+			for (auto& weakChild : inParent->getChildren())
+			{
+				auto child = weakChild.lock();
+				outChildren.push_back(child);
 
+				//todo:排序
+			}
 		}
 
 		void SceneOutliner::onOutlinerTreeDoubleClick(TreeItemPtr treeItem)

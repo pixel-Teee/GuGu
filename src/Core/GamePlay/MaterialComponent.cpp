@@ -78,6 +78,7 @@ namespace GuGu {
 	}
 
 	IMPLEMENT_INITIAL_BEGIN(MaterialComponent)
+		ADD_PRIORITY(Component)
 		ADD_INITIAL_FUNCTION_WITH_PRIORITY(registerGuGuMaterialComponent)
 	IMPLEMENT_INITIAL_END
 

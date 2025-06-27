@@ -41,7 +41,7 @@ namespace GuGu {
 
 		void applyFieldDiff(std::shared_ptr<meta::Object> inObject, meta::Field& field, const nlohmann::json& diff);
 
-		void serializeJson(std::shared_ptr<meta::Object> inObject, bool isBeforeState = true);
+		void serializeJson(std::shared_ptr<meta::Object> inObject, bool isBeforeState = true, int32_t modifyMapIndex = -1);
 
 		struct SerializeDeserializeContext
 		{
@@ -51,7 +51,7 @@ namespace GuGu {
 			std::unordered_map<uint32_t, std::shared_ptr<meta::Object>> m_indexToSharedPtrObject;
 		};
 
-		nlohmann::json serializeJson(meta::Type type, const meta::Variant& instance, std::map<int32_t, meta::Object*>& indexToObject);
+		nlohmann::json serializeJson( meta::Type type, const meta::Variant& instance, std::map<int32_t, meta::Object*>& indexToObject);
 
 		nlohmann::json getDiffJson(const nlohmann::json& lhs, const nlohmann::json& rhs);
 

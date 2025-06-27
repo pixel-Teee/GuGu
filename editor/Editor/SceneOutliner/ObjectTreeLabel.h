@@ -32,12 +32,24 @@ namespace GuGu {
 			Reply OnMouseButtonDown(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent);
 
 			Reply rightClick();
+
+			Reply OnDragDetected(const WidgetGeometry& myGeometry, const PointerEvent& mouseEvent) override;
+
+			void OnDragEnter(const WidgetGeometry& myGeometry, const DragDropEvent& dragDropEvent) override;
+
+			void OnDragLeave(const DragDropEvent& dragDropEvent) override;
+
+			Reply OnDrop(const WidgetGeometry& myGeometry, const DragDropEvent& dragDropEvent) override;
+
+			Visibility getHoverVisibility() const;
 		private:
 			std::weak_ptr<ObjectTreeItem> m_treeItemPtr;
 			std::weak_ptr<GameObject> m_objectPtr;
 
 			//右键打开的菜单
 			std::shared_ptr<IMenu> m_menu;
+
+			bool m_bDragHover;
 		};
 	}
 	

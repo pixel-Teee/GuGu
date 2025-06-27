@@ -398,7 +398,7 @@ namespace GuGu{
 			}
 		}
 		//
-        gTexture->m_data.clear();
+        // gTexture->m_data.clear();
 		//
 				//uint width = scaledWidth;
 				//uint height = scaledHeight;

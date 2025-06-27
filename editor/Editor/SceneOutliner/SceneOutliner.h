@@ -77,6 +77,8 @@ namespace GuGu {
 			Reply rightClick();
 
 			virtual std::shared_ptr<Widget> getParentWindow() const override;
+
+			Reply OnDrop(const WidgetGeometry& myGeometry, const DragDropEvent& dragDropEvent) override;
 		public:
 			const std::map<GuGuUtf8Str, std::shared_ptr<ISceneOutlinerColumn>>& getColumns() const
 			{

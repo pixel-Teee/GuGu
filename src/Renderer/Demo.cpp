@@ -2254,9 +2254,11 @@ namespace GuGu {
 				math::float3 scaling;
 				math::quat rotation;
 				std::shared_ptr<TransformComponent> transform = inViewportClient->getSelectedItems()->getComponent<TransformComponent>();
-				translation = math::float3(transform->getTranslation());
-				scaling = math::float3(transform->getScaling());
-				rotation = math::quat(transform->getRotation());
+				math::affine3 transformAffine = transform->GetLocalToWorldTransformFloat();
+				math::decomposeAffine(transformAffine, &translation, &rotation, &scaling);
+				//translation = math::float3(transform->getTranslation());
+				//scaling = math::float3(transform->getScaling());
+				//rotation = math::quat(transform->getRotation());
 				math::affine3 noScalingAffine;//gizmos 不需要缩放
 				scaling = math::float3(inViewportClient->getScreenScaleCompensation(translation)) * 100.0f;
 				//GuGu_LOGD("%f", scaling.x);

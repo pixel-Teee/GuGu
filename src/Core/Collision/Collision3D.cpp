@@ -5,6 +5,7 @@
 #include <Core/GamePlay/TransformComponent.h>
 #include <Core/GamePlay/StaticMeshComponent.h>
 #include <Core/GamePlay/TerrainComponent.h>
+#include <Core/Texture/GTexture.h>
 #include "Collision3D.h"
 
 namespace GuGu {
@@ -83,19 +84,24 @@ namespace GuGu {
 			{
 				math::float4x4 invView = math::inverse(viewMatrix);
 				math::float4x4 invWorld = math::float4x4(math::inverse(math::affineToHomogeneous(transformComponent->GetLocalToWorldTransform())));
-			
+
 				math::float4x4 toLocal = invView * invWorld;
-			
+
 				math::float4 localRayOrigin = rayOrigin * toLocal;
 				math::float4 localRayDir = math::normalize(rayDir * toLocal);
-			
+
 				math::box3 boundingBox = terrainComponent->getObjectSpaceBounds();
-			
+
+				math::float2 terrainSize = math::float2((float)terrainComponent->m_rows * (float)terrainComponent->m_tileSize, (float)terrainComponent->m_cols * (float)terrainComponent->m_tileSize);
+				math::float2 terrainBeginXZ = math::float2(-(float)terrainComponent->m_terrainRows * terrainSize.x * 0.5f, -(float)terrainComponent->m_terrainCols * terrainSize.y * 0.5f);
+
+				std::shared_ptr<GTexture> heightTexture = terrainComponent->getHeightTexture();
+
 				float tmin = 0.0f;
 				if (intersectsWithBox(localRayOrigin, localRayDir, tmin, boundingBox))
 				{
-					const auto& positions = staticMeshComponent->getStaticMesh()->m_positionData;
-					const auto& indices = staticMeshComponent->getStaticMesh()->m_indexData;
+					const auto& positions = terrainComponent->m_vertexData;
+					const auto& indices = terrainComponent->m_indexData;
 					uint32_t triCount = indices.size() / 3;
 					tmin = std::numeric_limits<float>::infinity();
 					for (uint32_t i = 0; i < triCount; ++i)
@@ -103,18 +109,31 @@ namespace GuGu {
 						uint32_t i0 = indices[i * 3 + 0];
 						uint32_t i1 = indices[i * 3 + 1];
 						uint32_t i2 = indices[i * 3 + 2];
-			
+
 						math::float3 position0 = positions[i0];
 						math::float3 position1 = positions[i1];
 						math::float3 position2 = positions[i2];
-			
-						float t = 0.0f;
-						if (intersectWithTriangle(localRayOrigin, localRayDir, position0, position1, position2, t))
+
+						for (uint32_t i = 0; i < terrainComponent->m_terrainRows; ++i)
 						{
-							if (t < tmin)
+							for (uint32_t j = 0; j < terrainComponent->m_terrainCols; ++j)
 							{
-								tmin = t;
-								pickedGameObject = item;
+								math::float2 offsetXZ = math::float2(terrainBeginXZ.x + j * terrainSize.x, terrainBeginXZ.y + i * terrainSize.y);
+
+								math::float3 position3;
+								math::float3 position4;
+								math::float3 position5;
+								getTerrainPosition(position0, position1, position2, position3, position4, position5, offsetXZ, terrainBeginXZ, heightTexture);
+									
+								float t = 0.0f;
+								if (intersectWithTriangle(localRayOrigin, localRayDir, position3, position4, position5, t))
+								{
+									if (t < tmin)
+									{
+										tmin = t;
+										pickedGameObject = item;
+									}
+								}
 							}
 						}
 					}
@@ -311,4 +330,41 @@ namespace GuGu {
 
 		return false;
 	}
+
+	void Collision3D::getTerrainPosition(math::float3 position0, math::float3 position1, math::float3 position2, 
+	math::float3& position3, math::float3& position4, math::float3& position5, 
+	math::float2 offsetXZ, math::float2 beginXZ, std::shared_ptr<GTexture> heightTexture)
+	{
+		float x = position0.x + offsetXZ.x;
+		float z = position0.z + offsetXZ.y;
+		float h = -beginXZ.x * 2.0;
+		float v = -beginXZ.y * 2.0;
+		math::float2 uv = math::float2((x - beginXZ.x) / h, (1.0 - (z - beginXZ.y) / v));
+		uv = math::clamp(uv, math::float2(0, 0), math::float2(1, 1));
+		math::float2 newUV = uv * math::float2(heightTexture->m_width - 1, heightTexture->m_height - 1);
+
+		//height
+		float height = (heightTexture->getColor(newUV.x, newUV.y).x / 255.0f) * 10.0f;
+
+		position3 = math::float3(x, height, z);
+
+		x = position1.x + offsetXZ.x;
+		z = position1.z + offsetXZ.y;
+		uv = math::float2((x - beginXZ.x) / h, (1.0 - (z - beginXZ.y) / v));
+		uv = math::clamp(uv, math::float2(0, 0), math::float2(1, 1));
+		newUV = uv * math::float2(heightTexture->m_width - 1, heightTexture->m_height - 1);
+		height = (heightTexture->getColor(newUV.x, newUV.y).x / 255.0f) * 10.0f;
+
+		position4 = math::float3(x, height, z);
+
+		x = position2.x + offsetXZ.x;
+		z = position2.z + offsetXZ.y;
+		uv = math::float2((x - beginXZ.x) / h, (1.0 - (z - beginXZ.y) / v));
+		uv = math::clamp(uv, math::float2(0, 0), math::float2(1, 1));
+		newUV = uv * math::float2(heightTexture->m_width - 1, heightTexture->m_height - 1);
+		height = (heightTexture->getColor(newUV.x, newUV.y).x / 255.0f) * 10.0f;
+
+		position5 = math::float3(x, height, z);
+	}
+
 }

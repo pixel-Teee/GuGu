@@ -20,6 +20,9 @@ namespace GuGu {
 
 		type.AddConstructor<GuGu::GameObject, true, true>({});
 
+		//dependent meta::Object
+		type.LoadBaseClasses(db, id, { typeof(meta::Object) });
+
 		{
 			auto id = db.AllocateType("std::shared_ptr<GuGu::GameObject>");
 			auto& type = db.types[id];
@@ -50,8 +53,8 @@ namespace GuGu {
 			(meta::FieldSetter<GameObject, Array<std::shared_ptr<Component>>, true>::Signature) & GameObject::setComponents, {});
 
 		type.AddField<GameObject, Array<std::shared_ptr<GameObject>>>("m_childrens",
-			(meta::FieldGetter<GameObject, Array<std::shared_ptr<GameObject>>, true>::Signature) & GameObject::getChildrens,
-			(meta::FieldSetter<GameObject, Array<std::shared_ptr<GameObject>>, true>::Signature) & GameObject::setChildrens, {});
+			(meta::FieldGetter<GameObject, Array<std::shared_ptr<GameObject>>&, true>::Signature) & GameObject::getChildrens,
+			(meta::FieldSetter<GameObject, Array<std::shared_ptr<GameObject>>&, true>::Signature) & GameObject::setChildrens, {});
 
 		type.AddField<GameObject, std::weak_ptr<GameObject>>("m_parentGameObject",
 			(meta::FieldGetter<GameObject, std::weak_ptr<GameObject>&, true>::Signature) & GameObject::getParentGameObject,
@@ -60,6 +63,7 @@ namespace GuGu {
 		return true;
 	}
 	IMPLEMENT_INITIAL_BEGIN(GameObject)
+		ADD_PRIORITY(meta::Object)
 		ADD_PRIORITY(Component)
 		ADD_INITIAL_FUNCTION_WITH_PRIORITY(registerGuGuGameObject)
 	IMPLEMENT_INITIAL_END
@@ -167,7 +171,7 @@ namespace GuGu {
 		}
 	}
 
-	Array<std::shared_ptr<GameObject>> GameObject::getChildrens()
+	Array<std::shared_ptr<GameObject>>& GameObject::getChildrens()
 	{
 		return m_childrens;
 	}
@@ -196,6 +200,12 @@ namespace GuGu {
 	uint32_t GameObject::getId() const
 	{
 		return m_id;//只在运行期间有效
+	}
+
+	void GameObject::addChildren(std::shared_ptr<GameObject> children)
+	{
+		children->setParentGameObject(std::static_pointer_cast<GameObject>(shared_from_this()));
+		m_childrens.push_back(children);
 	}
 
 }
