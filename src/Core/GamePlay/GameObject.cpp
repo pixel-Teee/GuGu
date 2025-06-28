@@ -167,7 +167,8 @@ namespace GuGu {
 		m_childrens = childrens;
 		for (const auto& children : m_childrens)
 		{
-			children->setParentGameObject(std::static_pointer_cast<GameObject>(shared_from_this()));
+			std::shared_ptr<GameObject> parent = std::static_pointer_cast<GameObject>(shared_from_this());
+			children->setParentGameObject(parent);
 		}
 	}
 

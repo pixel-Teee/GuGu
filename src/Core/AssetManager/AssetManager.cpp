@@ -626,6 +626,16 @@ namespace GuGu {
 			}
 			if (needLink)
 			{
+				uint32_t objectIndex = item.first;
+				if (objectIndex != -1)
+				{
+					if (context.m_indexToSharedPtrObject.find(objectIndex) == context.m_indexToSharedPtrObject.end())
+					{
+						//auto& linkedObject = context.m_indexToObject.find(objectIndex)->second;
+						std::shared_ptr<meta::Object> linkedObject(context.m_indexToObject.find(objectIndex)->second);
+						context.m_indexToSharedPtrObject.insert({ objectIndex, linkedObject });
+					}
+				}
 				linkSharedPtr(object, item.second, context);
 			}			
 		}	
@@ -691,6 +701,7 @@ namespace GuGu {
 		auto& fields = meta::ReflectionDatabase::Instance().types[type.GetID()].fields;
 
 		meta::Variant variantObject = ObjectVariant(object);
+		
 		for (auto& field : fields)
 		{
 			auto fieldType = field.GetType();
@@ -752,9 +763,12 @@ namespace GuGu {
 					}
 					else
 					{
-						std::shared_ptr<meta::Object> linkedObject(context.m_indexToObject.find(objectIndex)->second);
-						context.m_indexToSharedPtrObject.insert({ objectIndex, linkedObject });
-						wrapper.Insert(i++, linkedObject);
+                        if(context.m_indexToObject.find(objectIndex) != context.m_indexToObject.end())
+                        {
+                            std::shared_ptr<meta::Object> linkedObject(context.m_indexToObject.find(objectIndex)->second);
+                            context.m_indexToSharedPtrObject.insert({ objectIndex, linkedObject });
+                            wrapper.Insert(i++, linkedObject);
+                        }
 					}
 					//auto& linkedObject = context.m_indexToObject.find(item.get<int32_t>())->second;
 					//std::shared_ptr<meta::Object> linkedObject = std::shared_ptr<meta::Object>(context.m_indexToObject.find(objectIndex)->second);		

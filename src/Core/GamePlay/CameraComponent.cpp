@@ -28,21 +28,21 @@ namespace GuGu {
 
 			meta::TypeInfo<CameraComponent>::Defined = true;
 
-			type.AddField<CameraComponent, float>("m_fov",
-				(meta::FieldGetter<CameraComponent, float, true>::Signature) & CameraComponent::getFov,
-				(meta::FieldSetter<CameraComponent, float, true>::Signature) & CameraComponent::setFov, {});
-
-			type.AddField<CameraComponent, float>("m_nearPlane",
-				(meta::FieldGetter<CameraComponent, float, true>::Signature) & CameraComponent::getNearPlane,
-				(meta::FieldSetter<CameraComponent, float, true>::Signature) & CameraComponent::setNearPlane, {});
-
-			type.AddField<CameraComponent, float>("m_farPlane",
-				(meta::FieldGetter<CameraComponent, float, true>::Signature) & CameraComponent::getFarPlane,
-				(meta::FieldSetter<CameraComponent, float, true>::Signature) & CameraComponent::setFarPlane, {});
-
-			type.AddField<CameraComponent, std::weak_ptr<GameObject>>("m_owner",
-				(meta::FieldGetter<CameraComponent, std::weak_ptr<GameObject>&, true>::Signature) & CameraComponent::getParentGameObject,
-				(meta::FieldSetter<CameraComponent, std::weak_ptr<GameObject>&, true>::Signature) & CameraComponent::setParentGameObject, {});
+// 			type.AddField<CameraComponent, float>("m_fov",
+// 				(meta::FieldGetter<CameraComponent, float, true>::Signature) & CameraComponent::getFov,
+// 				(meta::FieldSetter<CameraComponent, float, true>::Signature) & CameraComponent::setFov, {});
+// 
+// 			type.AddField<CameraComponent, float>("m_nearPlane",
+// 				(meta::FieldGetter<CameraComponent, float, true>::Signature) & CameraComponent::getNearPlane,
+// 				(meta::FieldSetter<CameraComponent, float, true>::Signature) & CameraComponent::setNearPlane, {});
+// 
+// 			type.AddField<CameraComponent, float>("m_farPlane",
+// 				(meta::FieldGetter<CameraComponent, float, true>::Signature) & CameraComponent::getFarPlane,
+// 				(meta::FieldSetter<CameraComponent, float, true>::Signature) & CameraComponent::setFarPlane, {});
+// 
+// 			type.AddField<CameraComponent, std::weak_ptr<GameObject>>("m_owner",
+// 				(meta::FieldGetter<CameraComponent, std::weak_ptr<GameObject>&, true>::Signature) & CameraComponent::getParentGameObject,
+// 				(meta::FieldSetter<CameraComponent, std::weak_ptr<GameObject>&, true>::Signature) & CameraComponent::setParentGameObject, {});
 		}
 
 		{

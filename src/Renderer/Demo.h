@@ -23,6 +23,8 @@ namespace GuGu {
 	class ViewportClient;
 	class TerrainComponent;
 	class WaterComponent;
+	class CameraComponent;
+	class TransformComponent;
 	struct DrawItem
 	{
 		const MeshInfo* mesh;
@@ -58,6 +60,8 @@ namespace GuGu {
 		void renderLevel(const std::shared_ptr<Level> inLevel, std::shared_ptr<ViewportClient> inViewportClient);
 
 		void createVertexBufferAndIndexBuffer(GStaticMesh& staticMesh);
+
+		void createDebugCameraFrustum(std::shared_ptr<CameraComponent> inCameraComponent, std::shared_ptr<TransformComponent> camTransform, std::shared_ptr<ViewportClient> inViewportClient);
 
 		void createTerrainVertexBufferAndIndexBuffer(std::shared_ptr<TerrainComponent> terrainComponent);
 
@@ -256,6 +260,36 @@ namespace GuGu {
 			float time;
 		};
 		//------water------
+
+		//------debug draw camera------
+		struct CameraBufferEntry {
+			dm::float4x4 viewProjMatrix;
+			dm::float4x4 worldMatrix;
+			dm::float3 camWorldPos; //editor camera pos
+		};
+
+		struct CameraPropertiesBuffer {
+			dm::float3 color;
+		};
+
+		struct CameraVertex
+		{
+			math::float3 position;
+
+			CameraVertex(math::float3 inPosition)
+			{
+				position = inPosition;
+			}
+		};
+
+		nvrhi::ShaderHandle m_cameraVertexShader;
+		nvrhi::ShaderHandle m_cameraPixelShader;
+		std::vector<nvrhi::BufferHandle> m_cameraConstantBuffer;
+		std::vector<nvrhi::BufferHandle> m_cameraPropertiesConstantBuffers;
+		nvrhi::InputLayoutHandle m_cameraInputLayout;
+		nvrhi::BindingLayoutHandle m_cameraBindingLayout;
+		nvrhi::GraphicsPipelineHandle m_cameraPipeline;
+		//------debug draw camera------
 
 		uint32_t m_maxLightCounts = 4;
 	};

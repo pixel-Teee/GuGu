@@ -94,7 +94,9 @@ namespace GuGu {
 			.allowSpain(true) //todo:修复这个
 			.value(this, &MathStructCustomization::onGetValue<NumericType>, weakHandlePtr) //要显示的值
 			.onValueChanged(this, &MathStructCustomization::onValueChanged<NumericType>, weakHandlePtr)
-			.onValueCommitted(this, &MathStructCustomization::onValueCommitted<NumericType>, weakHandlePtr);
+			.onValueCommitted(this, &MathStructCustomization::onValueCommitted<NumericType>, weakHandlePtr)
+			.minValue(-1000)
+			.maxValue(1000);
 	}
 
 	void MathStructCustomization::makeHeaderRow(std::shared_ptr<IPropertyHandle> propertyHandle, DetailWidgetRow& headerRow)

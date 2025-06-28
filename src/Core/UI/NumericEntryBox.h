@@ -33,7 +33,7 @@ namespace GuGu {
 			, mdelta(NumericType(0))
 			, mminValue(std::numeric_limits<NumericType>::min())
 			, mmaxValue(std::numeric_limits<NumericType>::max())
-			, mminSliderValue(NumericType(0))
+			, mminSliderValue(NumericType(-100))
 			, mmaxSliderValue(NumericType(100))
 			, msliderExponent(1.0f)
 			, mminDesiredValueWidth(0.0f)

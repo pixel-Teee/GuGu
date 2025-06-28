@@ -69,42 +69,48 @@ namespace GuGu {
 
 	float GameViewportClient::getNearPlane() const
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		//throw std::logic_error("The method or operation is not implemented.");
+		return 0;
 	}
 
 	float GameViewportClient::getFarPlane() const
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		//throw std::logic_error("The method or operation is not implemented.");
+		return 0;
 	}
 
 	const std::vector<std::shared_ptr<GuGu::GStaticMesh>>& GameViewportClient::getGizmos() const
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		//throw std::logic_error("The method or operation is not implemented.");
+		return std::vector<std::shared_ptr<GuGu::GStaticMesh>>();
 	}
 
 	std::vector<std::shared_ptr<GuGu::GStaticMesh>>& GameViewportClient::getGizmos()
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		//throw std::logic_error("The method or operation is not implemented.");
+		static std::vector<std::shared_ptr<GuGu::GStaticMesh>> emptyVector;
+		return emptyVector;
 	}
 
 	GuGu::math::float4 GameViewportClient::getGizmosColor(uint32_t index) const
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		//throw std::logic_error("The method or operation is not implemented.");
+		return math::float4();
 	}
 
 	bool GameViewportClient::gizmosIsVisible() const
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		return true;
 	}
 
 	std::shared_ptr<GuGu::GameObject> GameViewportClient::getSelectedItems() const
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		return nullptr;
 	}
 
 	std::vector<uint32_t> GameViewportClient::getGizmosRenderSort() const
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		return std::vector<uint32_t>{1, 2, 3};
 	}
 
 	GuGu::ViewportClient::ViewportState GameViewportClient::getViewportState() const
@@ -134,7 +140,7 @@ namespace GuGu {
 
 	GuGu::math::float4x4 GameViewportClient::getWorldToViewMatrix() const
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		return math::float4x4();
 	}
 
 	GuGu::math::float4x4 GameViewportClient::getPespectiveMatrix() const
@@ -147,12 +153,12 @@ namespace GuGu {
 
 	GuGu::math::float3 GameViewportClient::getCamPos() const
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		return math::float3();
 	}
 
 	float GameViewportClient::getFov() const
 	{
-		throw std::logic_error("The method or operation is not implemented.");
+		return 0;
 	}
 
 	std::shared_ptr<WindowWidget> CreateGameMainWindow()
@@ -173,8 +179,8 @@ namespace GuGu {
 		.ScreenPosition(math::float2(0.0f, 0.0f));
 
 		AssetData assetData;
-		assetData.m_filePath = "content/level1.json";
-		assetData.m_fileName = "level1";
+		assetData.m_filePath = "content/level2.json";
+		assetData.m_fileName = "level2";
 		assetData.m_assetTypeGuid = typeof(Level).getGuid();
 		World::getWorld()->loadLevel(assetData);
 

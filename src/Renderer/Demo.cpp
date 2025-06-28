@@ -168,6 +168,81 @@ namespace GuGu {
 		}
 	}
 
+	void Demo::createDebugCameraFrustum(std::shared_ptr<CameraComponent> inCameraComponent, std::shared_ptr<TransformComponent> camTransform, std::shared_ptr<ViewportClient> inViewportClient)
+	{
+		math::float3 frustumPoints[] = {
+			{-1, 1, 0}, //near plane
+			{1, 1, 0}, //near plane
+			{1, -1, 0}, //near plane
+			{-1, -1, 0}, //near plane
+			{-1, 1, 1}, //far plane
+			{1, 1, 1}, //far plane
+			{1, -1, 1}, //far plane
+			{-1, -1, 1}, //far plane
+		};
+		
+		uint32_t frustumPointsIndex[] =
+		{ 0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7 };
+
+		math::float4x4 projMatrix = math::perspProjD3DStyle(math::radians(inCameraComponent->getFov()),
+			inViewportClient->getAspectRatio(), inCameraComponent->getNearPlane(), inCameraComponent->getFarPlane()
+		);
+		math::float4x4 viewProjMatrix = math::inverse(math::affineToHomogeneous(camTransform->GetLocalToWorldTransformFloat())) * projMatrix;
+
+		math::float4x4 invViewProjMatrix = math::inverse(viewProjMatrix);
+
+		std::vector<math::float3> newFrustumPoints;
+		newFrustumPoints.resize(8);
+		for (size_t i = 0; i < 8; ++i)
+		{
+			//new point
+			newFrustumPoints[i] = math::float4(frustumPoints[i].x, frustumPoints[i].y, frustumPoints[i].z, 1.0f) * invViewProjMatrix;
+		}
+
+		if (!inCameraComponent->m_debugCameraFrustumIndexBuffer)
+		{
+			nvrhi::BufferDesc bufferDesc;
+			bufferDesc.isIndexBuffer = true;
+			bufferDesc.byteSize = 24 * sizeof(uint32_t);
+			bufferDesc.debugName = "CameraIndexBuffer";
+			bufferDesc.canHaveTypedViews = true;
+			bufferDesc.canHaveRawViews = true;
+			bufferDesc.format = nvrhi::Format::R32_UINT;
+			//bufferDesc.isAccelStructBuildInput = m_RayTracingSupported;
+
+			inCameraComponent->m_debugCameraFrustumIndexBuffer = GetDevice()->createBuffer(bufferDesc);
+
+			m_CommandList->beginTrackingBufferState(inCameraComponent->m_debugCameraFrustumIndexBuffer, nvrhi::ResourceStates::Common);
+
+			m_CommandList->writeBuffer(inCameraComponent->m_debugCameraFrustumIndexBuffer, frustumPointsIndex, 24 * sizeof(uint32_t));
+
+			nvrhi::ResourceStates state = nvrhi::ResourceStates::IndexBuffer | nvrhi::ResourceStates::ShaderResource;
+
+			m_CommandList->setPermanentBufferState(inCameraComponent->m_debugCameraFrustumIndexBuffer, state);
+			m_CommandList->commitBarriers();
+		}
+
+		if (!inCameraComponent->m_debugCameraFrustumVertexBuffer)
+		{
+			nvrhi::BufferDesc bufferDesc;
+			bufferDesc.isVertexBuffer = true;
+			bufferDesc.byteSize = 24 * sizeof(math::float3);
+			bufferDesc.debugName = "CameraVertexBuffer";
+			bufferDesc.initialState = nvrhi::ResourceStates::CopyDest;
+
+			inCameraComponent->m_debugCameraFrustumVertexBuffer = GetDevice()->createBuffer(bufferDesc);
+
+			m_CommandList->beginTrackingBufferState(inCameraComponent->m_debugCameraFrustumVertexBuffer, nvrhi::ResourceStates::CopyDest);
+
+			m_CommandList->writeBuffer(inCameraComponent->m_debugCameraFrustumVertexBuffer, newFrustumPoints.data(), sizeof(frustumPoints), 0);
+
+			nvrhi::ResourceStates state = nvrhi::ResourceStates::VertexBuffer;
+
+			m_CommandList->setPermanentBufferState(inCameraComponent->m_debugCameraFrustumVertexBuffer, state);
+			m_CommandList->commitBarriers();
+		}
+	}
+
 	void Demo::createTerrainVertexBufferAndIndexBuffer(std::shared_ptr<TerrainComponent> terrainComponent)
 	{
 		std::vector<uint32_t>& indexData = terrainComponent->m_indexData;
@@ -963,6 +1038,50 @@ namespace GuGu {
 			m_waterVertexShader);
 		//------water------
 
+		//------debug draw camera------
+		m_cameraConstantBuffer.resize(256);//max objects
+		m_cameraPropertiesConstantBuffers.resize(256);//max objects
+		for (size_t i = 0; i < m_cameraConstantBuffer.size(); ++i)
+		{
+			m_cameraConstantBuffer[i] = GetDevice()->createBuffer(
+				nvrhi::utils::CreateStaticConstantBufferDesc(
+					sizeof(CameraBufferEntry), " CameraBufferEntry")
+				.setInitialState(
+					nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
+						true));
+		}
+		for (size_t i = 0; i < m_cameraPropertiesConstantBuffers.size(); ++i)
+		{
+			m_cameraPropertiesConstantBuffers[i] = GetDevice()->createBuffer(
+				nvrhi::utils::CreateStaticConstantBufferDesc(
+					sizeof(CameraPropertiesBuffer), " CameraPropertiesBuffer")
+				.setInitialState(
+					nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
+						true));
+		}
+		m_cameraVertexShader = shaderFactory->CreateShader("asset/shader/camera.hlsl", "main_vs", nullptr,
+			nvrhi::ShaderType::Vertex);
+		m_cameraPixelShader = shaderFactory->CreateShader("asset/shader/camera.hlsl", "main_ps", nullptr,
+			nvrhi::ShaderType::Pixel);
+		layoutDesc.bindings = {
+			nvrhi::BindingLayoutItem::ConstantBuffer(0), //normal transform
+			nvrhi::BindingLayoutItem::ConstantBuffer(1)  //camera properties
+		};
+		m_cameraBindingLayout = GetDevice()->createBindingLayout(layoutDesc);
+
+		nvrhi::VertexAttributeDesc cameraAttributes[] = {
+			nvrhi::VertexAttributeDesc()
+						.setName("POSITION")
+						.setFormat(nvrhi::Format::RGB32_FLOAT)
+						.setOffset(0)
+						.setBufferIndex(0)
+						.setElementStride(sizeof(math::float3))
+		};
+		m_cameraInputLayout = GetDevice()->createInputLayout(cameraAttributes,
+			uint32_t(std::size(cameraAttributes)),
+			m_cameraVertexShader);
+		//------debug draw camera------
+
 		m_CommandList->close();
 		GetDevice()->executeCommandList(m_CommandList);
 
@@ -1750,6 +1869,20 @@ namespace GuGu {
 			m_waterPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
+		if (!m_cameraPipeline)
+		{
+			nvrhi::GraphicsPipelineDesc psoDesc;
+			psoDesc.VS = m_cameraVertexShader; //camera
+			psoDesc.PS = m_cameraPixelShader; //camera
+			psoDesc.inputLayout = m_cameraInputLayout; //顶点属性
+			psoDesc.bindingLayouts = { m_cameraBindingLayout }; //constant buffer 这些
+			psoDesc.primType = nvrhi::PrimitiveType::LineList;
+			psoDesc.renderState.rasterState.fillMode = nvrhi::RasterFillMode::Wireframe;
+			psoDesc.renderState.depthStencilState.depthTestEnable = false;
+			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
+			m_cameraPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
+		}
+
 		m_drawItems.clear();
 
 		m_CommandList->open();
@@ -2297,6 +2430,66 @@ namespace GuGu {
 				++i;
 			}
 		}	
+
+		nvrhi::GraphicsState cameraGraphicsState;
+		cameraGraphicsState.pipeline = m_gizmosPipeline;
+		cameraGraphicsState.framebuffer = inViewportClient->getFramebuffer();
+
+		cameraGraphicsState.viewport.addViewportAndScissorRect(viewport);
+
+		//draw debug camera
+		for (size_t i = 0; i < gameObjects.size(); ++i)
+		{
+			std::shared_ptr<TransformComponent> transformComponent = gameObjects[i]->getComponent<TransformComponent>();
+			std::shared_ptr<CameraComponent> cameraComponent = gameObjects[i]->getComponent<CameraComponent>();
+			if (transformComponent && cameraComponent) //debug
+			{
+				//if(!cameraComponent->m_debugCameraFrustumVertexBuffer)
+				createDebugCameraFrustum(cameraComponent, transformComponent, inViewportClient);
+
+				//draw
+				nvrhi::BindingSetHandle cameraBindingSet;
+				nvrhi::BindingSetDesc desc;
+				//nvrhi::BindingSetHandle bindingSet;
+				desc.bindings = {
+						nvrhi::BindingSetItem::ConstantBuffer(0, m_cameraConstantBuffer[i]),
+						nvrhi::BindingSetItem::ConstantBuffer(1, m_cameraPropertiesConstantBuffers[i]),
+				};
+				cameraBindingSet = GetDevice()->createBindingSet(desc, m_cameraBindingLayout);
+
+				cameraGraphicsState.bindings = { cameraBindingSet };
+
+				cameraGraphicsState.vertexBuffers = {
+					{cameraComponent->m_debugCameraFrustumVertexBuffer, 0, 0}
+				};
+
+				cameraGraphicsState.indexBuffer = {
+					cameraComponent->m_debugCameraFrustumIndexBuffer, nvrhi::Format::R32_UINT, 0
+				};
+
+				CameraBufferEntry modelConstants;
+				modelConstants.viewProjMatrix = viewProjMatrix;
+				modelConstants.worldMatrix = math::affineToHomogeneous((transformComponent->GetLocalToWorldTransformFloat()));
+				modelConstants.camWorldPos = inViewportClient->getCamPos();
+				//get the global matrix to fill constant buffer		
+				m_CommandList->writeBuffer(m_cameraConstantBuffer[i], &modelConstants, sizeof(modelConstants));
+
+				CameraPropertiesBuffer propertiesBuffer;
+				propertiesBuffer.color = math::float3(1.0f, 1.0f, 1.0f);
+				m_CommandList->writeBuffer(m_cameraPropertiesConstantBuffers[i], &propertiesBuffer, sizeof(propertiesBuffer));
+
+				cameraGraphicsState.setPipeline(m_cameraPipeline);
+				m_CommandList->setGraphicsState(cameraGraphicsState);
+
+				// Draw the model.
+				nvrhi::DrawArguments args;
+				args.vertexCount = 24;
+				args.instanceCount = 1;
+				args.startVertexLocation = 0;
+				args.startIndexLocation = 0;
+				m_CommandList->drawIndexed(args);
+			}
+		}
 
 		m_CommandList->close();
 		GetDevice()->executeCommandList(m_CommandList);
