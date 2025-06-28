@@ -188,15 +188,17 @@ namespace GuGu {
 			inViewportClient->getAspectRatio(), inCameraComponent->getNearPlane(), inCameraComponent->getFarPlane()
 		);
 		math::float4x4 viewProjMatrix = math::inverse(math::affineToHomogeneous(camTransform->GetLocalToWorldTransformFloat())) * projMatrix;
-
 		math::float4x4 invViewProjMatrix = math::inverse(viewProjMatrix);
-
 		std::vector<math::float3> newFrustumPoints;
 		newFrustumPoints.resize(8);
 		for (size_t i = 0; i < 8; ++i)
 		{
 			//new point
-			newFrustumPoints[i] = math::float4(frustumPoints[i].x, frustumPoints[i].y, frustumPoints[i].z, 1.0f) * invViewProjMatrix;
+			math::float4 tempPoint = math::float4(frustumPoints[i].x, frustumPoints[i].y, frustumPoints[i].z, 1.0f) * invViewProjMatrix;
+			newFrustumPoints[i].x = tempPoint.x  / tempPoint.w;
+			newFrustumPoints[i].y = tempPoint.y  / tempPoint.w;
+			newFrustumPoints[i].z = tempPoint.z  / tempPoint.w;
+			//newFrustumPoints[i].w = tempPoint.w  / tempPoint.w;
 		}
 
 		if (!inCameraComponent->m_debugCameraFrustumIndexBuffer)
@@ -211,16 +213,13 @@ namespace GuGu {
 			//bufferDesc.isAccelStructBuildInput = m_RayTracingSupported;
 
 			inCameraComponent->m_debugCameraFrustumIndexBuffer = GetDevice()->createBuffer(bufferDesc);
-
 			m_CommandList->beginTrackingBufferState(inCameraComponent->m_debugCameraFrustumIndexBuffer, nvrhi::ResourceStates::Common);
-
 			m_CommandList->writeBuffer(inCameraComponent->m_debugCameraFrustumIndexBuffer, frustumPointsIndex, 24 * sizeof(uint32_t));
-
 			nvrhi::ResourceStates state = nvrhi::ResourceStates::IndexBuffer | nvrhi::ResourceStates::ShaderResource;
-
 			m_CommandList->setPermanentBufferState(inCameraComponent->m_debugCameraFrustumIndexBuffer, state);
 			m_CommandList->commitBarriers();
 		}
+
 
 		if (!inCameraComponent->m_debugCameraFrustumVertexBuffer)
 		{
@@ -228,19 +227,18 @@ namespace GuGu {
 			bufferDesc.isVertexBuffer = true;
 			bufferDesc.byteSize = 24 * sizeof(math::float3);
 			bufferDesc.debugName = "CameraVertexBuffer";
-			bufferDesc.initialState = nvrhi::ResourceStates::CopyDest;
-
+			bufferDesc.canHaveTypedViews = true;
+			bufferDesc.canHaveRawViews = true;
+			bufferDesc.keepInitialState = true;
+			bufferDesc.canHaveRawViews = true;
 			inCameraComponent->m_debugCameraFrustumVertexBuffer = GetDevice()->createBuffer(bufferDesc);
-
-			m_CommandList->beginTrackingBufferState(inCameraComponent->m_debugCameraFrustumVertexBuffer, nvrhi::ResourceStates::CopyDest);
-
-			m_CommandList->writeBuffer(inCameraComponent->m_debugCameraFrustumVertexBuffer, newFrustumPoints.data(), sizeof(frustumPoints), 0);
-
-			nvrhi::ResourceStates state = nvrhi::ResourceStates::VertexBuffer;
-
-			m_CommandList->setPermanentBufferState(inCameraComponent->m_debugCameraFrustumVertexBuffer, state);
-			m_CommandList->commitBarriers();
 		}
+
+		//m_CommandList->beginTrackingBufferState(inCameraComponent->m_debugCameraFrustumVertexBuffer, nvrhi::ResourceStates::CopyDest);
+		m_CommandList->writeBuffer(inCameraComponent->m_debugCameraFrustumVertexBuffer, newFrustumPoints.data(), sizeof(frustumPoints), 0);
+		nvrhi::ResourceStates state = nvrhi::ResourceStates::VertexBuffer;
+		//m_CommandList->setPermanentBufferState(inCameraComponent->m_debugCameraFrustumVertexBuffer, state);
+		m_CommandList->commitBarriers();
 	}
 
 	void Demo::createTerrainVertexBufferAndIndexBuffer(std::shared_ptr<TerrainComponent> terrainComponent)
@@ -2432,7 +2430,7 @@ namespace GuGu {
 		}	
 
 		nvrhi::GraphicsState cameraGraphicsState;
-		cameraGraphicsState.pipeline = m_gizmosPipeline;
+		cameraGraphicsState.pipeline = m_cameraPipeline;
 		cameraGraphicsState.framebuffer = inViewportClient->getFramebuffer();
 
 		cameraGraphicsState.viewport.addViewportAndScissorRect(viewport);
@@ -2469,13 +2467,13 @@ namespace GuGu {
 
 				CameraBufferEntry modelConstants;
 				modelConstants.viewProjMatrix = viewProjMatrix;
-				modelConstants.worldMatrix = math::affineToHomogeneous((transformComponent->GetLocalToWorldTransformFloat()));
+				modelConstants.worldMatrix = math::float4x4::identity();;
 				modelConstants.camWorldPos = inViewportClient->getCamPos();
 				//get the global matrix to fill constant buffer		
 				m_CommandList->writeBuffer(m_cameraConstantBuffer[i], &modelConstants, sizeof(modelConstants));
 
 				CameraPropertiesBuffer propertiesBuffer;
-				propertiesBuffer.color = math::float3(1.0f, 1.0f, 1.0f);
+				propertiesBuffer.color = math::float3(0.73f, 0.90f, 0.44f);
 				m_CommandList->writeBuffer(m_cameraPropertiesConstantBuffers[i], &propertiesBuffer, sizeof(propertiesBuffer));
 
 				cameraGraphicsState.setPipeline(m_cameraPipeline);
