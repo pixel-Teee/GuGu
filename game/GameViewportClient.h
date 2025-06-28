@@ -88,6 +88,8 @@ namespace GuGu {
 		Gizmos getCurrentGizmosType() const override;
 
 		virtual void modifyObject(std::shared_ptr<meta::Object> inObject) override;
+
+		virtual void setSelectItem(std::shared_ptr<GameObject> inGameObject) override;
 	private:
 		std::weak_ptr<ViewportWidget> m_viewportWidget;
 

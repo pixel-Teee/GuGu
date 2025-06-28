@@ -91,6 +91,9 @@ namespace GuGu {
 
 		//undo/redo
 		virtual void modifyObject(std::shared_ptr<meta::Object> inObject) = 0;
+
+		//select item
+		virtual void setSelectItem(std::shared_ptr<GameObject> inGameObject) = 0;
 	private:
 		GameObjectSelectionChangedEvent m_gameObjectSelectionChangedEvent;
 	};

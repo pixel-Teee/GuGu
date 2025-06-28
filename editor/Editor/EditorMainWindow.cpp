@@ -305,7 +305,7 @@ namespace GuGu {
 		}
 
 		//std::shared_ptr<TileView<GuGuUtf8Str>> test = WIDGET_NEW(TileView<GuGuUtf8Str>);
-		std::function<void(const std::vector<GameObject*>&, bool)> gameObjectSelectionChangedEvent = std::bind(&EditorMainWindow::refreshDetailsView, this, std::placeholders::_1, std::placeholders::_2);
+		std::function<void(const std::vector<GameObject*>&, bool)> gameObjectSelectionChangedEvent = std::bind(&EditorMainWindow::onItemSelect, this, std::placeholders::_1, std::placeholders::_2);
 		std::shared_ptr<ViewportClient> viewportClient = m_viewportWidget->getViewportClient();
 		viewportClient->setGameObjectSelectionChangedEvent(gameObjectSelectionChangedEvent);
 
@@ -411,9 +411,17 @@ namespace GuGu {
 		m_viewportWidget->setRenderTarget(renderTarget);
 	}
 
-	void EditorMainWindow::refreshDetailsView(const std::vector<GameObject*>& inObjects, bool bForceRefresh)
+	void EditorMainWindow::onItemSelect(const std::vector<GameObject*>& inObjects, bool bForceRefresh)
 	{
 		m_objectDetails->setObjects(inObjects, bForceRefresh);
+
+		//select item
+		std::shared_ptr<ViewportClient> viewportClient = m_viewportWidget->getViewportClient();
+		if (inObjects.size() > 0)
+		{
+			std::shared_ptr<GameObject> gameObject = std::static_pointer_cast<GameObject>(inObjects[0]->shared_from_this());
+			viewportClient->setSelectItem(gameObject);
+		}
 	}
 
 	math::float4 EditorMainWindow::getUndoColor() const

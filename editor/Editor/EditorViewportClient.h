@@ -95,6 +95,8 @@ namespace GuGu {
 		virtual void modifyObject(std::shared_ptr<meta::Object> inObject) override;
 
 		Reply handleUnhandledKeyDownEvent(const KeyEvent& inKeyEvent);
+
+		virtual void setSelectItem(std::shared_ptr<GameObject> inGameObject) override;
 	private:
 		void makeGizmos();
 

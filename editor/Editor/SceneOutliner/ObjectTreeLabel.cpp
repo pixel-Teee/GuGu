@@ -132,7 +132,7 @@ namespace GuGu {
 					if (parentWindowLocked)
 					{
 						std::vector<GameObject*> emptyGameObjects;
-						parentWindowLocked->refreshDetailsView(emptyGameObjects, true);
+						parentWindowLocked->onItemSelect(emptyGameObjects, true);
 					}
 				}
 			}

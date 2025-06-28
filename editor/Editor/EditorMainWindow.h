@@ -59,7 +59,7 @@ namespace GuGu {
 
 		void setRenderTarget(nvrhi::TextureHandle renderTarget);
 
-		void refreshDetailsView(const std::vector<GameObject*>&, bool);
+		void onItemSelect(const std::vector<GameObject*>&, bool);
 	private:
 
 		std::shared_ptr<ViewportWidget> m_viewportWidget;

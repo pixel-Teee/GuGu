@@ -1375,11 +1375,13 @@ namespace GuGu {
 			for (size_t i = 0; i < gameObjects.size(); ++i)
 			{
 				std::shared_ptr<LightComponent> lightComponent = gameObjects[i]->getComponent<LightComponent>();
-				if (lightComponent)
+				std::shared_ptr<TransformComponent> transformComponent = gameObjects[i]->getComponent<TransformComponent>();
+				if (lightComponent && transformComponent)
 				{
 					if (lightCount < m_maxLightCounts)
 					{
-						light.lightPositions[lightCount] = lightComponent->m_lightPosition;
+						math::double3 pos = transformComponent->getTranslation();
+						light.lightPositions[lightCount] = math::float4(pos.x, pos.y, pos.z, 1.0f);
 						light.lightColors[lightCount] = lightComponent->m_lightColor.toFloat4() * math::float4(1000.0f, 1000.0f, 1000.0f, 1.0f);
 						++lightCount;
 					}
@@ -1917,11 +1919,13 @@ namespace GuGu {
 		for (size_t i = 0; i < gameObjects.size(); ++i)
 		{
 			std::shared_ptr<LightComponent> lightComponent = gameObjects[i]->getComponent<LightComponent>();
-			if (lightComponent)
+			std::shared_ptr<TransformComponent> transformComponent = gameObjects[i]->getComponent<TransformComponent>();
+			if (lightComponent && transformComponent)
 			{	
 				if (lightCount < m_maxLightCounts)
 				{
-					light.lightPositions[lightCount] = lightComponent->m_lightPosition;
+					math::double3 pos = transformComponent->getTranslation();
+					light.lightPositions[lightCount] = math::float4(pos.x, pos.y, pos.z, 1.0f);
 					light.lightColors[lightCount] = lightComponent->m_lightColor.toFloat4() * math::float4(1000.0f, 1000.0f, 1000.0f, 1.0f);
 					++lightCount;
 				}

@@ -138,6 +138,11 @@ namespace GuGu {
 		//nothing todo
 	}
 
+	void GameViewportClient::setSelectItem(std::shared_ptr<GameObject> inGameObject)
+	{
+
+	}
+
 	GuGu::math::float4x4 GameViewportClient::getWorldToViewMatrix() const
 	{
 		return math::float4x4();

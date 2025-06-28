@@ -865,6 +865,12 @@ namespace GuGu {
 		return Reply::Unhandled();
 	}
 
+	void EditorViewportClient::setSelectItem(std::shared_ptr<GameObject> inGameObject)
+	{
+		m_pickedGameObject = inGameObject;
+		m_bShowGizmos = true;
+	}
+
 	void EditorViewportClient::makeGizmos()
 	{
 		//绿色
