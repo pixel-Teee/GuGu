@@ -142,7 +142,7 @@ namespace GuGu {
 
 		Reply ObjectTreeLabel::OnDragDetected(const WidgetGeometry& myGeometry, const PointerEvent& mouseEvent)
 		{
-			if(m_objectPtr.lock())
+			if(m_objectPtr.lock() && mouseEvent.isMouseButtonDown(Keys::LeftMouseButton))
 				return Reply::Handled().beginDragDrop(ObjectDragDropOperation::New(m_objectPtr.lock()));
 			else
 				return Reply::Unhandled();
