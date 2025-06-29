@@ -20,6 +20,8 @@ namespace GuGu {
 		friend bool operator==(const Key& keyA, const Key& keyB) { return keyA.m_keyName == keyB.m_keyName; }
 
 		friend bool operator!=(const Key& keyA, const Key& keyB) { return !(keyA == keyB); }
+
+		friend bool operator<(const Key& keyA, const Key& keyB) { return keyA.m_keyName < keyB.m_keyName; }
 	private:
 		GuGuUtf8Str m_keyName;
 	};

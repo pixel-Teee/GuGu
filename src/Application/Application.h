@@ -301,6 +301,8 @@ namespace GuGu {
 		std::vector<std::shared_ptr<WindowWidget>> m_windowsDestroyQueue;
 
 		OnKeyEvent m_unhandledKeyDownEventHandler;
+
+		std::set<Key> m_pressedMouseButtons;
 	};
 	std::shared_ptr<Application> CreateApplicationFactory();
 }

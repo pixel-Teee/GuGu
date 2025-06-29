@@ -116,11 +116,13 @@ namespace GuGu {
 	public:
 		PointerEvent(const math::float2& inScreenSpacePosition,
 			const math::float2& inLastScreenSpacePosition,
+			const std::set<Key>* inPressedButtons,
 			const Key& inKey = Keys::LeftMouseButton,
 			float inWheelDelta = 0)
 			: m_screenSpacePosition(inScreenSpacePosition)
 			, m_lastScreenSpacePosition(inLastScreenSpacePosition)
 			, m_cursorDelta(inScreenSpacePosition - inLastScreenSpacePosition)
+			, m_pressedMouseButtons(inPressedButtons)
 			, m_effectingButton(inKey)
 			, m_wheelOrGestureDelta(inWheelDelta)
 		{}
@@ -135,11 +137,17 @@ namespace GuGu {
 			return m_effectingButton;
 		}
 
+		bool isMouseButtonDown(Key inMouseButton) const
+		{
+			return m_pressedMouseButtons->find(inMouseButton) != m_pressedMouseButtons->end();
+		}
+
 		math::float2 m_screenSpacePosition;
 		math::float2 m_lastScreenSpacePosition;
 		math::float2 m_cursorDelta;
 		Key m_effectingButton;
 		float m_wheelOrGestureDelta;
+		const std::set<Key>* m_pressedMouseButtons;
 	};
 
 	class DragDropOperation;

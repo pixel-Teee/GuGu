@@ -204,6 +204,7 @@ namespace GuGu{
         PointerEvent mouseEvent(
             translatedCursorPos,
             m_lastCursorPos,
+			&m_pressedMouseButtons,
 			translateMouseButtonToKey(mouseButton)
         );
         m_lastCursorPos = translatedCursorPos;
@@ -229,6 +230,7 @@ namespace GuGu{
 		PointerEvent mouseEvent(
             translatedCursorPos,
 			m_lastCursorPos,
+			&m_pressedMouseButtons,
 			translateMouseButtonToKey(mouseButton)
 		);
 		m_lastCursorPos = translatedCursorPos;
@@ -254,6 +256,7 @@ namespace GuGu{
 		PointerEvent mouseEvent(
 			translatedCursorPos,
 			m_lastCursorPos,
+			&m_pressedMouseButtons,
 			Keys::Invalid
 		);
 		m_lastCursorPos = translatedCursorPos;
@@ -279,6 +282,7 @@ namespace GuGu{
 		PointerEvent mouseEvent(
 			translatedCursorPos,
 			m_lastCursorPos,
+			&m_pressedMouseButtons,
 			translateMouseButtonToKey(mouseButton)
 		);
 
@@ -366,6 +370,7 @@ namespace GuGu{
 		PointerEvent mouseWheelEvent(
 			cursorPos,
 			m_lastCursorPos,
+			&m_pressedMouseButtons,
 			translateMouseButtonToKey(MouseButtons::Type::Left),
 			delta
 		);
@@ -895,6 +900,8 @@ namespace GuGu{
 
 	bool Application::processMouseButtonDownEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
     {
+		m_pressedMouseButtons.insert(mouseEvent.getEffectingButton());
+
 		if (!m_captorWidgetsPath.isEmpty())
 		{
 			//std::vector<std::weak_ptr<Widget>> captorWidgetsPath = m_captorWidgetsPath;
@@ -1000,6 +1007,8 @@ namespace GuGu{
 
     bool Application::processMouseButtonUpEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
     {
+		m_pressedMouseButtons.erase(mouseEvent.getEffectingButton());
+
 		Reply reply = Reply::Unhandled();
 		const bool bIsDragDropping = m_dragDropContent != nullptr;
 		std::shared_ptr<DragDropOperation> localDragDropContent;
@@ -1127,6 +1136,10 @@ namespace GuGu{
 					math::float2 dragDelta = m_dragstate->m_dragStartLocation - mouseEvent.m_screenSpacePosition;
 					if (math::lengthSquared(dragDelta) > m_dragTriggerDistance * m_dragTriggerDistance)
 					{
+						GuGu_LOGD("trigger drag, dragStartLocation:(x:%f, y:%f), mousePosition:(%f, %f), dragDelta:(x:%f, y:%f)", 
+							m_dragstate->m_dragStartLocation.x, m_dragstate->m_dragStartLocation.y,
+							mouseEvent.m_screenSpacePosition.x, mouseEvent.m_screenSpacePosition.y,
+							dragDelta.x, dragDelta.y);
 						m_dragstate->m_detectDragForWidget.toWidgetPath(dragDetectionPath);
 						if (dragDetectionPath.isValid())
 						{

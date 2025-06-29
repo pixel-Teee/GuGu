@@ -432,10 +432,13 @@ namespace GuGu {
 		{
 			draggedAssets.push_back(assetData);
 		}
-
-		if (draggedAssets.size() > 0)
+		
+		if (mouseEvent.isMouseButtonDown(Keys::LeftMouseButton))
 		{
-			return Reply::Handled().beginDragDrop(AssetDragDrop::New(draggedAssets, draggedAssetPaths));
+			if (draggedAssets.size() > 0)
+			{
+				return Reply::Handled().beginDragDrop(AssetDragDrop::New(draggedAssets, draggedAssetPaths));
+			}
 		}
 
 		return Reply::Unhandled();
