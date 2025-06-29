@@ -142,6 +142,7 @@ namespace GuGu {
 
 		Reply ObjectTreeLabel::OnDragDetected(const WidgetGeometry& myGeometry, const PointerEvent& mouseEvent)
 		{
+			//note:注意，必须判断鼠标是否按下，因为OnDragDected在鼠标移动的时候触发，不然鼠标松开也会出现拖动的装饰性窗口
 			if(m_objectPtr.lock() && mouseEvent.isMouseButtonDown(Keys::LeftMouseButton))
 				return Reply::Handled().beginDragDrop(ObjectDragDropOperation::New(m_objectPtr.lock()));
 			else
