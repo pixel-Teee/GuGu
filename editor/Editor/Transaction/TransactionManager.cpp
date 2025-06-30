@@ -688,9 +688,9 @@ namespace GuGu {
 						nlohmann::json value = diffJson[item.key()];
 						if(value.contains("removed") || value.contains("added"))
 							continue;
-						if (indexToObjects.find(item.value().get<int32_t>()) != indexToObjects.end())
+						if (indexToObjects.find(item.value()["new"].get<int32_t>()) != indexToObjects.end())
 						{
-							meta::Object* pointerToObject = indexToObjects.find(item.value().get<int32_t>())->second;
+							meta::Object* pointerToObject = indexToObjects.find(item.value()["new"].get<int32_t>())->second;
 							std::shared_ptr<meta::Object> objectValue = pointerToObject->shared_from_this();
 							wrapper.SetValue(std::stoi(item.key()), objectValue);
 						}
