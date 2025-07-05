@@ -11,6 +11,7 @@ namespace GuGu {
 	class IMenu;
 	class GameObject;
 	struct ObjectTreeItem;
+	class TransactionManager;
 	namespace SceneOutlinerNameSpace
 	{
 		struct ObjectTreeLabel : public SceneOutlinerCommonLabelData, public CompoundWidget
@@ -42,6 +43,8 @@ namespace GuGu {
 			Reply OnDrop(const WidgetGeometry& myGeometry, const DragDropEvent& dragDropEvent) override;
 
 			Visibility getHoverVisibility() const;
+
+			void deleteGameObjectsAndItsChildrens(std::shared_ptr<GameObject> inGameObject, TransactionManager& inTransactionManager);
 		private:
 			std::weak_ptr<ObjectTreeItem> m_treeItemPtr;
 			std::weak_ptr<GameObject> m_objectPtr;

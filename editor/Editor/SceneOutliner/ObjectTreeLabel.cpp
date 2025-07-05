@@ -117,7 +117,8 @@ namespace GuGu {
 				TransactionManager& transactionManager = TransactionManager::getTransactionManager();
 				transactionManager.beginTransaction();
 				transactionManager.modifyObject(currentLevel);
-				World::getWorld()->getCurrentLevel()->deleteGameObject(m_objectPtr.lock());
+				//World::getWorld()->getCurrentLevel()->deleteGameObject(m_objectPtr.lock());
+				deleteGameObjectsAndItsChildrens(m_objectPtr.lock(), transactionManager);
 				transactionManager.commit();
 			}	
 	
@@ -205,6 +206,19 @@ namespace GuGu {
 			if(m_bDragHover)
 				return Visibility::Visible;
 			return Visibility::Collapsed;
+		}
+
+		void ObjectTreeLabel::deleteGameObjectsAndItsChildrens(std::shared_ptr<GameObject> inGameObject, TransactionManager& inTransactionManager)
+		{
+			inGameObject->setParentGameObject(std::shared_ptr<GameObject>());
+			auto& childrens = inGameObject->getChildrens();
+			for (size_t i = 0; i < childrens.size(); ++i)
+			{
+				//childrens[i]->setParentGameObject(std::shared_ptr<GameObject>());
+				deleteGameObjectsAndItsChildrens(childrens[i], inTransactionManager);
+			}
+			childrens.clear();
+			World::getWorld()->getCurrentLevel()->deleteGameObject(inGameObject);
 		}
 
 	}
