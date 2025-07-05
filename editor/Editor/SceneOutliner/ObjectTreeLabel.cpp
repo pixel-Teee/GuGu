@@ -105,6 +105,16 @@ namespace GuGu {
 			return Reply::Unhandled();
 		}
 
+		Reply ObjectTreeLabel::OnMouseButtonDoubleClick(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
+		{
+			if (inMouseEvent.getEffectingButton() == Keys::LeftMouseButton)
+			{
+				//trigger rename
+				return Reply::Handled();
+			}
+			return Reply::Unhandled();
+		}
+
 		Reply ObjectTreeLabel::rightClick()
 		{
 			m_menu->dismiss();
