@@ -1832,7 +1832,11 @@ namespace GuGu {
 			nvrhi::BlendState::RenderTarget renderTargetBlendState;
 			renderTargetBlendState.blendEnable = true;
 			renderTargetBlendState.srcBlend = nvrhi::BlendFactor::SrcAlpha;
-			renderTargetBlendState.destBlend = nvrhi::BlendFactor::OneMinusSrc1Alpha;
+			renderTargetBlendState.destBlend = nvrhi::BlendFactor::InvSrcAlpha;
+			renderTargetBlendState.blendOp = nvrhi::BlendOp::Add;
+			//renderTargetBlendState.srcBlendAlpha = nvrhi::BlendFactor::One;
+			//renderTargetBlendState.destBlendAlpha = nvrhi::BlendFactor::Zero;
+			//renderTargetBlendState.blendOpAlpha = nvrhi::BlendOp::Add;
 			psoDesc.renderState.blendState = nvrhi::BlendState().setRenderTarget(0, renderTargetBlendState);
 			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
 			m_gizmosPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
@@ -1881,6 +1885,24 @@ namespace GuGu {
 			psoDesc.renderState.depthStencilState.depthTestEnable = false;
 			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
 			m_cameraPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
+		}
+
+		if (!m_gridPipeline)
+		{
+			nvrhi::GraphicsPipelineDesc psoDesc;
+			psoDesc.VS = m_gridVertexShader;
+			psoDesc.PS = m_gridPixelShader;
+			psoDesc.inputLayout = m_gridInputLayout;
+			psoDesc.bindingLayouts = { m_gridBindingLayout };
+			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+			psoDesc.renderState.depthStencilState.depthTestEnable = true;
+			psoDesc.renderState.blendState.targets[0].setBlendEnable(true);
+			psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
+			psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
+			psoDesc.renderState.blendState.targets[0].setSrcBlendAlpha(nvrhi::BlendFactor::Zero);
+			psoDesc.renderState.blendState.targets[0].setDestBlendAlpha(nvrhi::BlendFactor::One);
+			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
+			m_gridPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
 		m_drawItems.clear();
@@ -2338,6 +2360,48 @@ namespace GuGu {
 				}
 			}
 		}
+
+		nvrhi::GraphicsState gridGraphicsState;
+		gridGraphicsState.pipeline = m_gridPipeline;
+		gridGraphicsState.framebuffer = inViewportClient->getFramebuffer();
+		gridGraphicsState.viewport.addViewportAndScissorRect(viewport);
+
+		GridProperties gridProperties;
+		m_CommandList->writeBuffer(m_gridPropertiesConstantBuffer, &gridProperties, sizeof(GridProperties));
+
+		//draw grid
+		if (!m_gridBindingSet)
+		{
+			nvrhi::BindingSetDesc desc;
+			//nvrhi::BindingSetHandle bindingSet;
+			desc.bindings = {
+					nvrhi::BindingSetItem::ConstantBuffer(0, m_gridConstantBuffer),
+					nvrhi::BindingSetItem::ConstantBuffer(1, m_gridPropertiesConstantBuffer),
+			};
+			m_gridBindingSet = GetDevice()->createBindingSet(desc, m_gridBindingLayout);
+		}
+
+		gridGraphicsState.bindings = { m_gridBindingSet };
+
+		gridGraphicsState.vertexBuffers = {
+			{m_gridVertexBuffer, 0, offsetof(GridVertex, position)},
+			{m_gridVertexBuffer, 1, offsetof(GridVertex, uv)}
+		};
+
+		GridConstantBufferEntry modelConstants;
+		modelConstants.viewProjMatrix = viewProjMatrix;
+		modelConstants.worldMatrix = math::float4x4::identity();
+		modelConstants.camWorldPos = inViewportClient->getCamPos();
+		//get the global matrix to fill constant buffer		
+		m_CommandList->writeBuffer(m_gridConstantBuffer, &modelConstants, sizeof(modelConstants));
+
+		gridGraphicsState.setPipeline(m_gridPipeline);
+		m_CommandList->setGraphicsState(gridGraphicsState);
+
+		// Draw the model.
+		nvrhi::DrawArguments args;
+		args.vertexCount = m_gridVertices.size();
+		m_CommandList->draw(args);
 
 		m_CommandList->clearDepthStencilTexture(inViewportClient->getDepthTarget(), nvrhi::AllSubresources, true, 1.0f, true, 0);
 		nvrhi::GraphicsState gizmosGraphicsState;

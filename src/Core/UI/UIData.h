@@ -19,7 +19,7 @@ namespace GuGu {
 		float _majorLineWidth = 0.02f;
 		float _minorLineWidth = 0.01f;
 		math::float3 pad0;
-		math::float4 _baseColor = math::float4(0.0f, 0.0f, 0.0f, 1.0f);
+		math::float4 _baseColor = math::float4(0.0f, 0.0f, 0.0f, 0.0f);
 		math::float4 _majorLineColor = math::float4(1.0f, 1.0f, 1.0f, 1.0f);
 		math::float4 _minorLineColor = math::float4(1.0f, 1.0f, 1.0f, 1.0f);
 		math::float4 _xAxisLineColor = math::float4(1.0f, 0.0f, 0.0f, 1.0f);
