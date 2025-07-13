@@ -12,5 +12,6 @@ namespace dm = GuGu::math;
 #include "box.h"
 #include "color.h"
 #include "quat.h"
+#include "rotator.h"
 //#include "sphere.h"
 //#include "frustum.h"

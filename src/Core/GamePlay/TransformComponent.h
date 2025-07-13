@@ -32,12 +32,15 @@ namespace GuGu {
 
 		void SetTransform(const math::double3* translation, const math::dquat* rotation, const math::double3* scaling);
 		void SetScaling(math::double3 scaling);
-		void SetRotation(math::dquat rotation);
+		void SetRotationQuat(math::dquat rotation);
+		void SetRotator(math::Rotator inRotator);
 		void SetTranslation(math::double3 translation);
 
 		math::double3 getTranslation() const;
 		math::double3& getTranslation();
-		math::dquat getRotation() const;
+		math::dquat getRotationQuat() const;
+		math::Rotator& getRotator();
+		math::Rotator getRotator() const;
 		math::double3 getScaling() const;
 		math::double3& getScaling();
 
@@ -46,7 +49,9 @@ namespace GuGu {
 
 		virtual meta::Type GetType() const override;
 	private:
-		math::dquat m_Rotation = math::dquat::identity();
+		//math::dquat m_Rotation = math::dquat::identity();
+		//rotate-z, rotate-y, rotate-x order
+		math::Rotator m_Rotation = math::double3(0, 0, 0);//roll, pitch, yaw
 		math::double3 m_Scaling = 1.0;
 		math::double3 m_Translation = math::double3(0, 0, 10);
 		math::daffine3 m_LocalTransform = math::daffine3::identity();

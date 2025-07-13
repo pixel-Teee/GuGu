@@ -2473,7 +2473,7 @@ namespace GuGu {
 				}		
 				else if (inViewportClient->getCurrentGizmosType() == ViewportClient::Gizmos::Scale)
 				{
-					noScalingAffine = math::scaling(scaling) * math::affine3(transform->getRotation().toAffine()) * math::translation(translation);
+					noScalingAffine = math::scaling(scaling) * math::affine3(transform->getRotationQuat().toAffine()) * math::translation(translation);
 				}
 				modelConstants.worldMatrix = math::float4x4(math::affineToHomogeneous(noScalingAffine));
 				modelConstants.camWorldPos = inViewportClient->getCamPos();

@@ -1092,6 +1092,34 @@ namespace GuGu {
 		return true;
 	}
 
+	static bool registerRotator()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto id = db.AllocateType("math::Rotator");
+		auto& type = db.types[id];
+		meta::TypeInfo<math::Rotator>::Register(id, type, true, "0AD77E66-681B-4D8E-9D45-AEF7872EF3D3");
+
+		type.AddConstructor<math::Rotator, false, false>({});
+
+		type.AddConstructor<math::Rotator, true, false>({});
+
+		type.SetArrayConstructor<math::Rotator>();
+
+		type.AddField<math::Rotator, float>("yaw",
+			(meta::FieldGetter<math::Rotator, float, false>::Signature) & math::vector<float, 4>::x,
+			(meta::FieldSetter<math::Rotator, float, false>::Signature) & math::vector<float, 4>::x, {});
+
+		type.AddField<math::Rotator, float>("pitch",
+			(meta::FieldGetter<math::Rotator, float, false>::Signature) & math::vector<float, 4>::y,
+			(meta::FieldSetter<math::Rotator, float, false>::Signature) & math::vector<float, 4>::y, {});
+
+		type.AddField<math::Rotator, float>("roll",
+			(meta::FieldGetter<math::Rotator, float, false>::Signature) & math::vector<float, 4>::z,
+			(meta::FieldSetter<math::Rotator, float, false>::Signature) & math::vector<float, 4>::z, {});
+
+		return true;
+	}
+
 	static bool registerGuGuColor()
 	{
 		auto& db = meta::ReflectionDatabase::Instance();
@@ -1308,8 +1336,8 @@ namespace GuGu {
 					(meta::FieldGetter<TransformComponent, math::double3&, true>::Signature) & TransformComponent::getTranslation,
 					(meta::FieldSetter<TransformComponent, math::double3, true>::Signature) & TransformComponent::SetTranslation, {});
 				type.AddField<TransformComponent, math::dquat>("m_Rotation",
-					(meta::FieldGetter<TransformComponent, math::dquat, true>::Signature) & TransformComponent::getRotation,
-					(meta::FieldSetter<TransformComponent, math::dquat, true>::Signature) & TransformComponent::SetRotation, {});
+					(meta::FieldGetter<TransformComponent, math::dquat, true>::Signature) & TransformComponent::getRotationQuat,
+					(meta::FieldSetter<TransformComponent, math::dquat, true>::Signature) & TransformComponent::SetRotationQuat, {});
 				type.AddField<TransformComponent, math::double3>("m_Scaling",
 					(meta::FieldGetter<TransformComponent, math::double3&, true>::Signature) & TransformComponent::getScaling,
 					(meta::FieldSetter<TransformComponent, math::double3, true>::Signature) & TransformComponent::SetScaling, {});
@@ -1877,6 +1905,9 @@ namespace GuGu {
 		//Priority mathuint16_4Priority;
 		mathuint16_4Priority.setDebugName("math::uint16_4");
 		ReflectionMain::addInitialTypeFunction(registermathuint16_4, &mathuint16_4Priority);
+
+		mathrotatorPriority.setDebugName("math::Rotator");
+		ReflectionMain::addInitialTypeFunction(registerRotator, &mathrotatorPriority);
 
 		//Priority guguColorPriority;
 		//ReflectionMain::addInitialTypeFunction(registerGuGuColor, &guguColorPriority);

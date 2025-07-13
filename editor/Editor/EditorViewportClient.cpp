@@ -472,18 +472,18 @@ namespace GuGu {
 										m_pickedObjectDragStartWorldPosition = m_pickedGameObject->getComponent<TransformComponent>()->getTranslation();
 										if (m_currentGizmosIndex <= 1) //y
 										{
-											math::quat tmpQuat = math::quat(m_pickedGameObject->getComponent<TransformComponent>()->getRotation());
+											math::quat tmpQuat = math::quat(m_pickedGameObject->getComponent<TransformComponent>()->getRotationQuat());
 											m_worldObjectAxis = math::normalize(math::applyQuat(tmpQuat, math::float3(0, 1, 0)));
 										}
 										else if (m_currentGizmosIndex <= 3) //x
 										{
 											//GuGu_LOGD("X Axis");
-											math::quat tmpQuat = math::quat(m_pickedGameObject->getComponent<TransformComponent>()->getRotation());
+											math::quat tmpQuat = math::quat(m_pickedGameObject->getComponent<TransformComponent>()->getRotationQuat());
 											m_worldObjectAxis = math::normalize(math::applyQuat(tmpQuat, math::float3(1, 0, 0)));
 										}
 										else if (m_currentGizmosIndex <= 5) //z
 										{
-											math::quat tmpQuat = math::quat(m_pickedGameObject->getComponent<TransformComponent>()->getRotation());
+											math::quat tmpQuat = math::quat(m_pickedGameObject->getComponent<TransformComponent>()->getRotationQuat());
 											m_worldObjectAxis = math::normalize(math::applyQuat(tmpQuat, math::float3(0, 0, 1)));
 										}
 									}
@@ -545,10 +545,10 @@ namespace GuGu {
 							m_lastTheta = theta;
 							//GuGu_LOGD("绕y轴变化幅度{%f}", deltaTheta);
 							//转换成旋转
-							math::dquat rotation = m_pickedGameObject->getComponent<TransformComponent>()->getRotation();
+							math::dquat rotation = m_pickedGameObject->getComponent<TransformComponent>()->getRotationQuat();
 							math::dquat deltaRotation = math::rotationQuat(math::double3(0.0, 1.0, 0.0), deltaTheta * fElapsedTimeSecond * 100.0);
 							math::dquat newrotation = deltaRotation * rotation;//叠加在新的旋转上
-							m_pickedGameObject->getComponent<TransformComponent>()->SetRotation(newrotation);
+							m_pickedGameObject->getComponent<TransformComponent>()->SetRotationQuat(newrotation);
 						}
 						//if (mouseDelta.y != 0)
 						//{
@@ -576,10 +576,10 @@ namespace GuGu {
 							//GuGu_LOGD("绕x轴旋转{%f}", deltaTheta);
 							m_lastTheta = theta;
 							//转换成旋转
-							math::dquat rotation = m_pickedGameObject->getComponent<TransformComponent>()->getRotation();
+							math::dquat rotation = m_pickedGameObject->getComponent<TransformComponent>()->getRotationQuat();
 							math::dquat deltaRotation = math::rotationQuat(math::double3(1.0, 0.0, 0.0), deltaTheta * fElapsedTimeSecond * 100.0);
 							math::dquat newrotation = deltaRotation * rotation;//叠加在新的旋转上
-							m_pickedGameObject->getComponent<TransformComponent>()->SetRotation(newrotation);
+							m_pickedGameObject->getComponent<TransformComponent>()->SetRotationQuat(newrotation);
 						}
 						//if (mouseDelta.x != 0)
 						//{
@@ -607,10 +607,10 @@ namespace GuGu {
 							//GuGu_LOGD("绕z轴旋转{%f}", deltaTheta);
 							m_lastTheta = theta;
 							//转换成旋转
-							math::dquat rotation = m_pickedGameObject->getComponent<TransformComponent>()->getRotation();
+							math::dquat rotation = m_pickedGameObject->getComponent<TransformComponent>()->getRotationQuat();
 							math::dquat deltaRotation = math::rotationQuat(math::double3(0.0, 0.0, 1.0), deltaTheta * fElapsedTimeSecond * 100.0);
 							math::dquat newrotation = deltaRotation * rotation;//叠加在新的旋转上
-							m_pickedGameObject->getComponent<TransformComponent>()->SetRotation(newrotation);
+							m_pickedGameObject->getComponent<TransformComponent>()->SetRotationQuat(newrotation);
 						}
 						//if (mouseDelta.x != 0)
 						//{

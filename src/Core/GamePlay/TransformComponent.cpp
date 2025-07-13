@@ -59,9 +59,12 @@ namespace GuGu {
 		type.AddField<TransformComponent, math::double3>("m_Translation",
 			(meta::FieldGetter<TransformComponent, math::double3&, true>::Signature) & TransformComponent::getTranslation,
 			(meta::FieldSetter<TransformComponent, math::double3, true>::Signature) & TransformComponent::SetTranslation, {});
-		type.AddField<TransformComponent, math::dquat>("m_Rotation",
-			(meta::FieldGetter<TransformComponent, math::dquat, true>::Signature) & TransformComponent::getRotation,
-			(meta::FieldSetter<TransformComponent, math::dquat, true>::Signature) & TransformComponent::SetRotation, {});
+		//type.AddField<TransformComponent, math::dquat>("m_Rotation",
+		//	(meta::FieldGetter<TransformComponent, math::dquat, true>::Signature) & TransformComponent::getRotation,
+		//	(meta::FieldSetter<TransformComponent, math::dquat, true>::Signature) & TransformComponent::SetRotation, {});
+		type.AddField<TransformComponent, math::Rotator>("m_Rotation",
+			(meta::FieldGetter<TransformComponent, math::Rotator&, true>::Signature) & TransformComponent::getRotator,
+			(meta::FieldSetter<TransformComponent, math::Rotator, true>::Signature) & TransformComponent::SetRotator, {});
 		type.AddField<TransformComponent, math::double3>("m_Scaling",
 			(meta::FieldGetter<TransformComponent, math::double3&, true>::Signature) & TransformComponent::getScaling,
 			(meta::FieldSetter<TransformComponent, math::double3, true>::Signature) & TransformComponent::SetScaling, {});
@@ -110,7 +113,7 @@ namespace GuGu {
 	{
 		//update local transform
 		math::daffine3 transform = math::scaling(m_Scaling);
-		transform *= m_Rotation.toAffine();
+		transform *= math::rotationQuat(m_Rotation.getDouble3()).toAffine();
 		transform *= math::translation(m_Translation);
 		m_LocalTransform = transform;
 	}
@@ -141,17 +144,24 @@ namespace GuGu {
 	void TransformComponent::SetTransform(const math::double3* translation, const math::dquat* rotation, const math::double3* scaling)
 	{
 		if (scaling) m_Scaling = *scaling;
-		if (rotation) m_Rotation = *rotation;
+		if (rotation) m_Rotation = math::quatToEuler(*rotation);
 		if (translation) m_Translation = *translation;
 	}
 	void TransformComponent::SetScaling(math::double3 scaling)
 	{
 		SetTransform(nullptr, nullptr, &scaling);
 	}
-	void TransformComponent::SetRotation(math::dquat rotation)
+	void TransformComponent::SetRotationQuat(math::dquat rotation)
 	{
 		SetTransform(nullptr, &rotation, nullptr);
 	}
+
+	void TransformComponent::SetRotator(math::Rotator inRotator)
+	{
+		//SetTransform(nullptr, &rotation, nullptr);
+		m_Rotation = inRotator;
+	}
+
 	void TransformComponent::SetTranslation(math::double3 translation)
 	{
 		SetTransform(&translation, nullptr, nullptr);
@@ -167,7 +177,17 @@ namespace GuGu {
 		return m_Translation;
 	}
 
-	math::dquat TransformComponent::getRotation() const
+	GuGu::math::dquat TransformComponent::getRotationQuat() const
+{
+		return math::rotationQuat(m_Rotation.getDouble3());
+	}
+
+	GuGu::math::Rotator TransformComponent::getRotator() const
+	{
+		return m_Rotation;
+	}
+
+	GuGu::math::Rotator& TransformComponent::getRotator()
 	{
 		return m_Rotation;
 	}

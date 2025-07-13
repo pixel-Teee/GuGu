@@ -339,6 +339,7 @@ namespace GuGu {
 
 	IMPLEMENT_PROPERTY_VALUE(PropertyHandleFloat)
 	IMPLEMENT_PROPERTY_VALUE(PropertyHandleObject)
+	IMPLEMENT_PROPERTY_VALUE(PropertyHandleRotator)
 
 	bool PropertyHandleFloat::supports(std::shared_ptr<PropertyNode> propertyNode)
 	{
@@ -467,6 +468,26 @@ namespace GuGu {
 		res = m_implementation->importText(valueStr);
 
 		return res;
+	}
+
+	bool PropertyHandleRotator::supports(std::shared_ptr<PropertyNode> propertyNode)
+	{
+		meta::Field* field = propertyNode->getField();
+		if (field == nullptr)
+		{
+			return false;
+		}
+		return field->GetType() == typeof(math::Rotator);
+	}
+
+	PropertyAccess::Result PropertyHandleRotator::getValue(math::double3& outValue) const
+	{
+		return PropertyAccess::Result::Success;
+	}
+
+	PropertyAccess::Result PropertyHandleRotator::setValue(const math::double3& inValue)
+	{
+		return PropertyAccess::Result::Success;
 	}
 
 }

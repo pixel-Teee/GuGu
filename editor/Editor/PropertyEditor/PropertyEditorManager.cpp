@@ -5,6 +5,7 @@
 #include "Vector4StructCustomization.h"
 #include "VectorStructCustomization.h"
 #include "ColorStructCustomization.h"
+#include "RotatorStructCustomization.h"
 #include "PropertyNode.h"
 #include "ObjectDetails.h"
 #include <Core/Reflection/Field.h>
@@ -17,7 +18,8 @@ namespace GuGu {
 		registerCustomPropertyTypeLayout("math::float4", Vector4StructCustomization::create); //四分量
 		registerCustomPropertyTypeLayout("math::double4", Vector4StructCustomization::create); //四分量
 		registerCustomPropertyTypeLayout("math::float3", VectorStructCustomization::create); //三分量
-		registerCustomPropertyTypeLayout("math::double3", VectorStructCustomization::create); //三分量
+		registerCustomPropertyTypeLayout("math::double3", RotatorStructCustomization::create); //三分量
+		registerCustomPropertyTypeLayout("math::Rotator", RotatorStructCustomization::create); //三分量
 		registerCustomPropertyTypeLayout("Color", ColorStructCustomization::create);
 	}
 

@@ -420,6 +420,23 @@ namespace GuGu {
 			}
 
 			template<typename T>
+			vector<T, 3> quatToEuler(const quaternion<T>& inQuat)
+			{
+				T r11 = 1.0 - 2.0 * inQuat.y * inQuat.y - 2.0 * inQuat.z * inQuat.z;
+				T r12 = 2.0 * inQuat.x * inQuat.y - 2.0 * inQuat.w * inQuat.z;
+				T r13 = 2.0 * inQuat.x * inQuat.z + 2.0 * inQuat.w * inQuat.y;
+				T r21 = 2.0 * inQuat.x * inQuat.y + 2.0 * inQuat.w * inQuat.z;
+				T r22 = 1.0 - 2.0 * inQuat.x * inQuat.x - 2.0 * inQuat.z * inQuat.z;
+				T r23 = 2.0 * inQuat.y * inQuat.z - 2.0 * inQuat.w * inQuat.x;
+				T r31 = 2.0 * inQuat.x * inQuat.z - 2.0 * inQuat.w * inQuat.y;
+				T r32 = 2.0 * inQuat.y * inQuat.z + 2.0 * inQuat.w * inQuat.x;
+				T r33 = 1.0 - 2.0 * inQuat.x * inQuat.x - 2.0 * inQuat.y * inQuat.y;
+
+				//roll, pitch, yaw(x-y-z)
+				return math::vector<T, 3>(std::atan2(r23, r33), std::asin(-r13), std::atan2(r12, r11));
+			}
+
+			template<typename T>
 			quaternion<T> slerp(const quaternion<T>& a, const quaternion<T>& b, T u)
 			{
 				T theta = std::acos(dot(a, b));

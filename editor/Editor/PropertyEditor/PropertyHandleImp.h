@@ -84,6 +84,15 @@ namespace GuGu {
 		virtual PropertyAccess::Result setValue(const math::double3& inValue) override;
 	};
 
+	class PropertyHandleRotator : public PropertyHandleBase
+	{
+	public:
+		PropertyHandleRotator(std::shared_ptr<PropertyNode> propertyNode);
+		static bool supports(std::shared_ptr<PropertyNode> propertyNode);
+		virtual PropertyAccess::Result getValue(math::double3& outValue) const override;
+		virtual PropertyAccess::Result setValue(const math::double3& inValue) override;
+	};
+
 	class PropertyHandleDouble : public PropertyHandleBase
 	{
 	public:
