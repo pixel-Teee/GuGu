@@ -41,6 +41,9 @@ namespace GuGu {
 		math::double3 getScaling() const;
 		math::double3& getScaling();
 
+		//get parent translation
+		//math::double3 getAccumulatedTranslation() const;
+
 		virtual meta::Type GetType() const override;
 	private:
 		math::dquat m_Rotation = math::dquat::identity();

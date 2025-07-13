@@ -75,7 +75,9 @@ namespace GuGu {
 		//call object Update
 		for (size_t i = 0; i < m_objects.size(); ++i)
 		{
-			m_objects[i]->Update(fElapsedTimeSeconds);
+			if (m_objects[i]->getParentGameObject().lock() == nullptr)
+				recursiveUpdateObject(m_objects[i], fElapsedTimeSeconds);
+			//m_objects[i]->Update(fElapsedTimeSeconds);
 		}
 
 		//m_objects[0]->getComponent<Component>();
@@ -164,6 +166,15 @@ namespace GuGu {
 			{
 				World::getWorld()->m_onLevelChanged[i]();
 			}
+		}
+	}
+
+	void Level::recursiveUpdateObject(std::shared_ptr<GameObject> inGameObject, float fElapsedTimeSeconds)
+	{
+		inGameObject->Update(fElapsedTimeSeconds);
+		for (size_t i = 0; i < inGameObject->getChildrens().size(); ++i)
+		{
+			recursiveUpdateObject(inGameObject->getChildrens()[i], fElapsedTimeSeconds);
 		}
 	}
 

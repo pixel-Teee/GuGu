@@ -125,7 +125,7 @@ namespace GuGu {
 			{
 				std::shared_ptr<TransformComponent> parentTransformComponent =
 					parentGameObject->getComponent<TransformComponent>();
-				m_GlobalTransform = m_LocalTransform * parentTransformComponent->GetLocalToWorldTransform();
+				m_GlobalTransform = parentTransformComponent->GetLocalToWorldTransform() * m_LocalTransform;
 			}
 			else
 			{
@@ -181,6 +181,24 @@ namespace GuGu {
 	{
 		return m_Scaling;
 	}
+
+// 	math::double3 TransformComponent::getAccumulatedTranslation() const
+// 	{
+// 		math::double3 accumulatedTranslation = math::double3(0, 0, 0);
+// 		std::shared_ptr<GameObject> owner = m_owner.lock();
+// 		if (owner != nullptr)
+// 		{
+// 			std::shared_ptr<GameObject> parentGameObject = owner->getParentGameObject().lock();
+// 
+// 			if (parentGameObject != nullptr)
+// 			{
+// 				std::shared_ptr<TransformComponent> parentTransformComponent =
+// 					parentGameObject->getComponent<TransformComponent>();
+// 				accumulatedTranslation = parentTransformComponent->getAccumulatedTranslation() + accumulatedTranslation;
+// 			}
+// 		}
+// 		return accumulatedTranslation;
+// 	}
 
 	meta::Type TransformComponent::GetType() const
 	{

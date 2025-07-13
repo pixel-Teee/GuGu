@@ -37,6 +37,8 @@ namespace GuGu {
 		void deleteGameObject(std::shared_ptr<GameObject> inGameObject);
 
 		void refreshLevel();
+
+		void recursiveUpdateObject(std::shared_ptr<GameObject> inGameObject, float fElapsedTimeSeconds);
 	private:
 		Array<std::shared_ptr<GameObject>> m_objects; //all game objects
 	};
