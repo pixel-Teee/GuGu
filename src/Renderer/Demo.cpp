@@ -2469,7 +2469,7 @@ namespace GuGu {
 				{
 					noScalingAffine = math::scaling(scaling) * math::translation(translation);
 				}		
-				else if (inViewportClient->getCurrentGizmosType() == ViewportClient::Scale)
+				else if (inViewportClient->getCurrentGizmosType() == ViewportClient::Gizmos::Scale)
 				{
 					noScalingAffine = math::scaling(scaling) * math::affine3(transform->getRotation().toAffine()) * math::translation(translation);
 				}

@@ -380,7 +380,7 @@ namespace GuGu {
 						//rotation = math::quat(transform->getRotation());
 						math::affine3 noScalingNoRotationAffine;//gizmos 不需要缩放
 						scaling = math::float3(getScreenScaleCompensation(translation)) * 100.0f;//新的缩放，根据屏幕高度来调整
-						noScalingNoRotationAffine = math::scaling(scaling)  * math::translation(translation);
+						noScalingNoRotationAffine = math::scaling(scaling) * math::translation(translation);
 
 						std::shared_ptr<GStaticMesh> gStaticMesh = Collision3D::pick(mousePosition.x, mousePosition.y, m_width, m_height,
 							getPespectiveMatrix(), getWorldToViewMatrix(),
@@ -402,6 +402,7 @@ namespace GuGu {
 									//math::float3 worldRayDir;
 									Collision3D::calculateRayOriginAndRayDir(mousePosition.x, mousePosition.y, m_width, m_height,
 										getPespectiveMatrix(), getWorldToViewMatrix(), worldRayPos, worldRayNormal);
+									
 									//射线和x环对应的yz平面相交，或者y环对应的xz平面相交，或者z环对应的xy平面
 									if (i == 0) //绿色，绕y轴旋转
 									{
@@ -542,10 +543,11 @@ namespace GuGu {
 							float deltaTheta = theta - m_lastTheta;
 
 							m_lastTheta = theta;
-							//GuGu_LOGD("变化幅度{%f}", deltaTheta);
+							//GuGu_LOGD("绕y轴变化幅度{%f}", deltaTheta);
 							//转换成旋转
 							math::dquat rotation = m_pickedGameObject->getComponent<TransformComponent>()->getRotation();
-							math::dquat newrotation = rotation * math::rotationQuat(math::double3(0, deltaTheta * fElapsedTimeSecond * 100.0f, 0));//叠加在新的旋转上
+							math::dquat deltaRotation = math::rotationQuat(math::double3(0.0, 1.0, 0.0), deltaTheta * fElapsedTimeSecond * 100.0);
+							math::dquat newrotation = deltaRotation * rotation;//叠加在新的旋转上
 							m_pickedGameObject->getComponent<TransformComponent>()->SetRotation(newrotation);
 						}
 						//if (mouseDelta.y != 0)
@@ -575,7 +577,8 @@ namespace GuGu {
 							m_lastTheta = theta;
 							//转换成旋转
 							math::dquat rotation = m_pickedGameObject->getComponent<TransformComponent>()->getRotation();
-							math::dquat newrotation = rotation * math::rotationQuat(math::double3(deltaTheta * fElapsedTimeSecond * 100.0f, 0, 0));//叠加在新的旋转上
+							math::dquat deltaRotation = math::rotationQuat(math::double3(1.0, 0.0, 0.0), deltaTheta * fElapsedTimeSecond * 100.0);
+							math::dquat newrotation = deltaRotation * rotation;//叠加在新的旋转上
 							m_pickedGameObject->getComponent<TransformComponent>()->SetRotation(newrotation);
 						}
 						//if (mouseDelta.x != 0)
@@ -605,7 +608,8 @@ namespace GuGu {
 							m_lastTheta = theta;
 							//转换成旋转
 							math::dquat rotation = m_pickedGameObject->getComponent<TransformComponent>()->getRotation();
-							math::dquat newrotation = rotation * math::rotationQuat(math::double3(0, 0, deltaTheta * fElapsedTimeSecond * 100.0f));//叠加在新的旋转上
+							math::dquat deltaRotation = math::rotationQuat(math::double3(0.0, 0.0, 1.0), deltaTheta * fElapsedTimeSecond * 100.0);
+							math::dquat newrotation = deltaRotation * rotation;//叠加在新的旋转上
 							m_pickedGameObject->getComponent<TransformComponent>()->SetRotation(newrotation);
 						}
 						//if (mouseDelta.x != 0)
