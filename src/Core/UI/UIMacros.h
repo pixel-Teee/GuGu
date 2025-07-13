@@ -26,6 +26,15 @@ namespace GuGu {
 		static const uint32_t ParamCount = sizeof...(Args) + sizeof...(Vars);
 	};
 
+	template<typename...>
+	struct staticFunctionTraits;
+
+	template<typename R, typename... Args, typename... Vars>
+	struct staticFunctionTraits<std::function<R(Args...)>, Vars...> {
+		using StaticFunc = R(Args..., Vars...);
+		static const uint32_t ParamCount = sizeof...(Args) + sizeof...(Vars);
+	};
+
 	namespace RequiredArgs
 	{
 		struct T0RequiredArgs
@@ -257,6 +266,18 @@ namespace GuGu {
 	BuilderArguments& EventName##Lambda(Type&& inFunctor) \
 	{\
 		m##EventName = std::move(inFunctor); \
+		return static_cast<BuilderArguments*>(this)->Me(); \
+	}\
+	template<typename StaticFuncPtr, typename... VarTypes>\
+	BuilderArguments& EventName##Static(StaticFuncPtr inFunc, VarTypes... vars)\
+	{\
+		constexpr int32_t paramCount = staticFunctionTraits<Type, VarTypes...>::ParamCount - sizeof...(VarTypes);\
+		if constexpr (paramCount == 0) \
+			m##EventName = std::bind(inFunc, std::forward<VarTypes>(vars)...); \
+		else if constexpr (paramCount == 1) \
+			m##EventName = std::bind(inFunc, std::placeholders::_1, std::forward<VarTypes>(vars)...); \
+		else if constexpr (paramCount == 2) \
+			m##EventName = std::bind(inFunc, std::placeholders::_1, std::placeholders::_2, std::forward<VarTypes>(vars)...); \
 		return static_cast<BuilderArguments*>(this)->Me(); \
 	}\
 	template<class Class, typename... VarTypes>\

@@ -82,7 +82,8 @@ namespace GuGu {
 			{
 				//触发拖动
 				//detect drag
-				return Reply::Unhandled().detectDrag(shared_from_this(), Keys::LeftMouseButton);
+				//return Reply::Handled().detectDrag(shared_from_this(), Keys::LeftMouseButton);
+				return Reply::Unhandled();
 			}
 			else if (inMouseEvent.getEffectingButton() == Keys::RightMouseButton)
 			{

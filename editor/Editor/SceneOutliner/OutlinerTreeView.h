@@ -48,7 +48,7 @@ namespace GuGu {
 
 			std::weak_ptr<ITreeItem> m_item;
 
-
+			static Reply handleOnDragDetected(const WidgetGeometry& inWidgetGeometry, const PointerEvent& inMouseEvent, std::weak_ptr<OutlinerTreeView> table);
 		};
 	}
 }

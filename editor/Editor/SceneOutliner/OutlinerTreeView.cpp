@@ -3,6 +3,7 @@
 #include "OutlinerTreeView.h"
 #include "SceneOutliner.h"
 #include "ISceneOutlinerColumn.h" 
+#include "ObjectDragDropOperation.h"
 
 namespace GuGu {
 
@@ -22,6 +23,14 @@ namespace GuGu {
 
 			auto args = SuperRowType::BuilderArguments();
 			args.mStyle = arguments.mStyle.Get();
+
+			//std::function<Reply(const WidgetGeometry&, const PointerEvent&)> testFunc = 
+			//std::bind(&SceneOutlinerTreeRow::handleOnDragDetected, 
+			//std::placeholders::_1, 
+			//std::placeholders::_2, 
+			//std::weak_ptr<OutlinerTreeView>(outlinerTreeView));
+
+			args.onDragDetectedStatic(&SceneOutlinerTreeRow::handleOnDragDetected, std::weak_ptr<OutlinerTreeView>(outlinerTreeView));
 
 			MultiColumnTableRow::init(args, outlinerTreeView);
 		}
@@ -72,6 +81,29 @@ namespace GuGu {
 				//其他列，就是普通的内容
 				return newItemWidget;
 			}
+		}
+
+		Reply SceneOutlinerTreeRow::handleOnDragDetected(const WidgetGeometry& inWidgetGeometry, const PointerEvent& inMouseEvent, std::weak_ptr<OutlinerTreeView> table)
+		{
+			std::shared_ptr<OutlinerTreeView> lockedTable = table.lock();
+			//note:注意，必须判断鼠标是否按下，因为OnDragDected在鼠标移动的时候触发，不然鼠标松开也会出现拖动的装饰性窗口
+			if (inMouseEvent.isMouseButtonDown(Keys::LeftMouseButton))
+			{
+				auto& items = lockedTable->getSelectedItems();
+				if (items.size() > 0)
+				{
+					//get first item
+					SceneOutlinerNameSpace::TreeItemPtr treeItem = items[0];
+					std::shared_ptr<ObjectTreeItem> objectTreeItem = std::static_pointer_cast<ObjectTreeItem>(treeItem);
+					if (objectTreeItem)
+					{
+						return Reply::Handled().beginDragDrop(ObjectDragDropOperation::New(objectTreeItem->m_gameObject.lock()));
+					}
+				}
+				return Reply::Unhandled();
+			}
+			else
+				return Reply::Unhandled();
 		}
 
 	}

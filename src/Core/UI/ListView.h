@@ -499,7 +499,7 @@ namespace GuGu {
 		virtual std::vector<ItemType> getSelectedItems() const override
 		{
 			std::vector<ItemType> selectedItemArray;
-			selectedItemArray.resize(m_selectedItems.size());
+			selectedItemArray.clear();
 			for (typename ItemSet::const_iterator selectedItemIt(m_selectedItems.begin()); selectedItemIt != m_selectedItems.end(); ++selectedItemIt)
 			{
 				selectedItemArray.push_back(*selectedItemIt);
