@@ -573,8 +573,9 @@ namespace GuGu {
 							float theta = std::atan2f(intersectPos.z, intersectPos.y);
 
 							float deltaTheta = theta - m_lastTheta;
-							//GuGu_LOGD("绕x轴旋转{%f}", deltaTheta);
+							GuGu_LOGD("绕x轴旋转{%f}", deltaTheta);
 							m_lastTheta = theta;
+
 							//转换成旋转
 							math::dquat rotation = m_pickedGameObject->getComponent<TransformComponent>()->getRotationQuat();
 							math::dquat deltaRotation = math::rotationQuat(math::double3(1.0, 0.0, 0.0), deltaTheta * fElapsedTimeSecond * 100.0);

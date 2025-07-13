@@ -113,7 +113,7 @@ namespace GuGu {
 	{
 		//update local transform
 		math::daffine3 transform = math::scaling(m_Scaling);
-		transform *= math::rotationQuat(m_Rotation.getDouble3()).toAffine();
+		transform *= math::rotationQuat(m_Rotation.getRadians()).toAffine();
 		transform *= math::translation(m_Translation);
 		m_LocalTransform = transform;
 	}
@@ -179,7 +179,7 @@ namespace GuGu {
 
 	GuGu::math::dquat TransformComponent::getRotationQuat() const
 {
-		return math::rotationQuat(m_Rotation.getDouble3());
+		return math::rotationQuat(m_Rotation.getRadians());
 	}
 
 	GuGu::math::Rotator TransformComponent::getRotator() const

@@ -1105,17 +1105,17 @@ namespace GuGu {
 
 		type.SetArrayConstructor<math::Rotator>();
 
-		type.AddField<math::Rotator, float>("yaw",
-			(meta::FieldGetter<math::Rotator, float, false>::Signature) & math::vector<float, 4>::x,
-			(meta::FieldSetter<math::Rotator, float, false>::Signature) & math::vector<float, 4>::x, {});
-
 		type.AddField<math::Rotator, float>("pitch",
-			(meta::FieldGetter<math::Rotator, float, false>::Signature) & math::vector<float, 4>::y,
-			(meta::FieldSetter<math::Rotator, float, false>::Signature) & math::vector<float, 4>::y, {});
+			(meta::FieldGetter<math::Rotator, float, false>::Signature) & math::Rotator::pitch,
+			(meta::FieldSetter<math::Rotator, float, false>::Signature) & math::Rotator::pitch, {});
+
+		type.AddField<math::Rotator, float>("yaw",
+			(meta::FieldGetter<math::Rotator, float, false>::Signature) & math::Rotator::yaw,
+			(meta::FieldSetter<math::Rotator, float, false>::Signature) & math::Rotator::yaw, {});
 
 		type.AddField<math::Rotator, float>("roll",
-			(meta::FieldGetter<math::Rotator, float, false>::Signature) & math::vector<float, 4>::z,
-			(meta::FieldSetter<math::Rotator, float, false>::Signature) & math::vector<float, 4>::z, {});
+			(meta::FieldGetter<math::Rotator, float, false>::Signature) & math::Rotator::roll,
+			(meta::FieldSetter<math::Rotator, float, false>::Signature) & math::Rotator::roll, {});
 
 		return true;
 	}

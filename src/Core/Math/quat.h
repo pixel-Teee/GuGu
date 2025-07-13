@@ -404,11 +404,11 @@ namespace GuGu {
 			template<typename T>
 			quaternion<T> rotationQuat(const vector<T, 3>& euler)
 			{
-				T sinHalfX = std::sin(T(0.5) * euler.x);
+				T sinHalfX = std::sin(T(0.5) * euler.x);//roll
 				T cosHalfX = std::cos(T(0.5) * euler.x);
-				T sinHalfY = std::sin(T(0.5) * euler.y);
+				T sinHalfY = std::sin(T(0.5) * euler.y);//pitch
 				T cosHalfY = std::cos(T(0.5) * euler.y);
-				T sinHalfZ = std::sin(T(0.5) * euler.z);
+				T sinHalfZ = std::sin(T(0.5) * euler.z);//yaw
 				T cosHalfZ = std::cos(T(0.5) * euler.z);
 
 				quaternion<T> quatX = quaternion<T>(cosHalfX, sinHalfX, 0, 0);
@@ -422,18 +422,18 @@ namespace GuGu {
 			template<typename T>
 			vector<T, 3> quatToEuler(const quaternion<T>& inQuat)
 			{
-				T r11 = 1.0 - 2.0 * inQuat.y * inQuat.y - 2.0 * inQuat.z * inQuat.z;
-				T r12 = 2.0 * inQuat.x * inQuat.y - 2.0 * inQuat.w * inQuat.z;
-				T r13 = 2.0 * inQuat.x * inQuat.z + 2.0 * inQuat.w * inQuat.y;
-				T r21 = 2.0 * inQuat.x * inQuat.y + 2.0 * inQuat.w * inQuat.z;
-				T r22 = 1.0 - 2.0 * inQuat.x * inQuat.x - 2.0 * inQuat.z * inQuat.z;
-				T r23 = 2.0 * inQuat.y * inQuat.z - 2.0 * inQuat.w * inQuat.x;
-				T r31 = 2.0 * inQuat.x * inQuat.z - 2.0 * inQuat.w * inQuat.y;
-				T r32 = 2.0 * inQuat.y * inQuat.z + 2.0 * inQuat.w * inQuat.x;
-				T r33 = 1.0 - 2.0 * inQuat.x * inQuat.x - 2.0 * inQuat.y * inQuat.y;
+				float x = inQuat.x;
+				float y = inQuat.y;
+				float z = inQuat.z;
+				float w = inQuat.w;
 
-				//roll, pitch, yaw(x-y-z)
-				return math::vector<T, 3>(std::atan2(r23, r33), std::asin(-r13), std::atan2(r12, r11));
+				float yaw = std::atan2(2.0 * (w * z + x * y), 1.0 - 2.0 * (y * y + z * z));
+				float pitch = std::asin(2.0 * (w * y - x * z));
+				float roll = std::atan2(2.0 * (w * x + y * z), 1.0 - 2.0 * (x * x + y * y));
+
+				T toDegree = 180.0 / math::PI_d;
+				//pitch, yaw, roll
+				return math::vector<T, 3>(roll * toDegree, pitch * toDegree, yaw * toDegree);
 			}
 
 			template<typename T>
