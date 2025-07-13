@@ -94,6 +94,9 @@ namespace GuGu {
 
 		//select item
 		virtual void setSelectItem(std::shared_ptr<GameObject> inGameObject) = 0;
+
+		//debug gizmos pick pos
+		virtual math::float3 getDebugDrawPos() { return math::float3(0, 0, 0); }
 	private:
 		GameObjectSelectionChangedEvent m_gameObjectSelectionChangedEvent;
 	};

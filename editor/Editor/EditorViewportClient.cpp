@@ -879,6 +879,11 @@ namespace GuGu {
 		m_bShowGizmos = true;
 	}
 
+	math::float3 EditorViewportClient::getDebugDrawPos()
+	{
+		return m_debugDrawWorldPos;
+	}
+
 	void EditorViewportClient::makeGizmos()
 	{
 		//绿色

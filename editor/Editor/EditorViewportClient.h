@@ -97,6 +97,8 @@ namespace GuGu {
 		Reply handleUnhandledKeyDownEvent(const KeyEvent& inKeyEvent);
 
 		virtual void setSelectItem(std::shared_ptr<GameObject> inGameObject) override;
+
+		virtual math::float3 getDebugDrawPos() override;
 	private:
 		void makeGizmos();
 

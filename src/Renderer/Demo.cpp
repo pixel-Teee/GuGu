@@ -33,6 +33,8 @@
 #include <Core/GamePlay/ViewportClient.h>
 #include <Core/Texture/GTexture.h>
 
+#include <Core/AssetManager/AssetManager.h>
+
 namespace GuGu {
 	inline void AppendBufferRange(nvrhi::BufferRange& range, size_t size, uint64_t& currentBufferSize)
 	{
@@ -2494,6 +2496,13 @@ namespace GuGu {
 				m_CommandList->drawIndexed(args);
 
 				++i;
+			}
+
+			//draw pick pos
+			{
+				auto& item = std::static_pointer_cast<GStaticMesh>(AssetManager::getAssetManager().getAssetData("content/defaultCube.json").m_loadedResource);
+
+				//todo:draw pick pos
 			}
 		}	
 

@@ -204,6 +204,8 @@ namespace GuGu {
 						if (t < tmin)
 						{
 							tmin = t;
+							//debug draw world pos
+							debugDrawWorldPos = localRayOrigin + t * localRayDir;
 							pickedGameObject = item;
 						}
 					}
