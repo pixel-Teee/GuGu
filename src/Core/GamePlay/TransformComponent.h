@@ -27,6 +27,9 @@ namespace GuGu {
 		const math::daffine3& GetLocalToWorldTransform() const { return m_GlobalTransform; }
 		const math::affine3& GetLocalToWorldTransformFloat() const { return m_GlobalTransformFloat; }
 
+		const math::daffine3& GetLocalTransform() const { return m_LocalTransform; }
+		const math::affine3& GetLocalTransformFloat() const { return math::affine3(m_LocalTransform); }
+
 		void SetTransform(const math::double3* translation, const math::dquat* rotation, const math::double3* scaling);
 		void SetScaling(math::double3 scaling);
 		void SetRotation(math::dquat rotation);

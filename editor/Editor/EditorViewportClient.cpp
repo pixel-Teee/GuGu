@@ -314,7 +314,7 @@ namespace GuGu {
 						//rotation = math::quat(transform->getRotation());
 						math::affine3 noScalingAffine;//gizmos 不需要缩放
 						scaling = math::float3(getScreenScaleCompensation(translation)) * 100.0f;//新的缩放，根据屏幕高度来调整
-						noScalingAffine = math::scaling(scaling) * rotation.toAffine() * math::translation(translation);
+						noScalingAffine = math::scaling(scaling) * math::translation(translation);
 
 						std::shared_ptr<GStaticMesh> gStaticMesh = Collision3D::pick(mousePosition.x, mousePosition.y, m_width, m_height,
 							getPespectiveMatrix(), getWorldToViewMatrix(),
@@ -340,19 +340,23 @@ namespace GuGu {
 										Collision3D::intersectsWithPlane(worldRayPos, getForwardDirection(), m_planeNormal,
 											math::float3(m_pickedGameObject->getComponent<TransformComponent>()->getTranslation()), m_lastRayIntersectPoint);
 										m_pickedObjectDragStartWorldPosition = m_pickedGameObject->getComponent<TransformComponent>()->getTranslation();
+										m_lastRayIntersectPoint = math::float3(m_pickedObjectDragStartWorldPosition);
 										if (m_currentGizmosIndex <= 1) //y
 										{
-											math::quat tmpQuat = math::quat(m_pickedGameObject->getComponent<TransformComponent>()->getRotation());
+											//math::quat tmpQuat = math::quat(m_pickedGameObject->getComponent<TransformComponent>()->getRotation());
+											math::quat tmpQuat = math::quat(0, 0, 0, 1);
 											m_worldObjectAxis = math::normalize(math::applyQuat(tmpQuat, math::float3(0, 1, 0)));
 										}
 										else if (m_currentGizmosIndex <= 3) //x
 										{
-											math::quat tmpQuat = math::quat(m_pickedGameObject->getComponent<TransformComponent>()->getRotation());
+											//math::quat tmpQuat = math::quat(m_pickedGameObject->getComponent<TransformComponent>()->getRotation());
+											math::quat tmpQuat = math::quat(0, 0, 0, 1);
 											m_worldObjectAxis = math::normalize(math::applyQuat(tmpQuat, math::float3(1, 0, 0)));
 										}
 										else if (m_currentGizmosIndex <= 5) //z
 										{
-											math::quat tmpQuat = math::quat(m_pickedGameObject->getComponent<TransformComponent>()->getRotation());
+											//math::quat tmpQuat = math::quat(m_pickedGameObject->getComponent<TransformComponent>()->getRotation());
+											math::quat tmpQuat = math::quat(0, 0, 0, 1);
 											m_worldObjectAxis = math::normalize(math::applyQuat(tmpQuat, math::float3(0, 0, 1)));
 										}
 									}
@@ -472,7 +476,7 @@ namespace GuGu {
 										}
 										else if (m_currentGizmosIndex <= 3) //x
 										{
-											GuGu_LOGD("X Axis");
+											//GuGu_LOGD("X Axis");
 											math::quat tmpQuat = math::quat(m_pickedGameObject->getComponent<TransformComponent>()->getRotation());
 											m_worldObjectAxis = math::normalize(math::applyQuat(tmpQuat, math::float3(1, 0, 0)));
 										}

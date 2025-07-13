@@ -2463,7 +2463,7 @@ namespace GuGu {
 				//GuGu_LOGD("%f", scaling.x);
 				if (inViewportClient->getCurrentGizmosType() == ViewportClient::Gizmos::Move)
 				{
-					noScalingAffine = math::scaling(scaling) * rotation.toAffine() * math::translation(translation);
+					noScalingAffine = math::scaling(scaling) * math::translation(translation);
 				}
 				else if (inViewportClient->getCurrentGizmosType() == ViewportClient::Gizmos::Rotation)
 				{
