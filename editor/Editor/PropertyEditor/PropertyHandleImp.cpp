@@ -454,8 +454,8 @@ namespace GuGu {
 		meta::Variant fieldValue;
 		PropertyAccess::Result res = m_implementation->getValueData(fieldValue);
 		//outValue = m_implementation->getPropertyValue();
-		
-		if(fieldValue.GetValue<std::shared_ptr<AssetData>>() != nullptr)
+
+		if(fieldValue.IsValid())
 			outValue = *fieldValue.GetValue<std::shared_ptr<AssetData>>();
 
 		return res;
