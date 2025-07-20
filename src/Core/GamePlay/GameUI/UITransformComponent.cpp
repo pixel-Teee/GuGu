@@ -2,6 +2,8 @@
 
 #include "UITransformComponent.h"
 #include <Core/Reflection/TypeInfo.h>
+#include <Core/GamePlay/GameObject.h>
+#include <Core/GamePlay/GamePlayerReflectionRegister.h>
 
 namespace GuGu {
 	static bool registerGuGuUITransformComponent()
@@ -23,7 +25,7 @@ namespace GuGu {
 
 			type.AddConstructor<UITransformComponent, true, true>({});
 
-			type.LoadBaseClasses(db, typeID, { typeof(UITransformComponent) });
+			type.LoadBaseClasses(db, typeID, { typeof(TransformComponent) });
 
 			meta::TypeInfo<UITransformComponent>::Defined = true;
 
@@ -68,12 +70,28 @@ namespace GuGu {
 			(meta::FieldSetter<UITransformComponent, std::weak_ptr<GameObject>&, true>::Signature) & UITransformComponent::setParentGameObject, {});
 
 		type.AddField<UITransformComponent, UIPadding>("m_offset",
-			(meta::FieldGetter<UITransformComponent, UIPadding&, true>::Signature) & UITransformComponent::getUIPadding,
-			(meta::FieldSetter<UITransformComponent, UIPadding, true>::Signature) & UITransformComponent::setUIPadding, {});
+			(meta::FieldGetter<UITransformComponent, UIPadding&, true>::Signature) & UITransformComponent::getUIOffset,
+			(meta::FieldSetter<UITransformComponent, UIPadding, true>::Signature) & UITransformComponent::setUIOffset, {});
 
 		type.AddField<UITransformComponent, UIAnchors>("m_anchors",
 			(meta::FieldGetter<UITransformComponent, UIAnchors&, true>::Signature) & UITransformComponent::getUIAnchors,
 			(meta::FieldSetter<UITransformComponent, UIAnchors, true>::Signature) & UITransformComponent::setUIAnchors, {});
+
+		type.AddField<UITransformComponent, UIAnchors>("m_anchors",
+			(meta::FieldGetter<UITransformComponent, UIAnchors&, true>::Signature) & UITransformComponent::getUIAnchors,
+			(meta::FieldSetter<UITransformComponent, UIAnchors, true>::Signature) & UITransformComponent::setUIAnchors, {});
+
+		type.AddField<UITransformComponent, UIAnchors>("m_anchors",
+			(meta::FieldGetter<UITransformComponent, UIAnchors&, true>::Signature) & UITransformComponent::getUIAnchors,
+			(meta::FieldSetter<UITransformComponent, UIAnchors, true>::Signature) & UITransformComponent::setUIAnchors, {});
+
+		type.AddField<UITransformComponent, math::float2>("m_alignment",
+			(meta::FieldGetter<UITransformComponent, math::float2&, true>::Signature) & UITransformComponent::getAlignment,
+			(meta::FieldSetter<UITransformComponent, math::float2, true>::Signature) & UITransformComponent::setAlignment, {});
+
+		type.AddField<UITransformComponent, bool>("m_autoSize",
+			(meta::FieldGetter<UITransformComponent, bool&, true>::Signature) & UITransformComponent::getAutoSize,
+			(meta::FieldSetter<UITransformComponent, bool, true>::Signature) & UITransformComponent::setAutoSize, {});
 
 		//type.AddField<UITransformComponent, math::double3>("m_Scaling",
 		//	(meta::FieldGetter<UITransformComponent, math::double3&, true>::Signature) & UITransformComponent::getScaling,
@@ -87,6 +105,9 @@ namespace GuGu {
 		IMPLEMENT_INITIAL_END
 
 		IMPLEMENT_INITIAL_FIELDS_BEGIN(UITransformComponent)
+		if (!ms_priority2.addPriorityThan(&uiPaddingPriority)) return 0; //add priority
+		if (!ms_priority2.addPriorityThan(&uiAnchorsPriority)) return 0; //add priority
+		ADD_PRIORITY_FIELDS(GameObject)
 		ADD_INITIAL_FIELDS_FUNCTION_WITH_PRIORITY(registerGuGuUITransformComponentFields)
 	IMPLEMENT_INITIAL_FIELDS_END
 
@@ -102,7 +123,16 @@ namespace GuGu {
 
 	meta::Object* UITransformComponent::Clone(void) const
 	{
-		return nullptr;
+		UITransformComponent* transformComponent = new UITransformComponent();
+		transformComponent->m_Translation = m_Translation;
+		transformComponent->m_Scaling = m_Scaling;
+		transformComponent->m_Rotation = m_Rotation;
+		transformComponent->m_owner = m_owner;//todo:这里要修复
+
+		transformComponent->m_anchors = m_anchors; //anchor
+		transformComponent->m_offset = m_offset; //offset
+		transformComponent->m_alignment = m_alignment;
+		return transformComponent;
 	}
 
 	void UITransformComponent::Update(float fElapsedTimeSeconds)
@@ -118,11 +148,179 @@ namespace GuGu {
 		return typeof(UITransformComponent);
 	}
 
-	
+	UIPadding UITransformComponent::getUIOffset() const
+	{
+		return m_offset;
+	}
+
+
+	UIPadding& UITransformComponent::getUIOffset()
+	{
+		return m_offset;
+	}
+
+	void UITransformComponent::setUIOffset(UIPadding inUIPadding)
+	{
+		m_offset = inUIPadding;
+	}
+
+	UIAnchors UITransformComponent::getUIAnchors() const
+	{
+		return m_anchors;
+	}
+
+	UIAnchors& UITransformComponent::getUIAnchors()
+	{
+		return m_anchors;
+	}
+
+	void UITransformComponent::setUIAnchors(UIAnchors inUIAnchors)
+	{
+		m_anchors = inUIAnchors;
+	}
+
+	math::float2 UITransformComponent::getAlignment() const
+	{
+		return m_alignment;
+	}
+
+	math::float2& UITransformComponent::getAlignment()
+	{
+		return m_alignment;
+	}
+
+	void UITransformComponent::setAlignment(math::float2 inAlignment)
+	{
+		m_alignment = inAlignment;
+	}
+
+	bool UITransformComponent::getAutoSize() const
+	{
+		return m_autoSize;
+	}
+
+	bool& UITransformComponent::getAutoSize()
+	{
+		return m_autoSize;
+	}
+
+	void UITransformComponent::setAutoSize(bool autoSize)
+	{
+		m_autoSize = autoSize;
+	}
+
+	float UITransformComponent::getZOrder() const
+	{
+		return m_zOrder;
+	}
+
+	float& UITransformComponent::getZOrder()
+	{
+		return m_zOrder;
+	}
+
+	void UITransformComponent::setZOrder(float zOrder)
+	{
+		m_zOrder = zOrder;
+	}
+
+	math::float2 UITransformComponent::getLocalSize() const
+	{
+		return m_localSize;
+	}
+
+	math::float2& UITransformComponent::getLocalSize()
+	{
+		return m_localSize;
+	}
+
+	void UITransformComponent::setLocalSize(math::float2 inLocalSize)
+	{
+		m_localSize = inLocalSize;
+	}
+
+	math::float2 UITransformComponent::getLocalPosition() const
+	{
+		return m_localPosition;
+	}
+
+	math::float2& UITransformComponent::getLocalPosition()
+	{
+		return m_localPosition;
+	}
+
+	void UITransformComponent::setLocalPosition(math::float2 inLocalPosition)
+	{
+		m_localPosition = inLocalPosition;
+	}
 
 	void UITransformComponent::calculateLayout()
 	{
+		//get children
+		std::shared_ptr<GameObject> owner = m_owner.lock();
+		if (owner != nullptr)
+		{
+			Array<std::shared_ptr<GameObject>>& childrens = owner->getChildrens();
+			for (int32_t i = 0; i < childrens.size(); ++i)
+			{
+				std::shared_ptr<GameObject> object = childrens[i];
+				if (object != nullptr)
+				{
+					std::shared_ptr<UITransformComponent> uiTransformComponent = object->getComponent<UITransformComponent>();
+					if (uiTransformComponent)
+					{
+						const UIPadding offset = uiTransformComponent->getUIOffset();
+						const math::float2 alignment = uiTransformComponent->getAlignment();
+						const UIAnchors anchors = uiTransformComponent->getUIAnchors();
+						const bool autoSize = uiTransformComponent->getAutoSize();
 
+						const UIPadding anchorPixels = UIPadding(
+							anchors.m_minimum.x * m_localSize.x,
+							anchors.m_minimum.y * m_localSize.y,
+							anchors.m_maximum.x * m_localSize.x,
+							anchors.m_maximum.y * m_localSize.y
+						);
+
+						const bool bIsHorizontalStretch = anchors.m_minimum.x != anchors.m_maximum.x;
+						const bool bIsVerticalStretch = anchors.m_minimum.y != anchors.m_maximum.y;
+
+						const math::float2 slotSize = math::float2(offset.right, offset.bottom);
+
+						//todo:handle auto size
+						const math::float2 widgetFixedSize = slotSize;
+
+						math::float2 alignmentOffset = widgetFixedSize * alignment;
+
+						math::float2 localPosition, localSize;
+						if (bIsHorizontalStretch)
+						{
+							localPosition.x = anchorPixels.left + offset.left;
+							localSize.x = anchorPixels.right - localPosition.x - offset.right;
+						}
+						else
+						{
+							localPosition.x = anchorPixels.left + offset.left - alignmentOffset.x;
+							localSize.x = widgetFixedSize.x;
+						}
+						if (bIsVerticalStretch)
+						{
+							localPosition.y = anchorPixels.top + offset.top;
+							localSize.y = anchorPixels.bottom - localPosition.y - offset.bottom;
+						}
+						else
+						{
+							localPosition.y = anchorPixels.top + offset.top - alignmentOffset.y;
+							localSize.y = widgetFixedSize.y;
+						}
+
+						uiTransformComponent->setLocalPosition(localPosition);
+						uiTransformComponent->setLocalSize(localSize);
+						uiTransformComponent->SetTranslation(math::double3(localPosition.x, localPosition.y, m_zOrder + 1));//local trans
+						uiTransformComponent->setZOrder(m_zOrder + 1);
+					}
+				}
+			}
+		}
 	}
 
 }

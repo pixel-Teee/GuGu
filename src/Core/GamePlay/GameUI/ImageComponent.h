@@ -1,9 +1,14 @@
 #pragma once
 
 #include <Core/GamePlay/Component.h>
+#include <Core/GamePlay/GameUI/UIComponent.h>
+#include <nvrhi.h>
 
 namespace GuGu {
-	class ImageComponent : public Component
+	struct AssetData;
+	struct UIDrawInfo;
+	class GTexture;
+	class ImageComponent : public UIComponent
 	{
 	public:
 		DECLARE_INITIAL
@@ -18,7 +23,15 @@ namespace GuGu {
 		void Update(float fElapsedTimeSeconds) override;
 
 		virtual meta::Type GetType() const override;
-	private:
 
+		void setTextureAsset(const std::shared_ptr<AssetData> inAssetData);
+
+		std::shared_ptr<GTexture> getTextureAsset() const;
+
+		virtual std::shared_ptr<UIDrawInfo> generateUIDrawInformation() override;
+	private:
+		std::shared_ptr<AssetData> m_texture;
+
+		nvrhi::BufferHandle m_bufferHandle;
 	};
 }

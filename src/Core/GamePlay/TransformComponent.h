@@ -48,7 +48,7 @@ namespace GuGu {
 		//math::double3 getAccumulatedTranslation() const;
 
 		virtual meta::Type GetType() const override;
-	private:
+	protected:
 		//math::dquat m_Rotation = math::dquat::identity();
 		//rotate-z, rotate-y, rotate-x order
 		math::Rotator m_Rotation = math::double3(0, 0, 0);//roll, pitch, yaw

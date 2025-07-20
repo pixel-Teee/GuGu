@@ -699,7 +699,10 @@ namespace GuGu {
 					{
 						//check
 						if (!diffJson[item.key()].contains("added") && !!diffJson[item.key()].contains("removed"))
-							updateObject(wrapper.GetValue(std::stoi(item.key())), nonArrayType, diffJson[std::to_string(std::stoi(item.key()))], indexToObjects);
+						{
+							meta::Variant variant = wrapper.GetValue(std::stoi(item.key()));
+							updateObject(variant, nonArrayType, diffJson[std::to_string(std::stoi(item.key()))], indexToObjects);
+						}
 					}
 				}
 			}
@@ -714,7 +717,7 @@ namespace GuGu {
 			if (!diffJson.contains(field.GetName().getStr()))
 				continue;
 
-			auto& fieldValue = field.GetValue(instance);//variant
+			auto fieldValue = field.GetValue(instance);//variant
 			meta::Type fieldType = field.GetType();
 			if (fieldType.IsPrimitive())
 			{
@@ -750,10 +753,16 @@ namespace GuGu {
 			else
 			{
 				//object and array
-				if(fieldType.IsArray())
-					updateObject(field.GetValue(instance), fieldType, diffJson[field.GetName().getStr()], indexToObjects);
+				if (fieldType.IsArray())
+				{
+					meta::Variant variant = field.GetValue(instance);
+					updateObject(variant, fieldType, diffJson[field.GetName().getStr()], indexToObjects);
+				}
 				else
-					updateObject(field.GetValueReference(instance), fieldType, diffJson[field.GetName().getStr()], indexToObjects);
+				{
+					meta::Variant variant = field.GetValueReference(instance);
+					updateObject(variant, fieldType, diffJson[field.GetName().getStr()], indexToObjects);
+				}
 			}
 		}
 	}

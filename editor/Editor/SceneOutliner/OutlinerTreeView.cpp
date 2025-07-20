@@ -89,7 +89,7 @@ namespace GuGu {
 			//note:注意，必须判断鼠标是否按下，因为OnDragDected在鼠标移动的时候触发，不然鼠标松开也会出现拖动的装饰性窗口
 			if (inMouseEvent.isMouseButtonDown(Keys::LeftMouseButton))
 			{
-				auto& items = lockedTable->getSelectedItems();
+				const auto& items = lockedTable->getSelectedItems();
 				if (items.size() > 0)
 				{
 					//get first item

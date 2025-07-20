@@ -36,8 +36,30 @@ namespace GuGu {
 				{
 					return std::static_pointer_cast<T>(component);
 				}
+				//check parent class
+				std::set<meta::Type> parentTypes = component->GetType().GetBaseClasses();
+				if (parentTypes.find(typeof(T)) != parentTypes.end())
+				{
+					return std::static_pointer_cast<T>(component);
+				}
 			}
 			return nullptr;
+		}
+
+		template<typename ParentType>
+		std::vector<std::shared_ptr<Component>> getComponentIsParentClass()
+		{
+			std::vector<std::shared_ptr<Component>> res;
+			for (auto& component : m_components)
+			{
+				std::set<meta::Type> baseClasses = component->GetType().GetBaseClasses();
+				if (baseClasses.find(typeof(ParentType)) != baseClasses.end()) //需要注册指针类型
+				{
+					res.push_back(component);
+					return res;
+				}
+			}
+			return std::vector<std::shared_ptr<Component>>();
 		}
 
 		template<typename T>

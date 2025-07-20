@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Math/MyMath.h>
+#include <Core/Math/MyMath.h>
 
 namespace GuGu {
 	struct UIAnchors

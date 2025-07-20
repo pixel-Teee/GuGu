@@ -27,6 +27,8 @@ namespace GuGu {
 		Reply OnMouseButtonDown(const WidgetGeometry& geometry, const PointerEvent& inMouseEvent);
 
 		Reply addComponent(meta::Type componentClass);
+
+		void findAllDerivedClass(meta::Type componentClass, std::set<meta::Type>& allDerivedClasses);
 	private:
 		std::shared_ptr<IDetailsView> m_detailsView;
 
