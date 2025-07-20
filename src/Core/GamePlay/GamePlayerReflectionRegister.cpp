@@ -26,6 +26,9 @@
 #include <Core/Reflection/ReflectionMain.h>
 #include <Core/Reflection/ReflectionMacro.h>
 
+#include <Core/GamePlay/GameUI/UIAnchors.h>
+#include <Core/GamePlay/GameUI/UIPadding.h>
+
 namespace GuGu {
 	void gamePlayerReflectionRegister()
 	{
@@ -1151,6 +1154,61 @@ namespace GuGu {
 		return true;
 	}
 
+	static bool registerUIPadding()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto id = db.AllocateType("GuGu::UIPadding");
+		auto& type = db.types[id];
+		meta::TypeInfo<UIPadding>::Register(id, type, true, "F3A91F05-42B3-432F-87D7-7D9925C50EEC");
+
+		type.AddConstructor<UIPadding, false, false>({});
+
+		type.AddConstructor<UIPadding, true, false>({});
+
+		type.SetArrayConstructor<UIPadding>();
+
+		type.AddField<UIPadding, float>("left",
+			(meta::FieldGetter<UIPadding, float, false>::Signature) & UIPadding::left,
+			(meta::FieldSetter<UIPadding, float, false>::Signature) & UIPadding::left, {});
+
+		type.AddField<UIPadding, float>("top",
+			(meta::FieldGetter<UIPadding, float, false>::Signature) & UIPadding::top,
+			(meta::FieldSetter<UIPadding, float, false>::Signature) & UIPadding::top, {});
+
+		type.AddField<UIPadding, float>("right",
+			(meta::FieldGetter<UIPadding, float, false>::Signature) & UIPadding::right,
+			(meta::FieldSetter<UIPadding, float, false>::Signature) & UIPadding::right, {});
+
+		type.AddField<UIPadding, float>("bottom",
+			(meta::FieldGetter<UIPadding, float, false>::Signature) & UIPadding::bottom,
+			(meta::FieldSetter<UIPadding, float, false>::Signature) & UIPadding::bottom, {});
+		return true;
+	}
+
+	static bool registerUIAnchors()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto id = db.AllocateType("GuGu::UIAnchors");
+		auto& type = db.types[id];
+		meta::TypeInfo<UIAnchors>::Register(id, type, true, "740049DA-CFDE-4D2D-BD66-2477308876FC");
+
+		type.AddConstructor<UIAnchors, false, false>({});
+
+		type.AddConstructor<UIAnchors, true, false>({});
+
+		type.SetArrayConstructor<UIAnchors>();
+
+		type.AddField<math::float2, float>("m_minimum",
+			(meta::FieldGetter<math::float2, float, false>::Signature) & UIAnchors::m_minimum,
+			(meta::FieldSetter<math::float2, float, false>::Signature) & UIAnchors::m_minimum, {});
+
+		type.AddField<math::float2, float>("m_maximum",
+			(meta::FieldGetter<math::float2, float, false>::Signature) & UIAnchors::m_maximum,
+			(meta::FieldSetter<math::float2, float, false>::Signature) & UIAnchors::m_maximum, {});
+
+		return true;
+	}
+
 	static bool registerGuGuMetaObject()
 	{
 		auto& db = meta::ReflectionDatabase::Instance();
@@ -1908,6 +1966,12 @@ namespace GuGu {
 
 		mathrotatorPriority.setDebugName("math::Rotator");
 		ReflectionMain::addInitialTypeFunction(registerRotator, &mathrotatorPriority);
+
+		uiPaddingPriority.setDebugName("GuGu::UIPadding");
+		ReflectionMain::addInitialTypeFunction(registerUIPadding, &uiPaddingPriority);
+
+		uiAnchorsPriority.setDebugName("GuGu:UIAnchors");
+		ReflectionMain::addInitialTypeFunction(registerUIAnchors, &uiAnchorsPriority);
 
 		//Priority guguColorPriority;
 		//ReflectionMain::addInitialTypeFunction(registerGuGuColor, &guguColorPriority);

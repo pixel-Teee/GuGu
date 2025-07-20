@@ -18,6 +18,12 @@ namespace GuGu {
 	static Priority mathrotatorPriority;
 	//------third party------
 
+	//------struct------
+	static Priority uiPaddingPriority;
+
+	static Priority uiAnchorsPriority;
+	//------struct------
+
 	void registerThirdParty();
 
 	void gamePlayerReflectionRegister();

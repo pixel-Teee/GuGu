@@ -50,7 +50,7 @@ namespace GuGu {
 
 	void CanvasComponent::Update(float fElapsedTimeSeconds)
 	{
-
+		
 	}
 
 	meta::Type CanvasComponent::GetType() const
