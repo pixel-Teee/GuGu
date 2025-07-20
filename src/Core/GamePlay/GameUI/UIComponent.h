@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Core/GamePlay/Component.h>
-#include <Renderer/nvrhi.h>
 
 namespace GuGu {
 	struct UIDrawInfo;
@@ -24,9 +23,5 @@ namespace GuGu {
 		virtual std::shared_ptr<UIDrawInfo> generateUIDrawInformation();
 	private:
 
-		//draw information
-		nvrhi::BufferHandle m_vertexBufferHandle;
-
-		nvrhi::BufferHandle m_indexBufferHandle;
 	};
 }

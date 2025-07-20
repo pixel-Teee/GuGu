@@ -3,6 +3,7 @@
 #include "UIComponent.h"
 #include <Core/Reflection/TypeInfo.h>
 #include <Core/GamePlay/GameObject.h>
+#include <Core/GamePlay/GamePlayerReflectionRegister.h>
 
 namespace GuGu {
 	static bool registerGuGuUIComponent()

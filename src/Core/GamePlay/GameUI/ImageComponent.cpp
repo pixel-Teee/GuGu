@@ -59,7 +59,7 @@ namespace GuGu {
 	}
 
 	IMPLEMENT_INITIAL_BEGIN(ImageComponent)
-		ADD_PRIORITY(Component)
+		ADD_PRIORITY(UIComponent)
 		ADD_INITIAL_FUNCTION_WITH_PRIORITY(registerGuGuImageComponent)
 		IMPLEMENT_INITIAL_END
 
