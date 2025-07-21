@@ -2530,7 +2530,7 @@ namespace GuGu {
 
 					GameUIBufferEntry modelConstants;
 					modelConstants.viewProjMatrix = viewProjMatrix;
-					modelConstants.worldMatrix = math::affineToHomogeneous(transformComponent->GetLocalToWorldTransformFloat());
+					modelConstants.worldMatrix = math::float4x4::identity();
 					modelConstants.camWorldPos = inViewportClient->getCamPos();
 					//get the global matrix to fill constant buffer		
 					m_CommandList->writeBuffer(m_gameUIConstantBuffer[j], &modelConstants, sizeof(modelConstants));
