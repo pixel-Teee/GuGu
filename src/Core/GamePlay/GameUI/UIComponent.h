@@ -21,7 +21,5 @@ namespace GuGu {
 		virtual meta::Type GetType() const override;
 
 		virtual std::shared_ptr<UIDrawInfo> generateUIDrawInformation();
-	private:
-
 	};
 }

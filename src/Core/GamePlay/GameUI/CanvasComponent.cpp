@@ -3,15 +3,48 @@
 #include "CanvasComponent.h"
 #include <Core/Reflection/TypeInfo.h>
 
+#include <Core/GamePlay/GameObject.h>
+#include <Core/GamePlay/GameUI/UITransformComponent.h>
+#include <Core/GamePlay/World.h>
+#include <Core/GamePlay/ViewportClient.h>
+
 namespace GuGu {
 	static bool registerGuGuCanvasomponent()
 	{
 		auto& db = meta::ReflectionDatabase::Instance();
 		auto id = db.AllocateType("GuGu::CanvasComponent");
 		auto& type = db.types[id];
-		meta::TypeInfo<CanvasComponent>::Register(id, type, true, "CF1129A6-E01A-4D4E-8EF5-DB15C100A893");
+		meta::TypeInfo<CanvasComponent>::Register(id, type, true, "A117C35B-4F4F-46A5-81A8-C428CD396F5C");
 
 		auto typeID = typeidof(CanvasComponent);
+
+		if (typeID != meta::InvalidTypeID && !meta::TypeInfo<CanvasComponent>::Defined)
+		{
+			auto& type = db.types[typeID];
+
+			//array constructor
+			type.SetArrayConstructor<CanvasComponent>();
+
+			type.AddConstructor<CanvasComponent, false, false>({});
+
+			type.AddConstructor<CanvasComponent, true, true>({});
+
+			type.LoadBaseClasses(db, typeID, { typeof(Component) });
+
+			meta::TypeInfo<CanvasComponent>::Defined = true;
+		}
+
+		{
+			auto id = db.AllocateType("std::shared_ptr<GuGu::CanvasComponent>");
+			auto& type = db.types[id];
+			meta::TypeInfo<std::shared_ptr<CanvasComponent>>::Register(id, type, false, "59B11E97-948E-42F5-8A10-D3C6B0441576");
+		}
+
+		{
+			auto id = db.AllocateType("std::weak_ptr<GuGu::CanvasComponent>");
+			auto& type = db.types[id];
+			meta::TypeInfo<std::weak_ptr<CanvasComponent>>::Register(id, type, false, "1F39C1F0-121E-4C88-A21B-F4CC96A98C22");
+		}
 
 		return true;
 	}
@@ -45,12 +78,32 @@ namespace GuGu {
 
 	meta::Object* CanvasComponent::Clone(void) const
 	{
-		return nullptr;
+		CanvasComponent* canvasComponent = new CanvasComponent();
+		
+		return canvasComponent;
 	}
 
 	void CanvasComponent::Update(float fElapsedTimeSeconds)
 	{
-		
+		std::shared_ptr<GameObject> owner = m_owner.lock();
+		if (owner)
+		{
+			std::shared_ptr<UITransformComponent> rootTrans = owner->getComponent<UITransformComponent>();
+			if (rootTrans)
+			{
+				std::shared_ptr<ViewportClient> viewportClient = World::getWorld()->getViewportClient().lock();
+				if (viewportClient)
+				{
+					rootTrans->setLocalPosition(math::float2(0.0f, 0.0f));
+					rootTrans->setLocalSize(viewportClient->getViewportSize());
+				}
+				else
+				{
+					rootTrans->setLocalPosition(math::float2(0.0f, 0.0f));
+					rootTrans->setLocalSize(math::float2(100.0f, 100.0f));
+				}		
+			}
+		}
 	}
 
 	meta::Type CanvasComponent::GetType() const

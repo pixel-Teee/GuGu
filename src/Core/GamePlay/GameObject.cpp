@@ -1,8 +1,12 @@
 #include <pch.h>
 
 #include "GameObject.h"
+
+//------component------
 #include "TransformComponent.h"
 #include "LightComponent.h"
+#include <Core/GamePlay/GameUI/CanvasComponent.h>
+//------component------
 
 #include <Core/Reflection/MetaProperty/DisplayName.h>
 #include <Core/Reflection/MetaManager.h>
@@ -89,10 +93,14 @@ namespace GuGu {
 	}
 	void GameObject::Update(float fElapsedTimeSeconds)
 	{
+		if (getComponent<CanvasComponent>())
+		{
+			getComponent<CanvasComponent>()->Update(fElapsedTimeSeconds);
+		}
+		
 		//1.更新变化组件
 		getComponent<TransformComponent>()->Update(fElapsedTimeSeconds);
-		//2.更新材质组件
-		
+
 		//for (int32_t i = 0; i < m_components.size(); ++i)
 		//{
 		//	m_components[i]->Update(fElapsedTimeSeconds);
@@ -140,8 +148,8 @@ namespace GuGu {
 	void GameObject::deleteComponent(const GuGuUtf8Str& componentTypeName)
 	{
 		//could not delete transform component
-		if (componentTypeName == typeof(TransformComponent).GetName())
-			return;
+// 		if (componentTypeName == typeof(TransformComponent).GetName())
+// 			return;
 		int32_t foundPos = -1;
 		for (int32_t i = 0; i < m_components.size(); ++i)
 		{

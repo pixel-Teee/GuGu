@@ -113,7 +113,14 @@ namespace GuGu {
 
 	UITransformComponent::UITransformComponent()
 	{
+		m_Translation = math::double3(0.0f, 0.0f, 0.0f);
+		m_Scaling = math::double3(1.0f, 1.0f, 1.0f);
+		m_Rotation = math::Rotator();
 
+		m_anchors = UIAnchors(math::float2(0, 0), math::float2(1, 1));
+		m_offset = UIPadding(0, 0, 0, 0);
+		m_alignment = math::float2(0, 0);
+		m_zOrder = 0;
 	}
 
 	UITransformComponent::~UITransformComponent()

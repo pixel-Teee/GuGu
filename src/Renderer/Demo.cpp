@@ -380,7 +380,7 @@ namespace GuGu {
 	void Demo::createUIVertexBufferAndIndexBuffer(std::shared_ptr<UIDrawInfo> inUIDrawInfo)
 	{
 		//draw info
-
+		
 		if (!inUIDrawInfo->m_uiIndexHandle)
 		{
 			nvrhi::BufferDesc bufferDesc;
@@ -1170,19 +1170,19 @@ namespace GuGu {
 						.setFormat(nvrhi::Format::RG32_FLOAT)
 						.setOffset(0)
 						.setBufferIndex(0)
-						.setElementStride(sizeof(math::float2)),
+						.setElementStride(sizeof(GameUIVertex)),
 			nvrhi::VertexAttributeDesc()
 						.setName("POSITION")
 						.setFormat(nvrhi::Format::RGB32_FLOAT)
 						.setOffset(0)
 						.setBufferIndex(1)
-						.setElementStride(sizeof(math::float3)),
+						.setElementStride(sizeof(GameUIVertex)),
 			nvrhi::VertexAttributeDesc()
 						.setName("COLOR")
 						.setFormat(nvrhi::Format::RGBA32_FLOAT)
 						.setOffset(0)
 						.setBufferIndex(2)
-						.setElementStride(sizeof(math::float4)),
+						.setElementStride(sizeof(GameUIVertex)),
 		};
 		m_gameUIInputLayout = GetDevice()->createInputLayout(gameUIAttributes,
 			uint32_t(std::size(gameUIAttributes)),
@@ -2021,7 +2021,7 @@ namespace GuGu {
 			psoDesc.PS = m_gameUIPixelShader;
 			psoDesc.inputLayout = m_gameUIInputLayout; //顶点属性
 			psoDesc.bindingLayouts = { m_gameUIBindingLayout }; //constant buffer 这些
-			psoDesc.primType = nvrhi::PrimitiveType::LineList;
+			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
 			psoDesc.renderState.depthStencilState.depthTestEnable = true;
 			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
 			m_gameUIPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
@@ -2497,7 +2497,7 @@ namespace GuGu {
 
 			for (size_t j = 0; j < uiComponent.size(); ++j)
 			{
-				std::shared_ptr<UIComponent> currentUIComponent = std::static_pointer_cast<UIComponent>(uiComponent[i]);
+				std::shared_ptr<UIComponent> currentUIComponent = std::static_pointer_cast<UIComponent>(uiComponent[j]);
 
 				std::shared_ptr<UIDrawInfo> drawInfo = currentUIComponent->generateUIDrawInformation();
 				if (transformComponent && currentUIComponent)
@@ -2511,15 +2511,17 @@ namespace GuGu {
 					nvrhi::BindingSetDesc desc;
 					//nvrhi::BindingSetHandle bindingSet;
 					desc.bindings = {
-							nvrhi::BindingSetItem::ConstantBuffer(0, m_gameUIConstantBuffer[i]),
-							nvrhi::BindingSetItem::ConstantBuffer(1, m_gameUIPropertiesConstantBuffers[i]),
+							nvrhi::BindingSetItem::ConstantBuffer(0, m_gameUIConstantBuffer[j]),
+							nvrhi::BindingSetItem::ConstantBuffer(1, m_gameUIPropertiesConstantBuffers[j]),
 					};
 					uiBindingSet = GetDevice()->createBindingSet(desc, m_gameUIBindingLayout);
 
 					gameUIGraphicsState.bindings = { uiBindingSet };
 
 					gameUIGraphicsState.vertexBuffers = {
-						{drawInfo->m_uiVertexHandle, 0, 0}
+						{ drawInfo->m_uiVertexHandle, 0, offsetof(GameUIVertex, m_uv)},
+						{ drawInfo->m_uiVertexHandle, 1, offsetof(GameUIVertex, m_position)},
+						{ drawInfo->m_uiVertexHandle, 2, offsetof(GameUIVertex, m_color)},
 					};
 
 					gameUIGraphicsState.indexBuffer = {
@@ -2531,18 +2533,18 @@ namespace GuGu {
 					modelConstants.worldMatrix = math::affineToHomogeneous(transformComponent->GetLocalToWorldTransformFloat());
 					modelConstants.camWorldPos = inViewportClient->getCamPos();
 					//get the global matrix to fill constant buffer		
-					m_CommandList->writeBuffer(m_gameUIConstantBuffer[i], &modelConstants, sizeof(modelConstants));
+					m_CommandList->writeBuffer(m_gameUIConstantBuffer[j], &modelConstants, sizeof(modelConstants));
 
 					GameUIPropertiesBuffer propertiesBuffer;
-					propertiesBuffer.color = math::float3(0.73f, 0.90f, 0.44f);
-					m_CommandList->writeBuffer(m_gameUIPropertiesConstantBuffers[i], &propertiesBuffer, sizeof(propertiesBuffer));
+					propertiesBuffer.color = math::float3(1.0f, 1.0f, 1.0f);
+					m_CommandList->writeBuffer(m_gameUIPropertiesConstantBuffers[j], &propertiesBuffer, sizeof(propertiesBuffer));
 
 					gameUIGraphicsState.setPipeline(m_gameUIPipeline);
 					m_CommandList->setGraphicsState(gameUIGraphicsState);
 
 					//draw the model
 					nvrhi::DrawArguments args;
-					args.vertexCount = 24;
+					args.vertexCount = drawInfo->m_uiIndices.size();
 					args.instanceCount = 1;
 					args.startVertexLocation = 0;
 					args.startIndexLocation = 0;

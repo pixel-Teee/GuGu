@@ -307,13 +307,15 @@ namespace GuGu {
 
 		struct GameUIVertex
 		{
-			math::float3 position;
-			math::float2 uv;
+			math::float2 m_uv;
+			math::float3 m_position;
+			math::float4 m_color;
 
-			GameUIVertex(math::float3 inPosition, math::float2 inUV)
+			GameUIVertex(math::float3 inPosition, math::float2 inUV, math::float4 inColor)
 			{
-				position = inPosition;
-				uv = inUV;
+				m_position = inPosition;
+				m_uv = inUV;
+				m_color = inColor;
 			}
 		};
 

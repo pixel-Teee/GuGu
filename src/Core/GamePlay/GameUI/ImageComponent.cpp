@@ -19,11 +19,11 @@ namespace GuGu {
 		auto typeID = typeidof(ImageComponent);
 
 		//array constructor
-		type.SetArrayConstructor<UITransformComponent>();
+		type.SetArrayConstructor<ImageComponent>();
 
-		type.AddConstructor<UITransformComponent, false, false>({});
+		type.AddConstructor<ImageComponent, false, false>({});
 
-		type.AddConstructor<UITransformComponent, true, true>({});
+		type.AddConstructor<ImageComponent, true, true>({});
 
 		type.LoadBaseClasses(db, typeID, { typeof(UIComponent) });
 
@@ -134,10 +134,10 @@ namespace GuGu {
 			math::float2 localSize = uiTransformComponent->getLocalSize();
 
 			//vertex generate
-			drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(0, 1), absolutePos, Color(1.0f, 1.0f, 1.0f, 1.0f)));
-			drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(1, 1), math::float3(absolutePos.x + localSize.x, absolutePos.y, absolutePos.z), Color(1.0f, 1.0f, 1.0f, 1.0f)));
-			drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(0, 0), math::float3(absolutePos.x, absolutePos.y + localSize.y, absolutePos.z), Color(1.0f, 1.0f, 1.0f, 1.0f)));
-			drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(1, 0), math::float3(absolutePos.x + localSize.x, absolutePos.y + localSize.y, absolutePos.z), Color(1.0f, 1.0f, 1.0f, 1.0f)));
+			drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(0, 1), math::float3(absolutePos.x, absolutePos.y, absolutePos.z * 0.001f), Color(1.0f, 1.0f, 1.0f, 1.0f)));
+			drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(1, 1), math::float3(absolutePos.x + localSize.x, absolutePos.y, absolutePos.z * 0.001f), Color(1.0f, 1.0f, 1.0f, 1.0f)));
+			drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(0, 0), math::float3(absolutePos.x, absolutePos.y + localSize.y, absolutePos.z * 0.001f), Color(1.0f, 1.0f, 1.0f, 1.0f)));
+			drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(1, 0), math::float3(absolutePos.x + localSize.x, absolutePos.y + localSize.y, absolutePos.z * 0.001f), Color(1.0f, 1.0f, 1.0f, 1.0f)));
 
 			//index generate
 			drawInfo->m_uiIndices.push_back(0);
