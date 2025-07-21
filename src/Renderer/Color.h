@@ -15,6 +15,7 @@ namespace GuGu {
 		Color(float c) : r(c), g(c), b(c), a(c) { }
 		Color(float _r, float _g, float _b, float _a) : r(_r), g(_g), b(_b), a(_a) { }
 		Color(const math::float4& inColor) { r = inColor[0], g = inColor[1], b = inColor[2], a = inColor[3]; }
+		Color(const Color& rhs) { r = rhs.r, g = rhs.g, b = rhs.b, a = rhs.a; }
 
 		math::float4 toFloat4() const { return math::float4(r, g, b, a); }
 

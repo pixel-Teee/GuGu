@@ -2,6 +2,7 @@
 
 #include <Core/GamePlay/Component.h>
 #include <Core/GamePlay/GameUI/UIComponent.h>
+#include <Renderer/Color.h>
 #include <nvrhi.h>
 
 namespace GuGu {
@@ -26,9 +27,14 @@ namespace GuGu {
 
 		void setTextureAsset(const std::shared_ptr<AssetData> inAssetData);
 
-		std::shared_ptr<GTexture> getTextureAsset() const;
+		std::shared_ptr<GTexture> getTexture() const;
+
+		std::shared_ptr<AssetData> getTextureAsset() const;
 
 		virtual std::shared_ptr<UIDrawInfo> generateUIDrawInformation() override;
+
+		//color
+		Color m_color;
 	private:
 		std::shared_ptr<AssetData> m_texture;
 

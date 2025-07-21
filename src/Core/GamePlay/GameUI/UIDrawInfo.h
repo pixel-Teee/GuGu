@@ -15,11 +15,12 @@ namespace GuGu {
 			: m_uv(inUV), m_position(inPosition), m_color(inColor)
 		{}
 	};
+	class GTexture;
 	struct UIDrawInfo
 	{
 		std::vector<GameUIVertex> m_uiVertex;
 		std::vector<uint32_t> m_uiIndices;
-		nvrhi::TextureHandle m_uiTextureHandle;;
+		std::shared_ptr<GTexture> m_texture;
 		nvrhi::BufferHandle m_uiVertexHandle;
 		nvrhi::BufferHandle m_uiIndexHandle;
 	};

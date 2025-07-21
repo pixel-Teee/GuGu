@@ -18,7 +18,11 @@ namespace GuGu {
 		void Update(float fElapsedTimeSeconds) override;
 
 		virtual meta::Type GetType() const override;
-	private:
 
+		float getScaleFactor() const;
+		float& getScaleFactor();
+		void setScaleFactor(float inScaleFactor);
+	private:
+		float m_scaleFactor;
 	};
 }

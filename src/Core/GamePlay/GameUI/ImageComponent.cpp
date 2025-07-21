@@ -51,6 +51,10 @@ namespace GuGu {
 			(meta::FieldGetter<ImageComponent, std::shared_ptr<AssetData>, true>::Signature) & ImageComponent::getTextureAsset,
 			(meta::FieldSetter<ImageComponent, std::shared_ptr<AssetData>, true>::Signature) & ImageComponent::setTextureAsset, {});
 
+		type.AddField<ImageComponent, Color>("m_color",
+			(meta::FieldGetter<ImageComponent, Color, false>::Signature) & ImageComponent::m_color,
+			(meta::FieldSetter<ImageComponent, Color, false>::Signature) & ImageComponent::m_color, {});
+
 		type.AddField<ImageComponent, std::weak_ptr<GameObject>>("m_owner",
 			(meta::FieldGetter<ImageComponent, std::weak_ptr<GameObject>&, true>::Signature) & ImageComponent::getParentGameObject,
 			(meta::FieldSetter<ImageComponent, std::weak_ptr<GameObject>&, true>::Signature) & ImageComponent::setParentGameObject, {});
@@ -73,6 +77,8 @@ namespace GuGu {
 		GuGuUtf8Str noFileExtensionsFileName = "white";
 		GuGuUtf8Str outputFilePath = "content/" + noFileExtensionsFileName + ".json";
 		m_texture = AssetManager::getAssetManager().loadAsset(AssetManager::getAssetManager().getGuid(outputFilePath, typeof(GTexture)));
+
+		m_color = Color(0.5f, 1.0f, 1.0f, 1.0f);
 	}
 
 	ImageComponent::~ImageComponent()
@@ -102,15 +108,20 @@ namespace GuGu {
 		m_texture = inAssetData;
 	}
 
-	std::shared_ptr<GTexture> ImageComponent::getTextureAsset() const
+	std::shared_ptr<GTexture> ImageComponent::getTexture() const
 	{
 		return std::static_pointer_cast<GTexture>(m_texture->m_loadedResource);
+	}
+
+	std::shared_ptr<AssetData> ImageComponent::getTextureAsset() const
+	{
+		return m_texture;
 	}
 
 	std::shared_ptr<UIDrawInfo> ImageComponent::generateUIDrawInformation()
 	{
 		std::shared_ptr<UIDrawInfo> drawInfo = std::make_shared<UIDrawInfo>();
-		drawInfo->m_uiTextureHandle = getTextureAsset()->m_texture;
+		drawInfo->m_texture = getTexture();
 
 		std::shared_ptr<GameObject> owner = m_owner.lock();
 		if (owner)
@@ -134,10 +145,10 @@ namespace GuGu {
 			math::float2 localSize = uiTransformComponent->getLocalSize();
 
 			//vertex generate
-			drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(0, 1), math::float3(absolutePos.x, absolutePos.y, absolutePos.z * 0.001f), Color(1.0f, 1.0f, 1.0f, 1.0f)));
-			drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(1, 1), math::float3(absolutePos.x + localSize.x, absolutePos.y, absolutePos.z * 0.001f), Color(1.0f, 1.0f, 1.0f, 1.0f)));
-			drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(0, 0), math::float3(absolutePos.x, absolutePos.y + localSize.y, absolutePos.z * 0.001f), Color(1.0f, 1.0f, 1.0f, 1.0f)));
-			drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(1, 0), math::float3(absolutePos.x + localSize.x, absolutePos.y + localSize.y, absolutePos.z * 0.001f), Color(1.0f, 1.0f, 1.0f, 1.0f)));
+			drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(0, 1), math::float3(absolutePos.x, absolutePos.y, absolutePos.z * 0.001f), m_color));
+			drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(1, 1), math::float3(absolutePos.x + localSize.x, absolutePos.y, absolutePos.z * 0.001f), m_color));
+			drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(0, 0), math::float3(absolutePos.x, absolutePos.y + localSize.y, absolutePos.z * 0.001f), m_color));
+			drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(1, 0), math::float3(absolutePos.x + localSize.x, absolutePos.y + localSize.y, absolutePos.z * 0.001f), m_color));
 
 			//index generate
 			drawInfo->m_uiIndices.push_back(0);

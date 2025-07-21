@@ -2022,7 +2022,7 @@ namespace GuGu {
 			psoDesc.inputLayout = m_gameUIInputLayout; //顶点属性
 			psoDesc.bindingLayouts = { m_gameUIBindingLayout }; //constant buffer 这些
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
-			psoDesc.renderState.depthStencilState.depthTestEnable = true;
+			psoDesc.renderState.depthStencilState.depthTestEnable = false;
 			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
 			m_gameUIPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
@@ -2506,6 +2506,11 @@ namespace GuGu {
 
 					createUIVertexBufferAndIndexBuffer(drawInfo);
 
+					if (drawInfo->m_texture->m_texture == nullptr)
+					{
+						m_textureCache.FinalizeTexture(drawInfo->m_texture, m_commonRenderPass.get(), m_CommandList);
+					}
+
 					//draw
 					nvrhi::BindingSetHandle uiBindingSet;
 					nvrhi::BindingSetDesc desc;
@@ -2513,6 +2518,8 @@ namespace GuGu {
 					desc.bindings = {
 							nvrhi::BindingSetItem::ConstantBuffer(0, m_gameUIConstantBuffer[j]),
 							nvrhi::BindingSetItem::ConstantBuffer(1, m_gameUIPropertiesConstantBuffers[j]),
+							nvrhi::BindingSetItem::Texture_SRV(0, drawInfo->m_texture->m_texture),
+							nvrhi::BindingSetItem::Sampler(0, m_pointWrapSampler),
 					};
 					uiBindingSet = GetDevice()->createBindingSet(desc, m_gameUIBindingLayout);
 

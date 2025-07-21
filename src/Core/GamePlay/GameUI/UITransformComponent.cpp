@@ -261,12 +261,18 @@ namespace GuGu {
 		m_localPosition = inLocalPosition;
 	}
 
+	void UITransformComponent::setScaleFactor(float inScaleFactor)
+	{
+		m_scaleFactor = inScaleFactor;
+	}
+
 	void UITransformComponent::calculateLayout()
 	{
 		//get children
 		std::shared_ptr<GameObject> owner = m_owner.lock();
 		if (owner != nullptr)
 		{
+			float inverseScale = 1.0f / m_scaleFactor;
 			Array<std::shared_ptr<GameObject>>& childrens = owner->getChildrens();
 			for (int32_t i = 0; i < childrens.size(); ++i)
 			{
@@ -320,8 +326,9 @@ namespace GuGu {
 							localSize.y = widgetFixedSize.y;
 						}
 
+						uiTransformComponent->setScaleFactor(m_scaleFactor);
 						uiTransformComponent->setLocalPosition(localPosition);
-						uiTransformComponent->setLocalSize(localSize);
+						uiTransformComponent->setLocalSize(localSize * inverseScale);
 						uiTransformComponent->SetTranslation(math::double3(localPosition.x, localPosition.y, m_zOrder + 1));//local trans
 						uiTransformComponent->setZOrder(m_zOrder + 1);
 					}

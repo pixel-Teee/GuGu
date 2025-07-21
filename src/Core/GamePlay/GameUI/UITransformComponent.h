@@ -49,6 +49,8 @@ namespace GuGu {
 		math::float2 getLocalPosition() const;
 		math::float2& getLocalPosition();
 		void setLocalPosition(math::float2 inLocalPosition);
+
+		void setScaleFactor(float inScaleFactor);
 	private:
 		void calculateLayout();
 
@@ -67,5 +69,8 @@ namespace GuGu {
 
 		//local position(calculated)
 		math::float2 m_localPosition;
+
+		//transient
+		float m_scaleFactor = 100.0f;
 	};
 }
