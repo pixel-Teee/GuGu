@@ -51,6 +51,7 @@ namespace GuGu {
 		void setLocalPosition(math::float2 inLocalPosition);
 
 		void setScaleFactor(float inScaleFactor);
+		float getScaleFactor() const;
 	private:
 		void calculateLayout();
 

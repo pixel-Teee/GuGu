@@ -266,6 +266,11 @@ namespace GuGu {
 		m_scaleFactor = inScaleFactor;
 	}
 
+	float UITransformComponent::getScaleFactor() const
+	{
+		return m_scaleFactor;
+	}
+
 	void UITransformComponent::calculateLayout()
 	{
 		//get children
@@ -328,7 +333,7 @@ namespace GuGu {
 
 						uiTransformComponent->setScaleFactor(m_scaleFactor);
 						uiTransformComponent->setLocalPosition(localPosition);
-						uiTransformComponent->setLocalSize(localSize * inverseScale);
+						uiTransformComponent->setLocalSize(localSize);
 						uiTransformComponent->SetTranslation(math::double3(localPosition.x, localPosition.y, m_zOrder + 1));//local trans
 						uiTransformComponent->setZOrder(m_zOrder + 1);
 					}

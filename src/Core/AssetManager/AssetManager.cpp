@@ -75,7 +75,7 @@ namespace GuGu {
 				whiteTexture->m_data[0] = 255;
 				whiteTexture->m_data[1] = 255;
 				whiteTexture->m_data[2] = 255;
-				whiteTexture->m_data[3] = 255; //(255, 255, 255, 1)
+				whiteTexture->m_data[3] = 255; //(255, 255, 255, 255)
 				whiteTexture->m_format = static_cast<uint32_t>(nvrhi::Format::RGBA8_UNORM);
 
 				nlohmann::json whiteTextureJson = serializeJson(whiteTexture);

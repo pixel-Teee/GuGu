@@ -142,8 +142,9 @@ namespace GuGu {
 			
 			math::decomposeAffine(worldTransform, &absolutePos, &absoluteQuat, &absoluteScale);
 
-			math::float2 localSize = uiTransformComponent->getLocalSize();
-
+			float scaleFactorInverse = 1.0f / uiTransformComponent->getScaleFactor();
+			math::float2 localSize = uiTransformComponent->getLocalSize() * scaleFactorInverse;
+			
 			//vertex generate
 			drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(0, 1), math::float3(absolutePos.x, absolutePos.y, absolutePos.z * 0.001f), m_color));
 			drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(1, 1), math::float3(absolutePos.x + localSize.x, absolutePos.y, absolutePos.z * 0.001f), m_color));

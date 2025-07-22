@@ -58,6 +58,10 @@ namespace GuGu {
 			(meta::FieldGetter<CanvasComponent, float&, true>::Signature) & CanvasComponent::getScaleFactor,
 			(meta::FieldSetter<CanvasComponent, float, true>::Signature) & CanvasComponent::setScaleFactor, {});
 
+		type.AddField<CanvasComponent, std::weak_ptr<GameObject>>("m_owner",
+			(meta::FieldGetter<CanvasComponent, std::weak_ptr<GameObject>&, true>::Signature) & CanvasComponent::getParentGameObject,
+			(meta::FieldSetter<CanvasComponent, std::weak_ptr<GameObject>&, true>::Signature) & CanvasComponent::setParentGameObject, {});
+
 		return true;
 	}
 
