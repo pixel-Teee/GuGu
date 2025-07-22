@@ -77,13 +77,13 @@ namespace GuGu {
 			(meta::FieldGetter<UITransformComponent, UIAnchors&, true>::Signature) & UITransformComponent::getUIAnchors,
 			(meta::FieldSetter<UITransformComponent, UIAnchors, true>::Signature) & UITransformComponent::setUIAnchors, {});
 
-		type.AddField<UITransformComponent, UIAnchors>("m_anchors",
-			(meta::FieldGetter<UITransformComponent, UIAnchors&, true>::Signature) & UITransformComponent::getUIAnchors,
-			(meta::FieldSetter<UITransformComponent, UIAnchors, true>::Signature) & UITransformComponent::setUIAnchors, {});
+		//type.AddField<UITransformComponent, UIAnchors>("m_anchors",
+		//	(meta::FieldGetter<UITransformComponent, UIAnchors&, true>::Signature) & UITransformComponent::getUIAnchors,
+		//	(meta::FieldSetter<UITransformComponent, UIAnchors, true>::Signature) & UITransformComponent::setUIAnchors, {});
 
-		type.AddField<UITransformComponent, UIAnchors>("m_anchors",
-			(meta::FieldGetter<UITransformComponent, UIAnchors&, true>::Signature) & UITransformComponent::getUIAnchors,
-			(meta::FieldSetter<UITransformComponent, UIAnchors, true>::Signature) & UITransformComponent::setUIAnchors, {});
+		//type.AddField<UITransformComponent, UIAnchors>("m_anchors",
+		//	(meta::FieldGetter<UITransformComponent, UIAnchors&, true>::Signature) & UITransformComponent::getUIAnchors,
+		//	(meta::FieldSetter<UITransformComponent, UIAnchors, true>::Signature) & UITransformComponent::setUIAnchors, {});
 
 		type.AddField<UITransformComponent, math::float2>("m_alignment",
 			(meta::FieldGetter<UITransformComponent, math::float2&, true>::Signature) & UITransformComponent::getAlignment,

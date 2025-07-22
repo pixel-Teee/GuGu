@@ -163,6 +163,8 @@ namespace GuGu {
 				);
 
 				m_childWidget->m_childWidget = horizontalBox;
+				m_childWidget->m_parentWidget = shared_from_this();
+				m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 			}
 		}
 

@@ -4,6 +4,7 @@
 #include <Core/UI/UIMacros.h>
 #include <Core/UI/NumericEntryBox.h>
 #include <Core/Reflection/Field.h>
+#include <Core/Reflection/MetaProperty/Range.h>
 
 #include "PropertyEditor.h"
 #include "PropertyHandle.h"
@@ -24,6 +25,25 @@ namespace GuGu {
 		{
 			m_propertyEditor = inPropertyEditor;
 
+			//get range
+			NumericType minValue = static_cast<NumericType>(-100.0f);
+			NumericType maxValue = static_cast<NumericType>(100.0f);
+			
+			std::shared_ptr<IPropertyHandle> propertyHandle = inPropertyEditor->getPropertyHandle();
+			if (propertyHandle)
+			{
+				const meta::Field* field = propertyHandle->getField();
+				if (field)
+				{
+					const meta::Range* range = field->GetMeta().GetProperty<meta::Range>();
+					if (range)
+					{
+						minValue = range->m_minValue;
+						maxValue = range->m_maxValue;
+					}
+				}
+			}
+
 			const std::shared_ptr<PropertyNode> propertyNode = inPropertyEditor->getPropertyNode();
 			const meta::Field* field = inPropertyEditor->getField();
 			m_childWidget = std::make_shared<SingleChildSlot>();
@@ -33,7 +53,10 @@ namespace GuGu {
 			.allowSpain(true) //todo:修复这个
 			.value(Attribute<std::optional<NumericType>>(this, &PropertyEditorNumeric<NumericType>::onGetValue)) //要显示的值
 			.onValueChanged(this, &PropertyEditorNumeric<NumericType>::onValueChanged)
-			.onValueCommitted(this, &PropertyEditorNumeric<NumericType>::onValueCommitted);
+			.onValueCommitted(this, &PropertyEditorNumeric<NumericType>::onValueCommitted)
+			.minValue(minValue)
+			.maxValue(maxValue);
+			m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 		}
 
 		void getFixedWidth(float& outMinFixedWidth, float& outMaxFixedWidth)

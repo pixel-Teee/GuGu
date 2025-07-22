@@ -29,36 +29,12 @@
 #include <Core/Reflection/Priority.h>
 #include <Core/Reflection/ReflectionMain.h>
 #include <Core/Reflection/ReflectionMacro.h>
+#include <Core/Reflection/MetaProperty/Range.h>
 
 #include <Core/GamePlay/GameUI/UIAnchors.h>
 #include <Core/GamePlay/GameUI/UIPadding.h>
 
 namespace GuGu {
-	void gamePlayerReflectionRegister()
-	{
-		auto& db = meta::ReflectionDatabase::Instance();
-
-		registerThirdParty();
-
-		//UIComponent register
-		UIComponent::registerMainFactory();
-		UIComponent::registerMainFactory2();
-
-		//ImageComponent register
-		ImageComponent::registerMainFactory();
-		ImageComponent::registerMainFactory2();
-
-		CanvasComponent::registerMainFactory();
-		CanvasComponent::registerMainFactory2();
-
-		ReflectionMain::initialize();
-
-		meta::Type::List types = meta::Type::GetTypes();
-		for (const auto& type : types)
-		{
-			db.registerGuid(type.getGuid(), type.GetID());
-		}
-	}
 
 	static bool registermetaDisplayName()
 	{
@@ -342,13 +318,19 @@ namespace GuGu {
 
 		type.SetArrayConstructor<UIAnchors>();
 
-		type.AddField<math::float2, float>("m_minimum",
-			(meta::FieldGetter<math::float2, float, false>::Signature) & UIAnchors::m_minimum,
-			(meta::FieldSetter<math::float2, float, false>::Signature) & UIAnchors::m_minimum, {});
+		type.AddField<UIAnchors, math::float2>("m_minimum",
+			(meta::FieldGetter<UIAnchors, math::float2, false>::Signature) & UIAnchors::m_minimum,
+			(meta::FieldSetter<UIAnchors, math::float2, false>::Signature) & UIAnchors::m_minimum,
+			{
+				std::make_pair(typeof(meta::Range), meta::MetaPropertyInitializer<meta::Range>(-100.0f, 100.0f)) //meta
+			});
 
-		type.AddField<math::float2, float>("m_maximum",
-			(meta::FieldGetter<math::float2, float, false>::Signature) & UIAnchors::m_maximum,
-			(meta::FieldSetter<math::float2, float, false>::Signature) & UIAnchors::m_maximum, {});
+		type.AddField<UIAnchors, math::float2>("m_maximum",
+			(meta::FieldGetter<UIAnchors, math::float2, false>::Signature) & UIAnchors::m_maximum,
+			(meta::FieldSetter<UIAnchors, math::float2, false>::Signature) & UIAnchors::m_maximum, 
+			{
+				std::make_pair(typeof(meta::Range), meta::MetaPropertyInitializer<meta::Range>(-100.0f, 100.0f)) //meta
+			});
 
 		return true;
 	}
@@ -426,11 +408,46 @@ namespace GuGu {
 		mathrotatorPriority.setDebugName("math::Rotator");
 		ReflectionMain::addInitialTypeFunction(registerRotator, &mathrotatorPriority);
 
-		uiPaddingPriority.setDebugName("GuGu::UIPadding");
-		ReflectionMain::addInitialTypeFunction(registerUIPadding, &uiPaddingPriority);
-
-		uiAnchorsPriority.setDebugName("GuGu:UIAnchors");
-		ReflectionMain::addInitialTypeFunction(registerUIAnchors, &uiAnchorsPriority);
+		//uiPaddingPriority.setDebugName("GuGu::UIPadding");
+		//ReflectionMain::addInitialTypeFunction(registerUIPadding, &uiPaddingPriority);
+		//
+		//uiAnchorsPriority.setDebugName("GuGu:UIAnchors");
+		//ReflectionMain::addInitialTypeFunction(registerUIAnchors, &uiAnchorsPriority);
 	}
 
+	void gamePlayerReflectionRegister()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+
+		registerThirdParty();
+
+		meta::Range::registerMainFactory();
+		meta::Range::registerMainFactory2();
+
+		meta::DisplayName::registerMainFactory();
+		meta::DisplayName::registerMainFactory2();
+
+		ReflectionMain::addInitialTypeFunction(registerUIPadding, &uiPaddingPriority);
+		ReflectionMain::addInitialTypeFunction(registerUIAnchors, &uiAnchorsPriority);
+		uiAnchorsPriority.addPriorityThan(&meta::Range::ms_priority);
+
+		//UIComponent register
+		UIComponent::registerMainFactory();
+		UIComponent::registerMainFactory2();
+
+		//ImageComponent register
+		ImageComponent::registerMainFactory();
+		ImageComponent::registerMainFactory2();
+
+		CanvasComponent::registerMainFactory();
+		CanvasComponent::registerMainFactory2();
+
+		ReflectionMain::initialize();
+
+		meta::Type::List types = meta::Type::GetTypes();
+		for (const auto& type : types)
+		{
+			db.registerGuid(type.getGuid(), type.GetID());
+		}
+	}
 }
