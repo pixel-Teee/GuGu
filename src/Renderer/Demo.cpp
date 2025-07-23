@@ -1451,7 +1451,7 @@ namespace GuGu {
 			psoDesc.bindingLayouts = { m_gameUIBindingLayout }; //constant buffer 这些
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
 			psoDesc.renderState.depthStencilState.depthTestEnable = false;
-			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::Front;
+			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
 			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
 			m_gameUIPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
@@ -1970,12 +1970,12 @@ namespace GuGu {
 						//------ortho camera------
 						math::float3 cameraPos = math::float3(0.0f, 0.0f, 0.0f);
 						math::float3 cameraDir = normalize(math::float3(0.0f, 0.0f, 1.0f));
-						math::float3 cameraUp = math::float3(0.0f, 1.0f, 0.0f);
+						math::float3 cameraUp = math::float3(0.0f, -1.0f, 0.0f);
 						math::float3 cameraRight = normalize(cross(cameraDir, cameraUp));
 						cameraUp = normalize(cross(cameraRight, cameraDir));
 						math::affine3 worldToView = math::affine3::from_cols(cameraRight, cameraUp, cameraDir, 0.0f);
 						//------ortho camera------
-						float inverseScale = 1.0f / 100.0f;
+						float inverseScale = 1.0f / transformComponent->getScaleFactor();
 						modelConstants.viewProjMatrix = math::orthoProjD3DStyle(0, width * inverseScale, 0, height * inverseScale, 0, 1) * math::affineToHomogeneous(worldToView);
 						modelConstants.worldMatrix = math::float4x4::identity();
 						modelConstants.camWorldPos = inViewportClient->getCamPos();
@@ -2124,7 +2124,7 @@ namespace GuGu {
 			psoDesc.bindingLayouts = { m_gameUIBindingLayout }; //constant buffer 这些
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
 			psoDesc.renderState.depthStencilState.depthTestEnable = false;
-			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
+			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
 			m_gameUIPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
@@ -2600,7 +2600,7 @@ namespace GuGu {
 			{
 				std::shared_ptr<UIComponent> currentUIComponent = std::static_pointer_cast<UIComponent>(uiComponent[j]);
 
-				std::shared_ptr<UIDrawInfo> drawInfo = currentUIComponent->generateUIDrawInformation();
+				std::shared_ptr<UIDrawInfo> drawInfo = currentUIComponent->generateUIDrawInformation(true);
 				if (transformComponent && currentUIComponent)
 				{
 					//createDebugCameraFrustum(cameraComponent, transformComponent, inViewportClient);

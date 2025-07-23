@@ -24,6 +24,7 @@ namespace GuGu {
 		registerCustomPropertyTypeLayout("math::double3", RotatorStructCustomization::create); //三分量
 		registerCustomPropertyTypeLayout("math::Rotator", RotatorStructCustomization::create); //三分量
 		registerCustomPropertyTypeLayout("GuGu::Color", ColorStructCustomization::create);
+		//registerCustomPropertyTypeLayout("GuGu::UIPadding", Vector4StructCustomization::create);
 	}
 
 	PropertyEditorManager::~PropertyEditorManager()

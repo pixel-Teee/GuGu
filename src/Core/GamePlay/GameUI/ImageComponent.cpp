@@ -119,7 +119,7 @@ namespace GuGu {
 		return m_texture;
 	}
 
-	std::shared_ptr<UIDrawInfo> ImageComponent::generateUIDrawInformation()
+	std::shared_ptr<UIDrawInfo> ImageComponent::generateUIDrawInformation(bool bFlip)
 	{
 		std::shared_ptr<UIDrawInfo> drawInfo = std::make_shared<UIDrawInfo>();
 		drawInfo->m_texture = getTexture();
@@ -154,12 +154,12 @@ namespace GuGu {
 
 			//index generate
 			drawInfo->m_uiIndices.push_back(0);
-			drawInfo->m_uiIndices.push_back(1);
 			drawInfo->m_uiIndices.push_back(2);
+			drawInfo->m_uiIndices.push_back(1);
 
 			drawInfo->m_uiIndices.push_back(1);
-			drawInfo->m_uiIndices.push_back(3);
 			drawInfo->m_uiIndices.push_back(2);
+			drawInfo->m_uiIndices.push_back(3);
 		}
 		
 

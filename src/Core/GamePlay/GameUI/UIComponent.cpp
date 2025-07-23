@@ -93,7 +93,7 @@ namespace GuGu {
 		return typeof(UIComponent);
 	}
 
-	std::shared_ptr<UIDrawInfo> UIComponent::generateUIDrawInformation()
+	std::shared_ptr<UIDrawInfo> UIComponent::generateUIDrawInformation(bool bFlip)
 	{
 		return nullptr;
 	}

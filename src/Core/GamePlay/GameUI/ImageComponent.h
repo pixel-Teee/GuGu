@@ -31,7 +31,7 @@ namespace GuGu {
 
 		std::shared_ptr<AssetData> getTextureAsset() const;
 
-		virtual std::shared_ptr<UIDrawInfo> generateUIDrawInformation() override;
+		virtual std::shared_ptr<UIDrawInfo> generateUIDrawInformation(bool bFlip = false) override;
 
 		//color
 		Color m_color;
