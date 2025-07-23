@@ -23,7 +23,7 @@ namespace GuGu {
 		registerCustomPropertyTypeLayout("math::float3", VectorStructCustomization::create); //三分量
 		registerCustomPropertyTypeLayout("math::double3", RotatorStructCustomization::create); //三分量
 		registerCustomPropertyTypeLayout("math::Rotator", RotatorStructCustomization::create); //三分量
-		registerCustomPropertyTypeLayout("Color", ColorStructCustomization::create);
+		registerCustomPropertyTypeLayout("GuGu::Color", ColorStructCustomization::create);
 	}
 
 	PropertyEditorManager::~PropertyEditorManager()
