@@ -2799,7 +2799,7 @@ namespace GuGu {
 
 			//draw pick pos
 			{
-				auto& item = std::static_pointer_cast<GStaticMesh>(AssetManager::getAssetManager().getAssetData("content/defaultCube.json").m_loadedResource);
+				const auto& item = std::static_pointer_cast<GStaticMesh>(AssetManager::getAssetManager().getAssetData("content/defaultCube.json").m_loadedResource);
 
 				//todo:draw pick pos
 			}
