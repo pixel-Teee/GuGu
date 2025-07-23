@@ -2023,7 +2023,7 @@ namespace GuGu {
 			psoDesc.bindingLayouts = { m_gameUIBindingLayout }; //constant buffer 这些
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
 			psoDesc.renderState.depthStencilState.depthTestEnable = false;
-			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
+			psoDesc.renderState.rasterState.frontCounterClockwise = true;
 			m_gameUIPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
