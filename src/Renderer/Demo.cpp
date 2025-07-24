@@ -2607,6 +2607,7 @@ namespace GuGu {
 
 					createUIVertexBufferAndIndexBuffer(drawInfo);
 
+
 					if (drawInfo->m_texture->m_texture == nullptr)
 					{
 						m_textureCache.FinalizeTexture(drawInfo->m_texture, m_commonRenderPass.get(), m_CommandList);
