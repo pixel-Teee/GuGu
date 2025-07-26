@@ -45,6 +45,11 @@ namespace GuGu {
 		return NullWidget::getNullWidget();
 	}
 
+	void MathStructCustomization::cutomizeChildren(std::shared_ptr<IPropertyHandle> propertyHandle, IDetailChildrenBuilder& childBuilder)
+	{
+
+	}
+
 	template<typename NumericType>
 	std::optional<NumericType> MathStructCustomization::onGetValue(std::weak_ptr<IPropertyHandle> weakHandlePtr) const
 	{

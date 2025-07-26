@@ -130,6 +130,10 @@ namespace GuGu {
 			{
 				propertyHandle = std::make_shared<PropertyHandleRotator>(inPropertyNode);
 			}
+			else
+			{
+				propertyHandle = std::make_shared<PropertyHandleBase>(inPropertyNode);
+			}
 			
 			return propertyHandle;
 		}

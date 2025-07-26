@@ -11,5 +11,6 @@ namespace GuGu {
 		m_nameColumnWidth.bindRaw(this, &DetailColumnSizeData::getNameColumnWidth);
 		m_valueColumnWidth.bindRaw(this, &DetailColumnSizeData::getValueColumnWidth);
 	}
+
 }
 

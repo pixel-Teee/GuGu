@@ -8,6 +8,8 @@
 #include "DetailCategoryBuilderImpl.h"
 #include "PropertyEditorManager.h"
 #include "DetailLayoutBuilderImpl.h"
+#include "CustomChildBuilder.h"
+#include "DetailItemNode.h"
 #include <Core/UI/BoxPanel.h>
 
 namespace GuGu {
@@ -16,6 +18,7 @@ namespace GuGu {
 		: m_propertyNode(inPropertyNode)
 		, m_parentCategory(inParentCategory)
 		, m_bCachedCustomTypeInterface(false)
+		, m_bShowCustomPropertyChildren(true)
 	{
 		m_propertyHandle = inParentCategory->getParentLayoutImpl().getPropertyHandle(inPropertyNode);
 		if (m_propertyNode)
@@ -51,26 +54,63 @@ namespace GuGu {
 
 	void DetailPropertyRow::onItemNodeInitialized(std::shared_ptr<DetailCategoryImpl> inParentCategory)
 	{
-		if (!m_bCachedCustomTypeInterface)
-		{
-			m_bCachedCustomTypeInterface = true;
-			m_cachedCustomTypeInterface = getTypeInterface();//创建结构体自定义控件的面板
-			if (!m_customPropertyWidget && m_cachedCustomTypeInterface)
-			{
-				m_customPropertyWidget = std::make_shared<DetailWidgetRow>();
+		std::shared_ptr<IPropertyTypeCustomization>& customTypeInterface = getTypeInterface();
 
-				m_cachedCustomTypeInterface->customizeHeader(m_propertyHandle, *m_customPropertyWidget);
-			}
+		if (!m_customPropertyWidget && customTypeInterface)
+		{
+			m_customPropertyWidget = std::make_shared<DetailWidgetRow>();
+
+			m_cachedCustomTypeInterface->customizeHeader(m_propertyHandle, *m_customPropertyWidget);//自定义属性面板
+		}
+		
+		if (m_bShowCustomPropertyChildren && customTypeInterface)
+		{
+			m_propertyTypeLayoutBuilder = std::make_shared<CustomChildrenBuilder>(inParentCategory);
+
+			customTypeInterface->cutomizeChildren(m_propertyHandle, *m_propertyTypeLayoutBuilder);
 		}
 	}
 
 	std::shared_ptr<IPropertyTypeCustomization> DetailPropertyRow::getTypeInterface()
 	{
-		if (m_propertyNode && m_parentCategory.lock())
+		if (!m_bCachedCustomTypeInterface)
 		{
-			return PropertyEditorManager::getPropertyEditorManager()->getPropertyTypeCustomization(m_propertyNode);
+			if (m_propertyNode && m_parentCategory.lock())
+			{
+				m_cachedCustomTypeInterface = PropertyEditorManager::getPropertyEditorManager()->getPropertyTypeCustomization(m_propertyNode);
+			}
+			m_bCachedCustomTypeInterface = true;
 		}
-		return nullptr;
+		return m_cachedCustomTypeInterface;
+	}
+
+	DetailWidgetRow& DetailPropertyRow::customWidget(bool bShowChildren /*= false*/)
+	{
+		m_bShowCustomPropertyChildren = bShowChildren;
+		m_customPropertyWidget = std::make_shared<DetailWidgetRow>();
+		return *m_customPropertyWidget;
+	}
+
+	void DetailPropertyRow::onGenerateChildren(DetailNodeList& outChildren)
+	{
+		if (m_propertyNode->asCategoryNode() || m_propertyNode->getField())
+		{
+			generateChildrenForPropertyNode(m_propertyNode, outChildren);
+		}
+	}
+
+	void DetailPropertyRow::generateChildrenForPropertyNode(std::shared_ptr<PropertyNode>& rootPropertyNode, DetailNodeList& outChildren)
+	{
+		if (m_propertyTypeLayoutBuilder && m_bShowCustomPropertyChildren)
+		{
+			const std::vector<DetailLayoutCustomization>& childRows = m_propertyTypeLayoutBuilder->getChildCustomizations();
+			for (int32_t childIndex = 0; childIndex < childRows.size(); ++childIndex)
+			{
+				std::shared_ptr<DetailItemNode> childNodeItem = std::make_shared<DetailItemNode>(childRows[childIndex], m_parentCategory.lock());
+				childNodeItem->initialize();
+				outChildren.push_back(childNodeItem);
+			}
+		}
 	}
 
 	void DetailPropertyRow::makeNameOrKeyWidget(DetailWidgetRow& row, std::shared_ptr<DetailWidgetRow> inCustomPropertyWidget)

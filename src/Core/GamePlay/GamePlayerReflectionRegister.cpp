@@ -34,6 +34,7 @@
 
 #include <Core/GamePlay/GameUI/UIAnchors.h>
 #include <Core/GamePlay/GameUI/UIPadding.h>
+#include <Core/GamePlay/GameUI/UIAnchorData.h>
 
 namespace GuGu {
 
@@ -348,6 +349,34 @@ namespace GuGu {
 		return true;
 	}
 
+	static bool registerUIAnchorData()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto id = db.AllocateType("GuGu::UIAnchorData");
+		auto& type = db.types[id];
+		meta::TypeInfo<UIAnchorData>::Register(id, type, true, "32449923-5F79-42D1-BC31-3A32D770CDE7");
+
+		type.AddConstructor<UIAnchorData, false, false>({});
+
+		type.AddConstructor<UIAnchorData, true, false>({});
+
+		type.SetArrayConstructor<UIAnchorData>();
+
+		type.AddField<UIAnchorData, UIAnchors>("m_anchors",
+			(meta::FieldGetter<UIAnchorData, UIAnchors, false>::Signature) & UIAnchorData::m_anchors,
+			(meta::FieldSetter<UIAnchorData, UIAnchors, false>::Signature) & UIAnchorData::m_anchors, {});
+
+		type.AddField<UIAnchorData, UIPadding>("m_offset",
+			(meta::FieldGetter<UIAnchorData, UIPadding, false>::Signature) & UIAnchorData::m_offset,
+			(meta::FieldSetter<UIAnchorData, UIPadding, false>::Signature) & UIAnchorData::m_offset, {});
+
+		type.AddField<UIAnchorData, math::float2>("m_alignment",
+			(meta::FieldGetter<UIAnchorData, math::float2, false>::Signature) & UIAnchorData::m_alignment,
+			(meta::FieldSetter<UIAnchorData, math::float2, false>::Signature) & UIAnchorData::m_alignment, {});
+
+		return true;
+	}
+
 	static bool registerGuGuMetaObject()
 	{
 		auto& db = meta::ReflectionDatabase::Instance();
@@ -442,8 +471,12 @@ namespace GuGu {
 
 		ReflectionMain::addInitialTypeFunction(registerUIPadding, &uiPaddingPriority);
 		ReflectionMain::addInitialTypeFunction(registerUIAnchors, &uiAnchorsPriority);
+		ReflectionMain::addInitialTypeFunction(registerUIAnchorData, &uiAnchorDataPrority);
 		uiPaddingPriority.addPriorityThan(&meta::Range::ms_priority);
 		uiAnchorsPriority.addPriorityThan(&meta::Range::ms_priority);
+		uiAnchorDataPrority.addPriorityThan(&uiPaddingPriority);
+		uiAnchorDataPrority.addPriorityThan(&uiAnchorsPriority);
+		uiAnchorDataPrority.addPriorityThan(&mathfloat2Priority);
 
 		//UIComponent register
 		UIComponent::registerMainFactory();

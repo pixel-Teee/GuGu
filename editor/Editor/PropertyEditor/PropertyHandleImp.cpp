@@ -267,6 +267,16 @@ namespace GuGu {
 		return 0;
 	}
 
+	std::shared_ptr<PropertyNode> PropertyValueImpl::getChildNode(const GuGuUtf8Str& childName, bool bRecurse) const
+	{
+		std::shared_ptr<PropertyNode> propertyNodeLock = m_propertyNode.lock();
+		if (propertyNodeLock)
+		{
+			return propertyNodeLock->findChildPropertyNode(childName, bRecurse);
+		}
+		return 0;
+	}
+
 #define IMPLEMENT_PROPERTY_ACCESSOR(ValueType)\
 	PropertyAccess::Result PropertyHandleBase::setValue(ValueType const& inValue)\
 	{\
@@ -312,6 +322,12 @@ namespace GuGu {
 		return PropertyEditorHelps::getPropertyHandle(propertyNode);
 	}
 
+	std::shared_ptr<IPropertyHandle> PropertyHandleBase::getChildHandle(const GuGuUtf8Str& childName, bool bRecurse) const
+	{
+		std::shared_ptr<PropertyNode> propertyNode = m_implementation->getChildNode(childName, bRecurse);
+		return PropertyEditorHelps::getPropertyHandle(propertyNode);
+	}
+
 	PropertyAccess::Result PropertyHandleBase::setValueFromFormattedString(const GuGuUtf8Str& inValue)
 	{
 		return m_implementation->setValueAsString(inValue);
@@ -330,6 +346,11 @@ namespace GuGu {
 			return propertyNode->getField();
 		}
 		return nullptr;
+	}
+
+	std::shared_ptr<PropertyNode> PropertyHandleBase::getPropertyNode() const
+	{
+		return m_implementation->getPropertyNode();
 	}
 
 #define IMPLEMENT_PROPERTY_VALUE(ClassName)\

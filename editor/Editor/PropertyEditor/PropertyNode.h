@@ -38,6 +38,8 @@ namespace GuGu {
 			return m_childNodes[childIndex];
 		}
 
+		std::shared_ptr<PropertyNode> findChildPropertyNode(const GuGuUtf8Str& inPropertyName, bool bRecurse = false);
+
 		virtual CategoryPropertyNode* asCategoryNode() { return nullptr; }
 		virtual const CategoryPropertyNode* asCategoryNode() const { return nullptr; }
 		virtual ItemPropertyNode* asItemPropertyNode() { return nullptr; }

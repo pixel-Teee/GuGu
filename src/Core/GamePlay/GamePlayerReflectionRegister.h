@@ -22,6 +22,8 @@ namespace GuGu {
 	static Priority uiPaddingPriority;
 
 	static Priority uiAnchorsPriority;
+
+	static Priority uiAnchorDataPrority;
 	//------struct------
 
 	void registerThirdParty();

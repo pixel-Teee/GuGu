@@ -40,6 +40,30 @@ namespace GuGu {
 		}
 	}
 
+	std::shared_ptr<PropertyNode> PropertyNode::findChildPropertyNode(const GuGuUtf8Str& inPropertyName, bool bRecurse /*= false*/)
+	{
+		for (const std::shared_ptr<PropertyNode>& childNode : m_childNodes)
+		{
+			if (childNode->getField() && childNode->getField()->GetName() == inPropertyName)
+			{
+				return childNode;
+			}
+		}
+
+		if (bRecurse)
+		{
+			for (const std::shared_ptr<PropertyNode>& childNode : m_childNodes)
+			{
+				std::shared_ptr<PropertyNode> propertyNode = childNode->findChildPropertyNode(inPropertyName, bRecurse);
+				if (propertyNode)
+				{
+					return propertyNode;
+				}
+			}
+		}
+		return nullptr;
+	}
+
 	void PropertyNode::addChildNode(std::shared_ptr<PropertyNode> inNode)
 	{
 		m_childNodes.push_back(inNode);

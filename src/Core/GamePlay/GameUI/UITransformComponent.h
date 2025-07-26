@@ -4,6 +4,7 @@
 
 #include "UIAnchors.h"
 #include "UIPadding.h"
+#include "UIAnchorData.h"
 
 namespace GuGu {
 	class UITransformComponent : public TransformComponent
@@ -42,6 +43,10 @@ namespace GuGu {
 		float& getZOrder();
 		void setZOrder(float zOrder);
 
+		UIAnchorData getAnchorData() const;
+		UIAnchorData& getAnchorData();
+		void setAnchorData(UIAnchorData inUIAnchorData);
+
 		math::float2 getLocalSize() const;
 		math::float2& getLocalSize();
 		void setLocalSize(math::float2 inLocalSize);
@@ -56,11 +61,7 @@ namespace GuGu {
 	private:
 		void calculateLayout();
 
-		UIAnchors m_anchors; //anchor
-
-		UIPadding m_offset; //offset
-
-		math::float2 m_alignment;
+		UIAnchorData m_anchorData;
 
 		bool m_autoSize;
 

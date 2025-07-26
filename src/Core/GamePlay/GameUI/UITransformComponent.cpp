@@ -94,6 +94,10 @@ namespace GuGu {
 			(meta::FieldGetter<UITransformComponent, bool&, true>::Signature) & UITransformComponent::getAutoSize,
 			(meta::FieldSetter<UITransformComponent, bool, true>::Signature) & UITransformComponent::setAutoSize, {});
 
+		type.AddField<UITransformComponent, UIAnchorData>("m_anchorData",
+			(meta::FieldGetter<UITransformComponent, UIAnchorData&, true>::Signature) & UITransformComponent::getAnchorData,
+			(meta::FieldSetter<UITransformComponent, UIAnchorData, true>::Signature) & UITransformComponent::setAnchorData, {});
+
 		//type.AddField<UITransformComponent, math::double3>("m_Scaling",
 		//	(meta::FieldGetter<UITransformComponent, math::double3&, true>::Signature) & UITransformComponent::getScaling,
 		//	(meta::FieldSetter<UITransformComponent, math::double3, true>::Signature) & UITransformComponent::SetScaling, {});
@@ -118,9 +122,9 @@ namespace GuGu {
 		m_Scaling = math::double3(1.0f, 1.0f, 1.0f);
 		m_Rotation = math::Rotator();
 
-		m_anchors = UIAnchors(math::float2(0, 0), math::float2(1, 1));
-		m_offset = UIPadding(0, 0, 0, 0);
-		m_alignment = math::float2(0, 0);
+		m_anchorData.m_anchors = UIAnchors(math::float2(0, 0), math::float2(1, 1));
+		m_anchorData.m_offset = UIPadding(0, 0, 0, 0);
+		m_anchorData.m_alignment = math::float2(0, 0);
 		m_zOrder = 0;
 		m_localSize = math::float2(0, 0);
 		m_localPosition = math::float2(0, 0);
@@ -139,9 +143,9 @@ namespace GuGu {
 		transformComponent->m_Rotation = m_Rotation;
 		transformComponent->m_owner = m_owner;//todo:这里要修复
 
-		transformComponent->m_anchors = m_anchors; //anchor
-		transformComponent->m_offset = m_offset; //offset
-		transformComponent->m_alignment = m_alignment;
+		transformComponent->m_anchorData.m_anchors = m_anchorData.m_anchors; //anchor
+		transformComponent->m_anchorData.m_offset = m_anchorData.m_offset; //offset
+		transformComponent->m_anchorData.m_alignment = m_anchorData.m_alignment;
 		return transformComponent;
 	}
 
@@ -160,48 +164,47 @@ namespace GuGu {
 
 	UIPadding UITransformComponent::getUIOffset() const
 	{
-		return m_offset;
+		return m_anchorData.m_offset;
 	}
-
 
 	UIPadding& UITransformComponent::getUIOffset()
 	{
-		return m_offset;
+		return m_anchorData.m_offset;
 	}
 
 	void UITransformComponent::setUIOffset(UIPadding inUIPadding)
 	{
-		m_offset = inUIPadding;
+		m_anchorData.m_offset = inUIPadding;
 	}
 
 	UIAnchors UITransformComponent::getUIAnchors() const
 	{
-		return m_anchors;
+		return m_anchorData.m_anchors;
 	}
 
 	UIAnchors& UITransformComponent::getUIAnchors()
 	{
-		return m_anchors;
+		return m_anchorData.m_anchors;
 	}
 
 	void UITransformComponent::setUIAnchors(UIAnchors inUIAnchors)
 	{
-		m_anchors = inUIAnchors;
+		m_anchorData.m_anchors = inUIAnchors;
 	}
 
 	math::float2 UITransformComponent::getAlignment() const
 	{
-		return m_alignment;
+		return m_anchorData.m_alignment;
 	}
 
 	math::float2& UITransformComponent::getAlignment()
 	{
-		return m_alignment;
+		return m_anchorData.m_alignment;
 	}
 
 	void UITransformComponent::setAlignment(math::float2 inAlignment)
 	{
-		m_alignment = inAlignment;
+		m_anchorData.m_alignment = inAlignment;
 	}
 
 	bool UITransformComponent::getAutoSize() const
@@ -232,6 +235,21 @@ namespace GuGu {
 	void UITransformComponent::setZOrder(float zOrder)
 	{
 		m_zOrder = zOrder;
+	}
+
+	UIAnchorData UITransformComponent::getAnchorData() const
+	{
+		return m_anchorData;
+	}
+
+	UIAnchorData& UITransformComponent::getAnchorData()
+	{
+		return m_anchorData;
+	}
+
+	void UITransformComponent::setAnchorData(UIAnchorData inUIAnchorData)
+	{
+		m_anchorData = inUIAnchorData;
 	}
 
 	math::float2 UITransformComponent::getLocalSize() const

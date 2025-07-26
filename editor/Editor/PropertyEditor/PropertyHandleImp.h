@@ -29,6 +29,8 @@ namespace GuGu {
 		int32_t getNumChildren() const;
 
 		std::shared_ptr<PropertyNode> getChildNode(int32_t childIndex) const;
+
+		std::shared_ptr<PropertyNode> getChildNode(const GuGuUtf8Str& childName, bool bRecurse) const;
 	protected:
 		std::weak_ptr<PropertyNode> m_propertyNode;
 	};
@@ -51,11 +53,15 @@ namespace GuGu {
 
 		virtual std::shared_ptr<IPropertyHandle> getChildHandle(uint32_t index) const override;
 
+		virtual std::shared_ptr<IPropertyHandle> getChildHandle(const GuGuUtf8Str& childName, bool bRecurse = true) const override;
+
 		virtual PropertyAccess::Result setValueFromFormattedString(const GuGuUtf8Str& inValue) override;
 
 		virtual PropertyAccess::Result getValueAsFormattedString(GuGuUtf8Str& outValue) const override;
 
 		virtual const meta::Field* getField() const override;
+
+		virtual std::shared_ptr<PropertyNode> getPropertyNode() const;
 
 		DECLARE_PROPERTY_ACCESSOR(float)
 		DECLARE_PROPERTY_ACCESSOR(double)

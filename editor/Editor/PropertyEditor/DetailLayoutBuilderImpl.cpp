@@ -123,7 +123,10 @@ namespace GuGu {
 			{
 				propertyHandle = std::make_shared<PropertyHandleRotator>(propertyNode);
 			}
-			propertyHandle = std::make_shared<PropertyHandleVector3>(propertyNode);//todo:修复这个
+			else
+			{
+				propertyHandle = std::make_shared<PropertyHandleBase>(propertyNode);
+			}
 		}
 		else
 		{

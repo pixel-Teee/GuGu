@@ -2,6 +2,7 @@
 
 #include "IDetailPropertyRow.h"
 #include "DetailWidgetRow.h"
+#include "DetailTreeNode.h"//DetailNodeList
 #include <memory>
 
 namespace GuGu {
@@ -10,6 +11,7 @@ namespace GuGu {
 	class PropertyEditor;
 	class IPropertyHandle;
 	class IPropertyTypeCustomization;
+	class CustomChildrenBuilder;
 	class DetailPropertyRow : public IDetailPropertyRow, public std::enable_shared_from_this<DetailPropertyRow>
 	{
 	public:
@@ -24,6 +26,12 @@ namespace GuGu {
 		void onItemNodeInitialized(std::shared_ptr<DetailCategoryImpl> inParentCategory);
 
 		std::shared_ptr<IPropertyTypeCustomization> getTypeInterface();
+
+		virtual DetailWidgetRow& customWidget(bool bShowChildren = false) override;
+
+		void onGenerateChildren(DetailNodeList& outChildren);
+
+		void generateChildrenForPropertyNode(std::shared_ptr<PropertyNode>& rootPropertyNode, DetailNodeList& outChildren);
 	private:
 		void makeNameOrKeyWidget(DetailWidgetRow& row, std::shared_ptr<DetailWidgetRow> inCustomPropertyWidget);
 
@@ -41,6 +49,11 @@ namespace GuGu {
 
 		std::shared_ptr<IPropertyTypeCustomization> m_cachedCustomTypeInterface;
 
+		//专门用来生成儿子的CustomizationChildren，会生成一堆DetailItemNode挂在当前DetailItemNode的下面
+		std::shared_ptr<CustomChildrenBuilder> m_propertyTypeLayoutBuilder;
+
 		bool m_bCachedCustomTypeInterface;
+
+		bool m_bShowCustomPropertyChildren;
 	};
 }

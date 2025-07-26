@@ -21,9 +21,12 @@ namespace GuGu {
 		float getNameColumnWidth() const { return 1.0f - (m_valueColumnWidthValue + m_rightColumnWidthValue); }
 		float getValueColumnWidth() const { return m_valueColumnWidthValue; }
 	};
+	class DetailWidgetRow;
 	class IDetailPropertyRow
 	{
 	public:
 		virtual ~IDetailPropertyRow() {}
+
+		virtual DetailWidgetRow& customWidget(bool bShowChildren = false) = 0;
 	};
 }

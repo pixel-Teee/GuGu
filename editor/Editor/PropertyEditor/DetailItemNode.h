@@ -25,11 +25,15 @@ namespace GuGu {
 		virtual IDetailsView* getNodeDetailsView() const override;
 
 		virtual std::shared_ptr<DetailCategoryImpl> getParentCategory() const override;
+
+		void generateChildren();
 	private:
 		void initPropertyEditor();
 
 		DetailLayoutCustomization m_customization;
 
 		std::weak_ptr<DetailCategoryImpl> m_parentCategory;
+
+		DetailNodeList m_children;
 	};
 }

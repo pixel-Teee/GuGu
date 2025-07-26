@@ -36,6 +36,8 @@ namespace GuGu {
 
 		virtual std::shared_ptr<IPropertyHandle> getChildHandle(uint32_t index) const = 0;
 
+		virtual std::shared_ptr<IPropertyHandle> getChildHandle(const GuGuUtf8Str& childName, bool bRecurse = true) const = 0;
+
 		virtual const meta::Field* getField() const = 0;
 	};
 }

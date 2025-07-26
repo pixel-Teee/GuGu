@@ -21,7 +21,12 @@ namespace GuGu {
 
 	void DetailItemNode::getChildren(DetailNodeList& outChildren)
 	{
-		//todo:实现这个函数
+		for (int32_t childIndex = 0; childIndex < m_children.size(); ++childIndex)
+		{
+			std::shared_ptr<DetailTreeNode>& child = m_children[childIndex];
+
+			outChildren.push_back(child);
+		}
 	}
 
 	std::shared_ptr<GuGu::ITableRow> DetailItemNode::generateWidgetForTableView(const std::shared_ptr<TableViewBase>& ownerTable)
@@ -43,6 +48,8 @@ namespace GuGu {
 		{
 			initPropertyEditor();
 		}
+
+		generateChildren();
 	}
 
 	IDetailsViewPrivate* DetailItemNode::getDetailsView() const
@@ -60,6 +67,23 @@ namespace GuGu {
 	std::shared_ptr<DetailCategoryImpl> DetailItemNode::getParentCategory() const
 	{
 		return m_parentCategory.lock();
+	}
+
+	void DetailItemNode::generateChildren()
+	{
+		DetailNodeList oldChildren = m_children;
+		m_children.clear();
+
+		std::shared_ptr<DetailCategoryImpl> parentCategoryLocked = m_parentCategory.lock();
+		if (parentCategoryLocked == nullptr)
+		{
+			return;
+		}
+
+		if (m_customization.hasPropertyNode())
+		{
+			m_customization.m_propertyRow->onGenerateChildren(m_children);
+		}
 	}
 
 	void DetailItemNode::initPropertyEditor()

@@ -7,6 +7,7 @@
 #include "Vector2StructCustomization.h"
 #include "ColorStructCustomization.h"
 #include "RotatorStructCustomization.h"
+#include "AnchorDataCustomization.h"
 #include "PropertyNode.h"
 #include "ObjectDetails.h"
 #include <Core/Reflection/Field.h>
@@ -25,6 +26,9 @@ namespace GuGu {
 		registerCustomPropertyTypeLayout("math::Rotator", RotatorStructCustomization::create); //三分量
 		registerCustomPropertyTypeLayout("GuGu::Color", ColorStructCustomization::create);
 		//registerCustomPropertyTypeLayout("GuGu::UIPadding", Vector4StructCustomization::create);
+
+		//canvas widget
+		registerCustomPropertyTypeLayout("GuGu::UIAnchorData", AnchorDataCustomization::create);
 	}
 
 	PropertyEditorManager::~PropertyEditorManager()

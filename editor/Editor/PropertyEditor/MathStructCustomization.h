@@ -17,6 +17,8 @@ namespace GuGu {
 		virtual void getSortedChildren(std::shared_ptr<IPropertyHandle> structPropertyHandle, std::vector<std::shared_ptr<IPropertyHandle>>& outChildren);
 
 		virtual std::shared_ptr<Widget> makeChildWidget(std::shared_ptr<IPropertyHandle>& structPropertyHandle, std::shared_ptr<IPropertyHandle>& propertyHandle);
+
+		virtual void cutomizeChildren(std::shared_ptr<IPropertyHandle> propertyHandle, IDetailChildrenBuilder& childBuilder);
 	private:
 		template<typename NumericType>
 		std::shared_ptr<Widget> makeNumericWidget(std::shared_ptr<IPropertyHandle>& structPropertyHandle, std::shared_ptr<IPropertyHandle>& propertyHandle);
