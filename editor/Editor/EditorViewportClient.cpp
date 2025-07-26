@@ -12,6 +12,8 @@
 #include <Core/GamePlay/World.h>
 #include <Core/GamePlay/Level.h>
 #include <Core/GamePlay/TransformComponent.h>
+#include <Core/GamePlay/GameUI/UITransformComponent.h>
+#include <Core/GamePlay/StaticMeshComponent.h>
 #include <Core/Model/GeometryHelper.h>
 #include <Core/AssetManager/AssetManager.h>
 #include <Editor/Transaction/TransactionManager.h>
@@ -87,12 +89,98 @@ namespace GuGu {
 			m_pitch += delta.y * 0.05f * fElapsedTimeSecond;
 		}
 	}
+
+	void EditorViewportClient::focus(float fElapsedTimeSecond)
+	{
+		if (InputManager::getInputManager().isKeyDown(Keys::F))
+		{
+			if (m_pickedGameObject != nullptr)
+			{
+				//ui
+				if (m_pickedGameObject->getComponent<UITransformComponent>() != nullptr)
+				{
+					std::shared_ptr<UITransformComponent> uiTransformComponent = m_pickedGameObject->getComponent<UITransformComponent>();
+					if (uiTransformComponent)
+					{
+						//get object bounds
+						math::affine3 worldTransform = uiTransformComponent->GetLocalToWorldTransformFloat();
+
+						math::float3 absolutePos;
+						math::quat absoluteQuat;
+						math::float3 absoluteScale;
+
+						math::decomposeAffine(worldTransform, &absolutePos, &absoluteQuat, &absoluteScale);
+
+						math::float2 localSize = uiTransformComponent->getLocalSize();
+
+						math::box2 boundingBox(absolutePos, localSize + math::float2(absolutePos));
+						
+						//对角线长度
+						float objectSize = math::length(localSize);
+
+						//理想的摄像机距离
+						float distance = std::max(objectSize * 0.8f, 1.0f);
+
+						math::float2 uiCenter = boundingBox.center();
+						math::float3 direction = math::normalize((m_position - math::float3(uiCenter.x, uiCenter.y, 0)));
+
+						//如果摄像机再物体内部，使用默认后方向
+						math::bool3 isInObjectInternal = math::isnear(direction, math::float3(0, 0, 0));
+						if (math::any(isInObjectInternal))
+						{
+							direction = -getForwardDirection();
+						}
+
+						math::float3 targetPosition = math::float3(uiCenter.x, uiCenter.y, 0) + direction * distance;
+						m_focalPoint = targetPosition;
+					}
+				}
+				else if (m_pickedGameObject->getComponent<TransformComponent>() != nullptr)
+				{
+					std::shared_ptr<TransformComponent> transformComponent = m_pickedGameObject->getComponent<TransformComponent>();
+					std::shared_ptr<StaticMeshComponent> staticMeshComponent = m_pickedGameObject->getComponent<StaticMeshComponent>();
+					if (transformComponent && staticMeshComponent)
+					{
+						std::shared_ptr<GStaticMesh> gStaticMesh = staticMeshComponent->getStaticMesh();
+						if (gStaticMesh)
+						{
+							//get object bounds
+							math::affine3 worldTransform = transformComponent->GetLocalToWorldTransformFloat();
+
+							math::box3 boundingBox = gStaticMesh->getObjectSpaceBounds();
+
+							//对角线长度
+							math::float3 objectSize = boundingBox.diagonal();
+
+							//理想的摄像机距离
+							float distance = std::max(math::maxComponent(objectSize) * 1.5f, 0.15f);
+
+							math::float2 meshCenter = boundingBox.center();
+							math::float3 direction = math::normalize((m_position - math::float3(meshCenter.x, meshCenter.y, 0)));
+
+							//如果摄像机再物体内部，使用默认后方向
+							math::bool3 isInObjectInternal = math::isnear(direction, math::float3(0, 0, 0));
+							if (math::any(isInObjectInternal))
+							{
+								direction = -getForwardDirection();
+							}
+
+							math::float3 targetPosition = math::float3(meshCenter.x, meshCenter.y, 0) + direction * distance;
+							m_focalPoint = targetPosition;
+						}	
+					}
+				}
+			}
+		}
+	}
+
 	void EditorViewportClient::update(float fElapsedTimeSecond)
 	{
 		move(fElapsedTimeSecond);
 		rotate(fElapsedTimeSecond);
 		zoom(fElapsedTimeSecond);
 		gizmos(fElapsedTimeSecond);
+		focus(fElapsedTimeSecond);
 
 		//save level
 		if (InputManager::getInputManager().isKeyDown(Keys::S) && InputManager::getInputManager().isKeyDown(Keys::LeftControl)) //save level

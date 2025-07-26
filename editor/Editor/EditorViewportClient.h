@@ -21,6 +21,8 @@ namespace GuGu {
 
 		void rotate(float fElapsedTimeSecond); //旋转
 
+		void focus(float fElapsedTimeSecond); //摄像机转到一个具体的视野
+
 		virtual void update(float fElapsedTimeSecond) override;
 
 		virtual math::float4x4 getWorldToViewMatrix() const override;
@@ -121,7 +123,7 @@ namespace GuGu {
 		float m_fov;
 		float m_yaw, m_pitch;
 		float m_nearPlane = 0.01f;
-		float m_farPlane = 1000.0f;
+		float m_farPlane = 3000.0f;
 
 		math::float3 m_moveTarget = m_position;	
 

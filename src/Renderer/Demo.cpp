@@ -1451,7 +1451,7 @@ namespace GuGu {
 			psoDesc.bindingLayouts = { m_gameUIBindingLayout }; //constant buffer 这些
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
 			psoDesc.renderState.depthStencilState.depthTestEnable = false;
-			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
+			//psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
 			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
 			m_gameUIPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
@@ -1921,6 +1921,7 @@ namespace GuGu {
 
 			gameUIGraphicsState.viewport.addViewportAndScissorRect(viewport);
 
+			std::vector<std::shared_ptr<UIDrawInfo>> uiDrawInfos;
 			for (size_t i = 0; i < gameObjects.size(); ++i)
 			{
 				std::shared_ptr<UITransformComponent> transformComponent = gameObjects[i]->getComponent<UITransformComponent>();
@@ -1933,71 +1934,76 @@ namespace GuGu {
 					std::shared_ptr<UIDrawInfo> drawInfo = currentUIComponent->generateUIDrawInformation();
 					if (transformComponent && currentUIComponent)
 					{
+						uiDrawInfos.push_back(drawInfo);
 						//createDebugCameraFrustum(cameraComponent, transformComponent, inViewportClient);
-
-						createUIVertexBufferAndIndexBuffer(drawInfo);
-
-						if (drawInfo->m_texture->m_texture == nullptr)
-						{
-							m_textureCache.FinalizeTexture(drawInfo->m_texture, m_commonRenderPass.get(), m_CommandList);
-						}
-
-						//draw
-						nvrhi::BindingSetHandle uiBindingSet;
-						nvrhi::BindingSetDesc desc;
-						//nvrhi::BindingSetHandle bindingSet;
-						desc.bindings = {
-								nvrhi::BindingSetItem::ConstantBuffer(0, m_gameUIConstantBuffer[j]),
-								nvrhi::BindingSetItem::ConstantBuffer(1, m_gameUIPropertiesConstantBuffers[j]),
-								nvrhi::BindingSetItem::Texture_SRV(0, drawInfo->m_texture->m_texture),
-								nvrhi::BindingSetItem::Sampler(0, m_pointWrapSampler),
-						};
-						uiBindingSet = GetDevice()->createBindingSet(desc, m_gameUIBindingLayout);
-
-						gameUIGraphicsState.bindings = { uiBindingSet };
-
-						gameUIGraphicsState.vertexBuffers = {
-							{ drawInfo->m_uiVertexHandle, 0, offsetof(GameUIVertex, m_uv)},
-							{ drawInfo->m_uiVertexHandle, 1, offsetof(GameUIVertex, m_position)},
-							{ drawInfo->m_uiVertexHandle, 2, offsetof(GameUIVertex, m_color)},
-						};
-
-						gameUIGraphicsState.indexBuffer = {
-							drawInfo->m_uiIndexHandle, nvrhi::Format::R32_UINT, 0
-						};
-
-						GameUIBufferEntry modelConstants;
-						//------ortho camera------
-						math::float3 cameraPos = math::float3(0.0f, 0.0f, 0.0f);
-						math::float3 cameraDir = normalize(math::float3(0.0f, 0.0f, 1.0f));
-						math::float3 cameraUp = math::float3(0.0f, -1.0f, 0.0f);
-						math::float3 cameraRight = normalize(cross(cameraDir, cameraUp));
-						cameraUp = normalize(cross(cameraRight, cameraDir));
-						math::affine3 worldToView = math::affine3::from_cols(cameraRight, cameraUp, cameraDir, 0.0f);
-						//------ortho camera------
-						float inverseScale = 1.0f / transformComponent->getScaleFactor();
-						modelConstants.viewProjMatrix = math::orthoProjD3DStyle(0, width * inverseScale, 0, height * inverseScale, 0, 1) * math::affineToHomogeneous(worldToView);
-						modelConstants.worldMatrix = math::float4x4::identity();
-						modelConstants.camWorldPos = inViewportClient->getCamPos();
-						//get the global matrix to fill constant buffer		
-						m_CommandList->writeBuffer(m_gameUIConstantBuffer[j], &modelConstants, sizeof(modelConstants));
-
-						GameUIPropertiesBuffer propertiesBuffer;
-						propertiesBuffer.color = math::float3(1.0f, 1.0f, 1.0f);
-						m_CommandList->writeBuffer(m_gameUIPropertiesConstantBuffers[j], &propertiesBuffer, sizeof(propertiesBuffer));
-
-						gameUIGraphicsState.setPipeline(m_gameUIPipeline);
-						m_CommandList->setGraphicsState(gameUIGraphicsState);
-
-						//draw the model
-						nvrhi::DrawArguments args;
-						args.vertexCount = drawInfo->m_uiIndices.size();
-						args.instanceCount = 1;
-						args.startVertexLocation = 0;
-						args.startIndexLocation = 0;
-						m_CommandList->drawIndexed(args);
 					}
 				}
+			}
+
+			for (int32_t i = 0; i < uiDrawInfos.size(); ++i)
+			{
+				std::shared_ptr<UIDrawInfo> drawInfo = uiDrawInfos[i];
+				createUIVertexBufferAndIndexBuffer(drawInfo);
+
+				if (drawInfo->m_texture->m_texture == nullptr)
+				{
+					m_textureCache.FinalizeTexture(drawInfo->m_texture, m_commonRenderPass.get(), m_CommandList);
+				}
+
+				//draw
+				nvrhi::BindingSetHandle uiBindingSet;
+				nvrhi::BindingSetDesc desc;
+				//nvrhi::BindingSetHandle bindingSet;
+				desc.bindings = {
+						nvrhi::BindingSetItem::ConstantBuffer(0, m_gameUIConstantBuffer[i]),
+						nvrhi::BindingSetItem::ConstantBuffer(1, m_gameUIPropertiesConstantBuffers[i]),
+						nvrhi::BindingSetItem::Texture_SRV(0, drawInfo->m_texture->m_texture),
+						nvrhi::BindingSetItem::Sampler(0, m_pointWrapSampler),
+				};
+				uiBindingSet = GetDevice()->createBindingSet(desc, m_gameUIBindingLayout);
+
+				gameUIGraphicsState.bindings = { uiBindingSet };
+
+				gameUIGraphicsState.vertexBuffers = {
+					{ drawInfo->m_uiVertexHandle, 0, offsetof(GameUIVertex, m_uv)},
+					{ drawInfo->m_uiVertexHandle, 1, offsetof(GameUIVertex, m_position)},
+					{ drawInfo->m_uiVertexHandle, 2, offsetof(GameUIVertex, m_color)},
+				};
+
+				gameUIGraphicsState.indexBuffer = {
+					drawInfo->m_uiIndexHandle, nvrhi::Format::R32_UINT, 0
+				};
+
+				GameUIBufferEntry modelConstants;
+				//------ortho camera------
+				math::float3 cameraPos = math::float3(0.0f, 0.0f, 0.0f);
+				math::float3 cameraDir = normalize(math::float3(0.0f, 0.0f, 1.0f));
+				math::float3 cameraUp = math::float3(0.0f, 1.0f, 0.0f);
+				math::float3 cameraRight = normalize(cross(cameraUp, cameraDir));
+				cameraUp = normalize(cross(cameraDir, cameraRight));
+				math::affine3 worldToView = math::affine3::from_cols(cameraRight, cameraUp, cameraDir, 0.0f);
+				//------ortho camera------
+				//float inverseScale = 1.0f / transformComponent->getScaleFactor();
+				modelConstants.viewProjMatrix = math::orthoProjD3DStyle(0, width, 0, height, 0, 1) * math::affineToHomogeneous(worldToView);
+				modelConstants.worldMatrix = math::float4x4::identity();
+				modelConstants.camWorldPos = inViewportClient->getCamPos();
+				//get the global matrix to fill constant buffer		
+				m_CommandList->writeBuffer(m_gameUIConstantBuffer[i], &modelConstants, sizeof(modelConstants));
+
+				GameUIPropertiesBuffer propertiesBuffer;
+				propertiesBuffer.color = math::float3(1.0f, 1.0f, 1.0f);
+				m_CommandList->writeBuffer(m_gameUIPropertiesConstantBuffers[i], &propertiesBuffer, sizeof(propertiesBuffer));
+
+				gameUIGraphicsState.setPipeline(m_gameUIPipeline);
+				m_CommandList->setGraphicsState(gameUIGraphicsState);
+
+				//draw the model
+				nvrhi::DrawArguments args;
+				args.vertexCount = drawInfo->m_uiIndices.size();
+				args.instanceCount = 1;
+				args.startVertexLocation = 0;
+				args.startIndexLocation = 0;
+				m_CommandList->drawIndexed(args);
 			}
 			//------draw game ui------
 		}
@@ -2124,7 +2130,7 @@ namespace GuGu {
 			psoDesc.bindingLayouts = { m_gameUIBindingLayout }; //constant buffer 这些
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
 			psoDesc.renderState.depthStencilState.depthTestEnable = false;
-			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
+			//psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
 			m_gameUIPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
@@ -2591,6 +2597,7 @@ namespace GuGu {
 
 		gameUIGraphicsState.viewport.addViewportAndScissorRect(viewport);
 
+		std::vector<std::shared_ptr<UIDrawInfo>> uiDrawInfos;
 		for (size_t i = 0; i < gameObjects.size(); ++i)
 		{
 			std::shared_ptr<UITransformComponent> transformComponent = gameObjects[i]->getComponent<UITransformComponent>();
@@ -2600,66 +2607,72 @@ namespace GuGu {
 			{
 				std::shared_ptr<UIComponent> currentUIComponent = std::static_pointer_cast<UIComponent>(uiComponent[j]);
 
-				std::shared_ptr<UIDrawInfo> drawInfo = currentUIComponent->generateUIDrawInformation(true);
+				std::shared_ptr<UIDrawInfo> drawInfo = currentUIComponent->generateUIDrawInformation();
 				if (transformComponent && currentUIComponent)
 				{
+					uiDrawInfos.push_back(drawInfo);
 					//createDebugCameraFrustum(cameraComponent, transformComponent, inViewportClient);
-
-					createUIVertexBufferAndIndexBuffer(drawInfo);
-
-
-					if (drawInfo->m_texture->m_texture == nullptr)
-					{
-						m_textureCache.FinalizeTexture(drawInfo->m_texture, m_commonRenderPass.get(), m_CommandList);
-					}
-
-					//draw
-					nvrhi::BindingSetHandle uiBindingSet;
-					nvrhi::BindingSetDesc desc;
-					//nvrhi::BindingSetHandle bindingSet;
-					desc.bindings = {
-							nvrhi::BindingSetItem::ConstantBuffer(0, m_gameUIConstantBuffer[j]),
-							nvrhi::BindingSetItem::ConstantBuffer(1, m_gameUIPropertiesConstantBuffers[j]),
-							nvrhi::BindingSetItem::Texture_SRV(0, drawInfo->m_texture->m_texture),
-							nvrhi::BindingSetItem::Sampler(0, m_pointWrapSampler),
-					};
-					uiBindingSet = GetDevice()->createBindingSet(desc, m_gameUIBindingLayout);
-
-					gameUIGraphicsState.bindings = { uiBindingSet };
-
-					gameUIGraphicsState.vertexBuffers = {
-						{ drawInfo->m_uiVertexHandle, 0, offsetof(GameUIVertex, m_uv)},
-						{ drawInfo->m_uiVertexHandle, 1, offsetof(GameUIVertex, m_position)},
-						{ drawInfo->m_uiVertexHandle, 2, offsetof(GameUIVertex, m_color)},
-					};
-
-					gameUIGraphicsState.indexBuffer = {
-						drawInfo->m_uiIndexHandle, nvrhi::Format::R32_UINT, 0
-					};
-
-					GameUIBufferEntry modelConstants;
-					modelConstants.viewProjMatrix = viewProjMatrix;
-					modelConstants.worldMatrix = math::float4x4::identity();
-					modelConstants.camWorldPos = inViewportClient->getCamPos();
-					//get the global matrix to fill constant buffer		
-					m_CommandList->writeBuffer(m_gameUIConstantBuffer[j], &modelConstants, sizeof(modelConstants));
-
-					GameUIPropertiesBuffer propertiesBuffer;
-					propertiesBuffer.color = math::float3(1.0f, 1.0f, 1.0f);
-					m_CommandList->writeBuffer(m_gameUIPropertiesConstantBuffers[j], &propertiesBuffer, sizeof(propertiesBuffer));
-
-					gameUIGraphicsState.setPipeline(m_gameUIPipeline);
-					m_CommandList->setGraphicsState(gameUIGraphicsState);
-
-					//draw the model
-					nvrhi::DrawArguments args;
-					args.vertexCount = drawInfo->m_uiIndices.size();
-					args.instanceCount = 1;
-					args.startVertexLocation = 0;
-					args.startIndexLocation = 0;
-					m_CommandList->drawIndexed(args);
 				}
 			}
+		}
+
+		for (int32_t i = 0; i < uiDrawInfos.size(); ++i)
+		{
+			std::shared_ptr<UIDrawInfo> drawInfo = uiDrawInfos[i];
+
+			createUIVertexBufferAndIndexBuffer(drawInfo);
+
+
+			if (drawInfo->m_texture->m_texture == nullptr)
+			{
+				m_textureCache.FinalizeTexture(drawInfo->m_texture, m_commonRenderPass.get(), m_CommandList);
+			}
+
+			//draw
+			nvrhi::BindingSetHandle uiBindingSet;
+			nvrhi::BindingSetDesc desc;
+			//nvrhi::BindingSetHandle bindingSet;
+			desc.bindings = {
+					nvrhi::BindingSetItem::ConstantBuffer(0, m_gameUIConstantBuffer[i]),
+					nvrhi::BindingSetItem::ConstantBuffer(1, m_gameUIPropertiesConstantBuffers[i]),
+					nvrhi::BindingSetItem::Texture_SRV(0, drawInfo->m_texture->m_texture),
+					nvrhi::BindingSetItem::Sampler(0, m_pointWrapSampler),
+			};
+			uiBindingSet = GetDevice()->createBindingSet(desc, m_gameUIBindingLayout);
+
+			gameUIGraphicsState.bindings = { uiBindingSet };
+
+			gameUIGraphicsState.vertexBuffers = {
+				{ drawInfo->m_uiVertexHandle, 0, offsetof(GameUIVertex, m_uv)},
+				{ drawInfo->m_uiVertexHandle, 1, offsetof(GameUIVertex, m_position)},
+				{ drawInfo->m_uiVertexHandle, 2, offsetof(GameUIVertex, m_color)},
+			};
+
+			gameUIGraphicsState.indexBuffer = {
+				drawInfo->m_uiIndexHandle, nvrhi::Format::R32_UINT, 0
+			};
+
+			GameUIBufferEntry modelConstants;
+			modelConstants.viewProjMatrix = viewProjMatrix;
+			modelConstants.worldMatrix = math::float4x4::identity();
+			modelConstants.camWorldPos = inViewportClient->getCamPos();
+			//get the global matrix to fill constant buffer		
+			m_CommandList->writeBuffer(m_gameUIConstantBuffer[i], &modelConstants, sizeof(modelConstants));
+
+			GameUIPropertiesBuffer propertiesBuffer;
+			propertiesBuffer.color = math::float3(1.0f, 1.0f, 1.0f);
+			m_CommandList->writeBuffer(m_gameUIPropertiesConstantBuffers[i], &propertiesBuffer, sizeof(propertiesBuffer));
+
+			gameUIGraphicsState.setPipeline(m_gameUIPipeline);
+			m_CommandList->setGraphicsState(gameUIGraphicsState);
+
+			//draw the model
+			nvrhi::DrawArguments args;
+			args.vertexCount = drawInfo->m_uiIndices.size();
+			args.instanceCount = 1;
+			args.startVertexLocation = 0;
+			args.startIndexLocation = 0;
+			m_CommandList->drawIndexed(args);
 		}
 		//------draw game ui------
 

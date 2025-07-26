@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/GamePlay/Component.h>
+#include <Core/Math/MyMath.h>
 
 namespace GuGu {
 	struct UIDrawInfo;
@@ -21,5 +22,7 @@ namespace GuGu {
 		virtual meta::Type GetType() const override;
 
 		virtual std::shared_ptr<UIDrawInfo> generateUIDrawInformation(bool bFlip = false);
+
+		virtual math::float2 getDesiredSize() const;
 	};
 }

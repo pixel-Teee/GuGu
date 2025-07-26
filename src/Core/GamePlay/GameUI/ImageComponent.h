@@ -33,6 +33,8 @@ namespace GuGu {
 
 		virtual std::shared_ptr<UIDrawInfo> generateUIDrawInformation(bool bFlip = false) override;
 
+		virtual math::float2 getDesiredSize() const override;
+
 		//color
 		Color m_color;
 	private:

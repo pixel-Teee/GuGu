@@ -226,8 +226,7 @@ namespace GuGu {
 
 			math::decomposeAffine(worldTransform, &absolutePos, &absoluteQuat, &absoluteScale);
 
-			float scaleFactorInverse = 1.0f / uiTransformComponent->getScaleFactor();
-			math::float2 localSize = uiTransformComponent->getLocalSize() * scaleFactorInverse;
+			math::float2 localSize = uiTransformComponent->getLocalSize();
 
 			Color currentColor;
 			if (m_bIsPressed)
@@ -244,10 +243,10 @@ namespace GuGu {
 			}
 
 			//vertex generate
-			drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(0, 1), math::float3(absolutePos.x, absolutePos.y, absolutePos.z * 0.001f), currentColor));
-			drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(1, 1), math::float3(absolutePos.x + localSize.x, absolutePos.y, absolutePos.z * 0.001f), currentColor));
-			drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(0, 0), math::float3(absolutePos.x, absolutePos.y + localSize.y, absolutePos.z * 0.001f), currentColor));
-			drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(1, 0), math::float3(absolutePos.x + localSize.x, absolutePos.y + localSize.y, absolutePos.z * 0.001f), currentColor));
+			drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(0, 1), math::float3(absolutePos.x, absolutePos.y, 0), currentColor));
+			drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(1, 1), math::float3(absolutePos.x + localSize.x, absolutePos.y, 0), currentColor));
+			drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(0, 0), math::float3(absolutePos.x, absolutePos.y + localSize.y, 0), currentColor));
+			drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(1, 0), math::float3(absolutePos.x + localSize.x, absolutePos.y + localSize.y, 0), currentColor));
 
 			//index generate
 			drawInfo->m_uiIndices.push_back(0);
@@ -257,10 +256,22 @@ namespace GuGu {
 			drawInfo->m_uiIndices.push_back(1);
 			drawInfo->m_uiIndices.push_back(2);
 			drawInfo->m_uiIndices.push_back(3);
+
+			drawInfo->m_zorder = uiTransformComponent->getZOrder();
 		}
 
 
 		return drawInfo;
+	}
+
+	math::float2 ButtonComponent::getDesiredSize() const
+	{
+		std::shared_ptr<GTexture> texture = getTexture();
+		if (texture)
+		{
+			return math::float2(texture->m_width, texture->m_height);
+		}
+		return math::float2(0, 0);
 	}
 
 }

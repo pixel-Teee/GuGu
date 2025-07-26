@@ -46,6 +46,8 @@ namespace GuGu {
 		void setDisabledColor(Color inColor);
 
 		virtual std::shared_ptr<UIDrawInfo> generateUIDrawInformation(bool bFlip = false) override;
+
+		virtual math::float2 getDesiredSize() const override;
 	private:
 		//transient state
 		bool m_bIsPressed;

@@ -4,6 +4,9 @@
 #include "World.h"
 #include <Core/Reflection/TypeInfo.h>
 
+#include <Core/GamePlay/GameUI/CanvasComponent.h>
+#include <Core/GamePlay/GameUI/UITransformComponent.h>
+
 namespace GuGu {
 	static bool registerGuGuLevel()
 	{
@@ -72,7 +75,24 @@ namespace GuGu {
 	}
 	void Level::Update(float fElapsedTimeSeconds)
 	{
-		//call object Update
+		//from bottom to top
+// 		for (size_t i = 0; i < m_objects.size(); ++i)
+// 		{
+// 			if (m_objects[i])
+// 			{
+// 				std::shared_ptr<CanvasComponent> canvasComponent = m_objects[i]->getComponent<CanvasComponent>();
+// 				if(canvasComponent)
+// 				{
+// 					std::shared_ptr<UITransformComponent> transformComponent = m_objects[i]->getComponent<UITransformComponent>();
+// 					if (transformComponent)
+// 					{
+// 						transformComponent->measureDesiredSize();
+// 					}
+// 				}
+// 			}
+// 		}
+
+		//call object Update(from top to bottom)
 		for (size_t i = 0; i < m_objects.size(); ++i)
 		{
 			if (m_objects[i]->getParentGameObject().lock() == nullptr)

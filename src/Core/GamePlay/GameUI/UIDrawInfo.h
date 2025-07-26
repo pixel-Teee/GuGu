@@ -18,6 +18,8 @@ namespace GuGu {
 	class GTexture;
 	struct UIDrawInfo
 	{
+		//zorder
+		float m_zorder;
 		std::vector<GameUIVertex> m_uiVertex;
 		std::vector<uint32_t> m_uiIndices;
 		std::shared_ptr<GTexture> m_texture;

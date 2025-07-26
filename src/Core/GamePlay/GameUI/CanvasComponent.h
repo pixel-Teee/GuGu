@@ -19,9 +19,6 @@ namespace GuGu {
 
 		virtual meta::Type GetType() const override;
 
-		float getScaleFactor() const;
-		float& getScaleFactor();
-		void setScaleFactor(float inScaleFactor);
 	private:
 		float m_scaleFactor;
 	};

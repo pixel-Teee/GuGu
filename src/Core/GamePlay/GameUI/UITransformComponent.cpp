@@ -1,6 +1,7 @@
 #include <pch.h>
 
 #include "UITransformComponent.h"
+#include "UIComponent.h"
 #include <Core/Reflection/TypeInfo.h>
 #include <Core/GamePlay/GameObject.h>
 #include <Core/GamePlay/GamePlayerReflectionRegister.h>
@@ -121,6 +122,8 @@ namespace GuGu {
 		m_offset = UIPadding(0, 0, 0, 0);
 		m_alignment = math::float2(0, 0);
 		m_zOrder = 0;
+		m_localSize = math::float2(0, 0);
+		m_localPosition = math::float2(0, 0);
 	}
 
 	UITransformComponent::~UITransformComponent()
@@ -277,7 +280,7 @@ namespace GuGu {
 		std::shared_ptr<GameObject> owner = m_owner.lock();
 		if (owner != nullptr)
 		{
-			float inverseScale = 1.0f / m_scaleFactor;
+			//float inverseScale = 1.0f / m_scaleFactor;
 			Array<std::shared_ptr<GameObject>>& childrens = owner->getChildrens();
 			for (int32_t i = 0; i < childrens.size(); ++i)
 			{
@@ -293,10 +296,10 @@ namespace GuGu {
 						const bool autoSize = uiTransformComponent->getAutoSize();
 
 						const UIPadding anchorPixels = UIPadding(
-							anchors.m_minimum.x * m_localSize.x,
-							anchors.m_minimum.y * m_localSize.y,
-							anchors.m_maximum.x * m_localSize.x,
-							anchors.m_maximum.y * m_localSize.y
+							anchors.m_minimum.x * m_localSize.x,//left
+							(1.0f - anchors.m_minimum.y) * m_localSize.y,//top
+							anchors.m_maximum.x * m_localSize.x,//right
+							(1.0f - anchors.m_maximum.y) * m_localSize.y//bottom
 						);
 
 						const bool bIsHorizontalStretch = anchors.m_minimum.x != anchors.m_maximum.x;
@@ -305,9 +308,9 @@ namespace GuGu {
 						const math::float2 slotSize = math::float2(offset.right, offset.bottom);
 
 						//todo:handle auto size
-						const math::float2 widgetFixedSize = slotSize;
+						const math::float2 widgetFixedSize = m_localSize;
 
-						math::float2 alignmentOffset = widgetFixedSize * alignment;
+						math::float2 alignmentOffset = widgetFixedSize * alignment;//pivot
 
 						math::float2 localPosition, localSize;
 						if (bIsHorizontalStretch)
@@ -322,20 +325,20 @@ namespace GuGu {
 						}
 						if (bIsVerticalStretch)
 						{
-							localPosition.y = anchorPixels.top + offset.top;
-							localSize.y = anchorPixels.bottom - localPosition.y - offset.bottom;
+							localPosition.y = anchorPixels.bottom + offset.bottom;
+							localSize.y = anchorPixels.top - localPosition.y - offset.top;
 						}
 						else
 						{
-							localPosition.y = anchorPixels.top + offset.top - alignmentOffset.y;
+							localPosition.y = anchorPixels.bottom + offset.bottom - alignmentOffset.y;
 							localSize.y = widgetFixedSize.y;
 						}
 
-						uiTransformComponent->setScaleFactor(m_scaleFactor);
+						//uiTransformComponent->setScaleFactor(m_scaleFactor);
 						uiTransformComponent->setLocalPosition(localPosition);
 						uiTransformComponent->setLocalSize(localSize);
-						uiTransformComponent->SetTranslation(math::double3(localPosition.x, localPosition.y, m_zOrder + 1));//local trans
-						uiTransformComponent->setZOrder(m_zOrder + 1);
+						uiTransformComponent->SetTranslation(math::double3(localPosition.x, localPosition.y, m_zOrder - 0.1));//local trans
+						uiTransformComponent->setZOrder(m_zOrder - 0.1);
 					}
 				}
 			}

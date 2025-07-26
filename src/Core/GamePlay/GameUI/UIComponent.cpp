@@ -98,4 +98,9 @@ namespace GuGu {
 		return nullptr;
 	}
 
+	math::float2 UIComponent::getDesiredSize() const
+	{
+		return math::float2(0, 0);
+	}
+
 }

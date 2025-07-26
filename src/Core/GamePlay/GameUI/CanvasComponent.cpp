@@ -54,10 +54,6 @@ namespace GuGu {
 		auto& db = meta::ReflectionDatabase::Instance();
 		auto& type = db.types[typeof(CanvasComponent).GetID()];
 
-		type.AddField<CanvasComponent, float>("m_scaleFactor",
-			(meta::FieldGetter<CanvasComponent, float&, true>::Signature) & CanvasComponent::getScaleFactor,
-			(meta::FieldSetter<CanvasComponent, float, true>::Signature) & CanvasComponent::setScaleFactor, {});
-
 		type.AddField<CanvasComponent, std::weak_ptr<GameObject>>("m_owner",
 			(meta::FieldGetter<CanvasComponent, std::weak_ptr<GameObject>&, true>::Signature) & CanvasComponent::getParentGameObject,
 			(meta::FieldSetter<CanvasComponent, std::weak_ptr<GameObject>&, true>::Signature) & CanvasComponent::setParentGameObject, {});
@@ -118,21 +114,6 @@ namespace GuGu {
 	meta::Type CanvasComponent::GetType() const
 	{
 		return typeof(CanvasComponent);
-	}
-
-	float CanvasComponent::getScaleFactor() const
-	{
-		return m_scaleFactor;
-	}
-
-	float& CanvasComponent::getScaleFactor()
-	{
-		return m_scaleFactor;
-	}
-
-	void CanvasComponent::setScaleFactor(float inScaleFactor)
-	{
-		m_scaleFactor = inScaleFactor;
 	}
 
 }

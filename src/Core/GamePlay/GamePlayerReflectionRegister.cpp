@@ -290,19 +290,31 @@ namespace GuGu {
 
 		type.AddField<UIPadding, float>("left",
 			(meta::FieldGetter<UIPadding, float, false>::Signature) & UIPadding::left,
-			(meta::FieldSetter<UIPadding, float, false>::Signature) & UIPadding::left, {});
+			(meta::FieldSetter<UIPadding, float, false>::Signature) & UIPadding::left,
+			{
+				std::make_pair(typeof(meta::Range), meta::MetaPropertyInitializer<meta::Range>(-2000.0f, 2000.0f)) //meta
+			});
 
 		type.AddField<UIPadding, float>("top",
 			(meta::FieldGetter<UIPadding, float, false>::Signature) & UIPadding::top,
-			(meta::FieldSetter<UIPadding, float, false>::Signature) & UIPadding::top, {});
+			(meta::FieldSetter<UIPadding, float, false>::Signature) & UIPadding::top,
+			{
+				std::make_pair(typeof(meta::Range), meta::MetaPropertyInitializer<meta::Range>(-2000.0f, 2000.0f)) //meta
+			});
 
 		type.AddField<UIPadding, float>("right",
 			(meta::FieldGetter<UIPadding, float, false>::Signature) & UIPadding::right,
-			(meta::FieldSetter<UIPadding, float, false>::Signature) & UIPadding::right, {});
+			(meta::FieldSetter<UIPadding, float, false>::Signature) & UIPadding::right,
+			{
+				std::make_pair(typeof(meta::Range), meta::MetaPropertyInitializer<meta::Range>(-2000.0f, 2000.0f)) //meta
+			});
 
 		type.AddField<UIPadding, float>("bottom",
 			(meta::FieldGetter<UIPadding, float, false>::Signature) & UIPadding::bottom,
-			(meta::FieldSetter<UIPadding, float, false>::Signature) & UIPadding::bottom, {});
+			(meta::FieldSetter<UIPadding, float, false>::Signature) & UIPadding::bottom,
+			{
+				std::make_pair(typeof(meta::Range), meta::MetaPropertyInitializer<meta::Range>(-2000.0f, 2000.0f)) //meta
+			});
 		return true;
 	}
 
@@ -430,6 +442,7 @@ namespace GuGu {
 
 		ReflectionMain::addInitialTypeFunction(registerUIPadding, &uiPaddingPriority);
 		ReflectionMain::addInitialTypeFunction(registerUIAnchors, &uiAnchorsPriority);
+		uiPaddingPriority.addPriorityThan(&meta::Range::ms_priority);
 		uiAnchorsPriority.addPriorityThan(&meta::Range::ms_priority);
 
 		//UIComponent register
