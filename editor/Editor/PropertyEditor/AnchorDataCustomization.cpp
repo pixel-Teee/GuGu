@@ -13,6 +13,10 @@
 #include <Core/UI/ImageWidget.h>
 #include <Core/UI/UniformGridPanel.h>
 #include <Core/UI/CompoundWidget.h>
+#include <Core/UI/ConstraintCanvas.h>
+#include <Core/UI/Button.h>
+#include <Core/UI/Border.h>
+#include <Core/UI/Box.h>
 
 #include <Core/GamePlay/GameUI/UIAnchors.h>
 
@@ -38,7 +42,34 @@ namespace GuGu {
 		const GuGuUtf8Str& labelText,
 		UIAnchors anchors)
 		{
-			//
+			std::shared_ptr<Button> button;
+			WIDGET_ASSIGN_NEW(Button, button)
+			.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+			.Content
+			(
+				WIDGET_NEW(VerticalBox)
+				+ VerticalBox::Slot()
+				.FixedHeight()
+				(
+					WIDGET_NEW(Border)
+					.brush(EditorStyleSet::getStyleSet()->getBrush("anchorGrid"))
+					.padding(0)
+					.Content
+					(
+						WIDGET_NEW(BoxWidget)
+						.WidthOverride(64)
+						.HeightOverride(64)
+						.Content
+						(
+							NullWidget::getNullWidget()
+						)
+					)
+				)
+			);
+			m_childWidget = std::make_shared<SingleChildSlot>();
+			m_childWidget->m_childWidget = button;
+			m_childWidget->m_parentWidget = shared_from_this();
+			m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 		}
 
 	};
@@ -103,7 +134,10 @@ namespace GuGu {
 				.Content
 				(
 					WIDGET_NEW(Border)
-					.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+					.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("beige1"))
+					.verticalAlignment(VerticalAlignment::Center)
+					.horizontalAlignment(HorizontalAlignment::Center)
+					.padding(0)
 					.Content
 					(
 						WIDGET_NEW(VerticalBox)
@@ -117,7 +151,7 @@ namespace GuGu {
 								WIDGET_NEW(UniformGridPanel)
 								+ UniformGridPanel::Slot(0, 0)
 								(
-									NullWidget::getNullWidget()
+									WIDGET_NEW(AnchorPreviewWidget, anchorsHandle, anchorsHandle, anchorsHandle, "TopLeft", UIAnchors(0, 0, 0, 0))
 								)
 							)
 						)

@@ -304,6 +304,17 @@ namespace GuGu {
 		redoButton->setPressed(Redo_Pressed);
 		redoButton->setDisabled(noResource);
 		m_styles.insert({ u8"redoButton", redoButton });
+
+		//brush
+		{
+			//10x10 size
+			std::shared_ptr<Brush> anchorGridBrush = std::make_shared<Brush>();
+			anchorGridBrush->m_tiling = true;
+			anchorGridBrush->m_texturePath = u8"asset/EditorAsset/anchorGrid.png";
+			anchorGridBrush->m_tintColor = math::float4(1.0f, 1.0f, 1.0f, 1.0f);
+			anchorGridBrush->m_drawAs = BrushDrawType::Type::Image;
+			m_brushes.insert({ u8"anchorGrid" , anchorGridBrush });
+		}
 	}
 	EditorStyleSet::~EditorStyleSet()
 	{

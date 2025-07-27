@@ -308,5 +308,10 @@ namespace GuGu {
 			: m_minimum(horizontal, vertical)
 			, m_maximum(horizontal, vertical)
 		{}
+
+		Anchors(float minX, float minY, float maxX, float maxY)
+			: m_minimum(minX, minY)
+			, m_maximum(maxX, maxY)
+		{}
 	};
 }

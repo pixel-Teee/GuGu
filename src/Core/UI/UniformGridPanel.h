@@ -17,12 +17,14 @@ namespace GuGu {
 		{
 		public:
 			UniformGridSlot()
+			: Slot<UniformGridSlot>(HorizontalAlignment::Center, VerticalAlignment::Center, Padding(0))
 			{
 				m_column = m_row = 0;
 			}
 			UniformGridSlot(int32_t inColumn, int32_t inRow)
 			: m_column(inColumn)
 			, m_row(inRow)
+			, Slot<UniformGridSlot>(HorizontalAlignment::Center, VerticalAlignment::Center, Padding(0))
 			{
 				//
 			}

@@ -18,5 +18,10 @@ namespace GuGu {
 		UIAnchors(math::float2 inMinimum, math::float2 inMaximum)
 		: m_minimum(inMinimum), m_maximum(inMaximum)
 		{}
+
+		UIAnchors(float minX, float minY, float maxX, float maxY)
+		: m_minimum(minX, minY)
+		, m_maximum(maxX, maxY)
+		{}
 	};
 }
