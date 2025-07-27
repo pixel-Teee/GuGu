@@ -287,4 +287,26 @@ namespace GuGu {
 			Unspecified = 0
 		};
 	}
+
+	struct Anchors
+	{
+		math::float2 m_minimum;
+
+		math::float2 m_maximum;
+
+		Anchors()
+			: m_minimum(0, 0)
+			, m_maximum(0, 0)
+		{}
+
+		Anchors(float uniformAnchors)
+			: m_minimum(uniformAnchors, uniformAnchors)
+			, m_maximum(uniformAnchors, uniformAnchors)
+		{}
+
+		Anchors(float horizontal, float vertical)
+			: m_minimum(horizontal, vertical)
+			, m_maximum(horizontal, vertical)
+		{}
+	};
 }

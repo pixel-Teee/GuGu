@@ -11,8 +11,37 @@
 #include <Core/UI/Border.h>
 #include <Core/UI/BoxPanel.h>
 #include <Core/UI/ImageWidget.h>
+#include <Core/UI/UniformGridPanel.h>
+#include <Core/UI/CompoundWidget.h>
+
+#include <Core/GamePlay/GameUI/UIAnchors.h>
 
 namespace GuGu {
+
+	class AnchorPreviewWidget : public CompoundWidget
+	{
+	public:
+		AnchorPreviewWidget() {}
+		virtual ~AnchorPreviewWidget() {}
+
+		struct BuilderArguments : public Arguments<AnchorPreviewWidget>
+		{
+			BuilderArguments() {}
+
+			~BuilderArguments() = default;
+		};
+
+		void init(const BuilderArguments& arguments, 
+		std::shared_ptr<IPropertyHandle> anchorsHandle,
+		std::shared_ptr<IPropertyHandle> alignmentHandle,
+		std::shared_ptr<IPropertyHandle> offsetsHandle,
+		const GuGuUtf8Str& labelText,
+		UIAnchors anchors)
+		{
+			//
+		}
+
+	};
 
 	std::shared_ptr<AnchorDataCustomization> AnchorDataCustomization::create()
 	{
@@ -81,8 +110,16 @@ namespace GuGu {
 						+ VerticalBox::Slot()
 						.FixedHeight()
 						(
-							WIDGET_NEW(ImageWidget)
-							.brush(EditorStyleSet::getStyleSet()->getBrush("ImportTexture_Icon"))
+							WIDGET_NEW(HorizontalBox)
+							+ HorizontalBox::Slot()
+							.FixedWidth()
+							(
+								WIDGET_NEW(UniformGridPanel)
+								+ UniformGridPanel::Slot(0, 0)
+								(
+									NullWidget::getNullWidget()
+								)
+							)
 						)
 					)
 				)
