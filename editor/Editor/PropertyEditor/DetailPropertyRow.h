@@ -32,6 +32,8 @@ namespace GuGu {
 		void onGenerateChildren(DetailNodeList& outChildren);
 
 		void generateChildrenForPropertyNode(std::shared_ptr<PropertyNode>& rootPropertyNode, DetailNodeList& outChildren);
+
+		bool showOnlyChildren() const;
 	private:
 		void makeNameOrKeyWidget(DetailWidgetRow& row, std::shared_ptr<DetailWidgetRow> inCustomPropertyWidget);
 

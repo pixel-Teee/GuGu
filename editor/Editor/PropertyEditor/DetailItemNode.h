@@ -27,6 +27,8 @@ namespace GuGu {
 		virtual std::shared_ptr<DetailCategoryImpl> getParentCategory() const override;
 
 		void generateChildren();
+
+		virtual bool shouldShowOnlyChildren() const override;
 	private:
 		void initPropertyEditor();
 

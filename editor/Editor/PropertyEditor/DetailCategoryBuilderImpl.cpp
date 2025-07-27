@@ -18,6 +18,7 @@ namespace GuGu {
 
 	DetailCategoryImpl::DetailCategoryImpl(const GuGuUtf8Str& categoryName, std::shared_ptr<DetailLayoutBuilderImpl> inDetailLayoutBuilderImpl)
 		: m_headerContentWidget(nullptr)
+		, m_bShowOnlyChildren(false)
 	{
 		m_categoryName = categoryName;
 		m_detailLayoutBuilder = inDetailLayoutBuilderImpl;
@@ -63,7 +64,15 @@ namespace GuGu {
 		{
 			if (bIgnoreVisibility)
 			{
-				outChildren.push_back(child);
+				//是否儿子有自定义的儿子构建器来构建布局
+				if (child->shouldShowOnlyChildren())
+				{
+					child->getChildren(outChildren);
+				}
+				else
+				{
+					outChildren.push_back(child);
+				}
 			}
 		}
 	}
@@ -86,6 +95,11 @@ namespace GuGu {
 	IDetailsView* DetailCategoryImpl::getNodeDetailsView() const
 	{
 		return getDetailsView();
+	}
+
+	bool DetailCategoryImpl::shouldShowOnlyChildren() const
+	{
+		return m_bShowOnlyChildren;
 	}
 
 	//std::shared_ptr<Widget> DetailCategoryImpl::onGetContextMenuContent() const

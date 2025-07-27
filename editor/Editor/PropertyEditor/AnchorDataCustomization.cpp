@@ -5,6 +5,7 @@
 #include "DetailPropertyRow.h"
 #include "CustomChildBuilder.h"//IDetailChildrenBuilder
 #include <Core/UI/TextBlockWidget.h>
+#include <Editor/StyleSet/EditorStyleSet.h>
 
 namespace GuGu {
 
@@ -15,7 +16,17 @@ namespace GuGu {
 
 	void AnchorDataCustomization::customizeHeader(std::shared_ptr<IPropertyHandle> propertyHandle, DetailWidgetRow& headerRow)
 	{
-
+		//headerRow
+		//.nameContent()
+		//(
+		//	WIDGET_NEW(TextBlockWidget)
+		//	.text("114514")
+		//)
+		//.valueContent()
+		//(
+		//	WIDGET_NEW(TextBlockWidget)
+		//	.text("114514")
+		//);
 	}
 
 	void AnchorDataCustomization::cutomizeChildren(std::shared_ptr<IPropertyHandle> propertyHandle, IDetailChildrenBuilder& childBuilder)
@@ -39,11 +50,13 @@ namespace GuGu {
 		(
 			WIDGET_NEW(TextBlockWidget)
 			.text("114514")
+			.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
 		)
 		.valueContent()
 		(
 			WIDGET_NEW(TextBlockWidget)
 			.text("114514")
+			.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
 		);
 	}
 

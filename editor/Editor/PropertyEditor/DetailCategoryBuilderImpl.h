@@ -104,6 +104,7 @@ namespace GuGu {
 		virtual IDetailsView* getNodeDetailsView() const override;
 
 		//std::shared_ptr<Widget> onGetContextMenuContent() const;
+		virtual bool shouldShowOnlyChildren() const override;
 	private:
 		//生成儿子的所有布局
 		void generateChildrenForLayouts();
@@ -127,5 +128,7 @@ namespace GuGu {
 		GuGuUtf8Str m_displayName;
 
 		std::weak_ptr<DetailLayoutBuilderImpl> m_detailLayoutBuilder;
+
+		bool m_bShowOnlyChildren;
 	};
 }

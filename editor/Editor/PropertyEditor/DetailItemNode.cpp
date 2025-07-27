@@ -25,7 +25,14 @@ namespace GuGu {
 		{
 			std::shared_ptr<DetailTreeNode>& child = m_children[childIndex];
 
-			outChildren.push_back(child);
+			if (child->shouldShowOnlyChildren())
+			{
+				child->getChildren(outChildren);
+			}
+			else
+			{
+				outChildren.push_back(child);
+			}
 		}
 	}
 
@@ -84,6 +91,11 @@ namespace GuGu {
 		{
 			m_customization.m_propertyRow->onGenerateChildren(m_children);
 		}
+	}
+
+	bool DetailItemNode::shouldShowOnlyChildren() const
+	{
+		return m_customization.hasPropertyNode() && m_customization.m_propertyRow->showOnlyChildren();
 	}
 
 	void DetailItemNode::initPropertyEditor()

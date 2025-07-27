@@ -113,6 +113,11 @@ namespace GuGu {
 		}
 	}
 
+	bool DetailPropertyRow::showOnlyChildren() const
+	{
+		return (m_propertyTypeLayoutBuilder != nullptr && m_customPropertyWidget != nullptr);
+	}
+
 	void DetailPropertyRow::makeNameOrKeyWidget(DetailWidgetRow& row, std::shared_ptr<DetailWidgetRow> inCustomPropertyWidget)
 	{
 		VerticalAlignment verticalAlignment = VerticalAlignment::Center;

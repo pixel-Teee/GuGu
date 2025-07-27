@@ -30,6 +30,8 @@ namespace GuGu {
 		virtual IDetailsView* getNodeDetailsView() const = 0;
 
 		virtual std::shared_ptr<DetailCategoryImpl> getParentCategory() const { return std::shared_ptr<DetailCategoryImpl>(); }
+
+		virtual bool shouldShowOnlyChildren() const = 0;
 	private:
 		std::weak_ptr<DetailTreeNode> m_parentNode;
 	};
