@@ -198,8 +198,9 @@ namespace GuGu {
 
 		if (arrangedWidgetArray.accepts(childVisibility)) //数组的可见性是否接受widget的可见性
 		{
-			AlignmentArrangeResult xalignmentResult = AlignChild<Orientation::Horizontal>(*getSlot(0), allocatedGeometry.getLocalSize().x);
-			AlignmentArrangeResult yAlignmentResult = AlignChild<Orientation::Vertical>(*getSlot(0), allocatedGeometry.getLocalSize().y);
+			Padding slotPadding = getSlot(0)->getPadding();
+			AlignmentArrangeResult xalignmentResult = AlignChild<Orientation::Horizontal>(*getSlot(0), allocatedGeometry.getLocalSize().x, slotPadding);
+			AlignmentArrangeResult yAlignmentResult = AlignChild<Orientation::Vertical>(*getSlot(0), allocatedGeometry.getLocalSize().y, slotPadding);
 			const WidgetGeometry childGeometry = allocatedGeometry.getChildGeometry(math::float2(xalignmentResult.m_size, yAlignmentResult.m_size), math::float2(xalignmentResult.m_offset, yAlignmentResult.m_offset));
 			arrangedWidgetArray.pushWidget(childGeometry, getSlot(0)->getChildWidget());
 		}

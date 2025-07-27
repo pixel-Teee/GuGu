@@ -93,8 +93,8 @@ namespace GuGu {
 					? math::float2(widgetGeometry.getLocalSize().x, childSize + curChild->getPadding().template getTotalSpaceAlong<orientation>())
 					: math::float2(childSize + curChild->getPadding().template getTotalSpaceAlong<orientation>(), widgetGeometry.getLocalSize().y);
 
-				AlignmentArrangeResult xAlignmentResult = AlignChild<Orientation::Horizontal>(*curChild, slotSize.x);
-				AlignmentArrangeResult yAlignmentResult = AlignChild<Orientation::Vertical>(*curChild, slotSize.y);
+				AlignmentArrangeResult xAlignmentResult = AlignChild<Orientation::Horizontal>(*curChild, slotSize.x, slotPadding);
+				AlignmentArrangeResult yAlignmentResult = AlignChild<Orientation::Vertical>(*curChild, slotSize.y, slotPadding);
 
 				const math::float2 localPosition = (orientation == Orientation::Vertical)
 					? math::float2(xAlignmentResult.m_offset, positionSoFar + yAlignmentResult.m_offset)

@@ -44,9 +44,11 @@ namespace GuGu {
 	}
 
 	template<Orientation orientation, typename SlotType>
-	static AlignmentArrangeResult AlignChild(const SlotType& childToArrange, float allocatedSize)
+	static AlignmentArrangeResult AlignChild(const SlotType& childToArrange, float allocatedSize, Padding inSlotPadding)
 	{
-		Padding slotPadding = childToArrange.getPadding();
+		//大部分情况下是slot的padding
+		//Padding slotPadding = childToArrange.getPadding();
+		Padding slotPadding = inSlotPadding;
 
 		//horizontal
 		float totalMargin = slotPadding.getTotalSpaceAlong<orientation>();

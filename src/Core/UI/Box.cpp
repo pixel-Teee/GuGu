@@ -99,8 +99,9 @@ namespace GuGu {
 
 			if (bAlignChildren)
 			{
-				xAlignmentResult = AlignChild<Orientation::Horizontal>(*m_childWidget, allocatedGeometry.getLocalSize().x);
-				yAlignmentResult = AlignChild<Orientation::Vertical>(*m_childWidget, allocatedGeometry.getLocalSize().y);
+				Padding slotPadding = m_childWidget->getPadding();
+				xAlignmentResult = AlignChild<Orientation::Horizontal>(*m_childWidget, allocatedGeometry.getLocalSize().x, slotPadding);
+				yAlignmentResult = AlignChild<Orientation::Vertical>(*m_childWidget, allocatedGeometry.getLocalSize().y, slotPadding);
 			}
 
 			const float alignedSizeX = xAlignmentResult.m_size;

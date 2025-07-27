@@ -68,8 +68,8 @@ namespace GuGu {
 			}
 			else
 			{
-				AlignmentArrangeResult xResult = AlignChild<Orientation::Horizontal>(curChild, allocatedGeometry.getLocalSize().x);
-				AlignmentArrangeResult yResult = AlignChild<Orientation::Vertical>(curChild, allocatedGeometry.getLocalSize().y);
+				AlignmentArrangeResult xResult = AlignChild<Orientation::Horizontal>(curChild, allocatedGeometry.getLocalSize().x, slotPadding);
+				AlignmentArrangeResult yResult = AlignChild<Orientation::Vertical>(curChild, allocatedGeometry.getLocalSize().y, slotPadding);
 				Size = math::float2(xResult.m_size, yResult.m_size);
 			}
 			const WidgetGeometry childGeom = allocatedGeometry.getChildGeometry(Size, curChild.m_offset.Get());

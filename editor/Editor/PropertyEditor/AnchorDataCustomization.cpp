@@ -4,8 +4,13 @@
 #include "PropertyHandleImp.h"
 #include "DetailPropertyRow.h"
 #include "CustomChildBuilder.h"//IDetailChildrenBuilder
-#include <Core/UI/TextBlockWidget.h>
 #include <Editor/StyleSet/EditorStyleSet.h>
+
+#include <Core/UI/TextBlockWidget.h>
+#include <Core/UI/ComboButton.h>
+#include <Core/UI/Border.h>
+#include <Core/UI/BoxPanel.h>
+#include <Core/UI/ImageWidget.h>
 
 namespace GuGu {
 
@@ -49,14 +54,39 @@ namespace GuGu {
 		.nameContent()
 		(
 			WIDGET_NEW(TextBlockWidget)
-			.text("114514")
+			.text("Anchors")
 			.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
 		)
 		.valueContent()
 		(
-			WIDGET_NEW(TextBlockWidget)
-			.text("114514")
-			.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+			WIDGET_NEW(ComboButton)
+			.method(std::optional<PopupMethod>(PopupMethod::CreateNewWindow))
+			.buttonContent
+			(
+				WIDGET_NEW(TextBlockWidget)
+				.text("Anchors")
+				.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+			)
+			.menuContent
+			(
+				WIDGET_NEW(Border)
+				.padding(5)
+				.Content
+				(
+					WIDGET_NEW(Border)
+					.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+					.Content
+					(
+						WIDGET_NEW(VerticalBox)
+						+ VerticalBox::Slot()
+						.FixedHeight()
+						(
+							WIDGET_NEW(ImageWidget)
+							.brush(EditorStyleSet::getStyleSet()->getBrush("ImportTexture_Icon"))
+						)
+					)
+				)
+			)
 		);
 	}
 
