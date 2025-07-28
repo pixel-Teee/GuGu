@@ -10,6 +10,36 @@ namespace GuGu {
 	namespace meta {
 		namespace
 		{
+		//function util
+		std::vector<GuGuUtf8Str> splitByComma(const GuGuUtf8Str& str)
+		{
+			std::vector<GuGuUtf8Str> pairs;
+			int32_t start = 0;
+			for (int32_t i = 0; i < str.len(); ++i)
+			{
+				if (str[i] == "(")
+				{
+					while(str[i] != ")")
+						++i;
+					if(i >= str.len())
+						break;
+				}
+				if (str[i] == ",")
+				{
+					GuGuUtf8Str pair = str.substr(start, i - start);
+					pairs.push_back(pair);
+
+					start = i + 1;
+					while (start < str.len() && str[start] == " ") ++start;
+				}
+			}
+
+			GuGuUtf8Str last = str.substr(start);
+			last.trim();
+			if (last.len()) pairs.push_back(last);
+			return pairs;
+		}
+
 		//确认我们总是有 gDatabase 的一个引用
 #define gDatabase ReflectionDatabase::Instance()
 		}
@@ -383,6 +413,59 @@ namespace GuGu {
 
 			instance.m_base->OnDeserialize(value);
 		}
+
+		void Type::importStr(const GuGuUtf8Str& inBuffer, meta::Variant& owner)
+		{
+			//only implement struct
+			if (owner.GetType().IsStruct())
+			{
+				//解析字符串
+				//去除两边的括号
+				GuGuUtf8Str ridBracket = inBuffer.substr(1, inBuffer.len() - 2);
+				//按逗号分割键值对
+				std::vector<GuGuUtf8Str> pairs = splitByComma(ridBracket);
+
+				auto& fields = gDatabase.types[m_id].fields;
+				for (auto& field : fields)
+				{
+					auto fieldType = field.GetType();
+					
+					for (auto& item : pairs)
+					{
+						//------get key and value------
+						int32_t eqPos = item.find("=");
+						if (eqPos == -1) continue;
+						GuGuUtf8Str key = item.substr(0, eqPos);
+						key = key.trim();
+						GuGuUtf8Str value = item.substr(eqPos + 1);
+						value = value.trim();
+						//------get key and value------
+						if (fieldType.IsStruct())
+						{
+							
+							if(key == field.GetName())
+								fieldType.importStr(value, field.GetValueReference(owner));
+						}
+						else
+						{
+							if (key == field.GetName())
+							{
+								//primitive
+								if (fieldType == typeof(float))
+								{
+									field.SetValue(owner, std::stof(value.getStr()));
+								}
+								else if (fieldType == typeof(double))
+								{
+									field.SetValue(owner, std::stod(value.getStr()));
+								}
+							}	
+						}
+					}
+				}
+			}
+		}
+
 	}
 }
 

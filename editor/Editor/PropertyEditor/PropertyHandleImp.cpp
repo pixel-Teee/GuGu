@@ -10,6 +10,7 @@
 #include <Core/Reflection/Object.h>
 #include <Core/Reflection/Variant.h>
 #include <Core/GamePlay/GameObject.h>
+#include <Core/GamePlay/GameUI/UIAnchors.h>
 #include <Core/AssetManager/AssetData.h>
 #include <Core/Reflection/ReflectionDatabase.h>
 #include <Core/AssetManager/AssetManager.h>
@@ -192,6 +193,12 @@ namespace GuGu {
 			std::shared_ptr<AssetData> assetData;
 			meta::Variant assetDataInstance(AssetManager::getAssetManager().loadAsset(guid));
 			fieldValue = std::move(assetDataInstance);
+		}
+		else if (field->GetType() == typeof(UIAnchors))
+		{
+			meta::Variant anchorsInstance = UIAnchors();
+			field->GetType().importStr(inValue, anchorsInstance);
+			fieldValue = std::move(anchorsInstance);
 		}
 		for (int32_t i = 0; i < owners.size(); ++i)
 		{

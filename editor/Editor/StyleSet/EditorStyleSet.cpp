@@ -311,9 +311,18 @@ namespace GuGu {
 			std::shared_ptr<Brush> anchorGridBrush = std::make_shared<Brush>();
 			anchorGridBrush->m_tiling = true;
 			anchorGridBrush->m_texturePath = u8"asset/EditorAsset/anchorGrid.png";
-			anchorGridBrush->m_tintColor = math::float4(1.0f, 1.0f, 1.0f, 1.0f);
+			anchorGridBrush->m_tintColor = math::float4(1.0f, 1.0f, 1.0f, 0.4f);
 			anchorGridBrush->m_drawAs = BrushDrawType::Type::Image;
 			m_brushes.insert({ u8"anchorGrid" , anchorGridBrush });
+
+			//32x32 size
+			std::shared_ptr<Brush> anchorWidgetBrush = std::make_shared<Brush>();
+			anchorWidgetBrush->m_tiling = true;
+			anchorWidgetBrush->m_texturePath = u8"asset/EditorAsset/anchorWidget.png";
+			anchorWidgetBrush->m_tintColor = math::float4(1.0f, 1.0f, 1.0f, 1.0f);
+			anchorWidgetBrush->m_drawAs = BrushDrawType::Type::Box;
+			anchorWidgetBrush->m_margin = Padding(0.4f);
+			m_brushes.insert({ u8"anchorWidget" , anchorWidgetBrush });
 		}
 	}
 	EditorStyleSet::~EditorStyleSet()

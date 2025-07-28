@@ -120,6 +120,8 @@ namespace GuGu {
 			Variant DeserializeJson(const nlohmann::json& value, const Constructor& ctor) const;
 			//Variant DeserializeJson(const nlohmann::json& value, const )
 			void DeserializeJson(Variant& instance, const nlohmann::json& value) const;
+
+			void importStr(const GuGuUtf8Str& inBuffer, meta::Variant& owner);
 		private:
 			friend struct TypeData;
 			//一个无符号整数

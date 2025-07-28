@@ -23,5 +23,8 @@ namespace GuGu {
 		: m_minimum(minX, minY)
 		, m_maximum(maxX, maxY)
 		{}
+
+		bool isStretchedVertical() const { return m_minimum.y != m_maximum.y; }
+		bool isStretchedHorizontal() const { return m_minimum.x != m_maximum.x; }
 	};
 }

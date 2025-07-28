@@ -133,7 +133,7 @@ namespace GuGu {
 
 	void ConstraintCanvas::arrangeLayeredChildren(const WidgetGeometry& allocatedGeometry, ArrangedWidgetArray& arrangedWidgetArray, ArrangedChildLayers& arrangedChildLayers) const
 	{
-		if (m_childrens.size())
+		if (m_childrens.size() > 0)
 		{
 			const bool bExplicitChildZOrder = 0;
 

@@ -31,12 +31,6 @@ namespace GuGu {
 
 			virtual ~UniformGridSlot() = default;
 
-			void init(std::shared_ptr<Widget> inParentWidget, const SlotBuilderArguments& builderArguments)
-			{
-				m_parentWidget = inParentWidget;
-				m_childWidget->setParentWidget(inParentWidget);
-			}
-
 			struct SlotBuilderArguments : public Slot<UniformGridSlot>::SlotBuilderArguments
 			{
 				SlotBuilderArguments(std::shared_ptr<UniformGridSlot> inSlot)
@@ -58,6 +52,15 @@ namespace GuGu {
 				int32_t column;
 				int32_t row;
 			};
+
+			void init(std::shared_ptr<Widget> inParentWidget, const SlotBuilderArguments& builderArguments)
+			{
+				m_parentWidget = inParentWidget;
+				m_childWidget->setParentWidget(inParentWidget);
+				//column row
+				m_column = builderArguments.column;
+				m_row = builderArguments.row;
+			}
 
 			int32_t m_column;
 			int32_t m_row;
