@@ -22,7 +22,8 @@ namespace GuGu {
 		Default,
 		RoundedBox,
 		Font,
-		Line
+		Line,
+		Border
 	};
 
 	struct ShaderParam
@@ -123,6 +124,8 @@ namespace GuGu {
 		void generateShapedTextBatch(std::shared_ptr<Element> element);
 
 		void generateGradientBatch(std::shared_ptr<Element> element);
+
+		void generateBorderBatch(std::shared_ptr<Element> element);
 
 		void buildShapedTextSequence(const ShapedTextBuildContext& context);
 

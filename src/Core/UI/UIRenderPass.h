@@ -90,6 +90,7 @@ namespace GuGu {
 		nvrhi::ShaderHandle m_pixelFontShader;
 		nvrhi::ShaderHandle m_lineShader;
 		nvrhi::ShaderHandle m_roundedBoxPixelShader;
+		nvrhi::ShaderHandle m_borderPixelShader;
 
 		nvrhi::InputLayoutHandle m_inputLayout;
 		nvrhi::BindingLayoutHandle m_bindingLayout;
@@ -162,6 +163,7 @@ namespace GuGu {
 			nvrhi::GraphicsPipelineHandle m_FontPipeline;
 			nvrhi::GraphicsPipelineHandle m_LinePipeline;
 			nvrhi::GraphicsPipelineHandle m_roundedBoxPipeline;
+			nvrhi::GraphicsPipelineHandle m_borderPipeline;
 		};
 
 		std::map<WindowWidget*, UIPipeline> m_UIPsos;

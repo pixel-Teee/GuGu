@@ -47,7 +47,7 @@ namespace GuGu {
 		}
 		else
 		{
-			std::shared_ptr<BoxElement> boxElement = std::make_shared<BoxElement>(Element::ElementType::Box, widgetGeometry, color, brush, layer, brush->m_tiling);
+			std::shared_ptr<BoxElement> boxElement = std::make_shared<BoxElement>(elementType, widgetGeometry, color, brush, layer, brush->m_tiling);
 			boxElement->setClipIndex(elementList.getClippintIndex());
 			//generate a box element to element list
 			elementList.m_elements.push_back(boxElement);
@@ -116,6 +116,11 @@ namespace GuGu {
 				case Element::ElementType::RoundedBox:
 				{
 					generateBoxBatch(m_elements[i]);
+					break;
+				}
+				case Element::ElementType::Border:
+				{
+					generateBorderBatch(m_elements[i]);
 					break;
 				}
 				case Element::ElementType::Text:
@@ -765,6 +770,202 @@ namespace GuGu {
 
 		m_batches.push_back(boxBatch);
 	}
+
+	void ElementList::generateBorderBatch(std::shared_ptr<Element> element)
+	{
+		//border batch
+		std::shared_ptr<BatchData> boxBatch = std::make_shared<BatchData>();
+		boxBatch->shaderType = UIShaderType::Border;
+		boxBatch->m_layer = element->m_layer;
+		boxBatch->m_clippingState = getClippingState(element->m_clipIndex);
+
+		std::shared_ptr<BoxElement> boxElement = std::static_pointer_cast<BoxElement>(element);
+		math::affine2 transform = boxElement->m_geometry.getAccumulateRenderTransform();
+		math::float2 localSize = boxElement->m_geometry.getLocalSize();
+
+		math::affine2 layoutTransform = boxElement->m_geometry.getAccumulateLayoutTransform();
+		math::affine2 inverseLayoutTransform = math::inverse(layoutTransform);
+
+		//texture width, height
+		uint32_t textureWidth = 1;
+		uint32_t textureHeight = 1;
+		if (boxElement->m_brush->m_texture)
+		{
+			textureWidth = boxElement->m_brush->m_actualSize.x;
+			textureHeight = boxElement->m_brush->m_actualSize.y;
+		}
+
+		math::float2 textureSizeLocalSpace = inverseLayoutTransform.transformVector(math::float2(textureWidth, textureHeight));//这个只是将纹理缩放了scale倍
+
+		const math::float2 startUV(0, 0);
+		const math::float2 endUV(1.0f, 1.0f);
+
+		Padding margin = boxElement->m_brush->m_margin;
+
+		math::float2 topLeft(0, 0);
+		math::float2 bottomRight(localSize);
+
+		bool bIsFlippedX = topLeft.x > bottomRight.x;
+		bool bIsFlippedY = topLeft.y > bottomRight.y;
+		margin.left = bIsFlippedX ? -margin.left : margin.left;
+		margin.top = bIsFlippedY ? -margin.top : margin.top;
+		margin.right = bIsFlippedX ? -margin.right : margin.right;
+		margin.bottom = bIsFlippedY ? -margin.bottom : margin.bottom;
+
+		math::float2 topLeftMargin(textureSizeLocalSpace * math::float2(margin.left, margin.top));
+		math::float2 bottomRightMargin(localSize - textureSizeLocalSpace * math::float2(margin.right, margin.bottom));
+
+		float leftMarginX = topLeftMargin.x;
+		float topMarginY = topLeftMargin.y;
+		float rightMarginX = bottomRightMargin.x;
+		float bottomMarginY = bottomRightMargin.y;
+
+		//handle overlap
+		if (std::abs(rightMarginX) < std::abs(leftMarginX))
+		{
+			leftMarginX = localSize.x / 2.0f;
+			rightMarginX = leftMarginX;
+		}
+
+		if (std::abs(bottomMarginY) < std::abs(topMarginY))
+		{
+			topMarginY = localSize.y / 2.0f;
+			bottomMarginY = topMarginY;
+		}
+
+		float leftMarginU = std::abs(margin.left);
+		float topMarginV = std::abs(margin.top);
+		float rightMarginU = 1.0f - std::abs(margin.right);
+		float bottomMarginV = 1.0f - std::abs(margin.bottom);
+
+		float topTiling = 1.0f;
+		float leftTiling = 1.0f;
+		float denom = textureSizeLocalSpace.x * (1.0f - margin.getTotalSpaceAlong<Orientation::Horizontal>());
+		if (!math::isnear(denom, 0))
+		{
+			topTiling = (rightMarginX - leftMarginX) / denom;//中间拉伸的尺寸
+		}
+		denom = textureSizeLocalSpace.y * (1.0f - margin.getTotalSpaceAlong<Orientation::Vertical>());
+		if (!math::isnear(denom, 0))
+		{
+			leftTiling = (bottomMarginY - topMarginY) / denom;
+		}
+		boxBatch->m_shaderParams = ShaderParam(math::float4(leftMarginU, rightMarginU, topMarginV, bottomMarginV));
+		
+		//保证平铺至少为1
+		topTiling = topTiling >= 1.0f ? topTiling : 1.0f;
+		leftTiling = leftTiling >= 1.0f ? leftTiling : 1.0f;
+		float rightTiling = leftTiling;
+		float bottomTiling = topTiling;
+
+		math::float2 position = topLeft;
+		math::float2 endPosition = bottomRight;
+
+		math::float4 color = boxElement->m_brush->m_tintColor;
+
+		boxBatch->m_vertices.emplace_back(math::float4(startUV.x, startUV.y, 0.0f, 0.0f), transform.transformPoint(position), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(startUV.x, topMarginV, 0.0f, 0.0f), transform.transformPoint(math::float2(position.x, topMarginY)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(leftMarginU, startUV.y, 0.0f, 0.0f), transform.transformPoint(math::float2(leftMarginX, position.y)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(leftMarginU, topMarginV, 0.0f, 0.0f), transform.transformPoint(math::float2(leftMarginX, topMarginY)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+
+		boxBatch->m_vertices.emplace_back(math::float4(startUV.x, startUV.y, topTiling, 0.0f), transform.transformPoint(math::float2(leftMarginX, position.y)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(startUV.x, topMarginV, topTiling, 0.0f), transform.transformPoint(math::float2(leftMarginX, topMarginY)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(endUV.x, startUV.y, topTiling, 0.0f), transform.transformPoint(math::float2(rightMarginX, position.y)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(endUV.x, topMarginV, topTiling, 0.0f), transform.transformPoint(math::float2(rightMarginX, topMarginY)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+
+		boxBatch->m_vertices.emplace_back(math::float4(rightMarginU, startUV.y, 0.0f, 0.0f), transform.transformPoint(math::float2(rightMarginX, position.y)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(rightMarginU, topMarginV, 0.0f, 0.0f), transform.transformPoint(math::float2(rightMarginX, topMarginY)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(endUV.x, startUV.y, 0.0f, 0.0f), transform.transformPoint(math::float2(endPosition.x, position.y)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(endUV.x, topMarginV, 0.0f, 0.0f), transform.transformPoint(math::float2(endPosition.x, topMarginY)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+
+		boxBatch->m_vertices.emplace_back(math::float4(startUV.x, startUV.y, 0.0f, leftTiling), transform.transformPoint(math::float2(position.x, topMarginY)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(rightMarginU, topMarginV, 0.0f, leftTiling), transform.transformPoint(math::float2(position.x, bottomMarginY)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(endUV.x, startUV.y, 0.0f, leftTiling), transform.transformPoint(math::float2(leftMarginX, topMarginY)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(endUV.x, topMarginV, leftTiling), transform.transformPoint(math::float2(leftMarginX, bottomMarginY)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+
+		boxBatch->m_vertices.emplace_back(math::float4(rightMarginU, startUV.y, 0.0f, rightTiling), transform.transformPoint(math::float2(rightMarginX, topMarginY)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(rightMarginU, endUV.y, 0.0f, rightTiling), transform.transformPoint(math::float2(rightMarginX, bottomMarginY)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(endUV.x, startUV.y, 0.0f, rightTiling), transform.transformPoint(math::float2(endPosition.x, topMarginY)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(endUV.x, endUV.y, 0.0f, rightTiling), transform.transformPoint(math::float2(endPosition.x, bottomMarginY)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+
+		boxBatch->m_vertices.emplace_back(math::float4(startUV.x, bottomMarginV, 0.0f, 0.0f), transform.transformPoint(math::float2(position.x, bottomMarginY)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(startUV.x, endUV.y, 0.0f, 0.0f), transform.transformPoint(math::float2(position.x, endPosition.y)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(leftMarginU, bottomMarginV, 0.0f, 0.0f), transform.transformPoint(math::float2(leftMarginX, bottomMarginY)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(leftMarginU, endUV.y, 0.0f, 0.0f), transform.transformPoint(math::float2(leftMarginX, endPosition.y)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+
+		boxBatch->m_vertices.emplace_back(math::float4(startUV.x, bottomMarginV, bottomTiling, 0.0f), transform.transformPoint(math::float2(leftMarginX, bottomMarginY)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(startUV.x, endUV.y, bottomTiling, 0.0f), transform.transformPoint(math::float2(leftMarginX, endPosition.x)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(endUV.x, bottomMarginV, bottomTiling, 0.0f), transform.transformPoint(math::float2(rightMarginX, bottomMarginY)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(endUV.x, endUV.y, bottomTiling, 0.0f), transform.transformPoint(math::float2(rightMarginX, endPosition.y)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+
+		boxBatch->m_vertices.emplace_back(math::float4(rightMarginU, bottomMarginV, 0.0f, 0.0f), transform.transformPoint(math::float2(rightMarginX, bottomMarginY)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(rightMarginU, endUV.y, 0.0f, 0.0f), transform.transformPoint(math::float2(rightMarginX, endPosition.x)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(endUV.x, bottomMarginV, 0.0f, 0.0f), transform.transformPoint(math::float2(endPosition.x, bottomMarginY)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+		boxBatch->m_vertices.emplace_back(math::float4(endUV.x, endUV.y, 0.0f, 0.0f), transform.transformPoint(math::float2(endPosition.x, endPosition.y)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
+
+		//top
+		boxBatch->m_indices.emplace_back(0);
+		boxBatch->m_indices.emplace_back(2);
+		boxBatch->m_indices.emplace_back(1);
+		boxBatch->m_indices.emplace_back(2);
+		boxBatch->m_indices.emplace_back(3);
+		boxBatch->m_indices.emplace_back(1);
+
+		boxBatch->m_indices.emplace_back(4);
+		boxBatch->m_indices.emplace_back(6);
+		boxBatch->m_indices.emplace_back(5);
+		boxBatch->m_indices.emplace_back(6);
+		boxBatch->m_indices.emplace_back(7);
+		boxBatch->m_indices.emplace_back(5);
+
+		boxBatch->m_indices.emplace_back(8);
+		boxBatch->m_indices.emplace_back(10);
+		boxBatch->m_indices.emplace_back(9);
+		boxBatch->m_indices.emplace_back(10);
+		boxBatch->m_indices.emplace_back(11);
+		boxBatch->m_indices.emplace_back(9);
+
+		//middle
+		boxBatch->m_indices.emplace_back(12);
+		boxBatch->m_indices.emplace_back(14);
+		boxBatch->m_indices.emplace_back(13);
+		boxBatch->m_indices.emplace_back(14);
+		boxBatch->m_indices.emplace_back(15);
+		boxBatch->m_indices.emplace_back(13);
+
+		boxBatch->m_indices.emplace_back(16);
+		boxBatch->m_indices.emplace_back(18);
+		boxBatch->m_indices.emplace_back(17);
+		boxBatch->m_indices.emplace_back(18);
+		boxBatch->m_indices.emplace_back(19);
+		boxBatch->m_indices.emplace_back(17);
+
+		//bottom
+		boxBatch->m_indices.emplace_back(20);
+		boxBatch->m_indices.emplace_back(22);
+		boxBatch->m_indices.emplace_back(21);
+		boxBatch->m_indices.emplace_back(22);
+		boxBatch->m_indices.emplace_back(23);
+		boxBatch->m_indices.emplace_back(21);
+
+		boxBatch->m_indices.emplace_back(24);
+		boxBatch->m_indices.emplace_back(26);
+		boxBatch->m_indices.emplace_back(25);
+		boxBatch->m_indices.emplace_back(26);
+		boxBatch->m_indices.emplace_back(27);
+		boxBatch->m_indices.emplace_back(25);
+
+		boxBatch->m_indices.emplace_back(28);
+		boxBatch->m_indices.emplace_back(30);
+		boxBatch->m_indices.emplace_back(29);
+		boxBatch->m_indices.emplace_back(30);
+		boxBatch->m_indices.emplace_back(31);
+		boxBatch->m_indices.emplace_back(29);
+
+		boxBatch->m_texture = boxElement->m_brush->m_texture;
+		m_batches.push_back(boxBatch);
+	}
+
 	void ElementList::buildShapedTextSequence(const ShapedTextBuildContext& context)
 	{
 		const ShapedGlyphSequence* glyphSequenceToRender = context.shapedGlyphSequence;

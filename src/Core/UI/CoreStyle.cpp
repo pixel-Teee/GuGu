@@ -40,9 +40,9 @@ namespace GuGu {
 		std::shared_ptr<Brush> borderBrush = std::make_shared<Brush>();
 		borderBrush->m_tiling = true;
 		borderBrush->m_texturePath = u8"asset/white.png";
-		borderBrush->m_tintColor = math::float4(1.0f, 1.0f, 1.0f, 1.0f);
+		borderBrush->m_tintColor = math::float4(1.0f, 1.0f, 1.0f, 0.4f);
 		borderBrush->m_drawAs = BrushDrawType::Type::Border;
-		borderBrush->m_margin = Padding(0.2f);
+		borderBrush->m_margin = Padding(0.25f);
 		m_brushes.insert({ u8"border", borderBrush });
 
 		std::shared_ptr<Brush> textBlockHighlightShape = std::make_shared<Brush>();

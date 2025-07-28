@@ -122,7 +122,12 @@ namespace GuGu {
 		m_roundedBoxPixelShader = shaderFactory->CreateShader("asset/shader/UIShader.hlsl", "main_ps", &macros,
 			nvrhi::ShaderType::Pixel);
 
-		if (!m_vertexShader || !m_pixelShader || !m_pixelFontShader || !m_lineShader || !m_roundedBoxPixelShader)
+		macros.clear();
+		macros.push_back(ShaderMacro("UI_Border", "1"));
+		m_borderPixelShader = shaderFactory->CreateShader("asset/shader/UIShader.hlsl", "main_ps", &macros,
+			nvrhi::ShaderType::Pixel);
+
+		if (!m_vertexShader || !m_pixelShader || !m_pixelFontShader || !m_lineShader || !m_roundedBoxPixelShader || !m_borderPixelShader)
 			return false;
 
 		nvrhi::VertexAttributeDesc attributes[] = {
@@ -473,6 +478,21 @@ namespace GuGu {
 				uiPipeline.m_roundedBoxPipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
 			}
 
+			{
+				nvrhi::GraphicsPipelineDesc psoDesc;
+				psoDesc.VS = m_vertexShader;
+				psoDesc.PS = m_borderPixelShader;
+				psoDesc.inputLayout = m_inputLayout;
+				psoDesc.bindingLayouts = { m_bindingLayout };
+				psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+				psoDesc.renderState.blendState.targets[0].setBlendEnable(true);
+				psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
+				psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
+				psoDesc.renderState.depthStencilState.depthTestEnable = false;
+				psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;//todo:fix this
+				uiPipeline.m_borderPipeline = GetDevice()->createGraphicsPipeline(psoDesc, framebuffer);
+			}
+
 			m_UIPsos.insert({ inWindowWidget.get(), uiPipeline });
 		}
 
@@ -531,8 +551,10 @@ namespace GuGu {
 				state.pipeline = it->second.m_FontPipeline;
 			else if (m_elementList->getBatches()[i]->shaderType == UIShaderType::Line)
 				state.pipeline = it->second.m_LinePipeline;
-			else
+			else if (m_elementList->getBatches()[i]->shaderType == UIShaderType::RoundedBox)
 				state.pipeline = it->second.m_roundedBoxPipeline;
+			else if (m_elementList->getBatches()[i]->shaderType == UIShaderType::Border)
+				state.pipeline = it->second.m_borderPipeline;
 			state.framebuffer = framebuffer;
 
 			//construct the viewport so that all viewports form a grid.
