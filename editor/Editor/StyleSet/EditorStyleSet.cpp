@@ -317,7 +317,7 @@ namespace GuGu {
 
 			//32x32 size
 			std::shared_ptr<Brush> anchorWidgetBrush = std::make_shared<Brush>();
-			anchorWidgetBrush->m_tiling = true;
+			anchorWidgetBrush->m_tiling = false;
 			anchorWidgetBrush->m_texturePath = u8"asset/EditorAsset/anchorWidget.png";
 			anchorWidgetBrush->m_tintColor = math::float4(1.0f, 1.0f, 1.0f, 1.0f);
 			anchorWidgetBrush->m_drawAs = BrushDrawType::Type::Box;

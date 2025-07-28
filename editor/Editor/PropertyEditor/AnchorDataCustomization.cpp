@@ -58,25 +58,33 @@ namespace GuGu {
 					.Content
 					(
 						WIDGET_NEW(BoxWidget)
-						.WidthOverride(80)
-						.HeightOverride(80)
-						.VAlign(VerticalAlignment::Stretch)
-						.HAlign(HorizontalAlignment::Stretch)
+						.WidthOverride(64)
+						.HeightOverride(64)
+						.VAlign(VerticalAlignment::Center)
+						.HAlign(HorizontalAlignment::Center)
 						.Content
 						(
-							WIDGET_NEW(Border)
-							.brush(CoreStyle::getStyleSet()->getBrush("NoBorder"))
-							.padding(2)
+							WIDGET_NEW(BoxWidget)
+							.WidthOverride(this, &AnchorPreviewWidget::getCurrentWidth)
+							.HeightOverride(this, &AnchorPreviewWidget::getCurrentHeight)
+							.VAlign(VerticalAlignment::Stretch)
+							.HAlign(HorizontalAlignment::Stretch)
 							.Content
 							(
-								WIDGET_NEW(ConstraintCanvas)
-								+ ConstraintCanvas::Slot()
-								.anchors(Anchors(anchors.m_minimum.x, anchors.m_minimum.y, anchors.m_maximum.x, anchors.m_maximum.y))
-								.offset(Padding(0, 0, anchors.isStretchedHorizontal() ? 0 : 15, anchors.isStretchedVertical() ? 0 : 15))
-								.alignment(math::float2(anchors.isStretchedHorizontal() ? 0 : anchors.m_minimum.x, anchors.isStretchedVertical() ? 0 : anchors.m_minimum.y))
+								WIDGET_NEW(Border)
+								.brush(CoreStyle::getStyleSet()->getBrush("NoBorder"))
+								.padding(2)
+								.Content
 								(
-									WIDGET_NEW(ImageWidget)
-									.brush(EditorStyleSet::getStyleSet()->getBrush("anchorWidget"))
+									WIDGET_NEW(ConstraintCanvas)
+									+ ConstraintCanvas::Slot()
+									.anchors(Anchors(anchors.m_minimum.x, anchors.m_minimum.y, anchors.m_maximum.x, anchors.m_maximum.y))
+									.offset(Padding(0, 0, anchors.isStretchedHorizontal() ? 0 : 15, anchors.isStretchedVertical() ? 0 : 15))
+									.alignment(math::float2(anchors.isStretchedHorizontal() ? 0 : anchors.m_minimum.x, anchors.isStretchedVertical() ? 0 : anchors.m_minimum.y))
+									(
+										WIDGET_NEW(ImageWidget)
+										.brush(EditorStyleSet::getStyleSet()->getBrush("anchorWidget"))
+									)
 								)
 							)
 						)
@@ -107,6 +115,16 @@ namespace GuGu {
 			}
 
 			return Reply::Handled();
+		}
+
+		OptionalSize getCurrentWidth() const
+		{
+			return 48;
+		}
+
+		OptionalSize getCurrentHeight() const
+		{
+			return 48;
 		}
 	};
 
