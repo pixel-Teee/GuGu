@@ -72,8 +72,8 @@ namespace GuGu {
 							.Content
 							(
 								WIDGET_NEW(Border)
-								.brush(CoreStyle::getStyleSet()->getBrush("NoBorder"))
-								.padding(2)
+								.brush(CoreStyle::getStyleSet()->getBrush("border"))
+								.padding(1)
 								.Content
 								(
 									WIDGET_NEW(ConstraintCanvas)
