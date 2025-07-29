@@ -3,6 +3,8 @@
 #include "MathStructCustomization.h"
 #include "DetailWidgetRow.h"
 #include "PropertyHandle.h"
+#include "IDetailChildrenBuilder.h"
+
 #include <Core/UI/NumericEntryBox.h>
 #include <Core/UI/TextBlockWidget.h>
 #include <Core/UI/BoxPanel.h>
@@ -47,7 +49,12 @@ namespace GuGu {
 
 	void MathStructCustomization::cutomizeChildren(std::shared_ptr<IPropertyHandle> propertyHandle, IDetailChildrenBuilder& childBuilder)
 	{
+		for (int32_t childIndex = 0; childIndex < m_sortedChildHandles.size(); ++childIndex)
+		{
+			std::shared_ptr<IPropertyHandle> childHandle = m_sortedChildHandles[childIndex];
 
+			childBuilder.addProperty(childHandle);
+		}
 	}
 
 	template<typename NumericType>

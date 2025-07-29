@@ -9,6 +9,8 @@ namespace GuGu {
 
 	static Priority mathfloat4Priority;
 
+	static Priority mathdouble2Priority;
+
 	static Priority mathdouble3Priority;
 
 	static Priority mathdquatPriority;

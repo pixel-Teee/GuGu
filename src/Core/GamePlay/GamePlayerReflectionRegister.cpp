@@ -128,6 +128,30 @@ namespace GuGu {
 		return true;
 	}
 
+	static bool registermathdouble2()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto id = db.AllocateType("math::double2");
+		auto& type = db.types[id];
+		meta::TypeInfo<math::double2>::Register(id, type, true, "12FCA7F0-E223-4184-9857-96B740A335A9");
+
+		type.AddConstructor<math::double2, false, false>({});
+
+		type.AddConstructor<math::double2, true, false>({});
+
+		type.SetArrayConstructor<math::double2>();
+
+		type.AddField<math::double2, double>("x",
+			(meta::FieldGetter<math::double2, double, false>::Signature) & math::double2::x,
+			(meta::FieldSetter<math::double2, double, false>::Signature) & math::double2::x, {});
+
+		type.AddField<math::double2, double>("y",
+			(meta::FieldGetter<math::double2, double, false>::Signature) & math::double2::y,
+			(meta::FieldSetter<math::double2, double, false>::Signature) & math::double2::y, {});
+
+		return true;
+	}
+
 	static bool registermathdouble3()
 	{
 		auto& db = meta::ReflectionDatabase::Instance();
@@ -435,6 +459,9 @@ namespace GuGu {
 		mathfloat4Priority.setDebugName("math::float4");
 		ReflectionMain::addInitialTypeFunction(registermathfloat4, &mathfloat4Priority);
 
+		mathdouble2Priority.setDebugName("math::double2");
+		ReflectionMain::addInitialTypeFunction(registermathdouble2, &mathdouble2Priority);
+
 		//Priority mathdouble3Priority;
 		mathdouble3Priority.setDebugName("math::double3");
 		ReflectionMain::addInitialTypeFunction(registermathdouble3, &mathdouble3Priority);
@@ -474,9 +501,9 @@ namespace GuGu {
 		ReflectionMain::addInitialTypeFunction(registerUIAnchorData, &uiAnchorDataPrority);
 		uiPaddingPriority.addPriorityThan(&meta::Range::ms_priority);
 		uiAnchorsPriority.addPriorityThan(&meta::Range::ms_priority);
-		uiAnchorDataPrority.addPriorityThan(&uiPaddingPriority);
-		uiAnchorDataPrority.addPriorityThan(&uiAnchorsPriority);
-		uiAnchorDataPrority.addPriorityThan(&mathfloat2Priority);
+		uiAnchorDataPrority.addPriorityThan(&uiPaddingPriority); //padding
+		uiAnchorDataPrority.addPriorityThan(&uiAnchorsPriority); //anchor
+		uiAnchorDataPrority.addPriorityThan(&mathfloat2Priority); //alignment
 
 		//UIComponent register
 		UIComponent::registerMainFactory();

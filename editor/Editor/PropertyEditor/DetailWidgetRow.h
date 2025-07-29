@@ -69,6 +69,14 @@ namespace GuGu {
 		DetailWidgetDecl& nameContent() { return m_nameWidget; }
 
 		DetailWidgetDecl& valueContent() { return m_valueWidget; }
+
+		bool hasNameContent() const;
+
+		bool hasValueContent() const;
+
+		bool hasColumns() const;
+
+		bool hasAnyContent() const;
 	public:
 		//属性名
 		DetailWidgetDecl m_nameWidget;

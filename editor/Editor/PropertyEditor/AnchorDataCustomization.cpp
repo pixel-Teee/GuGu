@@ -362,7 +362,7 @@ namespace GuGu {
 
 		std::shared_ptr<PropertyNode> propertyNode = std::static_pointer_cast<PropertyHandleBase>(propertyHandle)->getPropertyNode();
 
-		meta::Object* owner;
+		meta::Object* owner = nullptr;
 		if (propertyNode)
 		{
 			meta::Field* field = propertyNode->getField();
@@ -383,7 +383,7 @@ namespace GuGu {
 		
 		if (owner)
 		{
-			//获取当前字段所在结构体的variant
+			//鑾峰彇褰撳墠瀛楁鎵�鍦ㄧ粨鏋勪綋鐨剉ariant
 			meta::Variant startVarint = ObjectVariant(owner);
 			
 			std::vector<meta::Variant> owners;

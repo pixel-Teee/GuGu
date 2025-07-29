@@ -16,4 +16,24 @@ namespace GuGu {
 
 	}
 
+	bool DetailWidgetRow::hasNameContent() const
+	{
+		return m_nameWidget.m_widget != NullWidget::getNullWidget();
+	}
+
+	bool DetailWidgetRow::hasValueContent() const
+	{
+		return m_valueWidget.m_widget != NullWidget::getNullWidget();
+	}
+
+	bool DetailWidgetRow::hasColumns() const
+	{
+		return hasNameContent() || hasValueContent();
+	}
+
+	bool DetailWidgetRow::hasAnyContent() const
+	{
+		return hasColumns();
+	}
+
 }

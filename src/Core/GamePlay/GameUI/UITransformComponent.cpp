@@ -70,13 +70,13 @@ namespace GuGu {
 			(meta::FieldGetter<UITransformComponent, std::weak_ptr<GameObject>&, true>::Signature) & UITransformComponent::getParentGameObject,
 			(meta::FieldSetter<UITransformComponent, std::weak_ptr<GameObject>&, true>::Signature) & UITransformComponent::setParentGameObject, {});
 
-		type.AddField<UITransformComponent, UIPadding>("m_offset",
-			(meta::FieldGetter<UITransformComponent, UIPadding&, true>::Signature) & UITransformComponent::getUIOffset,
-			(meta::FieldSetter<UITransformComponent, UIPadding, true>::Signature) & UITransformComponent::setUIOffset, {});
-
-		type.AddField<UITransformComponent, UIAnchors>("m_anchors",
-			(meta::FieldGetter<UITransformComponent, UIAnchors&, true>::Signature) & UITransformComponent::getUIAnchors,
-			(meta::FieldSetter<UITransformComponent, UIAnchors, true>::Signature) & UITransformComponent::setUIAnchors, {});
+		//type.AddField<UITransformComponent, UIPadding>("m_offset",
+		//	(meta::FieldGetter<UITransformComponent, UIPadding&, true>::Signature) & UITransformComponent::getUIOffset,
+		//	(meta::FieldSetter<UITransformComponent, UIPadding, true>::Signature) & UITransformComponent::setUIOffset, {});
+		//
+		//type.AddField<UITransformComponent, UIAnchors>("m_anchors",
+		//	(meta::FieldGetter<UITransformComponent, UIAnchors&, true>::Signature) & UITransformComponent::getUIAnchors,
+		//	(meta::FieldSetter<UITransformComponent, UIAnchors, true>::Signature) & UITransformComponent::setUIAnchors, {});
 
 		//type.AddField<UITransformComponent, UIAnchors>("m_anchors",
 		//	(meta::FieldGetter<UITransformComponent, UIAnchors&, true>::Signature) & UITransformComponent::getUIAnchors,

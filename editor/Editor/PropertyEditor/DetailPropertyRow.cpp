@@ -115,7 +115,7 @@ namespace GuGu {
 
 	bool DetailPropertyRow::showOnlyChildren() const
 	{
-		return (m_propertyTypeLayoutBuilder != nullptr && m_customPropertyWidget != nullptr);
+		return (m_propertyTypeLayoutBuilder != nullptr && m_customPropertyWidget != nullptr && !m_customPropertyWidget->hasAnyContent());
 	}
 
 	void DetailPropertyRow::getDefaultWidgets(std::shared_ptr<Widget>& outNameWidget, std::shared_ptr<Widget>& outValueWidget, DetailWidgetRow& row, bool bAddWidgetDecoration /*= false*/)
