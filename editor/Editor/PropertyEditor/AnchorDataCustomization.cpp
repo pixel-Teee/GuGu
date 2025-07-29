@@ -180,6 +180,9 @@ namespace GuGu {
 	{
 		customizeAnchors(propertyHandle, childBuilder);
 		customizeOffsets(propertyHandle, childBuilder);
+
+		std::shared_ptr<IPropertyHandle> alignmentHandle = propertyHandle->getChildHandle("m_alignment");
+		childBuilder.addProperty(alignmentHandle);
 	}
 
 	void AnchorDataCustomization::customizeAnchors(std::shared_ptr<IPropertyHandle> propertyHandle, IDetailChildrenBuilder& childBuilder)
