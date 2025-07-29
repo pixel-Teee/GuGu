@@ -63,6 +63,8 @@ namespace GuGu {
 
 		virtual std::shared_ptr<PropertyNode> getPropertyNode() const;
 
+		virtual void getOuterObjects(std::vector<meta::Object*>& outerObjects) const;
+
 		DECLARE_PROPERTY_ACCESSOR(float)
 		DECLARE_PROPERTY_ACCESSOR(double)
 		DECLARE_PROPERTY_ACCESSOR(math::double3)

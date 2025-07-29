@@ -360,6 +360,23 @@ namespace GuGu {
 		return m_implementation->getPropertyNode();
 	}
 
+	void PropertyHandleBase::getOuterObjects(std::vector<meta::Object*>& outerObjects) const
+	{
+		if (m_implementation->getPropertyNode())
+		{
+			//std::vector<meta::Object*> objectsToModify;
+			ComplexPropertyNode* complexNode = m_implementation->getPropertyNode()->findComplexParent();
+			if (complexNode)
+			{
+				const int32_t numObjects = complexNode->getInstancesNum();
+				for (int32_t index = 0; index < numObjects; ++index)
+				{
+					outerObjects.push_back(complexNode->getInstanceAsObject(index));
+				}
+			}
+		}
+	}
+
 #define IMPLEMENT_PROPERTY_VALUE(ClassName)\
 	ClassName::ClassName(std::shared_ptr<PropertyNode> propertyNode) \
 	: PropertyHandleBase(propertyNode)\

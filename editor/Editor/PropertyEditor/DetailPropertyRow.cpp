@@ -118,6 +118,25 @@ namespace GuGu {
 		return (m_propertyTypeLayoutBuilder != nullptr && m_customPropertyWidget != nullptr);
 	}
 
+	void DetailPropertyRow::getDefaultWidgets(std::shared_ptr<Widget>& outNameWidget, std::shared_ptr<Widget>& outValueWidget, DetailWidgetRow& row, bool bAddWidgetDecoration /*= false*/)
+	{
+		std::shared_ptr<DetailWidgetRow> customTypeRow;
+
+		std::shared_ptr<IPropertyTypeCustomization>& customTypeInterface = getTypeInterface();
+
+		if (customTypeInterface)
+		{
+			customTypeRow = std::make_shared<DetailWidgetRow>();
+			customTypeInterface->customizeHeader(m_propertyHandle, *customTypeRow);
+		}
+
+		makeNameOrKeyWidget(row, customTypeRow);
+		makeValueWidget(row, customTypeRow);
+
+		outNameWidget = row.m_nameWidget.m_widget;
+		outValueWidget = row.m_valueWidget.m_widget;
+	}
+
 	void DetailPropertyRow::makeNameOrKeyWidget(DetailWidgetRow& row, std::shared_ptr<DetailWidgetRow> inCustomPropertyWidget)
 	{
 		VerticalAlignment verticalAlignment = VerticalAlignment::Center;

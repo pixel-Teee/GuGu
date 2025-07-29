@@ -28,5 +28,8 @@ namespace GuGu {
 		virtual ~IDetailPropertyRow() {}
 
 		virtual DetailWidgetRow& customWidget(bool bShowChildren = false) = 0;
+
+		virtual void getDefaultWidgets(std::shared_ptr<Widget>& outNameWidget, std::shared_ptr<Widget>& outValueWidget,
+		DetailWidgetRow& row, bool bAddWidgetDecoration = false) = 0;
 	};
 }

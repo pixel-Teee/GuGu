@@ -39,5 +39,7 @@ namespace GuGu {
 		virtual std::shared_ptr<IPropertyHandle> getChildHandle(const GuGuUtf8Str& childName, bool bRecurse = true) const = 0;
 
 		virtual const meta::Field* getField() const = 0;
+
+		virtual void getOuterObjects(std::vector<meta::Object*>& outerObjects) const = 0;
 	};
 }

@@ -3,6 +3,7 @@
 #include "AnchorDataCustomization.h"
 #include "PropertyHandleImp.h"
 #include "DetailPropertyRow.h"
+#include "PropertyNode.h"
 #include "CustomChildBuilder.h"//IDetailChildrenBuilder
 #include <Editor/StyleSet/EditorStyleSet.h>
 
@@ -18,7 +19,9 @@
 #include <Core/UI/Border.h>
 #include <Core/UI/Box.h>
 
+#include <Core/GamePlay/GameUI/UIAnchorData.h>
 #include <Core/GamePlay/GameUI/UIAnchors.h>
+#include <Core/GamePlay/GameObject.h>
 
 namespace GuGu {
 
@@ -153,9 +156,30 @@ namespace GuGu {
 		customizeLayoutData(propertyHandle, childBuilder);
 	}
 
+	void AnchorDataCustomization::createEditorWithDynamicLabel(IDetailPropertyRow& propertyRow, Attribute<GuGuUtf8Str> textAttribute)
+	{
+		std::shared_ptr<Widget> nameWidget;
+		std::shared_ptr<Widget> valueWidget;
+		DetailWidgetRow row;
+		propertyRow.getDefaultWidgets(nameWidget, valueWidget, row);
+
+		propertyRow.customWidget(/*bShowChildren*/true)
+		.nameContent()
+		(
+			WIDGET_NEW(TextBlockWidget)
+			.text(textAttribute) //dynamic text
+			.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+		)
+		.valueContent()
+		(
+			valueWidget
+		);
+	}
+
 	void AnchorDataCustomization::customizeLayoutData(std::shared_ptr<IPropertyHandle> propertyHandle, IDetailChildrenBuilder& childBuilder)
 	{
 		customizeAnchors(propertyHandle, childBuilder);
+		customizeOffsets(propertyHandle, childBuilder);
 	}
 
 	void AnchorDataCustomization::customizeAnchors(std::shared_ptr<IPropertyHandle> propertyHandle, IDetailChildrenBuilder& childBuilder)
@@ -299,6 +323,99 @@ namespace GuGu {
 				)
 			)
 		);
+	}
+
+	void AnchorDataCustomization::customizeOffsets(std::shared_ptr<IPropertyHandle> propertyHandle, IDetailChildrenBuilder& childBuilder)
+	{
+		std::shared_ptr<IPropertyHandle> anchorsHandle = propertyHandle->getChildHandle("m_anchors");
+		std::shared_ptr<IPropertyHandle> offsetsHandle = propertyHandle->getChildHandle("m_offset");
+
+		std::shared_ptr<IPropertyHandle> leftHandle = offsetsHandle->getChildHandle("left");
+		std::shared_ptr<IPropertyHandle> topHandle = offsetsHandle->getChildHandle("top");
+		std::shared_ptr<IPropertyHandle> rightHandle = offsetsHandle->getChildHandle("right");
+		std::shared_ptr<IPropertyHandle> bottomHandle = offsetsHandle->getChildHandle("bottom");
+
+		IDetailPropertyRow& leftRow = childBuilder.addProperty(leftHandle);
+		IDetailPropertyRow& topRow = childBuilder.addProperty(topHandle);
+		IDetailPropertyRow& rightRow = childBuilder.addProperty(rightHandle);
+		IDetailPropertyRow& bottomRow = childBuilder.addProperty(bottomHandle);
+
+		Attribute<GuGuUtf8Str> leftLabel = Attribute<GuGuUtf8Str>::Create(std::bind(&AnchorDataCustomization::getOffsetLabel, propertyHandle, Orientation::Horizontal, "Position X", "Offset Left"));
+		Attribute<GuGuUtf8Str> topLabel = Attribute<GuGuUtf8Str>::Create(std::bind(&AnchorDataCustomization::getOffsetLabel, propertyHandle, Orientation::Vertical, "Position Y", "Offset Top"));
+		Attribute<GuGuUtf8Str> rightLabel = Attribute<GuGuUtf8Str>::Create(std::bind(&AnchorDataCustomization::getOffsetLabel, propertyHandle, Orientation::Horizontal, "SizeX", "Offset Right"));
+		Attribute<GuGuUtf8Str> bottomLabel = Attribute<GuGuUtf8Str>::Create(std::bind(&AnchorDataCustomization::getOffsetLabel, propertyHandle, Orientation::Vertical, "SizeY", "Offset Bottom"));
+
+		createEditorWithDynamicLabel(leftRow, leftLabel);
+		createEditorWithDynamicLabel(topRow, topLabel);
+		createEditorWithDynamicLabel(rightRow, rightLabel);
+		createEditorWithDynamicLabel(bottomRow, bottomLabel);
+	}
+
+	GuGuUtf8Str AnchorDataCustomization::getOffsetLabel(std::shared_ptr<IPropertyHandle> propertyHandle, Orientation orientation, const GuGuUtf8Str& nonStretchingLabel, const GuGuUtf8Str& stretchingLabel)
+	{
+		//get outer objects
+		std::vector<meta::Object*> objects;
+		propertyHandle->getOuterObjects(objects);
+
+		std::shared_ptr<PropertyNode> propertyNode = std::static_pointer_cast<PropertyHandleBase>(propertyHandle)->getPropertyNode();
+
+		meta::Object* owner;
+		if (propertyNode)
+		{
+			meta::Field* field = propertyNode->getField();
+			if (field)
+			{
+				for (size_t i = 0; i < objects.size(); ++i)
+				{
+					//get fields
+					meta::Field curField = meta::ReflectionDatabase::Instance().types[objects[i]->GetType().GetID()].GetField(field->GetName().getStr());//have this field?
+					if (curField.GetType() == field->GetType())
+					{
+						owner = objects[i];
+						break;
+					}
+				}
+			}
+		}
+		
+		if (owner)
+		{
+			//获取当前字段所在结构体的variant
+			meta::Variant startVarint = ObjectVariant(owner);
+			
+			std::vector<meta::Variant> owners;
+			if (propertyNode != nullptr)
+			{
+				meta::Variant owner = propertyNode->getParentNode()->getOwnerFieldVarint(startVarint);
+				if (owner != meta::Variant())
+					owners.push_back(std::move(owner));
+			}
+
+			meta::Variant fieldValue;
+
+			//read value
+			meta::Field* field = propertyNode->getField();
+			for (int32_t i = 0; i < owners.size(); ++i)
+			{
+				meta::Field curField = meta::ReflectionDatabase::Instance().types[owners[i].GetType().GetID()].GetField(field->GetName().getStr());//have this field?
+				if (curField.GetType() == field->GetType())
+				{
+					meta::Variant& instance = owners[i];
+					fieldValue = propertyNode->getField()->GetValue(instance);
+				}
+			}
+
+			//convert to anchor data
+			UIAnchorData anchorData = fieldValue.GetValue<UIAnchorData>();
+
+			const bool bStretching = (orientation == Orientation::Horizontal && anchorData.m_anchors.isStretchedHorizontal())
+			|| (orientation == Orientation::Vertical && anchorData.m_anchors.isStretchedVertical());
+			return bStretching ? stretchingLabel : nonStretchingLabel;
+		}
+		else
+		{
+			return stretchingLabel;
+		}
 	}
 
 }
