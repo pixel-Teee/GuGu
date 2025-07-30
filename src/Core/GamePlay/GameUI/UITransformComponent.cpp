@@ -6,6 +6,8 @@
 #include <Core/GamePlay/GameObject.h>
 #include <Core/GamePlay/GamePlayerReflectionRegister.h>
 
+#include <core/Reflection/MetaProperty/HiddenProperty.h> //hidden property
+
 namespace GuGu {
 	static bool registerGuGuUITransformComponent()
 	{
@@ -68,7 +70,11 @@ namespace GuGu {
 
 		type.AddField<UITransformComponent, std::weak_ptr<GameObject>>("m_owner",
 			(meta::FieldGetter<UITransformComponent, std::weak_ptr<GameObject>&, true>::Signature) & UITransformComponent::getParentGameObject,
-			(meta::FieldSetter<UITransformComponent, std::weak_ptr<GameObject>&, true>::Signature) & UITransformComponent::setParentGameObject, {});
+			(meta::FieldSetter<UITransformComponent, std::weak_ptr<GameObject>&, true>::Signature) & UITransformComponent::setParentGameObject, 
+			{
+				std::make_pair(typeof(meta::HiddenProperty), meta::MetaPropertyInitializer<meta::HiddenProperty>())
+			}
+		);
 
 		//type.AddField<UITransformComponent, UIPadding>("m_offset",
 		//	(meta::FieldGetter<UITransformComponent, UIPadding&, true>::Signature) & UITransformComponent::getUIOffset,
@@ -113,6 +119,7 @@ namespace GuGu {
 		if (!ms_priority2.addPriorityThan(&uiPaddingPriority)) return 0; //add priority
 		if (!ms_priority2.addPriorityThan(&uiAnchorsPriority)) return 0; //add priority
 		ADD_PRIORITY_FIELDS(GameObject)
+		ADD_PRIORITY_FIELDS(meta::HiddenProperty)
 		ADD_INITIAL_FIELDS_FUNCTION_WITH_PRIORITY(registerGuGuUITransformComponentFields)
 	IMPLEMENT_INITIAL_FIELDS_END
 
