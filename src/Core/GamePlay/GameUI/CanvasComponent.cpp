@@ -99,8 +99,9 @@ namespace GuGu {
 				std::shared_ptr<ViewportClient> viewportClient = World::getWorld()->getViewportClient().lock();
 				if (viewportClient)
 				{
+					math::float2 viewportSize = viewportClient->getViewportSize();
 					rootTrans->setLocalPosition(math::float2(0.0f, 0.0f));
-					rootTrans->setLocalSize(viewportClient->getViewportSize());
+					rootTrans->setLocalSize(viewportSize);
 				}
 				else
 				{
