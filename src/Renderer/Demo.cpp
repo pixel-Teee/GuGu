@@ -1451,7 +1451,7 @@ namespace GuGu {
 			psoDesc.bindingLayouts = { m_gameUIBindingLayout }; //constant buffer 这些
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
 			psoDesc.renderState.depthStencilState.depthTestEnable = false;
-			//psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
+			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
 			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
 			m_gameUIPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
@@ -1984,7 +1984,7 @@ namespace GuGu {
 				math::affine3 worldToView = math::affine3::from_cols(cameraRight, cameraUp, cameraDir, 0.0f);
 				//------ortho camera------
 				//float inverseScale = 1.0f / transformComponent->getScaleFactor();
-				modelConstants.viewProjMatrix = math::orthoProjD3DStyle(0, width, 0, height, 0, 1) * math::affineToHomogeneous(worldToView);
+				modelConstants.viewProjMatrix = math::orthoProjD3DStyle(0, width, 0, height, 0, 1) * math::affineToHomogeneous(worldToView) * math::affineToHomogeneous(math::scaling(math::float3(1.0f, -1.0f, 1.0f)));
 				modelConstants.worldMatrix = math::float4x4::identity();
 				modelConstants.camWorldPos = inViewportClient->getCamPos();
 				//get the global matrix to fill constant buffer		
@@ -2099,7 +2099,7 @@ namespace GuGu {
 			psoDesc.primType = nvrhi::PrimitiveType::LineList;
 			psoDesc.renderState.rasterState.fillMode = nvrhi::RasterFillMode::Wireframe;
 			psoDesc.renderState.depthStencilState.depthTestEnable = false;
-			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
+			//psoDesc.renderState.rasterState.frontCounterClockwise = true;
 			m_cameraPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
@@ -2130,7 +2130,7 @@ namespace GuGu {
 			psoDesc.bindingLayouts = { m_gameUIBindingLayout }; //constant buffer 这些
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
 			psoDesc.renderState.depthStencilState.depthTestEnable = false;
-			//psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
+			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
 			m_gameUIPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
@@ -2654,6 +2654,7 @@ namespace GuGu {
 
 			GameUIBufferEntry modelConstants;
 			modelConstants.viewProjMatrix = viewProjMatrix;
+			//modelConstants.worldMatrix = math::affineToHomogeneous(math::scaling(math::float3(1.0f, -1.0f, 1.0f)));//flip
 			modelConstants.worldMatrix = math::float4x4::identity();
 			modelConstants.camWorldPos = inViewportClient->getCamPos();
 			//get the global matrix to fill constant buffer		

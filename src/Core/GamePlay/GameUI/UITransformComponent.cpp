@@ -322,9 +322,9 @@ namespace GuGu {
 
 						const UIPadding anchorPixels = UIPadding(
 							anchors.m_minimum.x * m_localSize.x,//left
-							(1.0f - anchors.m_minimum.y) * m_localSize.y,//top
+							anchors.m_minimum.y * m_localSize.y,//top
 							anchors.m_maximum.x * m_localSize.x,//right
-							(1.0f - anchors.m_maximum.y) * m_localSize.y//bottom
+							anchors.m_maximum.y * m_localSize.y//bottom
 						);
 
 						const bool bIsHorizontalStretch = anchors.m_minimum.x != anchors.m_maximum.x;
@@ -333,7 +333,7 @@ namespace GuGu {
 						const math::float2 slotSize = math::float2(offset.right, offset.bottom);
 
 						//todo:handle auto size
-						const math::float2 widgetFixedSize = m_localSize;
+						const math::float2 widgetFixedSize = slotSize;
 
 						math::float2 alignmentOffset = widgetFixedSize * alignment;//pivot
 
@@ -350,12 +350,12 @@ namespace GuGu {
 						}
 						if (bIsVerticalStretch)
 						{
-							localPosition.y = anchorPixels.bottom + offset.bottom;
-							localSize.y = anchorPixels.top - localPosition.y - offset.top;
+							localPosition.y = anchorPixels.top + offset.top;
+							localSize.y = anchorPixels.bottom - localPosition.y - offset.bottom;
 						}
 						else
 						{
-							localPosition.y = anchorPixels.bottom + offset.bottom - alignmentOffset.y;
+							localPosition.y = anchorPixels.top + offset.top - alignmentOffset.y;
 							localSize.y = widgetFixedSize.y;
 						}
 

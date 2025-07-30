@@ -71,6 +71,7 @@ namespace GuGu {
 
 	IMPLEMENT_INITIAL_BEGIN(StaticMeshComponent)
 		ADD_PRIORITY(AssetData)
+		ADD_PRIORITY(Component)
 		ADD_INITIAL_FUNCTION_WITH_PRIORITY(registerStaticMeshComponent)
 	IMPLEMENT_INITIAL_END
 
