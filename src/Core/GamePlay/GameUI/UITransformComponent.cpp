@@ -350,12 +350,13 @@ namespace GuGu {
 						}
 						if (bIsVerticalStretch)
 						{
-							localPosition.y = anchorPixels.top + offset.top;
+							localPosition.y = m_localSize.y - (anchorPixels.top + offset.top);
 							localSize.y = anchorPixels.bottom - localPosition.y - offset.bottom;
 						}
 						else
 						{
-							localPosition.y = anchorPixels.top + offset.top - alignmentOffset.y;
+							//localPosition.y = anchorPixels.top + offset.top - alignmentOffset.y;
+							localPosition.y = m_localSize.y - (anchorPixels.top + offset.top - alignmentOffset.y);
 							localSize.y = widgetFixedSize.y;
 						}
 

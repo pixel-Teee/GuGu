@@ -101,7 +101,7 @@ namespace GuGu {
 				{
 					math::float2 viewportSize = viewportClient->getViewportSize();
 					rootTrans->setLocalPosition(math::float2(0.0f, 0.0f));
-					rootTrans->setLocalSize(viewportSize);
+					rootTrans->setLocalSize(math::float2(viewportSize.x, 0.0f));
 				}
 				else
 				{
