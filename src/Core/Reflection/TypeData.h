@@ -136,6 +136,8 @@ namespace GuGu {
 			);
 
 			const Field& GetField(const std::string& name) const;
+
+			bool haveField(const std::string& fieldName, meta::Type fieldType) const;
 		};
 	}
 }

@@ -130,6 +130,76 @@ namespace GuGu {
 				alignmentHandle->setValueFromFormattedString(value);
 			}
 
+			if (Application::getApplication()->getModifierKeys().isControlDown())
+			{
+
+				meta::Variant fieldValue;
+				{
+					//get outer objects
+					std::vector<meta::Object*> objects;
+					anchorsHandle->getOuterObjects(objects);
+
+					std::shared_ptr<PropertyNode> propertyNode = std::static_pointer_cast<PropertyHandleBase>(anchorsHandle)->getPropertyNode();//todo:fix this
+
+					meta::Object* owner = nullptr;
+					if (propertyNode)
+					{
+						meta::Field* field = propertyNode->getField();
+						if (field)
+						{
+							for (size_t i = 0; i < objects.size(); ++i)
+							{
+								//get fields
+								bool haveField = meta::ReflectionDatabase::Instance().types[objects[i]->GetType().GetID()].haveField(field->GetName().getStr(), field->GetType());//have this field?
+								if (haveField)
+								{
+									owner = objects[i];
+									break;
+								}
+							}
+						}
+					}
+
+					if (owner)
+					{
+						//获取当前字段所在结构体的variant
+						meta::Variant startVarint = ObjectVariant(owner);
+
+						std::vector<meta::Variant> owners;
+						if (propertyNode != nullptr)
+						{
+							meta::Variant owner = propertyNode->getParentNode()->getOwnerFieldVarint(startVarint);
+							if (owner != meta::Variant())
+								owners.push_back(std::move(owner));
+						}
+
+						//read value
+						meta::Field* field = propertyNode->getField();
+						for (int32_t i = 0; i < owners.size(); ++i)
+						{
+							meta::Field curField = meta::ReflectionDatabase::Instance().types[owners[i].GetType().GetID()].GetField(field->GetName().getStr());//have this field?
+							if (curField.GetType() == field->GetType())
+							{
+								meta::Variant& instance = owners[i];
+								fieldValue = propertyNode->getField()->GetValue(instance);
+							}
+						}
+					}
+
+					UIPadding offset = fieldValue.GetValue<UIPadding>();
+
+					//set alignment(pivot)
+					char buf[128];
+					std::sprintf(buf, "(left = %f, top = %f, right = %f, bottom = %f)", 
+						0.0f,
+						0.0f, 
+						anchors.isStretchedHorizontal() ? 0.0f : offset.right, anchors.isStretchedVertical() ? 0.0f : offset.top);
+
+					const GuGuUtf8Str& value = buf;
+					offsetsHandle->setValueFromFormattedString(value);
+				}
+
+			}
 			return Reply::Handled();
 		}
 

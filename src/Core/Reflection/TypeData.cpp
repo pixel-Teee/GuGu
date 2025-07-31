@@ -68,8 +68,23 @@ namespace GuGu {
 			for (auto& field : fields)
 				if (field.GetName() == name)
 					return field;
-
 			return Field::Invalid();
 		}
+
+		bool TypeData::haveField(const std::string& fieldName, meta::Type fieldType) const
+		{
+			for (auto& field : fields)
+				if (field.GetName() == fieldName && field.GetType() == fieldType)
+					return true;
+				else
+				{
+					//recursive
+					meta::TypeData typeData = meta::ReflectionDatabase::Instance().types[field.GetType().GetID()];
+					if (typeData.haveField(fieldName, fieldType))
+						return true;
+				}
+			return false;
+		}
+
 	}
 }

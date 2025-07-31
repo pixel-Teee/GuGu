@@ -11,6 +11,7 @@
 #include <Core/Reflection/Variant.h>
 #include <Core/GamePlay/GameObject.h>
 #include <Core/GamePlay/GameUI/UIAnchors.h>
+#include <Core/GamePlay/GameUI/UIPadding.h>
 #include <Core/AssetManager/AssetData.h>
 #include <Core/Reflection/ReflectionDatabase.h>
 #include <Core/AssetManager/AssetManager.h>
@@ -205,6 +206,12 @@ namespace GuGu {
 			meta::Variant vectorInstance = math::float2();
 			field->GetType().importStr(inValue, vectorInstance);
 			fieldValue = std::move(vectorInstance);
+		}
+		else if (field->GetType() == typeof(UIPadding))
+		{
+			meta::Variant offsetInstance = UIPadding();
+			field->GetType().importStr(inValue, offsetInstance);
+			fieldValue = std::move(offsetInstance);
 		}
 		for (int32_t i = 0; i < owners.size(); ++i)
 		{
