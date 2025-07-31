@@ -356,7 +356,7 @@ namespace GuGu {
 						else
 						{
 							//localPosition.y = anchorPixels.top + offset.top - alignmentOffset.y;
-							localPosition.y = m_localSize.y - (anchorPixels.top + offset.top - alignmentOffset.y);
+							localPosition.y = m_localSize.y - (anchorPixels.top + offset.top + alignmentOffset.y);
 							localSize.y = widgetFixedSize.y;
 						}
 

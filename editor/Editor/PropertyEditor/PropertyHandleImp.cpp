@@ -200,6 +200,12 @@ namespace GuGu {
 			field->GetType().importStr(inValue, anchorsInstance);
 			fieldValue = std::move(anchorsInstance);
 		}
+		else if (field->GetType() == typeof(math::float2))
+		{
+			meta::Variant vectorInstance = math::float2();
+			field->GetType().importStr(inValue, vectorInstance);
+			fieldValue = std::move(vectorInstance);
+		}
 		for (int32_t i = 0; i < owners.size(); ++i)
 		{
 			meta::Field curField = meta::ReflectionDatabase::Instance().types[owners[i].GetType().GetID()].GetField(field->GetName().getStr());//have this field?

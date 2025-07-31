@@ -23,6 +23,8 @@
 #include <Core/GamePlay/GameUI/UIAnchors.h>
 #include <Core/GamePlay/GameObject.h>
 
+#include <Application/Application.h>
+
 namespace GuGu {
 
 	class AnchorPreviewWidget : public CompoundWidget
@@ -115,6 +117,17 @@ namespace GuGu {
 
 				const GuGuUtf8Str& value = buf;
 				anchorsHandle->setValueFromFormattedString(value);
+			}
+
+
+			if (Application::getApplication()->getModifierKeys().isShiftDown())
+			{
+				//set alignment(pivot)
+				char buf[128];
+				std::sprintf(buf, "(x = %f, y = %f)", anchors.isStretchedHorizontal() ? 0.0f : anchors.m_minimum.x, anchors.isStretchedVertical() ? 0.0f : (1.0f - anchors.m_minimum.y));
+
+				const GuGuUtf8Str& value = buf;
+				alignmentHandle->setValueFromFormattedString(value);
 			}
 
 			return Reply::Handled();

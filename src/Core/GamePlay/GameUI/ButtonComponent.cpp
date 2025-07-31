@@ -250,12 +250,12 @@ namespace GuGu {
 
 			//index generate
 			drawInfo->m_uiIndices.push_back(0);
-			drawInfo->m_uiIndices.push_back(1);
 			drawInfo->m_uiIndices.push_back(2);
+			drawInfo->m_uiIndices.push_back(1);
 
 			drawInfo->m_uiIndices.push_back(1);
-			drawInfo->m_uiIndices.push_back(3);
 			drawInfo->m_uiIndices.push_back(2);
+			drawInfo->m_uiIndices.push_back(3);
 
 			drawInfo->m_zorder = uiTransformComponent->getZOrder();
 		}
