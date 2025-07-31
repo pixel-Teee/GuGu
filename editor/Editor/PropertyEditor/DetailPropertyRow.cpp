@@ -137,6 +137,15 @@ namespace GuGu {
 		outValueWidget = row.m_valueWidget.m_widget;
 	}
 
+	Visibility DetailPropertyRow::getPropertyVisibility() const
+	{
+		if (m_propertyEditor && (!m_propertyEditor->isVisible()))
+		{
+			return Visibility::Collapsed;
+		}
+		return Visibility::Visible;//todo:fix this
+	}
+
 	void DetailPropertyRow::makeNameOrKeyWidget(DetailWidgetRow& row, std::shared_ptr<DetailWidgetRow> inCustomPropertyWidget)
 	{
 		VerticalAlignment verticalAlignment = VerticalAlignment::Center;

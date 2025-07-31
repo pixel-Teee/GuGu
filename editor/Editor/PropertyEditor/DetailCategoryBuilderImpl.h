@@ -19,6 +19,8 @@ namespace GuGu {
 
 		bool isValidCustomization() const { return hasPropertyNode(); }
 
+		bool isHidden() const;
+
 		std::shared_ptr<PropertyNode> getPropertyNode() const;
 
 		DetailWidgetRow getWidgetRow() const;

@@ -5,6 +5,8 @@
 #include "PropertyHandleImp.h"//PropertyHandleFloat
 #include "PropertyEditorHelps.h"//getPropertyHandle 辅助函数
 
+#include <Core/Reflection/MetaProperty/HiddenProperty.h>
+
 namespace GuGu {
 
 	PropertyEditor::PropertyEditor(const std::shared_ptr<PropertyNode>& inPropertyNode)
@@ -42,6 +44,16 @@ namespace GuGu {
 	meta::Field* PropertyEditor::getField() const
 	{
 		return m_propertyNode->getField();
+	}
+
+	bool PropertyEditor::isVisible() const
+{
+		const meta::HiddenProperty* hiddenProperty = m_propertyNode->getField()->GetMeta().GetProperty<meta::HiddenProperty>();
+		if (hiddenProperty)
+		{
+			return false;
+		}
+		return true;
 	}
 
 }

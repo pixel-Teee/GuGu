@@ -200,6 +200,12 @@ namespace GuGu {
 		return "";//todo:
 	}
 
+	bool DetailLayoutCustomization::isHidden() const
+	{
+		return !isValidCustomization()
+				|| (hasPropertyNode() && m_propertyRow->getPropertyVisibility() != Visibility::Visible);
+	}
+
 	std::shared_ptr<GuGu::PropertyNode> DetailLayoutCustomization::getPropertyNode() const
 	{
 		return m_propertyRow ? m_propertyRow->getPropertyNode() : nullptr;

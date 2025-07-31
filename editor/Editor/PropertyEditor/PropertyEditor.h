@@ -19,6 +19,8 @@ namespace GuGu {
 		std::shared_ptr<IPropertyHandle> getPropertyHandle() const;
 
 		meta::Field* getField() const;
+
+		bool isVisible() const;
 	private:
 		std::shared_ptr<PropertyNode> m_propertyNode;
 
