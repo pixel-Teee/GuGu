@@ -193,7 +193,7 @@ namespace GuGu {
 					std::sprintf(buf, "(left = %f, top = %f, right = %f, bottom = %f)", 
 						0.0f,
 						0.0f, 
-						anchors.isStretchedHorizontal() ? 0.0f : offset.right, anchors.isStretchedVertical() ? 0.0f : offset.top);
+						anchors.isStretchedHorizontal() ? 0.0f : offset.right, anchors.isStretchedVertical() ? 0.0f : offset.bottom);
 
 					const GuGuUtf8Str& value = buf;
 					offsetsHandle->setValueFromFormattedString(value);

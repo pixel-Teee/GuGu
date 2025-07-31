@@ -351,7 +351,8 @@ namespace GuGu {
 						if (bIsVerticalStretch)
 						{
 							localPosition.y = m_localSize.y - (anchorPixels.top + offset.top);
-							localSize.y = anchorPixels.bottom - localPosition.y - offset.bottom;
+							//localSize.y = anchorPixels.bottom - localPosition.y - offset.bottom;
+							localSize.y = -(anchorPixels.bottom - offset.bottom);
 						}
 						else
 						{
