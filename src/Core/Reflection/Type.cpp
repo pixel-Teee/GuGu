@@ -444,7 +444,10 @@ namespace GuGu {
 						{
 							
 							if(key == field.GetName())
-								fieldType.importStr(value, field.GetValueReference(owner));
+                            {
+                                meta::Variant valueReference = field.GetValueReference(owner);
+                                fieldType.importStr(value, valueReference);
+                            }
 						}
 						else
 						{

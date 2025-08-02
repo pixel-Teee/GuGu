@@ -451,6 +451,11 @@ namespace GuGu {
 				//获取字母码点从虚拟键的按压，将虚拟码转换为字符值
 				uint32_t charCode = MapVirtualKey(win32Key, MAPVK_VK_TO_CHAR);
 
+				//if (charCode == 501 && actualKey == VK_LCONTROL)
+				//{
+				//	GuGu_LOGD("TRIGGER CTRL + Z");
+				//}
+
 				globalApplication->onKeyDown(actualKey, charCode);
 				break;
 			}

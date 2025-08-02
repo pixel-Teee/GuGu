@@ -45,6 +45,43 @@ float4 getColor(PSInput VIn, float2 UV)
     return t_Texture.Sample(s_Sampler, UV) * VIn.Color;
 }
 
+float4 getBorderElementColor(PSInput VIn)
+{
+    float4 outColor = VIn.Color;
+    float4 inTexCoords = VIn.TextureCoordinate;
+    float2 newUV;
+    if(inTexCoords.z == 0.0f && inTexCoords.w == 0.0f)
+    {
+        newUV = inTexCoords.xy;
+    }
+    else
+    {
+        float2 minUV;
+        float2 maxUV;
+        
+        if(inTexCoords.z > 0.0f)
+        {
+            minUV = float2(shaderParams.x, 0.0f);
+            maxUV = float2(shaderParams.y, 1.0f);
+            inTexCoords.w = 1.0f;
+        }
+        else
+        {
+            minUV = float2(0.0f, shaderParams.z);
+            maxUV = float2(1.0f, shaderParams.w);
+            inTexCoords.z = 1.0f;
+        }
+        
+        newUV = inTexCoords.xy * inTexCoords.xw;
+        newUV = frac(newUV);
+        newUV = lerp(minUV, maxUV, newUV);
+    }
+    
+    float4 textureColor = t_Texture.Sample(s_Sampler, newUV);
+    outColor *= textureColor;
+    return outColor;
+}
+
 float4 getDefaultElementColor(PSInput VIn)
 {
     return getColor(VIn, GetUV(VIn, 0) * GetUV(VIn, 1));
@@ -165,6 +202,10 @@ float4 main_ps(PSInput VIn) : SV_Target0
     
 #ifdef UI_RoundedBox
     OutColor = getRoundedBoxElementColor(VIn);
+#endif
+    
+#ifdef UI_Border
+    OutColor = getBorderElementColor(VIn);
 #endif
     
     return OutColor;
