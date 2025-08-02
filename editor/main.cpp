@@ -18,6 +18,7 @@
 #include <Core/GamePlay/GamePlayerReflectionRegister.h>
 #include <Renderer/Demo.h>
 #include "Editor/EditorMainWindow.h"
+#include "Editor/StyleSet/EditorStyleSet.h"
 
 #include <Renderer/Renderer.h>
 
@@ -65,6 +66,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
     //editorMainWindow->setRenderTarget(application->getRenderer()->getDemoPass()->getRenderTarget());
 
 	application->Run();
+
+    GuGu::EditorStyleSet::getStyleSet()->clear();//需要在renderer的device销毁之前销毁
+
 	return 0;
 }
 #else

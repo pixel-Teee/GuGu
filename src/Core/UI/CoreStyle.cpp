@@ -287,7 +287,7 @@ namespace GuGu {
 	{
 		//static std::shared_ptr<StyleSet> coreStyleSet = std::make_shared<CoreStyle>();
 		//return coreStyleSet;
-		std::shared_ptr<StyleSet> coreStyleSet = StyleSetCenter::GetStyle("CoreStyleSet");
+		static std::shared_ptr<StyleSet> coreStyleSet = StyleSetCenter::GetStyle("CoreStyleSet");
 		return coreStyleSet;
 	}
 }

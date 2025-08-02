@@ -312,7 +312,7 @@ namespace GuGu {
 			anchorGridBrush->m_tiling = true;
 			anchorGridBrush->m_texturePath = u8"asset/EditorAsset/anchorGrid.png";
 			anchorGridBrush->m_tintColor = math::float4(1.0f, 1.0f, 1.0f, 0.4f);
-			anchorGridBrush->m_drawAs = BrushDrawType::Type::Image;
+			//anchorGridBrush->m_drawAs = BrushDrawType::Type::Image;
 			m_brushes.insert({ u8"anchorGrid" , anchorGridBrush });
 
 			//32x32 size
@@ -330,7 +330,7 @@ namespace GuGu {
 	}
 	std::shared_ptr<StyleSet> EditorStyleSet::getStyleSet()
 	{
-		std::shared_ptr<StyleSet> editorStyleSet = StyleSetCenter::GetStyle("EditorStyleSet");
+		static std::shared_ptr<StyleSet> editorStyleSet = StyleSetCenter::GetStyle("EditorStyleSet");
 		return editorStyleSet;
 	}
 }

@@ -450,7 +450,7 @@ namespace GuGu {
 		std::shared_ptr<StyleSet> editorStyleSet = std::make_shared<EditorStyleSet>();
 		StyleSetCenter::RegisterStyleSet("EditorStyleSet", editorStyleSet);
 
-		std::shared_ptr<EditorMainWindow> editorMainWindow = std::make_shared<EditorMainWindow>();
+		std::shared_ptr<EditorMainWindow> editorMainWindow;
 
 		//1.先创建 window widget
 		WIDGET_ASSIGN_NEW(EditorMainWindow, editorMainWindow).ScreenPosition(math::float2(200.0f, 200.0f));
