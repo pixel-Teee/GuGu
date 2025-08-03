@@ -1984,7 +1984,7 @@ namespace GuGu {
 				math::affine3 worldToView = math::affine3::from_cols(cameraRight, cameraUp, cameraDir, 0.0f);
 				//------ortho camera------
 				//float inverseScale = 1.0f / transformComponent->getScaleFactor();
-				modelConstants.viewProjMatrix = math::orthoProjD3DStyle(0, width, 0, height, 0, 1) * math::affineToHomogeneous(worldToView);
+				modelConstants.viewProjMatrix = math::affineToHomogeneous(worldToView) * math::orthoProjD3DStyle(0, width, 0, height, 0, 1);
 				modelConstants.worldMatrix = math::float4x4::identity();
 				modelConstants.camWorldPos = inViewportClient->getCamPos();
 				//get the global matrix to fill constant buffer		

@@ -276,7 +276,7 @@ namespace GuGu {
 
 	void ButtonComponent::onPointerDown(UIPointerData pointerData)
 	{
-
+		//GuGu_LOGD("trigger me %s", "button");
 	}
 
 	void ButtonComponent::onPointerUp(UIPointerData pointerData)

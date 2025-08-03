@@ -26,6 +26,12 @@ namespace GuGu {
 			math::float4x4 viewMatrix,
 			const std::vector<std::shared_ptr<GStaticMesh>>& objects, math::float4x4 selectedObjectTransform, math::float4& debugDrawWorldPos);
 
+		static std::shared_ptr<GameObject> pickUIGameObject(uint32_t x, uint32_t y,
+			uint32_t clientWidth, uint32_t clientHeight,
+			math::float4x4 perspectiveMatrix,
+			math::float4x4 viewMatrix,
+			const std::vector<std::shared_ptr<GameObject>>& objects);
+
 		static bool intersectsWithPlane(math::float3 rayOrigin, math::float3 rayDir, math::float3 planeNormal, math::float3 planePoint, math::float3& res);
 
 		static void calculateRayOriginAndRayDir(uint32_t x, uint32_t y,
