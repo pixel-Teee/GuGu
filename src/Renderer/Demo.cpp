@@ -1925,7 +1925,7 @@ namespace GuGu {
 			for (size_t i = 0; i < gameObjects.size(); ++i)
 			{
 				std::shared_ptr<UITransformComponent> transformComponent = gameObjects[i]->getComponent<UITransformComponent>();
-				std::vector<std::shared_ptr<Component>> uiComponent = gameObjects[i]->getComponentIsParentClass<UIComponent>();
+				std::vector<std::shared_ptr<Component>> uiComponent = gameObjects[i]->getComponentParentClassIs<UIComponent>();
 
 				for (size_t j = 0; j < uiComponent.size(); ++j)
 				{
@@ -2601,7 +2601,7 @@ namespace GuGu {
 		for (size_t i = 0; i < gameObjects.size(); ++i)
 		{
 			std::shared_ptr<UITransformComponent> transformComponent = gameObjects[i]->getComponent<UITransformComponent>();
-			std::vector<std::shared_ptr<Component>> uiComponent = gameObjects[i]->getComponentIsParentClass<UIComponent>();
+			std::vector<std::shared_ptr<Component>> uiComponent = gameObjects[i]->getComponentParentClassIs<UIComponent>();
 
 			for (size_t j = 0; j < uiComponent.size(); ++j)
 			{

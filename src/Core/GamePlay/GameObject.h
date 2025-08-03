@@ -47,7 +47,7 @@ namespace GuGu {
 		}
 
 		template<typename ParentType>
-		std::vector<std::shared_ptr<Component>> getComponentIsParentClass()
+		std::vector<std::shared_ptr<Component>> getComponentParentClassIs()
 		{
 			std::vector<std::shared_ptr<Component>> res;
 			for (auto& component : m_components)
