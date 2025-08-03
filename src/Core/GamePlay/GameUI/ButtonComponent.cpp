@@ -274,4 +274,14 @@ namespace GuGu {
 		return math::float2(0, 0);
 	}
 
+	void ButtonComponent::onPointerDown(UIPointerData pointerData)
+	{
+
+	}
+
+	void ButtonComponent::onPointerUp(UIPointerData pointerData)
+	{
+
+	}
+
 }

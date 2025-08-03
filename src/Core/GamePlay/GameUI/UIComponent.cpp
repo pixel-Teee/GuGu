@@ -103,4 +103,14 @@ namespace GuGu {
 		return math::float2(0, 0);
 	}
 
+	void UIComponent::onPointerDown(UIPointerData pointerData)
+	{
+		//nothing
+	}
+
+	void UIComponent::onPointerUp(UIPointerData pointerData)
+	{
+		//nothing
+	}
+
 }

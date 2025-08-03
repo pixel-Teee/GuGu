@@ -7,6 +7,7 @@
 #include "ElementList.h"
 
 #include <Core/GamePlay/InputManager.h>
+#include <Core/GamePlay/GameUI/UIPointerData.h>
 #include <Application/Application.h>
 
 namespace GuGu {
@@ -94,6 +95,14 @@ namespace GuGu {
 	{
 		math::float2 localMousePosition = myGeometry.absoluteToLocal(inMouseEvent.m_screenSpacePosition);
 		InputManager::getInputManager().updateMouseButton(inMouseEvent.m_effectingButton, localMousePosition.x, localMousePosition.y, true);
+
+		if (m_viewportClient.lock())
+		{
+			UIPointerData uiPointerData;
+			uiPointerData.setScreenPosition(localMousePosition);
+			m_viewportClient.lock()->onMouseButtonDown(uiPointerData);
+		}
+
 		return Reply::Handled().setFocus(shared_from_this());
 	}
 
@@ -101,6 +110,14 @@ namespace GuGu {
 	{	
 		math::float2 localMousePosition = myGeometry.absoluteToLocal(inMouseEvent.m_screenSpacePosition);
 		InputManager::getInputManager().updateMouseButton(inMouseEvent.m_effectingButton, localMousePosition.x, localMousePosition.y, false);
+
+		if (m_viewportClient.lock())
+		{
+			UIPointerData uiPointerData;
+			uiPointerData.setScreenPosition(localMousePosition);
+			m_viewportClient.lock()->onMouseButtonUp(uiPointerData);
+		}
+
 		return Reply::Handled();
 	}
 

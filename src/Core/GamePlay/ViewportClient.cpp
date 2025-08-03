@@ -20,4 +20,17 @@ namespace GuGu {
 		m_gameObjectSelectionChangedEvent(newSelection, bForceRefresh);
 	}
 
+	//------input------
+	void ViewportClient::onMouseButtonDown(UIPointerData uiPointerData)
+	{
+		GuGu_LOGD("trigger runtime ui mouse button down");
+
+		
+	}
+
+	void ViewportClient::onMouseButtonUp(UIPointerData uiPointerData)
+	{
+		GuGu_LOGD("trigger runtime ui mouse button up");
+	}
+	//------input------
 }

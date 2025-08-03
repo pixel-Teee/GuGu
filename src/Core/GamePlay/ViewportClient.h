@@ -4,6 +4,8 @@
 #include <Renderer/nvrhi.h>
 #include <functional>
 
+#include <Core/GamePlay/GameUI/UIPointerData.h> //ui pointer data
+
 namespace GuGu {
 	namespace meta
 	{
@@ -97,6 +99,11 @@ namespace GuGu {
 
 		//debug gizmos pick pos
 		virtual math::float3 getDebugDrawPos() { return math::float3(0, 0, 0); }
+
+		//input
+		virtual void onMouseButtonDown(UIPointerData uiPointerData);
+
+		virtual void onMouseButtonUp(UIPointerData uiPointerData);
 	private:
 		GameObjectSelectionChangedEvent m_gameObjectSelectionChangedEvent;
 	};

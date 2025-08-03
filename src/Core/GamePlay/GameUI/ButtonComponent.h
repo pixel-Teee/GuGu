@@ -48,6 +48,10 @@ namespace GuGu {
 		virtual std::shared_ptr<UIDrawInfo> generateUIDrawInformation(bool bFlip = false) override;
 
 		virtual math::float2 getDesiredSize() const override;
+
+		virtual void onPointerDown(UIPointerData pointerData);
+
+		virtual void onPointerUp(UIPointerData pointerData);
 	private:
 		//transient state
 		bool m_bIsPressed;
