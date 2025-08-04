@@ -15,5 +15,7 @@ namespace GuGu {
 		void onLevelChanged();
 
 		void onObjectAdded(std::shared_ptr<GameObject>& inObjects);
+
+		void onObjectRemoved(std::shared_ptr<GameObject>& inObject);
 	};
 }

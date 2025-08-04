@@ -167,11 +167,11 @@ namespace GuGu {
 				m_objects.erase(m_objects.begin() + foundPos);
 
 			//refresh
-			if (!World::getWorld()->m_onLevelChanged.empty())
+			if (!World::getWorld()->m_onObjectRemoved.empty())
 			{
-				for (uint32_t i = 0; i < World::getWorld()->m_onLevelChanged.size(); ++i)
+				for (uint32_t i = 0; i < World::getWorld()->m_onObjectRemoved.size(); ++i)
 				{
-					World::getWorld()->m_onLevelChanged[i]();
+					World::getWorld()->m_onObjectRemoved[i](inGameObject);
 				}
 			}
 		}

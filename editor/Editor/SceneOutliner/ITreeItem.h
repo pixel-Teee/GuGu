@@ -20,11 +20,15 @@ namespace GuGu {
 
 			virtual TreeItemPtr findParent(const TreeItemMap& existingItems) const = 0;
 
+			virtual TreeItemPtr getParent() const;
+
 			virtual TreeItemPtr createParent() const = 0;
 
 			virtual TreeItemID getID() const = 0;//索引 game object 用的
 
 			void addChild(TreeItemPtr child);
+
+			void removeChild(const TreeItemPtr& child);
 
 			const std::vector<std::weak_ptr<ITreeItem>> getChildren() const;
 		protected:

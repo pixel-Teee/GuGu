@@ -81,6 +81,8 @@ namespace GuGu {
 			Reply OnDrop(const WidgetGeometry& myGeometry, const DragDropEvent& dragDropEvent) override;
 
 			void onLevelObjectAdded(std::shared_ptr<GameObject>& inObject);
+
+			void onLevelObjectRemoved(std::shared_ptr<GameObject>& inObject);
 		public:
 			const std::map<GuGuUtf8Str, std::shared_ptr<ISceneOutlinerColumn>>& getColumns() const
 			{
@@ -118,6 +120,8 @@ namespace GuGu {
 			void rePopulateEntireTree();
 
 			bool addItemToTree(TreeItemPtr inItem);
+
+			void removeItemFromTree(TreeItemPtr inItem);
 
 			void addUnfilteredItemToTree(TreeItemPtr item);
 

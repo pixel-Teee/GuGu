@@ -14,6 +14,7 @@ namespace GuGu {
 		//World::getWorld()->m_onObjectAdded.push_back(std::bind(&ObjectModeInteractive::onObjectAdded, this));
 		//std::function<void(std::vector<std::shared_ptr<GameObject>>&)> func = std::bind(&ObjectModeInteractive::onObjectAdded, this, std::placeholders::_1);
 		World::getWorld()->m_onObjectAdded.push_back(std::bind(&ObjectModeInteractive::onObjectAdded, this, std::placeholders::_1));
+		World::getWorld()->m_onObjectRemoved.push_back(std::bind(&ObjectModeInteractive::onObjectRemoved, this, std::placeholders::_1));
 	}
 
 	ObjectModeInteractive::~ObjectModeInteractive()
@@ -29,6 +30,11 @@ namespace GuGu {
 	void ObjectModeInteractive::onObjectAdded(std::shared_ptr<GameObject>& inObject)
 	{
 		m_sceneOutliner->onLevelObjectAdded(inObject);
+	}
+
+	void ObjectModeInteractive::onObjectRemoved(std::shared_ptr<GameObject>& inObject)
+	{
+		m_sceneOutliner->onLevelObjectRemoved(inObject);
 	}
 
 }

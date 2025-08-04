@@ -214,6 +214,22 @@ namespace GuGu {
 			}
 		}
 
+		void SceneOutliner::onLevelObjectRemoved(std::shared_ptr<GameObject>& inObject)
+		{
+			if (inObject)
+			{
+				auto it = m_treeItemMap.find(inObject);
+				if (it != m_treeItemMap.end())
+				{
+					PendingTreeOperation operation;
+					operation.m_type = PendingTreeOperation::Removed;
+					operation.m_item = it->second;
+					m_pendingOperations.push_back(operation);
+					refresh();
+				}
+			}
+		}
+
 		void SceneOutliner::populate()
 		{
 			//发生了距离的变化
@@ -238,6 +254,12 @@ namespace GuGu {
 					case PendingTreeOperation::Added:
 					{
 						bMadeAnySignificantChanges = addItemToTree(pendingOp.m_item) || bMadeAnySignificantChanges;
+						break;
+					}
+					case PendingTreeOperation::Removed:
+					{
+						bMadeAnySignificantChanges = true;
+						removeItemFromTree(pendingOp.m_item);
 						break;
 					}
 				}
@@ -308,6 +330,26 @@ namespace GuGu {
 			addUnfilteredItemToTree(inItem);
 
 			return true;
+		}
+
+		void SceneOutliner::removeItemFromTree(TreeItemPtr inItem)
+		{
+			auto treeItemMapIt = m_treeItemMap.find(inItem->getID());
+			if (treeItemMapIt != m_treeItemMap.end())
+			{
+				auto parent = inItem->getParent();
+				if (parent)
+				{
+					parent->removeChild(inItem);
+				}
+				else
+				{
+					auto findIt = std::find(m_rootTreeItems.begin(), m_rootTreeItems.end(), inItem);
+					m_rootTreeItems.erase(findIt);
+				}
+
+				m_treeItemMap.erase(treeItemMapIt);
+			}
 		}
 
 		void SceneOutliner::addUnfilteredItemToTree(TreeItemPtr item)
