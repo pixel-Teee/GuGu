@@ -3,6 +3,7 @@
 #include "ObjectMode.h"
 
 namespace GuGu {
+	class GameObject;
 	class ObjectModeInteractive : public ObjectMode
 	{
 	public:
@@ -12,5 +13,7 @@ namespace GuGu {
 		virtual bool isInteractive() const override { return true; }
 
 		void onLevelChanged();
+
+		void onObjectAdded(std::shared_ptr<GameObject>& inObjects);
 	};
 }

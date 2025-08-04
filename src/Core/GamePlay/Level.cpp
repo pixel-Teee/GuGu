@@ -140,11 +140,11 @@ namespace GuGu {
 	{
 		m_objects.push_back(inGameObject);
 
-		if (!World::getWorld()->m_onLevelChanged.empty())
+		if (!World::getWorld()->m_onObjectAdded.empty())
 		{
-			for (uint32_t i = 0; i < World::getWorld()->m_onLevelChanged.size(); ++i)
+			for (uint32_t i = 0; i < World::getWorld()->m_onObjectAdded.size(); ++i)
 			{
-				World::getWorld()->m_onLevelChanged[i]();
+				World::getWorld()->m_onObjectAdded[i](inGameObject);
 			}
 		}
 	}

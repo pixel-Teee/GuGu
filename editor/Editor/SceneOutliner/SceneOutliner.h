@@ -79,6 +79,8 @@ namespace GuGu {
 			virtual std::shared_ptr<Widget> getParentWindow() const override;
 
 			Reply OnDrop(const WidgetGeometry& myGeometry, const DragDropEvent& dragDropEvent) override;
+
+			void onLevelObjectAdded(std::shared_ptr<GameObject>& inObject);
 		public:
 			const std::map<GuGuUtf8Str, std::shared_ptr<ISceneOutlinerColumn>>& getColumns() const
 			{
@@ -101,6 +103,8 @@ namespace GuGu {
 			}
 
 			virtual void refresh() override;
+
+			virtual void fullRefresh() override;
 
 			virtual void Tick(const WidgetGeometry& allocatedGeometry, const double inCurrentTime, const float inDeltaTime) override;
 
@@ -146,7 +150,11 @@ namespace GuGu {
 			uint8_t m_bNeedsColumnRefresh : 1;
 
 			//完整的刷新
+			//(full refresh 是标记，need refresh 是动作)
+			//full refresh 会获取所有 game object 的数据
 			bool m_bFullRefresh : 1;
+
+			bool m_bNeedsRefresh : 1;
 
 			bool m_bSortDirty : 1;
 

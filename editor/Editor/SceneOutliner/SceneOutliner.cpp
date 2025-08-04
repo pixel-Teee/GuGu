@@ -29,6 +29,7 @@ namespace GuGu {
 			m_parentWindow = inParentWindow;
 
 			m_bFullRefresh = true;
+			m_bNeedsRefresh = true;
 			m_bSortDirty = true;
 			m_bNeedsColumnRefresh = true;
 
@@ -202,6 +203,17 @@ namespace GuGu {
 			return Reply::Unhandled();
 		}
 
+		void SceneOutliner::onLevelObjectAdded(std::shared_ptr<GameObject>& inObject)
+		{
+			if (inObject)
+			{
+				if (m_treeItemMap.find(inObject) == m_treeItemMap.end())
+				{
+					constructItemFor<ObjectTreeItem>(inObject);
+				}
+			}
+		}
+
 		void SceneOutliner::populate()
 		{
 			//发生了距离的变化
@@ -233,6 +245,11 @@ namespace GuGu {
 
 			m_pendingOperations.erase(m_pendingOperations.begin(), m_pendingOperations.begin() + end);
 
+			if (m_pendingOperations.size() == 0)
+			{
+				m_bNeedsRefresh = false;
+			}
+
 			if (bMadeAnySignificantChanges)
 			{
 				m_bSortDirty = true;
@@ -241,13 +258,24 @@ namespace GuGu {
 
 		void SceneOutliner::refresh()
 		{
+			//m_bFullRefresh = true;
+			m_bNeedsRefresh = true;
+		}
+
+		void SceneOutliner::fullRefresh()
+		{
+			//full refresh 会导致 scene outliner 去 world 获取所有 game object 的数据
 			m_bFullRefresh = true;
+			refresh();
 		}
 
 		void SceneOutliner::Tick(const WidgetGeometry& allocatedGeometry, const double inCurrentTime, const float inDeltaTime)
 		{
-			populate();
-
+			if (m_bNeedsRefresh)
+			{
+				populate();
+			}
+			
 			if (m_bSortDirty)
 			{
 				m_outlinerTreeView->requestTreeRefresh();
