@@ -1940,6 +1940,8 @@ namespace GuGu {
 				}
 			}
 
+            //GuGu_LOGD("size of ui draw infos, %d", uiDrawInfos.size());
+
 			for (int32_t i = 0; i < uiDrawInfos.size(); ++i)
 			{
 				std::shared_ptr<UIDrawInfo> drawInfo = uiDrawInfos[i];

@@ -247,8 +247,8 @@ namespace GuGu {
 		std::shared_ptr<GameObject> pickedUIGameObject;
 		for (const auto& item : objects)
 		{
-			auto& uiTransformComponent = item->getComponent<UITransformComponent>();
-			auto& uiComponent = item->getComponent<UIComponent>();
+			const auto& uiTransformComponent = item->getComponent<UITransformComponent>();
+            const auto& uiComponent = item->getComponent<UIComponent>();
 			if (uiTransformComponent && uiComponent)
 			{
 				//convert to ui local transform

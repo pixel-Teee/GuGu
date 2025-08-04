@@ -185,7 +185,7 @@ namespace GuGu {
 
 		AssetData assetData;
 		assetData.m_filePath = "content/GameUITest2.json";
-		assetData.m_fileName = "GameUITest";
+		assetData.m_fileName = "GameUITest2";
 		assetData.m_assetTypeGuid = typeof(Level).getGuid();
 		World::getWorld()->loadLevel(assetData);
 

@@ -77,7 +77,7 @@ namespace GuGu {
 	}
 
 	IMPLEMENT_INITIAL_BEGIN(ButtonComponent)
-		ADD_PRIORITY(Component)
+		ADD_PRIORITY(UIComponent)
 		ADD_INITIAL_FUNCTION_WITH_PRIORITY(registerGuGuButtonComponent)
 		IMPLEMENT_INITIAL_END
 
