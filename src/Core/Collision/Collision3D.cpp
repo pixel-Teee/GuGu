@@ -232,8 +232,8 @@ namespace GuGu {
 
 		//GuGu_LOGD("{%f, %f}", vx, vy);
 
-		math::float4 rayOrigin = math::float4(0.0f, 0.0f, 0.0f, 1.0f);
-		math::float4 rayDir = math::float4(vx, vy, 1.0f, 0.0f);
+		//math::float4 rayOrigin = math::float4(0.0f, 0.0f, 0.0f, 1.0f);
+		math::float4 clickPos = math::float4(vx, vy, 0.0f, 0.0f);
 
 		math::float4x4 invView = math::inverse(viewMatrix);
 		//math::float4 worldRayOrigin = rayOrigin * invView;
@@ -242,6 +242,7 @@ namespace GuGu {
 		//debug draw
 		//debugDrawWorldPos = worldRayOrigin + worldRayDir;
 
+		float tmin = std::numeric_limits<float>::infinity();
 		//GuGu_LOGD("(%f %f %f), (%f %f %f)", worldRayOrigin.x, worldRayOrigin.y, worldRayOrigin.z, worldRayDir.x, worldRayDir.y, worldRayDir.z);
 		std::shared_ptr<GameObject> pickedUIGameObject;
 		for (const auto& item : objects)
@@ -255,8 +256,9 @@ namespace GuGu {
 
 				math::float4x4 toWorld = invView;
 
-				math::float4 worldRayOrigin = rayOrigin * toWorld;
-				math::float4 worldRayDir = math::normalize(rayDir * toWorld);
+				math::float4 clickWorldPos = clickPos * toWorld;
+				clickWorldPos.x += clientWidth / 2.0f;
+				clickWorldPos.y += clientHeight / 2.0f;
 
 				//construct ui bounding box
 				math::box3 boundingBox;
@@ -269,38 +271,18 @@ namespace GuGu {
 					{
 						cornerVertexPos.push_back(drawInfo->m_uiVertex[i].m_position);
 						cornerIndex.push_back(drawInfo->m_uiIndices[i]);
-						cornerVertexPos.back().z = uiTransformComponent->getZOrder();
+						//cornerVertexPos.back().z = uiTransformComponent->getZOrder();
 					}
 					boundingBox = math::box3(cornerVertexPos.size(), cornerVertexPos.data());
 				}
 
-				float tmin = 0.0f;
-				if (intersectsWithBox(worldRayOrigin, worldRayDir, tmin, boundingBox))
+				//intersect with box
+				if (boundingBox.contains(clickWorldPos))
 				{
-					const auto& positions = cornerVertexPos;
-					const auto& indices = cornerIndex;
-					uint32_t triCount = indices.size() / 3;
-					tmin = std::numeric_limits<float>::infinity();
-					for (uint32_t i = 0; i < triCount; ++i)
+					if (uiTransformComponent->getZOrder() < tmin)
 					{
-						uint32_t i0 = indices[i * 3 + 0];
-						uint32_t i1 = indices[i * 3 + 1];
-						uint32_t i2 = indices[i * 3 + 2];
-
-						math::float3 position0 = positions[i0];
-						math::float3 position1 = positions[i1];
-						math::float3 position2 = positions[i2];
-
-						float t = 0.0f;
-						if (intersectWithTriangle(worldRayOrigin, worldRayDir, position0, position1, position2, t))
-						{
-							if (t < tmin)
-							{
-								tmin = t;
-
-								pickedUIGameObject = item;
-							}
-						}
+						tmin = uiTransformComponent->getZOrder();
+						pickedUIGameObject = item;
 					}
 				}
 			}

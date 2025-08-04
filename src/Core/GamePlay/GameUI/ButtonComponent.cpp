@@ -277,11 +277,15 @@ namespace GuGu {
 	void ButtonComponent::onPointerDown(UIPointerData pointerData)
 	{
 		//GuGu_LOGD("trigger me %s", "button");
+		if (!m_bIsPressed)
+		{
+			m_bIsPressed = true;
+		}
 	}
 
 	void ButtonComponent::onPointerUp(UIPointerData pointerData)
 	{
-
+		m_bIsPressed = false;
 	}
 
 }
