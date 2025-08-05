@@ -230,6 +230,45 @@ namespace GuGu {
 			}
 		}
 
+		void SceneOutliner::onLevelObjectAttached(std::shared_ptr<GameObject>& inObject, std::shared_ptr<GameObject>& inParent)
+		{
+			if (inObject && inObject != inParent)
+			{
+				auto it = m_treeItemMap.find(inObject);
+				if (it != m_treeItemMap.end())
+				{
+					PendingTreeOperation operation;
+					operation.m_type = PendingTreeOperation::Moved;
+					operation.m_item = it->second;
+					m_pendingOperations.push_back(operation);
+					refresh();
+				}
+			}
+		}
+
+		void SceneOutliner::onLevelObjectDetached(std::shared_ptr<GameObject>& inObject, std::shared_ptr<GameObject>& inParent)
+		{
+			if (inObject != inParent)
+			{
+				if (inObject)
+				{
+					auto it = m_treeItemMap.find(inObject);
+					if (it != m_treeItemMap.end())
+					{
+						PendingTreeOperation operation;
+						operation.m_type = PendingTreeOperation::Moved;
+						operation.m_item = it->second;
+						m_pendingOperations.push_back(operation);
+						refresh();
+					}
+					else
+					{
+						onLevelObjectAdded(inObject);
+					}
+				}
+			}
+		}
+
 		void SceneOutliner::populate()
 		{
 			//发生了距离的变化
@@ -254,6 +293,12 @@ namespace GuGu {
 					case PendingTreeOperation::Added:
 					{
 						bMadeAnySignificantChanges = addItemToTree(pendingOp.m_item) || bMadeAnySignificantChanges;
+						break;
+					}
+					case PendingTreeOperation::Moved:
+					{
+						bMadeAnySignificantChanges = true;
+						onItemMoved(pendingOp.m_item);
 						break;
 					}
 					case PendingTreeOperation::Removed:
@@ -330,6 +375,31 @@ namespace GuGu {
 			addUnfilteredItemToTree(inItem);
 
 			return true;
+		}
+
+		void SceneOutliner::onItemMoved(const TreeItemPtr& inItem)
+		{
+			TreeItemPtr parent = inItem->getParent();
+			if (parent)
+			{
+				parent->removeChild(inItem);
+			}
+			else
+			{
+				auto findIt = std::find(m_rootTreeItems.begin(), m_rootTreeItems.end(), inItem);
+				m_rootTreeItems.erase(findIt);
+			}
+
+			parent = ensureParentForItem(inItem);
+			if (parent)
+			{
+				parent->addChild(inItem);
+				m_outlinerTreeView->setItemExpansion(parent, true);
+			}
+			else
+			{
+				m_rootTreeItems.push_back(inItem);
+			}
 		}
 
 		void SceneOutliner::removeItemFromTree(TreeItemPtr inItem)

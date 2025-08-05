@@ -83,6 +83,10 @@ namespace GuGu {
 			void onLevelObjectAdded(std::shared_ptr<GameObject>& inObject);
 
 			void onLevelObjectRemoved(std::shared_ptr<GameObject>& inObject);
+
+			void onLevelObjectAttached(std::shared_ptr<GameObject>& inObject, std::shared_ptr<GameObject>& inParent);
+
+			void onLevelObjectDetached(std::shared_ptr<GameObject>& inObject, std::shared_ptr<GameObject>& inParent);
 		public:
 			const std::map<GuGuUtf8Str, std::shared_ptr<ISceneOutlinerColumn>>& getColumns() const
 			{
@@ -120,6 +124,8 @@ namespace GuGu {
 			void rePopulateEntireTree();
 
 			bool addItemToTree(TreeItemPtr inItem);
+
+			void onItemMoved(const TreeItemPtr& inItem);
 
 			void removeItemFromTree(TreeItemPtr inItem);
 
