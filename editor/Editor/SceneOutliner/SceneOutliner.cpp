@@ -192,10 +192,19 @@ namespace GuGu {
 								transactionManager.modifyObject(gameObject);
 								childrens.erase(it);
 								gameObject->setParentGameObject(std::shared_ptr<GameObject>());
-							}
+
+								//detach
+								if (!World::getWorld()->m_onObjectDetched.empty())
+								{
+									for (uint32_t i = 0; i < World::getWorld()->m_onObjectDetched.size(); ++i)
+									{
+										World::getWorld()->m_onObjectDetched[i](gameObject, parentObject);
+									}
+								}
+							}		
 						}					
 						transactionManager.commit();
-						World::getWorld()->getCurrentLevel()->refreshLevel();
+						//World::getWorld()->getCurrentLevel()->refreshLevel();
 						return Reply::Handled();
 					}
 				}

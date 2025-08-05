@@ -17,5 +17,9 @@ namespace GuGu {
 		void onObjectAdded(std::shared_ptr<GameObject>& inObjects);
 
 		void onObjectRemoved(std::shared_ptr<GameObject>& inObject);
+
+		void onObjectAttached(std::shared_ptr<GameObject>& inObject, std::shared_ptr<GameObject>& inParent);
+
+		void onObjectDetached(std::shared_ptr<GameObject>& inObject, std::shared_ptr<GameObject>& inParent);
 	};
 }

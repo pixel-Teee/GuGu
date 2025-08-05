@@ -197,14 +197,35 @@ namespace GuGu {
 								transactionManager.modifyObject(originParentObject);
 								childrens.erase(it);
 							}
+
+							//detach
+							if (!World::getWorld()->m_onObjectDetched.empty())
+							{
+								for (uint32_t i = 0; i < World::getWorld()->m_onObjectDetched.size(); ++i)
+								{
+									World::getWorld()->m_onObjectDetched[i](childObject, originParentObject);
+								}
+							}
 						}
 
 						std::shared_ptr<GameObject> parent2Object = std::static_pointer_cast<GameObject>(parentObject);
 						transactionManager.modifyObject(parent2Object);
 						transactionManager.modifyObject(childObject);
 						parent2Object->addChildren(childObject);
+
+						//attach
+						if (!World::getWorld()->m_onObjectAttached.empty())
+						{
+							for (uint32_t i = 0; i < World::getWorld()->m_onObjectAttached.size(); ++i)
+							{
+								World::getWorld()->m_onObjectAttached[i](childObject, parent2Object);
+							}
+						}
+
 						transactionManager.commit();
-						World::getWorld()->getCurrentLevel()->refreshLevel();
+
+						m_bDragHover = false;
+						//World::getWorld()->getCurrentLevel()->refreshLevel();
 						return Reply::Handled();
 					}
 				}

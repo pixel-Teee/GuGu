@@ -49,6 +49,10 @@ namespace GuGu {
 		std::vector<std::function<void(std::shared_ptr<GameObject>&)>> m_onObjectRemoved;
 
 		std::vector<std::function<void(std::shared_ptr<GameObject>&)>> m_onObjectAdded;//add object
+
+		std::vector<std::function<void(std::shared_ptr<GameObject>&, std::shared_ptr<GameObject>&)>> m_onObjectAttached;
+
+		std::vector<std::function<void(std::shared_ptr<GameObject>&, std::shared_ptr<GameObject>&)>> m_onObjectDetched;
 	private:
 		std::shared_ptr<ViewportClient> m_viewportClient;
 
