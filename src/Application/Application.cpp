@@ -23,6 +23,8 @@
 #include <Core/GamePlay/World.h>
 #include <Core/GamePlay/InputManager.h>
 
+#include <Core/LuaContext/LuaContext.h>
+
 namespace GuGu{
 	WindowActivateEvent::ActivationType translationWindowActivationMessage(const WindowActivation activationType)
 	{
@@ -62,7 +64,8 @@ namespace GuGu{
 	}
 	void Application::init(std::shared_ptr<WindowWidget> inWindowWidget)
 	{
-
+		//lua context
+		LuaContext::getLuaContext()->initialize();
 	}
     void Application::Run()
     {
