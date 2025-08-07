@@ -25,6 +25,8 @@ namespace GuGu {
 		virtual void OnDeserialize(const nlohmann::json& input) {}
 
 	private:
-		//
+		std::weak_ptr<meta::Object> m_objectPtr;
+
+		GuGuUtf8Str m_functionName;
 	};
 }
