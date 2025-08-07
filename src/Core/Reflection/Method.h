@@ -45,3 +45,4 @@ namespace GuGu {
 }
 
 #include "Method.hpp"
+#include "VoidMethodInvoker.hpp"
