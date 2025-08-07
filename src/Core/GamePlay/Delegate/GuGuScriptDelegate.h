@@ -13,17 +13,13 @@ namespace GuGu {
 
 		GuGuScriptDelegate();
 
-		virtual ~GuGuScriptDelegate() {}
+		virtual ~GuGuScriptDelegate();
 
-		virtual void PostLoad() {}
-
-		virtual void Update(float fElapsedTimeSeconds) {}
-
-		virtual Object* Clone(void) const override { return nullptr; }
-
-		virtual void OnSerialize(nlohmann::json& output) const {}
-		virtual void OnDeserialize(const nlohmann::json& input) {}
-
+		virtual void PostLoad();
+		virtual void Update(float fElapsedTimeSeconds);
+		virtual Object* Clone(void) const override;
+		virtual void OnSerialize(nlohmann::json& output) const;
+		virtual void OnDeserialize(const nlohmann::json& input);
 	private:
 		std::weak_ptr<meta::Object> m_objectPtr;
 
