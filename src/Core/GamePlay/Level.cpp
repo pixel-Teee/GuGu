@@ -54,6 +54,10 @@ namespace GuGu {
 		type.AddField<Level, Array<std::shared_ptr<GameObject>>>("m_objects",
 			(meta::FieldGetter<Level, Array<std::shared_ptr<GameObject>>&, true>::Signature) & Level::getGameObjects,
 			(meta::FieldSetter<Level, Array<std::shared_ptr<GameObject>>&, true>::Signature) & Level::setGameObjects, {});
+
+		//------function------
+		type.AddMethod("getGameObjects", (Array<std::shared_ptr<GameObject>>&(Level::*)())(&Level::getGameObjects), {});
+		//------function------
 		return true;
 	}
 
