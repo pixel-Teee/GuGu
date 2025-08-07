@@ -11,12 +11,6 @@ namespace GuGu {
 		template<typename ReturnType, typename ... ArgTypes>
 		Variant FunctionInvoker<ReturnType, ArgTypes...>::Invoke(const ArgumentList& arguments)
 		{
-			UAssert(arguments.size() == THIS_ARG_COUNT,
-				"Invalid function arguments.\nExpected %i args but got %i.",
-				THIS_ARG_COUNT,
-				arguments.size()
-			);
-
 			return invoke<void, ArgTypes...>(arguments);
 		}
 
