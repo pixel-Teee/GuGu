@@ -63,6 +63,28 @@ namespace GuGu {
 			return search->second;
 		}
 
+		const Method& TypeData::GetMethod(const GuGuUtf8Str& name)
+		{
+			auto& base = methods[name];
+
+			if (!base.size())
+				return Method::Invalid();
+
+			return base.begin()->second;
+		}
+
+		const Method& TypeData::GetMethod(const GuGuUtf8Str& name, const InvokableSignature& signature)
+		{
+			auto& base = methods[name];
+
+			auto search = base.find(signature);
+
+			if (search == base.end())
+				return Method::Invalid();
+
+			return search->second;
+		}
+
 		const Field& TypeData::GetField(const std::string& name) const
 		{
 			for (auto& field : fields)

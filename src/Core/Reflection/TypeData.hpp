@@ -33,6 +33,21 @@ namespace GuGu {
 			else
 				constructors.emplace(signature, ctor);
 		}
+
+		template<typename MethodType>
+		void TypeData::AddMethod(
+			const GuGuUtf8Str& name,
+			MethodType method,
+			const MetaManager::Initializer& meta
+		)
+		{
+			Method meth(name, method);
+
+			meth.m_meta = meta;
+
+			methods[name].emplace(meth.GetSignature(), meth);
+		}
+
 		template<typename ClassType, typename FieldType, typename GetterReturnType, typename SetterArgumentType>
 		void TypeData::AddField(
 			const std::string& name,

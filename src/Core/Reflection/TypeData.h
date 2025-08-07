@@ -5,6 +5,7 @@
 #include "Enum.h"
 #include "Constructor.h"
 #include "MetaManager.h"
+#include "Method.h"
 
 #include <Core/GuGuUtf8Str.h>
 #include <Core/Guid.h>
@@ -53,6 +54,7 @@ namespace GuGu {
 			//静态字段
 
 			//方法
+			std::unordered_map<GuGuUtf8Str, InvokableOverloadMap<Method>> methods;
 
 			//静态方法
 
@@ -134,6 +136,15 @@ namespace GuGu {
 				typename FieldSetter<ClassType, FieldType, false>::Signature fieldSetter,
 				const MetaManager::Initializer& meta
 			);
+
+			//------method------
+			template<typename MethodType>
+			void AddMethod(const GuGuUtf8Str& name, MethodType method, const MetaManager::Initializer& meta);
+
+			const Method& GetMethod(const GuGuUtf8Str& name);
+
+			const Method& GetMethod(const GuGuUtf8Str& name, const InvokableSignature& signature);
+			//------method------
 
 			const Field& GetField(const std::string& name) const;
 
