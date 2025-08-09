@@ -12,6 +12,7 @@
 #include <Core/GamePlay/Level.h> //Level
 #include <Core/Reflection/Type.h>
 #include <Core/Texture/GTexture.h>
+#include <Core/GamePlay/GameUI/GFont.h> //GFont
 
 namespace GuGu {
     void GAssetViewItem::init(const BuilderArguments& arguments)
@@ -93,6 +94,15 @@ namespace GuGu {
                 else if (meta::Type::getType(assetViewAsset->m_data.m_assetTypeGuid).GetID() == meta::TypeIDs<GTexture>::ID)
 				{
 					std::shared_ptr<Brush> assetImage = EditorStyleSet::getStyleSet()->getBrush("TextureAssetIcon");
+					itemContentsOverlay->addSlot()
+						(
+							WIDGET_NEW(ImageWidget)
+							.brush(assetImage)
+						);
+                }
+                else if (meta::Type::getType(assetViewAsset->m_data.m_assetTypeGuid).GetID() == meta::TypeIDs<GFont>::ID)
+                {
+					std::shared_ptr<Brush> assetImage = EditorStyleSet::getStyleSet()->getBrush("FontAssetIcon");
 					itemContentsOverlay->addSlot()
 						(
 							WIDGET_NEW(ImageWidget)
@@ -192,6 +202,15 @@ namespace GuGu {
 				else if (meta::Type::getType(assetViewAsset->m_data.m_assetTypeGuid).GetID() == meta::TypeIDs<GTexture>::ID)
 				{
 					std::shared_ptr<Brush> assetImage = EditorStyleSet::getStyleSet()->getBrush("TextureAssetIcon");
+					itemContentsOverlay->addSlot()
+						(
+							WIDGET_NEW(ImageWidget)
+							.brush(assetImage)
+						);
+				}
+				else if (meta::Type::getType(assetViewAsset->m_data.m_assetTypeGuid).GetID() == meta::TypeIDs<GFont>::ID)
+				{
+					std::shared_ptr<Brush> assetImage = EditorStyleSet::getStyleSet()->getBrush("FontAssetIcon");
 					itemContentsOverlay->addSlot()
 						(
 							WIDGET_NEW(ImageWidget)

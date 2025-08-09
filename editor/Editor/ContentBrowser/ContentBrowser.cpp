@@ -18,6 +18,9 @@
 
 #include <Core/Guid.h>
 
+#include <Core/GamePlay/GameUI/GFont.h>
+#include <Core/GamePlay/GameUI/UITextManager.h>
+
 #ifdef WIN32
 #include <Application/Platform/Windows/WindowsMisc.h>
 #else
@@ -103,6 +106,7 @@ namespace GuGu {
 
 		std::shared_ptr<Button> importModelButton;
 		std::shared_ptr<Button> importTextureButton;
+		std::shared_ptr<Button> importFontFileButton;
 		std::shared_ptr<Widget> menuContent;
 		menuContent = 
 		WIDGET_NEW(Border)
@@ -159,6 +163,30 @@ namespace GuGu {
 						(
 							WIDGET_NEW(TextBlockWidget)
 							.text(u8"Import Texture")
+							.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+						)
+					)
+				)
+				+ VerticalBox::Slot()
+				.FixedHeight()
+				(
+					WIDGET_ASSIGN_NEW(Button, importFontFileButton)
+					.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+					.Content
+					(
+						WIDGET_NEW(HorizontalBox)
+						+ HorizontalBox::Slot()
+						.FixedWidth()
+						(
+							WIDGET_NEW(ImageWidget)
+							.brush(EditorStyleSet::getStyleSet()->getBrush("ImportFont_Icon"))
+						)
+						+ HorizontalBox::Slot()
+						.setPadding(Padding(5.0f, 0.0f, 5.0f, 0.0f))
+						.FixedWidth()
+						(
+							WIDGET_NEW(TextBlockWidget)
+							.text(u8"Import Font")
 							.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
 						)
 					)
@@ -258,6 +286,51 @@ namespace GuGu {
 				}		
 				return Reply::Handled();
 			}));
+
+		importFontFileButton->setOnClicked(
+			OnClicked([=]() {
+				GuGuUtf8Str initDir = sourcesData + "/";
+				std::vector<GuGuUtf8Str> filterArray;
+				filterArray.push_back("TTF(*.ttf)\0");
+				filterArray.push_back("*.ttf\0");
+				initDir = sourcesData.substr(initDir.findFirstOf("/"));
+				initDir = AssetManager::getAssetManager().getActualPhysicalPath(initDir);
+				GuGuUtf8Str fileName;
+				GuGuUtf8Str filePath;
+				PlatformMisc::getOpenFilePathAndFileName(m_parentWindow, initDir, filePath, fileName, filterArray);
+
+				if (fileName != "")
+				{
+					//import texture
+					UITextManager uiTextManager;
+					nlohmann::json fontFileJson = uiTextManager.loadFontFile(filePath);
+					GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
+					fontFileJson["GUID"] = guidStr.getStr();
+					GuGuUtf8Str fileContent = fontFileJson.dump();
+
+					GuGuUtf8Str noFileExtensionsFileName = fileName;
+					int32_t dotPos = noFileExtensionsFileName.findLastOf(".");
+					if (dotPos != -1)
+					{
+						noFileExtensionsFileName = noFileExtensionsFileName.substr(0, dotPos);
+					}
+
+					//GuGuUtf8Str registerFilePath = filePath;
+					//dotPos = filePath.findLastOf(".");
+					//if (dotPos != -1)
+					//{
+					//	registerFilePath = filePath.substr(0, dotPos);
+					//}					
+					GuGuUtf8Str outputFilePath = sourcesData + "/" + noFileExtensionsFileName + ".json";
+
+					AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GFont>().ID));
+					//输出到目录
+					AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
+					AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
+					AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
+				}
+				return Reply::Handled();
+		}));
 
 		return menuContent;
 	}

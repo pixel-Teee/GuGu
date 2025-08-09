@@ -27,6 +27,13 @@ namespace GuGu {
 		//反序列化
 		virtual void OnDeserialize(const nlohmann::json& input) override;
 
+		//font atlas
+		Array<uint8_t> m_fontAtlasData;
+
+		uint32_t m_fontAtlasWidth;
+
+		uint32_t m_fontAtlasHeight;
+
 		//gpu texture
 		nvrhi::TextureHandle m_texture;
 
