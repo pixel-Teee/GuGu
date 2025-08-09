@@ -49,7 +49,7 @@ namespace GuGu {
 
 		type.AddField<TextComponent, Color>("m_color",
 			(meta::FieldGetter<TextComponent, Color&, true>::Signature) & TextComponent::getColor,
-			(meta::FieldSetter<TextComponent, Color, true>::Signature) & TextComponent::setColor, {});
+			(meta::FieldSetter<TextComponent, Color,  true>::Signature) & TextComponent::setColor, {});
 
 		return true;
 	}

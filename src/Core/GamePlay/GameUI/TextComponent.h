@@ -37,5 +37,7 @@ namespace GuGu {
 		Color m_color;
 
 		GuGuUtf8Str m_text;
+
+		//text asset
 	};
 }
