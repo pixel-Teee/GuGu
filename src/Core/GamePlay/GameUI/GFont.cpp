@@ -2,6 +2,8 @@
 
 #include "GFont.h"
 #include <Core/Reflection/TypeInfo.h>
+#include <Core/GamePlay/GameUI/UITextManager.h>
+#include <Core/Texture/GTexture.h>
 
 namespace GuGu {
 	static bool registerGuGuGFont()
@@ -70,7 +72,12 @@ namespace GuGu {
 
 	void GFont::PostLoad()
 	{
-
+		if (m_atlas == nullptr)
+		{
+			//create atlas
+			m_atlas = std::make_shared<UIAtlas>();
+			m_atlas->initializeFontAtlas(1024, 1024, nvrhi::Format::R8_UNORM);
+		}
 	}
 
 	void GFont::Update(float fElapsedTimeSeconds)
@@ -86,7 +93,7 @@ namespace GuGu {
 	meta::Object* GFont::Clone(void) const
 	{
 		GFont* fontFile = new GFont();
-
+		fontFile->m_data = m_data;
 		return fontFile;
 	}
 
@@ -98,6 +105,63 @@ namespace GuGu {
 	void GFont::OnDeserialize(const nlohmann::json& input)
 	{
 
+	}
+
+	GFontCharacterMetrics GFont::getFontMetrices(GuGuUtf8Str character, float fontPoint, float scale)
+	{
+		float neededSize = fontPoint / scale;
+
+		std::shared_ptr<UITextManager> textManager = UITextManager::getUITextManager();
+
+		GFontCharacter fontCharacter;
+		fontCharacter.m_char = character;
+		fontCharacter.m_pointSize = neededSize;
+		auto it = m_characterMetricsMap.find(fontCharacter);
+		if (it != m_characterMetricsMap.end())
+			return it->second;
+
+		GFontCharacterMetrics metrices;
+		metrices.m_uvSize = math::float2(0, 0);
+		metrices.m_uvPosition = math::float2(0, 0);
+		metrices.m_size = math::float2(0, 0);
+		metrices.m_bearing = math::float2(0, 0);
+		metrices.m_advance = 0;
+
+		//m_bNeedToUpdateAtlas = true;
+		////insert to atlas
+		//if (m_bHaveFontAtlas == false)
+		//{
+		//	m_bHaveFontAtlas = true;
+		//	m_fontAtlasHeight = 1024;
+		//	m_fontAtlasHeight = 1024;
+		//	m_fontAtlasData.resize(1024 * 1024); //gray
+		//}
+
+		if (m_atlas == nullptr)
+		{
+			//create atlas
+			m_atlas = std::make_shared<UIAtlas>();
+			m_atlas->initializeFontAtlas(1024, 1024, nvrhi::Format::R8_UNORM);
+		}
+
+		textManager->initFreeTypeFace(m_ftFace, m_data);
+		textManager->setCurrentFontSize(m_ftFace, neededSize);
+		textManager->loadCurrentCharacter(m_ftFace, character);
+
+		metrices.m_size = textManager->queryGlyphWidthAndHeight(m_ftFace);
+		metrices.m_bearing = textManager->queryGlyphBearing(m_ftFace);
+		metrices.m_advance = textManager->queryGlyphAdvance(m_ftFace);
+
+		std::vector<uint8_t> fontPixelData = textManager->getGlyphPixelData(m_ftFace);
+		std::shared_ptr<UIAtlasTextureSlot> slot = m_atlas->copyTextureToAtlas(metrices.m_size.x, metrices.m_size.y, fontPixelData);
+
+		//calculate uv info
+		metrices.m_uvSize = math::float2(slot->width / 1024.0f, slot->height / 1024.0f);
+		metrices.m_uvPosition = math::float2(slot->x / 1024.0f, slot->y / 1024.0f);
+
+		m_characterMetricsMap.insert({ fontCharacter, metrices });
+
+		return metrices;
 	}
 
 }

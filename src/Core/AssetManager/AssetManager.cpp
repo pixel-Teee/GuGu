@@ -15,6 +15,7 @@
 #include <Core/GamePlay/TransformComponent.h>
 #include <Core/Model/StaticMesh.h>
 #include <Core/Texture/GTexture.h>
+#include <Core/GamePlay/GameUI/GFont.h>
 #include <Core/Model/GeometryHelper.h>
 
 namespace GuGu {
@@ -887,6 +888,12 @@ namespace GuGu {
 					{
 						//load asset
 						std::shared_ptr<meta::Object> loadedObject = AssetManager::getAssetManager().deserializeJson<GTexture>(nlohmann::json::parse(json.getStr()));
+						item.second->m_loadedResource = loadedObject;
+					}
+					else if (meta::Type::getType(item.second->m_assetTypeGuid) == typeof(GFont))
+					{
+						//load asset
+						std::shared_ptr<meta::Object> loadedObject = AssetManager::getAssetManager().deserializeJson<GFont>(nlohmann::json::parse(json.getStr()));
 						item.second->m_loadedResource = loadedObject;
 					}
 					//AssetManager::getAssetManager().deserializeJson(nlohmann::json::parse(modelJson.getStr()))

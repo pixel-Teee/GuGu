@@ -8,6 +8,7 @@
 namespace GuGu {
 	struct AssetData;
 	struct UIDrawInfo;
+	class GFont;
 	class TextComponent : public UIComponent
 	{
 	public:
@@ -32,6 +33,17 @@ namespace GuGu {
 		Color& getColor();
 		void setColor(Color& inColor);
 
+		float getFontPoint() const;
+		float& getFontPoint();
+		void setFontPoint(float inSize);
+
+		std::shared_ptr<AssetData> getFontAsset() const;
+		void setFontAsset(const std::shared_ptr<AssetData> inAssetData);
+		std::shared_ptr<GFont> getFont() const;
+
+		GuGuUtf8Str getText() const;
+		GuGuUtf8Str& getText();
+		void setText(const GuGuUtf8Str& inText);
 	private:
 		//text color
 		Color m_color;
@@ -39,5 +51,8 @@ namespace GuGu {
 		GuGuUtf8Str m_text;
 
 		//text asset
+		std::shared_ptr<AssetData> m_fontAsset;
+
+		float m_fontPoint;//font size
 	};
 }

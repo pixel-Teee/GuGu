@@ -5,6 +5,7 @@
 #include <Core/Texture/GTexture.h>
 #include <Core/Reflection/TypeInfo.h>
 #include <Core/GamePlay/GameObject.h>
+#include <Core/GamePlay/GameUI/GFont.h>
 #include "UITransformComponent.h"
 #include "UIDrawInfo.h"
 
@@ -51,6 +52,23 @@ namespace GuGu {
 			(meta::FieldGetter<TextComponent, Color&, true>::Signature) & TextComponent::getColor,
 			(meta::FieldSetter<TextComponent, Color,  true>::Signature) & TextComponent::setColor, {});
 
+
+		type.AddField<TextComponent, std::shared_ptr<AssetData>>("m_fontAsset",
+			(meta::FieldGetter<TextComponent, std::shared_ptr<AssetData>, true>::Signature) & TextComponent::getFontAsset,
+			(meta::FieldSetter<TextComponent, std::shared_ptr<AssetData>, true>::Signature) & TextComponent::setFontAsset, {});
+
+		type.AddField<TextComponent, float>("m_fontPoint",
+			(meta::FieldGetter<TextComponent, float&, true>::Signature) & TextComponent::getFontPoint,
+			(meta::FieldSetter<TextComponent, float, true>::Signature) & TextComponent::setFontPoint, {});
+
+		type.AddField<TextComponent, GuGuUtf8Str>("m_text",
+			(meta::FieldGetter<TextComponent, GuGuUtf8Str&, true>::Signature) & TextComponent::getText,
+			(meta::FieldSetter<TextComponent, GuGuUtf8Str, true>::Signature) & TextComponent::setText, {});
+
+		type.AddField<TextComponent, std::weak_ptr<GameObject>>("m_owner",
+			(meta::FieldGetter<TextComponent, std::weak_ptr<GameObject>&, true>::Signature) & TextComponent::getParentGameObject,
+			(meta::FieldSetter<TextComponent, std::weak_ptr<GameObject>&, true>::Signature) & TextComponent::setParentGameObject, {});
+
 		return true;
 	}
 
@@ -67,8 +85,13 @@ namespace GuGu {
 
 	TextComponent::TextComponent()
 	{
-
 		m_color = Color(0.5f, 1.0f, 1.0f, 1.0f);
+		m_text = GuGuUtf8Str(u8"Love");
+		m_fontPoint = 14;
+
+		GuGuUtf8Str noFileExtensionsFileName = "STKAITI"; //ttf
+		GuGuUtf8Str outputFilePath = "content/" + noFileExtensionsFileName + ".json";
+		m_fontAsset = AssetManager::getAssetManager().loadAsset(AssetManager::getAssetManager().getGuid(outputFilePath, typeof(GFont)));
 	}
 
 	TextComponent::~TextComponent()
@@ -96,48 +119,91 @@ namespace GuGu {
 	std::shared_ptr<UIDrawInfo> TextComponent::generateUIDrawInformation(bool bFlip)
 	{
 		std::shared_ptr<UIDrawInfo> drawInfo = std::make_shared<UIDrawInfo>();
-		//drawInfo->m_texture = getTexture();
-		//
-		//std::shared_ptr<GameObject> owner = m_owner.lock();
-		//if (owner)
-		//{
-		//	//------
-		//	// 0---1
-		//	// |   |
-		//	// 2---3
-		//	//------
-		//	std::shared_ptr<UITransformComponent> uiTransformComponent = owner->getComponent<UITransformComponent>();
-		//
-		//	//get global transform
-		//	math::affine3 worldTransform = uiTransformComponent->GetLocalToWorldTransformFloat();
-		//
-		//	math::float3 absolutePos;
-		//	math::quat absoluteQuat;
-		//	math::float3 absoluteScale;
-		//
-		//	math::decomposeAffine(worldTransform, &absolutePos, &absoluteQuat, &absoluteScale);
-		//
-		//	math::float2 localSize = uiTransformComponent->getLocalSize();
-		//
-		//	//vertex generate
-		//	drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(0, 1), math::float3(absolutePos.x, absolutePos.y, 0), m_color));
-		//	drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(1, 1), math::float3(absolutePos.x + localSize.x, absolutePos.y, 0), m_color));
-		//	drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(0, 0), math::float3(absolutePos.x, absolutePos.y + localSize.y, 0), m_color));
-		//	drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(1, 0), math::float3(absolutePos.x + localSize.x, absolutePos.y + localSize.y, 0), m_color));
-		//
-		//	//index generate
-		//	drawInfo->m_uiIndices.push_back(0);
-		//	drawInfo->m_uiIndices.push_back(2);
-		//	drawInfo->m_uiIndices.push_back(1);
-		//
-		//	drawInfo->m_uiIndices.push_back(1);
-		//	drawInfo->m_uiIndices.push_back(2);
-		//	drawInfo->m_uiIndices.push_back(3);
-		//
-		//	drawInfo->m_zorder = uiTransformComponent->getZOrder();
-		//}
-		//
-		//
+		drawInfo->m_texture = getFont()->m_atlas->m_texture; //font atlas
+		
+		std::shared_ptr<GFont> font = getFont();
+
+		std::shared_ptr<GameObject> owner = m_owner.lock();
+		if (owner)
+		{
+			//------
+			// 0---1
+			// |   |
+			// 2---3
+			//------
+			std::shared_ptr<UITransformComponent> uiTransformComponent = owner->getComponent<UITransformComponent>();
+
+			//get global transform
+			math::affine3 worldTransform = uiTransformComponent->GetLocalToWorldTransformFloat();
+
+			math::float3 absolutePos;
+			math::quat absoluteQuat;
+			math::float3 absoluteScale;
+
+			math::decomposeAffine(worldTransform, &absolutePos, &absoluteQuat, &absoluteScale);
+
+			math::float2 localSize = uiTransformComponent->getLocalSize();
+
+			float scale = uiTransformComponent->getScaling().x;
+
+			math::float2 startPos = absolutePos;
+			uint32_t currenIndex = 0;
+			//generate text
+			for (size_t i = 0; i < m_text.len(); ++i)
+			{
+				GuGuUtf8Str currentChar = m_text[i];
+
+				//获取度量信息
+				GFontCharacterMetrics metrics = font->getFontMetrices(currentChar, m_fontPoint, scale);
+				
+				//计算字形位置
+				float bearingX = metrics.m_bearing.x;
+				float advanceX = metrics.m_advance;
+				float glyphWidth = metrics.m_size.x;
+				float glyphHeight = metrics.m_size.y;
+
+				//uv信息
+				math::float2 uvPosition = metrics.m_uvPosition;
+				math::float2 uvSize = metrics.m_uvSize;
+
+				if ((startPos.x + bearingX + glyphWidth) < (absolutePos.x + localSize.x))
+				{
+					//vertex generate
+					drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(uvPosition.x, uvPosition.x + uvSize.y), math::float3(startPos.x + bearingX, startPos.y, 0), m_color));
+					drawInfo->m_uiVertex.push_back(GameUIVertex(uvPosition + uvSize, math::float3(startPos.x + bearingX + glyphWidth, startPos.y, 0), m_color));
+					drawInfo->m_uiVertex.push_back(GameUIVertex(uvPosition, math::float3(startPos.x + bearingX, startPos.y + glyphHeight, 0), m_color));
+					drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(uvPosition.x + uvSize.x, uvPosition.y), math::float3(startPos.x + bearingX + glyphWidth, startPos.y + glyphHeight, 0), m_color));
+
+					startPos.x = startPos.x + advanceX;
+				}
+				else
+				{
+					startPos.x = absolutePos.x;
+					startPos.y = startPos.y + glyphHeight;//todo:add line gap
+
+					//vertex generate
+					drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(uvPosition.x, uvPosition.x + uvSize.y), math::float3(startPos.x + bearingX, startPos.y, 0), m_color));
+					drawInfo->m_uiVertex.push_back(GameUIVertex(uvPosition + uvSize, math::float3(startPos.x + bearingX + glyphWidth, startPos.y, 0), m_color));
+					drawInfo->m_uiVertex.push_back(GameUIVertex(uvPosition, math::float3(startPos.x + bearingX, startPos.y + glyphHeight, 0), m_color));
+					drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(uvPosition.x + uvSize.x, uvPosition.y), math::float3(startPos.x + bearingX + glyphWidth, startPos.y + glyphHeight, 0), m_color));
+				}
+
+				//index generate
+				drawInfo->m_uiIndices.push_back(currenIndex + 0);
+				drawInfo->m_uiIndices.push_back(currenIndex + 2);
+				drawInfo->m_uiIndices.push_back(currenIndex + 1);
+
+				drawInfo->m_uiIndices.push_back(currenIndex + 1);
+				drawInfo->m_uiIndices.push_back(currenIndex + 2);
+				drawInfo->m_uiIndices.push_back(currenIndex + 3);
+
+				currenIndex = currenIndex + 4;
+			}
+
+			drawInfo->m_zorder = uiTransformComponent->getZOrder();
+		}
+
+
 		return drawInfo;
 	}
 
@@ -160,6 +226,51 @@ namespace GuGu {
 	void TextComponent::setColor(Color& inColor)
 	{
 		m_color = inColor;
+	}
+
+	float TextComponent::getFontPoint() const
+	{
+		return m_fontPoint;
+	}
+
+	float& TextComponent::getFontPoint()
+	{
+		return m_fontPoint;
+	}
+
+	void TextComponent::setFontPoint(float inSize)
+	{
+		m_fontPoint = inSize;
+	}
+
+	std::shared_ptr<GuGu::AssetData> TextComponent::getFontAsset() const
+	{
+		return m_fontAsset;
+	}
+
+	void TextComponent::setFontAsset(const std::shared_ptr<AssetData> inAssetData)
+	{
+		m_fontAsset = inAssetData;
+	}
+
+	std::shared_ptr<GFont> TextComponent::getFont() const
+	{
+		return std::static_pointer_cast<GFont>(m_fontAsset->m_loadedResource);
+	}
+
+	GuGuUtf8Str TextComponent::getText() const
+	{
+		return m_text;
+	}
+
+	GuGuUtf8Str& TextComponent::getText()
+	{
+		return m_text;
+	}
+
+	void TextComponent::setText(const GuGuUtf8Str& inText)
+	{
+		m_text = inText;
 	}
 
 }

@@ -36,6 +36,8 @@
 #include <Core/GamePlay/GameUI/UITransformComponent.h>
 #include <Core/GamePlay/GameUI/UIComponent.h>
 #include <Core/GamePlay/GameUI/UIDrawInfo.h>
+#include <Core/GamePlay/GameUI/TextComponent.h>
+#include <Core/GamePlay/GameUI/GFont.h>
 
 #include <Core/AssetManager/AssetManager.h>
 
@@ -45,6 +47,24 @@ namespace GuGu {
 		range.byteOffset = currentBufferSize;
 		range.byteSize = size;
 		currentBufferSize += range.byteSize;
+	}
+
+	void Demo::updateAtlas(std::shared_ptr<UIAtlas> inAtlas)
+	{
+		//check texture handle
+		if (inAtlas->m_texture->m_texture == nullptr)
+		{
+			//create texture
+			m_textureCache.FinalizeTexture(inAtlas->m_texture, m_commonRenderPass.get(), m_CommandList);
+		}
+		const char* dataPointer = reinterpret_cast<const char*>(static_cast<const uint8_t*>(inAtlas->m_fontAtlasData.data()));
+		//write to texture
+		m_CommandList->beginTrackingTextureState(inAtlas->m_texture->m_texture, nvrhi::AllSubresources, nvrhi::ResourceStates::Common);
+		m_CommandList->writeTexture(inAtlas->m_texture->m_texture, 0, 0, dataPointer, inAtlas->m_texture->m_width, 1);
+		m_CommandList->setPermanentTextureState(inAtlas->m_texture->m_texture, nvrhi::ResourceStates::ShaderResource);//todo:fix this
+		m_CommandList->commitBarriers();
+
+		inAtlas->m_bNeedToUpdateAtlas = false;
 	}
 
 	void Demo::createVertexBufferAndIndexBuffer(GStaticMesh& staticMesh)
@@ -2608,6 +2628,16 @@ namespace GuGu {
 			for (size_t j = 0; j < uiComponent.size(); ++j)
 			{
 				std::shared_ptr<UIComponent> currentUIComponent = std::static_pointer_cast<UIComponent>(uiComponent[j]);
+
+				if (currentUIComponent->GetType() == typeof(TextComponent))
+				{
+					//update atlas
+					std::shared_ptr<GFont> font = std::static_pointer_cast<TextComponent>(currentUIComponent)->getFont();
+					if (font->m_atlas->isNeedToUpdateAtlas())
+					{
+						updateAtlas(font->m_atlas);
+					}
+				}
 
 				std::shared_ptr<UIDrawInfo> drawInfo = currentUIComponent->generateUIDrawInformation();
 				if (transformComponent && currentUIComponent)

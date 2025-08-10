@@ -50,7 +50,8 @@ namespace GuGu {
 		meta::Field* field = getField();
 		if (field->GetType().IsWeakPtr()) //hack
 			return;
-		if (field->GetType().IsStruct() || field->GetType() == typeof(std::shared_ptr<AssetData>)) //struct
+		if (field->GetType().IsStruct() || field->GetType() == typeof(std::shared_ptr<AssetData>)
+			|| field->GetType() == typeof(GuGuUtf8Str)) //struct
 		{
 			auto& fields = meta::ReflectionDatabase::Instance().types[field->GetType().GetID()].fields;
 			for (auto& field : fields)

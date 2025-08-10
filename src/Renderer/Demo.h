@@ -39,6 +39,7 @@ namespace GuGu {
 	};
 	//struct UIData;
 	struct UIDrawInfo;
+	class UIAtlas;
 	class Demo : public IRenderPass
 	{
 	public:
@@ -71,6 +72,8 @@ namespace GuGu {
 		void createUIVertexBufferAndIndexBuffer(std::shared_ptr<UIDrawInfo> inUIDrawInfo);
 
 		void initRenderTargetAndDepthTarget(ViewportClient& viewportClient, math::float2 viewportSize);
+
+		void updateAtlas(std::shared_ptr<UIAtlas> inAtlas);
 	private:
 		void RenderView(nvrhi::GraphicsState& graphicsState, nvrhi::GraphicsState& gridGraphicsState, math::float4x4 viewProjMatrix);
 
