@@ -70,7 +70,7 @@ namespace GuGu {
 
 	void UITextManager::setCurrentFontSize(FT_Face& newFace, float fontPoint)
 	{
-		FT_Set_Pixel_Sizes(newFace, 0, 16);
+		FT_Set_Pixel_Sizes(newFace, 0, fontPoint);
 	}
 
 	void UITextManager::loadCurrentCharacter(FT_Face& newFace, GuGuUtf8Str inCharacter)

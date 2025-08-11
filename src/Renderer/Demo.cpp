@@ -2002,6 +2002,11 @@ namespace GuGu {
 				}
 			}
 
+			//sort ui draw infos
+			std::sort(uiDrawInfos.begin(), uiDrawInfos.end(), [](const std::shared_ptr<UIDrawInfo>& lhs, const std::shared_ptr<UIDrawInfo>& rhs) {
+				return lhs->m_zorder < rhs->m_zorder;
+			});
+
             //GuGu_LOGD("size of ui draw infos, %d", uiDrawInfos.size());
 
 			nvrhi::GraphicsState gameUIGraphicsState;
@@ -2220,11 +2225,11 @@ namespace GuGu {
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
 			psoDesc.renderState.depthStencilState.depthTestEnable = false;
 			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
-			psoDesc.renderState.blendState.targets[0].setBlendEnable(true);
-			psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
-			psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
-			psoDesc.renderState.blendState.targets[0].setSrcBlendAlpha(nvrhi::BlendFactor::Zero);
-			psoDesc.renderState.blendState.targets[0].setDestBlendAlpha(nvrhi::BlendFactor::One);
+			//psoDesc.renderState.blendState.targets[0].setBlendEnable(true);
+			//psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
+			//psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
+			//psoDesc.renderState.blendState.targets[0].setSrcBlendAlpha(nvrhi::BlendFactor::Zero);
+			//psoDesc.renderState.blendState.targets[0].setDestBlendAlpha(nvrhi::BlendFactor::One);
 			m_gameUIFontPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
@@ -2713,6 +2718,11 @@ namespace GuGu {
 				}
 			}
 		}
+
+		//sort ui draw infos
+		std::sort(uiDrawInfos.begin(), uiDrawInfos.end(), [](const std::shared_ptr<UIDrawInfo>& lhs, const std::shared_ptr<UIDrawInfo>& rhs) {
+			return lhs->m_zorder < rhs->m_zorder;
+		});
 
 		nvrhi::GraphicsState gameUIGraphicsState;
 		gameUIGraphicsState.pipeline = m_gameUIPipeline;
