@@ -1187,7 +1187,13 @@ namespace GuGu {
 		}
 		m_gameUIVertexShader = shaderFactory->CreateShader("asset/shader/gameUI.hlsl", "main_vs", nullptr,
 			nvrhi::ShaderType::Vertex);
-		m_gameUIPixelShader = shaderFactory->CreateShader("asset/shader/gameUI.hlsl", "main_ps", nullptr,
+		std::vector<ShaderMacro> UIMacros;
+		UIMacros.push_back(ShaderMacro("UI_DEFAULT", "1"));
+		m_gameUIDefaultPixelShader = shaderFactory->CreateShader("asset/shader/gameUI.hlsl", "main_ps", &UIMacros,
+			nvrhi::ShaderType::Pixel);
+		UIMacros.clear();
+		UIMacros.push_back(ShaderMacro("UI_FONT", "1"));
+		m_gameUIFontPixelShader = shaderFactory->CreateShader("asset/shader/gameUI.hlsl", "main_ps", &UIMacros,
 			nvrhi::ShaderType::Pixel);
 		layoutDesc.bindings = {
 			nvrhi::BindingLayoutItem::ConstantBuffer(0), //normal transform
@@ -1480,7 +1486,7 @@ namespace GuGu {
 		{
 			nvrhi::GraphicsPipelineDesc psoDesc;
 			psoDesc.VS = m_gameUIVertexShader;
-			psoDesc.PS = m_gameUIPixelShader;
+			psoDesc.PS = m_gameUIDefaultPixelShader;
 			psoDesc.inputLayout = m_gameUIInputLayout; //顶点属性
 			psoDesc.bindingLayouts = { m_gameUIBindingLayout }; //constant buffer 这些
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
@@ -1488,6 +1494,20 @@ namespace GuGu {
 			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
 			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
 			m_gameUIPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
+		}
+
+		if (!m_gameUIFontPipeline)
+		{
+			nvrhi::GraphicsPipelineDesc psoDesc;
+			psoDesc.VS = m_gameUIVertexShader;
+			psoDesc.PS = m_gameUIDefaultPixelShader;
+			psoDesc.inputLayout = m_gameUIInputLayout; //顶点属性
+			psoDesc.bindingLayouts = { m_gameUIBindingLayout }; //constant buffer 这些
+			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+			psoDesc.renderState.depthStencilState.depthTestEnable = false;
+			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
+			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
+			m_gameUIFontPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
 		m_drawItems.clear();
@@ -1949,12 +1969,6 @@ namespace GuGu {
 			}
 
 			//------draw game ui------
-			nvrhi::GraphicsState gameUIGraphicsState;
-			gameUIGraphicsState.pipeline = m_gameUIPipeline;
-			gameUIGraphicsState.framebuffer = inViewportClient->getFramebuffer();
-
-			gameUIGraphicsState.viewport.addViewportAndScissorRect(viewport);
-
 			std::vector<std::shared_ptr<UIDrawInfo>> uiDrawInfos;
 			for (size_t i = 0; i < gameObjects.size(); ++i)
 			{
@@ -1976,9 +1990,21 @@ namespace GuGu {
 
             //GuGu_LOGD("size of ui draw infos, %d", uiDrawInfos.size());
 
+			nvrhi::GraphicsState gameUIGraphicsState;
+			gameUIGraphicsState.framebuffer = inViewportClient->getFramebuffer();
+			gameUIGraphicsState.viewport.addViewportAndScissorRect(viewport);
+
 			for (int32_t i = 0; i < uiDrawInfos.size(); ++i)
 			{
 				std::shared_ptr<UIDrawInfo> drawInfo = uiDrawInfos[i];
+				if (drawInfo->m_drawType == UIDrawType::Font)
+				{
+					gameUIGraphicsState.pipeline = m_gameUIFontPipeline;
+				}
+				else
+				{
+					gameUIGraphicsState.pipeline = m_gameUIPipeline;
+				}
 				createUIVertexBufferAndIndexBuffer(drawInfo);
 
 				if (drawInfo->m_texture->m_texture == nullptr)
@@ -2030,7 +2056,7 @@ namespace GuGu {
 				propertiesBuffer.color = math::float3(1.0f, 1.0f, 1.0f);
 				m_CommandList->writeBuffer(m_gameUIPropertiesConstantBuffers[i], &propertiesBuffer, sizeof(propertiesBuffer));
 
-				gameUIGraphicsState.setPipeline(m_gameUIPipeline);
+				//gameUIGraphicsState.setPipeline(m_gameUIPipeline);
 				m_CommandList->setGraphicsState(gameUIGraphicsState);
 
 				//draw the model
@@ -2161,13 +2187,26 @@ namespace GuGu {
 		{
 			nvrhi::GraphicsPipelineDesc psoDesc;
 			psoDesc.VS = m_gameUIVertexShader;
-			psoDesc.PS = m_gameUIPixelShader;
+			psoDesc.PS = m_gameUIDefaultPixelShader;
 			psoDesc.inputLayout = m_gameUIInputLayout; //顶点属性
 			psoDesc.bindingLayouts = { m_gameUIBindingLayout }; //constant buffer 这些
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
 			psoDesc.renderState.depthStencilState.depthTestEnable = false;
 			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
 			m_gameUIPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
+		}
+
+		if (!m_gameUIFontPipeline)
+		{
+			nvrhi::GraphicsPipelineDesc psoDesc;
+			psoDesc.VS = m_gameUIVertexShader;
+			psoDesc.PS = m_gameUIFontPixelShader;
+			psoDesc.inputLayout = m_gameUIInputLayout; //顶点属性
+			psoDesc.bindingLayouts = { m_gameUIBindingLayout }; //constant buffer 这些
+			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+			psoDesc.renderState.depthStencilState.depthTestEnable = false;
+			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
+			m_gameUIFontPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
 		m_drawItems.clear();
@@ -2627,12 +2666,6 @@ namespace GuGu {
 		}
 
 		//------draw game ui------
-		nvrhi::GraphicsState gameUIGraphicsState;
-		gameUIGraphicsState.pipeline = m_gameUIPipeline;
-		gameUIGraphicsState.framebuffer = inViewportClient->getFramebuffer();
-
-		gameUIGraphicsState.viewport.addViewportAndScissorRect(viewport);
-
 		std::vector<std::shared_ptr<UIDrawInfo>> uiDrawInfos;
 		for (size_t i = 0; i < gameObjects.size(); ++i)
 		{
@@ -2662,12 +2695,26 @@ namespace GuGu {
 			}
 		}
 
+		nvrhi::GraphicsState gameUIGraphicsState;
+		gameUIGraphicsState.pipeline = m_gameUIPipeline;
+		gameUIGraphicsState.framebuffer = inViewportClient->getFramebuffer();
+
+		gameUIGraphicsState.viewport.addViewportAndScissorRect(viewport);
+
 		for (int32_t i = 0; i < uiDrawInfos.size(); ++i)
 		{
 			std::shared_ptr<UIDrawInfo> drawInfo = uiDrawInfos[i];
 
-			createUIVertexBufferAndIndexBuffer(drawInfo);
+			if (drawInfo->m_drawType == UIDrawType::Font)
+			{
+				gameUIGraphicsState.pipeline = m_gameUIFontPipeline;
+			}
+			else
+			{
+				gameUIGraphicsState.pipeline = m_gameUIPipeline;
+			}
 
+			createUIVertexBufferAndIndexBuffer(drawInfo);
 
 			if (drawInfo->m_texture->m_texture == nullptr)
 			{
@@ -2709,7 +2756,7 @@ namespace GuGu {
 			propertiesBuffer.color = math::float3(1.0f, 1.0f, 1.0f);
 			m_CommandList->writeBuffer(m_gameUIPropertiesConstantBuffers[i], &propertiesBuffer, sizeof(propertiesBuffer));
 
-			gameUIGraphicsState.setPipeline(m_gameUIPipeline);
+			//gameUIGraphicsState.setPipeline(m_gameUIPipeline);
 			m_CommandList->setGraphicsState(gameUIGraphicsState);
 
 			//draw the model

@@ -16,6 +16,14 @@ namespace GuGu {
 		{}
 	};
 	class GTexture;
+
+	//draw type
+	enum class UIDrawType
+	{
+		Default,
+		Font
+	};
+
 	struct UIDrawInfo
 	{
 		//zorder
@@ -25,5 +33,6 @@ namespace GuGu {
 		std::shared_ptr<GTexture> m_texture;
 		nvrhi::BufferHandle m_uiVertexHandle;
 		nvrhi::BufferHandle m_uiIndexHandle;
+		UIDrawType m_drawType = UIDrawType::Default;
 	};
 }

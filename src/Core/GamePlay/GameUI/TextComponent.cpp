@@ -201,6 +201,7 @@ namespace GuGu {
 			}
 
 			drawInfo->m_zorder = uiTransformComponent->getZOrder();
+			drawInfo->m_drawType = UIDrawType::Font;
 		}
 
 

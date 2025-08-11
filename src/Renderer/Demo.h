@@ -323,12 +323,14 @@ namespace GuGu {
 		};
 
 		nvrhi::ShaderHandle m_gameUIVertexShader;
-		nvrhi::ShaderHandle m_gameUIPixelShader;
+		nvrhi::ShaderHandle m_gameUIDefaultPixelShader;
+		nvrhi::ShaderHandle m_gameUIFontPixelShader;
 		std::vector<nvrhi::BufferHandle> m_gameUIConstantBuffer;
 		std::vector<nvrhi::BufferHandle> m_gameUIPropertiesConstantBuffers;
 		nvrhi::InputLayoutHandle m_gameUIInputLayout;
 		nvrhi::BindingLayoutHandle m_gameUIBindingLayout;
 		nvrhi::GraphicsPipelineHandle m_gameUIPipeline;
+		nvrhi::GraphicsPipelineHandle m_gameUIFontPipeline;
 		//------game ui------
 
 		uint32_t m_maxLightCounts = 4;
