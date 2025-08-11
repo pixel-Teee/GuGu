@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Renderer/nvrhi.h>
+#include <list>
 
 namespace GuGu {
 	struct UIAtlasCopyRowData

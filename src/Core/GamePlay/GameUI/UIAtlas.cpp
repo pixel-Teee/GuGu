@@ -237,7 +237,7 @@ namespace GuGu {
 		else
 		{
 			GuGu_LOGE("could not find slot!");
-			return false;
+			return nullptr;
 		}
 
 		const std::shared_ptr<UIAtlasTextureSlot> newSlot = findSlot;

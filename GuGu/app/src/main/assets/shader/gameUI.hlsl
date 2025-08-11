@@ -36,6 +36,14 @@ void main_ps(
     in float4 i_color : COLOR0
 )
 {
+#if UI_DEFAULT
     float4 color = t_uiTexture.Sample(s_Sampler, i_uv).xyzw;
     o_color = i_color * color;
+#endif
+    
+#if UI_FONT
+    float fontAlpha = t_uiTexture.Sample(s_Sampler, i_uv).r;
+    o_color = i_color;
+    o_color.a *= fontAlpha;
+#endif
 }
