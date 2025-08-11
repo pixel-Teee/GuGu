@@ -1500,7 +1500,7 @@ namespace GuGu {
 		{
 			nvrhi::GraphicsPipelineDesc psoDesc;
 			psoDesc.VS = m_gameUIVertexShader;
-			psoDesc.PS = m_gameUIDefaultPixelShader;
+			psoDesc.PS = m_gameUIFontPixelShader;
 			psoDesc.inputLayout = m_gameUIInputLayout; //顶点属性
 			psoDesc.bindingLayouts = { m_gameUIBindingLayout }; //constant buffer 这些
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
