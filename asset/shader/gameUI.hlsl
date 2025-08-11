@@ -43,7 +43,7 @@ void main_ps(
     
 #if UI_FONT
     float fontAlpha = t_uiTexture.Sample(s_Sampler, i_uv).r;
-    i_color.a = fontAlpha;
     o_color = i_color;
+    o_color.a *= fontAlpha;
 #endif
 }
