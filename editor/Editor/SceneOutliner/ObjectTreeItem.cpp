@@ -31,7 +31,11 @@ namespace GuGu {
 		std::shared_ptr<GameObject> parentGameObject = gameObject->getParentGameObject().lock();
 		if (parentGameObject)
 		{
-			return existingItems.find(SceneOutlinerNameSpace::TreeItemID(parentGameObject))->second;
+			SceneOutlinerNameSpace::TreeItemID id(parentGameObject);
+			auto it = existingItems.find(id);
+			if (it != existingItems.end())
+				return it->second;
+			return nullptr;
 		}
 		else
 		{
