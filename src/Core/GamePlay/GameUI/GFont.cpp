@@ -149,7 +149,7 @@ namespace GuGu {
 		textManager->loadCurrentCharacter(m_ftFace, character);
 
 		metrices.m_size = textManager->queryGlyphWidthAndHeight(m_ftFace);
-		metrices.m_bearing = textManager->queryGlyphBearing(m_ftFace);
+		metrices.m_bearing = math::float2(textManager->queryGlyphBearing(m_ftFace));
 		metrices.m_advance = textManager->queryGlyphAdvance(m_ftFace);
 
 		std::vector<uint8_t> fontPixelData = textManager->getGlyphPixelData(m_ftFace);

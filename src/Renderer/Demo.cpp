@@ -52,11 +52,25 @@ namespace GuGu {
 	void Demo::updateAtlas(std::shared_ptr<UIAtlas> inAtlas)
 	{
 		//check texture handle
-		if (inAtlas->m_texture->m_texture == nullptr)
-		{
-			//create texture
-			m_textureCache.FinalizeTexture(inAtlas->m_texture, m_commonRenderPass.get(), m_CommandList);
-		}
+		//if (inAtlas->m_texture->m_texture == nullptr)
+		//{
+		//
+		//}
+
+		nvrhi::TextureDesc textureDesc;
+		textureDesc.format = (nvrhi::Format)inAtlas->m_texture->m_format;
+		textureDesc.width = inAtlas->m_texture->m_width;
+		textureDesc.height = inAtlas->m_texture->m_height;
+		textureDesc.depth = 1;
+		textureDesc.arraySize = 1;
+		textureDesc.dimension = nvrhi::TextureDimension::Texture2D;//todo:fix this
+		textureDesc.mipLevels = 1;
+		textureDesc.debugName = "runtime-ui-atlas";
+		textureDesc.isRenderTarget = true;
+
+		//create texture
+		inAtlas->m_texture->m_texture = GetDevice()->createTexture(textureDesc);
+
 		const char* dataPointer = reinterpret_cast<const char*>(static_cast<const uint8_t*>(inAtlas->m_fontAtlasData.data()));
 		//write to texture
 		m_CommandList->beginTrackingTextureState(inAtlas->m_texture->m_texture, nvrhi::AllSubresources, nvrhi::ResourceStates::Common);

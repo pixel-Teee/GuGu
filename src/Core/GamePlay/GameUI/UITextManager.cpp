@@ -85,14 +85,16 @@ namespace GuGu {
 		return math::float2(newFace->glyph->bitmap.width, newFace->glyph->bitmap.rows);
 	}
 
-	math::float2 UITextManager::queryGlyphBearing(FT_Face& newFace)
+	math::int2 UITextManager::queryGlyphBearing(FT_Face& newFace)
 	{
-		return math::float2(newFace->glyph->bitmap_left, newFace->glyph->bitmap_top);
+		int32_t bearingX = (newFace->glyph->metrics.horiBearingX + 32) >> 6;
+		int32_t bearingY = (newFace->glyph->metrics.horiBearingY + 32) >> 6;
+		return math::int2(bearingX, bearingY);
 	}
 
-	float UITextManager::queryGlyphAdvance(FT_Face& newFace)
+	int32_t UITextManager::queryGlyphAdvance(FT_Face& newFace)
 	{
-		return newFace->glyph->advance.x;
+		return (newFace->glyph->advance.x + 32) >> 6;
 	}
 
 	std::vector<uint8_t> UITextManager::getGlyphPixelData(FT_Face& newFace)
@@ -103,7 +105,7 @@ namespace GuGu {
 		FT_Bitmap bitmap = newFace->glyph->bitmap;
 
 		std::vector<uint8_t> pixelData;
-		pixelData.resize(bitmap.rows * bitmap.width);
+		pixelData.reserve(bitmap.rows * bitmap.width);
 
 		for (int32_t y = 0; y < bitmap.rows; ++y)
 		{

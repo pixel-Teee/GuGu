@@ -130,22 +130,23 @@ namespace GuGu {
 
 	void UIAtlas::initializeFontAtlas(int32_t inWidth, int32_t inHeight, nvrhi::Format format)
 	{
+		m_fontAtlasWidth = inWidth;
+		m_fontAtlasHeight = inHeight;
+
 		std::shared_ptr<UIAtlasTextureSlot> rootSlot = std::make_shared<UIAtlasTextureSlot>(0, 0, m_fontAtlasWidth, m_fontAtlasHeight, m_slotPadding);
 		m_textureAtlasEmptySlots.push_front(rootSlot);
 
-		m_fontAtlasWidth = inWidth;
-		m_fontAtlasHeight = inHeight;
 		if (format == nvrhi::Format::RGBA8_UNORM) //[0, 1]
 		{
 			m_fontAtlasData.resize(inWidth * inHeight * 4 * 4);
 			m_fontAtlasData.assign(inWidth * inHeight * 4 * 4, 0);
-			m_stride = 4 * 4;
+			m_stride = 4;
 		}
 		else if (format == nvrhi::Format::R8_UNORM) //[0, 1]
 		{
 			m_fontAtlasData.resize(inWidth * inHeight * 4);
 			m_fontAtlasData.assign(inWidth * inHeight * 4, 0);
-			m_stride = 4;
+			m_stride = 1;
 		}
 		m_bNeedToUpdateAtlas = true;
 		m_bHaveFontAtlas = true;
@@ -285,9 +286,16 @@ namespace GuGu {
 		for (uint32_t row = padding; row < slotToCopyTo->height - padding; ++row)
 		{
 			copyRowData.srcRow = row - padding;
-			copyRowData.destRow = slotToCopyTo->height - padding;
+			copyRowData.destRow = row;
 
 			copyRowUtil(copyRowData, m_stride);
+		}
+
+		if (padding > 0)
+		{
+			//copy last color row into padding row for bilinear filtering
+			copyRowData.srcRow = sourceHeight - 1;
+			copyRowData.destRow = slotToCopyTo->height - padding;
 		}
 	}
 

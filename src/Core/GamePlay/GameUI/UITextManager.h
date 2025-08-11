@@ -28,9 +28,9 @@ namespace GuGu {
 
 		math::float2 queryGlyphWidthAndHeight(FT_Face& newFace);
 
-		math::float2 queryGlyphBearing(FT_Face& newFace);
+		math::int2 queryGlyphBearing(FT_Face& newFace);
 
-		float queryGlyphAdvance(FT_Face& newFace);
+		int32_t queryGlyphAdvance(FT_Face& newFace);
 
 		std::vector<uint8_t> getGlyphPixelData(FT_Face& newFace);
 	private:
