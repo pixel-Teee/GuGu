@@ -1983,6 +1983,16 @@ namespace GuGu {
 				{
 					std::shared_ptr<UIComponent> currentUIComponent = std::static_pointer_cast<UIComponent>(uiComponent[j]);
 
+					if (currentUIComponent->GetType() == typeof(TextComponent))
+					{
+						//update atlas
+						std::shared_ptr<GFont> font = std::static_pointer_cast<TextComponent>(currentUIComponent)->getFont();
+						if (font->m_atlas->isNeedToUpdateAtlas())
+						{
+							updateAtlas(font->m_atlas);
+						}
+					}
+
 					std::shared_ptr<UIDrawInfo> drawInfo = currentUIComponent->generateUIDrawInformation();
 					if (transformComponent && currentUIComponent)
 					{

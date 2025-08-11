@@ -156,8 +156,8 @@ namespace GuGu {
 		std::shared_ptr<UIAtlasTextureSlot> slot = m_atlas->copyTextureToAtlas(metrices.m_size.x, metrices.m_size.y, fontPixelData);
 
 		//calculate uv info
-		metrices.m_uvSize = math::float2(slot->width / 1024.0f, slot->height / 1024.0f);
-		metrices.m_uvPosition = math::float2(slot->x / 1024.0f, slot->y / 1024.0f);
+		metrices.m_uvSize = math::float2((slot->width - 2) / 1024.0f, (slot->height - 2) / 1024.0f);
+		metrices.m_uvPosition = math::float2((slot->x + 1) / 1024.0f, (slot->y + 1) / 1024.0f);
 
 		m_characterMetricsMap.insert({ fontCharacter, metrices });
 
