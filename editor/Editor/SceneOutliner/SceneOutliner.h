@@ -127,6 +127,8 @@ namespace GuGu {
 
 			void onItemMoved(const TreeItemPtr& inItem);
 
+			void onChildRemovedFromParent(ITreeItem& parent);
+
 			void removeItemFromTree(TreeItemPtr inItem);
 
 			void addUnfilteredItemToTree(TreeItemPtr item);

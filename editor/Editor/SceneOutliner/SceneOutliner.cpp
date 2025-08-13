@@ -392,6 +392,7 @@ namespace GuGu {
 			if (parent)
 			{
 				parent->removeChild(inItem);
+				onChildRemovedFromParent(*parent);
 			}
 			else
 			{
@@ -408,6 +409,14 @@ namespace GuGu {
 			else
 			{
 				m_rootTreeItems.push_back(inItem);
+			}
+		}
+
+		void SceneOutliner::onChildRemovedFromParent(ITreeItem& parent)
+		{
+			if (!parent.getChildren().size())
+			{
+				removeItemFromTree(parent.shared_from_this());
 			}
 		}
 
