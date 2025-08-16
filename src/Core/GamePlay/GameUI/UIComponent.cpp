@@ -223,9 +223,9 @@ namespace GuGu {
 					math::float2 parentLocalSize = parentUITransformComponent->getLocalSize();
 					//four corner
 					math::float3 firstConer = math::float3(absolutePos.x + anchorDatas.m_minimum.x * parentLocalSize.x, absolutePos.y + (1.0f - anchorDatas.m_minimum.y) * parentLocalSize.y, 0); //(min.x, min.y)
-					math::float3 secondConer = math::float3(absolutePos.x + anchorDatas.m_maximum.x * parentLocalSize.x, absolutePos.y + anchorDatas.m_minimum.y * parentLocalSize.y, 0); //(max.x, min.y)
-					math::float3 thirdConer = math::float3(absolutePos.x + anchorDatas.m_minimum.x * parentLocalSize.x, absolutePos.y + anchorDatas.m_minimum.y * parentLocalSize.y, 0); //(min.x, min.y)
-					math::float3 fourthConer = math::float3(absolutePos.x + anchorDatas.m_maximum.x * parentLocalSize.x, absolutePos.y + anchorDatas.m_maximum.y * parentLocalSize.y, 0); //(max.x, max.y)
+					math::float3 secondConer = math::float3(absolutePos.x + anchorDatas.m_maximum.x * parentLocalSize.x, absolutePos.y + (1.0f - anchorDatas.m_minimum.y) * parentLocalSize.y, 0); //(max.x, min.y)
+					math::float3 thirdConer = math::float3(absolutePos.x + anchorDatas.m_minimum.x * parentLocalSize.x, absolutePos.y + (1.0f - anchorDatas.m_maximum.y) * parentLocalSize.y, 0); //(min.x, max.y)
+					math::float3 fourthConer = math::float3(absolutePos.x + anchorDatas.m_maximum.x * parentLocalSize.x, absolutePos.y + (1.0f - anchorDatas.m_maximum.y) * parentLocalSize.y, 0); //(max.x, max.y)
 
 					//tan 15
 					float tan15 = std::tanf(15.0f / 180.0f * math::PI_f);
@@ -240,6 +240,47 @@ namespace GuGu {
 					debugInfo->m_uiDebugVertex.push_back(firstConer + dir * lineWidth * 5.0f);
 
 					startIndex = 16;
+
+					debugInfo->m_uiDebugIndices.push_back(startIndex + 0);
+					debugInfo->m_uiDebugIndices.push_back(startIndex + 2);
+					debugInfo->m_uiDebugIndices.push_back(startIndex + 1);
+
+					//vector
+					math::float3 dir3 = math::normalize(math::float3(1.0f, tan15, 0));
+					math::float3 dir4 = math::normalize(math::float3(1.0f, tan75, 0));
+
+					debugInfo->m_uiDebugVertex.push_back(secondConer);
+					debugInfo->m_uiDebugVertex.push_back(secondConer + dir3 * lineWidth * 5.0f);
+					debugInfo->m_uiDebugVertex.push_back(secondConer + dir4 * lineWidth * 5.0f);
+
+					startIndex = 19;
+
+					debugInfo->m_uiDebugIndices.push_back(startIndex + 0);
+					debugInfo->m_uiDebugIndices.push_back(startIndex + 2);
+					debugInfo->m_uiDebugIndices.push_back(startIndex + 1);
+
+					//vector
+					math::float3 dir5 = math::normalize(math::float3(-1.0f, -tan15, 0));
+					math::float3 dir6 = math::normalize(math::float3(-1.0f, -tan75, 0));
+
+					debugInfo->m_uiDebugVertex.push_back(thirdConer);
+					debugInfo->m_uiDebugVertex.push_back(thirdConer + dir5 * lineWidth * 5.0f);
+					debugInfo->m_uiDebugVertex.push_back(thirdConer + dir6 * lineWidth * 5.0f);
+
+					startIndex = 22;
+
+					debugInfo->m_uiDebugIndices.push_back(startIndex + 0);
+					debugInfo->m_uiDebugIndices.push_back(startIndex + 2);
+					debugInfo->m_uiDebugIndices.push_back(startIndex + 1);
+
+					math::float3 dir7 = math::normalize(math::float3(1.0f, -tan15, 0));
+					math::float3 dir8 = math::normalize(math::float3(1.0f, -tan75, 0));
+
+					debugInfo->m_uiDebugVertex.push_back(fourthConer);
+					debugInfo->m_uiDebugVertex.push_back(fourthConer + dir8 * lineWidth * 5.0f);
+					debugInfo->m_uiDebugVertex.push_back(fourthConer + dir7 * lineWidth * 5.0f);
+
+					startIndex = 25;
 
 					debugInfo->m_uiDebugIndices.push_back(startIndex + 0);
 					debugInfo->m_uiDebugIndices.push_back(startIndex + 2);
