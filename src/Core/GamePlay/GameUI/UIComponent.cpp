@@ -150,10 +150,10 @@ namespace GuGu {
 			debugInfo->m_uiDebugVertex.push_back(math::float3(absolutePos.x + localSize.x, absolutePos.y - lineWidth, 0));
 			debugInfo->m_uiDebugVertex.push_back(math::float3(absolutePos.x, absolutePos.y, 0));
 			debugInfo->m_uiDebugVertex.push_back(math::float3(absolutePos.x + localSize.x, absolutePos.y, 0));
-			//
+
 			startIndex = 4;
-			//
-			////index generate
+
+			//index generate
 			debugInfo->m_uiDebugIndices.push_back(startIndex + 0);
 			debugInfo->m_uiDebugIndices.push_back(startIndex + 2);
 			debugInfo->m_uiDebugIndices.push_back(startIndex + 1);
@@ -161,10 +161,10 @@ namespace GuGu {
 			debugInfo->m_uiDebugIndices.push_back(startIndex + 1);
 			debugInfo->m_uiDebugIndices.push_back(startIndex + 2);
 			debugInfo->m_uiDebugIndices.push_back(startIndex + 3);
-			//
+
 			startIndex = 8;
-			//
-			////three square
+			
+			//three square
 			debugInfo->m_uiDebugVertex.push_back(math::float3(absolutePos.x + localSize.x, absolutePos.y - lineWidth, 0));
 			debugInfo->m_uiDebugVertex.push_back(math::float3(absolutePos.x + localSize.x + lineWidth, absolutePos.y - lineWidth, 0));
 			debugInfo->m_uiDebugVertex.push_back(math::float3(absolutePos.x + localSize.x, absolutePos.y + localSize.y + lineWidth, 0));
@@ -177,7 +177,7 @@ namespace GuGu {
 			debugInfo->m_uiDebugIndices.push_back(startIndex + 1);
 			debugInfo->m_uiDebugIndices.push_back(startIndex + 2);
 			debugInfo->m_uiDebugIndices.push_back(startIndex + 3);
-			//
+			
 			startIndex = 12;
 
 			//four square
@@ -194,8 +194,58 @@ namespace GuGu {
 			debugInfo->m_uiDebugIndices.push_back(startIndex + 2);
 			debugInfo->m_uiDebugIndices.push_back(startIndex + 3);
 
-			//draw anchor
+			//generate anchor
+			//debugInfo->m_uiDebugVertex.push_back(math::float3(absolutePos.x, absolutePos.y + localSize.y, 0));
+			//debugInfo->m_uiDebugVertex.push_back(math::float3(absolutePos.x + localSize.x, absolutePos.y + localSize.y, 0));
+			//debugInfo->m_uiDebugVertex.push_back(math::float3(absolutePos.x, absolutePos.y + localSize.y + lineWidth, 0));
+			//
+			//startIndex = 15;
+			//debugInfo->m_uiDebugIndices.push_back(startIndex + 0);
+			//debugInfo->m_uiDebugIndices.push_back(startIndex + 2);
+			//debugInfo->m_uiDebugIndices.push_back(startIndex + 1);
 
+			//generate anchor
+			std::shared_ptr<GameObject> parentGameObject = owner->getParentGameObject().lock();
+			if (parentGameObject)
+			{
+				std::shared_ptr<UITransformComponent> parentUITransformComponent = parentGameObject->getComponent<UITransformComponent>();
+				if (parentUITransformComponent)
+				{
+					//anchor
+					UIAnchors anchorDatas = uiTransformComponent->getAnchorData().m_anchors;
+
+					//get global transform
+					math::affine3 worldTransform = parentUITransformComponent->GetLocalToWorldTransformFloat();
+					math::float3 absolutePos;
+					math::quat absoluteQuat;
+					math::float3 absoluteScale;
+					math::decomposeAffine(worldTransform, &absolutePos, &absoluteQuat, &absoluteScale);
+					math::float2 parentLocalSize = parentUITransformComponent->getLocalSize();
+					//four corner
+					math::float3 firstConer = math::float3(absolutePos.x + anchorDatas.m_minimum.x * parentLocalSize.x, absolutePos.y + (1.0f - anchorDatas.m_minimum.y) * parentLocalSize.y, 0); //(min.x, min.y)
+					math::float3 secondConer = math::float3(absolutePos.x + anchorDatas.m_maximum.x * parentLocalSize.x, absolutePos.y + anchorDatas.m_minimum.y * parentLocalSize.y, 0); //(max.x, min.y)
+					math::float3 thirdConer = math::float3(absolutePos.x + anchorDatas.m_minimum.x * parentLocalSize.x, absolutePos.y + anchorDatas.m_minimum.y * parentLocalSize.y, 0); //(min.x, min.y)
+					math::float3 fourthConer = math::float3(absolutePos.x + anchorDatas.m_maximum.x * parentLocalSize.x, absolutePos.y + anchorDatas.m_maximum.y * parentLocalSize.y, 0); //(max.x, max.y)
+
+					//tan 15
+					float tan15 = std::tanf(15.0f / 180.0f * math::PI_f);
+					float tan75 = std::tanf(75.0f / 180.0f * math::PI_f);
+
+					//vector
+					math::float3 dir = math::normalize(math::float3(-1.0f, tan15, 0));
+					math::float3 dir2 = math::normalize(math::float3(-1.0f, tan75, 0));
+
+					debugInfo->m_uiDebugVertex.push_back(firstConer);
+					debugInfo->m_uiDebugVertex.push_back(firstConer + dir2 * lineWidth * 5.0f);
+					debugInfo->m_uiDebugVertex.push_back(firstConer + dir * lineWidth * 5.0f);
+
+					startIndex = 16;
+
+					debugInfo->m_uiDebugIndices.push_back(startIndex + 0);
+					debugInfo->m_uiDebugIndices.push_back(startIndex + 2);
+					debugInfo->m_uiDebugIndices.push_back(startIndex + 1);
+				}
+			}
 		}
 
 		return debugInfo;
