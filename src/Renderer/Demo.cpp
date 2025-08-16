@@ -455,6 +455,50 @@ namespace GuGu {
 		m_CommandList->commitBarriers();
 	}
 
+	void Demo::createUIDebugVertexBufferAndIndexBuffer(std::shared_ptr<UIDebugInfo> inUIDebugInfo)
+	{
+		//draw info
+
+		if (!inUIDebugInfo->m_uiDebugIndexHandle)
+		{
+			nvrhi::BufferDesc bufferDesc;
+			bufferDesc.isIndexBuffer = true;
+			bufferDesc.byteSize = inUIDebugInfo->m_uiDebugIndices.size() * sizeof(uint32_t);
+			bufferDesc.debugName = "GameUIDebugIndexBuffer";
+			bufferDesc.canHaveTypedViews = true;
+			bufferDesc.canHaveRawViews = true;
+			bufferDesc.format = nvrhi::Format::R32_UINT;
+			//bufferDesc.isAccelStructBuildInput = m_RayTracingSupported;
+
+			inUIDebugInfo->m_uiDebugIndexHandle = GetDevice()->createBuffer(bufferDesc);
+			m_CommandList->beginTrackingBufferState(inUIDebugInfo->m_uiDebugIndexHandle, nvrhi::ResourceStates::Common);
+			m_CommandList->writeBuffer(inUIDebugInfo->m_uiDebugIndexHandle, inUIDebugInfo->m_uiDebugIndices.data(), inUIDebugInfo->m_uiDebugIndices.size() * sizeof(uint32_t));
+			nvrhi::ResourceStates state = nvrhi::ResourceStates::IndexBuffer | nvrhi::ResourceStates::ShaderResource;
+			m_CommandList->setPermanentBufferState(inUIDebugInfo->m_uiDebugIndexHandle, state);
+			m_CommandList->commitBarriers();
+		}
+
+
+		if (!inUIDebugInfo->m_uiDebugVertexHandle)
+		{
+			nvrhi::BufferDesc bufferDesc;
+			bufferDesc.isVertexBuffer = true;
+			bufferDesc.byteSize = inUIDebugInfo->m_uiDebugVertex.size() * sizeof(math::float3);
+			bufferDesc.debugName = "GameUIDebugVertexHandle";
+			bufferDesc.canHaveTypedViews = true;
+			bufferDesc.canHaveRawViews = true;
+			bufferDesc.keepInitialState = true;
+			bufferDesc.canHaveRawViews = true;
+			inUIDebugInfo->m_uiDebugVertexHandle = GetDevice()->createBuffer(bufferDesc);
+		}
+
+		//m_CommandList->beginTrackingBufferState(inCameraComponent->m_debugCameraFrustumVertexBuffer, nvrhi::ResourceStates::CopyDest);
+		m_CommandList->writeBuffer(inUIDebugInfo->m_uiDebugVertexHandle, inUIDebugInfo->m_uiDebugVertex.data(), inUIDebugInfo->m_uiDebugVertex.size() * sizeof(math::float3), 0);
+		nvrhi::ResourceStates state = nvrhi::ResourceStates::VertexBuffer;
+		//m_CommandList->setPermanentBufferState(inCameraComponent->m_debugCameraFrustumVertexBuffer, state);
+		m_CommandList->commitBarriers();
+	}
+
 	bool Demo::Init(std::shared_ptr<UIData> uiData)
 	{
 		m_uiData = uiData;
@@ -1228,6 +1272,48 @@ namespace GuGu {
 			uint32_t(std::size(gameUIAttributes)),
 			m_gameUIVertexShader);
 		//------game ui------
+
+		//-----game ui debug info------
+		m_gameUIDebugConstantBuffer.resize(256);//max objects
+		m_gameUIDebugPropertiesConstantBuffers.resize(256);//max objects
+		for (size_t i = 0; i < m_gameUIDebugConstantBuffer.size(); ++i)
+		{
+			m_gameUIDebugConstantBuffer[i] = GetDevice()->createBuffer(
+				nvrhi::utils::CreateStaticConstantBufferDesc(
+					sizeof(GameUIDebugBufferEntry), "GameUIDebugBufferEntry")
+				.setInitialState(
+					nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
+						true));
+		}
+		for (size_t i = 0; i < m_gameUIDebugPropertiesConstantBuffers.size(); ++i)
+		{
+			m_gameUIDebugPropertiesConstantBuffers[i] = GetDevice()->createBuffer(
+				nvrhi::utils::CreateStaticConstantBufferDesc(
+					sizeof(GameUIPropertiesBuffer), "GameUIDebugPropertiesBuffer")
+				.setInitialState(
+					nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
+						true));
+		}
+		m_gameUIDebugVertexShader = m_cameraVertexShader;
+		m_gameUIDebugDefaultPixelShader = m_cameraPixelShader;
+		layoutDesc.bindings = {
+			nvrhi::BindingLayoutItem::ConstantBuffer(0), //normal transform
+			nvrhi::BindingLayoutItem::ConstantBuffer(1)  //camera properties
+		};
+		m_gameUIDebugBindingLayout = GetDevice()->createBindingLayout(layoutDesc);
+
+		nvrhi::VertexAttributeDesc gameUIDebugAttributes[] = {
+			nvrhi::VertexAttributeDesc()
+						.setName("POSITION")
+						.setFormat(nvrhi::Format::RGB32_FLOAT)
+						.setOffset(0)
+						.setBufferIndex(0)
+						.setElementStride(sizeof(GameUIDebugVertex))
+		};
+		m_gameUIDebugInputLayout = GetDevice()->createInputLayout(gameUIDebugAttributes,
+			uint32_t(std::size(gameUIDebugAttributes)),
+			m_gameUIDebugVertexShader);
+		//-----game ui debug info------
 
 		m_CommandList->close();
 		GetDevice()->executeCommandList(m_CommandList);
@@ -2233,6 +2319,18 @@ namespace GuGu {
 			m_gameUIFontPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
+		if (!m_gameUIDebugPipeline)
+		{
+			nvrhi::GraphicsPipelineDesc psoDesc;
+			psoDesc.VS = m_gameUIDebugVertexShader;
+			psoDesc.PS = m_gameUIDebugDefaultPixelShader;
+			psoDesc.inputLayout = m_gameUIDebugInputLayout; //顶点属性
+			psoDesc.bindingLayouts = { m_gameUIDebugBindingLayout }; //constant buffer 这些
+			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+			psoDesc.renderState.depthStencilState.depthTestEnable = false;
+			m_gameUIDebugPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
+		}
+
 		m_drawItems.clear();
 
 		m_CommandList->open();
@@ -2797,6 +2895,68 @@ namespace GuGu {
 			m_CommandList->drawIndexed(args);
 		}
 		//------draw game ui------
+
+		//-----draw game debug info------
+		if (inViewportClient->getSelectedItems())
+		{
+			std::shared_ptr<UIComponent> uiComponent = inViewportClient->getSelectedItems()->getComponent<UIComponent>();
+			if (uiComponent)
+			{
+				std::shared_ptr<UIDebugInfo> debugInfo = uiComponent->generateUIDebugInfomartion(inViewportClient->getDebugLineWidth());
+				if (debugInfo)
+				{
+					nvrhi::GraphicsState gameUIDebugGraphicsState;
+					gameUIDebugGraphicsState.pipeline = m_gameUIDebugPipeline;
+					gameUIDebugGraphicsState.framebuffer = inViewportClient->getFramebuffer();
+					gameUIDebugGraphicsState.viewport.addViewportAndScissorRect(viewport);
+		
+					createUIDebugVertexBufferAndIndexBuffer(debugInfo);
+		
+					//draw
+					nvrhi::BindingSetHandle uiBindingSet;
+					nvrhi::BindingSetDesc desc;
+					//nvrhi::BindingSetHandle bindingSet;
+					desc.bindings = {
+							nvrhi::BindingSetItem::ConstantBuffer(0, m_gameUIDebugConstantBuffer[0]),
+							nvrhi::BindingSetItem::ConstantBuffer(1, m_gameUIDebugPropertiesConstantBuffers[0]),
+					};
+					uiBindingSet = GetDevice()->createBindingSet(desc, m_gameUIDebugBindingLayout);
+		
+					gameUIDebugGraphicsState.bindings = { uiBindingSet };
+		
+					gameUIDebugGraphicsState.vertexBuffers = {
+						{debugInfo->m_uiDebugVertexHandle, 0, 0,}
+					};
+		
+					gameUIDebugGraphicsState.indexBuffer = {
+						debugInfo->m_uiDebugIndexHandle, nvrhi::Format::R32_UINT, 0
+					};
+		
+					GameUIDebugBufferEntry modelConstants;
+					modelConstants.viewProjMatrix = viewProjMatrix;
+					modelConstants.worldMatrix = math::float4x4::identity();
+					modelConstants.camWorldPos = inViewportClient->getCamPos();
+					//get the global matrix to fill constant buffer		
+					m_CommandList->writeBuffer(m_gameUIDebugConstantBuffer[0], &modelConstants, sizeof(modelConstants));
+		
+					GameUIDebugPropertiesBuffer propertiesBuffer;
+					propertiesBuffer.color = math::float3(1.0f, 1.0f, 1.0f);
+					m_CommandList->writeBuffer(m_gameUIDebugPropertiesConstantBuffers[0], &propertiesBuffer, sizeof(propertiesBuffer));
+		
+					//gameUIGraphicsState.setPipeline(m_gameUIPipeline);
+					m_CommandList->setGraphicsState(gameUIDebugGraphicsState);
+		
+					//draw the model
+					nvrhi::DrawArguments args;
+					args.vertexCount = debugInfo->m_uiDebugIndices.size();
+					args.instanceCount = 1;
+					args.startVertexLocation = 0;
+					args.startIndexLocation = 0;
+					m_CommandList->drawIndexed(args);
+				}
+			}	
+		}
+		//-----draw game debug info------
 
 		nvrhi::GraphicsState gridGraphicsState;
 		gridGraphicsState.pipeline = m_gridPipeline;

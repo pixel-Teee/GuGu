@@ -16,6 +16,11 @@ namespace GuGu {
 	{
 	}
 
+	float ViewportClient::getDebugLineWidth()
+	{
+		return 10.0f;
+	}
+
 	void ViewportClient::setGameObjectSelectionChangedEvent(std::function<void(const std::vector<GameObject*>&, bool)> inGameObjectSelectionChangedEvent)
 	{
 		m_gameObjectSelectionChangedEvent = inGameObjectSelectionChangedEvent;

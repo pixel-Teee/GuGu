@@ -83,6 +83,8 @@ namespace GuGu {
 
 		virtual Gizmos getCurrentGizmosType() const = 0;
 
+		virtual float getDebugLineWidth();
+
 		//------暂时放在这里------
 		using GameObjectSelectionChangedEvent = std::function<void(const std::vector<GameObject*>&, bool)>;
 		//virtual GameObjectSelectionChangedEvent& onGameObjectSelectionChanged() { return m_gameObjectSelectionChangedEvent; }

@@ -973,6 +973,25 @@ namespace GuGu {
 		return m_debugDrawWorldPos;
 	}
 
+	float EditorViewportClient::getDebugLineWidth()
+	{
+		math::float3 translation;
+		math::float3 scaling;
+		math::quat rotation;
+		if (m_pickedGameObject)
+		{
+			std::shared_ptr<TransformComponent> transform = m_pickedGameObject->getComponent<TransformComponent>();
+			math::affine3 transformAffine3 = transform->GetLocalToWorldTransformFloat();
+			math::decomposeAffine(transformAffine3, &translation, &rotation, &scaling);
+			//translation = math::float3(transform->getTranslation());
+			//scaling = math::float3(transform->getScaling());
+			//rotation = math::quat(transform->getRotation());
+			math::affine3 noScalingAffine;//gizmos 不需要缩放
+			scaling = math::float3(getScreenScaleCompensation(translation)) * 10.0f;//新的缩放，根据屏幕高度来调整
+		}
+		return scaling.x;
+	}
+
 	void EditorViewportClient::makeGizmos()
 	{
 		//绿色

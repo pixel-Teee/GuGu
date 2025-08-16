@@ -35,4 +35,13 @@ namespace GuGu {
 		nvrhi::BufferHandle m_uiIndexHandle;
 		UIDrawType m_drawType = UIDrawType::Default;
 	};
+
+	struct UIDebugInfo
+	{
+		//debug info
+		std::vector<math::float3> m_uiDebugVertex;
+		std::vector<uint32_t> m_uiDebugIndices;
+		nvrhi::BufferHandle m_uiDebugVertexHandle;
+		nvrhi::BufferHandle m_uiDebugIndexHandle;
+	};
 }

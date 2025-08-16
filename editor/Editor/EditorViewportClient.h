@@ -101,6 +101,8 @@ namespace GuGu {
 		virtual void setSelectItem(std::shared_ptr<GameObject> inGameObject) override;
 
 		virtual math::float3 getDebugDrawPos() override;
+
+		virtual float getDebugLineWidth() override;
 	private:
 		void makeGizmos();
 

@@ -7,6 +7,7 @@
 
 namespace GuGu {
 	struct UIDrawInfo;
+	struct UIDebugInfo;
 	class UIComponent : public Component
 	{
 	public:
@@ -24,6 +25,8 @@ namespace GuGu {
 		virtual meta::Type GetType() const override;
 
 		virtual std::shared_ptr<UIDrawInfo> generateUIDrawInformation(bool bFlip = false);
+
+		virtual std::shared_ptr<UIDebugInfo> generateUIDebugInfomartion(float inLineWidth = 10.0f);
 
 		virtual math::float2 getDesiredSize() const;
 

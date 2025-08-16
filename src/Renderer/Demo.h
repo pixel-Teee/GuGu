@@ -39,6 +39,7 @@ namespace GuGu {
 	};
 	//struct UIData;
 	struct UIDrawInfo;
+	struct UIDebugInfo;
 	class UIAtlas;
 	class Demo : public IRenderPass
 	{
@@ -70,6 +71,8 @@ namespace GuGu {
 		void createWaterVertexBufferAndIndexBuffer(std::shared_ptr<WaterComponent> waterComponent);
 
 		void createUIVertexBufferAndIndexBuffer(std::shared_ptr<UIDrawInfo> inUIDrawInfo);
+
+		void createUIDebugVertexBufferAndIndexBuffer(std::shared_ptr<UIDebugInfo> inUIDebugInfo);
 
 		void initRenderTargetAndDepthTarget(ViewportClient& viewportClient, math::float2 viewportSize);
 
@@ -332,6 +335,35 @@ namespace GuGu {
 		nvrhi::GraphicsPipelineHandle m_gameUIPipeline;
 		nvrhi::GraphicsPipelineHandle m_gameUIFontPipeline;
 		//------game ui------
+
+		//-----game ui debug info------
+		struct GameUIDebugBufferEntry {
+			dm::float4x4 viewProjMatrix;
+			dm::float4x4 worldMatrix;
+			dm::float3 camWorldPos;
+		};
+
+		struct GameUIDebugPropertiesBuffer {
+			dm::float3 color;
+		};
+
+		struct GameUIDebugVertex
+		{
+			math::float3 m_position;
+			GameUIDebugVertex(math::float3 inPosition)
+			{
+				m_position = inPosition;
+			}
+		};
+
+		nvrhi::ShaderHandle m_gameUIDebugVertexShader;
+		nvrhi::ShaderHandle m_gameUIDebugDefaultPixelShader;
+		std::vector<nvrhi::BufferHandle> m_gameUIDebugConstantBuffer;
+		std::vector<nvrhi::BufferHandle> m_gameUIDebugPropertiesConstantBuffers;
+		nvrhi::InputLayoutHandle m_gameUIDebugInputLayout;
+		nvrhi::BindingLayoutHandle m_gameUIDebugBindingLayout;
+		nvrhi::GraphicsPipelineHandle m_gameUIDebugPipeline;
+		//-----game ui debug info------
 
 		uint32_t m_maxLightCounts = 4;
 	};

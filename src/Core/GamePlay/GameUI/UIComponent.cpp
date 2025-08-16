@@ -5,6 +5,9 @@
 #include <Core/GamePlay/GameObject.h>
 #include <Core/GamePlay/GamePlayerReflectionRegister.h>
 
+#include "UITransformComponent.h"
+#include "UIDrawInfo.h"
+
 namespace GuGu {
 	static bool registerGuGuUIComponent()
 	{
@@ -96,6 +99,106 @@ namespace GuGu {
 	std::shared_ptr<UIDrawInfo> UIComponent::generateUIDrawInformation(bool bFlip)
 	{
 		return nullptr;
+	}
+
+	std::shared_ptr<GuGu::UIDebugInfo> UIComponent::generateUIDebugInfomartion(float inLineWidth)
+	{
+		std::shared_ptr<UIDebugInfo> debugInfo = std::make_shared<UIDebugInfo>();
+
+		std::shared_ptr<GameObject> owner = m_owner.lock();
+		if (owner)
+		{
+			float lineWidth = inLineWidth;
+			//------
+			// 0---1
+			// |   |
+			// 2---3
+			//------
+			std::shared_ptr<UITransformComponent> uiTransformComponent = owner->getComponent<UITransformComponent>();
+
+			//get global transform
+			math::affine3 worldTransform = uiTransformComponent->GetLocalToWorldTransformFloat();
+
+			math::float3 absolutePos;
+			math::quat absoluteQuat;
+			math::float3 absoluteScale;
+
+			math::decomposeAffine(worldTransform, &absolutePos, &absoluteQuat, &absoluteScale);
+
+			math::float2 localSize = uiTransformComponent->getLocalSize();
+
+			uint32_t startIndex = 0;
+
+			//vertex generate
+			//first square
+			debugInfo->m_uiDebugVertex.push_back(math::float3(absolutePos.x - lineWidth, absolutePos.y - lineWidth, 0));
+			debugInfo->m_uiDebugVertex.push_back(math::float3(absolutePos.x, absolutePos.y - lineWidth, 0));
+			debugInfo->m_uiDebugVertex.push_back(math::float3(absolutePos.x - lineWidth, absolutePos.y + localSize.y + lineWidth, 0));
+			debugInfo->m_uiDebugVertex.push_back(math::float3(absolutePos.x, absolutePos.y + localSize.y + lineWidth, 0));
+
+			//index generate
+			debugInfo->m_uiDebugIndices.push_back(0);
+			debugInfo->m_uiDebugIndices.push_back(2);
+			debugInfo->m_uiDebugIndices.push_back(1);
+
+			debugInfo->m_uiDebugIndices.push_back(1);
+			debugInfo->m_uiDebugIndices.push_back(2);
+			debugInfo->m_uiDebugIndices.push_back(3);
+
+			//two square
+			debugInfo->m_uiDebugVertex.push_back(math::float3(absolutePos.x, absolutePos.y - lineWidth, 0));
+			debugInfo->m_uiDebugVertex.push_back(math::float3(absolutePos.x + localSize.x, absolutePos.y - lineWidth, 0));
+			debugInfo->m_uiDebugVertex.push_back(math::float3(absolutePos.x, absolutePos.y, 0));
+			debugInfo->m_uiDebugVertex.push_back(math::float3(absolutePos.x + localSize.x, absolutePos.y, 0));
+			//
+			startIndex = 4;
+			//
+			////index generate
+			debugInfo->m_uiDebugIndices.push_back(startIndex + 0);
+			debugInfo->m_uiDebugIndices.push_back(startIndex + 2);
+			debugInfo->m_uiDebugIndices.push_back(startIndex + 1);
+
+			debugInfo->m_uiDebugIndices.push_back(startIndex + 1);
+			debugInfo->m_uiDebugIndices.push_back(startIndex + 2);
+			debugInfo->m_uiDebugIndices.push_back(startIndex + 3);
+			//
+			startIndex = 8;
+			//
+			////three square
+			debugInfo->m_uiDebugVertex.push_back(math::float3(absolutePos.x + localSize.x, absolutePos.y - lineWidth, 0));
+			debugInfo->m_uiDebugVertex.push_back(math::float3(absolutePos.x + localSize.x + lineWidth, absolutePos.y - lineWidth, 0));
+			debugInfo->m_uiDebugVertex.push_back(math::float3(absolutePos.x + localSize.x, absolutePos.y + localSize.y + lineWidth, 0));
+			debugInfo->m_uiDebugVertex.push_back(math::float3(absolutePos.x + localSize.x + lineWidth, absolutePos.y + localSize.y + lineWidth, 0));
+
+			debugInfo->m_uiDebugIndices.push_back(startIndex + 0);
+			debugInfo->m_uiDebugIndices.push_back(startIndex + 2);
+			debugInfo->m_uiDebugIndices.push_back(startIndex + 1);
+
+			debugInfo->m_uiDebugIndices.push_back(startIndex + 1);
+			debugInfo->m_uiDebugIndices.push_back(startIndex + 2);
+			debugInfo->m_uiDebugIndices.push_back(startIndex + 3);
+			//
+			startIndex = 12;
+
+			//four square
+			debugInfo->m_uiDebugVertex.push_back(math::float3(absolutePos.x, absolutePos.y + localSize.y, 0));
+			debugInfo->m_uiDebugVertex.push_back(math::float3(absolutePos.x + localSize.x, absolutePos.y + localSize.y, 0));
+			debugInfo->m_uiDebugVertex.push_back(math::float3(absolutePos.x, absolutePos.y + localSize.y + lineWidth, 0));
+			debugInfo->m_uiDebugVertex.push_back(math::float3(absolutePos.x + localSize.x, absolutePos.y + localSize.y + lineWidth, 0));
+
+			debugInfo->m_uiDebugIndices.push_back(startIndex + 0);
+			debugInfo->m_uiDebugIndices.push_back(startIndex + 2);
+			debugInfo->m_uiDebugIndices.push_back(startIndex + 1);
+
+			debugInfo->m_uiDebugIndices.push_back(startIndex + 1);
+			debugInfo->m_uiDebugIndices.push_back(startIndex + 2);
+			debugInfo->m_uiDebugIndices.push_back(startIndex + 3);
+
+			//draw anchor
+
+		}
+
+		return debugInfo;
 	}
 
 	math::float2 UIComponent::getDesiredSize() const

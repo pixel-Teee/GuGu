@@ -162,7 +162,6 @@ namespace GuGu {
 
 			drawInfo->m_zorder = uiTransformComponent->getZOrder();
 		}
-		
 
 		return drawInfo;
 	}
