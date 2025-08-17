@@ -145,14 +145,14 @@ namespace GuGu {
 		ModifierKeysState keysState = Application::getApplication()->getModifierKeys();
 		applyModifierKeys(keysState);
 		InputManager::getInputManager().updateKeyboard(inKeyEvent.getKey(), true); //game play 
-		return Reply::Handled();
+		return Reply::Unhandled();
 	}
 	Reply ViewportWidget::OnKeyUp(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent)
 	{
 		ModifierKeysState keysState = Application::getApplication()->getModifierKeys();
 		updateModifierKeys(keysState);
 		InputManager::getInputManager().updateKeyboard(inKeyEvent.getKey(), false); //game play 
-		return Reply::Handled();
+		return Reply::Unhandled();
 	}
 	void ViewportWidget::OnFocusLost()
 	{

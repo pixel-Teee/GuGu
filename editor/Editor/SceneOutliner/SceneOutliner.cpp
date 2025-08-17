@@ -392,7 +392,7 @@ namespace GuGu {
 			if (parent)
 			{
 				parent->removeChild(inItem);
-				onChildRemovedFromParent(*parent);
+				//onChildRemovedFromParent(*parent);
 			}
 			else
 			{
