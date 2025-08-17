@@ -638,7 +638,7 @@ namespace GuGu {
 			auto nonArrayType = inType.GetArrayType();
 			auto wrapper = instance.GetArray();
 			auto arrayCtor = inType.GetArrayConstructor();
-			if (!diffJson["diffSize"].empty()) //数组长度发生变化
+			if (diffJson.contains("diffSize") && !diffJson["diffSize"].is_null()) //数组长度发生变化
 			{
 				int32_t oldSize = diffJson["diffSize"]["old"].get<int32_t>();
 				int32_t newSize = diffJson["diffSize"]["new"].get<int32_t>();
