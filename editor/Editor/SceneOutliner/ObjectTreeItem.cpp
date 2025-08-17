@@ -22,6 +22,11 @@ namespace GuGu {
 		return m_gameObjectLabel;
 	}
 
+	void ObjectTreeItem::setDisplayString(const GuGuUtf8Str& inName)
+	{
+		m_gameObjectLabel = inName;
+	}
+
 	SceneOutlinerNameSpace::TreeItemPtr ObjectTreeItem::findParent(const SceneOutlinerNameSpace::TreeItemMap& existingItems) const
 	{
 		std::shared_ptr<GameObject> gameObject = m_gameObject.lock();

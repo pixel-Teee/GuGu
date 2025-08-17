@@ -52,6 +52,10 @@ namespace GuGu {
 			std::make_pair(typeof(meta::DisplayName), meta::MetaPropertyInitializer<meta::DisplayName>("GameObject"))
 		};
 
+		type.AddField<GameObject, GuGuUtf8Str>("m_name",
+			(meta::FieldGetter<GameObject, GuGuUtf8Str&, true>::Signature) & GameObject::getName,
+			(meta::FieldSetter<GameObject, GuGuUtf8Str, true>::Signature) & GameObject::setName, {});
+
 		type.AddField<GameObject, Array<std::shared_ptr<Component>>>("m_components",
 			(meta::FieldGetter<GameObject, Array<std::shared_ptr<Component>>, true>::Signature) & GameObject::getComponents,
 			(meta::FieldSetter<GameObject, Array<std::shared_ptr<Component>>, true>::Signature) & GameObject::setComponents, {});
@@ -230,6 +234,16 @@ namespace GuGu {
 				return i;
 		}
 		return -1;
+	}
+
+	void GameObject::setName(const GuGuUtf8Str& inName)
+	{
+		m_name = inName;
+	}
+
+	GuGuUtf8Str& GameObject::getName()
+	{
+		return m_name;
 	}
 
 }

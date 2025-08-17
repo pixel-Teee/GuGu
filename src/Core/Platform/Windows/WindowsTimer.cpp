@@ -36,6 +36,8 @@ namespace GuGu {
 		mDeltaTime = (mCurrTime - mPrevTime) * mSecondsPerCount;
 
 		mPrevTime = mCurrTime;
+
+		onCallCallback();
 	}
 	std::shared_ptr<Timer> CreateTimerFactory()
 	{

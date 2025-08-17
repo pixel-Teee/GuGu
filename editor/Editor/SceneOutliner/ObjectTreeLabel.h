@@ -26,7 +26,7 @@ namespace GuGu {
 			};
 
 			void init(const BuilderArguments& arguments, ObjectTreeItem& objectItem, ISceneOutliner& sceneOutliner,
-				const TableRow<TreeItemPtr>& inRow);
+				 const TableRow<TreeItemPtr>& inRow);
 
 			GuGuUtf8Str getDisplayText() const;
 
@@ -53,13 +53,22 @@ namespace GuGu {
 			math::float4 onHoverBottomBorder() const;
 
 			math::float4 onHoverCenter() const;
+
+			Visibility getEditNameVisibility() const;
+
+			Visibility getShowNameVisibility() const;
+
+			void onRenameCommitted(const GuGuUtf8Str&, TextCommit::Type);
 		private:
 			std::weak_ptr<ObjectTreeItem> m_treeItemPtr;
 			std::weak_ptr<GameObject> m_objectPtr;
 
+			std::weak_ptr<TableRow<TreeItemPtr>> m_ownerRow;
+
 			//右键打开的菜单
 			std::shared_ptr<IMenu> m_menu;
 
+			bool m_bShowName;
 			bool m_bDragHoverTopBorder;
 			bool m_bDragHoverCenter;
 			bool m_bDragHoverBottomBorder;

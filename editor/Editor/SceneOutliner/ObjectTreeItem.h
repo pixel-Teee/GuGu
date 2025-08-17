@@ -19,6 +19,8 @@ namespace GuGu {
 
 		virtual GuGuUtf8Str getDisplayString() const override;
 
+		virtual void setDisplayString(const GuGuUtf8Str& inName) override;
+
 		virtual SceneOutlinerNameSpace::TreeItemPtr findParent(const SceneOutlinerNameSpace::TreeItemMap& existingItems) const override;
 
 		virtual SceneOutlinerNameSpace::TreeItemPtr createParent() const override;

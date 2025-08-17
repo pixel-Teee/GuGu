@@ -280,6 +280,18 @@ namespace GuGu {
 			return nullptr;
 		}
 
+		bool isSelected() const
+		{
+			std::shared_ptr<ITypedTableView<ItemType>> ownerTable = m_ownerTablePtr.lock();
+
+			if (const ItemType* myItemPtr = getItemForThis(ownerTable))
+			{
+				return ownerTable->privateIsItemSelected(*myItemPtr);
+			}
+
+			return false;
+		}
+
 		virtual bool isItemExpanded() const override
 		{
 			std::shared_ptr<ITypedTableView<ItemType>> ownerTable = m_ownerTablePtr.lock();

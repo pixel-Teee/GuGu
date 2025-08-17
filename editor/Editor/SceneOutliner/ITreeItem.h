@@ -16,6 +16,8 @@ namespace GuGu {
 		public:
 			virtual GuGuUtf8Str getDisplayString() const = 0;
 
+			virtual void setDisplayString(const GuGuUtf8Str& inName) = 0;
+
 			virtual std::shared_ptr<Widget> generateLabelWidget(ISceneOutliner& outliner, const TableRow<SceneOutlinerNameSpace::TreeItemPtr>& inRow) { return NullWidget::getNullWidget(); }
 
 			virtual TreeItemPtr findParent(const TreeItemMap& existingItems) const = 0;

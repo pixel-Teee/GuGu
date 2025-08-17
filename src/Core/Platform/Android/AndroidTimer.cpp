@@ -24,6 +24,8 @@ namespace GuGu{
         mDeltaTime = (mCurrTime.tv_sec - mPrevTime.tv_sec) + (mCurrTime.tv_usec - mPrevTime.tv_usec) / 1000000.0;
 
         mPrevTime = mCurrTime;
+
+        onCallCallback();
     }
     AndroidTimer::AndroidTimer() {
         struct timeval time;

@@ -1,9 +1,21 @@
 #pragma once
 
+#include <functional>
+
 namespace GuGu {
+	struct CallBackInfo
+	{
+		int32_t id = 0;
+		//延迟调用的时候的触发点
+		float m_triggerTimePoint;
+
+		std::function<void(int32_t callbackId)> m_callback;
+	};
 	class Timer
 	{
 	public:
+		Timer();
+
 		virtual float GetTotalTime() const = 0;
 
 		virtual float GetDeltaTime() const = 0;
@@ -11,6 +23,16 @@ namespace GuGu {
 		virtual void Tick() = 0;//calculate time
 
 		virtual ~Timer() {}
+
+		void registerCallback(int32_t delaySeconds, std::function<void(int32_t)> inCallback);
+
+		void removeCallback(int32_t callbackId);
+
+		void onCallCallback();
+	private:
+		std::vector<CallBackInfo> m_callbacks;
+
+		static int32_t m_callbackId;
 	};
 
 	std::shared_ptr<Timer> CreateTimerFactory();

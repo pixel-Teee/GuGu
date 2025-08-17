@@ -14,6 +14,9 @@
 #include <Core/GamePlay/World.h>
 #include <Application/Application.h>
 #include <Editor/Transaction/TransactionManager.h>
+#include <Core/Timer.h>
+#include <Core/UI/TableRow.h>
+#include <Core/UI/EditableText.h>
 
 namespace GuGu {
 
@@ -25,6 +28,10 @@ namespace GuGu {
 
 			m_treeItemPtr = std::static_pointer_cast<ObjectTreeItem>(objectItem.shared_from_this());
 			m_objectPtr = objectItem.m_gameObject;
+
+			m_ownerRow = std::static_pointer_cast<TableRow<SceneOutlinerNameSpace::TreeItemPtr>>(std::const_pointer_cast<Widget>(inRow.shared_from_this()));
+
+			m_bShowName = true;
 
 			auto mainContent = WIDGET_NEW(HorizontalBox)
 			//main actor label
@@ -58,9 +65,23 @@ namespace GuGu {
 					.BorderBackgroundColor(Attribute<math::float4>::CreateSP(this, &ObjectTreeLabel::onHoverCenter))
 					.Content
 					(
-						WIDGET_NEW(TextBlockWidget)
-						.text(Attribute<GuGuUtf8Str>::CreateSP(this, &ObjectTreeLabel::getDisplayText))
-						.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+						WIDGET_NEW(VerticalBox)
+						+ VerticalBox::Slot()
+						.FixedHeight()
+						(
+							WIDGET_NEW(TextBlockWidget)
+							.visibility(Attribute<Visibility>::CreateSP(this, &ObjectTreeLabel::getShowNameVisibility))
+							.text(Attribute<GuGuUtf8Str>::CreateSP(this, &ObjectTreeLabel::getDisplayText))
+							.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+						)
+						+ VerticalBox::Slot()
+						.FixedHeight()
+						(
+							WIDGET_NEW(EditableText)
+							.visibility(Attribute<Visibility>::CreateSP(this, &ObjectTreeLabel::getEditNameVisibility))
+							.text(Attribute<GuGuUtf8Str>::CreateSP(this, &ObjectTreeLabel::getDisplayText))
+							.onTextCommitted(this, &ObjectTreeLabel::onRenameCommitted)
+						)
 					)
 				)
 				+ VerticalBox::Slot()
@@ -105,6 +126,17 @@ namespace GuGu {
 				//触发拖动
 				//detect drag
 				//return Reply::Handled().detectDrag(shared_from_this(), Keys::LeftMouseButton);
+
+				//rename
+				Application::getApplication()->getTimer()->registerCallback(1.5f, [&](int32_t callbackId) {
+					if (m_ownerRow.lock() && m_ownerRow.lock()->isSelected())
+					{
+						m_bShowName = false;
+						//enter rename
+						GuGu_LOGD("enter rename");
+					}
+					Application::getApplication()->getTimer()->removeCallback(callbackId);
+				});
 				return Reply::Unhandled();
 			}
 			else if (inMouseEvent.getEffectingButton() == Keys::RightMouseButton)
@@ -450,6 +482,35 @@ namespace GuGu {
 			if (m_bDragHoverCenter)
 				return EditorStyleSet::getStyleSet()->getColor("beige8");
 			return math::float4(1.0f, 1.0f, 1.0f, 0.0f);//transparent
+		}
+
+		Visibility ObjectTreeLabel::getEditNameVisibility() const
+		{
+			if (m_bShowName)
+				return Visibility::Collapsed;
+			return Visibility::Visible;
+		}
+
+		Visibility ObjectTreeLabel::getShowNameVisibility() const
+		{
+			if (m_bShowName)
+				return Visibility::Visible;
+			return Visibility::Collapsed;
+		}
+
+		void ObjectTreeLabel::onRenameCommitted(const GuGuUtf8Str& text, TextCommit::Type commitType)
+		{
+			if (commitType == TextCommit::OnEnter)
+			{
+				m_objectPtr.lock()->setName(text);
+
+				if (const TreeItemPtr treeItem = m_treeItemPtr.lock())
+				{
+					treeItem->setDisplayString(text);
+				}
+
+				m_bShowName = true;//quit edit name
+			}
 		}
 
 	}
