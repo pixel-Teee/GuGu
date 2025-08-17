@@ -77,7 +77,7 @@ namespace GuGu {
 						+ VerticalBox::Slot()
 						.FixedHeight()
 						(
-							WIDGET_NEW(EditableText)
+							WIDGET_ASSIGN_NEW(EditableText, m_editableText)
 							.visibility(Attribute<Visibility>::CreateSP(this, &ObjectTreeLabel::getEditNameVisibility))
 							.text(Attribute<GuGuUtf8Str>::CreateSP(this, &ObjectTreeLabel::getDisplayText))
 							.onTextCommitted(this, &ObjectTreeLabel::onRenameCommitted)
@@ -127,17 +127,23 @@ namespace GuGu {
 				//detect drag
 				//return Reply::Handled().detectDrag(shared_from_this(), Keys::LeftMouseButton);
 
+				Reply reply = Reply::Unhandled();
 				//rename
 				Application::getApplication()->getTimer()->registerCallback(1.5f, [&](int32_t callbackId) {
 					if (m_ownerRow.lock() && m_ownerRow.lock()->isSelected())
 					{
-						m_bShowName = false;
-						//enter rename
-						GuGu_LOGD("enter rename");
+						if (!Application::getApplication()->isDragDropping())
+						{
+							m_bShowName = false;
+							Application::getApplication()->setKeyboardFocus(m_editableText);
+							//enter rename
+							GuGu_LOGD("enter rename");
+						}	
 					}
 					Application::getApplication()->getTimer()->removeCallback(callbackId);
 				});
-				return Reply::Unhandled();
+				//reply.setFocus(m_editableText);
+				return reply;
 			}
 			else if (inMouseEvent.getEffectingButton() == Keys::RightMouseButton)
 			{
@@ -500,7 +506,7 @@ namespace GuGu {
 
 		void ObjectTreeLabel::onRenameCommitted(const GuGuUtf8Str& text, TextCommit::Type commitType)
 		{
-			if (commitType == TextCommit::OnEnter)
+			if (commitType == TextCommit::OnEnter || commitType == TextCommit::OnUserMovedFocus)
 			{
 				m_objectPtr.lock()->setName(text);
 
@@ -511,6 +517,11 @@ namespace GuGu {
 
 				m_bShowName = true;//quit edit name
 			}
+		}
+
+		bool ObjectTreeLabel::supportsKeyboardFocus() const
+		{
+			return !m_bShowName;
 		}
 
 	}

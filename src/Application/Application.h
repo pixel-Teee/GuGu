@@ -124,6 +124,8 @@ namespace GuGu {
 
 		bool hasAnyFocus(std::shared_ptr<const Widget> inWidget) const;
 
+		void setKeyboardFocus(const std::shared_ptr<Widget>& optionalWidgetToFocus);
+
 		bool doesWidgetHaveMouseCapture(std::shared_ptr<const Widget> inWidget) const;
 
 		bool hasCapture() const;
@@ -240,6 +242,8 @@ namespace GuGu {
 		void arrangeWindowToFrontVirtual(std::vector<std::shared_ptr<WindowWidget>>& windows, const std::shared_ptr<WindowWidget>& windowToBringToFront);
 
 		void setUnhandledKeyDownEventHandler(const OnKeyEvent& newHandler);
+
+		bool isDragDropping() const;
 	protected:
 		std::shared_ptr<Renderer> m_renderer;
 

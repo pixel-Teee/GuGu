@@ -8,6 +8,7 @@
 #include "SceneOutlinerStandaloneTypes.h"//class SceneOutlinerCommonLabelData
 
 namespace GuGu {
+	class EditableText;
 	class IMenu;
 	class GameObject;
 	struct ObjectTreeItem;
@@ -59,9 +60,13 @@ namespace GuGu {
 			Visibility getShowNameVisibility() const;
 
 			void onRenameCommitted(const GuGuUtf8Str&, TextCommit::Type);
+
+			virtual bool supportsKeyboardFocus() const;
 		private:
 			std::weak_ptr<ObjectTreeItem> m_treeItemPtr;
 			std::weak_ptr<GameObject> m_objectPtr;
+
+			std::shared_ptr<EditableText> m_editableText;
 
 			std::weak_ptr<TableRow<TreeItemPtr>> m_ownerRow;
 

@@ -159,6 +159,7 @@ namespace GuGu {
 		void addChildWindow(const std::shared_ptr<WindowWidget>& inChildWindow);
 
 		std::vector<std::shared_ptr<WindowWidget>>& getChildWindows();
+
 	protected:
 		std::shared_ptr<Window> m_nativeWindow;
 		std::shared_ptr<SingleChildSlot> m_childWidget;

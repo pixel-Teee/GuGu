@@ -404,6 +404,16 @@ namespace GuGu{
 		return false;
 	}
 
+	void Application::setKeyboardFocus(const std::shared_ptr<Widget>& optionalWidgetToFocus)
+	{
+		WidgetPath pathToWidget;
+		const bool bFound = findPathToWidget(m_windowWidgets, optionalWidgetToFocus, pathToWidget);
+		if (bFound)
+		{
+			setFocus(optionalWidgetToFocus, pathToWidget);
+		}
+	}
+
 	bool Application::doesWidgetHaveMouseCapture(std::shared_ptr<const Widget> inWidget) const
 	{
 		//if (!m_captorWidgetsPath.empty())
@@ -899,6 +909,11 @@ namespace GuGu{
 	void Application::setUnhandledKeyDownEventHandler(const OnKeyEvent& newHandler)
 	{
 		m_unhandledKeyDownEventHandler = newHandler;
+	}
+
+	bool Application::isDragDropping() const
+	{
+		return m_dragDropContent != nullptr;
 	}
 
 	bool Application::processMouseButtonDownEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)

@@ -4,7 +4,7 @@
 
 namespace GuGu {
 	struct PaintArgs;
-	class TextBlockStyle;
+	struct TextBlockStyle;
 	class ILineHighlighter
 	{
 	public:

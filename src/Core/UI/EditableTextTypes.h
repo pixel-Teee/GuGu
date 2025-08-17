@@ -6,7 +6,7 @@
 namespace GuGu {
 
 	class CursorInfo;
-	class TextBlockStyle;
+	struct TextBlockStyle;
 	class Brush;
 	namespace EditableTextTypes
 	{
