@@ -224,6 +224,7 @@ namespace GuGu {
 	void GameObject::insertChildren(std::shared_ptr<GameObject> children, int32_t index)
 	{
 		m_childrens.insert(m_childrens.begin() + index, children);
+		children->setParentGameObject(std::static_pointer_cast<GameObject>(shared_from_this()));
 	}
 
 	int32_t GameObject::findIndex(std::shared_ptr<GameObject> children)
