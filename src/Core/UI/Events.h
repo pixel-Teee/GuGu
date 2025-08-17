@@ -127,6 +127,17 @@ namespace GuGu {
 			, m_wheelOrGestureDelta(inWheelDelta)
 		{}
 
+		PointerEvent(const PointerEvent& rhs)
+			: m_screenSpacePosition(rhs.m_screenSpacePosition)
+			, m_lastScreenSpacePosition(rhs.m_lastScreenSpacePosition)
+			, m_cursorDelta(m_screenSpacePosition - m_lastScreenSpacePosition)
+			, m_pressedMouseButtons(rhs.m_pressedMouseButtons)
+			, m_effectingButton(rhs.m_effectingButton)
+			, m_wheelOrGestureDelta(rhs.m_wheelOrGestureDelta)
+		{
+
+		}
+
 		math::float2 getCursorDelta() const
 		{
 			return m_cursorDelta;

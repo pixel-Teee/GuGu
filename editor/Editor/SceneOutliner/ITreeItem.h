@@ -26,17 +26,16 @@ namespace GuGu {
 
 			virtual TreeItemID getID() const = 0;//索引 game object 用的
 
-			void addChild(TreeItemPtr child);
+			virtual void addChild(TreeItemPtr child);
 
-			void removeChild(const TreeItemPtr& child);
+			virtual void removeChild(const TreeItemPtr& child);
 
 			const std::vector<std::weak_ptr<ITreeItem>> getChildren() const;
-		protected:
+		
+		//todo:add protected
 			mutable std::weak_ptr<ITreeItem> m_parent;
 
 			mutable std::vector<std::weak_ptr<ITreeItem>> m_children;
-
-
 		};
 	}
 }

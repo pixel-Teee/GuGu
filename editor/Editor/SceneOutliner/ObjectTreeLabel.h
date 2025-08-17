@@ -42,11 +42,17 @@ namespace GuGu {
 
 			void OnDragLeave(const DragDropEvent& dragDropEvent) override;
 
+			Reply OnDragOver(const WidgetGeometry& myGeometry, const DragDropEvent& dragDropEvent) override;
+
 			Reply OnDrop(const WidgetGeometry& myGeometry, const DragDropEvent& dragDropEvent) override;
 
-			Visibility getHoverVisibility() const;
-
 			void deleteGameObjectsAndItsChildrens(std::shared_ptr<GameObject> inGameObject, TransactionManager& inTransactionManager);
+
+			math::float4 onHoverTopBorder() const;
+
+			math::float4 onHoverBottomBorder() const;
+
+			math::float4 onHoverCenter() const;
 		private:
 			std::weak_ptr<ObjectTreeItem> m_treeItemPtr;
 			std::weak_ptr<GameObject> m_objectPtr;
@@ -54,7 +60,9 @@ namespace GuGu {
 			//右键打开的菜单
 			std::shared_ptr<IMenu> m_menu;
 
-			bool m_bDragHover;
+			bool m_bDragHoverTopBorder;
+			bool m_bDragHoverCenter;
+			bool m_bDragHoverBottomBorder;
 		};
 	}
 	

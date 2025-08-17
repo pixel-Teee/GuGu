@@ -25,6 +25,8 @@ namespace GuGu {
 
 		virtual SceneOutlinerNameSpace::TreeItemID getID() const override;
 
+		virtual void addChild(SceneOutlinerNameSpace::TreeItemPtr child) override;
+
 		mutable std::weak_ptr<GameObject> m_gameObject;
 
 		GuGuUtf8Str m_gameObjectLabel;

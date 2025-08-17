@@ -202,4 +202,24 @@ namespace GuGu {
 		}
 	}
 
+	int32_t Level::findIndex(std::shared_ptr<GameObject> children)
+	{
+		int32_t pos = 0;//会忽略不是根的对象
+		for (int32_t i = 0; i < m_objects.size(); ++i)
+		{
+			if (m_objects[i] == children)
+				return std::min(pos + 1, (int32_t)m_objects.size());
+			else if(m_objects[i]->getParentGameObject().lock() == nullptr)
+				pos = pos + 1;
+		}
+		return -1;
+	}
+
+	void Level::insertChildren(std::shared_ptr<GameObject> children, int32_t index)
+	{
+		index = std::max(index, 0);
+		index = std::min(index, (int32_t)m_objects.size());
+		m_objects.insert(m_objects.begin() + index, children);
+	}
+
 }

@@ -217,4 +217,19 @@ namespace GuGu {
 		m_childrens.push_back(children);
 	}
 
+	void GameObject::insertChildren(std::shared_ptr<GameObject> children, int32_t index)
+	{
+		m_childrens.insert(m_childrens.begin() + index, children);
+	}
+
+	int32_t GameObject::findIndex(std::shared_ptr<GameObject> children)
+	{
+		for (int32_t i = 0; i < m_childrens.size(); ++i)
+		{
+			if (m_childrens[i] == children)
+				return i;
+		}
+		return -1;
+	}
+
 }

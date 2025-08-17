@@ -1253,7 +1253,7 @@ namespace GuGu{
 					std::shared_ptr<Widget> widgetUnderCursor = widgetPath.m_widgets.getArrangedWidget(i)->getWidget();
 					if (!lastWidgetsUnderPointer.containsWidget(widgetUnderCursor.get()))
 					{
-						widgetPath.m_widgets.getArrangedWidget(i)->getWidget()->OnDragEnter(widgetUnderCursor->getWidgetGeometry(), dragDropEvent);
+						widgetPath.m_widgets.getArrangedWidget(i)->getWidget()->OnDragEnter(widgetPath.m_widgets.getArrangedWidget(i)->getWidgetGeometry(), dragDropEvent);
 						//processReply(reply, widgetPath);
 					}
 				}
@@ -1266,7 +1266,7 @@ namespace GuGu{
 					std::shared_ptr<Widget> widgetUnderCursor = widgetPath.m_widgets.getArrangedWidget(i)->getWidget();
 					if (!lastWidgetsUnderPointer.containsWidget(widgetUnderCursor.get()))
 					{
-						widgetPath.m_widgets.getArrangedWidget(i)->getWidget()->OnMouseEnter(widgetUnderCursor->getWidgetGeometry(), mouseEvent);
+						widgetPath.m_widgets.getArrangedWidget(i)->getWidget()->OnMouseEnter(widgetPath.m_widgets.getArrangedWidget(i)->getWidgetGeometry(), mouseEvent);
 						//processReply(reply, widgetPath);
 					}
 				}

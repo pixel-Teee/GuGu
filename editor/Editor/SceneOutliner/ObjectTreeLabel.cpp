@@ -35,22 +35,44 @@ namespace GuGu {
 			(
 				WIDGET_NEW(VerticalBox)
 				+ VerticalBox::Slot()
+				.StretchHeight(1.0f)
+				(
+					WIDGET_NEW(BoxWidget)
+					.HeightOverride(5.0f)
+					.Content
+					(
+						WIDGET_NEW(Border)
+						//.visibility(Attribute<Visibility>::CreateSP(this, &ObjectTreeLabel::getHoverVisibility))
+						.BorderBackgroundColor(Attribute<math::float4>::CreateSP(this, &ObjectTreeLabel::onHoverTopBorder))
+						.Content
+						(
+							NullWidget::getNullWidget()
+						)
+					)
+				)
+				+ VerticalBox::Slot()
 				.FixedHeight()
 				(
-					WIDGET_NEW(TextBlockWidget)
-					.text(Attribute<GuGuUtf8Str>::CreateSP(this, &ObjectTreeLabel::getDisplayText))
-					.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+					WIDGET_NEW(Border)
+					//.visibility(Attribute<Visibility>::CreateSP(this, &ObjectTreeLabel::getHoverVisibility))
+					.BorderBackgroundColor(Attribute<math::float4>::CreateSP(this, &ObjectTreeLabel::onHoverCenter))
+					.Content
+					(
+						WIDGET_NEW(TextBlockWidget)
+						.text(Attribute<GuGuUtf8Str>::CreateSP(this, &ObjectTreeLabel::getDisplayText))
+						.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+					)
 				)
 				+ VerticalBox::Slot()
 				.StretchHeight(1.0f)
 				(
 					WIDGET_NEW(BoxWidget)
-					.HeightOverride(10.0f)
+					.HeightOverride(5.0f)
 					.Content
 					(
 						WIDGET_NEW(Border)
-						.visibility(Attribute<Visibility>::CreateSP(this, &ObjectTreeLabel::getHoverVisibility))
-						.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+						//.visibility(Attribute<Visibility>::CreateSP(this, &ObjectTreeLabel::getHoverVisibility))
+						.BorderBackgroundColor(Attribute<math::float4>::CreateSP(this, &ObjectTreeLabel::onHoverBottomBorder))
 						.Content
 						(
 							NullWidget::getNullWidget()
@@ -64,7 +86,7 @@ namespace GuGu {
 			m_childWidget->m_childWidget = mainContent;
 			m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 
-			m_bDragHover = false;
+			m_bDragHoverTopBorder = m_bDragHoverBottomBorder = m_bDragHoverCenter = false;
 		}
 
 		GuGuUtf8Str ObjectTreeLabel::getDisplayText() const
@@ -163,12 +185,57 @@ namespace GuGu {
 
 		void ObjectTreeLabel::OnDragEnter(const WidgetGeometry& myGeometry, const DragDropEvent& dragDropEvent)
 		{
-			m_bDragHover = true;
+			//check hover zone
+			math::float2 localPosition = myGeometry.absoluteToLocal(dragDropEvent.m_screenSpacePosition);
+			if (localPosition.y <= 5.f)
+			{
+				m_bDragHoverTopBorder = true;
+				m_bDragHoverCenter = false;
+				m_bDragHoverBottomBorder = false;
+			}
+			else if (localPosition.y < myGeometry.getLocalSize().y - 5.f)
+			{
+				m_bDragHoverTopBorder = false;
+				m_bDragHoverCenter = true;
+				m_bDragHoverBottomBorder = false;
+			}
+			else
+			{
+				m_bDragHoverTopBorder = false;
+				m_bDragHoverCenter = false;
+				m_bDragHoverBottomBorder = true;
+			}
 		}
 
 		void ObjectTreeLabel::OnDragLeave(const DragDropEvent& dragDropEvent)
 		{
-			m_bDragHover = false;
+			m_bDragHoverTopBorder = m_bDragHoverCenter = m_bDragHoverBottomBorder = false;
+		}
+
+		Reply ObjectTreeLabel::OnDragOver(const WidgetGeometry& myGeometry, const DragDropEvent& dragDropEvent)
+		{
+			//check hover zone
+			math::float2 localPosition = myGeometry.absoluteToLocal(dragDropEvent.m_screenSpacePosition);
+			if (localPosition.y <= 5.f)
+			{
+				m_bDragHoverTopBorder = true;
+				m_bDragHoverCenter = false;
+				m_bDragHoverBottomBorder = false;
+			}
+			else if (localPosition.y < myGeometry.getLocalSize().y - 5.f)
+			{
+				m_bDragHoverTopBorder = false;
+				m_bDragHoverCenter = true;
+				m_bDragHoverBottomBorder = false;
+			}
+			else
+			{
+				m_bDragHoverTopBorder = false;
+				m_bDragHoverCenter = false;
+				m_bDragHoverBottomBorder = true;
+			}
+
+			return Reply::Unhandled();
 		}
 
 		Reply ObjectTreeLabel::OnDrop(const WidgetGeometry& myGeometry, const DragDropEvent& dragDropEvent)
@@ -176,8 +243,8 @@ namespace GuGu {
 			std::shared_ptr<ObjectDragDropOperation> operation = dragDropEvent.getOperationAs<ObjectDragDropOperation>();
 			if (operation)
 			{
-				std::shared_ptr<meta::Object> object = operation->getObject();
-				if (object->GetType() == typeof(GameObject))
+				std::shared_ptr<meta::Object> draggedObject = operation->getObject();
+				if (draggedObject->GetType() == typeof(GameObject))
 				{
 					std::shared_ptr<meta::Object> parentObject = m_objectPtr.lock();
 					if (parentObject)
@@ -185,12 +252,12 @@ namespace GuGu {
 						TransactionManager& transactionManager = TransactionManager::getTransactionManager();
 						transactionManager.beginTransaction();
 						//transactionManager.modifyObject(World::getWorld()->getCurrentLevel());
-						std::shared_ptr<GameObject> childObject = std::static_pointer_cast<GameObject>(object);
+						std::shared_ptr<GameObject> childObject = std::static_pointer_cast<GameObject>(draggedObject);
 						std::shared_ptr<GameObject> originParentObject = childObject->getParentGameObject().lock();
 						if (originParentObject)
 						{
 							//termination of relationship
-							Array<std::shared_ptr<GameObject>> childrens = originParentObject->getChildrens();
+							Array<std::shared_ptr<GameObject>>& childrens = originParentObject->getChildrens();
 							auto it = std::find(childrens.begin(), childrens.end(), childObject);
 							if (it != childrens.end())
 							{
@@ -208,36 +275,147 @@ namespace GuGu {
 							}
 						}
 
-						std::shared_ptr<GameObject> parent2Object = std::static_pointer_cast<GameObject>(parentObject);
-						transactionManager.modifyObject(parent2Object);
-						transactionManager.modifyObject(childObject);
-						parent2Object->addChildren(childObject);
-
-						//attach
-						if (!World::getWorld()->m_onObjectAttached.empty())
+						//attach 3 situation
+						if (m_bDragHoverCenter)
 						{
-							for (uint32_t i = 0; i < World::getWorld()->m_onObjectAttached.size(); ++i)
+							std::shared_ptr<GameObject> parent2Object = std::static_pointer_cast<GameObject>(parentObject);
+							transactionManager.modifyObject(parent2Object);
+							transactionManager.modifyObject(childObject);
+							parent2Object->addChildren(childObject);
+
+							//attach
+							if (!World::getWorld()->m_onObjectAttached.empty())
 							{
-								World::getWorld()->m_onObjectAttached[i](childObject, parent2Object);
+								for (uint32_t i = 0; i < World::getWorld()->m_onObjectAttached.size(); ++i)
+								{
+									World::getWorld()->m_onObjectAttached[i](childObject, parent2Object);
+								}
+							}
+						}
+						else if (m_bDragHoverTopBorder)
+						{
+							std::shared_ptr<GameObject> droppedGameObject = std::static_pointer_cast<GameObject>(draggedObject);
+							//get index
+							std::shared_ptr<GameObject> lockedGameObject = m_objectPtr.lock();
+							if (lockedGameObject->getParentGameObject().lock() != nullptr)
+							{
+								std::shared_ptr<GameObject> parentGameObject = lockedGameObject->getParentGameObject().lock();
+								int32_t index = parentGameObject->findIndex(lockedGameObject);
+								if (index != -1)
+								{
+									transactionManager.modifyObject(parentGameObject);
+									transactionManager.modifyObject(droppedGameObject);
+									parentGameObject->insertChildren(droppedGameObject, index);
+								}
+								else
+								{
+									GuGu_LOGE("object tree label find index error");
+								}
+
+								//attach
+								if (!World::getWorld()->m_onObjectAttached.empty())
+								{
+									for (uint32_t i = 0; i < World::getWorld()->m_onObjectAttached.size(); ++i)
+									{
+										World::getWorld()->m_onObjectAttached[i](droppedGameObject, parentGameObject);
+									}
+								}
+							}
+							else //level
+							{
+								std::shared_ptr<Level> currentLevel = World::getWorld()->getCurrentLevel();
+								int32_t index = currentLevel->findIndex(lockedGameObject);
+
+								if (index != -1)
+								{
+									transactionManager.modifyObject(currentLevel);
+									transactionManager.modifyObject(droppedGameObject);
+									currentLevel->insertChildren(droppedGameObject, index);
+								}
+								else
+								{
+									GuGu_LOGE("object tree label find index error");
+								}
+
+								std::shared_ptr<GameObject> makedNullGameObject = std::make_shared<GameObject>();
+
+								//attach
+								if (!World::getWorld()->m_onObjectAttached.empty())
+								{
+									for (uint32_t i = 0; i < World::getWorld()->m_onObjectAttached.size(); ++i)
+									{
+										World::getWorld()->m_onObjectAttached[i](droppedGameObject, makedNullGameObject);
+									}
+								}
+							}
+						}
+						else if(m_bDragHoverBottomBorder)
+						{
+							std::shared_ptr<GameObject> droppedGameObject = std::static_pointer_cast<GameObject>(draggedObject);
+							//get index
+							std::shared_ptr<GameObject> lockedGameObject = m_objectPtr.lock();
+							if (lockedGameObject->getParentGameObject().lock() != nullptr)
+							{
+								std::shared_ptr<GameObject> parentGameObject = lockedGameObject->getParentGameObject().lock();
+								int32_t index = parentGameObject->findIndex(lockedGameObject);
+								if (index != -1)
+								{
+									transactionManager.modifyObject(parentGameObject);
+									transactionManager.modifyObject(droppedGameObject);
+									parentGameObject->insertChildren(droppedGameObject, index + 1);
+								}
+								else
+								{
+									GuGu_LOGE("object tree label find index error");
+								}
+
+								//attach
+								if (!World::getWorld()->m_onObjectAttached.empty())
+								{
+									for (uint32_t i = 0; i < World::getWorld()->m_onObjectAttached.size(); ++i)
+									{
+										World::getWorld()->m_onObjectAttached[i](droppedGameObject, parentGameObject);
+									}
+								}
+							}
+							else //level
+							{
+								std::shared_ptr<Level> currentLevel = World::getWorld()->getCurrentLevel();
+								int32_t index = currentLevel->findIndex(lockedGameObject);
+
+								if (index != -1)
+								{
+									transactionManager.modifyObject(currentLevel);
+									transactionManager.modifyObject(droppedGameObject);
+									currentLevel->insertChildren(droppedGameObject, index + 1);
+								}
+								else
+								{
+									GuGu_LOGE("object tree label find index error");
+								}
+
+								std::shared_ptr<GameObject> makedNullGameObject = std::make_shared<GameObject>();
+
+								//attach
+								if (!World::getWorld()->m_onObjectAttached.empty())
+								{
+									for (uint32_t i = 0; i < World::getWorld()->m_onObjectAttached.size(); ++i)
+									{
+										World::getWorld()->m_onObjectAttached[i](droppedGameObject, makedNullGameObject);
+									}
+								}
 							}
 						}
 
 						transactionManager.commit();
 
-						m_bDragHover = false;
+						m_bDragHoverTopBorder = m_bDragHoverBottomBorder = m_bDragHoverCenter = false;
 						//World::getWorld()->getCurrentLevel()->refreshLevel();
 						return Reply::Handled();
 					}
 				}
 			}
 			return Reply::Unhandled();
-		}
-
-		Visibility ObjectTreeLabel::getHoverVisibility() const
-		{
-			if(m_bDragHover)
-				return Visibility::Visible;
-			return Visibility::Collapsed;
 		}
 
 		void ObjectTreeLabel::deleteGameObjectsAndItsChildrens(std::shared_ptr<GameObject> inGameObject, TransactionManager& inTransactionManager)
@@ -251,6 +429,27 @@ namespace GuGu {
 			}
 			childrens.clear();
 			World::getWorld()->getCurrentLevel()->deleteGameObject(inGameObject);
+		}
+
+		math::float4 ObjectTreeLabel::onHoverTopBorder() const
+		{
+			if (m_bDragHoverTopBorder)
+				return EditorStyleSet::getStyleSet()->getColor("beige9");
+			return math::float4(1.0f, 1.0f, 1.0f, 0.0f);//transparent
+		}
+
+		math::float4 ObjectTreeLabel::onHoverBottomBorder() const
+		{
+			if (m_bDragHoverBottomBorder)
+				return EditorStyleSet::getStyleSet()->getColor("beige9");
+			return math::float4(1.0f, 1.0f, 1.0f, 0.0f);//transparent
+		}
+
+		math::float4 ObjectTreeLabel::onHoverCenter() const
+		{
+			if (m_bDragHoverCenter)
+				return EditorStyleSet::getStyleSet()->getColor("beige8");
+			return math::float4(1.0f, 1.0f, 1.0f, 0.0f);//transparent
 		}
 
 	}

@@ -39,6 +39,10 @@ namespace GuGu {
 		void refreshLevel();
 
 		void recursiveUpdateObject(std::shared_ptr<GameObject> inGameObject, float fElapsedTimeSeconds);
+
+		int32_t findIndex(std::shared_ptr<GameObject> children);
+
+		void insertChildren(std::shared_ptr<GameObject> children, int32_t index);
 	private:
 		Array<std::shared_ptr<GameObject>> m_objects; //all game objects
 	};
