@@ -54,7 +54,7 @@ namespace GuGu {
 
 	void DetailPropertyRow::onItemNodeInitialized(std::shared_ptr<DetailCategoryImpl> inParentCategory)
 	{
-		std::shared_ptr<IPropertyTypeCustomization>& customTypeInterface = getTypeInterface();
+		std::shared_ptr<IPropertyTypeCustomization> customTypeInterface = getTypeInterface();
 
 		if (!m_customPropertyWidget && customTypeInterface)
 		{
@@ -122,7 +122,7 @@ namespace GuGu {
 	{
 		std::shared_ptr<DetailWidgetRow> customTypeRow;
 
-		std::shared_ptr<IPropertyTypeCustomization>& customTypeInterface = getTypeInterface();
+		std::shared_ptr<IPropertyTypeCustomization> customTypeInterface = getTypeInterface();
 
 		if (customTypeInterface)
 		{

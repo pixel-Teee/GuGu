@@ -7,7 +7,7 @@
 
 namespace GuGu {
 	class Brush;
-	class SliderStyle;
+	struct SliderStyle;
 
 	class Slider : public Widget
 	{

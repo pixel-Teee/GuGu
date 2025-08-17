@@ -21,6 +21,8 @@ namespace GuGu {
 		meta::Field* getField() const;
 
 		bool isVisible() const;
+
+		GuGuUtf8Str getValueAsText() const;
 	private:
 		std::shared_ptr<PropertyNode> m_propertyNode;
 

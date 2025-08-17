@@ -56,4 +56,15 @@ namespace GuGu {
 		return true;
 	}
 
+	GuGuUtf8Str PropertyEditor::getValueAsText() const
+	{
+		GuGuUtf8Str text;
+
+		if (m_propertyHandle->getValueAsFormattedString(text) == PropertyAccess::Result::Success)
+		{
+			return text;
+		}
+		return "";
+	}
+
 }

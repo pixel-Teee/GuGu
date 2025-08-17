@@ -5,7 +5,7 @@
 namespace GuGu {
 	class ComplexPropertyNode;
 	struct DetailLayoutData;
-	struct DetailColumnSizeData;
+	class DetailColumnSizeData;
 	class IDetailsViewPrivate : public IDetailsView
 	{
 	public:
