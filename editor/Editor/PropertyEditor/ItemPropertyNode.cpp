@@ -36,21 +36,26 @@ namespace GuGu {
 				haveThisField = true;
 		}
 		if(haveThisField)
-			return field->GetValueReference(startVarint);
+			return startVarint;
 		if (m_parentNodeWeakPtr.lock())
 		{
 			meta::Variant parentVarint = m_parentNodeWeakPtr.lock()->getOwnerFieldVarint(startVarint);
 			//has this field?
 			std::vector<meta::Field> checkFields = meta::ReflectionDatabase::Instance().types[parentVarint.GetType().GetID()].fields;
-			bool haveThisField = false;
-			for (size_t i = 0; i < checkFields.size(); ++i)
-			{
-				if ((checkFields[i].GetType() == field->GetType()) && (checkFields[i].GetName() == field->GetName()))
-					haveThisField = true;
-			}
 
-			if(parentVarint != meta::Variant() && haveThisField)
-				result = field->GetValueReference(parentVarint);
+			meta::Field* parentField = m_parentNodeWeakPtr.lock()->getField();
+			if (parentField)
+			{
+				bool haveThisField = false;
+				for (size_t i = 0; i < checkFields.size(); ++i)
+				{
+					if ((checkFields[i].GetType() == parentField->GetType()) && (checkFields[i].GetName() == parentField->GetName()))
+						haveThisField = true;
+				}
+
+				if (parentVarint != meta::Variant() && haveThisField)
+					result = parentField->GetValueReference(parentVarint);
+			}	
 		}
 		return result;
 	}

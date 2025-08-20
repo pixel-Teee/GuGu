@@ -156,13 +156,14 @@ namespace GuGu {
 			}
 			if (owners.size() > 0)
 			{
+				const meta::Variant& instance = getField()->GetValue(owners[0]);
 				outString += "(";
 				for (int32_t i = 0; i < fields.size(); ++i)
 				{
-					meta::Field curField = meta::ReflectionDatabase::Instance().types[owners[0].GetType().GetID()].GetField(fields[i].GetName().getStr());//have this field?
+					meta::Field curField = meta::ReflectionDatabase::Instance().types[instance.GetType().GetID()].GetField(fields[i].GetName().getStr());//have this field?
 					if ((curField.GetType() == fields[i].GetType()) && (curField.GetName() == fields[i].GetName()))
 					{
-						meta::Variant& instance = owners[0];
+						//meta::Variant& instance = owners[0];
 						meta::Variant fieldValue = fields[i].GetValue(instance);
 
 						outString += curField.GetName() + " = ";
