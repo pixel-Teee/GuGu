@@ -36,7 +36,7 @@ namespace GuGu {
 				haveThisField = true;
 		}
 		if(haveThisField)
-			return startVarint;
+			return field->GetValueReference(startVarint);
 		if (m_parentNodeWeakPtr.lock())
 		{
 			meta::Variant parentVarint = m_parentNodeWeakPtr.lock()->getOwnerFieldVarint(startVarint);

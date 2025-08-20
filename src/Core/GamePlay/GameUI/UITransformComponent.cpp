@@ -92,9 +92,9 @@ namespace GuGu {
 		//	(meta::FieldGetter<UITransformComponent, UIAnchors&, true>::Signature) & UITransformComponent::getUIAnchors,
 		//	(meta::FieldSetter<UITransformComponent, UIAnchors, true>::Signature) & UITransformComponent::setUIAnchors, {});
 
-		type.AddField<UITransformComponent, math::float2>("m_alignment",
-			(meta::FieldGetter<UITransformComponent, math::float2&, true>::Signature) & UITransformComponent::getAlignment,
-			(meta::FieldSetter<UITransformComponent, math::float2, true>::Signature) & UITransformComponent::setAlignment, {});
+		//type.AddField<UITransformComponent, math::float2>("m_alignment",
+		//	(meta::FieldGetter<UITransformComponent, math::float2&, true>::Signature) & UITransformComponent::getAlignment,
+		//	(meta::FieldSetter<UITransformComponent, math::float2, true>::Signature) & UITransformComponent::setAlignment, {});
 
 		type.AddField<UITransformComponent, bool>("m_autoSize",
 			(meta::FieldGetter<UITransformComponent, bool&, true>::Signature) & UITransformComponent::getAutoSize,
@@ -115,7 +115,7 @@ namespace GuGu {
 		ADD_INITIAL_FUNCTION_WITH_PRIORITY(registerGuGuUITransformComponent)
 		IMPLEMENT_INITIAL_END
 
-		IMPLEMENT_INITIAL_FIELDS_BEGIN(UITransformComponent)
+	IMPLEMENT_INITIAL_FIELDS_BEGIN(UITransformComponent)
 		if (!ms_priority2.addPriorityThan(&uiPaddingPriority)) return 0; //add priority
 		if (!ms_priority2.addPriorityThan(&uiAnchorsPriority)) return 0; //add priority
 		ADD_PRIORITY_FIELDS(GameObject)
