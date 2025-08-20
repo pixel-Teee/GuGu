@@ -145,7 +145,15 @@ namespace GuGu {
 				if (owner != meta::Variant())
 					owners.push_back(owner);
 			}
-
+			if (curType == typeof(GuGuUtf8Str))
+			{
+				meta::Field checkField = meta::ReflectionDatabase::Instance().types[owners[0].GetType().GetID()].GetField(getField()->GetName().getStr());//have this field?
+				if (checkField.GetType() == getField()->GetType() && checkField.GetName() == getField()->GetName())
+				{
+					outString = checkField.GetValue(owners[0]).ToString();
+					return PropertyAccess::Success;
+				}
+			}
 			if (owners.size() > 0)
 			{
 				outString += "(";

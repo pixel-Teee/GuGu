@@ -26,16 +26,26 @@ namespace GuGu {
 	{
 		meta::Variant result;
 		meta::Field* field = getField();
-		meta::Type parentType = field->GetClassType();
+		meta::Type parentType = field->GetClassType();//字段所在的类
+		//先检查自己
+		std::vector<meta::Field> checkFields = meta::ReflectionDatabase::Instance().types[startVarint.GetType().GetID()].fields;
+		bool haveThisField = false;
+		for (size_t i = 0; i < checkFields.size(); ++i)
+		{
+			if ((checkFields[i].GetType() == field->GetType()) && (checkFields[i].GetName() == field->GetName()))
+				haveThisField = true;
+		}
+		if(haveThisField)
+			return startVarint;
 		if (m_parentNodeWeakPtr.lock())
 		{
 			meta::Variant parentVarint = m_parentNodeWeakPtr.lock()->getOwnerFieldVarint(startVarint);
 			//has this field?
-			std::vector<meta::Field> checkField = meta::ReflectionDatabase::Instance().types[parentVarint.GetType().GetID()].fields;
+			std::vector<meta::Field> checkFields = meta::ReflectionDatabase::Instance().types[parentVarint.GetType().GetID()].fields;
 			bool haveThisField = false;
-			for (size_t i = 0; i < checkField.size(); ++i)
+			for (size_t i = 0; i < checkFields.size(); ++i)
 			{
-				if ((checkField[i].GetType() == field->GetType()) && (checkField[i].GetName() == field->GetName()))
+				if ((checkFields[i].GetType() == field->GetType()) && (checkFields[i].GetName() == field->GetName()))
 					haveThisField = true;
 			}
 
