@@ -168,7 +168,7 @@ namespace GuGu {
 						std::vector<meta::Variant> owners;
 						if (propertyNode != nullptr)
 						{
-							meta::Variant owner = propertyNode->getParentNode()->getOwnerFieldVarint(startVarint);
+							meta::Variant owner = propertyNode->getOwnerFieldVarint(startVarint);
 							if (owner != meta::Variant())
 								owners.push_back(std::move(owner));
 						}
