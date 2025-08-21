@@ -7,7 +7,7 @@ namespace GuGu {
 	{
 		enum Result
 		{
-			NultipleValue,
+			MultipleValue,
 			Fail,
 			Success
 		};
