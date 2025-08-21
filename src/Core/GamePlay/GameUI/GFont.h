@@ -66,6 +66,8 @@ namespace GuGu {
 
 		GFontCharacterMetrics getFontMetrices(GuGuUtf8Str character, float fontPoint, float scale);
 
+		float getFontMaxHeightMetrices(float fontPoint, float scale);
+
 		//free type
 		FT_Face m_ftFace;
 
@@ -75,5 +77,7 @@ namespace GuGu {
 		Array<uint8_t> m_data;
 
 		std::shared_ptr<UIAtlas> m_atlas;
+
+		bool m_bIsInitialized;
 	};
 }

@@ -64,7 +64,7 @@ namespace GuGu {
 	IMPLEMENT_INITIAL_FIELDS_END
 	GFont::GFont()
 	{
-		
+		m_bIsInitialized = false;
 	}
 	GFont::~GFont()
 	{
@@ -148,6 +148,8 @@ namespace GuGu {
 		textManager->setCurrentFontSize(m_ftFace, neededSize);
 		textManager->loadCurrentCharacter(m_ftFace, character);
 
+		m_bIsInitialized = true;
+
 		metrices.m_size = textManager->queryGlyphWidthAndHeight(m_ftFace);
 		metrices.m_bearing = math::float2(textManager->queryGlyphBearing(m_ftFace));
 		metrices.m_advance = textManager->queryGlyphAdvance(m_ftFace);
@@ -162,6 +164,32 @@ namespace GuGu {
 		m_characterMetricsMap.insert({ fontCharacter, metrices });
 
 		return metrices;
+	}
+
+	float GFont::getFontMaxHeightMetrices(float fontPoint, float scale)
+	{
+		//initialize face
+		if (m_bIsInitialized == false)
+		{
+			if (m_atlas == nullptr)
+			{
+				//create atlas
+				m_atlas = std::make_shared<UIAtlas>();
+				m_atlas->initializeFontAtlas(1024, 1024, nvrhi::Format::R8_UNORM);
+			}
+
+			float neededSize = fontPoint / scale;
+			std::shared_ptr<UITextManager> textManager = UITextManager::getUITextManager();
+
+			textManager->initFreeTypeFace(m_ftFace, m_data);
+			textManager->setCurrentFontSize(m_ftFace, neededSize);
+			m_bIsInitialized = true;
+		}
+		float neededSize = fontPoint / scale;
+		std::shared_ptr<UITextManager> textManager = UITextManager::getUITextManager();
+		textManager->setCurrentFontSize(m_ftFace, neededSize);
+
+		return textManager->getMaxHeight(m_ftFace);
 	}
 
 }

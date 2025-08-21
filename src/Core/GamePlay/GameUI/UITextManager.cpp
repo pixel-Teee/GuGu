@@ -118,4 +118,9 @@ namespace GuGu {
 		return pixelData;
 	}
 
+	float UITextManager::getMaxHeight(FT_Face& newFace)
+	{
+		return (newFace->size->metrics.height + 32) >> 6;
+	}
+
 }

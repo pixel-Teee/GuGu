@@ -146,7 +146,9 @@ namespace GuGu {
 
 			float scale = uiTransformComponent->getScaling().x;
 
-			math::float2 startPos = absolutePos;
+			float maxHeight = font->getFontMaxHeightMetrices(m_fontPoint, scale);
+
+			math::float2 startPos = absolutePos.xy() + math::float2(0, localSize.y);
 			uint32_t currenIndex = 0;
 			//generate text
 			for (size_t i = 0; i < m_text.len(); ++i)
@@ -169,23 +171,25 @@ namespace GuGu {
 				if ((startPos.x + bearingX + glyphWidth) < (absolutePos.x + localSize.x))
 				{
 					//vertex generate
-					drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(uvPosition.x, uvPosition.y + uvSize.y), math::float3(startPos.x + bearingX, startPos.y, 0), m_color));
-					drawInfo->m_uiVertex.push_back(GameUIVertex(uvPosition + uvSize, math::float3(startPos.x + bearingX + glyphWidth, startPos.y, 0), m_color));
-					drawInfo->m_uiVertex.push_back(GameUIVertex(uvPosition, math::float3(startPos.x + bearingX, startPos.y + glyphHeight, 0), m_color));
-					drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(uvPosition.x + uvSize.x, uvPosition.y), math::float3(startPos.x + bearingX + glyphWidth, startPos.y + glyphHeight, 0), m_color));
+					drawInfo->m_uiVertex.push_back(GameUIVertex(uvPosition, math::float3(startPos.x + bearingX, startPos.y, 0), m_color)); //0
+					drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(uvPosition.x + uvSize.x, uvPosition.y), math::float3(startPos.x + bearingX + glyphWidth, startPos.y, 0), m_color)); //1
+					drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(uvPosition.x, uvPosition.y + uvSize.y), math::float3(startPos.x + bearingX, startPos.y - glyphHeight, 0), m_color)); //2
+					drawInfo->m_uiVertex.push_back(GameUIVertex(uvPosition + uvSize, math::float3(startPos.x + bearingX + glyphWidth, startPos.y - glyphHeight, 0), m_color)); //3
 
 					startPos.x = startPos.x + advanceX;
 				}
 				else
 				{
 					startPos.x = absolutePos.x;
-					startPos.y = startPos.y + glyphHeight;//todo:add line gap
+					startPos.y = startPos.y - maxHeight;//todo:add line gap
 
 					//vertex generate
-					drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(uvPosition.x, uvPosition.x + uvSize.y), math::float3(startPos.x + bearingX, startPos.y, 0), m_color));
-					drawInfo->m_uiVertex.push_back(GameUIVertex(uvPosition + uvSize, math::float3(startPos.x + bearingX + glyphWidth, startPos.y, 0), m_color));
-					drawInfo->m_uiVertex.push_back(GameUIVertex(uvPosition, math::float3(startPos.x + bearingX, startPos.y + glyphHeight, 0), m_color));
-					drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(uvPosition.x + uvSize.x, uvPosition.y), math::float3(startPos.x + bearingX + glyphWidth, startPos.y + glyphHeight, 0), m_color));
+					drawInfo->m_uiVertex.push_back(GameUIVertex(uvPosition, math::float3(startPos.x + bearingX, startPos.y, 0), m_color)); //0
+					drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(uvPosition.x + uvSize.x, uvPosition.y), math::float3(startPos.x + bearingX + glyphWidth, startPos.y, 0), m_color)); //1
+					drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(uvPosition.x, uvPosition.y + uvSize.y), math::float3(startPos.x + bearingX, startPos.y - glyphHeight, 0), m_color)); //2
+					drawInfo->m_uiVertex.push_back(GameUIVertex(uvPosition + uvSize, math::float3(startPos.x + bearingX + glyphWidth, startPos.y - glyphHeight, 0), m_color)); //3
+
+					startPos.x = startPos.x + advanceX;
 				}
 
 				//index generate

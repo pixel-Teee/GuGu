@@ -33,6 +33,8 @@ namespace GuGu {
 		int32_t queryGlyphAdvance(FT_Face& newFace);
 
 		std::vector<uint8_t> getGlyphPixelData(FT_Face& newFace);
+
+		float getMaxHeight(FT_Face& newFace);
 	private:
 
 		FT_Library* m_freeTypeLibrary;
