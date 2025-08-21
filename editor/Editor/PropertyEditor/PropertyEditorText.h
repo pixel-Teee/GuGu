@@ -24,6 +24,8 @@ namespace GuGu {
 		static bool supports(const std::shared_ptr<PropertyEditor>& inPropertyEditor);
 
 		void getFixedWidth(float& outMinFixedWidth, float& outMaxFixedWidth);
+
+		void onTextCommitted(const GuGuUtf8Str& newText, TextCommit::Type);
 	private:
 		std::shared_ptr<PropertyEditor> m_propertyEditor;
 

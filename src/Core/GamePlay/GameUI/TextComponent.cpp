@@ -269,7 +269,7 @@ namespace GuGu {
 		return m_text;
 	}
 
-	void TextComponent::setText(const GuGuUtf8Str& inText)
+	void TextComponent::setText(GuGuUtf8Str inText)
 	{
 		m_text = inText;
 	}

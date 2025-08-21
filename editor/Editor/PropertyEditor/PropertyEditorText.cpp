@@ -10,6 +10,7 @@ namespace GuGu {
 	void PropertyEditorText::init(const BuilderArguments& arguments, 
 	std::shared_ptr<PropertyEditor> inPropertyEditor)
 	{
+		m_propertyEditor = inPropertyEditor;
 		//todo:check muti line
 
 		std::shared_ptr<HorizontalBox> horizontalBox;
@@ -20,6 +21,7 @@ namespace GuGu {
 		(
 			WIDGET_ASSIGN_NEW(EditableTextBox, m_singleLineWidget)
 			.Text(inPropertyEditor, &PropertyEditor::getValueAsText)
+			.onTextCommitted(this, &PropertyEditorText::onTextCommitted)
 		);
 
 		m_childWidget = std::make_shared<SingleChildSlot>();
@@ -44,6 +46,19 @@ namespace GuGu {
 	{
 		outMinFixedWidth = 125.0f;
 		outMaxFixedWidth = 600.0f;
+	}
+
+	void PropertyEditorText::onTextCommitted(const GuGuUtf8Str& newText, TextCommit::Type)
+	{
+		const std::shared_ptr<PropertyNode> propertyNode = m_propertyEditor->getPropertyNode();
+		const std::shared_ptr<IPropertyHandle> propertyHandle = m_propertyEditor->getPropertyHandle();
+
+		GuGuUtf8Str currentText;
+		propertyHandle->getValueAsFormattedString(currentText);
+		if (currentText != newText)
+		{
+			propertyHandle->setValueFromFormattedString(newText);
+		}
 	}
 
 }

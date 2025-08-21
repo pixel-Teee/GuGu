@@ -43,7 +43,7 @@ namespace GuGu {
 
 		GuGuUtf8Str getText() const;
 		GuGuUtf8Str& getText();
-		void setText(const GuGuUtf8Str& inText);
+		void setText(GuGuUtf8Str inText);//todo:fix this
 	private:
 		//text color
 		Color m_color;

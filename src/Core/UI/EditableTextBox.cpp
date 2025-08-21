@@ -16,6 +16,8 @@ namespace GuGu {
     }
     void EditableTextBox::init(const BuilderArguments& arguments)
     {
+        m_onTextCommitted = arguments.monTextCommitted;
+
         Border::init(Border::BuilderArguments()
             .Content(
                 WIDGET_NEW(HorizontalBox)
@@ -31,7 +33,9 @@ namespace GuGu {
                     .Content
                     (
                         WIDGET_ASSIGN_NEW(EditableText, m_editableText)
+                        .visibility(Visibility::Visible)
                         .text(arguments.mText)
+                        .onTextCommitted(this, &EditableTextBox::onEditableTextCommitted)
                     )
                 )
             )
@@ -57,7 +61,15 @@ namespace GuGu {
         return reply;
     }
 
-    std::shared_ptr<Brush> EditableTextBox::getBorderImage() const
+	void EditableTextBox::onEditableTextCommitted(const GuGuUtf8Str& inText, TextCommit::Type inCommitType)
+	{
+        if (m_onTextCommitted)//check bound
+        {
+            m_onTextCommitted(inText, inCommitType);
+        }
+	}
+
+	std::shared_ptr<Brush> EditableTextBox::getBorderImage() const
     {
         return m_style->m_backgroundImageNormal;
     }

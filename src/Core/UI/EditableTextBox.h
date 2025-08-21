@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Border.h"
-
+#include "WidgetDelegates.h" //OnTextCommitted
 #include <Core/GuGuUtf8Str.h>
 
 namespace GuGu {
@@ -29,6 +29,8 @@ namespace GuGu {
 			//ARGUMENT_VALUE(HorizontalAlignment, horizontalAlignment)
 			//
 			//ARGUMENT_VALUE(Padding, padding)
+			UI_EVENT(OnTextCommitted, onTextCommitted)//文本提交的回调
+
 			ARGUMENT_ATTRIBUTE(GuGuUtf8Str, Text)
 		};
 
@@ -37,6 +39,8 @@ namespace GuGu {
 		virtual bool supportsKeyboardFocus() const override;
 
 		virtual Reply OnFocusReceived(const WidgetGeometry& myGeometry);
+
+		void onEditableTextCommitted(const GuGuUtf8Str& inText, TextCommit::Type inCommitType);
 	private:
 		Padding determinePadding() const { return Padding(8.0f, 3.0f, 8.0f, 4.0f); }//todo:fix this, 使用 style 的 padding
 
@@ -45,5 +49,7 @@ namespace GuGu {
 		std::shared_ptr<EditableTextBoxStyle> m_style;
 
 		std::shared_ptr<EditableText> m_editableText;
+
+		OnTextCommitted m_onTextCommitted;
 	};
 }
