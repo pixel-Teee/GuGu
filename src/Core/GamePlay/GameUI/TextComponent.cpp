@@ -184,6 +184,7 @@ namespace GuGu {
 				{
 					startPos.x = absolutePos.x;
 					startPos.y = startPos.y - maxHeight;//todo:add line gap
+					startPosY = startPos.y - (maxHeight - bearingY);
 
 					//vertex generate
 					drawInfo->m_uiVertex.push_back(GameUIVertex(uvPosition, math::float3(startPos.x + bearingX, startPosY, 0), m_color)); //0
