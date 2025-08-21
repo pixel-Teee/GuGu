@@ -213,6 +213,12 @@ namespace GuGu {
 			field->GetType().importStr(inValue, offsetInstance);
 			fieldValue = std::move(offsetInstance);
 		}
+		else if (field->GetType() == typeof(GuGuUtf8Str))
+		{
+			GuGuUtf8Str str = inValue;
+			meta::Variant strInstance = str;
+			fieldValue = std::move(strInstance);
+		}
 		for (int32_t i = 0; i < owners.size(); ++i)
 		{
 			meta::Field curField = meta::ReflectionDatabase::Instance().types[owners[i].GetType().GetID()].GetField(field->GetName().getStr());//have this field?
