@@ -105,7 +105,7 @@ namespace GuGu {
 
 	GuGuUtf8Str Color::toStr() const
 	{
-		char buf[64];
+		char buf[256];
 		std::sprintf(buf, "(r = %f, g = %f, b = %f, a = %f)", r, g, b, a);
 		return buf;
 	}

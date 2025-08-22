@@ -69,6 +69,10 @@ namespace GuGu {
 			(meta::FieldGetter<TextComponent, std::weak_ptr<GameObject>&, true>::Signature) & TextComponent::getParentGameObject,
 			(meta::FieldSetter<TextComponent, std::weak_ptr<GameObject>&, true>::Signature) & TextComponent::setParentGameObject, {});
 
+		type.AddField<TextComponent, math::float2>("m_alignment",
+			(meta::FieldGetter<TextComponent, math::float2&, true>::Signature) & TextComponent::getAlignment,
+			(meta::FieldSetter<TextComponent, math::float2, true>::Signature) & TextComponent::setAlignment, {});
+
 		return true;
 	}
 
@@ -88,6 +92,8 @@ namespace GuGu {
 		m_color = Color(0.5f, 1.0f, 1.0f, 1.0f);
 		m_text = GuGuUtf8Str(u8"Love");
 		m_fontPoint = 14;
+
+		m_alignment = math::float2(0.5, 0.5);//居中对齐
 
 		GuGuUtf8Str noFileExtensionsFileName = "STKAITI"; //ttf
 		GuGuUtf8Str outputFilePath = "content/" + noFileExtensionsFileName + ".json";
@@ -150,7 +156,41 @@ namespace GuGu {
 
 			math::float2 startPos = absolutePos.xy() + math::float2(0, localSize.y);
 			uint32_t currenIndex = 0;
+
+			//------为文本对齐提前做宽度的测量------
+			std::vector<float> measuredWidth;
+			math::float2 startPos2 = absolutePos.xy() + math::float2(0, localSize.y);
+			//计算每一行的实际宽度，为后续文本对齐做准备
+			for (size_t i = 0; i < m_text.len(); ++i)
+			{
+				GuGuUtf8Str currentChar = m_text[i];
+
+				//获取度量信息
+				GFontCharacterMetrics metrics = font->getFontMetrices(currentChar, m_fontPoint, scale);
+
+				//计算字形位置
+				float bearingY = metrics.m_bearing.y;
+				float bearingX = metrics.m_bearing.x;
+				float advanceX = metrics.m_advance;
+				float glyphWidth = metrics.m_size.x;
+				float glyphHeight = metrics.m_size.y;
+
+				if ((startPos2.x + bearingX + glyphWidth) < (absolutePos.x + localSize.x))
+				{
+					startPos2.x = startPos2.x + advanceX;
+				}
+				else
+				{
+					measuredWidth.push_back(startPos2.x - absolutePos.x);
+					startPos2.x = absolutePos.x;
+					startPos2.y = startPos2.y - maxHeight;//todo:add line gap
+				}
+			}
+			measuredWidth.push_back(startPos2.x - absolutePos.x);
+			//------为文本对齐提前做宽度的测量------
+			
 			//generate text
+			uint32_t currentMeasureWidthIndex = 0;
 			for (size_t i = 0; i < m_text.len(); ++i)
 			{
 				GuGuUtf8Str currentChar = m_text[i];
@@ -170,27 +210,32 @@ namespace GuGu {
 				math::float2 uvSize = metrics.m_uvSize;
 				float startPosY = startPos.y - (maxHeight - bearingY);
 
-				if ((startPos.x + bearingX + glyphWidth) < (absolutePos.x + localSize.x))
+				//文本对齐的x偏移
+				float offsetX = (localSize.x - measuredWidth[currentMeasureWidthIndex]) * m_alignment.x;
+
+				if ((startPos.x + bearingX + glyphWidth + offsetX) < (absolutePos.x + localSize.x))
 				{
 					//vertex generate
-					drawInfo->m_uiVertex.push_back(GameUIVertex(uvPosition, math::float3(startPos.x + bearingX, startPosY, 0), m_color)); //0
-					drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(uvPosition.x + uvSize.x, uvPosition.y), math::float3(startPos.x + bearingX + glyphWidth, startPosY, 0), m_color)); //1
-					drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(uvPosition.x, uvPosition.y + uvSize.y), math::float3(startPos.x + bearingX, startPosY - glyphHeight, 0), m_color)); //2
-					drawInfo->m_uiVertex.push_back(GameUIVertex(uvPosition + uvSize, math::float3(startPos.x + bearingX + glyphWidth, startPosY - glyphHeight, 0), m_color)); //3
+					drawInfo->m_uiVertex.push_back(GameUIVertex(uvPosition, math::float3(startPos.x + bearingX + offsetX, startPosY, 0), m_color)); //0
+					drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(uvPosition.x + uvSize.x, uvPosition.y), math::float3(startPos.x + bearingX + glyphWidth + offsetX, startPosY, 0), m_color)); //1
+					drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(uvPosition.x, uvPosition.y + uvSize.y), math::float3(startPos.x + bearingX + offsetX, startPosY - glyphHeight, 0), m_color)); //2
+					drawInfo->m_uiVertex.push_back(GameUIVertex(uvPosition + uvSize, math::float3(startPos.x + bearingX + glyphWidth + offsetX, startPosY - glyphHeight, 0), m_color)); //3
 
 					startPos.x = startPos.x + advanceX;
 				}
 				else
 				{
+					currentMeasureWidthIndex = currentMeasureWidthIndex + 1;
+					float offsetX = (localSize.x - measuredWidth[currentMeasureWidthIndex]) * m_alignment.x;
 					startPos.x = absolutePos.x;
 					startPos.y = startPos.y - maxHeight;//todo:add line gap
 					startPosY = startPos.y - (maxHeight - bearingY);
 
 					//vertex generate
-					drawInfo->m_uiVertex.push_back(GameUIVertex(uvPosition, math::float3(startPos.x + bearingX, startPosY, 0), m_color)); //0
-					drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(uvPosition.x + uvSize.x, uvPosition.y), math::float3(startPos.x + bearingX + glyphWidth, startPosY, 0), m_color)); //1
-					drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(uvPosition.x, uvPosition.y + uvSize.y), math::float3(startPos.x + bearingX, startPosY - glyphHeight, 0), m_color)); //2
-					drawInfo->m_uiVertex.push_back(GameUIVertex(uvPosition + uvSize, math::float3(startPos.x + bearingX + glyphWidth, startPosY - glyphHeight, 0), m_color)); //3
+					drawInfo->m_uiVertex.push_back(GameUIVertex(uvPosition, math::float3(startPos.x + bearingX + offsetX, startPosY, 0), m_color)); //0
+					drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(uvPosition.x + uvSize.x, uvPosition.y), math::float3(startPos.x + bearingX + glyphWidth + offsetX, startPosY, 0), m_color)); //1
+					drawInfo->m_uiVertex.push_back(GameUIVertex(math::float2(uvPosition.x, uvPosition.y + uvSize.y), math::float3(startPos.x + bearingX + offsetX, startPosY - glyphHeight, 0), m_color)); //2
+					drawInfo->m_uiVertex.push_back(GameUIVertex(uvPosition + uvSize, math::float3(startPos.x + bearingX + glyphWidth + offsetX, startPosY - glyphHeight, 0), m_color)); //3
 
 					startPos.x = startPos.x + advanceX;
 				}
@@ -279,6 +324,21 @@ namespace GuGu {
 	void TextComponent::setText(GuGuUtf8Str inText)
 	{
 		m_text = inText;
+	}
+
+	math::float2 TextComponent::getAlignment() const
+	{
+		return m_alignment;
+	}
+
+	math::float2& TextComponent::getAlignment()
+	{
+		return m_alignment;
+	}
+
+	void TextComponent::setAlignment(math::float2 inAlignment)
+	{
+		m_alignment = inAlignment;
 	}
 
 }

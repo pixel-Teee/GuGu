@@ -44,6 +44,10 @@ namespace GuGu {
 		GuGuUtf8Str getText() const;
 		GuGuUtf8Str& getText();
 		void setText(GuGuUtf8Str inText);//todo:fix this
+
+		math::float2 getAlignment() const;
+		math::float2& getAlignment();
+		void setAlignment(math::float2 inAlignment);
 	private:
 		//text color
 		Color m_color;
@@ -54,5 +58,7 @@ namespace GuGu {
 		std::shared_ptr<AssetData> m_fontAsset;
 
 		float m_fontPoint;//font size
+
+		math::float2 m_alignment;
 	};
 }
