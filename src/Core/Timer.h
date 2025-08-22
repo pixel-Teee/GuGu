@@ -24,13 +24,15 @@ namespace GuGu {
 
 		virtual ~Timer() {}
 
-		void registerCallback(int32_t delaySeconds, std::function<void(int32_t)> inCallback);
+		std::shared_ptr<CallBackInfo> registerCallback(float delaySeconds, std::function<void(int32_t)> inCallback);
 
 		void removeCallback(int32_t callbackId);
 
+		void removeCallback(std::shared_ptr<CallBackInfo> inCallback);
+
 		void onCallCallback();
 	private:
-		std::vector<CallBackInfo> m_callbacks;
+		std::vector<std::shared_ptr<CallBackInfo>> m_callbacks;
 
 		static int32_t m_callbackId;
 	};

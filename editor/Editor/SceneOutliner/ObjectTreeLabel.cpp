@@ -127,22 +127,21 @@ namespace GuGu {
 				//detect drag
 				//return Reply::Handled().detectDrag(shared_from_this(), Keys::LeftMouseButton);
 
-				Reply reply = Reply::Unhandled();
-				//rename
-				Application::getApplication()->getTimer()->registerCallback(1.5f, [&](int32_t callbackId) {
-					if (m_ownerRow.lock() && m_ownerRow.lock()->isSelected())
-					{
+				if (m_ownerRow.lock()->isSelected() && !m_activeTimer.lock())
+				{
+					m_activeTimer = Application::getApplication()->getTimer()->registerCallback(0.5f, [&](int32_t callbackId) {
 						if (!Application::getApplication()->isDragDropping())
 						{
 							m_bShowName = false;
 							Application::getApplication()->setKeyboardFocus(m_editableText);
 							//enter rename
 							GuGu_LOGD("enter rename");
-						}	
-					}
-					Application::getApplication()->getTimer()->removeCallback(callbackId);
-				});
-				//reply.setFocus(m_editableText);
+						}
+						Application::getApplication()->getTimer()->removeCallback(callbackId);
+					});
+				}
+
+				Reply reply = Reply::Unhandled();
 				return reply;
 			}
 			else if (inMouseEvent.getEffectingButton() == Keys::RightMouseButton)
@@ -252,6 +251,13 @@ namespace GuGu {
 
 		Reply ObjectTreeLabel::OnDragOver(const WidgetGeometry& myGeometry, const DragDropEvent& dragDropEvent)
 		{
+			std::shared_ptr<CallBackInfo> lockedActiveTimer = m_activeTimer.lock();
+			if (lockedActiveTimer)
+			{
+				Application::getApplication()->getTimer()->removeCallback(lockedActiveTimer);
+				return Reply::Unhandled();
+			}
+
 			//check hover zone
 			math::float2 localPosition = myGeometry.absoluteToLocal(dragDropEvent.m_screenSpacePosition);
 			if (localPosition.y <= 5.f)

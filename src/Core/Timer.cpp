@@ -9,14 +9,15 @@ namespace GuGu {
 		m_callbackId = 0;
 	}
 
-	void Timer::registerCallback(int32_t delaySeconds, std::function<void(int32_t)> inCallback)
+	std::shared_ptr<CallBackInfo> Timer::registerCallback(float delaySeconds, std::function<void(int32_t)> inCallback)
 	{
-		CallBackInfo callbackInfo;
-		callbackInfo.m_triggerTimePoint = GetTotalTime() + delaySeconds;
-		callbackInfo.m_callback = inCallback;
+		std::shared_ptr<CallBackInfo> callBackInfoPtr = std::make_shared<CallBackInfo>();
+		callBackInfoPtr->m_triggerTimePoint = GetTotalTime() + delaySeconds;
+		callBackInfoPtr->m_callback = inCallback;
 		m_callbackId = ++m_callbackId;
-		callbackInfo.id = m_callbackId;
-		m_callbacks.push_back(callbackInfo);
+		callBackInfoPtr->id = m_callbackId;
+		m_callbacks.push_back(callBackInfoPtr);
+		return callBackInfoPtr;
 	}
 
 	void Timer::removeCallback(int32_t callbackId)
@@ -24,7 +25,21 @@ namespace GuGu {
 		int32_t pos = -1;
 		for (int32_t i = 0; i < m_callbacks.size(); ++i)
 		{
-			if (m_callbacks[i].id == callbackId)
+			if (m_callbacks[i]->id == callbackId)
+			{
+				pos = i;
+				break;
+			}
+		}
+		m_callbacks.erase(m_callbacks.begin() + pos);
+	}
+
+	void Timer::removeCallback(std::shared_ptr<CallBackInfo> inCallback)
+	{
+		int32_t pos = -1;
+		for (int32_t i = 0; i < m_callbacks.size(); ++i)
+		{
+			if (m_callbacks[i] == inCallback)
 			{
 				pos = i;
 				break;
@@ -37,8 +52,8 @@ namespace GuGu {
 	{
 		for (int32_t i = 0; i < m_callbacks.size(); ++i)
 		{
-			if (m_callbacks[i].m_triggerTimePoint <= GetTotalTime())
-				m_callbacks[i].m_callback(m_callbacks[i].id);
+			if (m_callbacks[i]->m_triggerTimePoint <= GetTotalTime())
+				m_callbacks[i]->m_callback(m_callbacks[i]->id);
 		}
 	}
 

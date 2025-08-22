@@ -13,6 +13,7 @@ namespace GuGu {
 	class GameObject;
 	struct ObjectTreeItem;
 	class TransactionManager;
+	struct CallBackInfo;
 	namespace SceneOutlinerNameSpace
 	{
 		struct ObjectTreeLabel : public SceneOutlinerCommonLabelData, public CompoundWidget
@@ -77,6 +78,8 @@ namespace GuGu {
 			bool m_bDragHoverTopBorder;
 			bool m_bDragHoverCenter;
 			bool m_bDragHoverBottomBorder;
+
+			std::weak_ptr<CallBackInfo> m_activeTimer;
 		};
 	}
 	
