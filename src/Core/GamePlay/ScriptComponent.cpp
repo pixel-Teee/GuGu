@@ -26,7 +26,7 @@ namespace GuGu {
 
 			type.AddConstructor<ScriptComponent, true, true>({});
 
-			type.LoadBaseClasses(db, typeID, { typeof(ScriptComponent) });
+			type.LoadBaseClasses(db, typeID, { typeof(Component) });
 
 			meta::TypeInfo<ScriptComponent>::Defined = true;
 		}
@@ -50,6 +50,10 @@ namespace GuGu {
 	{
 		auto& db = meta::ReflectionDatabase::Instance();
 		auto& type = db.types[typeof(ScriptComponent).GetID()];
+
+		type.AddField<ScriptComponent, GuGuUtf8Str>("m_scriptPath",
+			(meta::FieldGetter<ScriptComponent, GuGuUtf8Str&, true>::Signature) & ScriptComponent::getScriptPath,
+			(meta::FieldSetter<ScriptComponent, GuGuUtf8Str, true>::Signature) & ScriptComponent::setScriptPath, {});
 
 		type.AddField<ScriptComponent, std::weak_ptr<GameObject>>("m_owner",
 			(meta::FieldGetter<ScriptComponent, std::weak_ptr<GameObject>&, true>::Signature) & ScriptComponent::getParentGameObject,
@@ -80,7 +84,9 @@ namespace GuGu {
 
 	meta::Object* ScriptComponent::Clone(void) const
 	{
-		return nullptr;
+		ScriptComponent* scriptComponent = new ScriptComponent();
+		scriptComponent->m_scriptPath = m_scriptPath;
+		return scriptComponent;
 	}
 
 	void ScriptComponent::Update(float fElapsedTimeSeconds)
@@ -91,6 +97,21 @@ namespace GuGu {
 	meta::Type ScriptComponent::GetType() const
 	{
 		return typeof(ScriptComponent);
+	}
+
+	GuGuUtf8Str ScriptComponent::getScriptPath() const
+	{
+		return m_scriptPath;
+	}
+
+	GuGuUtf8Str& ScriptComponent::getScriptPath()
+	{
+		return m_scriptPath;
+	}
+
+	void ScriptComponent::setScriptPath(const GuGuUtf8Str& inScriptPath)
+	{
+		m_scriptPath = inScriptPath;
 	}
 
 }

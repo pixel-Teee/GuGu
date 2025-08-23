@@ -22,6 +22,7 @@
 #include <Core/GamePlay/GameUI/ImageComponent.h>
 #include <Core/GamePlay/GameUI/CanvasComponent.h>
 #include <Core/GamePlay/GameUI/ButtonComponent.h>
+#include <Core/GamePlay/ScriptComponent.h>
 
 #include <Renderer/Color.h>
 
@@ -518,6 +519,9 @@ namespace GuGu {
 
 		ButtonComponent::registerMainFactory();
 		ButtonComponent::registerMainFactory2();
+
+		ScriptComponent::registerMainFactory();
+		ScriptComponent::registerMainFactory2();
 
 		ReflectionMain::initialize();
 

@@ -20,5 +20,11 @@ namespace GuGu {
 		void Update(float fElapsedTimeSeconds) override;
 
 		virtual meta::Type GetType() const override;
+
+		GuGuUtf8Str getScriptPath() const;
+		GuGuUtf8Str& getScriptPath();
+		void setScriptPath(const GuGuUtf8Str& inScriptPath);
+	private:
+		GuGuUtf8Str m_scriptPath;
 	};
 }
