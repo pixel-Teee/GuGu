@@ -315,12 +315,12 @@ namespace GuGu {
 			    (
 				    makeColorSlider(ColorPickerChannels::Value) //明度
 			    )
-				//+ HorizontalBox::Slot()
-				//.FixedWidth()
-				//.setPadding(Padding(4.0f, 0.0f))
-				//(
-				//    alphaSlider //透明度
-				//)
+				+ HorizontalBox::Slot()
+				.FixedWidth()
+				.setPadding(Padding(4.0f, 0.0f))
+				(
+				    alphaSlider //透明度
+				)
 		    )
             + VerticalBox::Slot()
             .FixedHeight()

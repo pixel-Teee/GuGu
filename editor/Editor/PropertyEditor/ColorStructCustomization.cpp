@@ -45,7 +45,7 @@ namespace GuGu {
 		getColor(initialColor);
 		ColorPickerArgs pickerArgs;
 		{
-			pickerArgs.m_bUseAlpha = !bUseAlpha;
+			pickerArgs.m_bUseAlpha = bUseAlpha;
 			pickerArgs.m_parentWidget = m_colorPickerParentWidget;
 			pickerArgs.m_onColorCommitted = std::bind(&ColorStructCustomization::onSetColorFromColorPicker, this, std::placeholders::_1);
 			pickerArgs.m_parentWidget = m_colorPickerParentWidget;

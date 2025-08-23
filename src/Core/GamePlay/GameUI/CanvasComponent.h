@@ -2,6 +2,8 @@
 
 #include <Core/GamePlay/Component.h>
 
+#include <Renderer/nvrhi.h>
+
 namespace GuGu {
 	class CanvasComponent : public Component
 	{
@@ -18,7 +20,6 @@ namespace GuGu {
 		void Update(float fElapsedTimeSeconds) override;
 
 		virtual meta::Type GetType() const override;
-
 	private:
 		float m_scaleFactor;
 	};

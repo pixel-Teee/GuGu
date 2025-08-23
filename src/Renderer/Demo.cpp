@@ -1579,6 +1579,11 @@ namespace GuGu {
 			psoDesc.renderState.depthStencilState.depthTestEnable = false;
 			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
 			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
+			psoDesc.renderState.blendState.targets[0].setBlendEnable(true);
+			psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
+			psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
+			psoDesc.renderState.blendState.targets[0].setSrcBlendAlpha(nvrhi::BlendFactor::Zero);
+			psoDesc.renderState.blendState.targets[0].setDestBlendAlpha(nvrhi::BlendFactor::One);
 			m_gameUIPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
@@ -2298,6 +2303,11 @@ namespace GuGu {
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
 			psoDesc.renderState.depthStencilState.depthTestEnable = false;
 			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
+			psoDesc.renderState.blendState.targets[0].setBlendEnable(true);
+			psoDesc.renderState.blendState.targets[0].setSrcBlend(nvrhi::BlendFactor::SrcAlpha);
+			psoDesc.renderState.blendState.targets[0].setDestBlend(nvrhi::BlendFactor::OneMinusSrcAlpha);
+			psoDesc.renderState.blendState.targets[0].setSrcBlendAlpha(nvrhi::BlendFactor::Zero);
+			psoDesc.renderState.blendState.targets[0].setDestBlendAlpha(nvrhi::BlendFactor::One);
 			m_gameUIPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
