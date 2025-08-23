@@ -115,6 +115,29 @@ namespace GuGu {
         }
 	}
 
+	float ColorPicker::handleColorSpinBoxValue(ColorPickerChannels channel) const
+	{
+        switch (channel)
+        {
+        case GuGu::ColorPickerChannels::Red:
+            return m_currentColorRGB.r;
+		case GuGu::ColorPickerChannels::Green:
+            return m_currentColorRGB.g;
+		case GuGu::ColorPickerChannels::Blue:
+            return m_currentColorRGB.b;
+		case GuGu::ColorPickerChannels::Alpha:
+            return m_currentColorRGB.a;
+		case GuGu::ColorPickerChannels::Hue:
+            return m_currentColorHSV.r;
+		case GuGu::ColorPickerChannels::Saturation:
+            return m_currentColorHSV.g;
+		case GuGu::ColorPickerChannels::Value:
+            return m_currentColorHSV.b;
+		default:
+            return 0.0f;
+        }
+	}
+
 	bool ColorPicker::setNewTargetColorRgb(const Color& newValue, bool bForceUpdate /*= false*/)
 	{
 		m_currentColorRGB = newValue;
@@ -292,12 +315,12 @@ namespace GuGu {
 			    (
 				    makeColorSlider(ColorPickerChannels::Value) //明度
 			    )
-			    + HorizontalBox::Slot()
-			    .FixedWidth()
-			    .setPadding(Padding(4.0f, 0.0f))
-			    (
-				    alphaSlider //透明度
-			    )
+				//+ HorizontalBox::Slot()
+				//.FixedWidth()
+				//.setPadding(Padding(4.0f, 0.0f))
+				//(
+				//    alphaSlider //透明度
+				//)
 		    )
             + VerticalBox::Slot()
             .FixedHeight()
@@ -344,6 +367,7 @@ namespace GuGu {
                    .sliderBarColor(Color(0.0f, 0.0f, 0.0f, 0.0f)) //transparent
                    .orientation(Orientation::Vertical)
                    .visibility(Visibility::Visible)
+                   .Value(this, &ColorPicker::handleColorSpinBoxValue, channel)
                    .OnValueChanged(const_cast<ColorPicker*>(this), &ColorPicker::handleColorSpinBoxValueChanged, channel)
                );
 	}

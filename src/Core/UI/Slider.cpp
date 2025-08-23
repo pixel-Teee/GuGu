@@ -29,6 +29,7 @@ namespace GuGu {
 		m_isFocusable = arguments.mIsFocusable;
 		m_visibilityAttribute = arguments.mVisibility;
 		m_sliderBarColor = arguments.msliderBarColor;
+		m_valueAttribute = arguments.mValue;
 	}
 	uint32_t Slider::onGenerateElement(PaintArgs& paintArgs, const math::box2& cullingRect, ElementList& elementList, const WidgetGeometry& allocatedGeometry, uint32_t layer)
 	{

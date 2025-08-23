@@ -171,6 +171,8 @@ namespace GuGu {
 		Color handleColorSliderStartColor(ColorPickerChannels channel) const;
 
 		void handleColorSpinBoxValueChanged(float newValue, ColorPickerChannels channel);
+		
+		float handleColorSpinBoxValue(ColorPickerChannels channel) const;
 
 		bool setNewTargetColorRgb(const Color& newValue, bool bForceUpdate = false);
 		bool setNewTargetColorHsv(const Color& newValue, bool bForceUpdate = false);
