@@ -36,7 +36,9 @@ namespace GuGu {
 
 			Reply OnMouseButtonDoubleClick(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent);
 
-			Reply rightClick();
+			Reply rightClickDeleteGameObject();
+
+			Reply rightClickAddChildGameObject();
 
 			Reply OnDragDetected(const WidgetGeometry& myGeometry, const PointerEvent& mouseEvent) override;
 

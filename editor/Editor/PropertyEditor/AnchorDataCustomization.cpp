@@ -178,10 +178,10 @@ namespace GuGu {
 						for (int32_t i = 0; i < owners.size(); ++i)
 						{
 							meta::Field curField = meta::ReflectionDatabase::Instance().types[owners[i].GetType().GetID()].GetField(field->GetName().getStr());//have this field?
-							if (curField.GetType() == field->GetType())
+							if (curField.GetType() == field->GetType() && field->GetClassType() == owners[i].GetType())
 							{
 								meta::Variant& instance = owners[i];
-								fieldValue = propertyNode->getField()->GetValue(instance);
+								fieldValue = field->GetValue(instance);
 							}
 						}
 					}
@@ -455,7 +455,7 @@ namespace GuGu {
 				{
 					//get fields
 					meta::Field curField = meta::ReflectionDatabase::Instance().types[objects[i]->GetType().GetID()].GetField(field->GetName().getStr());//have this field?
-					if (curField.GetType() == field->GetType())
+					if (curField.GetType() == field->GetType() && field->GetClassType() == objects[i]->GetType())
 					{
 						owner = objects[i];
 						break;
@@ -484,7 +484,7 @@ namespace GuGu {
 			for (int32_t i = 0; i < owners.size(); ++i)
 			{
 				meta::Field curField = meta::ReflectionDatabase::Instance().types[owners[i].GetType().GetID()].GetField(field->GetName().getStr());//have this field?
-				if (curField.GetType() == field->GetType())
+				if (curField.GetType() == field->GetType() && field->GetClassType() == owners[i].GetType())
 				{
 					meta::Variant& instance = owners[i];
 					fieldValue = propertyNode->getField()->GetValue(instance);

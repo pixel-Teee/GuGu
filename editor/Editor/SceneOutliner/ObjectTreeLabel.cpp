@@ -18,6 +18,9 @@
 #include <Core/UI/TableRow.h>
 #include <Core/UI/EditableText.h>
 
+#include <Core/GamePlay/TransformComponent.h>
+#include <Core/GamePlay/GameUI/UITransformComponent.h>
+
 namespace GuGu {
 
 	namespace SceneOutlinerNameSpace
@@ -147,14 +150,32 @@ namespace GuGu {
 			else if (inMouseEvent.getEffectingButton() == Keys::RightMouseButton)
 			{
 				std::shared_ptr<Widget> menuContent;
-				menuContent = WIDGET_NEW(Button)
-					.Clicked(this, &ObjectTreeLabel::rightClick)
-					.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
-					.Content
+				menuContent = WIDGET_NEW(VerticalBox)
+					+ VerticalBox::Slot()
+					.FixedHeight()
 					(
-						WIDGET_NEW(TextBlockWidget)
-						.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
-						.text("delete game object")
+						WIDGET_NEW(Button)
+						.Clicked(this, &ObjectTreeLabel::rightClickDeleteGameObject)
+						.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+						.Content
+						(
+							WIDGET_NEW(TextBlockWidget)
+							.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+							.text("delete game object")
+						)
+					)
+					+ VerticalBox::Slot()
+					.FixedHeight()
+					(
+						WIDGET_NEW(Button)
+						.Clicked(this, &ObjectTreeLabel::rightClickAddChildGameObject)
+						.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+						.Content
+						(
+							WIDGET_NEW(TextBlockWidget)
+							.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+							.text("add child game object")
+						)
 					);
 
 				WidgetPath widgetPath = WidgetPath();
@@ -175,7 +196,7 @@ namespace GuGu {
 			return Reply::Unhandled();
 		}
 
-		Reply ObjectTreeLabel::rightClick()
+		Reply ObjectTreeLabel::rightClickDeleteGameObject()
 		{
 			m_menu->dismiss();
 			//delete object
@@ -192,6 +213,59 @@ namespace GuGu {
 				transactionManager.commit();
 			}	
 	
+			if (m_weakSceneOutliner.lock())
+			{
+				m_weakSceneOutliner.lock()->refresh();
+				//m_weakSceneOutliner.lock()->
+				std::shared_ptr<Widget> parentWindow = m_weakSceneOutliner.lock()->getParentWindow();
+				if (parentWindow)
+				{
+					std::shared_ptr<EditorMainWindow> parentWindowLocked = std::static_pointer_cast<EditorMainWindow>(parentWindow);
+					if (parentWindowLocked)
+					{
+						std::vector<GameObject*> emptyGameObjects;
+						parentWindowLocked->onItemSelect(emptyGameObjects, true);
+					}
+				}
+			}
+
+			return Reply::Handled();
+		}
+
+		Reply ObjectTreeLabel::rightClickAddChildGameObject()
+		{
+			m_menu->dismiss();
+			//add object
+
+			std::shared_ptr<Level> currentLevel = World::getWorld()->getCurrentLevel();
+			if (currentLevel)
+			{
+				//undo/redo
+				TransactionManager& transactionManager = TransactionManager::getTransactionManager();
+				transactionManager.beginTransaction();
+				transactionManager.modifyObject(currentLevel);
+				//World::getWorld()->getCurrentLevel()->deleteGameObject(m_objectPtr.lock());
+				
+				//create game object and add child
+				if (m_objectPtr.lock())
+				{
+					std::shared_ptr<GameObject> gameObject = std::make_shared<GameObject>();	
+					if (m_objectPtr.lock()->getComponent<UITransformComponent>())
+					{
+						gameObject->addComponent(std::make_shared<UITransformComponent>());
+					}
+					else if (m_objectPtr.lock()->getComponent<TransformComponent>())
+					{
+						gameObject->addComponent(std::make_shared<TransformComponent>());
+					}
+					m_objectPtr.lock()->addChildren(gameObject);
+
+					World::getWorld()->getCurrentLevel()->addGameObject(gameObject);
+				}
+
+				transactionManager.commit();
+			}
+
 			if (m_weakSceneOutliner.lock())
 			{
 				m_weakSceneOutliner.lock()->refresh();
