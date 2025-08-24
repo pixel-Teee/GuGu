@@ -68,6 +68,9 @@ namespace GuGu {
 			(meta::FieldGetter<GameObject, std::weak_ptr<GameObject>&, true>::Signature) & GameObject::getParentGameObject,
 			(meta::FieldSetter<GameObject, std::weak_ptr<GameObject>&, true>::Signature) & GameObject::setParentGameObject, {});
 
+		//method functions
+		type.AddMethod("setName", &GameObject::setName, {});
+
 		return true;
 	}
 	IMPLEMENT_INITIAL_BEGIN(GameObject)

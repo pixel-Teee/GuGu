@@ -15,13 +15,83 @@
 #include <Core/AssetManager/AssetManager.h>
 #include <Renderer/Demo.h>
 #include <Core/GamePlay/ViewportClient.h>
+#include <Core/Reflection/TypeInfo.h>
+#include <Core/GamePlay/ScriptComponent.h>
 
 namespace GuGu {
+	static bool registerGuGuWorld()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto id = db.AllocateType("GuGu::World");
+		auto& type = db.types[id];
+		meta::TypeInfo<World>::Register(id, type, true, "1EC37ACB-19E4-4842-BDA4-25C312345107");
+
+		auto typeID = typeidof(World);
+		if (typeID != meta::InvalidTypeID && !meta::TypeInfo<World>::Defined)
+		{
+			auto& type = db.types[typeID];
+
+			//array constructor
+			type.SetArrayConstructor<World>();
+
+			type.AddConstructor<World, false, false>({});
+
+			type.AddConstructor<World, true, true>({});
+
+			type.LoadBaseClasses(db, typeID, { typeof(meta::Object) });
+
+			meta::TypeInfo<World>::Defined = true;
+		}
+
+		{
+			auto id = db.AllocateType("std::shared_ptr<GuGu::World>");
+			auto& type = db.types[id];
+			meta::TypeInfo<std::shared_ptr<World>>::Register(id, type, false, "76E5421B-ED24-4A01-8DFF-654DE5AD129A");
+		}
+
+		{
+			auto id = db.AllocateType("std::weak_ptr<GuGu::World>");
+			auto& type = db.types[id];
+			meta::TypeInfo<std::weak_ptr<World>>::Register(id, type, false, "0A299CC1-A26B-418B-9C55-770F9098BEC5");
+		}
+		return true;
+	}
+
+	//fields and functions
+	static bool registerGuGuWorldFields()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto& type = db.types[typeof(World).GetID()];
+
+		type.AddField<Level, Array<std::shared_ptr<GameObject>>>("m_objects",
+			(meta::FieldGetter<Level, Array<std::shared_ptr<GameObject>>&, true>::Signature) & Level::getGameObjects,
+			(meta::FieldSetter<Level, Array<std::shared_ptr<GameObject>>&, true>::Signature) & Level::setGameObjects, {});
+
+		//method functions
+		std::shared_ptr<Level>(World::*getCurrentLevelPtr)() = &World::getCurrentLevel;
+		type.AddMethod("getCurrentLevel", getCurrentLevelPtr, {});
+
+		//static functions
+		type.AddStaticMethod<World>("getWorld", &World::getWorld, {});
+
+		return true;
+	}
+
+	IMPLEMENT_INITIAL_BEGIN(World)
+		ADD_PRIORITY(meta::Object)
+		ADD_INITIAL_FUNCTION_WITH_PRIORITY(registerGuGuWorld)
+	IMPLEMENT_INITIAL_END
+
+	IMPLEMENT_INITIAL_FIELDS_BEGIN(World)
+		ADD_PRIORITY_FIELDS(GameObject)
+		ADD_PRIORITY_FIELDS(Level)
+		ADD_INITIAL_FIELDS_FUNCTION_WITH_PRIORITY(registerGuGuWorldFields)
+	IMPLEMENT_INITIAL_FIELDS_END
 	World::World()
 	{
 		m_editorLevel = std::make_shared<Level>();
 		//create level
-		m_currentLevel = std::make_shared<Level>();		
+		m_currentLevel = m_editorLevel;
 	}
 	World::~World()
 	{
@@ -116,7 +186,7 @@ namespace GuGu {
 
 			if (m_viewportClient->getViewportState() == ViewportClient::Runtime)
 			{
-				m_currentLevel = m_editorLevel;
+				m_currentLevel = m_editorLevel;//todo:(clone)
 			}
 		}
 		for (uint32_t i = 0; i < World::getWorld()->m_onLevelChanged.size(); ++i)
@@ -187,11 +257,56 @@ namespace GuGu {
 		if (state == ViewportClient::ViewportState::Runtime)
 		{
 			m_currentLevel = std::shared_ptr<Level>(static_cast<Level*>(static_cast<meta::Object*>(m_editorLevel->Clone())));
+
+			//start script
+			Array<std::shared_ptr<GameObject>>& gameObjects = m_currentLevel->getGameObjects();
+			for (int32_t i = 0; i < gameObjects.size(); ++i)
+			{
+				//check have script component
+				std::shared_ptr<ScriptComponent> scriptComponent = gameObjects[i]->getComponent<ScriptComponent>();
+				if (scriptComponent)
+				{
+					scriptComponent->initialize();
+				}
+			}
 		}
 		else if(state == ViewportClient::ViewportState::Editor)
 		{
 			m_currentLevel = m_editorLevel;
+
+			//close script
+			Array<std::shared_ptr<GameObject>>& gameObjects = m_currentLevel->getGameObjects();
+			for (int32_t i = 0; i < gameObjects.size(); ++i)
+			{
+				//check have script component
+				std::shared_ptr<ScriptComponent> scriptComponent = gameObjects[i]->getComponent<ScriptComponent>();
+				if (scriptComponent)
+				{
+					scriptComponent->close();
+				}
+			}
 		}
+	}
+
+	void World::Update(float fElapsedTimeSeconds)
+	{
+		//nothing
+	}
+
+	meta::Type World::GetType() const
+	{
+		return typeof(World);
+	}
+
+	meta::Object* World::Clone(void) const
+	{
+		//nothing
+		return nullptr;
+	}
+
+	void World::PostLoad()
+	{
+		//nothing
 	}
 
 }

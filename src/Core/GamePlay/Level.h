@@ -43,6 +43,9 @@ namespace GuGu {
 		int32_t findIndex(std::shared_ptr<GameObject> children);
 
 		void insertChildren(std::shared_ptr<GameObject> children, int32_t index);
+
+		//find game object
+		std::shared_ptr<GameObject> getGameObject(const GuGuUtf8Str& name) const;
 	private:
 		Array<std::shared_ptr<GameObject>> m_objects; //all game objects
 	};

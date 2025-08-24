@@ -6,6 +6,7 @@
 #include "Constructor.h"
 #include "MetaManager.h"
 #include "Method.h"
+#include "Function.h"
 
 #include <Core/GuGuUtf8Str.h>
 #include <Core/Guid.h>
@@ -57,6 +58,7 @@ namespace GuGu {
 			std::unordered_map<GuGuUtf8Str, InvokableOverloadMap<Method>> methods;
 
 			//静态方法
+			std::unordered_map<GuGuUtf8Str, InvokableOverloadMap<Function>> staticMethods;
 
 			//GUID(用于序列化/反序列化唯一ID)
 			GuGu::GGuid typeGuid;
@@ -145,6 +147,27 @@ namespace GuGu {
 
 			const Method& GetMethod(const GuGuUtf8Str& name, const InvokableSignature& signature);
 			//------method------
+
+			//------static method------
+			template<
+				typename ClassType,
+				typename FunctionType
+			>
+			void AddStaticMethod(
+				const GuGuUtf8Str& name,
+				FunctionType function,
+				const MetaManager::Initializer& meta
+			);
+
+			const Function& GetStaticMethod(
+				const GuGuUtf8Str& name
+			);
+
+			const Function& GetStaticMethod(
+				const GuGuUtf8Str& name,
+				const InvokableSignature& signature
+			);
+			//------static method------
 
 			const Field& GetField(const std::string& name) const;
 

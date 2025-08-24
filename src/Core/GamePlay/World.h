@@ -10,14 +10,18 @@ namespace GuGu {
 	class ViewportClient;
 	class Demo;
 	class GameObject;
-	class World
+	class World : public meta::Object
 	{
 	public:
+		DECLARE_INITIAL
+		DECLARE_INITIAL_FIELDS
+
 		enum WorldState
 		{
 			Runtime,
 			Editor
 		};
+
 		World();
 
 		virtual ~World();
@@ -53,6 +57,14 @@ namespace GuGu {
 		std::vector<std::function<void(std::shared_ptr<GameObject>&, std::shared_ptr<GameObject>&)>> m_onObjectAttached;
 
 		std::vector<std::function<void(std::shared_ptr<GameObject>&, std::shared_ptr<GameObject>&)>> m_onObjectDetched;
+
+		virtual void Update(float fElapsedTimeSeconds) override;
+
+		virtual meta::Type GetType() const override;
+
+		virtual meta::Object* Clone(void) const override;
+
+		virtual void PostLoad() override;
 	private:
 		std::shared_ptr<ViewportClient> m_viewportClient;
 

@@ -55,9 +55,12 @@ namespace GuGu {
 			(meta::FieldGetter<Level, Array<std::shared_ptr<GameObject>>&, true>::Signature) & Level::getGameObjects,
 			(meta::FieldSetter<Level, Array<std::shared_ptr<GameObject>>&, true>::Signature) & Level::setGameObjects, {});
 
-		//------function------
-		type.AddMethod("getGameObjects", (Array<std::shared_ptr<GameObject>>&(Level::*)())(&Level::getGameObjects), {});
-		//------function------
+		//------method------
+		type.AddMethod("getGameObject", &Level::getGameObject, {});
+
+		Array<std::shared_ptr<GameObject>>& (Level::*getGameObjectsPtr)() = &Level::getGameObjects; //non const
+		type.AddMethod("getGameObjects", getGameObjectsPtr, {});
+		//------method------
 		return true;
 	}
 
@@ -220,6 +223,16 @@ namespace GuGu {
 		index = std::max(index, 0);
 		index = std::min(index, (int32_t)m_objects.size());
 		m_objects.insert(m_objects.begin() + index, children);
+	}
+
+	std::shared_ptr<GameObject> Level::getGameObject(const GuGuUtf8Str& name) const
+	{
+		for (int32_t i = 0; i < m_objects.size(); ++i)
+		{
+			if (m_objects[i]->getName() == name)
+				return m_objects[i];
+		}
+		return nullptr;
 	}
 
 }

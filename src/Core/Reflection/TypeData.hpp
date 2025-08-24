@@ -48,6 +48,20 @@ namespace GuGu {
 			methods[name].emplace(meth.GetSignature(), meth);
 		}
 
+		template<typename ClassType, typename FunctionType>
+		void TypeData::AddStaticMethod(
+			const GuGuUtf8Str& name,
+			FunctionType function,
+			const MetaManager::Initializer& meta
+		)
+		{
+			Function fn(name, function, typeof(ClassType));
+
+			fn.m_meta = meta;
+
+			staticMethods[name].emplace(fn.GetSignature(), fn);
+		}
+
 		template<typename ClassType, typename FieldType, typename GetterReturnType, typename SetterArgumentType>
 		void TypeData::AddField(
 			const std::string& name,

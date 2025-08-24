@@ -4,6 +4,7 @@
 #include <Core/Reflection/TypeInfo.h>
 #include <Core/GamePlay/GameObject.h>
 #include <Core/GamePlay/GamePlayerReflectionRegister.h>
+#include <Core/LuaContext/LuaContext.h>
 
 namespace GuGu {
 	static bool registerGuGuScriptComponent()
@@ -74,7 +75,7 @@ namespace GuGu {
 
 	ScriptComponent::ScriptComponent()
 	{
-
+		m_scriptPath = "content/testModule";
 	}
 
 	ScriptComponent::~ScriptComponent()
@@ -91,7 +92,31 @@ namespace GuGu {
 
 	void ScriptComponent::Update(float fElapsedTimeSeconds)
 	{
+		std::shared_ptr<LuaContext> luaContext = LuaContext::getLuaContext();
+		lua_State* L = luaContext->getLuaState();
+		if (L && luaRef != LUA_REFNIL) {
+			// 获取脚本实例
+			lua_rawgeti(L, LUA_REGISTRYINDEX, luaRef);
 
+			// 调用 update 方法
+			lua_getfield(L, -1, "update");
+			if (lua_isfunction(L, -1)) 
+			{
+				lua_pushvalue(L, -2); // 将脚本实例作为第一个参数
+				lua_pushnumber(L, fElapsedTimeSeconds); //  deltaTime 作为第二个参数
+
+				if (lua_pcall(L, 2, 0, 0) != LUA_OK) {
+					GuGu_LOGE("error in script update: %s", lua_tostring(L, -1));
+					lua_pop(L, 1); // 弹出错误信息
+				}
+			}
+			else 
+			{
+				lua_pop(L, 1); //弹出非函数的 update
+			}
+
+			lua_pop(L, 1); //弹出脚本实例
+		}
 	}
 
 	meta::Type ScriptComponent::GetType() const
@@ -112,6 +137,88 @@ namespace GuGu {
 	void ScriptComponent::setScriptPath(const GuGuUtf8Str& inScriptPath)
 	{
 		m_scriptPath = inScriptPath;
+	}
+
+	void ScriptComponent::initialize()
+	{
+		//dont have path
+		if (m_scriptPath == "")
+			return;
+
+		std::shared_ptr<LuaContext> luaContext = LuaContext::getLuaContext();
+		lua_State* L = luaContext->getLuaState();
+
+		lua_getglobal(L, "require");
+		lua_pushstring(L, m_scriptPath.getStr());
+		if (lua_pcall(L, 1, 1, 0) != LUA_OK)
+		{
+			GuGu_LOGE("error executing script : %s", lua_tostring(L, -1));
+			lua_pop(L, 1);
+		}
+
+		if (!lua_istable(L, -1))
+		{
+			GuGu_LOGE("script must return a table");
+		}
+			
+		//if (!lua_getfield(L, -1, "new"))
+		//{
+		//	luaContext->debugStack(L, "dont have new func");
+		//	lua_pop(L, 1);
+		//}
+
+		lua_getfield(L, -1, "new");
+
+		if (!lua_isfunction(L, -1))
+		{
+			GuGu_LOGE("script must have a new function");
+		}
+
+		luaContext->pushVariantToLua(L, getParentGameObject().lock());
+
+		//调用new，将owner作为其参数
+		if (lua_pcall(L, 1, 1, 0) != LUA_OK)
+		{
+			GuGu_LOGE("error creating script instance %s", lua_tostring(L, -1));
+		}
+
+		//脚本实例存储到注册表中
+		luaRef = luaL_ref(L, LUA_REGISTRYINDEX);
+	}
+
+	void ScriptComponent::close()
+	{
+		std::shared_ptr<LuaContext> luaContext = LuaContext::getLuaContext();
+		lua_State* L = luaContext->getLuaState();
+
+		if (L && luaRef != LUA_REFNIL)
+		{
+			//获取脚本实例
+			lua_rawgeti(L, LUA_REGISTRYINDEX, luaRef);
+
+			//调用脚本的销毁方法
+			if (lua_istable(L, -1)) {
+				lua_getfield(L, -1, "deInit");
+				if (lua_isfunction(L, -1)) {
+					//调用 deInit 方法
+					lua_pushvalue(L, -2); //将脚本实例作为第一个参数
+					if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
+						GuGu_LOGE("error in script deInit: %s", lua_tostring(L, -1));
+						lua_pop(L, 1); //弹出错误信息
+					}
+				}
+				else
+				{
+					lua_pop(L, 1); //弹出非函数的 deInit
+				}
+			}
+
+			lua_pop(L, 1); //弹出脚本实例
+
+			// 释放 Lua 引用
+			luaL_unref(L, LUA_REGISTRYINDEX, luaRef);
+			luaRef = LUA_REFNIL;
+		}
 	}
 
 }

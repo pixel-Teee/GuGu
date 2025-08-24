@@ -1,8 +1,13 @@
-local M = {}
+local class = require("content/Script/Common/Class")
+local test = class()
 
-function M.main()
-	--test print
-	LuaLog("喜欢你")
+function test:init(owner)
+	self.owner = owner
+
+	print("test init")
+
+	self.owner:setName("114514")
+
 end
 
-return M
+return test

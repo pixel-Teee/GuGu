@@ -31,6 +31,14 @@ namespace GuGu {
 		{
 		}
 
+		Argument::Argument(Argument& rhs)
+			: m_typeID(rhs.m_typeID)
+			, m_isArray(rhs.m_isArray)
+			, m_data(rhs.m_data)
+		{
+		
+		}
+
 		Argument& Argument::operator=(const Argument& rhs)
 		{
 			m_data = rhs.m_data;

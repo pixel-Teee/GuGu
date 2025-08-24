@@ -4,6 +4,8 @@
 
 #include <vector>
 
+//#include "Variant.h"
+
 namespace GuGu {
 	namespace meta {
 		class Type;
@@ -16,6 +18,7 @@ namespace GuGu {
 			Argument(const Argument& rhs);
 			Argument(Variant& obj);
 			Argument(const Variant& obj);
+			Argument(Argument& rhs); //argument list拷贝扩容的时候，会调用这个
 
 			template<typename T>
 			Argument(const T& data);
