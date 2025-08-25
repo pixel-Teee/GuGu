@@ -51,7 +51,7 @@ namespace GuGu {
 	static bool registermathfloat2()
 	{
 		auto& db = meta::ReflectionDatabase::Instance();
-		auto id = db.AllocateType("math::float2");
+		auto id = db.AllocateType("GuGu::math::float2");
 		auto& type = db.types[id];
 		meta::TypeInfo<math::float2>::Register(id, type, true, "E73886F1-1745-4885-AC10-A6764668698E");
 
@@ -74,7 +74,7 @@ namespace GuGu {
 	static bool registermathfloat3()
 	{
 		auto& db = meta::ReflectionDatabase::Instance();
-		auto id = db.AllocateType("math::float3");
+		auto id = db.AllocateType("GuGu::math::float3");
 		auto& type = db.types[id];
 		meta::TypeInfo<math::float3>::Register(id, type, true, "84172191-B81E-46A4-B06F-7E5B1F8712D0");
 
@@ -101,7 +101,7 @@ namespace GuGu {
 	static bool registermathfloat4()
 	{
 		auto& db = meta::ReflectionDatabase::Instance();
-		auto id = db.AllocateType("math::float4");
+		auto id = db.AllocateType("GuGu::math::float4");
 		auto& type = db.types[id];
 		meta::TypeInfo<math::float4>::Register(id, type, true, "50C5417E-8CD2-4F6A-A030-78FBA2C55F61");
 
@@ -132,7 +132,7 @@ namespace GuGu {
 	static bool registermathdouble2()
 	{
 		auto& db = meta::ReflectionDatabase::Instance();
-		auto id = db.AllocateType("math::double2");
+		auto id = db.AllocateType("GuGu::math::double2");
 		auto& type = db.types[id];
 		meta::TypeInfo<math::double2>::Register(id, type, true, "12FCA7F0-E223-4184-9857-96B740A335A9");
 
@@ -156,7 +156,7 @@ namespace GuGu {
 	static bool registermathdouble3()
 	{
 		auto& db = meta::ReflectionDatabase::Instance();
-		auto id = db.AllocateType("math::double3");
+		auto id = db.AllocateType("GuGu::math::double3");
 		auto& type = db.types[id];
 		meta::TypeInfo<math::double3>::Register(id, type, true, "35EF324D-9D0A-4A20-82A4-E61BF62C5960");
 
@@ -183,7 +183,7 @@ namespace GuGu {
 	static bool registermathdquat()
 	{
 		auto& db = meta::ReflectionDatabase::Instance();
-		auto id = db.AllocateType("math::dquat");
+		auto id = db.AllocateType("GuGu::math::dquat");
 		auto& type = db.types[id];
 		meta::TypeInfo<math::dquat>::Register(id, type, true, "A576462F-80EF-4132-9096-AF19E505671B");
 
@@ -214,7 +214,7 @@ namespace GuGu {
 	static bool registermathuint16_4()
 	{
 		auto& db = meta::ReflectionDatabase::Instance();
-		auto id = db.AllocateType("math::vector<uin16_t, 4>");
+		auto id = db.AllocateType("GuGu::math::vector<uin16_t, 4>");
 		auto& type = db.types[id];
 		meta::TypeInfo<math::vector<uint16_t, 4>>::Register(id, type, true, "DD2D2988-9B15-41B1-82F2-2F32D095D4AA");
 
@@ -245,7 +245,7 @@ namespace GuGu {
 	static bool registerRotator()
 	{
 		auto& db = meta::ReflectionDatabase::Instance();
-		auto id = db.AllocateType("math::Rotator");
+		auto id = db.AllocateType("GuGu::math::Rotator");
 		auto& type = db.types[id];
 		meta::TypeInfo<math::Rotator>::Register(id, type, true, "0AD77E66-681B-4D8E-9D45-AEF7872EF3D3");
 
@@ -449,33 +449,33 @@ namespace GuGu {
 		//ReflectionMain::addInitialTypeFunction(registermetaDisplayName, &metaDisplayNamePriority);
 
 		//Priority mathfloat2Priority;
-		mathfloat2Priority.setDebugName("math::float2");
+		mathfloat2Priority.setDebugName("GuGu::math::float2");
 		ReflectionMain::addInitialTypeFunction(registermathfloat2, &mathfloat2Priority);
 
 		//Priority mathfloat3Priority;
-		mathfloat3Priority.setDebugName("math::float3");
+		mathfloat3Priority.setDebugName("GuGu::math::float3");
 		ReflectionMain::addInitialTypeFunction(registermathfloat3, &mathfloat3Priority);
 
 		//Priority mathfloat4Priority;
-		mathfloat4Priority.setDebugName("math::float4");
+		mathfloat4Priority.setDebugName("GuGu::math::float4");
 		ReflectionMain::addInitialTypeFunction(registermathfloat4, &mathfloat4Priority);
 
-		mathdouble2Priority.setDebugName("math::double2");
+		mathdouble2Priority.setDebugName("GuGu::math::double2");
 		ReflectionMain::addInitialTypeFunction(registermathdouble2, &mathdouble2Priority);
 
 		//Priority mathdouble3Priority;
-		mathdouble3Priority.setDebugName("math::double3");
+		mathdouble3Priority.setDebugName("GuGu::math::double3");
 		ReflectionMain::addInitialTypeFunction(registermathdouble3, &mathdouble3Priority);
 
 		//Priority mathdquatPriority;
-		mathdquatPriority.setDebugName("math::dquat");
+		mathdquatPriority.setDebugName("GuGu::math::dquat");
 		ReflectionMain::addInitialTypeFunction(registermathdquat, &mathdquatPriority);
 
 		//Priority mathuint16_4Priority;
-		mathuint16_4Priority.setDebugName("math::uint16_4");
+		mathuint16_4Priority.setDebugName("GuGu::math::uint16_4");
 		ReflectionMain::addInitialTypeFunction(registermathuint16_4, &mathuint16_4Priority);
 
-		mathrotatorPriority.setDebugName("math::Rotator");
+		mathrotatorPriority.setDebugName("GuGu::math::Rotator");
 		ReflectionMain::addInitialTypeFunction(registerRotator, &mathrotatorPriority);
 
 		//uiPaddingPriority.setDebugName("GuGu::UIPadding");

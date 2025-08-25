@@ -176,7 +176,9 @@ namespace GuGu {
 
 		lua_pushvalue(L, -2);
 
-		luaContext->pushVariantToLua(L, getParentGameObject().lock());
+		meta::Variant obj = ObjectVariant(getParentGameObject().lock().get());
+
+		luaContext->pushVariantToLua(L, obj);
 
 		luaContext->debugStack(L, "print owner");
 
@@ -223,6 +225,7 @@ namespace GuGu {
 			luaL_unref(L, LUA_REGISTRYINDEX, luaRef);
 			luaRef = LUA_REFNIL;
 		}
+
 	}
 
 }

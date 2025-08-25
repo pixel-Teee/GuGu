@@ -64,7 +64,8 @@ namespace GuGu {
 		case LUA_TUSERDATA:
 		{
 			void* ptr = lua_touserdata(L, index);//ptr
-			return meta::Variant(*static_cast<std::shared_ptr<meta::Object>*>(ptr));
+			const meta::Variant& var = *static_cast<meta::Variant*>(ptr);
+			return meta::Variant(var);
 		}
 		case LUA_TTABLE:
 		{
@@ -84,6 +85,10 @@ namespace GuGu {
 		if (value.IsValid())
 		{
 			meta::Type type = value.GetType();
+			meta::TypeData& typeData = meta::ReflectionDatabase::Instance().types[type.GetID()];
+			const meta::Type::Set& baseclasses = type.GetBaseClasses();
+			bool isMetaObjectPtr = baseclasses.find(typeof(meta::Object)) != baseclasses.end();
+			isMetaObjectPtr |= type.IsSharedPtr();//todo:fix this
 			if (type == typeof(int))
 				lua_pushnumber(L, value.ToDouble());
 			else if (type == typeof(unsigned int))
@@ -98,13 +103,13 @@ namespace GuGu {
 				lua_pushboolean(L, value.ToBool());
 			else if (type == typeof(GuGuUtf8Str))
 				lua_pushstring(L, value.ToString().getStr());//is correct?
-			else if (type.IsSharedPtr())
+			else if (isMetaObjectPtr || typeData.isStruct)
 			{
-				std::shared_ptr<meta::Object> objectPtr = *static_cast<std::shared_ptr<meta::Object>*>(value.getBase()->GetPtr());
-				meta::Object** userData = static_cast<meta::Object**>(lua_newuserdata(L, sizeof(meta::Object*)));
-				*userData = objectPtr.get();
+				meta::Variant* userData = static_cast<meta::Variant*>(lua_newuserdata(L, sizeof(meta::Variant)));
+				new (userData) meta::Variant();
+				*userData = value;
 				//lua_pushlightuserdata(L, value.getBase()->GetPtr());
-				GuGuUtf8Str tableName = "MetaType_" + objectPtr->GetType().GetName();
+				GuGuUtf8Str tableName = "MetaType_" + value.GetType().GetName();
 				luaL_getmetatable(L, tableName.getStr());
 				lua_setmetatable(L, -2);
 			}
@@ -126,8 +131,14 @@ namespace GuGu {
 		meta::Method method = *static_cast<meta::Method*>(lua_touserdata(L, lua_upvalueindex(1)));
 
 		//获取对象实例
-		std::shared_ptr<meta::Object> objectPtr = (*static_cast<meta::Object**>(lua_touserdata(L, 1)))->shared_from_this();
-		meta::Variant instance = ObjectVariant(objectPtr.get());
+		meta::Variant& instance = *static_cast<meta::Variant*>(lua_touserdata(L, 1));
+
+		//check is pointer
+		if (instance.GetType().IsSharedPtr())
+		{
+			std::shared_ptr<meta::Object> metaObject = *static_cast<std::shared_ptr<meta::Object>*>(instance.getBase()->GetPtr());
+			instance = ObjectVariant(metaObject.get());
+		}
 
 		if (!instance)
 		{
@@ -148,6 +159,7 @@ namespace GuGu {
 
 		//通过反射系统调用
 		meta::Variant result = method.Invoke(instance, args);
+
 		LuaContext::pushVariantToLua(L, result);
 		return 1;
 	}
@@ -168,14 +180,10 @@ namespace GuGu {
 			types.push_back(arg.GetType());
 		}
 
-		//创建实例
-		meta::Constructor dynamicConstructor = typeData.GetDynamicConstructor(types);
-		meta::Variant instance = dynamicConstructor.Invoke();
-		meta::Object* instancePointer = static_cast<meta::Object*>(instance.getBase()->GetPtr());
-		std::shared_ptr<meta::Object> instancePtr = std::shared_ptr<meta::Object>(instancePointer);
-
-		std::shared_ptr<meta::Object>** userData = static_cast<std::shared_ptr<meta::Object>**>(lua_newuserdata(L, sizeof(std::shared_ptr<meta::Object>*)));
-		*userData = &instancePtr;
+		meta::Constructor constructor = typeData.GetConstructor(types);
+		meta::Variant* userData = static_cast<meta::Variant*>(lua_newuserdata(L, sizeof(meta::Variant)));
+		//meta::Variant var = constructor.Invoke();
+		new (userData) meta::Variant(constructor.Invoke());
 
 		///设置元表
 		GuGuUtf8Str tableName = "MetaType_" + typeData.name;
@@ -190,8 +198,15 @@ namespace GuGu {
 		LuaContext::getLuaContext()->debugStack(L, u8"print access index");
 		//void* userData = lua_touserdata(L, 1);
 		//获取对象实例
-		std::shared_ptr<meta::Object> objectPtr = (*static_cast<meta::Object**>(lua_touserdata(L, 1)))->shared_from_this();
-		meta::Variant instance = ObjectVariant(objectPtr.get());
+		meta::Variant& instance = *static_cast<meta::Variant*>(lua_touserdata(L, 1));
+		
+		//check is pointer
+		if (instance.GetType().IsSharedPtr())
+		{
+			std::shared_ptr<meta::Object> metaObject = *static_cast<std::shared_ptr<meta::Object>*>(instance.getBase()->GetPtr());
+			instance = ObjectVariant(metaObject.get());
+		}
+
 		if (instance.IsValid() == false)
 		{
 			lua_pushstring(L, "invalid object instance");
@@ -241,8 +256,15 @@ namespace GuGu {
 	static int universalNewIndex(lua_State* L)
 	{
 		//获取对象实例
-		std::shared_ptr<meta::Object> objectPtr = (*static_cast<meta::Object**>(lua_touserdata(L, 1)))->shared_from_this();
-		meta::Variant instance = ObjectVariant(objectPtr.get());
+		meta::Variant& instance = *static_cast<meta::Variant*>(lua_touserdata(L, 1));
+
+		//check is pointer
+		if (instance.GetType().IsSharedPtr())
+		{
+			std::shared_ptr<meta::Object> metaObject = *static_cast<std::shared_ptr<meta::Object>*>(instance.getBase()->GetPtr());
+			instance = ObjectVariant(metaObject.get());
+		}
+
 		if (instance.IsValid() == false)
 		{
 			lua_pushstring(L, "invalid object instance");
@@ -268,6 +290,7 @@ namespace GuGu {
 			if (field.GetName() == key)
 			{
 				field.SetValue(instance, value);
+				return 0;
 			}
 		}
 
@@ -278,6 +301,12 @@ namespace GuGu {
 
 	static void registerType(lua_State* L, meta::TypeData& typeData)
 	{
+		GuGuUtf8Str className = typeData.name.replace("::", ".");
+
+		//find GuGu
+		int32_t dotPos = className.findFirstOf(".");
+		GuGuUtf8Str prefixName = className.substr(0, dotPos);
+
 		GuGuUtf8Str metaTableName = "MetaType_" + typeData.name;
 		//创建元表，压入一个表，表名是类名，这个元表会作为通过构造函数创建的 user data 的元表
 		luaL_newmetatable(L, metaTableName.getStr());
@@ -293,12 +322,55 @@ namespace GuGu {
 
 		lua_pop(L, 1);
 
-		GuGuUtf8Str className = typeData.name.replace("::", ".");
+		if (dotPos != -1 && prefixName == "GuGu")
+		{
+			GuGuUtf8Str className = typeData.name.replace("::", ".");
 
-		//注册全局构造函数
-		lua_pushlightuserdata(L, &typeData);
-		lua_pushcclosure(L, &universalConstructor, 1);
-		lua_setglobal(L, className.getStr());
+			// 分割类名为各级表名
+			std::vector<GuGuUtf8Str> tableNames;
+			int32_t lastPos = 0;
+			for (int32_t i = 0; i < className.len(); ++i)
+			{
+				if (className[i] == ".")
+				{
+					tableNames.push_back(className.substr(lastPos, i - lastPos));
+					lastPos = i + 1;
+				}
+			}
+			// 添加最后的函数名
+			GuGuUtf8Str functionName = className.substr(lastPos);
+
+			// 确保所有表都存在
+			lua_getglobal(L, tableNames[0].getStr()); // 获取全局表
+			if (lua_isnil(L, -1))
+			{
+				lua_pop(L, 1);
+				lua_newtable(L);
+				lua_pushvalue(L, -1);
+				lua_setglobal(L, tableNames[0].getStr());
+			}
+
+			// 遍历所有中间表
+			for (int32_t i = 1; i < tableNames.size(); ++i)
+			{
+				lua_getfield(L, -1, tableNames[i].getStr()); //获取子表
+				if (lua_isnil(L, -1))
+				{
+					lua_pop(L, 1); // 弹出nil
+					lua_newtable(L); // 创建新表
+					lua_pushvalue(L, -1); // 复制表引用
+					lua_setfield(L, -3, tableNames[i].getStr()); //设置为父表的字段
+				}
+				//现在栈顶是当前子表
+			}
+
+			//注册全局构造函数
+			lua_pushlightuserdata(L, &typeData);
+			lua_pushcclosure(L, &universalConstructor, 1);
+			lua_setfield(L, -2, functionName.getStr()); //设置到最内层表
+
+			lua_pop(L, tableNames.size());
+		}
 	}
 
 	int32_t LuaLog(lua_State* L) {
@@ -439,6 +511,15 @@ namespace GuGu {
 			lua_pushvalue(m_state, -1);//复制表引用
 			lua_setglobal(m_state, "GuGu"); // 设置为全局变量GuGu
 		}
+
+		//此时栈顶是 GuGu 表
+		lua_newtable(m_state);            //创建 math 子表
+		lua_setfield(m_state, -2, "math");// 将新表作为字段 "math" 放入 GuGu 表
+
+
+		lua_newtable(m_state);            
+		lua_setfield(m_state, -2, "meta");
+		lua_pop(m_state, 1);			  // 弹出 GuGu 表（平衡栈）       
 
 		//register function
 		std::vector<meta::TypeData>& typeDatas = meta::ReflectionDatabase::Instance().types;

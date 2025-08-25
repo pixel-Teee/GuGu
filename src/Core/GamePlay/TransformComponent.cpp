@@ -76,6 +76,8 @@ namespace GuGu {
 		//------add method------
 		type.AddMethod("SetTranslation", &TransformComponent::SetTranslation, {});
 
+		math::double3&(TransformComponent::*getTranslation)() = &TransformComponent::getTranslation;
+		type.AddMethod("getTranslation", getTranslation, {});
 		return true;
 	}
 

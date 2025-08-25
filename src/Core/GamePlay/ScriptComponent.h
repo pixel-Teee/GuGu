@@ -34,5 +34,6 @@ namespace GuGu {
 		meta::Variant m_scriptInstance;
 
 		int32_t luaRef = -1;//Lua 注册表的引用
+
 	};
 }
