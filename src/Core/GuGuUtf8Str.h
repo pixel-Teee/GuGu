@@ -84,6 +84,8 @@ namespace GuGu {
 		GuGuUtf8Str trim() const;
 
 		std::vector<uint8_t> getBinary() const;
+
+		GuGuUtf8Str replace(const GuGuUtf8Str& target, const GuGuUtf8Str& replacement);
 	private:
 		char* m_str;
 		int32_t m_capacity;

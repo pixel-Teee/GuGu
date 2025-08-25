@@ -293,10 +293,12 @@ namespace GuGu {
 
 		lua_pop(L, 1);
 
+		GuGuUtf8Str className = typeData.name.replace("::", ".");
+
 		//注册全局构造函数
 		lua_pushlightuserdata(L, &typeData);
 		lua_pushcclosure(L, &universalConstructor, 1);
-		lua_setglobal(L, typeData.name.getStr());
+		lua_setglobal(L, className.getStr());
 	}
 
 	int32_t LuaLog(lua_State* L) {
@@ -427,6 +429,16 @@ namespace GuGu {
 
 		int32_t stackSize = lua_gettop(m_state);
 		GuGu_LOGD("栈中元素个数%d", stackSize);//lua_pcall会自动清理栈
+
+		//全局表
+		lua_getglobal(m_state, "GuGu");
+		if (lua_isnil(m_state, -1))
+		{
+			lua_pop(m_state, 1);//弹出nil
+			lua_newtable(m_state);//创建新表
+			lua_pushvalue(m_state, -1);//复制表引用
+			lua_setglobal(m_state, "GuGu"); // 设置为全局变量GuGu
+		}
 
 		//register function
 		std::vector<meta::TypeData>& typeDatas = meta::ReflectionDatabase::Instance().types;

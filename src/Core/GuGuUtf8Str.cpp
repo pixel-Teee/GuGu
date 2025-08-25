@@ -695,6 +695,34 @@ namespace GuGu {
 		return res;
 	}
 
+	GuGuUtf8Str GuGuUtf8Str::replace(const GuGuUtf8Str& target, const GuGuUtf8Str& replacement)
+	{
+		if(target.m_len == 0)
+			return m_str;
+
+		GuGuUtf8Str result;
+
+		int32_t startPos = 0;
+		int32_t foundPos = 0;
+		int32_t replacements = 0;//统计替换次数
+
+		while (((foundPos = this->find(target.getStr(), startPos)) != -1))
+		{
+			//添加目标串之前的部分
+			result += this->substr(startPos, foundPos - startPos);
+			//添加替换字符串
+			result += replacement;
+			//更新查找起始位置
+			startPos = foundPos + target.len();
+			++replacements;
+		}
+
+		//添加剩余部分
+		result += this->substr(startPos);
+
+		return result;
+	}
+
 	std::ostream& operator<<(std::ostream& out, const GuGuUtf8Str& str)
 	{
 		for (size_t i = 0; i < str.m_totalByteCount; ++i)
