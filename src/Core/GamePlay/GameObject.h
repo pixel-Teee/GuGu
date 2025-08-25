@@ -81,6 +81,8 @@ namespace GuGu {
 
 		void deleteComponent(const GuGuUtf8Str& componentTypeName);
 
+		std::shared_ptr<Component> getComponent(const GuGuUtf8Str& componentTypeName);
+
 		Array<std::shared_ptr<Component>> getComponents();
 
 		void setChildrens(const Array<std::shared_ptr<GameObject>>& childrens);

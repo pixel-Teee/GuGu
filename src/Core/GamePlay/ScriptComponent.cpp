@@ -174,10 +174,14 @@ namespace GuGu {
 			GuGu_LOGE("script must have a new function");
 		}
 
+		lua_pushvalue(L, -2);
+
 		luaContext->pushVariantToLua(L, getParentGameObject().lock());
 
+		luaContext->debugStack(L, "print owner");
+
 		//调用new，将owner作为其参数
-		if (lua_pcall(L, 1, 1, 0) != LUA_OK)
+		if (lua_pcall(L, 2, 1, 0) != LUA_OK)
 		{
 			GuGu_LOGE("error creating script instance %s", lua_tostring(L, -1));
 		}

@@ -5,6 +5,7 @@
 //------component------
 #include "TransformComponent.h"
 #include "LightComponent.h"
+#include <Core/GamePlay/ScriptComponent.h>
 #include <Core/GamePlay/GameUI/CanvasComponent.h>
 //------component------
 
@@ -71,6 +72,9 @@ namespace GuGu {
 		//method functions
 		type.AddMethod("setName", &GameObject::setName, {});
 
+		std::shared_ptr<Component>(GameObject::*getComponentPtr)(const GuGuUtf8Str& componentTypeName) = &GameObject::getComponent; //non const
+		type.AddMethod("getComponent", getComponentPtr, {});
+
 		return true;
 	}
 	IMPLEMENT_INITIAL_BEGIN(GameObject)
@@ -100,6 +104,11 @@ namespace GuGu {
 	}
 	void GameObject::Update(float fElapsedTimeSeconds)
 	{
+		if (getComponent<ScriptComponent>())
+		{
+			getComponent<ScriptComponent>()->Update(fElapsedTimeSeconds);
+		}
+
 		if (getComponent<CanvasComponent>())
 		{
 			getComponent<CanvasComponent>()->Update(fElapsedTimeSeconds);
@@ -171,6 +180,19 @@ namespace GuGu {
 			//delete
 			m_components.erase(m_components.begin() + foundPos);
 		}
+	}
+
+	std::shared_ptr<Component> GameObject::getComponent(const GuGuUtf8Str& componentTypeName)
+	{
+		meta::Type componentType = meta::Type::GetFromName(componentTypeName);
+		for (auto& component : m_components)
+		{
+			if (component->GetType() == componentType) //需要注册指针类型
+			{
+				return component;
+			}
+		}
+		return nullptr;
 	}
 
 	Array<std::shared_ptr<Component>> GameObject::getComponents()

@@ -72,6 +72,10 @@ namespace GuGu {
 		type.AddField<TransformComponent, std::weak_ptr<GameObject>>("m_owner",
 			(meta::FieldGetter<TransformComponent, std::weak_ptr<GameObject>&, true>::Signature) & TransformComponent::getParentGameObject,
 			(meta::FieldSetter<TransformComponent, std::weak_ptr<GameObject>&, true>::Signature) & TransformComponent::setParentGameObject, {});
+
+		//------add method------
+		type.AddMethod("SetTranslation", &TransformComponent::SetTranslation, {});
+
 		return true;
 	}
 

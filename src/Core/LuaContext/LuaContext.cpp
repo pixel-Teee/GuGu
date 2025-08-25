@@ -100,14 +100,13 @@ namespace GuGu {
 				lua_pushstring(L, value.ToString().getStr());//is correct?
 			else if (type.IsSharedPtr())
 			{
+				std::shared_ptr<meta::Object> objectPtr = *static_cast<std::shared_ptr<meta::Object>*>(value.getBase()->GetPtr());
+				meta::Object** userData = static_cast<meta::Object**>(lua_newuserdata(L, sizeof(meta::Object*)));
+				*userData = objectPtr.get();
 				//lua_pushlightuserdata(L, value.getBase()->GetPtr());
-				std::shared_ptr<meta::Object> object = *static_cast<std::shared_ptr<meta::Object>*>(value.getBase()->GetPtr());
-				GuGuUtf8Str tableName = "MetaType_" + object->GetType().GetName();
+				GuGuUtf8Str tableName = "MetaType_" + objectPtr->GetType().GetName();
 				luaL_getmetatable(L, tableName.getStr());
 				lua_setmetatable(L, -2);
-
-				std::shared_ptr<meta::Object>** userData = static_cast<std::shared_ptr<meta::Object>**>(lua_newuserdata(L, sizeof(std::shared_ptr<meta::Object>*)));
-				*userData = &object;
 			}
 			else if (type == typeof(LuaTable))
 			{
@@ -127,7 +126,8 @@ namespace GuGu {
 		meta::Method method = *static_cast<meta::Method*>(lua_touserdata(L, lua_upvalueindex(1)));
 
 		//获取对象实例
-		meta::Variant instance = *static_cast<meta::Variant*>(lua_touserdata(L, 1));
+		std::shared_ptr<meta::Object> objectPtr = (*static_cast<meta::Object**>(lua_touserdata(L, 1)))->shared_from_this();
+		meta::Variant instance = ObjectVariant(objectPtr.get());
 
 		if (!instance)
 		{
@@ -138,9 +138,12 @@ namespace GuGu {
 		//收集参数
 		int argc = lua_gettop(L) - 1;//减去self
 		meta::ArgumentList args;
+		std::vector<meta::Variant> vars;
 		for (int i = 1; i <= argc; ++i)
 		{
-			args.push_back(LuaContext::luaToVariant(L, i + 1));
+			meta::Variant var = LuaContext::luaToVariant(L, i + 1);
+			vars.push_back(var);
+			args.push_back(vars.back());
 		}
 
 		//通过反射系统调用
@@ -184,8 +187,11 @@ namespace GuGu {
 
 	static int universalIndex(lua_State* L)
 	{
+		LuaContext::getLuaContext()->debugStack(L, u8"print access index");
+		//void* userData = lua_touserdata(L, 1);
 		//获取对象实例
-		meta::Variant instance = *static_cast<meta::Variant*>(lua_touserdata(L, 1));
+		std::shared_ptr<meta::Object> objectPtr = (*static_cast<meta::Object**>(lua_touserdata(L, 1)))->shared_from_this();
+		meta::Variant instance = ObjectVariant(objectPtr.get());
 		if (instance.IsValid() == false)
 		{
 			lua_pushstring(L, "invalid object instance");
@@ -218,7 +224,7 @@ namespace GuGu {
 		auto& methods = meta::ReflectionDatabase::Instance().types[type.GetID()].methods;
 		for (const auto& method : methods)
 		{
-			if (method.second.size() > 0)
+			if (method.second.size() > 0 && method.second.begin()->second.GetName() == key)
 			{
 				//返回方法闭包
 				lua_pushlightuserdata(L, (void*)(&method.second.begin()->second));//universalMethodInvoker会使用
@@ -235,7 +241,8 @@ namespace GuGu {
 	static int universalNewIndex(lua_State* L)
 	{
 		//获取对象实例
-		meta::Variant instance = *static_cast<meta::Variant*>(lua_touserdata(L, 1));
+		std::shared_ptr<meta::Object> objectPtr = (*static_cast<meta::Object**>(lua_touserdata(L, 1)))->shared_from_this();
+		meta::Variant instance = ObjectVariant(objectPtr.get());
 		if (instance.IsValid() == false)
 		{
 			lua_pushstring(L, "invalid object instance");
