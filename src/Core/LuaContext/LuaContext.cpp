@@ -96,7 +96,7 @@ namespace GuGu {
 			else if (type == typeof(float))
 				lua_pushnumber(L, value.ToDouble());
 			else if (type == typeof(double))
-				lua_pushnumber(L, value);
+				lua_pushnumber(L, value.ToDouble());
 			else if (type == typeof(uint8_t))
 				lua_pushnumber(L, value.ToDouble());
 			else if (type == typeof(bool))
@@ -195,7 +195,7 @@ namespace GuGu {
 
 	static int universalIndex(lua_State* L)
 	{
-		LuaContext::getLuaContext()->debugStack(L, u8"print access index");
+		//LuaContext::getLuaContext()->debugStack(L, u8"print access index");
 		//void* userData = lua_touserdata(L, 1);
 		//获取对象实例
 		meta::Variant& instance = *static_cast<meta::Variant*>(lua_touserdata(L, 1));

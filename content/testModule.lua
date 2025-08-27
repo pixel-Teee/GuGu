@@ -4,7 +4,7 @@ local test = class()
 function test:init(owner)
 	self.owner = owner
 	--print(owner)
-	print("test init")
+	--print("test init")
 
 	self.owner:setName("114514")
 
@@ -21,9 +21,9 @@ end
 function test:update(delta)
 	--print(tostring(delta))
 	local oriTrans = self.transformComponent:getTranslation()
-	print(tostring(oriTrans.x))
+	print("oriTrans" .. tostring(oriTrans.x))
 	local trans = GuGu.math.double3()
-	trans.x = oriTrans.x + delta * 20
+	trans.x = oriTrans.x + delta * 0.2
 	trans.y = 0
 	trans.z = 0
 	self.transformComponent:SetTranslation(trans)
