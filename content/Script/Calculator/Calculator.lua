@@ -17,7 +17,7 @@ function Calculator:update(delta)
 		local fps = self.frameCount / self.elapsedTime
 		self.elapsedTime = 0
 		self.frameCount = 0
-		self.textComponent:setText("帧率"..tostring(fps))
+		self.textComponent:setText("帧率"..string.format("%.2f", fps))
 	end
 end
 
