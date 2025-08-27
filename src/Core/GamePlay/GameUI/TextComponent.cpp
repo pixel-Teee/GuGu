@@ -40,6 +40,9 @@ namespace GuGu {
 			meta::TypeInfo<std::weak_ptr<TextComponent>>::Register(id, type, false, "09089768-C7A5-43F7-9600-6473A149D5D0");
 		}
 
+		//method
+		type.AddMethod("setText", &TextComponent::setText, {});
+
 		return true;
 	}
 

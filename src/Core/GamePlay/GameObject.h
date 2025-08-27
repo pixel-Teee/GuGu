@@ -89,6 +89,8 @@ namespace GuGu {
 
 		Array<std::shared_ptr<GameObject>>& getChildrens();
 
+		std::shared_ptr<GameObject> getChildren(const GuGuUtf8Str& gameObjectName);
+
 		std::weak_ptr<GameObject>& getParentGameObject();
 
 		const std::weak_ptr<GameObject>& getParentGameObject() const;

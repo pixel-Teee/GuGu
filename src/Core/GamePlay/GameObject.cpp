@@ -75,6 +75,9 @@ namespace GuGu {
 		std::shared_ptr<Component>(GameObject::*getComponentPtr)(const GuGuUtf8Str& componentTypeName) = &GameObject::getComponent; //non const
 		type.AddMethod("getComponent", getComponentPtr, {});
 
+		std::shared_ptr<GameObject>(GameObject::* getChildrenPtr)(const GuGuUtf8Str& gameObjectName) = &GameObject::getChildren; //non const
+		type.AddMethod("getChildren", getChildrenPtr, {});
+
 		return true;
 	}
 	IMPLEMENT_INITIAL_BEGIN(GameObject)
@@ -212,6 +215,16 @@ namespace GuGu {
 	Array<std::shared_ptr<GameObject>>& GameObject::getChildrens()
 	{
 		return m_childrens;
+	}
+
+	std::shared_ptr<GameObject> GameObject::getChildren(const GuGuUtf8Str& gameObjectName)
+	{
+		for (const auto& children : m_childrens)
+		{
+			if(children->getName() == gameObjectName)
+				return children;
+		}
+		return nullptr;
 	}
 
 	const std::weak_ptr<GameObject>& GameObject::getParentGameObject() const
