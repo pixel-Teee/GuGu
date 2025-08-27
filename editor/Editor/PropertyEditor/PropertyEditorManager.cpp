@@ -17,13 +17,13 @@ namespace GuGu {
 
 	PropertyEditorManager::PropertyEditorManager()
 	{
-		registerCustomPropertyTypeLayout("math::float2", Vector2StructCustomization::create);
-		registerCustomPropertyTypeLayout("math::double2", Vector2StructCustomization::create);
-		registerCustomPropertyTypeLayout("math::float4", Vector4StructCustomization::create); //四分量
-		registerCustomPropertyTypeLayout("math::double4", Vector4StructCustomization::create); //四分量
-		registerCustomPropertyTypeLayout("math::float3", VectorStructCustomization::create); //三分量
-		registerCustomPropertyTypeLayout("math::double3", RotatorStructCustomization::create); //三分量
-		registerCustomPropertyTypeLayout("math::Rotator", RotatorStructCustomization::create); //三分量
+		registerCustomPropertyTypeLayout("GuGu::math::float2", Vector2StructCustomization::create);
+		registerCustomPropertyTypeLayout("GuGu::math::double2", Vector2StructCustomization::create);
+		registerCustomPropertyTypeLayout("GuGu::math::float4", Vector4StructCustomization::create); //四分量
+		registerCustomPropertyTypeLayout("GuGu::math::double4", Vector4StructCustomization::create); //四分量
+		registerCustomPropertyTypeLayout("GuGu::math::float3", VectorStructCustomization::create); //三分量
+		registerCustomPropertyTypeLayout("GuGu::math::double3", RotatorStructCustomization::create); //三分量
+		registerCustomPropertyTypeLayout("GuGu::math::Rotator", RotatorStructCustomization::create); //三分量
 		registerCustomPropertyTypeLayout("GuGu::Color", ColorStructCustomization::create);
 		//registerCustomPropertyTypeLayout("GuGu::UIPadding", Vector4StructCustomization::create);
 
