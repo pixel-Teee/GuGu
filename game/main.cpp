@@ -3,6 +3,7 @@
 #include <Window/Window.h>
 #include "GameViewportClient.h"
 #include <Core/Reflection/TestReflection.h>
+#include <Core/LuaContext/LuaContext.h>
 #include <Core/GamePlay/GamePlayerReflectionRegister.h>
 
 #ifdef WIN32
@@ -36,6 +37,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
 	GuGu_LOGD("%s", str.getStr());
 	GuGu::testReflection();
 	GuGu::gamePlayerReflectionRegister();
+	GuGu::LuaContext::getLuaContext()->initialize();
 	std::shared_ptr<GuGu::Application> application = GuGu::CreateApplicationFactory();
 	std::shared_ptr<GuGu::WindowsApplication> windowsApplication = std::static_pointer_cast<GuGu::WindowsApplication>(application);
 	windowsApplication->setNativeApplicationHandleAndCmdShow(hInstance, nCmdShow);
@@ -143,6 +145,7 @@ extern "C" {
 
         GuGu::testReflection();
         GuGu::gamePlayerReflectionRegister();
+		GuGu::LuaContext::getLuaContext()->initialize();
 		std::shared_ptr<GuGu::Application> application = GuGu::CreateApplicationFactory();
 		std::shared_ptr<GuGu::AndroidApplication> androidApplication = std::static_pointer_cast<GuGu::AndroidApplication>(application);
 		androidApplication->setAndroidApp(pApp);

@@ -187,6 +187,17 @@ namespace GuGu {
 			if (m_viewportClient->getViewportState() == ViewportClient::Runtime)
 			{
 				m_currentLevel = m_editorLevel;//todo:(clone)
+				//start script
+				Array<std::shared_ptr<GameObject>>& gameObjects = m_currentLevel->getGameObjects();
+				for (int32_t i = 0; i < gameObjects.size(); ++i)
+				{
+					//check have script component
+					std::shared_ptr<ScriptComponent> scriptComponent = gameObjects[i]->getComponent<ScriptComponent>();
+					if (scriptComponent)
+					{
+						scriptComponent->initialize();
+					}
+				}
 			}
 		}
 		for (uint32_t i = 0; i < World::getWorld()->m_onLevelChanged.size(); ++i)

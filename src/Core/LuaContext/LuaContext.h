@@ -11,7 +11,7 @@ extern "C" {
 struct lua_State;
 namespace GuGu {
 	class RootFileSystem;
-	class meta::Variant;
+	//class meta::Variant;
 	class LuaContext 
 	{
 	public:
@@ -35,7 +35,7 @@ namespace GuGu {
 
 		static meta::Variant luaToVariant(lua_State* L, int index);
 
-		static void LuaContext::debugStack(lua_State* L, const char* message);
+		static void debugStack(lua_State* L, const char* message);
 	private:
 		lua_State* m_state = nullptr;
 

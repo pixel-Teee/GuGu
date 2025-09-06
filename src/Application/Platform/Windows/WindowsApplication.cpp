@@ -14,6 +14,7 @@
 #include "windowsx.h"
 
 #include <Core/UI/WindowWidget.h>
+#include <Core/LuaContext/LuaContext.h>
 
 namespace GuGu {
 	std::shared_ptr<WindowsApplication> globalApplication;
@@ -305,6 +306,7 @@ namespace GuGu {
 	std::shared_ptr<Application> CreateApplicationFactory()
 	{
 		globalApplication = std::make_shared<WindowsApplication>();
+
 		return globalApplication;
 	}
 	LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)

@@ -64,8 +64,7 @@ namespace GuGu{
 	}
 	void Application::init(std::shared_ptr<WindowWidget> inWindowWidget)
 	{
-		//lua context
-		LuaContext::getLuaContext()->initialize();
+
 	}
     void Application::Run()
     {
