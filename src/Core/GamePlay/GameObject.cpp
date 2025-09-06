@@ -7,7 +7,11 @@
 #include "LightComponent.h"
 #include <Core/GamePlay/ScriptComponent.h>
 #include <Core/GamePlay/GameUI/CanvasComponent.h>
+#include <Core/GamePlay/GameUI/UITransformComponent.h>
+#include <Core/GamePlay/TransformComponent.h>
 //------component------
+#include <Core/GamePlay/World.h>
+#include <Core/GamePlay/Level.h>
 
 #include <Core/Reflection/MetaProperty/DisplayName.h>
 #include <Core/Reflection/MetaManager.h>
@@ -77,6 +81,14 @@ namespace GuGu {
 
 		std::shared_ptr<GameObject>(GameObject::* getChildrenPtr)(const GuGuUtf8Str& gameObjectName) = &GameObject::getChildren; //non const
 		type.AddMethod("getChildren", getChildrenPtr, {});
+
+		type.AddMethod("getCurrentLevel", &GameObject::getCurrentLevel, {});
+
+		type.AddMethod("addComponent", &GameObject::addComponent, {});
+
+		type.AddMethod("addChildren", &GameObject::addChildren, {});
+
+		type.AddMethod("addComponentFromName", &GameObject::addComponentFromName, {});
 
 		return true;
 	}
@@ -154,11 +166,44 @@ namespace GuGu {
 
 	}
 
-	void GameObject::addComponent(std::shared_ptr<Component> inComponent)
+	std::shared_ptr<Component> GameObject::addComponent(std::shared_ptr<Component> inComponent)
 	{
+		if (inComponent->GetType() == typeof(UITransformComponent))
+		{
+			if (getComponent<UITransformComponent>())
+			{
+				return getComponent<UITransformComponent>();
+			}
+			if (getComponent<TransformComponent>())
+			{
+				deleteComponent("GuGu::TransformComponent");
+			}
+		}
+		if (inComponent->GetType() == typeof(TransformComponent))
+		{
+			if (getComponent<TransformComponent>())
+			{
+				return getComponent<TransformComponent>();
+			}
+			if (getComponent<UITransformComponent>())
+			{
+				deleteComponent("GuGu::UITransformComponent");
+			}
+		}
 		inComponent->setParentGameObject(std::static_pointer_cast<GameObject>(shared_from_this()));
 		m_components.push_back(inComponent);
+
+		return inComponent;
 	}
+
+	std::shared_ptr<Component> GameObject::addComponentFromName(const GuGuUtf8Str& componentTypeName)
+	{
+		const meta::Constructor& constructor = meta::Type::GetFromName(componentTypeName).GetDynamicConstructor();
+		const meta::Variant& componentInstance = constructor.Invoke();
+		Component* instancePointer = static_cast<Component*>(componentInstance.getBase()->GetPtr());
+		return addComponent(std::shared_ptr<Component>(instancePointer));
+	}
+
 	void GameObject::setComponents(const Array<std::shared_ptr<Component>>& components)
 	{
 		m_components = components;
@@ -257,6 +302,15 @@ namespace GuGu {
 	{
 		children->setParentGameObject(std::static_pointer_cast<GameObject>(shared_from_this()));
 		m_childrens.push_back(children);
+
+		//attach
+		//if (!World::getWorld()->m_onObjectAttached.empty())
+		//{
+		//	for (uint32_t i = 0; i < World::getWorld()->m_onObjectAttached.size(); ++i)
+		//	{
+		//		World::getWorld()->m_onObjectAttached[i](children, std::static_pointer_cast<GameObject>(shared_from_this()));
+		//	}
+		//}
 	}
 
 	void GameObject::insertChildren(std::shared_ptr<GameObject> children, int32_t index)
@@ -283,6 +337,11 @@ namespace GuGu {
 	GuGuUtf8Str& GameObject::getName()
 	{
 		return m_name;
+	}
+
+	std::shared_ptr<Level> GameObject::getCurrentLevel()
+	{
+		return World::getWorld()->getCurrentLevel();
 	}
 
 }

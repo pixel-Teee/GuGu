@@ -6,6 +6,7 @@
 #include "Component.h"
 
 namespace GuGu {
+	class Level;
 	class GameObject : public meta::Object {
 
 	public:
@@ -75,7 +76,9 @@ namespace GuGu {
 			return nullptr;
 		}
 
-		void addComponent(std::shared_ptr<Component> inComponent);
+		std::shared_ptr<Component> addComponent(std::shared_ptr<Component> inComponent);
+
+		std::shared_ptr<Component> addComponentFromName(const GuGuUtf8Str& componentTypeName);
 
 		void setComponents(const Array<std::shared_ptr<Component>>& components);
 
@@ -110,6 +113,9 @@ namespace GuGu {
 		void setName(const GuGuUtf8Str& inName);
 
 		GuGuUtf8Str& getName();
+
+		//game object 所在的 level
+		std::shared_ptr<Level> getCurrentLevel();
 	protected:
 		Array<std::shared_ptr<Component>> m_components;
 

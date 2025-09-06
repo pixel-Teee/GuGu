@@ -122,6 +122,8 @@ namespace GuGu {
 			void DeserializeJson(Variant& instance, const nlohmann::json& value) const;
 
 			void importStr(const GuGuUtf8Str& inBuffer, meta::Variant& owner);
+
+			bool CheckIsDerivedFromMetaObject();
 		private:
 			friend struct TypeData;
 			//一个无符号整数

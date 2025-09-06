@@ -134,11 +134,11 @@ namespace GuGu {
 		meta::Variant& instance = *static_cast<meta::Variant*>(lua_touserdata(L, 1));
 
 		//check is pointer
-		if (instance.GetType().IsSharedPtr())
-		{
-			std::shared_ptr<meta::Object> metaObject = *static_cast<std::shared_ptr<meta::Object>*>(instance.getBase()->GetPtr());
-			instance = ObjectVariant(metaObject.get());
-		}
+		//if (instance.GetType().IsSharedPtr())
+		//{
+		//	std::shared_ptr<meta::Object> metaObject = *static_cast<std::shared_ptr<meta::Object>*>(instance.getBase()->GetPtr());
+		//	instance = ObjectVariant(metaObject.get());
+		//}
 
 		if (!instance)
 		{
@@ -153,7 +153,18 @@ namespace GuGu {
 		for (int i = 1; i <= argc; ++i)
 		{
 			meta::Variant var = LuaContext::luaToVariant(L, i + 1);
-			vars.push_back(var);
+			
+			//check args is meta object
+			if (var.GetType().CheckIsDerivedFromMetaObject())
+			{
+				meta::Object* obj = static_cast<meta::Object*>(var.getBase()->GetPtr());
+				const meta::Variant newVar = obj->shared_from_this();
+				vars.push_back(newVar);
+			}
+			else
+			{
+				vars.push_back(var);
+			}
 			args.push_back(vars.back());
 		}
 

@@ -90,7 +90,7 @@ namespace GuGu{
 
 				World::getWorld()->renderLevel(demoPass);
 				
-                VertexBuffer* vertexBuffer = m_renderer->getVertexBufferPass();
+                //VertexBuffer* vertexBuffer = m_renderer->getVertexBufferPass();
                 uiRenderPass->setRenderTarget(demoPass->getRenderTarget());
                 m_renderer->onRender();			
             }

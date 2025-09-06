@@ -469,6 +469,19 @@ namespace GuGu {
 			}
 		}
 
+		bool Type::CheckIsDerivedFromMetaObject()
+		{
+			//bool isMetaObject = false;
+			meta::Type::Set baseClassesType = GetBaseClasses();
+			while (!baseClassesType.empty())
+			{
+				if (*baseClassesType.begin() == typeof(meta::Object))
+					return true;
+				baseClassesType = (*baseClassesType.begin()).GetBaseClasses();
+			}
+			return false;
+		}
+
 	}
 }
 

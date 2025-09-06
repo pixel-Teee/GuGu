@@ -46,6 +46,9 @@ namespace GuGu {
 
 		//find game object
 		std::shared_ptr<GameObject> getGameObject(const GuGuUtf8Str& name) const;
+
+		//create game object
+		std::shared_ptr<GameObject> createGameObject(const GuGuUtf8Str& name);
 	private:
 		Array<std::shared_ptr<GameObject>> m_objects; //all game objects
 	};

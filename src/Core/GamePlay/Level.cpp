@@ -60,6 +60,10 @@ namespace GuGu {
 
 		Array<std::shared_ptr<GameObject>>& (Level::*getGameObjectsPtr)() = &Level::getGameObjects; //non const
 		type.AddMethod("getGameObjects", getGameObjectsPtr, {});
+
+		type.AddMethod("createGameObject", &Level::createGameObject, {});
+
+		type.AddMethod("refreshLevel", &Level::refreshLevel, {});
 		//------method------
 		return true;
 	}
@@ -233,6 +237,15 @@ namespace GuGu {
 				return m_objects[i];
 		}
 		return nullptr;
+	}
+
+	std::shared_ptr<GameObject> Level::createGameObject(const GuGuUtf8Str& name)
+	{
+		std::shared_ptr<GameObject> gameObject = std::make_shared<GameObject>();
+		gameObject->addComponent(std::make_shared<TransformComponent>());
+		gameObject->setName(name);
+		m_objects.push_back(gameObject);
+		return gameObject;
 	}
 
 }
