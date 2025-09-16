@@ -300,7 +300,21 @@ namespace GuGu {
 		{
 			if (field.GetName() == key)
 			{
-				field.SetValue(instance, value);
+				if (field.GetType() == typeof(float) && value.GetType() == typeof(double))
+				{
+					meta::Variant newValue = value.ToFloat();
+					field.SetValue(instance, newValue);
+				}
+				else if (field.GetType() == typeof(double) && value.GetType() == typeof(float))
+				{
+					meta::Variant newValue = value.ToDouble();
+					field.SetValue(instance, newValue);
+				}
+				else
+				{
+					field.SetValue(instance, value);
+				}
+				
 				return 0;
 			}
 		}

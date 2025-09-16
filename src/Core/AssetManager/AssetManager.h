@@ -92,6 +92,8 @@ namespace GuGu {
 
 		GGuid getGuid(const GuGuUtf8Str& filePath, meta::Type assetType);
 
+		std::shared_ptr<AssetData> loadAssetData(const GuGuUtf8Str& filePath);
+
 		std::shared_ptr<AssetData> loadAsset(GGuid guid);
 
 		nlohmann::json getDiffJson(nlohmann::json lhs, nlohmann::json rhs);

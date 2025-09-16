@@ -16,5 +16,9 @@ namespace GuGu {
 		UIAnchorData();
 
 		UIAnchorData(UIAnchors inAnchors, UIPadding inOffset, math::float2 inAlignment);
+
+		UIPadding& getOffset();
+
+		void setOffset(UIPadding inOffset);
 	};
 }

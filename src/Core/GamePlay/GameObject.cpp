@@ -84,6 +84,8 @@ namespace GuGu {
 
 		type.AddMethod("getCurrentLevel", &GameObject::getCurrentLevel, {});
 
+		type.AddMethod("getWorld", &GameObject::getWorld, {});
+
 		type.AddMethod("addComponent", &GameObject::addComponent, {});
 
 		type.AddMethod("addChildren", &GameObject::addChildren, {});
@@ -342,6 +344,11 @@ namespace GuGu {
 	std::shared_ptr<Level> GameObject::getCurrentLevel()
 	{
 		return World::getWorld()->getCurrentLevel();
+	}
+
+	std::shared_ptr<World> GameObject::getWorld()
+	{
+		return World::getWorld();
 	}
 
 }

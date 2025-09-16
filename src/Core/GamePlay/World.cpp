@@ -54,6 +54,8 @@ namespace GuGu {
 			auto& type = db.types[id];
 			meta::TypeInfo<std::weak_ptr<World>>::Register(id, type, false, "0A299CC1-A26B-418B-9C55-770F9098BEC5");
 		}
+
+
 		return true;
 	}
 
@@ -74,6 +76,7 @@ namespace GuGu {
 		//static functions
 		type.AddStaticMethod<World>("getWorld", &World::getWorld, {});
 
+		type.AddMethod("loadTexture", &World::loadTexture, {});
 		return true;
 	}
 
@@ -204,6 +207,11 @@ namespace GuGu {
 		{
 			World::getWorld()->m_onLevelChanged[i]();
 		}
+	}
+
+	std::shared_ptr<GuGu::AssetData> World::loadTexture(const GuGuUtf8Str& filePath)
+	{
+		return AssetManager::getAssetManager().loadAssetData(filePath);
 	}
 
 	void World::setLevel(std::shared_ptr<Level> inLevel)

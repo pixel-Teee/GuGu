@@ -329,15 +329,15 @@ namespace GuGu {
 			});
 
 		type.AddField<UIPadding, float>("right",
-			(meta::FieldGetter<UIPadding, float, false>::Signature) & UIPadding::right,
-			(meta::FieldSetter<UIPadding, float, false>::Signature) & UIPadding::right,
+			(meta::FieldGetter<UIPadding, float&, true>::Signature) & UIPadding::getRight,
+			(meta::FieldSetter<UIPadding, float, true>::Signature) & UIPadding::setRight,
 			{
 				std::make_pair(typeof(meta::Range), meta::MetaPropertyInitializer<meta::Range>(-2000.0f, 2000.0f)) //meta
 			});
 
 		type.AddField<UIPadding, float>("bottom",
-			(meta::FieldGetter<UIPadding, float, false>::Signature) & UIPadding::bottom,
-			(meta::FieldSetter<UIPadding, float, false>::Signature) & UIPadding::bottom,
+			(meta::FieldGetter<UIPadding, float&, true>::Signature) & UIPadding::getBottom,
+			(meta::FieldSetter<UIPadding, float, true>::Signature) & UIPadding::setBottom,
 			{
 				std::make_pair(typeof(meta::Range), meta::MetaPropertyInitializer<meta::Range>(-2000.0f, 2000.0f)) //meta
 			});
@@ -392,8 +392,8 @@ namespace GuGu {
 			(meta::FieldSetter<UIAnchorData, UIAnchors, false>::Signature) & UIAnchorData::m_anchors, {});
 
 		type.AddField<UIAnchorData, UIPadding>("m_offset",
-			(meta::FieldGetter<UIAnchorData, UIPadding, false>::Signature) & UIAnchorData::m_offset,
-			(meta::FieldSetter<UIAnchorData, UIPadding, false>::Signature) & UIAnchorData::m_offset, {});
+			(meta::FieldGetter<UIAnchorData, UIPadding&, true>::Signature) & UIAnchorData::getOffset,
+			(meta::FieldSetter<UIAnchorData, UIPadding, true>::Signature) & UIAnchorData::setOffset, {});
 
 		type.AddField<UIAnchorData, math::float2>("m_alignment",
 			(meta::FieldGetter<UIAnchorData, math::float2, false>::Signature) & UIAnchorData::m_alignment,

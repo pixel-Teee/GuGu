@@ -18,4 +18,14 @@ namespace GuGu {
 		m_alignment = inAlignment;
 	}
 
+	UIPadding& UIAnchorData::getOffset()
+	{
+		return m_offset;
+	}
+
+	void UIAnchorData::setOffset(UIPadding inOffset)
+	{
+		m_offset = inOffset;
+	}
+
 }

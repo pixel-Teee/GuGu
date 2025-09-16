@@ -861,6 +861,55 @@ namespace GuGu {
 		return GGuid();//nothing
 	}
 
+	std::shared_ptr<GuGu::AssetData> AssetManager::loadAssetData(const GuGuUtf8Str& filePath)
+	{
+		for (const auto& item : m_guidToAssetMap)
+		{
+			if (item.second->m_filePath == filePath)
+			{
+				if (item.second->m_loadedResource == nullptr)
+				{
+					//load
+					AssetManager::getAssetManager().getRootFileSystem()->OpenFile(item.second->m_filePath, GuGuFile::FileMode::OnlyRead);
+					uint32_t fileSize = AssetManager::getAssetManager().getRootFileSystem()->getFileSize();
+					char* fileContent = new char[fileSize + 1];
+					fileContent[fileSize] = '\0';
+					int32_t numberBytesHavedReaded = 0;
+					AssetManager::getAssetManager().getRootFileSystem()->ReadFile((void*)fileContent, fileSize, numberBytesHavedReaded);
+					AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
+					GuGuUtf8Str json(fileContent);
+					if (meta::Type::getType(item.second->m_assetTypeGuid) == typeof(GStaticMesh))
+					{
+						//load asset
+						std::shared_ptr<meta::Object> loadedObject = AssetManager::getAssetManager().deserializeJson<GStaticMesh>(nlohmann::json::parse(json.getStr()));
+						item.second->m_loadedResource = loadedObject;
+					}
+					else if (meta::Type::getType(item.second->m_assetTypeGuid) == typeof(GTexture))
+					{
+						//load asset
+						std::shared_ptr<meta::Object> loadedObject = AssetManager::getAssetManager().deserializeJson<GTexture>(nlohmann::json::parse(json.getStr()));
+						item.second->m_loadedResource = loadedObject;
+					}
+					else if (meta::Type::getType(item.second->m_assetTypeGuid) == typeof(GFont))
+					{
+						//load asset
+						std::shared_ptr<meta::Object> loadedObject = AssetManager::getAssetManager().deserializeJson<GFont>(nlohmann::json::parse(json.getStr()));
+						item.second->m_loadedResource = loadedObject;
+					}
+					//AssetManager::getAssetManager().deserializeJson(nlohmann::json::parse(modelJson.getStr()))
+
+					delete[] fileContent;
+					return item.second;
+				}
+				else
+				{
+					return item.second;
+				}
+			}
+		}
+		return nullptr;
+	}
+
 	std::shared_ptr<AssetData> AssetManager::loadAsset(GGuid guid)
 	{
 		for (const auto& item : m_guidToAssetMap)

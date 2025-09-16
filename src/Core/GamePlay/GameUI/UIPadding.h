@@ -11,6 +11,12 @@ namespace GuGu {
 
 		float bottom;
 
+		float& getRight();
+		void setRight(float inRight);
+
+		float& getBottom();
+		void setBottom(float inBottom);
+
 		UIPadding() {
 			left = top = right = bottom = 0;
 		}

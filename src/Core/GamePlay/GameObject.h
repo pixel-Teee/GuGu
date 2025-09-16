@@ -7,6 +7,7 @@
 
 namespace GuGu {
 	class Level;
+	class World;
 	class GameObject : public meta::Object {
 
 	public:
@@ -116,6 +117,8 @@ namespace GuGu {
 
 		//game object 所在的 level
 		std::shared_ptr<Level> getCurrentLevel();
+
+		std::shared_ptr<World> getWorld();
 	protected:
 		Array<std::shared_ptr<Component>> m_components;
 

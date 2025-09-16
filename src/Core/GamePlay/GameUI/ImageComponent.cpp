@@ -59,6 +59,8 @@ namespace GuGu {
 			(meta::FieldGetter<ImageComponent, std::weak_ptr<GameObject>&, true>::Signature) & ImageComponent::getParentGameObject,
 			(meta::FieldSetter<ImageComponent, std::weak_ptr<GameObject>&, true>::Signature) & ImageComponent::setParentGameObject, {});
 
+		type.AddMethod("setTextureAsset", &ImageComponent::setTextureAsset, {});
+
 		return true;
 	}
 
