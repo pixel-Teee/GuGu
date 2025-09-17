@@ -56,6 +56,7 @@ function Calculator:init(owner)
 						maxi.y = 0.5
 						anchors.m_minimum = mini
 						anchors.m_maximum = maxi
+						offset.top = 0
 						offset.left = leftOffset
 						offset.right = 40
 						offset.bottom = 40
@@ -93,6 +94,7 @@ function Calculator:testCallLuaFunction()
 	--print("call lua function")
 	if self.screen then
 		self.screen:addChildren(self.symbolGameObjects["one"])
+		self.owner:getCurrentLevel():refreshLevel()
 	end
 end
 
