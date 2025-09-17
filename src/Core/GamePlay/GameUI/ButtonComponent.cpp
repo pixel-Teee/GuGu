@@ -73,6 +73,10 @@ namespace GuGu {
 			(meta::FieldGetter<ButtonComponent, Color&, true>::Signature) & ButtonComponent::getDisabledColor,
 			(meta::FieldSetter<ButtonComponent, Color, true>::Signature) & ButtonComponent::setDisabledColor, {});
 
+		type.AddField<ButtonComponent, std::shared_ptr<GuGuScriptDelegate>>("m_onClicked",
+			(meta::FieldGetter<ButtonComponent, std::shared_ptr<GuGuScriptDelegate>, true>::Signature) & ButtonComponent::getScriptDelegate,
+			(meta::FieldSetter<ButtonComponent, std::shared_ptr<GuGuScriptDelegate>, true>::Signature) & ButtonComponent::setScriptDelegate, {});
+
 		return true;
 	}
 
@@ -100,6 +104,8 @@ namespace GuGu {
 
 		m_bIsHovered = false;
 		m_bIsPressed = false;
+
+		m_onClicked = std::make_shared<GuGuScriptDelegate>();
 	}
 
 	ButtonComponent::~ButtonComponent()
@@ -285,7 +291,20 @@ namespace GuGu {
 
 	void ButtonComponent::onPointerUp(UIPointerData pointerData)
 	{
+		m_onClicked->invoke();
 		m_bIsPressed = false;
+	}
+
+	std::shared_ptr<GuGuScriptDelegate> ButtonComponent::getScriptDelegate()
+	{
+		if (m_onClicked == nullptr)
+			m_onClicked = std::make_shared<GuGuScriptDelegate>();
+		return m_onClicked;
+	}
+
+	void ButtonComponent::setScriptDelegate(std::shared_ptr<GuGuScriptDelegate> inScriptDelegate)
+	{
+		m_onClicked = inScriptDelegate;
 	}
 
 }

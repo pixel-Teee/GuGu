@@ -727,20 +727,23 @@ namespace GuGu {
 			}
 			else if (fieldType.IsSharedPtr() && !fieldType.IsArray())
 			{
-				int32_t objectIndex = jsonObject[field.GetName().getStr()].get<int32_t>();
-				if (objectIndex != -1)
+				if (jsonObject.contains(field.GetName().getStr()))
 				{
-					if (context.m_indexToSharedPtrObject.find(objectIndex) != context.m_indexToSharedPtrObject.end())
+					int32_t objectIndex = jsonObject[field.GetName().getStr()].get<int32_t>();
+					if (objectIndex != -1)
 					{
-						field.SetValue(variantObject, context.m_indexToSharedPtrObject.find(objectIndex));
+						if (context.m_indexToSharedPtrObject.find(objectIndex) != context.m_indexToSharedPtrObject.end())
+						{
+							field.SetValue(variantObject, context.m_indexToSharedPtrObject.find(objectIndex));
+						}
+						else
+						{
+							//auto& linkedObject = context.m_indexToObject.find(objectIndex)->second;
+							std::shared_ptr<meta::Object> linkedObject(context.m_indexToObject.find(objectIndex)->second);
+							context.m_indexToSharedPtrObject.insert({ objectIndex, linkedObject });
+							field.SetValue(variantObject, linkedObject);
+						}
 					}
-					else
-					{
-						//auto& linkedObject = context.m_indexToObject.find(objectIndex)->second;
-						std::shared_ptr<meta::Object> linkedObject(context.m_indexToObject.find(objectIndex)->second);
-						context.m_indexToSharedPtrObject.insert({ objectIndex, linkedObject });
-						field.SetValue(variantObject, linkedObject);
-					}		
 				}		
 			}
 			else if (fieldType.IsArray())

@@ -3,6 +3,8 @@
 #include "GuGuScriptDelegate.h"
 #include <Core/Reflection/TypeInfo.h>
 
+#include <Core/GamePlay/ScriptComponent.h>
+
 namespace GuGu {
 	static bool registerGuGuScriptDelegate()
 	{
@@ -49,6 +51,9 @@ namespace GuGu {
 
 		auto& type = db.types[typeof(GuGuScriptDelegate).GetID()];
 
+		type.AddMethod("addFunction", &GuGuScriptDelegate::addFunction, {});
+
+		type.AddMethod("removeFunction", &GuGuScriptDelegate::removeFunction, {});
 
 		return true;
 	}
@@ -98,6 +103,27 @@ namespace GuGu {
 	void GuGuScriptDelegate::OnDeserialize(const nlohmann::json & input)
 	{
 
+	}
+
+	void GuGuScriptDelegate::invoke()
+	{
+		//invoke script function
+		if (m_scriptObject.lock())
+		{
+			m_scriptObject.lock()->invoke(m_functionName);
+		}
+	}
+
+	void GuGuScriptDelegate::addFunction(std::shared_ptr<ScriptComponent> inScriptObject, const GuGuUtf8Str& inFunctionName)
+	{
+		m_scriptObject = inScriptObject;
+		m_functionName = inFunctionName;
+	}
+
+	void GuGuScriptDelegate::removeFunction()
+	{
+		m_scriptObject.reset();
+		m_functionName = "";
 	}
 
 }

@@ -4,6 +4,8 @@
 #include <Core/GamePlay/GameUI/UIComponent.h>
 #include <Renderer/Color.h>
 
+#include <Core/GamePlay/Delegate/GuGuScriptDelegate.h>
+
 namespace GuGu {
 	struct AssetData;
 	class GTexture;
@@ -52,6 +54,9 @@ namespace GuGu {
 		virtual void onPointerDown(UIPointerData pointerData);
 
 		virtual void onPointerUp(UIPointerData pointerData);
+
+		std::shared_ptr<GuGuScriptDelegate> getScriptDelegate();
+		void setScriptDelegate(std::shared_ptr<GuGuScriptDelegate> inScriptDelegate);
 	private:
 		//transient state
 		bool m_bIsPressed;
@@ -68,5 +73,7 @@ namespace GuGu {
 		Color m_pressedColor;
 
 		Color m_disabledColor;
+
+		std::shared_ptr<GuGuScriptDelegate> m_onClicked;
 	};
 }

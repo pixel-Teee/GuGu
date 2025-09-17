@@ -17,15 +17,15 @@ function Calculator:init(owner)
 	local currentLevel = self.owner:getCurrentLevel()
 	self.centerBorder = self.owner:getCurrentLevel():getGameObject("CenterBorder")
 	if currentLevel then
-		local newGameObject = currentLevel:createGameObject("screent_1")
+		self.screen = currentLevel:createGameObject("screent_1")
 		self.symbolGameObjects = {}
-		newGameObject:addComponentFromName("GuGu::UITransformComponent")
-		if newGameObject then
-			self.centerBorder:addChildren(newGameObject)
-			local textComponent = newGameObject:addComponentFromName("GuGu::TextComponent");
+		self.screen:addComponentFromName("GuGu::UITransformComponent")
+		if self.screen then
+			self.centerBorder:addChildren(self.screen)
+			local textComponent = self.screen:addComponentFromName("GuGu::TextComponent");
 			textComponent:setText("114514")
 			print("add text component successful")
-			--local imageComponent = newGameObject:addComponentFromName("GuGu::ImageComponent");
+			--local imageComponent = self.screen:addComponentFromName("GuGu::ImageComponent");
 			--local oneTexture = self.owner:getWorld():loadTexture(symbolTexturePath["one"])
 			--if oneTexture then
 			--	imageComponent:setTextureAsset(oneTexture)
@@ -43,7 +43,7 @@ function Calculator:init(owner)
 							imageComponent:setTextureAsset(texture)
 						end
 					end
-					newGameObject:addChildren(symbolGameObject)
+					--self.screen:addChildren(symbolGameObject)
 					local uiAnchorData = uiTransformComponent.m_anchorData
 					if uiAnchorData then
 						local anchors = uiAnchorData.m_anchors
@@ -64,11 +64,17 @@ function Calculator:init(owner)
 						uiTransformComponent.m_anchorData = uiAnchorData
 						leftOffset = leftOffset + 40
 					end
-					table.insert(self.symbolGameObjects, symbolGameObject)
+					--table.insert(self.symbolGameObjects, symbolGameObject)
+					self.symbolGameObjects[key] = symbolGameObject
 				end
 			end
 			currentLevel:refreshLevel() --refresh editor
 		end
+	end
+
+	local buttonComponent = self.owner:getCurrentLevel():getGameObject("1"):getComponent("GuGu::ButtonComponent")
+	if buttonComponent then
+		buttonComponent.m_onClicked:addFunction(self.owner:getComponent("GuGu::ScriptComponent"), "testCallLuaFunction")
 	end
 end
 
@@ -80,6 +86,13 @@ function Calculator:update(delta)
 		self.elapsedTime = 0
 		self.frameCount = 0
 		self.textComponent:setText("帧率"..string.format("%.2f", fps))
+	end
+end
+
+function Calculator:testCallLuaFunction()
+	--print("call lua function")
+	if self.screen then
+		self.screen:addChildren(self.symbolGameObjects["one"])
 	end
 end
 

@@ -28,6 +28,8 @@ namespace GuGu {
 		void initialize();
 
 		void close();
+
+		void invoke(const GuGuUtf8Str& inFunctionName);
 	private:
 		GuGuUtf8Str m_scriptPath;
 
