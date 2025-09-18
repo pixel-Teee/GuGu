@@ -1567,8 +1567,8 @@ namespace GuGu{
     math::float2 Application::translateCursorPos(math::float2 cursorPos, std::shared_ptr<WindowWidget> inWindowWidget)
     {
         DeviceManager* deviceManager = m_renderer->getDeviceManager();
-        uint32_t width = inWindowWidget->getFixedSize().x;
-        uint32_t height = inWindowWidget->getFixedSize().y;
+        uint32_t width = inWindowWidget->getViewportSize().x;
+        uint32_t height = inWindowWidget->getViewportSize().y;
 
         math::float4x4 viewport = math::viewportMatrix(width, height);
 		math::float3 cameraPos = math::float3(0.0f, 0.0f, 0.0f);
