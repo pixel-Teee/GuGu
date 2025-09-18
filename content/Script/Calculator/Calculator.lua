@@ -2,8 +2,22 @@ local class = require("content/Script/Common/Class")
 local Calculator = class()
 
 local symbolTexturePath = {
-	["one"] = "content/Calculator/texture_one.json",
-	["two"] = "content/Calculator/texture_two.json"
+	["1"] = "content/Calculator/texture_one.json",
+	["2"] = "content/Calculator/texture_two.json",
+	["3"] = "content/Calculator/texture_three.json",
+	["4"] = "content/Calculator/texture_four.json",
+	["5"] = "content/Calculator/texture_five.json",
+	["6"] = "content/Calculator/texture_six.json",
+	["7"] = "content/Calculator/texture_seven.json",
+	["8"] = "content/Calculator/texture_eight.json",
+	["9"] = "content/Calculator/texture_nine.json",
+	["0"] = "content/Calculator/texture_zero.json",
+	--["."] = "content/Calculator/texture_dot.json",
+	--["+"] = "content/Calculator/texture_plus.json",
+	--["-"] = "content/Calculator/texture_mius.json",
+	--["*"] = "content/Calculator/texture_times.json",
+	--["/"] = "content/Calculator/texture_division.json",
+	--["="] = "content/Calculator/texture_equal.json"
 }
 
 function Calculator:init(owner)
@@ -50,9 +64,9 @@ function Calculator:init(owner)
 						local offset = uiAnchorData.m_offset
 						local mini = anchors.m_minimum
 						local maxi = anchors.m_maximum
-						mini.x = 0.5
+						mini.x = 1.0
 						mini.y = 0.5
-						maxi.x = 0.5
+						maxi.x = 1.0
 						maxi.y = 0.5
 						anchors.m_minimum = mini
 						anchors.m_maximum = maxi
@@ -73,10 +87,17 @@ function Calculator:init(owner)
 		end
 	end
 
-	local buttonComponent = self.owner:getCurrentLevel():getGameObject("1"):getComponent("GuGu::ButtonComponent")
-	if buttonComponent then
-		buttonComponent.m_onClicked:addFunction(self.owner:getComponent("GuGu::ScriptComponent"), "testCallLuaFunction")
+	for key, value in pairs(self.symbolGameObjects) do
+		local buttonComponent = self.owner:getCurrentLevel():getGameObject(key):getComponent("GuGu::ButtonComponent")
+		if buttonComponent then
+			buttonComponent.m_onClicked:addFunction(self.owner:getComponent("GuGu::ScriptComponent"), "click_"..key)
+		end 
 	end
+	local buttonComponent = self.owner:getCurrentLevel():getGameObject("Clear"):getComponent("GuGu::ButtonComponent")
+	if buttonComponent then
+		buttonComponent.m_onClicked:addFunction(self.owner:getComponent("GuGu::ScriptComponent"), "click_clear")
+	end 
+	self.symbolStack = {}
 end
 
 function Calculator:update(delta)
@@ -90,11 +111,146 @@ function Calculator:update(delta)
 	end
 end
 
-function Calculator:testCallLuaFunction()
+function Calculator:click_1()
 	--print("call lua function")
 	if self.screen then
-		self.screen:addChildren(self.symbolGameObjects["one"])
+		--self.screen:addChildren(self.symbolGameObjects["1"])
+		table.insert(self.symbolStack, 1)
+		self:refreshScreen()
 		self.owner:getCurrentLevel():refreshLevel()
+	end
+end
+
+function Calculator:click_2()
+	--print("call lua function")
+	if self.screen then
+		--self.screen:addChildren(self.symbolGameObjects["1"])
+		table.insert(self.symbolStack, 2)
+		self:refreshScreen()
+		self.owner:getCurrentLevel():refreshLevel()
+	end
+end
+
+function Calculator:click_3()
+	--print("call lua function")
+	if self.screen then
+		--self.screen:addChildren(self.symbolGameObjects["3"])
+		table.insert(self.symbolStack, 3)
+		self:refreshScreen()
+		self.owner:getCurrentLevel():refreshLevel()
+	end
+end
+
+function Calculator:click_4()
+	--print("call lua function")
+	if self.screen then
+		--self.screen:addChildren(self.symbolGameObjects["4"])
+		table.insert(self.symbolStack, 4)
+		self:refreshScreen()
+		self.owner:getCurrentLevel():refreshLevel()
+	end
+end
+
+function Calculator:click_5()
+	--print("call lua function")
+	if self.screen then
+		--self.screen:addChildren(self.symbolGameObjects["5"])
+		table.insert(self.symbolStack, 5)
+		self:refreshScreen()
+		self.owner:getCurrentLevel():refreshLevel()
+	end
+end
+
+function Calculator:click_6()
+	--print("call lua function")
+	if self.screen then
+		--self.screen:addChildren(self.symbolGameObjects["6"])
+		table.insert(self.symbolStack, 6)
+		self:refreshScreen()
+		self.owner:getCurrentLevel():refreshLevel()
+	end
+end
+
+function Calculator:click_7()
+	--print("call lua function")
+	if self.screen then
+		--self.screen:addChildren(self.symbolGameObjects["7"])
+		table.insert(self.symbolStack, 7)
+		self:refreshScreen()
+		self.owner:getCurrentLevel():refreshLevel()
+	end
+end
+
+function Calculator:click_8()
+	--print("call lua function")
+	if self.screen then
+		--self.screen:addChildren(self.symbolGameObjects["8"])
+		table.insert(self.symbolStack, 8)
+		self:refreshScreen()
+		self.owner:getCurrentLevel():refreshLevel()
+	end
+end
+
+function Calculator:click_9()
+	--print("call lua function")
+	if self.screen then
+		--self.screen:addChildren(self.symbolGameObjects["9"])
+		table.insert(self.symbolStack, 9)
+		self:refreshScreen()
+		self.owner:getCurrentLevel():refreshLevel()
+	end
+end
+
+function Calculator:click_0()
+	--print("call lua function")
+	if self.screen then
+		--self.screen:addChildren(self.symbolGameObjects["0"])
+		table.insert(self.symbolStack, 0)
+		self:refreshScreen()
+		self.owner:getCurrentLevel():refreshLevel()
+	end
+end
+
+function Calculator:click_clear()
+	if self.screen then
+		--self.screen:addChildren(self.symbolGameObjects["0"])
+		self.symbolStack = {}
+		self.screen:clearChildrens()
+		self.owner:getCurrentLevel():refreshLevel()
+	end
+end
+
+function Calculator:refreshScreen()
+	if self.screen then
+		self.screen:clearChildrens()
+
+		for i = #self.symbolStack, 1, -1 do
+			local symbol = self.symbolStack[i]
+			self.screen:addChildren(self.symbolGameObjects[tostring(symbol)])
+
+			local uiTransformComponent = self.symbolGameObjects[tostring(symbol)]:getComponent("GuGu::UITransformComponent")
+
+			local uiAnchorData = uiTransformComponent.m_anchorData
+			if uiAnchorData then
+				local anchors = uiAnchorData.m_anchors
+				local offset = uiAnchorData.m_offset
+				local mini = anchors.m_minimum
+				local maxi = anchors.m_maximum
+				mini.x = 1.0
+				mini.y = 0.5
+				maxi.x = 1.0
+				maxi.y = 0.5
+				anchors.m_minimum = mini
+				anchors.m_maximum = maxi
+				offset.top = 20
+				offset.left = -(#self.symbolStack - i) * 40 - 20
+				offset.right = 40
+				offset.bottom = 40
+				uiAnchorData.m_anchors = anchors
+				uiAnchorData.m_offset = offset
+				uiTransformComponent.m_anchorData = uiAnchorData
+			end
+		end
 	end
 end
 

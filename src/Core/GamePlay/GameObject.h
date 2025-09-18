@@ -119,6 +119,8 @@ namespace GuGu {
 		std::shared_ptr<Level> getCurrentLevel();
 
 		std::shared_ptr<World> getWorld();
+
+		void clearChildrens();
 	protected:
 		Array<std::shared_ptr<Component>> m_components;
 

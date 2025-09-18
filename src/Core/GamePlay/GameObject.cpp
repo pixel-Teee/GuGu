@@ -92,6 +92,8 @@ namespace GuGu {
 
 		type.AddMethod("addComponentFromName", &GameObject::addComponentFromName, {});
 
+		type.AddMethod("clearChildrens", &GameObject::clearChildrens, {});
+
 		return true;
 	}
 	IMPLEMENT_INITIAL_BEGIN(GameObject)
@@ -349,6 +351,15 @@ namespace GuGu {
 	std::shared_ptr<World> GameObject::getWorld()
 	{
 		return World::getWorld();
+	}
+
+	void GameObject::clearChildrens()
+	{
+		for (int32_t i = 0; i < m_childrens.size(); ++i)
+		{
+			m_childrens[i]->setParentGameObject(std::shared_ptr<GameObject>());//clear
+		}
+		m_childrens.clear();
 	}
 
 }

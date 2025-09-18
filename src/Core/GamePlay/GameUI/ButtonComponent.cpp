@@ -297,8 +297,8 @@ namespace GuGu {
 
 	std::shared_ptr<GuGuScriptDelegate> ButtonComponent::getScriptDelegate()
 	{
-		if (m_onClicked == nullptr)
-			m_onClicked = std::make_shared<GuGuScriptDelegate>();
+		//if (m_onClicked == nullptr)
+		//	m_onClicked = std::make_shared<GuGuScriptDelegate>();
 		return m_onClicked;
 	}
 
