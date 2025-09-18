@@ -20,6 +20,9 @@ local symbolTexturePath = {
 	--["="] = "content/Calculator/texture_equal.json"
 }
 
+local defaultWhiteTexturePath = "content/white.json"
+local defaultWhiteTexture = nil
+
 function Calculator:init(owner)
 	self.owner = owner
 
@@ -30,6 +33,7 @@ function Calculator:init(owner)
 
 	local currentLevel = self.owner:getCurrentLevel()
 	self.centerBorder = self.owner:getCurrentLevel():getGameObject("CenterBorder")
+	self.symbolTextureAssets = {}
 	if currentLevel then
 		self.screen = currentLevel:createGameObject("screent_1")
 		self.symbolGameObjects = {}
@@ -47,47 +51,92 @@ function Calculator:init(owner)
 			local leftOffset = 0
 			for key, value in pairs(symbolTexturePath) do
 				print("traverse symbol texture path array")
-				local symbolGameObject = currentLevel:createGameObject("key_symbol"..key)
-				if symbolGameObject then
-					local imageComponent = symbolGameObject:addComponentFromName("GuGu::ImageComponent")
-					local uiTransformComponent = symbolGameObject:addComponentFromName("GuGu::UITransformComponent")
-					if imageComponent then
-						local texture = self.owner:getWorld():loadTexture(value)
-						if texture then
-							imageComponent:setTextureAsset(texture)
-						end
-					end
-					--self.screen:addChildren(symbolGameObject)
-					local uiAnchorData = uiTransformComponent.m_anchorData
-					if uiAnchorData then
-						local anchors = uiAnchorData.m_anchors
-						local offset = uiAnchorData.m_offset
-						local mini = anchors.m_minimum
-						local maxi = anchors.m_maximum
-						mini.x = 1.0
-						mini.y = 0.5
-						maxi.x = 1.0
-						maxi.y = 0.5
-						anchors.m_minimum = mini
-						anchors.m_maximum = maxi
-						offset.top = 0
-						offset.left = leftOffset
-						offset.right = 40
-						offset.bottom = 40
-						uiAnchorData.m_anchors = anchors
-						uiAnchorData.m_offset = offset
-						uiTransformComponent.m_anchorData = uiAnchorData
-						leftOffset = leftOffset + 40
-					end
-					--table.insert(self.symbolGameObjects, symbolGameObject)
-					self.symbolGameObjects[key] = symbolGameObject
-				end
+				local texture = self.owner:getWorld():loadTexture(value)
+				-- if texture then
+				-- 	imageComponent:setTextureAsset(texture)
+				-- end
+				--table.insert(self.symbolTextureAssets, texture)
+				self.symbolTextureAssets[key] = texture
+				--local symbolGameObject = currentLevel:createGameObject("key_symbol"..key)
+				-- if symbolGameObject then
+				-- 	local imageComponent = symbolGameObject:addComponentFromName("GuGu::ImageComponent")
+				-- 	local uiTransformComponent = symbolGameObject:addComponentFromName("GuGu::UITransformComponent")
+				-- 	if imageComponent then
+				-- 		local texture = self.owner:getWorld():loadTexture(value)
+				-- 		-- if texture then
+				-- 		-- 	imageComponent:setTextureAsset(texture)
+				-- 		-- end
+				-- 		table.insert(self.symbolTextureAssets, texture)
+				-- 	end
+				-- 	--self.screen:addChildren(symbolGameObject)
+				-- 	local uiAnchorData = uiTransformComponent.m_anchorData
+				-- 	if uiAnchorData then
+				-- 		local anchors = uiAnchorData.m_anchors
+				-- 		local offset = uiAnchorData.m_offset
+				-- 		local mini = anchors.m_minimum
+				-- 		local maxi = anchors.m_maximum
+				-- 		mini.x = 1.0
+				-- 		mini.y = 0.5
+				-- 		maxi.x = 1.0
+				-- 		maxi.y = 0.5
+				-- 		anchors.m_minimum = mini
+				-- 		anchors.m_maximum = maxi
+				-- 		offset.top = 0
+				-- 		offset.left = leftOffset
+				-- 		offset.right = 40
+				-- 		offset.bottom = 40
+				-- 		uiAnchorData.m_anchors = anchors
+				-- 		uiAnchorData.m_offset = offset
+				-- 		uiTransformComponent.m_anchorData = uiAnchorData
+				-- 		leftOffset = leftOffset + 40
+				-- 	end
+				-- 	--table.insert(self.symbolGameObjects, symbolGameObject)
+				-- 	self.symbolGameObjects[key] = symbolGameObject
+				-- end
 			end
 			currentLevel:refreshLevel() --refresh editor
 		end
 	end
 
-	for key, value in pairs(self.symbolGameObjects) do
+	self.normalGameObjects = {}
+	if self.screen then
+		self.screen:clearChildrens()
+
+		for i = 1, 9 do
+			local normalGameObject = currentLevel:createGameObject("normal"..tostring(i))
+			normalGameObject:addComponentFromName("GuGu::ImageComponent")
+			normalGameObject:addComponentFromName("GuGu::UITransformComponent")
+
+			self.screen:addChildren(normalGameObject)
+			
+			local uiTransformComponent = normalGameObject:getComponent("GuGu::UITransformComponent")
+
+			local uiAnchorData = uiTransformComponent.m_anchorData
+			if uiAnchorData then
+				local anchors = uiAnchorData.m_anchors
+				local offset = uiAnchorData.m_offset
+				local mini = anchors.m_minimum
+				local maxi = anchors.m_maximum
+				mini.x = 1.0
+				mini.y = 0.5
+				maxi.x = 1.0
+				maxi.y = 0.5
+				anchors.m_minimum = mini
+				anchors.m_maximum = maxi
+				offset.top = 20
+				offset.left = -i * 40 - 20
+				offset.right = 40
+				offset.bottom = 40
+				uiAnchorData.m_anchors = anchors
+				uiAnchorData.m_offset = offset
+				uiTransformComponent.m_anchorData = uiAnchorData
+			end
+
+			table.insert(self.normalGameObjects, normalGameObject)
+		end
+	end
+
+	for key, value in pairs(symbolTexturePath) do
 		local buttonComponent = self.owner:getCurrentLevel():getGameObject(key):getComponent("GuGu::ButtonComponent")
 		if buttonComponent then
 			buttonComponent.m_onClicked:addFunction(self.owner:getComponent("GuGu::ScriptComponent"), "click_"..key)
@@ -98,6 +147,7 @@ function Calculator:init(owner)
 		buttonComponent.m_onClicked:addFunction(self.owner:getComponent("GuGu::ScriptComponent"), "click_clear")
 	end 
 	self.symbolStack = {}
+	defaultWhiteTexture = self.owner:getWorld():loadTexture(defaultWhiteTexturePath)
 end
 
 function Calculator:update(delta)
@@ -112,7 +162,7 @@ function Calculator:update(delta)
 end
 
 function Calculator:click_1()
-	--print("call lua function")
+	print("call lua function")
 	if self.screen then
 		--self.screen:addChildren(self.symbolGameObjects["1"])
 		table.insert(self.symbolStack, 1)
@@ -215,40 +265,39 @@ function Calculator:click_clear()
 	if self.screen then
 		--self.screen:addChildren(self.symbolGameObjects["0"])
 		self.symbolStack = {}
-		self.screen:clearChildrens()
+		--self.screen:clearChildrens()
+		for key, value in pairs(self.normalGameObjects) do
+			local imageComponent = value:getComponent("GuGu::ImageComponent")
+			if imageComponent then
+				local color = imageComponent.m_color
+				color.r = 1.0
+				color.g = 1.0
+				color.b = 1.0
+				color.a = 0.0
+				imageComponent.m_color = color
+				imageComponent:setTextureAsset(defaultWhiteTexture)
+			end
+		end
 		self.owner:getCurrentLevel():refreshLevel()
 	end
 end
 
 function Calculator:refreshScreen()
 	if self.screen then
-		self.screen:clearChildrens()
-
 		for i = #self.symbolStack, 1, -1 do
 			local symbol = self.symbolStack[i]
-			self.screen:addChildren(self.symbolGameObjects[tostring(symbol)])
-
-			local uiTransformComponent = self.symbolGameObjects[tostring(symbol)]:getComponent("GuGu::UITransformComponent")
-
-			local uiAnchorData = uiTransformComponent.m_anchorData
-			if uiAnchorData then
-				local anchors = uiAnchorData.m_anchors
-				local offset = uiAnchorData.m_offset
-				local mini = anchors.m_minimum
-				local maxi = anchors.m_maximum
-				mini.x = 1.0
-				mini.y = 0.5
-				maxi.x = 1.0
-				maxi.y = 0.5
-				anchors.m_minimum = mini
-				anchors.m_maximum = maxi
-				offset.top = 20
-				offset.left = -(#self.symbolStack - i) * 40 - 20
-				offset.right = 40
-				offset.bottom = 40
-				uiAnchorData.m_anchors = anchors
-				uiAnchorData.m_offset = offset
-				uiTransformComponent.m_anchorData = uiAnchorData
+			
+			local normalGameObject = self.normalGameObjects[#self.symbolStack - i + 1]
+			print("traverse game object index, %s", tostring(#self.symbolStack - i + 1))
+			if normalGameObject then
+				local imageComponent = normalGameObject:getComponent("GuGu::ImageComponent")
+				if imageComponent then
+					local color = imageComponent.m_color
+					color.a = 1.0
+					imageComponent.m_color = color
+					print("set texture asset symbol %s", tostring(symbol))
+					imageComponent:setTextureAsset(self.symbolTextureAssets[tostring(symbol)])
+				end
 			end
 		end
 	end
