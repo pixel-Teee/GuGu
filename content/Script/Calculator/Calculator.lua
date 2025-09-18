@@ -12,12 +12,12 @@ local symbolTexturePath = {
 	["8"] = "content/Calculator/texture_eight.json",
 	["9"] = "content/Calculator/texture_nine.json",
 	["0"] = "content/Calculator/texture_zero.json",
-	--["."] = "content/Calculator/texture_dot.json",
-	--["+"] = "content/Calculator/texture_plus.json",
-	--["-"] = "content/Calculator/texture_mius.json",
-	--["*"] = "content/Calculator/texture_times.json",
-	--["/"] = "content/Calculator/texture_division.json",
-	--["="] = "content/Calculator/texture_equal.json"
+	["."] = "content/Calculator/texture_dot.json",
+	["+"] = "content/Calculator/texture_plus.json",
+	["-"] = "content/Calculator/texture_mius.json",
+	["*"] = "content/Calculator/texture_times.json",
+	["/"] = "content/Calculator/texture_division.json",
+	["="] = "content/Calculator/texture_equal.json"
 }
 
 local defaultWhiteTexturePath = "content/white.json"
@@ -25,6 +25,16 @@ local defaultWhiteTexture = nil
 
 function Calculator:init(owner)
 	self.owner = owner
+
+	for key, value in pairs(symbolTexturePath) do
+		local gameObject = self.owner:getCurrentLevel():getGameObject(key)
+		if gameObject ~= nil then
+			local buttonComponent = gameObject:getComponent("GuGu::ButtonComponent")
+			if buttonComponent then
+				buttonComponent.m_onClicked:addFunction(self.owner:getComponent("GuGu::ScriptComponent"), "click_"..key)
+			end 
+		end
+	end
 
 	self.textComponent = self.owner:getChildren("Text_FPS"):getComponent("GuGu::TextComponent")
 
@@ -48,7 +58,6 @@ function Calculator:init(owner)
 			--if oneTexture then
 			--	imageComponent:setTextureAsset(oneTexture)
 			--end
-			local leftOffset = 0
 			for key, value in pairs(symbolTexturePath) do
 				print("traverse symbol texture path array")
 				local texture = self.owner:getWorld():loadTexture(value)
@@ -110,6 +119,7 @@ function Calculator:init(owner)
 			self.screen:addChildren(normalGameObject)
 			
 			local uiTransformComponent = normalGameObject:getComponent("GuGu::UITransformComponent")
+			local imageComponent = normalGameObject:getComponent("GuGu::ImageComponent")
 
 			local uiAnchorData = uiTransformComponent.m_anchorData
 			if uiAnchorData then
@@ -132,20 +142,53 @@ function Calculator:init(owner)
 				uiTransformComponent.m_anchorData = uiAnchorData
 			end
 
+			if imageComponent then
+				local color = imageComponent.m_color
+				color.r = 1.0
+				color.g = 1.0
+				color.b = 1.0
+				color.a = 0.0
+				imageComponent.m_color = color
+			end
+
 			table.insert(self.normalGameObjects, normalGameObject)
 		end
 	end
 
 	for key, value in pairs(symbolTexturePath) do
-		local buttonComponent = self.owner:getCurrentLevel():getGameObject(key):getComponent("GuGu::ButtonComponent")
-		if buttonComponent then
-			buttonComponent.m_onClicked:addFunction(self.owner:getComponent("GuGu::ScriptComponent"), "click_"..key)
-		end 
+		local gameObject = self.owner:getCurrentLevel():getGameObject(key)
+		if gameObject ~= nil then
+			local buttonComponent = gameObject:getComponent("GuGu::ButtonComponent")
+			if buttonComponent then
+				buttonComponent.m_onClicked:addFunction(self.owner:getComponent("GuGu::ScriptComponent"), "click_"..key)
+			end 
+		end
 	end
 	local buttonComponent = self.owner:getCurrentLevel():getGameObject("Clear"):getComponent("GuGu::ButtonComponent")
 	if buttonComponent then
 		buttonComponent.m_onClicked:addFunction(self.owner:getComponent("GuGu::ScriptComponent"), "click_clear")
 	end 
+	buttonComponent = self.owner:getCurrentLevel():getGameObject("Equals"):getComponent("GuGu::ButtonComponent")
+	if buttonComponent then
+		buttonComponent.m_onClicked:addFunction(self.owner:getComponent("GuGu::ScriptComponent"), "click_equals")
+	end
+	buttonComponent = self.owner:getCurrentLevel():getGameObject("Plus"):getComponent("GuGu::ButtonComponent")
+	if buttonComponent then
+		buttonComponent.m_onClicked:addFunction(self.owner:getComponent("GuGu::ScriptComponent"), "click_plus")
+	end
+	buttonComponent = self.owner:getCurrentLevel():getGameObject("Minus"):getComponent("GuGu::ButtonComponent")
+	if buttonComponent then
+		buttonComponent.m_onClicked:addFunction(self.owner:getComponent("GuGu::ScriptComponent"), "click_minus")
+	end
+	buttonComponent = self.owner:getCurrentLevel():getGameObject("Times"):getComponent("GuGu::ButtonComponent")
+	if buttonComponent then
+		buttonComponent.m_onClicked:addFunction(self.owner:getComponent("GuGu::ScriptComponent"), "click_times")
+	end
+	buttonComponent = self.owner:getCurrentLevel():getGameObject("Division"):getComponent("GuGu::ButtonComponent")
+	if buttonComponent then
+		buttonComponent.m_onClicked:addFunction(self.owner:getComponent("GuGu::ScriptComponent"), "click_division")
+	end
+	
 	self.symbolStack = {}
 	defaultWhiteTexture = self.owner:getWorld():loadTexture(defaultWhiteTexturePath)
 end
@@ -165,7 +208,7 @@ function Calculator:click_1()
 	print("call lua function")
 	if self.screen then
 		--self.screen:addChildren(self.symbolGameObjects["1"])
-		table.insert(self.symbolStack, 1)
+		table.insert(self.symbolStack, "1")
 		self:refreshScreen()
 		self.owner:getCurrentLevel():refreshLevel()
 	end
@@ -175,7 +218,7 @@ function Calculator:click_2()
 	--print("call lua function")
 	if self.screen then
 		--self.screen:addChildren(self.symbolGameObjects["1"])
-		table.insert(self.symbolStack, 2)
+		table.insert(self.symbolStack, "2")
 		self:refreshScreen()
 		self.owner:getCurrentLevel():refreshLevel()
 	end
@@ -185,7 +228,7 @@ function Calculator:click_3()
 	--print("call lua function")
 	if self.screen then
 		--self.screen:addChildren(self.symbolGameObjects["3"])
-		table.insert(self.symbolStack, 3)
+		table.insert(self.symbolStack, "3")
 		self:refreshScreen()
 		self.owner:getCurrentLevel():refreshLevel()
 	end
@@ -195,7 +238,7 @@ function Calculator:click_4()
 	--print("call lua function")
 	if self.screen then
 		--self.screen:addChildren(self.symbolGameObjects["4"])
-		table.insert(self.symbolStack, 4)
+		table.insert(self.symbolStack, "4")
 		self:refreshScreen()
 		self.owner:getCurrentLevel():refreshLevel()
 	end
@@ -205,7 +248,7 @@ function Calculator:click_5()
 	--print("call lua function")
 	if self.screen then
 		--self.screen:addChildren(self.symbolGameObjects["5"])
-		table.insert(self.symbolStack, 5)
+		table.insert(self.symbolStack, "5")
 		self:refreshScreen()
 		self.owner:getCurrentLevel():refreshLevel()
 	end
@@ -215,7 +258,7 @@ function Calculator:click_6()
 	--print("call lua function")
 	if self.screen then
 		--self.screen:addChildren(self.symbolGameObjects["6"])
-		table.insert(self.symbolStack, 6)
+		table.insert(self.symbolStack, "6")
 		self:refreshScreen()
 		self.owner:getCurrentLevel():refreshLevel()
 	end
@@ -225,7 +268,7 @@ function Calculator:click_7()
 	--print("call lua function")
 	if self.screen then
 		--self.screen:addChildren(self.symbolGameObjects["7"])
-		table.insert(self.symbolStack, 7)
+		table.insert(self.symbolStack, "7")
 		self:refreshScreen()
 		self.owner:getCurrentLevel():refreshLevel()
 	end
@@ -235,7 +278,7 @@ function Calculator:click_8()
 	--print("call lua function")
 	if self.screen then
 		--self.screen:addChildren(self.symbolGameObjects["8"])
-		table.insert(self.symbolStack, 8)
+		table.insert(self.symbolStack, "8")
 		self:refreshScreen()
 		self.owner:getCurrentLevel():refreshLevel()
 	end
@@ -245,7 +288,7 @@ function Calculator:click_9()
 	--print("call lua function")
 	if self.screen then
 		--self.screen:addChildren(self.symbolGameObjects["9"])
-		table.insert(self.symbolStack, 9)
+		table.insert(self.symbolStack, "9")
 		self:refreshScreen()
 		self.owner:getCurrentLevel():refreshLevel()
 	end
@@ -255,7 +298,81 @@ function Calculator:click_0()
 	--print("call lua function")
 	if self.screen then
 		--self.screen:addChildren(self.symbolGameObjects["0"])
-		table.insert(self.symbolStack, 0)
+		table.insert(self.symbolStack, "0")
+		self:refreshScreen()
+		self.owner:getCurrentLevel():refreshLevel()
+	end
+end
+
+function Calculator:click_equals()
+	if self.screen then
+		--self.screen:addChildren(self.symbolGameObjects["0"])
+		local expression = ""
+		for key, value in pairs(self.symbolStack) do
+			expression = expression .. value
+		end
+		print("expression:", expression)
+		local func, err = load("return "..expression)
+		if func then
+			local result = func()
+			print("result:"..tostring(result))
+			local str = tostring(result)
+			self.symbolStack = {}
+			for i = 1, #str do
+				table.insert(self.symbolStack, str:sub(i, i))
+			end
+		else
+			print(err)
+			self:click_clear()
+		end
+		for key, value in pairs(self.normalGameObjects) do
+			local imageComponent = value:getComponent("GuGu::ImageComponent")
+			if imageComponent then
+				local color = imageComponent.m_color
+				color.r = 1.0
+				color.g = 1.0
+				color.b = 1.0
+				color.a = 0.0
+				imageComponent.m_color = color
+				imageComponent:setTextureAsset(defaultWhiteTexture)
+			end
+		end
+		self:refreshScreen()
+		self.owner:getCurrentLevel():refreshLevel()
+	end
+end
+
+function Calculator:click_plus()
+	if self.screen then
+		--self.screen:addChildren(self.symbolGameObjects["0"])
+		table.insert(self.symbolStack, "+")
+		self:refreshScreen()
+		self.owner:getCurrentLevel():refreshLevel()
+	end
+end
+
+function Calculator:click_minus()
+	if self.screen then
+		--self.screen:addChildren(self.symbolGameObjects["0"])
+		table.insert(self.symbolStack, "-")
+		self:refreshScreen()
+		self.owner:getCurrentLevel():refreshLevel()
+	end
+end
+
+function Calculator:click_times()
+	if self.screen then
+		--self.screen:addChildren(self.symbolGameObjects["0"])
+		table.insert(self.symbolStack, "*")
+		self:refreshScreen()
+		self.owner:getCurrentLevel():refreshLevel()
+	end
+end
+
+function Calculator:click_division()
+	if self.screen then
+		--self.screen:addChildren(self.symbolGameObjects["0"])
+		table.insert(self.symbolStack, "/")
 		self:refreshScreen()
 		self.owner:getCurrentLevel():refreshLevel()
 	end
@@ -296,7 +413,7 @@ function Calculator:refreshScreen()
 					color.a = 1.0
 					imageComponent.m_color = color
 					print("set texture asset symbol %s", tostring(symbol))
-					imageComponent:setTextureAsset(self.symbolTextureAssets[tostring(symbol)])
+					imageComponent:setTextureAsset(self.symbolTextureAssets[symbol])
 				end
 			end
 		end

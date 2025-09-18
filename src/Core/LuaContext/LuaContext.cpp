@@ -105,13 +105,21 @@ namespace GuGu {
 				lua_pushstring(L, value.ToString().getStr());//is correct?
 			else if (isMetaObjectPtr || typeData.isStruct)
 			{
-				meta::Variant* userData = static_cast<meta::Variant*>(lua_newuserdata(L, sizeof(meta::Variant)));
-				new (userData) meta::Variant();
-				*userData = value;
-				//lua_pushlightuserdata(L, value.getBase()->GetPtr());
-				GuGuUtf8Str tableName = "MetaType_" + value.GetType().GetName();
-				luaL_getmetatable(L, tableName.getStr());
-				lua_setmetatable(L, -2);
+				//meta::Object* obj = static_cast<meta::Object*>(value.getBase()->GetPtr());
+				if (isMetaObjectPtr && value.GetValue<std::shared_ptr<meta::Object>>() == nullptr)
+				{
+					lua_pushnil(L);
+				}
+				else
+				{
+					meta::Variant* userData = static_cast<meta::Variant*>(lua_newuserdata(L, sizeof(meta::Variant)));
+					new (userData) meta::Variant();
+					*userData = value;
+					//lua_pushlightuserdata(L, value.getBase()->GetPtr());
+					GuGuUtf8Str tableName = "MetaType_" + value.GetType().GetName();
+					luaL_getmetatable(L, tableName.getStr());
+					lua_setmetatable(L, -2);
+				}
 			}
 			else if (type == typeof(LuaTable))
 			{
