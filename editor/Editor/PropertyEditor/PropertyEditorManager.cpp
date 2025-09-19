@@ -51,9 +51,12 @@ namespace GuGu {
 
 	std::shared_ptr<IPropertyTypeCustomization> PropertyEditorManager::getPropertyTypeCustomization(std::shared_ptr<PropertyNode> inPropertyNode)
 	{
-		const GuGuUtf8Str& typeName = inPropertyNode->getField()->GetType().GetName();//check?
-		if (m_globalPropertyTypeToLayoutMap.find(typeName) != m_globalPropertyTypeToLayoutMap.end())
-			return m_globalPropertyTypeToLayoutMap[typeName]();//execute func
+		if (inPropertyNode->getField() != nullptr)
+		{
+			const GuGuUtf8Str& typeName = inPropertyNode->getField()->GetType().GetName();//check?
+			if (m_globalPropertyTypeToLayoutMap.find(typeName) != m_globalPropertyTypeToLayoutMap.end())
+				return m_globalPropertyTypeToLayoutMap[typeName]();//execute func
+		}
 		return nullptr;
 	}
 

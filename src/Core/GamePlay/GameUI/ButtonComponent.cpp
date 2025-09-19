@@ -120,6 +120,7 @@ namespace GuGu {
 		buttonComponent->m_normalColor = this->m_normalColor;
 		buttonComponent->m_pressedColor = this->m_pressedColor;
 		buttonComponent->m_disabledColor = this->m_disabledColor;
+		buttonComponent->m_onClicked = this->m_onClicked;
 		return buttonComponent;
 	}
 
@@ -297,14 +298,18 @@ namespace GuGu {
 
 	std::shared_ptr<GuGuScriptDelegate> ButtonComponent::getScriptDelegate()
 	{
-		if (m_onClicked == nullptr)
-			m_onClicked = std::make_shared<GuGuScriptDelegate>();
+		//if (m_onClicked == nullptr)
+		//	m_onClicked = std::make_shared<GuGuScriptDelegate>();
 		return m_onClicked;
 	}
 
 	void ButtonComponent::setScriptDelegate(std::shared_ptr<GuGuScriptDelegate> inScriptDelegate)
 	{
 		m_onClicked = inScriptDelegate;
+		//if (m_onClicked == nullptr)
+		//{
+		//	int32_t a = 3 + 4;
+		//}
 	}
 
 }

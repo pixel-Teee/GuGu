@@ -90,9 +90,21 @@ namespace GuGu {
 				meta::Object* object = parentObjectNode->getObject(i);
 				meta::Variant instance = ObjectVariant(object);
 
-				meta::Object& fieldObject = field->GetValue(instance).GetValue<meta::Object>();//获取字段对应的object
+				//find field
+				std::vector<meta::Field> checkFields = meta::ReflectionDatabase::Instance().types[instance.GetType().GetID()].fields;
+				bool haveThisField = false;
+				for (size_t i = 0; i < checkFields.size(); ++i)
+				{
+					if ((checkFields[i].GetType() == field->GetType()) && (checkFields[i].GetName() == field->GetName()))
+						haveThisField = true;
+				}
+				if (haveThisField)
+				{
+					meta::Variant var = field->GetValue(instance);
+					std::shared_ptr<meta::Object> fieldObject = var.GetValue<std::shared_ptr<meta::Object>>();//获取字段对应的object
 
-				newObjectNode->addObject(&fieldObject);
+					newObjectNode->addObject(fieldObject.get());
+				}	
 			}
 
 			PropertyNodeInitParams initParams;
