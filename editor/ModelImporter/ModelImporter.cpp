@@ -13,6 +13,15 @@ namespace GuGu {
 		currentBufferSize += range.byteSize;
 	}
 
+	math::float4x4 ConvertMatrixToMyMathMatrix(const aiMatrix4x4& from)
+	{
+		math::float4x4 to;
+		to[0][0] = from.a1; to[1][0] = from.a2; to[2][0] = from.a3; to[3][0] = from.a4;
+		to[0][1] = from.b1; to[1][1] = from.b2; to[2][1] = from.b3; to[3][1] = from.b4;
+		to[0][2] = from.c1; to[1][2] = from.c2; to[2][2] = from.c3; to[3][2] = from.c4;
+		to[0][3] = from.d1; to[1][3] = from.d2; to[2][3] = from.d3; to[3][3] = from.d4;
+		return to;
+	}
 	ModelImporter::ModelImporter()
 	{
 		//init
@@ -21,8 +30,10 @@ namespace GuGu {
 	ModelImporter::~ModelImporter()
 	{
 	}
-	nlohmann::json ModelImporter::loadModel(const GuGuUtf8Str& modelPhysicalFilePath)
+	nlohmann::json ModelImporter::loadModel(const GuGuUtf8Str& modelPhysicalFilePath, bool isSkeleton)
 	{
+		m_isSkeleton = isSkeleton;
+		m_boneStartIndex = -1;
 		//从文件的实际路径去加载模型
 		Assimp::Importer import;
 		
@@ -117,6 +128,52 @@ namespace GuGu {
 				}
 
 				//todo:加载更多数据
+				if (m_isSkeleton)
+				{
+					m_currentLoadStaticMesh->m_weightData.push_back(math::float4().zero());
+					m_currentLoadStaticMesh->m_jointData.push_back(math::vector<int16_t, 4>(-1, -1, -1, -1));
+				}		
+			}
+
+			//是骨架网格体
+			if (m_isSkeleton)
+			{
+				for (uint32_t boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex)
+				{
+					int32_t boneId = -1;
+					GuGuUtf8Str boneName = mesh->mBones[boneIndex]->mName.C_Str();
+					if (m_currentLoadStaticMesh->m_boneInfos.find(boneName) == m_currentLoadStaticMesh->m_boneInfos.end())
+					{
+						BoneInfo boneInfo;
+						boneInfo.m_boneId = ++m_boneStartIndex;
+						boneInfo.m_offsetMatrix = ConvertMatrixToMyMathMatrix(mesh->mBones[boneIndex]->mOffsetMatrix);
+						m_currentLoadStaticMesh->m_boneInfos[boneName] = boneInfo;
+						boneId = m_boneStartIndex;
+					}
+					else
+					{
+						boneId = m_currentLoadStaticMesh->m_boneInfos[boneName].m_boneId;
+					}
+
+					//获取这跟骨骼对所有顶点权重的影响
+					auto widgets = mesh->mBones[boneIndex]->mWeights;
+					int32_t numWeights = mesh->mBones[boneIndex]->mNumWeights;
+
+					for (uint32_t weightIndex = 0; weightIndex < numWeights; ++weightIndex)
+					{
+						math::float4& weight = m_currentLoadStaticMesh->m_weightData[widgets[weightIndex].mVertexId];
+						math::vector<int16_t, 4>& joint = m_currentLoadStaticMesh->m_jointData[widgets[weightIndex].mVertexId];//指向骨骼矩阵的索引
+						//max bone index is 4
+						for (int32_t index = 0; index < 4; ++index)
+						{
+							if (joint[index] < 0)
+							{
+								joint[index] = boneId;
+								weight[index] = widgets[weightIndex].mWeight;
+							}
+						}
+					}
+				}
 			}
 
 			uint32_t totalIndicesNumber = 0;

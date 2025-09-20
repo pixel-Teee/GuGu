@@ -71,9 +71,9 @@ namespace GuGu {
 		type.AddField<GStaticMesh, Array<math::float3>>("m_normalData",
 			(meta::FieldGetter<GStaticMesh, Array<math::float3>, false>::Signature) & GStaticMesh::m_normalData,
 			(meta::FieldSetter<GStaticMesh, Array<math::float3>, false>::Signature) & GStaticMesh::m_normalData, {});
-		type.AddField<GStaticMesh, Array<math::vector<uint16_t, 4>>>("m_jointData",
-			(meta::FieldGetter<GStaticMesh, Array<math::vector<uint16_t, 4>>, false>::Signature) & GStaticMesh::m_jointData,
-			(meta::FieldSetter<GStaticMesh, Array<math::vector<uint16_t, 4>>, false>::Signature) & GStaticMesh::m_jointData, {});
+		type.AddField<GStaticMesh, Array<math::vector<int16_t, 4>>>("m_jointData",
+			(meta::FieldGetter<GStaticMesh, Array<math::vector<int16_t, 4>>, false>::Signature) & GStaticMesh::m_jointData,
+			(meta::FieldSetter<GStaticMesh, Array<math::vector<int16_t, 4>>, false>::Signature) & GStaticMesh::m_jointData, {});
 		type.AddField<GStaticMesh, Array<math::float4>>("m_weightData",
 			(meta::FieldGetter<GStaticMesh, Array<math::float4>, false>::Signature) & GStaticMesh::m_weightData,
 			(meta::FieldSetter<GStaticMesh, Array<math::float4>, false>::Signature) & GStaticMesh::m_weightData, {});
