@@ -10,6 +10,11 @@ namespace GuGu {
 			return false;
 		}
 
+		bool VariantBase::IsMap() const
+		{
+			return false;
+		}
+
 		ArrayWrapper VariantBase::GetArray(void) const
 		{
 			//invalid wrapper

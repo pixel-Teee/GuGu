@@ -24,6 +24,7 @@ namespace GuGu {
 			virtual GuGuUtf8Str ToString(void) const = 0;
 
 			virtual bool IsArray() const;
+			virtual bool IsMap() const;
 			virtual ArrayWrapper GetArray(void) const;
 
 			virtual VariantBase* Clone(void) const = 0;
