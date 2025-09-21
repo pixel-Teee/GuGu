@@ -242,6 +242,37 @@ namespace GuGu {
 		return true;
 	}
 
+	static bool registermathint16_4()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto id = db.AllocateType("GuGu::math::vector<int16_t, 4>");
+		auto& type = db.types[id];
+		meta::TypeInfo<math::vector<int16_t, 4>>::Register(id, type, true, "466A1C4E-51C7-4B31-9B4E-86117E87E162");
+
+		type.AddConstructor<math::vector<int16_t, 4>, false, false>({});
+
+		type.AddConstructor<math::vector<int16_t, 4>, true, false>({});
+
+		type.SetArrayConstructor<math::vector<int16_t, 4>>();
+
+		type.AddField<math::vector<int16_t, 4>, int16_t>("x",
+			(meta::FieldGetter<math::vector<int16_t, 4>, int16_t, false>::Signature) & math::vector<int16_t, 4>::x,
+			(meta::FieldSetter<math::vector<int16_t, 4>, int16_t, false>::Signature) & math::vector<int16_t, 4>::x, {});
+
+		type.AddField<math::vector<int16_t, 4>, int16_t>("y",
+			(meta::FieldGetter<math::vector<int16_t, 4>, int16_t, false>::Signature) & math::vector<int16_t, 4>::y,
+			(meta::FieldSetter<math::vector<int16_t, 4>, int16_t, false>::Signature) & math::vector<int16_t, 4>::y, {});
+
+		type.AddField<math::vector<int16_t, 4>, int16_t>("z",
+			(meta::FieldGetter<math::vector<int16_t, 4>, int16_t, false>::Signature) & math::vector<int16_t, 4>::z,
+			(meta::FieldSetter<math::vector<int16_t, 4>, int16_t, false>::Signature) & math::vector<int16_t, 4>::z, {});
+
+		type.AddField<math::vector<int16_t, 4>, int16_t>("w",
+			(meta::FieldGetter<math::vector<int16_t, 4>, int16_t, false>::Signature) & math::vector<int16_t, 4>::w,
+			(meta::FieldSetter<math::vector<int16_t, 4>, int16_t, false>::Signature) & math::vector<int16_t, 4>::w, {});
+		return true;
+	}
+
 	static bool registerRotator()
 	{
 		auto& db = meta::ReflectionDatabase::Instance();
@@ -474,6 +505,9 @@ namespace GuGu {
 		//Priority mathuint16_4Priority;
 		mathuint16_4Priority.setDebugName("GuGu::math::uint16_4");
 		ReflectionMain::addInitialTypeFunction(registermathuint16_4, &mathuint16_4Priority);
+
+		mathint16_4Priority.setDebugName("GuGu::math::int16_4");
+		ReflectionMain::addInitialTypeFunction(registermathint16_4, &mathint16_4Priority);
 
 		mathrotatorPriority.setDebugName("GuGu::math::Rotator");
 		ReflectionMain::addInitialTypeFunction(registerRotator, &mathrotatorPriority);

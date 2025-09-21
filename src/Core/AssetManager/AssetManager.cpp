@@ -594,7 +594,7 @@ namespace GuGu {
 
 			auto& fieldData = value[field.GetName().getStr()];
 
-			if (!fieldData.is_null())
+			if (!fieldData.is_null() && fieldType.IsValid())
 			{
 				auto& ctor = fieldType.GetConstructor();
 
