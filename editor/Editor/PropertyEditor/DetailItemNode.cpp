@@ -4,6 +4,7 @@
 #include "PropertyNode.h"
 #include "DetailPropertyRow.h"
 #include "DetailSingleItemRow.h"//DetailSingleItemRow widget
+#include "DetailCategoryTableRow.h"
 
 namespace GuGu {
 
@@ -41,7 +42,8 @@ namespace GuGu {
 		if (m_customization.hasPropertyNode() && m_customization.getPropertyNode()->asCategoryNode())
 		{
 			//return WIDGET_NEW()
-			return nullptr;
+			return WIDGET_NEW(DetailCategoryTableRow, shared_from_this(), ownerTable, nullptr)
+				.displayName(m_customization.getPropertyNode()->getDisplayName());
 		}
 		else
 		{

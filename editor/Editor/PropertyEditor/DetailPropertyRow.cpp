@@ -69,6 +69,20 @@ namespace GuGu {
 
 			customTypeInterface->cutomizeChildren(m_propertyHandle, *m_propertyTypeLayoutBuilder);
 		}
+
+		//if (customTypeInterface == nullptr)
+		//{
+		//	m_customPropertyWidget = std::make_shared<DetailWidgetRow>();
+		//	(*m_customPropertyWidget)
+		//	.nameContent()
+		//	(
+		//		NullWidget::getNullWidget()
+		//	)
+		//	.valueContent()
+		//	(
+		//		NullWidget::getNullWidget()
+		//	);
+		//}
 	}
 
 	std::shared_ptr<IPropertyTypeCustomization> DetailPropertyRow::getTypeInterface()

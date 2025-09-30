@@ -176,6 +176,8 @@ namespace GuGu{
 			Application::getApplication()->setGlobalPreRotate(0.0f);
 		}
 
+        //Application::getApplication()->setGlobalPreRotate(90.0f);
+
 		VkExtent2D extent{};
 		extent.width = width;
 		extent.height = height;

@@ -17,6 +17,8 @@ namespace GuGu {
 
 	static Priority mathuint16_4Priority;
 
+	static Priority mathint16_4Priority;
+
 	static Priority mathrotatorPriority;
 	//------third party------
 

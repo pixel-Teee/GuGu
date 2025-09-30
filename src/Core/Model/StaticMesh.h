@@ -6,9 +6,10 @@
 #include <Renderer/nvrhi.h>
 
 #include "ModelBasic.h"
+#include "BoneInfo.h"
 
 namespace GuGu{
-
+	
 	//static mesh
 	class GStaticMesh : public meta::Object
 	{
@@ -47,8 +48,12 @@ namespace GuGu{
 		Array<math::float2> m_texCoord2Data;
 		Array<math::float3> m_normalData;
 		Array<math::float3> m_tangentData;
-		Array<math::vector<uint16_t, 4>> m_jointData;//指向骨骼矩阵的索引
+		Array<math::vector<int16_t, 4>> m_jointData;//指向骨骼矩阵的索引
 		Array<math::float4> m_weightData;
+
+		//bone map(骨骼名，对应骨骼信息)
+		std::map<GuGuUtf8Str, BoneInfo> m_boneInfos;
+
 		std::array<nvrhi::BufferRange, size_t(GVertexAttribute::Count)> m_vertexBufferRanges;
 
 		std::vector<std::shared_ptr<GMeshGeometry>> m_geometries;//描述整个模型网格中的子网格

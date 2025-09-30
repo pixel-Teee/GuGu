@@ -36,12 +36,5 @@
 
 # 展示
 
-![android-gui](gui.jpg)
-
-如下是演示的gif图
-
-![android-gui](gui.gif)
-
-![](gui2.jpg)
-
-![](gui3.jpg)
+## GUI_Editor
+![](ScreenShot_UIDesigner.png)

@@ -364,12 +364,23 @@ namespace GuGu {
 						CollisionObjects(item, context);
 					}
 				}
+				else if(type != typeof(std::shared_ptr<AssetData>))
+				{
+					meta::Variant value = field.GetValue(instance);
+					CollisionObjects(value, context);
+				}
 			}
 		}
 	}
 
 	nlohmann::json AssetManager::serializeJson(meta::Type type, const meta::Variant& instance, SerializeDeserializeContext& context)
 	{
+		if (type == typeof(Array<uint8_t>))
+		{
+			nlohmann::json binaryBlob = nlohmann::json::binary(instance.GetValue<Array<uint8_t>>());
+			return binaryBlob;
+		}
+
 		if (type.IsArray()) //数组
 		{
 			nlohmann::json array = nlohmann::json::array();
@@ -472,6 +483,15 @@ namespace GuGu {
 
 	meta::Variant AssetManager::deserializeJson(meta::Type type, nlohmann::json value, const meta::Constructor& ctor, SerializeDeserializeContext& context)
 	{
+		if (type == typeof(Array<uint8_t>))
+		{
+			if (value.contains("bytes"))
+			{
+				std::vector<uint8_t> binaryDataCopy = value["bytes"].get<std::vector<uint8_t>>();
+				return Array<uint8_t>(binaryDataCopy);
+			}
+		}
+
 		//数组类型需要特殊的情况
 		if (type.IsArray())
 		{
@@ -574,7 +594,7 @@ namespace GuGu {
 
 			auto& fieldData = value[field.GetName().getStr()];
 
-			if (!fieldData.is_null())
+			if (!fieldData.is_null() && fieldType.IsValid())
 			{
 				auto& ctor = fieldType.GetConstructor();
 

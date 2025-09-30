@@ -17,7 +17,7 @@ namespace GuGu {
 
 		virtual ~ModelImporter();
 
-		nlohmann::json loadModel(const GuGuUtf8Str& modelPhysicalFilePath);
+		nlohmann::json loadModel(const GuGuUtf8Str& modelPhysicalFilePath, bool isSkeleton = false);
 
 	private:
 		void processNode(aiNode* node, const aiScene* scene);
@@ -30,5 +30,8 @@ namespace GuGu {
 
 		uint32_t m_currentStaticMeshVerticesNumber;
 		uint32_t m_currentStaticMeshIndicesNumber;
+
+		bool m_isSkeleton = false;
+		int32_t m_boneStartIndex = -1;
 	};
 }
