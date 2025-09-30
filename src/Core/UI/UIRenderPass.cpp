@@ -233,6 +233,9 @@ namespace GuGu {
 		////m_textBlockWidget->ComputeFixedSize();
 		//GuGuUtf8Str text = u8"愉悦送走";
 		//m_textBlockWidget->setText(text);
+		m_constantBuffers.push_back(GetDevice()->createBuffer(
+			nvrhi::utils::CreateStaticConstantBufferDesc(
+			sizeof(ConstantBufferEntry) * 2000, "ConstantBuffer").setInitialState(nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(true)));
 		return true;
 	}
 	void UIRenderPass::Render()
@@ -510,13 +513,28 @@ namespace GuGu {
 		worldToView = worldToView * math::rotation(math::normalize(math::float3(0.0f, 0.0f, 1.0f)), math::radians(Application::getApplication()->getGlobalPreRotate()));
 		math::float4x4 projMatrix = math::orthoProjD3DStyle(0, fbinfo.width, 0, fbinfo.height, 0, 1);
 		math::float4x4 vp = projMatrix * math::affineToHomogeneous(worldToView);
+
+		//one update
+		std::vector<ConstantBufferEntry> constantBufferEntries;
+		constantBufferEntries.resize(m_IndexBuffers.size());
 		for (size_t i = 0; i < m_IndexBuffers.size(); ++i)
 		{
 			ConstantBufferEntry modelConstant;
 			modelConstant.viewProjMatrix = vp;
 			modelConstant.shaderParam = m_elementList->getBatches()[i]->m_shaderParams.pixelParams;
 			modelConstant.shaderParam2 = m_elementList->getBatches()[i]->m_shaderParams.pixelParams2;
-			m_CommandList->writeBuffer(m_constantBuffers[i], &modelConstant, sizeof(modelConstant));
+			constantBufferEntries[i] = modelConstant;
+		}
+	
+		m_CommandList->writeBuffer(m_constantBuffers[0], constantBufferEntries.data(), sizeof(ConstantBufferEntry) * constantBufferEntries.size(), 0);
+
+		for (size_t i = 0; i < m_IndexBuffers.size(); ++i)
+		{
+			//ConstantBufferEntry modelConstant;
+			//modelConstant.viewProjMatrix = vp;
+			//modelConstant.shaderParam = m_elementList->getBatches()[i]->m_shaderParams.pixelParams;
+			//modelConstant.shaderParam2 = m_elementList->getBatches()[i]->m_shaderParams.pixelParams2;
+			//m_CommandList->writeBuffer(m_constantBuffers[0], &modelConstant, sizeof(modelConstant), i * sizeof(modelConstant));
 
 			nvrhi::TextureHandle batchTexture = m_elementList->getBatches()[i]->m_texture;
 			if (batchTexture == nullptr)
@@ -526,7 +544,7 @@ namespace GuGu {
 
 			nvrhi::BindingSetDesc desc;
 			desc.bindings = {
-				nvrhi::BindingSetItem::ConstantBuffer(0, m_constantBuffers[i]),
+				nvrhi::BindingSetItem::ConstantBuffer(0, m_constantBuffers[0], nvrhi::BufferRange(i * sizeof(ConstantBufferEntry), sizeof(ConstantBufferEntry))),
 				nvrhi::BindingSetItem::Texture_SRV(0, batchTexture),
 				nvrhi::BindingSetItem::Sampler(0, m_pointWrapSampler)
 			};
@@ -664,7 +682,7 @@ namespace GuGu {
 
 		//generate vertex and index
 
-		m_constantBuffers.clear();
+		//m_constantBuffers.clear();
 		std::vector<std::shared_ptr<BatchData>> batches = m_elementList->getBatches();
 		for (size_t i = 0; i < batches.size(); ++i)
 		{
@@ -693,9 +711,9 @@ namespace GuGu {
 			m_CommandList->setPermanentBufferState(m_IndexBuffers[i],
 				nvrhi::ResourceStates::IndexBuffer);
 
-			m_constantBuffers.push_back(GetDevice()->createBuffer(
-				nvrhi::utils::CreateStaticConstantBufferDesc(
-					sizeof(ConstantBufferEntry), "ConstantBuffer").setInitialState(nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(true)));
+			//m_constantBuffers.push_back(GetDevice()->createBuffer(
+			//	nvrhi::utils::CreateStaticConstantBufferDesc(
+			//		sizeof(ConstantBufferEntry), "ConstantBuffer").setInitialState(nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(true)));
 		}
 
 		m_CommandList->close();
@@ -770,7 +788,7 @@ namespace GuGu {
 
 		//generate vertex and index
 		
-		m_constantBuffers.clear();
+		//m_constantBuffers.clear();
 		std::vector<std::shared_ptr<BatchData>> batches = m_elementList->getBatches();
 		for (size_t i = 0; i < batches.size(); ++i)
 		{
@@ -799,9 +817,9 @@ namespace GuGu {
 			m_CommandList->setPermanentBufferState(m_IndexBuffers[i],
 				nvrhi::ResourceStates::IndexBuffer);
 
-			m_constantBuffers.push_back(GetDevice()->createBuffer(
-				nvrhi::utils::CreateStaticConstantBufferDesc(
-					sizeof(ConstantBufferEntry), "ConstantBuffer").setInitialState(nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(true)));
+			//m_constantBuffers.push_back(GetDevice()->createBuffer(
+			//	nvrhi::utils::CreateStaticConstantBufferDesc(
+			//		sizeof(ConstantBufferEntry), "ConstantBuffer").setInitialState(nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(true)));
 		}
 
 		m_CommandList->close();
