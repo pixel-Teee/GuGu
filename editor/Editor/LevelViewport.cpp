@@ -35,6 +35,13 @@ namespace GuGu {
 			std::vector<AssetData>& assetDatas = assetDragDrop->getAssets();
 			for (int32_t i = 0; i < assetDatas.size(); ++i)
 			{
+				//GuGu_LOGD("type of gStaticMesh:%s", assetDatas[i].m_assetTypeGuid.getGuid().getStr());
+				//meta::Type levelType = typeof(Level);
+				//const char* str = levelType.getGuid().getGuid().getStr();
+				//GuGu_LOGD("type of level:%s", str);
+				meta::Type currentType = meta::Type::getType(assetDatas[i].m_assetTypeGuid);
+				const char* typeStr = currentType.getGuid().getGuid().getStr();
+				GuGu_LOGD("guid of current type:%s", typeStr);
 				if (meta::Type::getType(assetDatas[i].m_assetTypeGuid) == typeof(GStaticMesh))
 				{
 					//GuGu_LOGD("%s\n", assetDatas[i].m_fileName.getStr());

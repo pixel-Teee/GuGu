@@ -528,7 +528,8 @@ namespace GuGu {
 		meta::Type::List types = meta::Type::GetTypes();
 		for (const auto& type : types)
 		{
-			db.registerGuid(type.getGuid(), type.GetID());
+			meta::TypeData& typeData = meta::ReflectionDatabase::Instance().types[type.GetID()];
+			db.registerGuid(typeData.typeGuid, type.GetID());
 		}
 	}
 }

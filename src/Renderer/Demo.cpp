@@ -1328,7 +1328,8 @@ namespace GuGu {
 		//	initRenderTargetAndDepthTarget();
 		//}
 		m_cylinderMeshComponent = std::make_shared<StaticMeshComponent>();
-		m_cylinderMeshComponent->setGStaticMesh(m_geometryHelper.createToru(0.6f, 0.2f, 16, 4));
+		GStaticMesh toru = m_geometryHelper.createToru(0.6f, 0.2f, 16, 4);
+		m_cylinderMeshComponent->setGStaticMesh(toru);
 
 		return true;
 	}

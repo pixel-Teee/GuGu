@@ -44,7 +44,7 @@ namespace GuGu {
 
 			GuGu::GGuid getGuid() const;
 
-			static const Type& getType(const GGuid& guid);
+			static Type getType(const GGuid& guid);
 
 			//获取一个 invalid type 的实例
 			static const Type& Invalid(void);

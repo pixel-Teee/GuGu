@@ -97,12 +97,12 @@ namespace GuGu {
 			return gDatabase.types[m_id].typeGuid;
 		}
 
-		const Type& Type::getType(const GGuid& guid)
+		Type Type::getType(const GGuid& guid)
 		{
 			auto& guids = gDatabase.guids;
 			//return guids[guid];
 			if (guids.find(guid) != guids.end())
-				return guids[guid];
+				return meta::Type(guids[guid]);
 			return InvalidTypeID;
 		}
 

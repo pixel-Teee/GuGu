@@ -86,7 +86,11 @@ namespace GuGu {
 		m_staticMeshAsset = std::make_shared<AssetData>();
 		GuGuUtf8Str noFileExtensionsFileName = "defaultCube";
 		GuGuUtf8Str outputFilePath = "content/" + noFileExtensionsFileName + ".json";
-		m_staticMeshAsset = AssetManager::getAssetManager().loadAsset(AssetManager::getAssetManager().getGuid(outputFilePath, typeof(GStaticMesh)));
+		std::shared_ptr<AssetData> assetData = AssetManager::getAssetManager().loadAsset(AssetManager::getAssetManager().getGuid(outputFilePath, typeof(GStaticMesh)));
+		if (assetData)
+		{
+			m_staticMeshAsset = assetData;
+		}
 	}
 	StaticMeshComponent::~StaticMeshComponent()
 	{
@@ -104,8 +108,9 @@ namespace GuGu {
 	}
 	void StaticMeshComponent::setGStaticMesh(const GStaticMesh& gStaticMesh)
 	{
+		meta::Object* obj = gStaticMesh.Clone();
 		//copy static mesh
-		m_staticMeshAsset->m_loadedResource = std::shared_ptr<GStaticMesh>(static_cast<GStaticMesh*>(gStaticMesh.Clone()));
+		m_staticMeshAsset->m_loadedResource = std::shared_ptr<GStaticMesh>(static_cast<GStaticMesh*>(obj));
 	}
 
 	void StaticMeshComponent::setGStaticMesh(const std::shared_ptr<GStaticMesh>& gStaticMesh)

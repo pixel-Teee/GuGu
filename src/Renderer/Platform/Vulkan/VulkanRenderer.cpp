@@ -51,6 +51,7 @@ namespace GuGu{
 #ifdef _DEBUG
         deviceParams.enableDebugRuntime = false;
         deviceParams.enableNvrhiValidationLayer = false;
+        deviceParams.vsyncEnabled = false;
 #endif
 #ifdef ANDROID //android无法开启debug runtime
         deviceParams.enableDebugRuntime = false;
