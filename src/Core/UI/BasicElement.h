@@ -134,6 +134,7 @@ namespace GuGu {
 		UIVertex(math::float4 inTextureCoordinate, math::float2 inPosition, math::float4 inColor, math::float4 inSecondaryColor)
 			: textureCoordinate(inTextureCoordinate), position(inPosition), color(inColor), secondaryColor(inSecondaryColor)
 		{}
+		UIVertex(){}//default constructor
 	};
 
 	struct SizeParam

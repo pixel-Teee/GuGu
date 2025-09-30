@@ -236,6 +236,28 @@ namespace GuGu {
 		m_constantBuffers.push_back(GetDevice()->createBuffer(
 			nvrhi::utils::CreateStaticConstantBufferDesc(
 			sizeof(ConstantBufferEntry) * 2000, "ConstantBuffer").setInitialState(nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(true)));
+
+		//big
+		nvrhi::BufferDesc vertexBufferDesc;
+		vertexBufferDesc.byteSize = sizeof(UIVertex) * 40000;
+		vertexBufferDesc.isVertexBuffer = true;
+		vertexBufferDesc.debugName = "UIVertexBuffer";
+		vertexBufferDesc.canHaveTypedViews = true;
+		vertexBufferDesc.canHaveRawViews = true;
+		vertexBufferDesc.keepInitialState = true;
+		m_VertexBuffers.push_back(GetDevice()->createBuffer(vertexBufferDesc));
+
+		//big
+		nvrhi::BufferDesc indexBufferDesc;
+		indexBufferDesc.byteSize = sizeof(uint32_t) * 100000;
+		indexBufferDesc.isIndexBuffer = true;
+		indexBufferDesc.debugName = "IndexBuffer";
+		indexBufferDesc.canHaveTypedViews = true;
+		indexBufferDesc.canHaveRawViews = true;
+		indexBufferDesc.keepInitialState = true;
+
+		m_IndexBuffers.push_back(GetDevice()->createBuffer(indexBufferDesc));
+
 		return true;
 	}
 	void UIRenderPass::Render()
@@ -516,8 +538,8 @@ namespace GuGu {
 
 		//one update
 		std::vector<ConstantBufferEntry> constantBufferEntries;
-		constantBufferEntries.resize(m_IndexBuffers.size());
-		for (size_t i = 0; i < m_IndexBuffers.size(); ++i)
+		constantBufferEntries.resize(m_elementList->getBatches().size());
+		for (size_t i = 0; i < m_elementList->getBatches().size(); ++i)
 		{
 			ConstantBufferEntry modelConstant;
 			modelConstant.viewProjMatrix = vp;
@@ -528,7 +550,9 @@ namespace GuGu {
 	
 		m_CommandList->writeBuffer(m_constantBuffers[0], constantBufferEntries.data(), sizeof(ConstantBufferEntry) * constantBufferEntries.size(), 0);
 
-		for (size_t i = 0; i < m_IndexBuffers.size(); ++i)
+		uint32_t currentVertexOffset = 0;
+		uint32_t currentIndexOffset = 0;
+		for (size_t i = 0; i < m_elementList->getBatches().size(); ++i)
 		{
 			//ConstantBufferEntry modelConstant;
 			//modelConstant.viewProjMatrix = vp;
@@ -555,14 +579,16 @@ namespace GuGu {
 			nvrhi::GraphicsState state;
 			// Pick the right binding set for this view.
 			state.bindings = { bindingSet };
-			state.indexBuffer = { m_IndexBuffers[i], nvrhi::Format::R32_UINT, 0 };
+			state.indexBuffer = { m_IndexBuffers[0], nvrhi::Format::R32_UINT, currentIndexOffset };
 			// Bind the vertex buffers in reverse order to test the NVRHI implementation of binding slots
 			state.vertexBuffers = {
-				{ m_VertexBuffers[i], 1, offsetof(UIVertex, position)},
-				{ m_VertexBuffers[i], 0, offsetof(UIVertex, textureCoordinate)},
-				{ m_VertexBuffers[i], 2, offsetof(UIVertex, color)},
-				{ m_VertexBuffers[i], 3, offsetof(UIVertex, secondaryColor)}
+				{ m_VertexBuffers[0], 1, currentVertexOffset + offsetof(UIVertex, position)},
+				{ m_VertexBuffers[0], 0, currentVertexOffset + offsetof(UIVertex, textureCoordinate)},
+				{ m_VertexBuffers[0], 2, currentVertexOffset + offsetof(UIVertex, color)},
+				{ m_VertexBuffers[0], 3, currentVertexOffset + offsetof(UIVertex, secondaryColor)}
 			};
+			currentVertexOffset = currentVertexOffset + m_elementList->getBatches()[i]->m_vertices.size() * sizeof(UIVertex);
+			currentIndexOffset = currentIndexOffset + m_elementList->getBatches()[i]->m_indices.size() * sizeof(uint32_t);
 			if (m_elementList->getBatches()[i]->shaderType == UIShaderType::Default)
 				state.pipeline = it->second.m_pipeline;
 			else if (m_elementList->getBatches()[i]->shaderType == UIShaderType::Font)
@@ -642,8 +668,8 @@ namespace GuGu {
 		//m_tempAllWidgetCopys = m_allWidgets;
 		m_elementList->generateBatches();
 
-		m_VertexBuffers.clear();
-		m_IndexBuffers.clear();
+		//m_VertexBuffers.clear();
+		//m_IndexBuffers.clear();
 
 		//todo:要修复这个
 		//因为 list view 在 第一次 tick 的适合，会记录一个 item 是否有儿子，而此时还没收集完所有 widgets
@@ -684,37 +710,72 @@ namespace GuGu {
 
 		//m_constantBuffers.clear();
 		std::vector<std::shared_ptr<BatchData>> batches = m_elementList->getBatches();
+
+		//big vertex buffer
+		std::vector<UIVertex> bigVertexIndices;
+		std::vector<uint32_t> bigIndexIndices;
+		uint32_t totalVertexAmount = 0;
+		uint32_t totalIndicesAmount = 0;
 		for (size_t i = 0; i < batches.size(); ++i)
 		{
-			nvrhi::BufferDesc vertexBufferDesc;
-			vertexBufferDesc.byteSize = sizeof(UIVertex) * batches[i]->m_vertices.size();
-			vertexBufferDesc.isVertexBuffer = true;
-			vertexBufferDesc.debugName = "UIVertexBuffer";
-			vertexBufferDesc.initialState = nvrhi::ResourceStates::CopyDest;
-			m_VertexBuffers.push_back(GetDevice()->createBuffer(vertexBufferDesc));
-
-			m_CommandList->beginTrackingBufferState(m_VertexBuffers[i],
-				nvrhi::ResourceStates::CopyDest);
-			m_CommandList->writeBuffer(m_VertexBuffers[i], batches[i]->m_vertices.data(), sizeof(UIVertex) * batches[i]->m_vertices.size());
-			m_CommandList->setPermanentBufferState(m_VertexBuffers[i],
-				nvrhi::ResourceStates::VertexBuffer);//note:will call end tracking buffer state
-
-			nvrhi::BufferDesc indexBufferDesc;
-			indexBufferDesc.byteSize = sizeof(uint32_t) * batches[i]->m_indices.size();
-			indexBufferDesc.isIndexBuffer = true;
-			indexBufferDesc.debugName = "IndexBuffer";
-			indexBufferDesc.initialState = nvrhi::ResourceStates::CopyDest;
-			m_IndexBuffers.push_back(GetDevice()->createBuffer(indexBufferDesc));
-
-			m_CommandList->beginTrackingBufferState(m_IndexBuffers[i], nvrhi::ResourceStates::CopyDest);
-			m_CommandList->writeBuffer(m_IndexBuffers[i], batches[i]->m_indices.data(), sizeof(uint32_t) * batches[i]->m_indices.size());
-			m_CommandList->setPermanentBufferState(m_IndexBuffers[i],
-				nvrhi::ResourceStates::IndexBuffer);
-
-			//m_constantBuffers.push_back(GetDevice()->createBuffer(
-			//	nvrhi::utils::CreateStaticConstantBufferDesc(
-			//		sizeof(ConstantBufferEntry), "ConstantBuffer").setInitialState(nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(true)));
+			totalVertexAmount = batches[i]->m_vertices.size() + totalVertexAmount;
+			totalIndicesAmount = batches[i]->m_indices.size() + totalIndicesAmount;
 		}
+		bigVertexIndices.resize(totalVertexAmount);
+		bigIndexIndices.resize(totalIndicesAmount);
+		uint32_t currentOffset = 0;
+		uint32_t currentIndicesOffset = 0;
+		for (size_t i = 0; i < batches.size(); ++i)
+		{
+			std::memcpy(bigVertexIndices.data() + currentOffset, batches[i]->m_vertices.data(), batches[i]->m_vertices.size() * sizeof(UIVertex));
+			currentOffset = currentOffset + batches[i]->m_vertices.size();
+
+			std::memcpy(bigIndexIndices.data() + currentIndicesOffset, batches[i]->m_indices.data(), batches[i]->m_indices.size() * 4);
+			currentIndicesOffset = currentIndicesOffset + batches[i]->m_indices.size();
+		}
+		//one copy
+		//m_CommandList->beginTrackingBufferState(m_VertexBuffers[0],
+		//	nvrhi::ResourceStates::CopyDest);
+		m_CommandList->writeBuffer(m_VertexBuffers[0], bigVertexIndices.data(), sizeof(UIVertex) * bigVertexIndices.size());
+		//m_CommandList->setPermanentBufferState(m_VertexBuffers[0],
+		//	nvrhi::ResourceStates::VertexBuffer);//note:will call end tracking buffer state
+
+		//m_CommandList->beginTrackingBufferState(m_IndexBuffers[0], nvrhi::ResourceStates::CopyDest);
+		m_CommandList->writeBuffer(m_IndexBuffers[0], bigIndexIndices.data(), sizeof(uint32_t) * bigIndexIndices.size());
+		//m_CommandList->setPermanentBufferState(m_IndexBuffers[0],
+		//	nvrhi::ResourceStates::IndexBuffer);
+
+		//for (size_t i = 0; i < batches.size(); ++i)
+		//{
+		//	//nvrhi::BufferDesc vertexBufferDesc;
+		//	//vertexBufferDesc.byteSize = sizeof(UIVertex) * batches[i]->m_vertices.size();
+		//	//vertexBufferDesc.isVertexBuffer = true;
+		//	//vertexBufferDesc.debugName = "UIVertexBuffer";
+		//	//vertexBufferDesc.initialState = nvrhi::ResourceStates::CopyDest;
+		//	//m_VertexBuffers.push_back(GetDevice()->createBuffer(vertexBufferDesc));
+		//
+		//	m_CommandList->beginTrackingBufferState(m_VertexBuffers[i],
+		//		nvrhi::ResourceStates::CopyDest);
+		//	m_CommandList->writeBuffer(m_VertexBuffers[i], batches[i]->m_vertices.data(), sizeof(UIVertex) * batches[i]->m_vertices.size());
+		//	m_CommandList->setPermanentBufferState(m_VertexBuffers[i],
+		//		nvrhi::ResourceStates::VertexBuffer);//note:will call end tracking buffer state
+		//
+		//	nvrhi::BufferDesc indexBufferDesc;
+		//	indexBufferDesc.byteSize = sizeof(uint32_t) * batches[i]->m_indices.size();
+		//	indexBufferDesc.isIndexBuffer = true;
+		//	indexBufferDesc.debugName = "IndexBuffer";
+		//	indexBufferDesc.initialState = nvrhi::ResourceStates::CopyDest;
+		//	m_IndexBuffers.push_back(GetDevice()->createBuffer(indexBufferDesc));
+		//
+		//	m_CommandList->beginTrackingBufferState(m_IndexBuffers[i], nvrhi::ResourceStates::CopyDest);
+		//	m_CommandList->writeBuffer(m_IndexBuffers[i], batches[i]->m_indices.data(), sizeof(uint32_t) * batches[i]->m_indices.size());
+		//	m_CommandList->setPermanentBufferState(m_IndexBuffers[i],
+		//		nvrhi::ResourceStates::IndexBuffer);
+		//
+		//	//m_constantBuffers.push_back(GetDevice()->createBuffer(
+		//	//	nvrhi::utils::CreateStaticConstantBufferDesc(
+		//	//		sizeof(ConstantBufferEntry), "ConstantBuffer").setInitialState(nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(true)));
+		//}
 
 		m_CommandList->close();
 		GetDevice()->executeCommandList(m_CommandList);
@@ -748,8 +809,8 @@ namespace GuGu {
 		//m_tempAllWidgetCopys = m_allWidgets;
 		m_elementList->generateBatches();
 
-		m_VertexBuffers.clear();
-		m_IndexBuffers.clear();	
+		//m_VertexBuffers.clear();
+		//m_IndexBuffers.clear();	
 
 		//todo:要修复这个
 		//因为 list view 在 第一次 tick 的适合，会记录一个 item 是否有儿子，而此时还没收集完所有 widgets
@@ -799,11 +860,11 @@ namespace GuGu {
 			vertexBufferDesc.initialState = nvrhi::ResourceStates::CopyDest;
 			m_VertexBuffers.push_back(GetDevice()->createBuffer(vertexBufferDesc));
 
-			m_CommandList->beginTrackingBufferState(m_VertexBuffers[i],
-				nvrhi::ResourceStates::CopyDest);
+			//m_CommandList->beginTrackingBufferState(m_VertexBuffers[i],
+			//	nvrhi::ResourceStates::CopyDest);
 			m_CommandList->writeBuffer(m_VertexBuffers[i], batches[i]->m_vertices.data(), sizeof(UIVertex) * batches[i]->m_vertices.size());
-			m_CommandList->setPermanentBufferState(m_VertexBuffers[i],
-				nvrhi::ResourceStates::VertexBuffer);//note:will call end tracking buffer state
+			//m_CommandList->setPermanentBufferState(m_VertexBuffers[i],
+			//	nvrhi::ResourceStates::VertexBuffer);//note:will call end tracking buffer state
 
 			nvrhi::BufferDesc indexBufferDesc;
 			indexBufferDesc.byteSize = sizeof(uint32_t) * batches[i]->m_indices.size();
@@ -812,10 +873,10 @@ namespace GuGu {
 			indexBufferDesc.initialState = nvrhi::ResourceStates::CopyDest;
 			m_IndexBuffers.push_back(GetDevice()->createBuffer(indexBufferDesc));
 
-			m_CommandList->beginTrackingBufferState(m_IndexBuffers[i], nvrhi::ResourceStates::CopyDest);
+			//m_CommandList->beginTrackingBufferState(m_IndexBuffers[i], nvrhi::ResourceStates::CopyDest);
 			m_CommandList->writeBuffer(m_IndexBuffers[i], batches[i]->m_indices.data(), sizeof(uint32_t) * batches[i]->m_indices.size());
-			m_CommandList->setPermanentBufferState(m_IndexBuffers[i],
-				nvrhi::ResourceStates::IndexBuffer);
+			//m_CommandList->setPermanentBufferState(m_IndexBuffers[i],
+			//	nvrhi::ResourceStates::IndexBuffer);
 
 			//m_constantBuffers.push_back(GetDevice()->createBuffer(
 			//	nvrhi::utils::CreateStaticConstantBufferDesc(
