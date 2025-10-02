@@ -191,16 +191,18 @@ function Calculator:init(owner)
 	
 	self.symbolStack = {}
 	defaultWhiteTexture = self.owner:getWorld():loadTexture(defaultWhiteTexturePath)
+
+	self.elapsedTime = self.owner:getWorld():getTotalTime()
 end
 
 function Calculator:update(delta)
-	self.elapsedTime = self.elapsedTime + delta
 	self.frameCount = self.frameCount + 1
-	if self.elapsedTime > 1.0 then
-		local fps = self.frameCount / self.elapsedTime
-		self.elapsedTime = 0
-		self.frameCount = 0
+	if (self.owner:getWorld():getTotalTime() - self.elapsedTime) >= 1.0 then
+		local fps = self.frameCount
 		self.textComponent:setText("帧率"..string.format("%.2f", fps))
+
+		self.frameCount = 0.0
+		self.elapsedTime = self.elapsedTime + 1.0
 	end
 end
 

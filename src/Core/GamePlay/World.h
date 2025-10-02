@@ -68,6 +68,8 @@ namespace GuGu {
 		virtual meta::Object* Clone(void) const override;
 
 		virtual void PostLoad() override;
+
+		float getTotalTime() const;
 	private:
 		std::shared_ptr<ViewportClient> m_viewportClient;
 

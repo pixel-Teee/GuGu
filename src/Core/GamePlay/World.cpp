@@ -17,6 +17,8 @@
 #include <Core/GamePlay/ViewportClient.h>
 #include <Core/Reflection/TypeInfo.h>
 #include <Core/GamePlay/ScriptComponent.h>
+#include <Application/Application.h>
+#include <Core/Timer.h>
 
 namespace GuGu {
 	static bool registerGuGuWorld()
@@ -77,6 +79,8 @@ namespace GuGu {
 		type.AddStaticMethod<World>("getWorld", &World::getWorld, {});
 
 		type.AddMethod("loadTexture", &World::loadTexture, {});
+
+		type.AddMethod("getTotalTime", &World::getTotalTime, {});
 		return true;
 	}
 
@@ -326,6 +330,11 @@ namespace GuGu {
 	void World::PostLoad()
 	{
 		//nothing
+	}
+
+	float World::getTotalTime() const
+	{
+		return Application::getApplication()->getTimer()->GetTotalTime();
 	}
 
 }
