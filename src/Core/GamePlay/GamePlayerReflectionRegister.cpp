@@ -38,6 +38,8 @@
 #include <Core/GamePlay/GameUI/UIPadding.h>
 #include <Core/GamePlay/GameUI/UIAnchorData.h>
 
+#include <Core/Animation/Keyframe.h>
+
 namespace GuGu {
 
 	static bool registermetaDisplayName()
@@ -477,6 +479,110 @@ namespace GuGu {
 		return true;
 	}
 
+	static bool registerKeyPosition()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto id = db.AllocateType("GuGu::KeyPosition");
+		auto& type = db.types[id];
+		meta::TypeInfo<KeyPosition>::Register(id, type, true, "FF29E0B9-C9BC-4454-86B0-27B91B555333");
+
+		type.AddConstructor<KeyPosition, false, false>({});
+
+		type.AddConstructor<KeyPosition, true, false>({});
+
+		type.SetArrayConstructor<KeyPosition>();
+
+		type.AddField<KeyPosition, math::float3>("m_position",
+			(meta::FieldGetter<KeyPosition, math::float3, false>::Signature) & KeyPosition::m_position,
+			(meta::FieldSetter<KeyPosition, math::float3, false>::Signature) & KeyPosition::m_position, {});
+
+		type.AddField<KeyPosition, float>("m_timestamp",
+			(meta::FieldGetter<KeyPosition, float, false>::Signature) & KeyPosition::m_timestamp,
+			(meta::FieldSetter<KeyPosition, float, false>::Signature) & KeyPosition::m_timestamp, {});
+
+		return true;
+	}
+
+	static bool registerKeyRotation()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto id = db.AllocateType("GuGu::KeyRotation");
+		auto& type = db.types[id];
+		meta::TypeInfo<KeyRotation>::Register(id, type, true, "F45ED69C-B17A-4EB6-A1C2-FE0C0CABB198");
+
+		type.AddConstructor<KeyRotation, false, false>({});
+
+		type.AddConstructor<KeyRotation, true, false>({});
+
+		type.SetArrayConstructor<KeyRotation>();
+
+		type.AddField<KeyRotation, math::quat>("m_orientation",
+			(meta::FieldGetter<KeyRotation, math::quat, false>::Signature) & KeyRotation::m_orientation,
+			(meta::FieldSetter<KeyRotation, math::quat, false>::Signature) & KeyRotation::m_orientation, {});
+
+		type.AddField<KeyRotation, float>("m_timestamp",
+			(meta::FieldGetter<KeyRotation, float, false>::Signature) & KeyRotation::m_timestamp,
+			(meta::FieldSetter<KeyRotation, float, false>::Signature) & KeyRotation::m_timestamp, {});
+
+		return true;
+	}
+
+	static bool registerKeyScale()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto id = db.AllocateType("GuGu::KeyScale");
+		auto& type = db.types[id];
+		meta::TypeInfo<KeyScale>::Register(id, type, true, "96235FB4-5D6C-451B-B63E-8B2BECC623E6");
+
+		type.AddConstructor<KeyScale, false, false>({});
+
+		type.AddConstructor<KeyScale, true, false>({});
+
+		type.SetArrayConstructor<KeyScale>();
+
+		type.AddField<KeyScale, math::float3>("m_orientation",
+			(meta::FieldGetter<KeyScale, math::float3, false>::Signature) & KeyScale::m_scale,
+			(meta::FieldSetter<KeyScale, math::float3, false>::Signature) & KeyScale::m_scale, {});
+
+		type.AddField<KeyScale, float>("m_timestamp",
+			(meta::FieldGetter<KeyScale, float, false>::Signature) & KeyScale::m_timestamp,
+			(meta::FieldSetter<KeyScale, float, false>::Signature) & KeyScale::m_timestamp, {});
+
+		return true;
+	}
+
+	static bool registerChannel()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto id = db.AllocateType("GuGu::Channel");
+		auto& type = db.types[id];
+		meta::TypeInfo<Channel>::Register(id, type, true, "38C37CFC-2F73-422D-8AFB-35AA54FBCC56");
+
+		type.AddConstructor<Channel, false, false>({});
+
+		type.AddConstructor<Channel, true, false>({});
+
+		type.SetArrayConstructor<Channel>();
+
+		type.AddField<Channel, Array<KeyPosition>>("m_positions",
+			(meta::FieldGetter<Channel, Array<KeyPosition>, false>::Signature) & Channel::m_positions,
+			(meta::FieldSetter<Channel, Array<KeyPosition>, false>::Signature) & Channel::m_positions, {});
+
+		type.AddField<Channel, Array<KeyPosition>>("m_rotations",
+			(meta::FieldGetter<Channel, Array<KeyPosition>, false>::Signature) & Channel::m_rotations,
+			(meta::FieldSetter<Channel, Array<KeyPosition>, false>::Signature) & Channel::m_rotations, {});
+
+		type.AddField<Channel, Array<KeyScale>>("m_scales",
+			(meta::FieldGetter<Channel, Array<KeyScale>, false>::Signature) & Channel::m_scales,
+			(meta::FieldSetter<Channel, Array<KeyScale>, false>::Signature) & Channel::m_scales, {});
+
+		type.AddField<GuGuUtf8Str, float>("m_name",
+			(meta::FieldGetter<GuGuUtf8Str, float, false>::Signature) & Channel::m_name,
+			(meta::FieldSetter<GuGuUtf8Str, float, false>::Signature) & Channel::m_name, {});
+
+		return true;
+	}
+
 	static bool registerGuGuMetaObject()
 	{
 		auto& db = meta::ReflectionDatabase::Instance();
@@ -589,6 +695,17 @@ namespace GuGu {
 		uiAnchorDataPrority.addPriorityThan(&mathfloat2Priority); //alignment
 
 		boneInfoPriority.addPriorityThan(&mathfloat4x4Priority);//bone info
+
+		ReflectionMain::addInitialTypeFunction(registerKeyPosition, &keyPositionPriority);
+		ReflectionMain::addInitialTypeFunction(registerKeyRotation, &keyRotationPriority);
+		ReflectionMain::addInitialTypeFunction(registerKeyScale, &keyScalePriority);
+		ReflectionMain::addInitialTypeFunction(registerChannel, &channelPriority);
+		keyPositionPriority.addPriorityThan(&mathfloat3Priority);
+		keyRotationPriority.addPriorityThan(&mathrotatorPriority);
+		keyScalePriority.addPriorityThan(&mathfloat3Priority);
+		channelPriority.addPriorityThan(&keyPositionPriority);
+		channelPriority.addPriorityThan(&keyRotationPriority);
+		channelPriority.addPriorityThan(&keyScalePriority);
 
 		//UIComponent register
 		UIComponent::registerMainFactory();

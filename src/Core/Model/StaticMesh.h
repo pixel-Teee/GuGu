@@ -59,7 +59,7 @@ namespace GuGu{
 
 		std::array<nvrhi::BufferRange, size_t(GVertexAttribute::Count)> m_vertexBufferRanges;
 
-		std::vector<std::shared_ptr<GMeshGeometry>> m_geometries;//描述整个模型网格中的子网格
+		Array<GMeshGeometry> m_geometries;//描述整个模型网格中的子网格(是一颗树的形式)
 		dm::box3 m_objectSpaceBounds;
 		uint32_t m_totalIndices = 0;
 		uint32_t m_totalVertices = 0;

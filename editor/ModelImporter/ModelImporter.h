@@ -10,6 +10,7 @@
 
 namespace GuGu {
 	class GStaticMesh;
+	struct GMeshGeometry;
 	class ModelImporter
 	{
 	public:
@@ -19,10 +20,13 @@ namespace GuGu {
 
 		nlohmann::json loadModel(const GuGuUtf8Str& modelPhysicalFilePath, bool isSkeleton = false);
 
+		nlohmann::json loadAnimation(const GuGuUtf8Str& animationFilePath);
 	private:
 		void processNode(aiNode* node, const aiScene* scene);
 
-		void processMesh(aiMesh* mesh, const aiScene* scene);
+		void processMesh(aiMesh* mesh, const aiScene* scene, GMeshGeometry& gMeshGeometry);
+
+		void linkMeshGeometryId(aiNode* node);
 
 		Assimp::Importer m_importer;
 
@@ -30,6 +34,7 @@ namespace GuGu {
 
 		uint32_t m_currentStaticMeshVerticesNumber;
 		uint32_t m_currentStaticMeshIndicesNumber;
+		//int32_t m_currentMeshId = 0;
 
 		bool m_isSkeleton = false;
 		int32_t m_boneStartIndex = -1;

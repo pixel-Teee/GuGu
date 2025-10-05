@@ -32,6 +32,14 @@ namespace GuGu {
 	static Priority uiAnchorDataPrority;
 
 	static Priority boneInfoPriority;
+
+	static Priority keyPositionPriority;
+	
+	static Priority keyRotationPriority;
+	
+	static Priority keyScalePriority;
+
+	static Priority channelPriority;
 	//------struct------
 
 	void registerThirdParty();

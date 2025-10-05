@@ -1,5 +1,8 @@
 #pragma once
 
+#include <Core/Model/BoneInfo.h>
+#include "Keyframe.h"
+
 namespace GuGu {
 	//animation
 	class GAnimation : public meta::Object
@@ -22,6 +25,19 @@ namespace GuGu {
 		//反序列化
 		virtual void OnDeserialize(const nlohmann::json& input) override;
 
-		
+		//持续时间
+		float m_duration;
+
+		//每秒多少帧
+		int32_t m_ticksPerSecond;
+
+		//bone map(骨骼名，对应骨骼信息)，运行时信息
+		std::map<GuGuUtf8Str, BoneInfo> m_boneInfos;
+
+		//序列化用
+		Array<BoneInfo> m_boneInfoArray;
+
+		//animation
+		Array<Channel> m_channels;
 	};
 }

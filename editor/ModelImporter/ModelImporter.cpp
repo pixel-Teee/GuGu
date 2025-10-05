@@ -3,9 +3,19 @@
 #include "ModelImporter.h"
 
 #include <Core/Model/StaticMesh.h>
+#include <Core/Animation/GAnimation.h>
 #include <Core/AssetManager/AssetManager.h>
 
 namespace GuGu {
+	math::float3 aiVector3DToMathFloat3(aiVector3D vector3d)
+	{
+		return math::float3(vector3d.x, vector3d.y, vector3d.z);
+	}
+	math::quat aiRotationToMathRotation(aiQuaternion quat)
+	{
+		return math::quat(quat.w, quat.x, quat.y, quat.z);
+	}
+
 	inline void AppendBufferRange(nvrhi::BufferRange& range, size_t size, uint64_t& currentBufferSize)
 	{
 		range.byteOffset = currentBufferSize;
@@ -49,7 +59,9 @@ namespace GuGu {
 		m_currentLoadStaticMesh = std::make_shared<GStaticMesh>();
 		m_currentStaticMeshIndicesNumber = 0;
 		m_currentStaticMeshVerticesNumber = 0;
+
 		processNode(scene->mRootNode, scene);
+		linkMeshGeometryId(scene->mRootNode);
 		
 		uint64_t bufferSize = 0;
 		if (!m_currentLoadStaticMesh->m_positionData.empty())
@@ -81,26 +93,73 @@ namespace GuGu {
 		nlohmann::json staticMeshJson = AssetManager::getAssetManager().serializeJson(m_currentLoadStaticMesh);
 		return staticMeshJson;
 	}
+
+	nlohmann::json ModelImporter::loadAnimation(const GuGuUtf8Str& animationFilePath)
+	{
+		std::shared_ptr<GAnimation> gAnimation = std::make_shared<GAnimation>();
+		//从文件的实际路径去加载模型
+		Assimp::Importer import;
+
+		const aiScene * scene = import.ReadFile(animationFilePath.getStr(), aiProcess_Triangulate | aiProcess_FlipUVs);
+
+		//获取动画
+		auto animation = scene->mAnimations[0];
+		gAnimation->m_duration = animation->mDuration;
+		gAnimation->m_ticksPerSecond = animation->mTicksPerSecond;
+		for (int32_t i = 0; i < animation->mNumChannels; ++i)
+		{
+			auto channel = animation->mChannels[i];
+
+			//handle channel
+			Channel gChannel;
+			gChannel.m_name = channel->mNodeName.C_Str();
+			for (int32_t j = 0; j < channel->mNumPositionKeys; ++j)
+			{
+				KeyPosition keyPosition;
+				keyPosition.m_position = aiVector3DToMathFloat3(channel->mPositionKeys[j].mValue);
+				keyPosition.m_timestamp = channel->mPositionKeys[j].mTime;
+			}
+			for (int32_t j = 0; j < channel->mNumRotationKeys; ++j)
+			{
+				KeyRotation keyRotation;
+				keyRotation.m_orientation = aiRotationToMathRotation(channel->mRotationKeys[j].mValue);
+				keyRotation.m_timestamp = channel->mRotationKeys[j].mTime;
+			}
+			for (int32_t j = 0; j < channel->mNumScalingKeys; ++j)
+			{
+				KeyScale keyScale;
+				keyScale.m_scale = aiVector3DToMathFloat3(channel->mScalingKeys[j].mValue);
+				keyScale.m_timestamp = channel->mScalingKeys[j].mTime;
+			}
+		}
+
+		nlohmann::json animationJson = AssetManager::getAssetManager().serializeJson(gAnimation);
+		return animationJson;
+	}
+
 	void ModelImporter::processNode(aiNode* node, const aiScene* scene)
 	{
+		GMeshGeometry gMeshGeometry;	
+		gMeshGeometry.m_nodeName = node->mName.C_Str();
 		//处理节点上所有网格
 		for (uint32_t i = 0; i < node->mNumMeshes; ++i)
 		{
 			aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-			processMesh(mesh, scene);
+			processMesh(mesh, scene, gMeshGeometry);
 		}
 		//对子节点重复这一过程
 		for (uint32_t i = 0; i < node->mNumChildren; ++i)
 		{
 			processNode(node->mChildren[i], scene);
 		}
+		m_currentLoadStaticMesh->m_geometries.push_back(gMeshGeometry);
 	}
-	void ModelImporter::processMesh(aiMesh* mesh, const aiScene* scene)
+	void ModelImporter::processMesh(aiMesh* mesh, const aiScene* scene, GMeshGeometry& meshGeometry)
 	{
 		if (m_currentLoadStaticMesh)
 		{
-			std::shared_ptr<GMeshGeometry> gMeshGeometry = std::make_shared<GMeshGeometry>();//单个子网格
-			gMeshGeometry->m_numVertices = mesh->mNumVertices;
+			//std::shared_ptr<GMeshGeometry> gMeshGeometry = std::make_shared<GMeshGeometry>();//单个子网格
+			meshGeometry.m_numVertices += mesh->mNumVertices;
 			
 			for (uint32_t i = 0; i < mesh->mNumVertices; ++i)
 			{
@@ -186,11 +245,45 @@ namespace GuGu {
 				}
 				totalIndicesNumber += face.mNumIndices;
 			}
-			gMeshGeometry->m_numIndices = totalIndicesNumber;
-			gMeshGeometry->m_indexOffsetInMesh = m_currentStaticMeshIndicesNumber;
-			gMeshGeometry->m_vertexOffsetInMesh = m_currentStaticMeshVerticesNumber;
-			m_currentStaticMeshIndicesNumber += gMeshGeometry->m_numIndices;
-			m_currentStaticMeshVerticesNumber += gMeshGeometry->m_numVertices;
+			meshGeometry.m_numIndices = totalIndicesNumber;
+			meshGeometry.m_indexOffsetInMesh = m_currentStaticMeshIndicesNumber;
+			meshGeometry.m_vertexOffsetInMesh = m_currentStaticMeshVerticesNumber;
+			m_currentStaticMeshIndicesNumber += totalIndicesNumber;
+			m_currentStaticMeshVerticesNumber += mesh->mNumVertices;
 		}
 	}
+
+	void ModelImporter::linkMeshGeometryId(aiNode* node)
+	{
+		int32_t currentMeshGeometryIndex = 0;
+		for (int32_t i = 0; i < m_currentLoadStaticMesh->m_geometries.size(); ++i)
+		{
+			if (m_currentLoadStaticMesh->m_geometries[i].m_nodeName == node->mName.C_Str())
+			{
+				currentMeshGeometryIndex = i;
+				break;
+			}
+		}
+		//对子节点重复这一过程
+		for (uint32_t i = 0; i < node->mNumChildren; ++i)
+		{
+			int32_t childIndex = 0;
+			for (uint32_t j = 0; j < m_currentLoadStaticMesh->m_geometries.size(); ++i)
+			{
+				if (m_currentLoadStaticMesh->m_geometries[j].m_nodeName == node[j].mName.C_Str())
+				{
+					childIndex = j;
+					break;
+				}
+			}
+			m_currentLoadStaticMesh->m_geometries[i].m_childrens.push_back(childIndex);
+		}
+
+		//link
+		for (uint32_t i = 0; i < node->mNumChildren; ++i)
+		{
+			linkMeshGeometryId(node->mChildren[i]);
+		}
+	}
+
 }

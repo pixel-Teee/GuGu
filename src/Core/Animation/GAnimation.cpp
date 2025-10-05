@@ -11,7 +11,7 @@ namespace GuGu {
 		{
 			auto id = db.AllocateType("GuGu::GAnimation");
 			auto& type = db.types[id];
-			meta::TypeInfo<GAnimation>::Register(id, type, true, "21C77D30-0352-49D1-A547-E71404B53BC7");
+			meta::TypeInfo<GAnimation>::Register(id, type, true, "2B9E11D1-1D66-457E-8CE9-60BE82518687");
 
 			auto typeID = typeidof(GAnimation);
 			if (typeID != meta::InvalidTypeID && !meta::TypeInfo<GAnimation>::Defined)
@@ -50,6 +50,21 @@ namespace GuGu {
 
 		auto& type = db.types[typeof(GAnimation).GetID()];
 
+		type.AddField<GAnimation, int32_t>("m_ticksPerSecond",
+			(meta::FieldGetter<GAnimation, int32_t, false>::Signature) & GAnimation::m_ticksPerSecond,
+			(meta::FieldSetter<GAnimation, int32_t, false>::Signature) & GAnimation::m_ticksPerSecond, {});
+
+		type.AddField<GAnimation, float>("m_duration",
+			(meta::FieldGetter<GAnimation, float, false>::Signature) & GAnimation::m_duration,
+			(meta::FieldSetter<GAnimation, float, false>::Signature) & GAnimation::m_duration, {});
+
+		type.AddField<GAnimation, Array<Channel>>("m_channels",
+			(meta::FieldGetter<GAnimation, Array<Channel>, false>::Signature) & GAnimation::m_channels,
+			(meta::FieldSetter<GAnimation, Array<Channel>, false>::Signature) & GAnimation::m_channels, {});
+
+		type.AddField<GAnimation, Array<BoneInfo>>("m_boneInfoArray",
+			(meta::FieldGetter<GAnimation, Array<BoneInfo>, false>::Signature) & GAnimation::m_boneInfoArray,
+			(meta::FieldSetter<GAnimation, Array<BoneInfo>, false>::Signature) & GAnimation::m_boneInfoArray, {});
 		return true;
 	}
 	IMPLEMENT_INITIAL_BEGIN(GAnimation)
@@ -69,7 +84,10 @@ namespace GuGu {
 
 	void GAnimation::PostLoad()
 	{
-		
+		for (int32_t i = 0; i < m_boneInfoArray.size(); ++i)
+		{
+			m_boneInfos.insert({ m_boneInfoArray[i].m_boneName, m_boneInfoArray[i] });
+		}
 	}
 
 	void GAnimation::Update(float fElapsedTimeSeconds)
@@ -84,9 +102,13 @@ namespace GuGu {
 
 	meta::Object* GAnimation::Clone(void) const
 	{
-		GAnimation* staticMesh = new GAnimation();
-
-		return staticMesh;
+		GAnimation* animation = new GAnimation();
+		animation->m_channels = m_channels;
+		animation->m_boneInfoArray = m_boneInfoArray;
+		animation->m_ticksPerSecond = m_ticksPerSecond;
+		animation->m_duration = m_duration;
+		animation->m_boneInfos = m_boneInfos;
+		return animation;
 	}
 
 	void GAnimation::OnSerialize(nlohmann::json& output) const

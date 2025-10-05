@@ -13,6 +13,7 @@
 #include <Core/Reflection/Type.h>
 #include <Core/Texture/GTexture.h>
 #include <Core/GamePlay/GameUI/GFont.h> //GFont
+#include <Core/Animation/GAnimation.h>
 
 namespace GuGu {
     void GAssetViewItem::init(const BuilderArguments& arguments)
@@ -109,6 +110,15 @@ namespace GuGu {
 							.brush(assetImage)
 						);
                 }
+				else if (meta::Type::getType(assetViewAsset->m_data.m_assetTypeGuid).GetID() == meta::TypeIDs<GAnimation>::ID)
+				{
+					std::shared_ptr<Brush> assetImage = EditorStyleSet::getStyleSet()->getBrush("AnimationAssetIcon");
+					itemContentsOverlay->addSlot()
+						(
+							WIDGET_NEW(ImageWidget)
+							.brush(assetImage)
+						);
+				}
             }	
         }
 
