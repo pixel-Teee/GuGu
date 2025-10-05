@@ -20,6 +20,8 @@ namespace GuGu {
 	static Priority mathint16_4Priority;
 
 	static Priority mathrotatorPriority;
+
+	static Priority mathfloat4x4Priority;
 	//------third party------
 
 	//------struct------
@@ -28,6 +30,8 @@ namespace GuGu {
 	static Priority uiAnchorsPriority;
 
 	static Priority uiAnchorDataPrority;
+
+	static Priority boneInfoPriority;
 	//------struct------
 
 	void registerThirdParty();

@@ -77,6 +77,9 @@ namespace GuGu {
 		type.AddField<GStaticMesh, Array<math::float4>>("m_weightData",
 			(meta::FieldGetter<GStaticMesh, Array<math::float4>, false>::Signature) & GStaticMesh::m_weightData,
 			(meta::FieldSetter<GStaticMesh, Array<math::float4>, false>::Signature) & GStaticMesh::m_weightData, {});
+		type.AddField<GStaticMesh, Array<BoneInfo>>("m_boneInfoArray",
+			(meta::FieldGetter<GStaticMesh, Array<BoneInfo>, false>::Signature) & GStaticMesh::m_boneInfoArray,
+			(meta::FieldSetter<GStaticMesh, Array<BoneInfo>, false>::Signature) & GStaticMesh::m_boneInfoArray, {});
 
 		return true;
 	}
@@ -104,6 +107,10 @@ namespace GuGu {
 		m_objectSpaceBounds = dm::box3(m_positionData.size(), m_positionData.data());
 		m_totalIndices = m_indexData.size();
 		m_totalVertices = m_positionData.size();
+		for (int32_t i = 0; i < m_boneInfoArray.size(); ++i)
+		{
+			m_boneInfos.insert({ m_boneInfoArray[i].m_boneName, m_boneInfoArray[i] });
+		}
 	}
 
 	void GStaticMesh::Update(float fElapsedTimeSeconds)
@@ -132,6 +139,8 @@ namespace GuGu {
 		staticMesh->m_totalIndices = m_totalIndices;
 		staticMesh->m_totalVertices = m_totalVertices;
 		staticMesh->m_objectSpaceBounds = m_objectSpaceBounds;
+		staticMesh->m_boneInfoArray = m_boneInfoArray;
+		staticMesh->m_boneInfos = m_boneInfos;
 		return staticMesh;
 	}
 

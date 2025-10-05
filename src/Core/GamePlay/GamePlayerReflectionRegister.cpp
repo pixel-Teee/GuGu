@@ -8,6 +8,7 @@
 #include <Core/Reflection/Array.h>
 
 #include <Core/Model/StaticMesh.h>
+#include <Core/Model/BoneInfo.h>
 #include <Core/Texture/GTexture.h>
 #include <Core/GamePlay/Level.h>
 #include <Core/GamePlay/TransformComponent.h>
@@ -301,6 +302,21 @@ namespace GuGu {
 		return true;
 	}
 
+	static bool registerfloat4x4()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto id = db.AllocateType("GuGu::math::float4x4");
+		auto& type = db.types[id];
+		meta::TypeInfo<math::float4x4>::Register(id, type, true, "91B562CC-EF4F-4044-B77C-DC2EEAF1D571");
+
+		type.AddConstructor<math::float4x4, false, false>({});
+
+		type.AddConstructor<math::float4x4, true, false>({});
+
+		type.SetArrayConstructor<math::float4x4>();
+		return true;
+	}
+
 	static bool registerGuGuColor()
 	{
 		auto& db = meta::ReflectionDatabase::Instance();
@@ -433,6 +449,34 @@ namespace GuGu {
 		return true;
 	}
 
+	static bool registerBoneInfo()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto id = db.AllocateType("GuGu::BoneInfo");
+		auto& type = db.types[id];
+		meta::TypeInfo<BoneInfo>::Register(id, type, true, "02CD624C-86AF-4467-88AD-4C7EB93F84F2");
+
+		type.AddConstructor<BoneInfo, false, false>({});
+
+		type.AddConstructor<BoneInfo, true, false>({});
+
+		type.SetArrayConstructor<BoneInfo>();
+
+		type.AddField<BoneInfo, GuGuUtf8Str>("m_boneName",
+			(meta::FieldGetter<BoneInfo, GuGuUtf8Str, false>::Signature) & BoneInfo::m_boneName,
+			(meta::FieldSetter<BoneInfo, GuGuUtf8Str, false>::Signature) & BoneInfo::m_boneName, {});
+
+		type.AddField<BoneInfo, math::float4x4>("m_offsetMatrix",
+			(meta::FieldGetter<BoneInfo, math::float4x4, false>::Signature) & BoneInfo::m_offsetMatrix,
+			(meta::FieldSetter<BoneInfo, math::float4x4, false>::Signature) & BoneInfo::m_offsetMatrix, {});
+
+		type.AddField<BoneInfo, int32_t>("m_boneId",
+			(meta::FieldGetter<BoneInfo, int32_t, false>::Signature) & BoneInfo::m_boneId,
+			(meta::FieldSetter<BoneInfo, int32_t, false>::Signature) & BoneInfo::m_boneId, {});
+
+		return true;
+	}
+
 	static bool registerGuGuMetaObject()
 	{
 		auto& db = meta::ReflectionDatabase::Instance();
@@ -512,6 +556,9 @@ namespace GuGu {
 		mathrotatorPriority.setDebugName("GuGu::math::Rotator");
 		ReflectionMain::addInitialTypeFunction(registerRotator, &mathrotatorPriority);
 
+		mathfloat4x4Priority.setDebugName("GuGu::math::float4x4");
+		ReflectionMain::addInitialTypeFunction(registerfloat4x4, &mathfloat4x4Priority);
+
 		//uiPaddingPriority.setDebugName("GuGu::UIPadding");
 		//ReflectionMain::addInitialTypeFunction(registerUIPadding, &uiPaddingPriority);
 		//
@@ -534,11 +581,14 @@ namespace GuGu {
 		ReflectionMain::addInitialTypeFunction(registerUIPadding, &uiPaddingPriority);
 		ReflectionMain::addInitialTypeFunction(registerUIAnchors, &uiAnchorsPriority);
 		ReflectionMain::addInitialTypeFunction(registerUIAnchorData, &uiAnchorDataPrority);
+		ReflectionMain::addInitialTypeFunction(registerBoneInfo, &boneInfoPriority);
 		uiPaddingPriority.addPriorityThan(&meta::Range::ms_priority);
 		uiAnchorsPriority.addPriorityThan(&meta::Range::ms_priority);
 		uiAnchorDataPrority.addPriorityThan(&uiPaddingPriority); //padding
 		uiAnchorDataPrority.addPriorityThan(&uiAnchorsPriority); //anchor
 		uiAnchorDataPrority.addPriorityThan(&mathfloat2Priority); //alignment
+
+		boneInfoPriority.addPriorityThan(&mathfloat4x4Priority);//bone info
 
 		//UIComponent register
 		UIComponent::registerMainFactory();
