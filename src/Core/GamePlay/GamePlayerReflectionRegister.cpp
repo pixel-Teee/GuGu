@@ -39,6 +39,8 @@
 #include <Core/GamePlay/GameUI/UIAnchorData.h>
 
 #include <Core/Animation/Keyframe.h>
+#include <Core/Animation/Animator.h>
+#include <Core/Animation/GAnimation.h>
 
 namespace GuGu {
 
@@ -183,6 +185,37 @@ namespace GuGu {
 		return true;
 	}
 
+	static bool registermathquat()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto id = db.AllocateType("GuGu::math::quat");
+		auto& type = db.types[id];
+		meta::TypeInfo<math::quat>::Register(id, type, true, "3922F75E-C0DC-44B7-B8B3-94548A8EBDE2");
+
+		type.AddConstructor<math::quat, false, false>({});
+
+		type.AddConstructor<math::quat, true, false>({});
+
+		type.SetArrayConstructor<math::quat>();
+
+		type.AddField<math::quat, float>("x",
+			(meta::FieldGetter<math::quat, float, false>::Signature) & math::quat::x,
+			(meta::FieldSetter<math::quat, float, false>::Signature) & math::quat::x, {});
+
+		type.AddField<math::quat, float>("y",
+			(meta::FieldGetter<math::quat, float, false>::Signature) & math::quat::y,
+			(meta::FieldSetter<math::quat, float, false>::Signature) & math::quat::y, {});
+
+		type.AddField<math::quat, float>("z",
+			(meta::FieldGetter<math::quat, float, false>::Signature) & math::quat::z,
+			(meta::FieldSetter<math::quat, float, false>::Signature) & math::quat::z, {});
+
+		type.AddField<math::quat, float>("w",
+			(meta::FieldGetter<math::quat, float, false>::Signature) & math::quat::w,
+			(meta::FieldSetter<math::quat, float, false>::Signature) & math::quat::w, {});
+		return true;
+	}
+
 	static bool registermathdquat()
 	{
 		auto& db = meta::ReflectionDatabase::Instance();
@@ -314,6 +347,22 @@ namespace GuGu {
 		type.AddConstructor<math::float4x4, false, false>({});
 
 		type.AddConstructor<math::float4x4, true, false>({});
+
+		type.AddField<math::float4x4, math::float4>("row0",
+			(meta::FieldGetter<math::float4x4, math::float4, false > ::Signature) & math::float4x4::row0,
+			(meta::FieldSetter<math::float4x4, math::float4, false > ::Signature) & math::float4x4::row0, {});
+
+		type.AddField<math::float4x4, math::float4>("row1",
+			(meta::FieldGetter<math::float4x4, math::float4, false > ::Signature) & math::float4x4::row1,
+			(meta::FieldSetter<math::float4x4, math::float4, false > ::Signature) & math::float4x4::row1, {});
+
+		type.AddField<math::float4x4, math::float4>("row2",
+			(meta::FieldGetter<math::float4x4, math::float4, false > ::Signature) & math::float4x4::row2,
+			(meta::FieldSetter<math::float4x4, math::float4, false > ::Signature) & math::float4x4::row2, {});
+
+		type.AddField<math::float4x4, math::float4>("row3",
+			(meta::FieldGetter<math::float4x4, math::float4, false > ::Signature) & math::float4x4::row3,
+			(meta::FieldSetter<math::float4x4, math::float4, false > ::Signature) & math::float4x4::row3, {});
 
 		type.SetArrayConstructor<math::float4x4>();
 		return true;
@@ -568,17 +617,65 @@ namespace GuGu {
 			(meta::FieldGetter<Channel, Array<KeyPosition>, false>::Signature) & Channel::m_positions,
 			(meta::FieldSetter<Channel, Array<KeyPosition>, false>::Signature) & Channel::m_positions, {});
 
-		type.AddField<Channel, Array<KeyPosition>>("m_rotations",
-			(meta::FieldGetter<Channel, Array<KeyPosition>, false>::Signature) & Channel::m_rotations,
-			(meta::FieldSetter<Channel, Array<KeyPosition>, false>::Signature) & Channel::m_rotations, {});
+		type.AddField<Channel, Array<KeyRotation>>("m_rotations",
+			(meta::FieldGetter<Channel, Array<KeyRotation>, false>::Signature) & Channel::m_rotations,
+			(meta::FieldSetter<Channel, Array<KeyRotation>, false>::Signature) & Channel::m_rotations, {});
 
 		type.AddField<Channel, Array<KeyScale>>("m_scales",
 			(meta::FieldGetter<Channel, Array<KeyScale>, false>::Signature) & Channel::m_scales,
 			(meta::FieldSetter<Channel, Array<KeyScale>, false>::Signature) & Channel::m_scales, {});
 
-		type.AddField<GuGuUtf8Str, float>("m_name",
-			(meta::FieldGetter<GuGuUtf8Str, float, false>::Signature) & Channel::m_name,
-			(meta::FieldSetter<GuGuUtf8Str, float, false>::Signature) & Channel::m_name, {});
+		type.AddField<Channel, GuGuUtf8Str>("m_name",
+			(meta::FieldGetter<Channel, GuGuUtf8Str, false>::Signature) & Channel::m_name,
+			(meta::FieldSetter<Channel, GuGuUtf8Str, false>::Signature) & Channel::m_name, {});
+
+		return true;
+	}
+
+	static bool registerMeshGeometry()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto id = db.AllocateType("GuGu::GMeshGeometry");
+		auto& type = db.types[id];
+		meta::TypeInfo<GMeshGeometry>::Register(id, type, true, "D7C9AF99-BE14-4DB4-8ACE-D951C04D5DFA");
+
+		type.AddConstructor<GMeshGeometry, false, false>({});
+
+		type.AddConstructor<GMeshGeometry, true, false>({});
+
+		type.SetArrayConstructor<GMeshGeometry>();
+
+		type.AddField<GMeshGeometry, GuGuUtf8Str>("m_nodeName",
+			(meta::FieldGetter<GMeshGeometry, GuGuUtf8Str, false>::Signature) & GMeshGeometry::m_nodeName,
+			(meta::FieldSetter<GMeshGeometry, GuGuUtf8Str, false>::Signature) & GMeshGeometry::m_nodeName, {});
+
+		type.AddField<GMeshGeometry, uint32_t>("m_indexOffsetInMesh",
+			(meta::FieldGetter<GMeshGeometry, uint32_t, false>::Signature) & GMeshGeometry::m_indexOffsetInMesh,
+			(meta::FieldSetter<GMeshGeometry, uint32_t, false>::Signature) & GMeshGeometry::m_indexOffsetInMesh, {});
+
+		type.AddField<GMeshGeometry, uint32_t>("m_vertexOffsetInMesh",
+			(meta::FieldGetter<GMeshGeometry, uint32_t, false>::Signature) & GMeshGeometry::m_vertexOffsetInMesh,
+			(meta::FieldSetter<GMeshGeometry, uint32_t, false>::Signature) & GMeshGeometry::m_vertexOffsetInMesh, {});
+
+		type.AddField<GMeshGeometry, uint32_t>("m_numIndices",
+			(meta::FieldGetter<GMeshGeometry, uint32_t, false>::Signature) & GMeshGeometry::m_numIndices,
+			(meta::FieldSetter<GMeshGeometry, uint32_t, false>::Signature) & GMeshGeometry::m_numIndices, {});
+
+		type.AddField<GMeshGeometry, uint32_t>("m_numVertices",
+			(meta::FieldGetter<GMeshGeometry, uint32_t, false>::Signature) & GMeshGeometry::m_numVertices,
+			(meta::FieldSetter<GMeshGeometry, uint32_t, false>::Signature) & GMeshGeometry::m_numVertices, {});
+
+		type.AddField<GMeshGeometry, int32_t>("m_id",
+			(meta::FieldGetter<GMeshGeometry, int32_t, false>::Signature) & GMeshGeometry::m_id,
+			(meta::FieldSetter<GMeshGeometry, int32_t, false>::Signature) & GMeshGeometry::m_id, {});
+
+		type.AddField<GMeshGeometry, int32_t>("m_parentId",
+			(meta::FieldGetter<GMeshGeometry, int32_t, false>::Signature) & GMeshGeometry::m_parentId,
+			(meta::FieldSetter<GMeshGeometry, int32_t, false>::Signature) & GMeshGeometry::m_parentId, {});
+
+		type.AddField<GMeshGeometry, Array<int32_t>>("m_childrens",
+			(meta::FieldGetter<GMeshGeometry, Array<int32_t>, false>::Signature) & GMeshGeometry::m_childrens,
+			(meta::FieldSetter<GMeshGeometry, Array<int32_t>, false>::Signature) & GMeshGeometry::m_childrens, {});
 
 		return true;
 	}
@@ -648,6 +745,9 @@ namespace GuGu {
 		mathdouble3Priority.setDebugName("GuGu::math::double3");
 		ReflectionMain::addInitialTypeFunction(registermathdouble3, &mathdouble3Priority);
 
+		mathquatPriority.setDebugName("GuGu::math::quat");
+		ReflectionMain::addInitialTypeFunction(registermathquat, &mathquatPriority);
+
 		//Priority mathdquatPriority;
 		mathdquatPriority.setDebugName("GuGu::math::dquat");
 		ReflectionMain::addInitialTypeFunction(registermathdquat, &mathdquatPriority);
@@ -664,6 +764,7 @@ namespace GuGu {
 
 		mathfloat4x4Priority.setDebugName("GuGu::math::float4x4");
 		ReflectionMain::addInitialTypeFunction(registerfloat4x4, &mathfloat4x4Priority);
+        mathfloat4x4Priority.addPriorityThan(&mathfloat4Priority);
 
 		//uiPaddingPriority.setDebugName("GuGu::UIPadding");
 		//ReflectionMain::addInitialTypeFunction(registerUIPadding, &uiPaddingPriority);
@@ -700,8 +801,9 @@ namespace GuGu {
 		ReflectionMain::addInitialTypeFunction(registerKeyRotation, &keyRotationPriority);
 		ReflectionMain::addInitialTypeFunction(registerKeyScale, &keyScalePriority);
 		ReflectionMain::addInitialTypeFunction(registerChannel, &channelPriority);
+		ReflectionMain::addInitialTypeFunction(registerMeshGeometry, &meshGeometryPriority);
 		keyPositionPriority.addPriorityThan(&mathfloat3Priority);
-		keyRotationPriority.addPriorityThan(&mathrotatorPriority);
+		keyRotationPriority.addPriorityThan(&mathquatPriority);
 		keyScalePriority.addPriorityThan(&mathfloat3Priority);
 		channelPriority.addPriorityThan(&keyPositionPriority);
 		channelPriority.addPriorityThan(&keyRotationPriority);
@@ -723,6 +825,20 @@ namespace GuGu {
 
 		ScriptComponent::registerMainFactory();
 		ScriptComponent::registerMainFactory2();
+
+		GAnimator::registerMainFactory();
+		GAnimator::registerMainFactory2();
+
+		GAnimation::ms_priority2.addPriorityThan(&channelPriority);
+		GAnimation::registerMainFactory();
+		GAnimation::registerMainFactory2();
+
+		GStaticMesh::ms_priority2.addPriorityThan(&boneInfoPriority);
+		GStaticMesh::registerMainFactory();
+		GStaticMesh::registerMainFactory2();
+
+		GuGuScriptDelegate::registerMainFactory();
+		GuGuScriptDelegate::registerMainFactory2();
 
 		ReflectionMain::initialize();
 

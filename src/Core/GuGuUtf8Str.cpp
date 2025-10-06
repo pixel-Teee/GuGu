@@ -10,10 +10,14 @@ namespace GuGu {
 		m_len = calculateCharacterByteCount();
 	}
 	GuGuUtf8Str::GuGuUtf8Str(const GuGuUtf8Str& rhs)
-		: m_str(new char[rhs.m_capacity + 1])
-		, m_capacity(rhs.m_capacity)
-		, m_len(rhs.m_len)
+		//: m_str(new char[rhs.m_capacity + 1])
+		//, m_capacity(rhs.m_capacity)
+		//, m_len(rhs.m_len)
 	{
+		m_str = new char[rhs.m_capacity + 1];
+		m_capacity = rhs.m_capacity;
+		m_len = rhs.m_len;
+
 		strcpy(m_str, rhs.m_str);
 		m_characterByteCount = rhs.m_characterByteCount;
 		m_totalByteCount = rhs.m_totalByteCount;

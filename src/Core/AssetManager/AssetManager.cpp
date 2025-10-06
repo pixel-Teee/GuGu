@@ -17,6 +17,7 @@
 #include <Core/Texture/GTexture.h>
 #include <Core/GamePlay/GameUI/GFont.h>
 #include <Core/Model/GeometryHelper.h>
+#include <Core/Animation/GAnimation.h>
 
 namespace GuGu {
 	AssetManager::AssetManager()
@@ -534,6 +535,10 @@ namespace GuGu {
 				return { value.get<double>() };
 			else if (type == typeof(uint8_t))
 				return { value.get<uint8_t>() };
+			else if (type == typeof(int16_t))
+				return { value.get<int16_t>() };
+			else if (type == typeof(uint16_t))
+				return { value.get<uint16_t>() };
 		}
 		else if (type.IsEnum())
 		{
@@ -580,6 +585,11 @@ namespace GuGu {
 		for (auto& field : fields)
 		{
 			auto fieldType = field.GetType();
+
+			//if (field.GetName() == "m_jointData")
+			//{
+			//	int32_t qAq = 3 + 4;
+			//}
 
 			//				assert(fieldType.IsValid(),
 			//					"Unknown type for field '%s' in base type '%s'. Is this type reflected?",
@@ -754,7 +764,9 @@ namespace GuGu {
 					{
 						if (context.m_indexToSharedPtrObject.find(objectIndex) != context.m_indexToSharedPtrObject.end())
 						{
-							field.SetValue(variantObject, context.m_indexToSharedPtrObject.find(objectIndex));
+                            std::shared_ptr<meta::Object> linkedObject =  context.m_indexToSharedPtrObject.find(objectIndex)->second;
+
+							field.SetValue(variantObject, linkedObject);
 						}
 						else
 						{
@@ -917,6 +929,12 @@ namespace GuGu {
 					{
 						//load asset
 						std::shared_ptr<meta::Object> loadedObject = AssetManager::getAssetManager().deserializeJson<GFont>(nlohmann::json::parse(json.getStr()));
+						item.second->m_loadedResource = loadedObject;
+					}
+					else if (meta::Type::getType(item.second->m_assetTypeGuid) == typeof(GAnimation))
+					{
+						//load asset
+						std::shared_ptr<meta::Object> loadedObject = AssetManager::getAssetManager().deserializeJson<GAnimation>(nlohmann::json::parse(json.getStr()));
 						item.second->m_loadedResource = loadedObject;
 					}
 					//AssetManager::getAssetManager().deserializeJson(nlohmann::json::parse(modelJson.getStr()))

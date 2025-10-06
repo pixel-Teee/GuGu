@@ -13,6 +13,8 @@ namespace GuGu {
 
 	static Priority mathdouble3Priority;
 
+	static Priority mathquatPriority;
+
 	static Priority mathdquatPriority;
 
 	static Priority mathuint16_4Priority;
@@ -40,6 +42,8 @@ namespace GuGu {
 	static Priority keyScalePriority;
 
 	static Priority channelPriority;
+
+	static Priority meshGeometryPriority;
 	//------struct------
 
 	void registerThirdParty();

@@ -25,6 +25,18 @@ namespace GuGu {
 		//反序列化
 		virtual void OnDeserialize(const nlohmann::json& input) override;
 
+		math::float4x4 getBoneLocalTransform(GuGuUtf8Str boneName, float frame);
+
+		math::float4x4 interpolatePosition(GuGuUtf8Str channelName, float frame);
+		math::float4x4 interpolateRotation(GuGuUtf8Str channelName, float frame);
+		math::float4x4 interpolateScale(GuGuUtf8Str channelName, float frame);
+
+		int32_t getPositionIndex(Array<KeyPosition>& keyPositions, float frame);
+		int32_t getRotationIndex(Array<KeyRotation>& keyPositions, float frame);
+		int32_t getScaleIndex(Array<KeyScale>& keyPositions, float frame);
+
+		float getScaleFactor(float lastTimeStamp, float nextStamp, float frame);
+
 		//持续时间
 		float m_duration;
 

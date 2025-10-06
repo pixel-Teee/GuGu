@@ -57,11 +57,21 @@ namespace GuGu {
 		}
 
 		m_currentLoadStaticMesh = std::make_shared<GStaticMesh>();
+		m_currentLoadStaticMesh->m_bIsSkeletonMesh = isSkeleton;
 		m_currentStaticMeshIndicesNumber = 0;
 		m_currentStaticMeshVerticesNumber = 0;
 
 		processNode(scene->mRootNode, scene);
 		linkMeshGeometryId(scene->mRootNode);
+
+		for (const auto& item : m_currentLoadStaticMesh->m_boneInfos)
+		{
+			BoneInfo boneInfo;
+			boneInfo.m_boneId = item.second.m_boneId;
+			boneInfo.m_boneName = item.first;
+			boneInfo.m_offsetMatrix = item.second.m_offsetMatrix;
+			m_currentLoadStaticMesh->m_boneInfoArray.push_back(boneInfo);
+		}
 		
 		uint64_t bufferSize = 0;
 		if (!m_currentLoadStaticMesh->m_positionData.empty())
@@ -118,19 +128,24 @@ namespace GuGu {
 				KeyPosition keyPosition;
 				keyPosition.m_position = aiVector3DToMathFloat3(channel->mPositionKeys[j].mValue);
 				keyPosition.m_timestamp = channel->mPositionKeys[j].mTime;
+				gChannel.m_positions.push_back(keyPosition);
 			}
 			for (int32_t j = 0; j < channel->mNumRotationKeys; ++j)
 			{
 				KeyRotation keyRotation;
 				keyRotation.m_orientation = aiRotationToMathRotation(channel->mRotationKeys[j].mValue);
 				keyRotation.m_timestamp = channel->mRotationKeys[j].mTime;
+				gChannel.m_rotations.push_back(keyRotation);
 			}
 			for (int32_t j = 0; j < channel->mNumScalingKeys; ++j)
 			{
 				KeyScale keyScale;
 				keyScale.m_scale = aiVector3DToMathFloat3(channel->mScalingKeys[j].mValue);
 				keyScale.m_timestamp = channel->mScalingKeys[j].mTime;
+				gChannel.m_scales.push_back(keyScale);
 			}
+
+			gAnimation->m_channels.push_back(gChannel);
 		}
 
 		nlohmann::json animationJson = AssetManager::getAssetManager().serializeJson(gAnimation);
@@ -220,8 +235,8 @@ namespace GuGu {
 
 					for (uint32_t weightIndex = 0; weightIndex < numWeights; ++weightIndex)
 					{
-						math::float4& weight = m_currentLoadStaticMesh->m_weightData[widgets[weightIndex].mVertexId];
-						math::vector<int16_t, 4>& joint = m_currentLoadStaticMesh->m_jointData[widgets[weightIndex].mVertexId];//指向骨骼矩阵的索引
+						math::float4& weight = m_currentLoadStaticMesh->m_weightData[m_currentStaticMeshVerticesNumber + widgets[weightIndex].mVertexId];
+						math::vector<int16_t, 4>& joint = m_currentLoadStaticMesh->m_jointData[m_currentStaticMeshVerticesNumber + widgets[weightIndex].mVertexId];//指向骨骼矩阵的索引
 						//max bone index is 4
 						for (int32_t index = 0; index < 4; ++index)
 						{
@@ -229,6 +244,7 @@ namespace GuGu {
 							{
 								joint[index] = boneId;
 								weight[index] = widgets[weightIndex].mWeight;
+								break;
 							}
 						}
 					}
@@ -253,7 +269,7 @@ namespace GuGu {
 		}
 	}
 
-	void ModelImporter::linkMeshGeometryId(aiNode* node)
+	void ModelImporter::linkMeshGeometryId(aiNode* node, int32_t parentIndex)
 	{
 		int32_t currentMeshGeometryIndex = 0;
 		for (int32_t i = 0; i < m_currentLoadStaticMesh->m_geometries.size(); ++i)
@@ -264,25 +280,30 @@ namespace GuGu {
 				break;
 			}
 		}
+		m_currentLoadStaticMesh->m_geometries[currentMeshGeometryIndex].m_id = currentMeshGeometryIndex;
+		m_currentLoadStaticMesh->m_geometries[currentMeshGeometryIndex].m_parentId = parentIndex;
 		//对子节点重复这一过程
 		for (uint32_t i = 0; i < node->mNumChildren; ++i)
 		{
-			int32_t childIndex = 0;
-			for (uint32_t j = 0; j < m_currentLoadStaticMesh->m_geometries.size(); ++i)
+			int32_t childIndex = -1;
+			for (uint32_t j = 0; j < m_currentLoadStaticMesh->m_geometries.size(); ++j)
 			{
-				if (m_currentLoadStaticMesh->m_geometries[j].m_nodeName == node[j].mName.C_Str())
+				if (m_currentLoadStaticMesh->m_geometries[j].m_nodeName == node->mChildren[i]->mName.C_Str())
 				{
 					childIndex = j;
 					break;
 				}
 			}
-			m_currentLoadStaticMesh->m_geometries[i].m_childrens.push_back(childIndex);
+			if (childIndex != -1)
+			{
+				m_currentLoadStaticMesh->m_geometries[currentMeshGeometryIndex].m_childrens.push_back(childIndex);
+			}			
 		}
 
 		//link
 		for (uint32_t i = 0; i < node->mNumChildren; ++i)
 		{
-			linkMeshGeometryId(node->mChildren[i]);
+			linkMeshGeometryId(node->mChildren[i], currentMeshGeometryIndex);
 		}
 	}
 

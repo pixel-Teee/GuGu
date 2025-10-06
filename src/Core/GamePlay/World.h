@@ -39,6 +39,9 @@ namespace GuGu {
 		//load texture
 		std::shared_ptr<AssetData> loadTexture(const GuGuUtf8Str& filePath);
 
+		//load animation
+		std::shared_ptr<AssetData> loadAnimation(const GuGuUtf8Str& filePath);
+
 		void setLevel(std::shared_ptr<Level> inLevel);
 
 		void update(float fElapsedTimeSeconds);

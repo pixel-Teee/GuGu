@@ -32,7 +32,7 @@ namespace GuGu{
         uint32_t backBufferHeight = 720;
         uint32_t swapChainBufferCount = 4;
         bool enableNvrhiValidationLayer = false;
-        bool vsyncEnabled = false;
+        bool vsyncEnabled = true;
         bool enableComputeQueue = false;
         bool enableCopyQueue = false;
         bool enableRayTracingExtensions = false;//for vulkan

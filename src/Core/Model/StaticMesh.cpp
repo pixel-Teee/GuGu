@@ -80,6 +80,13 @@ namespace GuGu {
 		type.AddField<GStaticMesh, Array<BoneInfo>>("m_boneInfoArray",
 			(meta::FieldGetter<GStaticMesh, Array<BoneInfo>, false>::Signature) & GStaticMesh::m_boneInfoArray,
 			(meta::FieldSetter<GStaticMesh, Array<BoneInfo>, false>::Signature) & GStaticMesh::m_boneInfoArray, {});
+		type.AddField<GStaticMesh, Array<GMeshGeometry>>("m_geometries",
+			(meta::FieldGetter<GStaticMesh, Array<GMeshGeometry>, false>::Signature) & GStaticMesh::m_geometries,
+			(meta::FieldSetter<GStaticMesh, Array<GMeshGeometry>, false>::Signature) & GStaticMesh::m_geometries, {});
+
+		type.AddField<GStaticMesh, bool>("m_bIsSkeletonMesh",
+			(meta::FieldGetter<GStaticMesh, bool, false>::Signature) & GStaticMesh::m_bIsSkeletonMesh,
+			(meta::FieldSetter<GStaticMesh, bool, false>::Signature) & GStaticMesh::m_bIsSkeletonMesh, {});
 
 		return true;
 	}
@@ -93,6 +100,8 @@ namespace GuGu {
 		if (!ms_priority2.addPriorityThan(&mathfloat3Priority)) return 0;
 		if (!ms_priority2.addPriorityThan(&mathfloat4Priority)) return 0;
 		if (!ms_priority2.addPriorityThan(&mathuint16_4Priority)) return 0;
+		if (!ms_priority2.addPriorityThan(&mathint16_4Priority)) return 0;
+		if (!ms_priority2.addPriorityThan(&boneInfoPriority)) return 0;
 		ADD_INITIAL_FIELDS_FUNCTION_WITH_PRIORITY(registerGuGuGStaticMeshFields)
 	IMPLEMENT_INITIAL_FIELDS_END
 	GStaticMesh::GStaticMesh()
@@ -110,6 +119,16 @@ namespace GuGu {
 		for (int32_t i = 0; i < m_boneInfoArray.size(); ++i)
 		{
 			m_boneInfos.insert({ m_boneInfoArray[i].m_boneName, m_boneInfoArray[i] });
+		}
+
+		//normalize
+		for (int32_t i = 0; i < m_weightData.size(); ++i)
+		{
+			float totalWeight = m_weightData[i].x + m_weightData[i].y + m_weightData[i].z + m_weightData[i].w;
+			m_weightData[i].x = m_weightData[i].x / totalWeight;
+			m_weightData[i].y = m_weightData[i].y / totalWeight;
+			m_weightData[i].z = m_weightData[i].z / totalWeight;
+			m_weightData[i].w = m_weightData[i].w / totalWeight;
 		}
 	}
 
@@ -141,6 +160,7 @@ namespace GuGu {
 		staticMesh->m_objectSpaceBounds = m_objectSpaceBounds;
 		staticMesh->m_boneInfoArray = m_boneInfoArray;
 		staticMesh->m_boneInfos = m_boneInfos;
+		staticMesh->m_bIsSkeletonMesh = m_bIsSkeletonMesh;
 		return staticMesh;
 	}
 

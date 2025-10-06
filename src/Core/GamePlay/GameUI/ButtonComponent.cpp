@@ -76,7 +76,6 @@ namespace GuGu {
 		type.AddField<ButtonComponent, std::shared_ptr<GuGuScriptDelegate>>("m_onClicked",
 			(meta::FieldGetter<ButtonComponent, std::shared_ptr<GuGuScriptDelegate>, true>::Signature) & ButtonComponent::getScriptDelegate,
 			(meta::FieldSetter<ButtonComponent, std::shared_ptr<GuGuScriptDelegate>, true>::Signature) & ButtonComponent::setScriptDelegate, {});
-
 		return true;
 	}
 
@@ -88,6 +87,7 @@ namespace GuGu {
 	IMPLEMENT_INITIAL_FIELDS_BEGIN(ButtonComponent)
 		ADD_PRIORITY(Color)
 		ADD_PRIORITY(AssetData)
+		ADD_PRIORITY(GuGuScriptDelegate)
 		ADD_INITIAL_FIELDS_FUNCTION_WITH_PRIORITY(registerGuGuButtonComponentFields)
 	IMPLEMENT_INITIAL_FIELDS_END
 

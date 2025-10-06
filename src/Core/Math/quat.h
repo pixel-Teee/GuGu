@@ -439,10 +439,29 @@ namespace GuGu {
 			template<typename T>
 			quaternion<T> slerp(const quaternion<T>& a, const quaternion<T>& b, T u)
 			{
-				T theta = std::acos(dot(a, b));
+				T dotProduct = dot(a, b);
+				quaternion<T> c = a;
+				if (dotProduct < 0.0f)
+				{
+					quaternion<T> c = quaternion<T>((T)-a.w, (T)-a.x, (T)-a.y, (T)-a.z);
+					dotProduct = -dotProduct;
+				}
+				dotProduct = std::clamp(dotProduct, (T)-1.0, (T)1.0);
+				T theta = std::acos(dotProduct);
+				if (dotProduct > 0.9995)
+				{
+					//lerp
+					quaternion<T> result = quaternion<T>(
+						(T)(c.w + u * (b.w - c.w)),
+						(T)(c.x + u * (b.x - c.x)),
+						(T)(c.y + u * (b.y - c.y)),
+						(T)(c.z + u * (b.z - c.z))
+					);
+					return result;
+				}
 				if (theta <= T(0))
-					return a;
-				return (a * std::sin((T(1) - u) * theta) + b * std::sin(u * theta)) / std::sin(theta);
+					return c;
+				return (c * std::sin((T(1) - u) * theta) + b * std::sin(u * theta)) / std::sin(theta);
 			}
 
 			template<typename T>

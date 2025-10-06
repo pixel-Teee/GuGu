@@ -33,7 +33,7 @@ namespace GuGu {
 
 		static void pushVariantToLua(lua_State* L, const meta::Variant& value);
 
-		static meta::Variant luaToVariant(lua_State* L, int index);
+		static meta::Variant luaToVariant(lua_State* L, int index, meta::Type argType);
 
 		static void debugStack(lua_State* L, const char* message);
 	private:

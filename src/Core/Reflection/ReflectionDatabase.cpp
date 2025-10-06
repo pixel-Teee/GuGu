@@ -76,6 +76,16 @@ namespace GuGu {
 			REGISTER_NATIVE_TYPE(const uint8_t*, "BD14B25F-9A9C-49E6-AFF8-2C2D19A4CC64");
 			types[typeidof(uint8_t)].SetArrayConstructor<uint8_t>();
 
+			REGISTER_NATIVE_TYPE(uint16_t, "202C53E9-EF07-4BD8-9A28-0B3C3AD79074");
+			REGISTER_NATIVE_TYPE(uint16_t*, "8F66A3BE-0445-474B-94B3-09D408F7BC62");
+			REGISTER_NATIVE_TYPE(const uint16_t*, "7DA8A203-25BA-40C0-B4D8-F80CEE55D7AE");
+			types[typeidof(uint16_t)].SetArrayConstructor<uint16_t>();
+
+			REGISTER_NATIVE_TYPE(int16_t, "2592B6AE-2F6D-4FBD-A8F5-354818CFBF56");
+			REGISTER_NATIVE_TYPE(int16_t*, "8C43F949-05B7-489E-B735-6F11D89C1AAC");
+			REGISTER_NATIVE_TYPE(const int16_t*, "BEFF6CF9-E87D-419A-B14C-18595418B13B");
+			types[typeidof(int16_t)].SetArrayConstructor<int16_t>();
+
 			auto& stringType = types[typeidof(GuGuUtf8Str)];
 
 			//:显式地为字符串添加构造函数

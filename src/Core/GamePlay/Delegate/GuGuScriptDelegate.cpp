@@ -43,6 +43,7 @@ namespace GuGu {
 				meta::TypeInfo<std::weak_ptr<GuGuScriptDelegate>>::Register(id, type, false, "3F292B3E-E1C1-445B-A41B-DD4DDFA8FEB9");
 			}
 		}
+        GuGu_LOGD("register delegate type");
 		return true;
 	}
 	static bool registerGuGuGuGuScriptDelegateFields()

@@ -66,6 +66,8 @@ namespace GuGu {
 			(meta::FieldGetter<StaticMeshComponent, std::weak_ptr<GameObject>&, true>::Signature) & StaticMeshComponent::getParentGameObject,
 			(meta::FieldSetter<StaticMeshComponent, std::weak_ptr<GameObject>&, true>::Signature) & StaticMeshComponent::setParentGameObject, {});
 		
+		type.AddMethod("getStaticMeshAsset", &StaticMeshComponent::getStaticMeshAsset, {});
+
 		return true;
 	}
 

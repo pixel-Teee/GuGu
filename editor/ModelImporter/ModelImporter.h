@@ -26,7 +26,7 @@ namespace GuGu {
 
 		void processMesh(aiMesh* mesh, const aiScene* scene, GMeshGeometry& gMeshGeometry);
 
-		void linkMeshGeometryId(aiNode* node);
+		void linkMeshGeometryId(aiNode* node, int32_t parentIndex = -1);
 
 		Assimp::Importer m_importer;
 

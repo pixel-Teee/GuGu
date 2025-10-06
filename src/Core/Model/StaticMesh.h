@@ -63,5 +63,11 @@ namespace GuGu{
 		dm::box3 m_objectSpaceBounds;
 		uint32_t m_totalIndices = 0;
 		uint32_t m_totalVertices = 0;
+
+		bool m_bIsSkeletonMesh = false;
+
+		//runtime info
+		Array<math::float4x4> m_finalBoneMatrices;
+		nvrhi::BufferHandle m_finalBoneMatricesBuffer;
 	};
 }

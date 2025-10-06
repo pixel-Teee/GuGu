@@ -25,6 +25,7 @@ namespace GuGu {
 		dm::box3 m_objectSpaceBounds;
 		uint32_t m_numIndices = 0;
 		uint32_t m_numVertices = 0;
+		int32_t m_parentId = -1;
 		int32_t m_id = -1;
 		Array<int32_t> m_childrens;
 	};

@@ -48,7 +48,7 @@ namespace GuGu {
 
 
 	//------register function------
-	meta::Variant LuaContext::luaToVariant(lua_State * L, int index)
+	meta::Variant LuaContext::luaToVariant(lua_State * L, int index, meta::Type argType)
 	{
 		int type = lua_type(L, index);
 		switch (type)
@@ -58,7 +58,22 @@ namespace GuGu {
 		case LUA_TBOOLEAN:
 			return meta::Variant(lua_toboolean(L, index) != 0);
 		case LUA_TNUMBER:
-			return meta::Variant(lua_tonumber(L, index));
+			if (argType == typeof(int))
+				return meta::Variant(int(lua_tonumber(L, index)));
+			else if (argType == typeof(unsigned int))
+				return meta::Variant((unsigned int)(lua_tonumber(L, index)));
+			else if (argType == typeof(bool))
+				return meta::Variant(bool(lua_tonumber(L, index)));
+			else if (argType == typeof(float))
+				return meta::Variant(float(lua_tonumber(L, index)));
+			else if (argType == typeof(double))
+				return meta::Variant(double(lua_tonumber(L, index)));
+			else if (argType == typeof(uint8_t))
+				return meta::Variant(uint8_t(lua_tonumber(L, index)));
+			else if (argType == typeof(int16_t))
+				return meta::Variant(int16_t(lua_tonumber(L, index)));
+			else if (argType == typeof(uint16_t))
+				return meta::Variant(uint16_t(lua_tonumber(L, index)));
 		case LUA_TSTRING:
 			return meta::Variant(GuGuUtf8Str(lua_tostring(L, index)));
 		case LUA_TUSERDATA:
@@ -154,14 +169,22 @@ namespace GuGu {
 			return lua_error(L);
 		}
 
+		meta::InvokableSignature signature;
+		if (method.GetSignature().size() > 0)
+		{
+			//first
+			signature = method.GetSignature();
+		}
+
 		//收集参数
 		int argc = lua_gettop(L) - 1;//减去self
 		meta::ArgumentList args;
 		std::vector<meta::Variant> vars;
 		for (int i = 1; i <= argc; ++i)
 		{
-			meta::Variant var = LuaContext::luaToVariant(L, i + 1);
-			
+			meta::Type argType = signature[i - 1];
+			meta::Variant var = LuaContext::luaToVariant(L, i + 1, argType);
+
 			//check args is meta object
 			if (var.GetType().CheckIsDerivedFromMetaObject())
 			{
@@ -194,7 +217,7 @@ namespace GuGu {
 		meta::ArgumentList args;
 		for (int i = 1; i <= argc; ++i)
 		{
-			meta::Variant arg = LuaContext::luaToVariant(L, i + 1);
+			meta::Variant arg = LuaContext::luaToVariant(L, i + 1, arg.GetType());
 			args.push_back(arg);
 			types.push_back(arg.GetType());
 		}
@@ -293,8 +316,6 @@ namespace GuGu {
 		//获取字段名
 		const char* key = lua_tostring(L, 2);
 
-		//获取新值
-		meta::Variant value = LuaContext::luaToVariant(L, 3);
 
 		meta::Type type = instance.GetType();
 		if (instance.IsValid() == false)
@@ -308,20 +329,9 @@ namespace GuGu {
 		{
 			if (field.GetName() == key)
 			{
-				if (field.GetType() == typeof(float) && value.GetType() == typeof(double))
-				{
-					meta::Variant newValue = value.ToFloat();
-					field.SetValue(instance, newValue);
-				}
-				else if (field.GetType() == typeof(double) && value.GetType() == typeof(float))
-				{
-					meta::Variant newValue = value.ToDouble();
-					field.SetValue(instance, newValue);
-				}
-				else
-				{
-					field.SetValue(instance, value);
-				}
+				//获取新值
+				meta::Variant value = LuaContext::luaToVariant(L, 3, field.GetType());
+				field.SetValue(instance, value);
 				
 				return 0;
 			}

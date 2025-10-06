@@ -80,6 +80,8 @@ namespace GuGu {
 
 		type.AddMethod("loadTexture", &World::loadTexture, {});
 
+		type.AddMethod("loadAnimation", &World::loadAnimation, {});
+
 		type.AddMethod("getTotalTime", &World::getTotalTime, {});
 		return true;
 	}
@@ -214,6 +216,11 @@ namespace GuGu {
 	}
 
 	std::shared_ptr<GuGu::AssetData> World::loadTexture(const GuGuUtf8Str& filePath)
+	{
+		return AssetManager::getAssetManager().loadAssetData(filePath);
+	}
+
+	std::shared_ptr<GuGu::AssetData> World::loadAnimation(const GuGuUtf8Str& filePath)
 	{
 		return AssetManager::getAssetManager().loadAssetData(filePath);
 	}

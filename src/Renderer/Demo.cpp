@@ -1538,6 +1538,18 @@ namespace GuGu {
 			m_Pipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
+		if (!m_SkinnedPipeline) {
+			nvrhi::GraphicsPipelineDesc psoDesc;
+			psoDesc.VS = m_SkinnedVertexShader;
+			psoDesc.PS = m_PixelShader;
+			psoDesc.inputLayout = m_InputLayout;
+			psoDesc.bindingLayouts = { m_SkinnedBindingLayout };
+			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+			psoDesc.renderState.depthStencilState.depthTestEnable = true;
+			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
+			m_SkinnedPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
+		}
+
 		if (!m_terrainPipeline)
 		{
 			nvrhi::GraphicsPipelineDesc psoDesc;
@@ -1676,6 +1688,16 @@ namespace GuGu {
 				{
 					createVertexBufferAndIndexBuffer(*staticMesh);
 				}
+				if (staticMesh->m_bIsSkeletonMesh && staticMesh->m_finalBoneMatricesBuffer == nullptr)
+				{
+					//create final bone
+					staticMesh->m_finalBoneMatricesBuffer = GetDevice()->createBuffer(
+						nvrhi::utils::CreateStaticConstantBufferDesc(
+							sizeof(math::float4x4) * 256, "BoneMatrices")
+						.setInitialState(
+							nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
+								true));
+				}
 				if (materialComponent->m_bufferHandle == nullptr)
 				{
 					materialComponent->m_bufferHandle = GetDevice()->createBuffer(
@@ -1696,6 +1718,12 @@ namespace GuGu {
 					m_textureCache.FinalizeTexture(materialComponent->getAlbedoTexture(), m_commonRenderPass.get(), m_CommandList);
 				}
 
+				if (staticMesh->m_bIsSkeletonMesh)
+				{
+					//write bone matrices
+					m_CommandList->writeBuffer(staticMesh->m_finalBoneMatricesBuffer, staticMesh->m_finalBoneMatrices.data(), sizeof(math::float4x4) * staticMesh->m_finalBoneMatrices.size());
+				}
+
 				const math::affine3& worldMatrix = transformComponent->GetLocalToWorldTransformFloat();
 
 				DrawItem drawItem;
@@ -1706,7 +1734,8 @@ namespace GuGu {
 				drawItem.m_worldMatrix = m_ConstantBuffers[i];
 				drawItem.m_pbrMaterial = materialComponent->m_bufferHandle;
 				drawItem.m_albedoTexture = materialComponent->getAlbedoTexture()->m_texture;
-				drawItem.m_isSkinned = false;
+				drawItem.m_isSkinned = staticMesh.get()->m_bIsSkeletonMesh;
+				drawItem.m_skinnedMatrix = staticMesh->m_finalBoneMatricesBuffer;//final bone
 				m_drawItems.push_back(drawItem);
 
 				//get the world matrix
@@ -2209,6 +2238,18 @@ namespace GuGu {
 			m_Pipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
+		if (!m_SkinnedPipeline) {
+			nvrhi::GraphicsPipelineDesc psoDesc;
+			psoDesc.VS = m_SkinnedVertexShader;
+			psoDesc.PS = m_PixelShader;
+			psoDesc.inputLayout = m_InputLayout;
+			psoDesc.bindingLayouts = { m_SkinnedBindingLayout };
+			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+			psoDesc.renderState.depthStencilState.depthTestEnable = true;
+			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
+			m_SkinnedPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
+		}
+
 		if (!m_gizmosPipeline)
 		{
 			nvrhi::GraphicsPipelineDesc psoDesc;
@@ -2407,6 +2448,16 @@ namespace GuGu {
 			{
 				createVertexBufferAndIndexBuffer(*staticMesh);
 			}
+			if (staticMesh->m_bIsSkeletonMesh && staticMesh->m_finalBoneMatricesBuffer == nullptr)
+			{
+				//create final bone
+				staticMesh->m_finalBoneMatricesBuffer = GetDevice()->createBuffer(
+					nvrhi::utils::CreateStaticConstantBufferDesc(
+					sizeof(math::float4x4) * 256, "BoneMatrices")
+					.setInitialState(
+					nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
+					true));
+			}
 			if (materialComponent->m_bufferHandle == nullptr)
 			{
 				materialComponent->m_bufferHandle = GetDevice()->createBuffer(
@@ -2426,6 +2477,12 @@ namespace GuGu {
 			{
 				m_textureCache.FinalizeTexture(materialComponent->getAlbedoTexture(), m_commonRenderPass.get(), m_CommandList);
 			}
+
+			if (staticMesh->m_bIsSkeletonMesh)
+			{
+				//write bone matrices
+				m_CommandList->writeBuffer(staticMesh->m_finalBoneMatricesBuffer, staticMesh->m_finalBoneMatrices.data(), sizeof(math::float4x4) * staticMesh->m_finalBoneMatrices.size());
+			}
 			
 			const math::affine3& worldMatrix = transformComponent->GetLocalToWorldTransformFloat();
 
@@ -2437,7 +2494,8 @@ namespace GuGu {
 			drawItem.m_worldMatrix = m_ConstantBuffers[i];
 			drawItem.m_pbrMaterial = materialComponent->m_bufferHandle;
 			drawItem.m_albedoTexture = materialComponent->getAlbedoTexture()->m_texture;
-			drawItem.m_isSkinned = false;
+			drawItem.m_isSkinned = staticMesh.get()->m_bIsSkeletonMesh;
+			drawItem.m_skinnedMatrix = staticMesh->m_finalBoneMatricesBuffer;//final bone
 			m_drawItems.push_back(drawItem);
 
 			//get the world matrix

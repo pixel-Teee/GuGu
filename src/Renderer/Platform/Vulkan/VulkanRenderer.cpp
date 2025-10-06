@@ -45,13 +45,13 @@ namespace GuGu{
         GuGu::nvrhi::GraphicsAPI api = GuGu::nvrhi::GraphicsAPI::VULKAN;
         m_deviceManager = GuGu::DeviceManager::Create(api);
         GuGu::DeviceCreationParameters deviceParams;
-#ifdef ANDROID
-        deviceParams.vsyncEnabled = true;
-#endif
 #ifdef _DEBUG
         deviceParams.enableDebugRuntime = false;
         deviceParams.enableNvrhiValidationLayer = false;
         deviceParams.vsyncEnabled = false;
+#endif
+#ifdef ANDROID
+		deviceParams.vsyncEnabled = true;
 #endif
 #ifdef ANDROID //android无法开启debug runtime
         deviceParams.enableDebugRuntime = false;

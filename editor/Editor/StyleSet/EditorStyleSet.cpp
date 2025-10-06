@@ -221,10 +221,12 @@ namespace GuGu {
 		ADD_IMAGE(ImportModel_Icon)
 		ADD_IMAGE(ImportTexture_Icon)
 		ADD_IMAGE(ImportFont_Icon)
+		ADD_IMAGE(ImportAnimation_Icon)
 		ADD_IMAGE(MeshAssetIcon)
 		ADD_IMAGE(LevelIcon)
 		ADD_IMAGE(TextureAssetIcon)
 		ADD_IMAGE(FontAssetIcon)
+		ADD_IMAGE(AnimationAssetIcon)
 
 		ADD_IMAGE(Start_Normal)
 		ADD_IMAGE(Start_Hover)

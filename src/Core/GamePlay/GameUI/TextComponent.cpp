@@ -40,9 +40,6 @@ namespace GuGu {
 			meta::TypeInfo<std::weak_ptr<TextComponent>>::Register(id, type, false, "09089768-C7A5-43F7-9600-6473A149D5D0");
 		}
 
-		//method
-		type.AddMethod("setText", &TextComponent::setText, {});
-
 		return true;
 	}
 
@@ -75,6 +72,9 @@ namespace GuGu {
 		type.AddField<TextComponent, math::float2>("m_alignment",
 			(meta::FieldGetter<TextComponent, math::float2&, true>::Signature) & TextComponent::getAlignment,
 			(meta::FieldSetter<TextComponent, math::float2, true>::Signature) & TextComponent::setAlignment, {});
+
+		//method
+		type.AddMethod("setText", &TextComponent::setText, {});
 
 		return true;
 	}

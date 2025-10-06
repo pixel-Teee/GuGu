@@ -8,7 +8,7 @@ cbuffer CB : register(b0)
 #ifdef SKINNED
 cbuffer cbSkinned : register(b1)
 {
-    float4x4 g_BoneTransform[96];
+    float4x4 g_BoneTransform[256];
 };
 #endif
 cbuffer cbPbr : register(b2)

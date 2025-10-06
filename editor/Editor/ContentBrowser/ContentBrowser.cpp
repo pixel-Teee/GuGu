@@ -15,7 +15,7 @@
 
 #include <ModelImporter/ModelImporter.h>
 #include <TextureImporter/TextureImporter.h>
-
+#include <Core/Animation/GAnimation.h>
 #include <Core/Guid.h>
 
 #include <Core/GamePlay/GameUI/GFont.h>
@@ -105,6 +105,7 @@ namespace GuGu {
 		GuGuUtf8Str sourcesData = m_assetView->getSourcesData();//当前所处于的文件夹
 
 		std::shared_ptr<Button> importModelButton;
+		std::shared_ptr<Button> importSkeletonButton;
 		std::shared_ptr<Button> importTextureButton;
 		std::shared_ptr<Button> importFontFileButton;
 		std::shared_ptr<Button> importAnimationFileButton;
@@ -216,6 +217,30 @@ namespace GuGu {
 						)
 					)
 				)
+				+ VerticalBox::Slot()
+				.FixedHeight()
+				(
+					WIDGET_ASSIGN_NEW(Button, importSkeletonButton)
+					.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+					.Content
+					(
+						WIDGET_NEW(HorizontalBox)
+						+ HorizontalBox::Slot()
+						.FixedWidth()
+						(
+							WIDGET_NEW(ImageWidget)
+							.brush(EditorStyleSet::getStyleSet()->getBrush("ImportModel_Icon"))
+						)
+						+ HorizontalBox::Slot()
+						.setPadding(Padding(5.0f, 0.0f, 5.0f, 0.0f))
+						.FixedWidth()
+						(
+							WIDGET_NEW(TextBlockWidget)
+							.text(u8"Import Skeleton Model")
+							.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+						)	
+					)
+				)
 			)
 		);
 		importModelButton->setOnClicked(
@@ -226,6 +251,8 @@ namespace GuGu {
 				filterArray.push_back("*.fbx\0");
 				filterArray.push_back("OBJ(*.obj)\0");
 				filterArray.push_back("*.obj\0");
+				filterArray.push_back("DAE(*.dae)\0");
+				filterArray.push_back("*.dae\0");
 				initDir = sourcesData.substr(initDir.findFirstOf("/"));
 				initDir = AssetManager::getAssetManager().getActualPhysicalPath(initDir);
 				GuGuUtf8Str fileName;
@@ -376,12 +403,61 @@ namespace GuGu {
 
 				if (fileName != "")
 				{
-					//import model
+					//import anim
 					ModelImporter modelImporter;
 					nlohmann::json animationJson = modelImporter.loadAnimation(filePath);
 					GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
 					animationJson["GUID"] = guidStr.getStr();
 					GuGuUtf8Str fileContent = animationJson.dump();
+
+					GuGuUtf8Str noFileExtensionsFileName = fileName;
+					int32_t dotPos = noFileExtensionsFileName.findLastOf(".");
+					if (dotPos != -1)
+					{
+						noFileExtensionsFileName = noFileExtensionsFileName.substr(0, dotPos);
+					}
+
+					//GuGuUtf8Str registerFilePath = filePath;
+					//dotPos = filePath.findLastOf(".");
+					//if (dotPos != -1)
+					//{
+					//	registerFilePath = filePath.substr(0, dotPos);
+					//}					
+					GuGuUtf8Str outputFilePath = sourcesData + "/" + noFileExtensionsFileName + "_anim" + ".json";
+
+					AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + "_anim" + ".json", meta::Type(meta::TypeIDs<GAnimation>().ID));
+					//输出到目录
+					AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
+					AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
+					AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
+				}
+				return Reply::Handled();
+		}));
+
+		importSkeletonButton->setOnClicked(
+			OnClicked([=]() {
+				GuGuUtf8Str initDir = sourcesData + "/";
+				std::vector<GuGuUtf8Str> filterArray;
+				filterArray.push_back("FBX(*.fbx)\0");
+				filterArray.push_back("*.fbx\0");
+				filterArray.push_back("OBJ(*.obj)\0");
+				filterArray.push_back("*.obj\0");
+				filterArray.push_back("DAE(*.dae)\0");
+				filterArray.push_back("*.dae\0");
+				initDir = sourcesData.substr(initDir.findFirstOf("/"));
+				initDir = AssetManager::getAssetManager().getActualPhysicalPath(initDir);
+				GuGuUtf8Str fileName;
+				GuGuUtf8Str filePath;
+				PlatformMisc::getOpenFilePathAndFileName(m_parentWindow, initDir, filePath, fileName, filterArray);
+
+				if (fileName != "")
+				{
+					//import model
+					ModelImporter modelImporter;
+					nlohmann::json modelJson = modelImporter.loadModel(filePath, true);//load skeleton
+					GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
+					modelJson["GUID"] = guidStr.getStr();
+					GuGuUtf8Str fileContent = modelJson.dump();
 
 					GuGuUtf8Str noFileExtensionsFileName = fileName;
 					int32_t dotPos = noFileExtensionsFileName.findLastOf(".");
