@@ -91,6 +91,7 @@ namespace GuGu {
 	{
 		SpriteComponent* spriteComponent = new SpriteComponent();
 		spriteComponent->m_texture = m_texture;
+		spriteComponent->m_color = m_color;
 		return spriteComponent;
 	}
 
