@@ -43,7 +43,9 @@ file(GLOB SourceFile "main.cpp"
 "gltf/*.cpp"
 "pch.h"
 "Core/LuaContext/*.h"
-"Core/LuaContext/*.cpp")
+"Core/LuaContext/*.cpp"
+"Core/GamePlay/2D/*.h"
+"Core/GamePlay/2D/*.cpp")
 
 if(WIN32)
     message("[message]:this platform is windows!")
