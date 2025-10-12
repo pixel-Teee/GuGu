@@ -377,7 +377,7 @@ namespace GuGu {
 		m_rootFileSystem->mount("asset", nativeFileSystem);
 
 		writeTheme("defaultTheme", defaultTheme);
-		loadTheme("purple2Theme");
+		loadTheme("green2Theme");
 	}
 	EditorStyleSet::~EditorStyleSet()
 	{
