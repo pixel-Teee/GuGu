@@ -57,5 +57,8 @@ namespace GuGu {
 		EnumAsByte<BrushDrawType::Type> m_drawAs;
 		BrushOutlineSettings m_outlineSettings;
 		math::float4 m_tintColor;
+		GuGuUtf8Str m_tintColorStr;
+
+		math::float4 getTintColor();
 	};
 }

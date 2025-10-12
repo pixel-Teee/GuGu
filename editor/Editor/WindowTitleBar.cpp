@@ -23,8 +23,8 @@ namespace GuGu {
 
 		//blue gradient background
 		std::vector<math::float4> blueGradientBackground;
-		blueGradientBackground.push_back(EditorStyleSet::getStyleSet()->getColor("lightBlueLevel1"));
-		blueGradientBackground.push_back(EditorStyleSet::getStyleSet()->getColor("lightBlueLevel2"));
+		blueGradientBackground.push_back(EditorStyleSet::getStyleSet()->getColor("LightColorLevel1"));
+		blueGradientBackground.push_back(EditorStyleSet::getStyleSet()->getColor("LightColorLevel2"));
 
 
 		std::shared_ptr<Button> closeButton;

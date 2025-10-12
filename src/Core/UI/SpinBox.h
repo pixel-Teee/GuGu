@@ -176,7 +176,7 @@ namespace GuGu {
 			ArrangedWidgetArray arrangedWidgetArray(Visibility::Visible);
 			AllocationChildActualSpace(allocatedGeometry, arrangedWidgetArray);
 
-			ElementList::addBoxElement(elementList, allocatedGeometry, m_spinBoxStyle->m_backgroundBrsuh->m_tintColor, m_spinBoxStyle->m_backgroundBrsuh, layer + 1); //background			
+			ElementList::addBoxElement(elementList, allocatedGeometry, m_spinBoxStyle->m_backgroundBrsuh->getTintColor(), m_spinBoxStyle->m_backgroundBrsuh, layer + 1); //background			
 
 			uint32_t widgetNumbers = arrangedWidgetArray.getArrangedWidgetsNumber();//note:just one
 			//math::double2 size = math::double2(0.0, 0.0);

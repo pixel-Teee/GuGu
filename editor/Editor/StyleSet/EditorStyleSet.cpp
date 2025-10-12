@@ -4,6 +4,8 @@
 
 #include <Core/UI/StyleSetCenter.h>
 #include <Core/UI/Brush.h>
+#include <Application/Application.h>
+#include <Core/FileSystem/FileSystem.h>
 
 namespace GuGu {
 #define ADD_COLOR(color) m_colors.insert({#color, color})
@@ -16,6 +18,7 @@ namespace GuGu {
 	EditorStyleSet::EditorStyleSet()
 	{
 		//register editor style set
+		Theme defaultTheme;
 
 		//blue color series
 		math::float4 white = math::float4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -27,13 +30,20 @@ namespace GuGu {
 		math::float4 blueLevel6 = math::float4(0.18f, 0.31f, 0.56f, 1.0f);
 		math::float4 blueLevel7 = math::float4(0.09f, 0.16f, 0.28f, 1.0f);
 		math::float4 black = math::float4(0.0f, 0.0f, 0.0f, 0.0f);
-		ADD_COLOR(blueLevel1);
-		ADD_COLOR(blueLevel2);
-		ADD_COLOR(blueLevel3);
-		ADD_COLOR(blueLevel4);
-		ADD_COLOR(blueLevel5);
-		ADD_COLOR(blueLevel6);
-		ADD_COLOR(blueLevel7);
+		defaultTheme.m_colors[ColorLevel1] = blueLevel1;
+		defaultTheme.m_colors[ColorLevel2] = blueLevel2;
+		defaultTheme.m_colors[ColorLevel3] = blueLevel3;
+		defaultTheme.m_colors[ColorLevel4] = blueLevel4; 
+		defaultTheme.m_colors[ColorLevel5] = blueLevel5;
+		defaultTheme.m_colors[ColorLevel6] = blueLevel6;
+		defaultTheme.m_colors[ColorLevel7] = blueLevel7;
+		//ADD_COLOR(blueLevel1);
+		//ADD_COLOR(blueLevel2);
+		//ADD_COLOR(blueLevel3);
+		//ADD_COLOR(blueLevel4);
+		//ADD_COLOR(blueLevel5);
+		//ADD_COLOR(blueLevel6);
+		//ADD_COLOR(blueLevel7);
 		ADD_COLOR(white);
 		ADD_COLOR(black);
 
@@ -47,29 +57,49 @@ namespace GuGu {
 		math::float4 beige7 = math::float4(0.65f, 0.56f, 0.45f, 1.0f);
 		math::float4 beige8 = math::float4(0.38f, 0.32f, 0.25f, 1.0f);
 		math::float4 beige9 = math::float4(0.19f, 0.16f, 0.13f, 1.0f);
-		ADD_COLOR(beige1);
-		ADD_COLOR(beige2);
-		ADD_COLOR(beige3);
-		ADD_COLOR(beige4);
-		ADD_COLOR(beige5);
-		ADD_COLOR(beige6);
-		ADD_COLOR(beige7);
-		ADD_COLOR(beige8);
-		ADD_COLOR(beige9);
+		defaultTheme.m_colors[SecondaryColorLevel1] = beige1;
+		defaultTheme.m_colors[SecondaryColorLevel2] = beige2;
+		defaultTheme.m_colors[SecondaryColorLevel3] = beige3;
+		defaultTheme.m_colors[SecondaryColorLevel4] = beige4;
+		defaultTheme.m_colors[SecondaryColorLevel5] = beige5;
+		defaultTheme.m_colors[SecondaryColorLevel6] = beige6;
+		defaultTheme.m_colors[SecondaryColorLevel7] = beige7;
+		defaultTheme.m_colors[SecondaryColorLevel8] = beige8;
+		defaultTheme.m_colors[SecondaryColorLevel9] = beige9;
+		//ADD_COLOR(beige1);
+		//ADD_COLOR(beige2);
+		//ADD_COLOR(beige3);
+		//ADD_COLOR(beige4);
+		//ADD_COLOR(beige5);
+		//ADD_COLOR(beige6);
+		//ADD_COLOR(beige7);
+		//ADD_COLOR(beige8);
+		//ADD_COLOR(beige9);
+
+		defaultTheme.m_colors[WhiteColor] = white;
 
 		//gray color
 		math::float4 grayColor = math::float4(0.33f, 0.33f, 0.35f, 1.0f);
-		ADD_COLOR(grayColor);
+		//ADD_COLOR(grayColor);
 
 		//gray highlight color
 		math::float4 grayHightlightColor = math::float4(0.24f, 0.24f, 0.24f, 1.0f);
-		ADD_COLOR(grayHightlightColor);
+		//ADD_COLOR(grayHightlightColor);
+
+		defaultTheme.m_colors[GrayColor] = grayColor;
+		defaultTheme.m_colors[GrayHighLightColor] = grayHightlightColor;
 
 		//light blue color series
-		math::float4 lightBlueLevel1 = math::float4(0.520f, 0.80f, 0.89f, 1.0f);//(132, 204, 226)
-		math::float4 lightBlueLevel2 = math::float4(0.42f, 0.65f, 0.83f, 1.0f);//(107, 165, 211)
-		ADD_COLOR(lightBlueLevel1);
-		ADD_COLOR(lightBlueLevel2);
+		math::float4 lightBlueColorLevel1 = math::float4(0.520f, 0.80f, 0.89f, 1.0f);//(132, 204, 226)
+		math::float4 lightBlueColorLevel2 = math::float4(0.42f, 0.65f, 0.83f, 1.0f);//(107, 165, 211)
+		//ADD_COLOR(LightColorLevel1);
+		//ADD_COLOR(LightColorLevel2);
+
+		defaultTheme.m_colors[LightColorLevel1] = lightBlueColorLevel1;
+		defaultTheme.m_colors[LightColorLevel2] = lightBlueColorLevel2;
+
+		//m_currentTheme = "defaultTheme";
+		//m_themes.insert({ "defaultTheme", defaultTheme });
 
 		//no appearance
 		std::shared_ptr<Brush> noResource = std::make_shared<Brush>();
@@ -107,7 +137,7 @@ namespace GuGu {
 			std::shared_ptr<Brush> normalBlueColor = std::make_shared<Brush>();
 			normalBlueColor->m_tiling = true; //rounded box 需要 (0.0f, 1.0f) 的 uv
 			normalBlueColor->m_texturePath = u8"asset/white.png";
-			normalBlueColor->m_tintColor = lightBlueLevel1;
+			normalBlueColor->m_tintColorStr = Theme::ThemeKeysToStr(ColorLevel1);
 			normalBlueColor->m_drawAs = BrushDrawType::Type::RoundedBox;
 			//corner radius
 			//outline color
@@ -117,14 +147,14 @@ namespace GuGu {
 			std::shared_ptr<Brush> normalHoveredColor = std::make_shared<Brush>();
 			normalHoveredColor->m_tiling = true;
 			normalHoveredColor->m_texturePath = u8"asset/white.png";
-			normalHoveredColor->m_tintColor = blueLevel3;
+			normalHoveredColor->m_tintColorStr = Theme::ThemeKeysToStr(ColorLevel3);
 			normalHoveredColor->m_drawAs = BrushDrawType::Type::RoundedBox;
 			normalHoveredColor->m_outlineSettings = BrushOutlineSettings(math::float4(4.4f, 4.4f, 4.4f, 4.4f), math::float4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f);
 			m_brushes.insert({ u8"normalHoveredColor", normalHoveredColor });
 			std::shared_ptr<Brush> normalPressedColor = std::make_shared<Brush>();
 			normalPressedColor->m_tiling = true;
 			normalPressedColor->m_texturePath = u8"asset/white.png";
-			normalPressedColor->m_tintColor = blueLevel6;
+			normalPressedColor->m_tintColorStr = Theme::ThemeKeysToStr(ColorLevel6);
 			normalPressedColor->m_drawAs = BrushDrawType::Type::RoundedBox;
 			normalPressedColor->m_outlineSettings = BrushOutlineSettings(math::float4(4.4f, 4.4f, 4.4f, 4.4f), math::float4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f);
 			m_brushes.insert({ u8"normalPressedColor", normalPressedColor });
@@ -149,7 +179,7 @@ namespace GuGu {
 			std::shared_ptr<Brush> activeBrush = std::make_shared<Brush>();
 			activeBrush->m_tiling = false;
 			activeBrush->m_texturePath = u8"asset/white.png";
-			activeBrush->m_tintColor = beige8;
+			activeBrush->m_tintColorStr = Theme::ThemeKeysToStr(SecondaryColorLevel8);
 			activeBrush->m_drawAs = BrushDrawType::Type::Image;
 			
 			tableRowStyle->setActiveBrush(activeBrush); //选中，并且有键盘焦点
@@ -160,13 +190,13 @@ namespace GuGu {
 			std::shared_ptr<Brush> evenRowBackgroundBrush = std::make_shared<Brush>();
 			evenRowBackgroundBrush->m_tiling = false;
 			evenRowBackgroundBrush->m_texturePath = u8"asset/white.png";
-			evenRowBackgroundBrush->m_tintColor = beige4;
+			evenRowBackgroundBrush->m_tintColorStr = Theme::ThemeKeysToStr(SecondaryColorLevel4);
 			evenRowBackgroundBrush->m_drawAs = BrushDrawType::Type::Image;
 
 			std::shared_ptr<Brush> oddRowBackgroundBrush = std::make_shared<Brush>();
 			oddRowBackgroundBrush->m_tiling = false;
 			oddRowBackgroundBrush->m_texturePath = u8"asset/white.png";
-			oddRowBackgroundBrush->m_tintColor = beige7;
+			oddRowBackgroundBrush->m_tintColorStr = Theme::ThemeKeysToStr(SecondaryColorLevel7);
 			oddRowBackgroundBrush->m_drawAs = BrushDrawType::Type::Image;
 
 			tableRowStyle->setEvenRowBackgroundBrush(evenRowBackgroundBrush);
@@ -175,7 +205,7 @@ namespace GuGu {
 			tableRowStyle->setOddRowBackgroundBrush(oddRowBackgroundBrush);
 			tableRowStyle->setOddRowBackgroundHoveredBrush(oddRowBackgroundBrush);
 
-			m_styles.insert({ u8"tablerow.beige", tableRowStyle });
+			m_styles.insert({ u8"tablerow.editor", tableRowStyle });
 		}
 		{
 			//asset view table row
@@ -183,13 +213,13 @@ namespace GuGu {
 			std::shared_ptr<Brush> activeBrush = std::make_shared<Brush>();
 			activeBrush->m_tiling = false;
 			activeBrush->m_texturePath = u8"asset/white.png";
-			activeBrush->m_tintColor = beige8;
+			activeBrush->m_tintColorStr = Theme::ThemeKeysToStr(SecondaryColorLevel8);
 			activeBrush->m_drawAs = BrushDrawType::Type::Image;
 
 			std::shared_ptr<Brush> hoverBrush = std::make_shared<Brush>();
 			hoverBrush->m_tiling = false;
 			hoverBrush->m_texturePath = u8"asset/white.png";
-			hoverBrush->m_tintColor = beige6;
+			hoverBrush->m_tintColorStr = Theme::ThemeKeysToStr(SecondaryColorLevel6);
 			hoverBrush->m_drawAs = BrushDrawType::Type::Image;
 
 			tableRowStyle->setActiveBrush(activeBrush); //选中，并且有键盘焦点
@@ -200,13 +230,13 @@ namespace GuGu {
 			std::shared_ptr<Brush> evenRowBackgroundBrush = std::make_shared<Brush>();
 			evenRowBackgroundBrush->m_tiling = false;
 			evenRowBackgroundBrush->m_texturePath = u8"asset/white.png";
-			evenRowBackgroundBrush->m_tintColor = beige4;
+			evenRowBackgroundBrush->m_tintColorStr = Theme::ThemeKeysToStr(SecondaryColorLevel4);
 			evenRowBackgroundBrush->m_drawAs = BrushDrawType::Type::Image;
 
 			std::shared_ptr<Brush> oddRowBackgroundBrush = std::make_shared<Brush>();
 			oddRowBackgroundBrush->m_tiling = false;
 			oddRowBackgroundBrush->m_texturePath = u8"asset/white.png";
-			oddRowBackgroundBrush->m_tintColor = beige4;
+			oddRowBackgroundBrush->m_tintColorStr = Theme::ThemeKeysToStr(SecondaryColorLevel4);
 			oddRowBackgroundBrush->m_drawAs = BrushDrawType::Type::Image;
 
 			tableRowStyle->setEvenRowBackgroundBrush(evenRowBackgroundBrush);
@@ -249,7 +279,7 @@ namespace GuGu {
 			std::shared_ptr<Brush> normalColumnBrush = std::make_shared<Brush>();
 			normalColumnBrush->m_tiling = false;
 			normalColumnBrush->m_texturePath = u8"asset/white.png";
-			normalColumnBrush->m_tintColor = beige3;
+			normalColumnBrush->m_tintColorStr = Theme::ThemeKeysToStr(SecondaryColorLevel3);
 			normalColumnBrush->m_drawAs = BrushDrawType::Type::Image;
 			columnStyle->setNormalBrush(normalColumnBrush);
 			columnStyle->setHoveredBrush(normalColumnBrush);
@@ -267,13 +297,13 @@ namespace GuGu {
 			std::shared_ptr<Brush> normalBrush = std::make_shared<Brush>();
 			normalBrush->m_tiling = false;
 			normalBrush->m_texturePath = u8"asset/white.png";
-			normalBrush->m_tintColor = beige8;
+			normalBrush->m_tintColorStr = Theme::ThemeKeysToStr(SecondaryColorLevel8);
 			normalBrush->m_drawAs = BrushDrawType::Type::Image;
 
 			std::shared_ptr<Brush> highlightBrush = std::make_shared<Brush>();
 			normalBrush->m_tiling = false;
 			normalBrush->m_texturePath = u8"asset/white.png";
-			normalBrush->m_tintColor = beige5;
+			normalBrush->m_tintColorStr = Theme::ThemeKeysToStr(SecondaryColorLevel5);
 			normalBrush->m_drawAs = BrushDrawType::Type::Image;
 
 			splitterStyle->setHandleNormalBrush(normalBrush);
@@ -315,7 +345,7 @@ namespace GuGu {
 			std::shared_ptr<Brush> anchorGridBrush = std::make_shared<Brush>();
 			anchorGridBrush->m_tiling = true;
 			anchorGridBrush->m_texturePath = u8"asset/EditorAsset/anchorGrid.png";
-			anchorGridBrush->m_tintColor = math::float4(1.0f, 1.0f, 1.0f, 0.4f);
+			anchorGridBrush->m_tintColorStr = Theme::ThemeKeysToStr(GrayColor);
 			//anchorGridBrush->m_drawAs = BrushDrawType::Type::Image;
 			m_brushes.insert({ u8"anchorGrid" , anchorGridBrush });
 
@@ -323,11 +353,31 @@ namespace GuGu {
 			std::shared_ptr<Brush> anchorWidgetBrush = std::make_shared<Brush>();
 			anchorWidgetBrush->m_tiling = false;
 			anchorWidgetBrush->m_texturePath = u8"asset/EditorAsset/anchorWidget.png";
-			anchorWidgetBrush->m_tintColor = math::float4(1.0f, 1.0f, 1.0f, 1.0f);
+			anchorWidgetBrush->m_tintColorStr = Theme::ThemeKeysToStr(GrayColor);
 			anchorWidgetBrush->m_drawAs = BrushDrawType::Type::Box;
 			anchorWidgetBrush->m_margin = Padding(0.4f);
 			m_brushes.insert({ u8"anchorWidget" , anchorWidgetBrush });
 		}
+
+		//get current theme and replace color
+		//if (m_themes.find(m_currentTheme) != m_themes.end())
+		//{
+		//	Theme loadedTheme = m_themes.find(m_currentTheme)->second;
+		//
+		//	for (int32_t i = 0; i < loadedTheme.m_colors.size(); ++i)
+		//	{
+		//		m_colors.insert({ Theme::ThemeKeysToStr(static_cast<ThemeKeys>(i)), loadedTheme.m_colors[i] });
+		//	}
+		//}
+
+		GuGuUtf8Str assetPath = Application::GetDirectoryWithExecutable();
+
+		std::shared_ptr<NativeFileSystem> nativeFileSystem = std::make_shared<NativeFileSystem>(assetPath);
+		m_rootFileSystem = std::make_shared<RootFileSystem>();
+		m_rootFileSystem->mount("asset", nativeFileSystem);
+
+		writeTheme("defaultTheme", defaultTheme);
+		loadTheme("green2Theme");
 	}
 	EditorStyleSet::~EditorStyleSet()
 	{
@@ -337,4 +387,71 @@ namespace GuGu {
 		static std::shared_ptr<StyleSet> editorStyleSet = StyleSetCenter::GetStyle("EditorStyleSet");
 		return editorStyleSet;
 	}
+
+	void EditorStyleSet::loadTheme(const GuGuUtf8Str& themeName)
+	{
+		m_currentTheme = themeName;
+		//get current theme and replace color
+		if (m_themes.find(m_currentTheme) != m_themes.end())
+		{
+			Theme loadedTheme = m_themes.find(m_currentTheme)->second;
+
+			for (int32_t i = 0; i < loadedTheme.m_colors.size(); ++i)
+			{
+				m_colors.insert({ Theme::ThemeKeysToStr(static_cast<ThemeKeys>(i)), loadedTheme.m_colors[i] });
+			}
+		}
+		else
+		{
+			//from disk to load theme
+			std::vector<uint8_t> fileContent;
+			m_rootFileSystem->OpenFile("asset/Themes/" + themeName + ".json", GuGuFile::FileMode::OnlyRead);
+			int32_t fileLength = m_rootFileSystem->getFileSize();
+			fileContent.resize(fileLength);
+			int32_t haveReadedLength = 0;
+			m_rootFileSystem->ReadFile(fileContent.data(), fileLength, haveReadedLength);
+			m_rootFileSystem->CloseFile();
+
+			Theme newTheme;
+			nlohmann::json themeJson = nlohmann::json::parse(fileContent);
+			for (auto& element : themeJson.items())
+			{
+				GuGuUtf8Str keyStr = element.key();
+				ThemeKeys key = Theme::StrToThemeKeys(keyStr);
+				math::float4 color;
+				color.x = static_cast<float>(element.value()["r"]) / 256;
+				color.y = static_cast<float>(element.value()["g"]) / 256;
+				color.z = static_cast<float>(element.value()["b"]) / 256;
+				color.w = static_cast<float>(element.value()["a"]) / 256;
+				newTheme.m_colors[key] = color;
+			}
+
+			m_themes.insert({ themeName, newTheme });
+
+			for (int32_t i = 0; i < newTheme.m_colors.size(); ++i)
+			{
+				m_colors.insert({ Theme::ThemeKeysToStr(static_cast<ThemeKeys>(i)), newTheme.m_colors[i] });
+			}
+		}
+	}
+
+	void EditorStyleSet::writeTheme(const GuGuUtf8Str& themeName, Theme theme)
+	{
+		nlohmann::json themeJson = nlohmann::json();
+		for (int32_t i = 0; i < theme.m_colors.size(); ++i)
+		{
+			GuGuUtf8Str keyStr = Theme::ThemeKeysToStr(static_cast<ThemeKeys>(i));
+			nlohmann::json writedColorJson;
+			writedColorJson["r"] = (int32_t)(theme.m_colors[i].x * 256);
+			writedColorJson["g"] = (int32_t)(theme.m_colors[i].y * 256);
+			writedColorJson["b"] = (int32_t)(theme.m_colors[i].z * 256);
+			writedColorJson["a"] = (int32_t)(theme.m_colors[i].w * 256);
+			themeJson[keyStr.getStr()] = writedColorJson;
+		}
+		GuGuUtf8Str jsonContent = themeJson.dump();
+		m_rootFileSystem->OpenFile("asset/Themes/" + themeName + ".json", GuGuFile::FileMode::OnlyWrite);
+		m_rootFileSystem->WriteFile((void*)jsonContent.getStr(), jsonContent.getTotalByteCount());
+		m_rootFileSystem->CloseFile();
+	}
+
 }

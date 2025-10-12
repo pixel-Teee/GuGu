@@ -174,7 +174,7 @@ namespace GuGu {
 			{
 				ElementList::addBoxElement(elementList, 
 					geometryAfterSplitter.getChildGeometry(handleSize, handlePosition),
-					m_style->m_handleNormalBrush->m_tintColor, 
+					m_style->m_handleNormalBrush->getTintColor(),
 					m_style->m_handleNormalBrush,
 					maxLayerId);
 			}
@@ -182,7 +182,7 @@ namespace GuGu {
 			{
 				ElementList::addBoxElement(elementList,
 					geometryAfterSplitter.getChildGeometry(handleSize, handlePosition),
-					m_style->m_handleHighlightBrush->m_tintColor,
+					m_style->m_handleHighlightBrush->getTintColor(),
 					m_style->m_handleHighlightBrush,
 					maxLayerId);
 			}

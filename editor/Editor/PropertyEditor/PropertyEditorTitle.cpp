@@ -14,7 +14,7 @@ namespace GuGu {
 		std::shared_ptr<TextBlockWidget> nameTextBlock;
 		nameTextBlock = WIDGET_NEW(TextBlockWidget)
 						.text(inPropertyEditor->getDisplayName())
-						.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"));
+						.textColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9"));
 
 		m_childWidget = std::make_shared<SingleChildSlot>();
 		m_childWidget->m_parentWidget = shared_from_this();

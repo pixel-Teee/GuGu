@@ -32,7 +32,7 @@ namespace GuGu {
 		.Content
 		(
 			WIDGET_NEW(Border)
-			.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("beige4"))
+			.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel4"))
 			.Content
 			(
 				m_treeViewPtr
@@ -89,7 +89,7 @@ namespace GuGu {
 	std::shared_ptr<ITableRow> PathView::generateTreeRow(std::shared_ptr<TreeItem> treeItem, const std::shared_ptr<TableViewBase>& ownerTable)
 	{
 		return WIDGET_NEW(TableRow<std::shared_ptr<TreeItem>>, ownerTable)
-			.Style(EditorStyleSet::getStyleSet()->getStyle<TableRowStyle>(u8"tablerow.beige"))
+			.Style(EditorStyleSet::getStyleSet()->getStyle<TableRowStyle>(u8"tablerow.editor"))
 			.Content
 			(
 				//WIDGET_NEW(TextBlockWidget)

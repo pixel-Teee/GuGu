@@ -861,7 +861,7 @@ namespace GuGu {
 		math::float2 position = topLeft;
 		math::float2 endPosition = bottomRight;
 
-		math::float4 color = boxElement->m_brush->m_tintColor;
+		math::float4 color = boxElement->m_brush->getTintColor();
 
 		boxBatch->m_vertices.emplace_back(math::float4(startUV.x, startUV.y, 0.0f, 0.0f), transform.transformPoint(position), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));
 		boxBatch->m_vertices.emplace_back(math::float4(startUV.x, topMarginV, 0.0f, 0.0f), transform.transformPoint(math::float2(position.x, topMarginY)), color, math::float4(1.0f, 1.0f, 1.0f, 1.0f));

@@ -80,7 +80,7 @@ namespace GuGu {
 
 		TableRow<std::shared_ptr<DetailTreeNode>>::initInternal(
 			TableRow::BuilderArguments()
-			.Style(EditorStyleSet::getStyleSet()->getStyle<TableRowStyle>(u8"tablerow.beige"))
+			.Style(EditorStyleSet::getStyleSet()->getStyle<TableRowStyle>(u8"tablerow.editor"))
 			.Content
 			(
 				NullWidget::getNullWidget()

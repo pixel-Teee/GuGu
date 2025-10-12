@@ -1,0 +1,122 @@
+{
+  "ColorLevel1": {
+    "a": 256,
+    "b": 245,
+    "g": 240,
+    "r": 235
+  },
+  "ColorLevel2": {
+    "a": 256,
+    "b": 230,
+    "g": 220,
+    "r": 210
+  },
+  "ColorLevel3": {
+    "a": 256,
+    "b": 210,
+    "g": 195,
+    "r": 180
+  },
+  "ColorLevel4": {
+    "a": 256,
+    "b": 185,
+    "g": 165,
+    "r": 150
+  },
+  "ColorLevel5": {
+    "a": 256,
+    "b": 155,
+    "g": 130,
+    "r": 105
+  },
+  "ColorLevel6": {
+    "a": 256,
+    "b": 120,
+    "g": 95,
+    "r": 75
+  },
+  "ColorLevel7": {
+    "a": 256,
+    "b": 85,
+    "g": 65,
+    "r": 50
+  },
+  "GrayColor": {
+    "a": 256,
+    "b": 120,
+    "g": 120,
+    "r": 120
+  },
+  "GrayHighLightColor": {
+    "a": 256,
+    "b": 80,
+    "g": 80,
+    "r": 80
+  },
+  "LightColorLevel1": {
+    "a": 256,
+    "b": 200,
+    "g": 220,
+    "r": 240
+  },
+  "LightColorLevel2": {
+    "a": 256,
+    "b": 160,
+    "g": 190,
+    "r": 220
+  },
+  "SecondaryColorLevel1": {
+    "a": 256,
+    "b": 240,
+    "g": 230,
+    "r": 220
+  },
+  "SecondaryColorLevel2": {
+    "a": 256,
+    "b": 225,
+    "g": 210,
+    "r": 195
+  },
+  "SecondaryColorLevel3": {
+    "a": 256,
+    "b": 210,
+    "g": 190,
+    "r": 170
+  },
+  "SecondaryColorLevel4": {
+    "a": 256,
+    "b": 195,
+    "g": 170,
+    "r": 145
+  },
+  "SecondaryColorLevel5": {
+    "a": 256,
+    "b": 180,
+    "g": 150,
+    "r": 120
+  },
+  "SecondaryColorLevel6": {
+    "a": 256,
+    "b": 165,
+    "g": 130,
+    "r": 95
+  },
+  "SecondaryColorLevel7": {
+    "a": 256,
+    "b": 150,
+    "g": 110,
+    "r": 70
+  },
+  "SecondaryColorLevel8": {
+    "a": 256,
+    "b": 100,
+    "g": 70,
+    "r": 45
+  },
+  "SecondaryColorLevel9": {
+    "a": 256,
+    "b": 60,
+    "g": 40,
+    "r": 25
+  }
+}

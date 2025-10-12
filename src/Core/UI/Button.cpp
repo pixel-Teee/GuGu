@@ -46,7 +46,7 @@ namespace GuGu {
 
 		if (m_imageBursh.Get() && m_imageBursh.Get()->m_drawAs != BrushDrawType::NoDrawType)
 		{
-			ElementList::addBoxElement(elementList, allocatedGeometry, m_imageBursh.Get()->m_tintColor, m_imageBursh.Get(), layer); //background
+			ElementList::addBoxElement(elementList, allocatedGeometry, m_imageBursh.Get()->getTintColor(), m_imageBursh.Get(), layer); //background
 		}
 		
 		uint32_t widgetNumbers = arrangedWidgetArray.getArrangedWidgetsNumber();//note:just one

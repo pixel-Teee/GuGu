@@ -57,7 +57,7 @@ namespace GuGu {
 				.setVerticalAlignment(VerticalAlignment::Stretch)
 				(
 					WIDGET_NEW(Border) //背景
-					.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("beige5"))
+					.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel5"))
 					.Content
 					(
 						NullWidget::getNullWidget()
@@ -69,7 +69,7 @@ namespace GuGu {
 				(
 					WIDGET_NEW(TextBlockWidget)
 					.visibility(Attribute<Visibility>::CreateSP(this, &SceneOutliner::getEmptyLabelVisibility))
-					.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+					.textColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9"))
 					.text("Empty Label")
 				)
 				+ Overlay::Slot()
@@ -100,7 +100,7 @@ namespace GuGu {
 
 			//std::shared_ptr<Border> border = 
 			//WIDGET_NEW(Border)
-			//.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("beige5"))
+			//.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel5"))
 			//.Content
 			//(
 			//	verticalBox
@@ -129,7 +129,7 @@ namespace GuGu {
 					.Content
 					(
 						WIDGET_NEW(TextBlockWidget)
-						.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+						.textColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9"))
 						.text("add game object")
 					);
 
@@ -531,7 +531,7 @@ namespace GuGu {
 		{
 			return WIDGET_NEW(SceneOutlinerTreeRow, m_outlinerTreeView, std::static_pointer_cast<SceneOutliner>(shared_from_this()))
 				   .item(item)
-				   .Style(EditorStyleSet::getStyleSet()->getStyle<TableRowStyle>(u8"tablerow.beige"));
+				   .Style(EditorStyleSet::getStyleSet()->getStyle<TableRowStyle>(u8"tablerow.editor"));
 		}
 
 		void SceneOutliner::onGetChildrenForOutlinerTree(TreeItemPtr inParent, std::vector<TreeItemPtr>& outChildren)

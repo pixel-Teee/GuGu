@@ -30,10 +30,10 @@ namespace GuGu {
 		const math::float2 circleSize = allocatedGeometry.getLocalSize() - selectorSize;
 
 		WidgetGeometry imageGeometry = allocatedGeometry.getChildGeometry(circleSize, 0.5f * selectorSize);
-		ElementList::addBoxElement(elementList, imageGeometry, m_image->m_tintColor, m_image, layer);
+		ElementList::addBoxElement(elementList, imageGeometry, m_image->getTintColor(), m_image, layer);
 
 		WidgetGeometry selectorGeometry = allocatedGeometry.getChildGeometry(selectorSize, 0.5f * (allocatedGeometry.getLocalSize() + calcRelativePositionFromCenter() * circleSize - selectorSize));
-		ElementList::addBoxElement(elementList, selectorGeometry, m_selectorImage->m_tintColor, m_selectorImage, layer + 1);
+		ElementList::addBoxElement(elementList, selectorGeometry, m_selectorImage->getTintColor(), m_selectorImage, layer + 1);
 
 		return layer;
 	}

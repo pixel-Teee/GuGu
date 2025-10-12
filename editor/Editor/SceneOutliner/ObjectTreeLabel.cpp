@@ -75,7 +75,7 @@ namespace GuGu {
 							WIDGET_NEW(TextBlockWidget)
 							.visibility(Attribute<Visibility>::CreateSP(this, &ObjectTreeLabel::getShowNameVisibility))
 							.text(Attribute<GuGuUtf8Str>::CreateSP(this, &ObjectTreeLabel::getDisplayText))
-							.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+							.textColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9"))
 						)
 						+ VerticalBox::Slot()
 						.FixedHeight()
@@ -160,7 +160,7 @@ namespace GuGu {
 						.Content
 						(
 							WIDGET_NEW(TextBlockWidget)
-							.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+							.textColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9"))
 							.text("delete game object")
 						)
 					)
@@ -173,7 +173,7 @@ namespace GuGu {
 						.Content
 						(
 							WIDGET_NEW(TextBlockWidget)
-							.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+							.textColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9"))
 							.text("add child game object")
 						)
 					);
@@ -552,21 +552,21 @@ namespace GuGu {
 		math::float4 ObjectTreeLabel::onHoverTopBorder() const
 		{
 			if (m_bDragHoverTopBorder)
-				return EditorStyleSet::getStyleSet()->getColor("beige9");
+				return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9");
 			return math::float4(1.0f, 1.0f, 1.0f, 0.0f);//transparent
 		}
 
 		math::float4 ObjectTreeLabel::onHoverBottomBorder() const
 		{
 			if (m_bDragHoverBottomBorder)
-				return EditorStyleSet::getStyleSet()->getColor("beige9");
+				return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9");
 			return math::float4(1.0f, 1.0f, 1.0f, 0.0f);//transparent
 		}
 
 		math::float4 ObjectTreeLabel::onHoverCenter() const
 		{
 			if (m_bDragHoverCenter)
-				return EditorStyleSet::getStyleSet()->getColor("beige8");
+				return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel8");
 			return math::float4(1.0f, 1.0f, 1.0f, 0.0f);//transparent
 		}
 

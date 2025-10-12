@@ -151,7 +151,7 @@ namespace GuGu {
             (
                 WIDGET_NEW(TextBlockWidget)
                 .text(getNameText())
-                .textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+                .textColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9"))
             )
         );
 
@@ -259,7 +259,7 @@ namespace GuGu {
             (
                 WIDGET_NEW(TextBlockWidget)
                 .text(getNameText())
-                .textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+                .textColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9"))
             )
         );
 

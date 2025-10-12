@@ -63,7 +63,7 @@ namespace GuGu {
 						.Content
 						(
 							WIDGET_NEW(TextBlockWidget)
-							.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+							.textColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9"))
 							.text(addNameStr)
 						);
 					box->addSlot()

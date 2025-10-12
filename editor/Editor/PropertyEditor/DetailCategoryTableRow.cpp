@@ -39,7 +39,7 @@ namespace GuGu {
 			(
 				WIDGET_NEW(TextBlockWidget)
 				.text(inArgs.mdisplayName)
-				.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+				.textColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9"))
 			);
 
 		if (inArgs.mheaderContent)
@@ -59,7 +59,7 @@ namespace GuGu {
 
 		TableRow<std::shared_ptr<DetailTreeNode>>::initInternal(
 			TableRow::BuilderArguments()
-			.Style(EditorStyleSet::getStyleSet()->getStyle<TableRowStyle>(u8"tablerow.beige"))
+			.Style(EditorStyleSet::getStyleSet()->getStyle<TableRowStyle>(u8"tablerow.editor"))
 			.Content
 			(
 				NullWidget::getNullWidget()
@@ -86,7 +86,7 @@ namespace GuGu {
 						  .Content
 						  (
 							  WIDGET_NEW(TextBlockWidget)
-							  .textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+							  .textColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9"))
 							  .text("delete component")
 						  );
 

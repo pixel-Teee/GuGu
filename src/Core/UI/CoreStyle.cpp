@@ -40,7 +40,7 @@ namespace GuGu {
 		std::shared_ptr<Brush> borderBrush = std::make_shared<Brush>();
 		borderBrush->m_tiling = true;
 		borderBrush->m_texturePath = u8"asset/white.png";
-		borderBrush->m_tintColor = math::float4(1.0f, 1.0f, 1.0f, 0.4f);
+		borderBrush->m_tintColorStr = "WhiteColor";// math::float4(1.0f, 1.0f, 1.0f, 0.4f);
 		borderBrush->m_drawAs = BrushDrawType::Type::Border;
 		borderBrush->m_margin = Padding(0.25f);
 		m_brushes.insert({ u8"border", borderBrush });
@@ -208,7 +208,7 @@ namespace GuGu {
 
 		//combo button
 		std::shared_ptr<Brush> comboButtonButtonBrush = std::make_shared<Brush>();
-		comboButtonButtonBrush->m_tintColor = math::float4(0.3f, 0.4f, 0.2f, 1.0f);
+		comboButtonButtonBrush->m_tintColorStr = "WhiteColor";//math::float4(0.3f, 0.4f, 0.2f, 1.0f); todo:fix this
 		std::shared_ptr<ButtonStyle> comboButtonButton = std::make_shared<ButtonStyle>();
 		comboButtonButton->setPressedPadding(Padding(8.0f, 2.0f, 8.0f, 0.0f));
 		comboButtonButton->setNormal(comboButtonButtonBrush);
@@ -224,9 +224,9 @@ namespace GuGu {
 
 		//combo row
 		std::shared_ptr<Brush> eventRow = std::make_shared<Brush>();
-		eventRow->m_tintColor = math::float4(0.3f, 0.4f, 0.2f, 1.0f);
+		eventRow->m_tintColorStr = "LightColorLevel1";//math::float4(0.3f, 0.4f, 0.2f, 1.0f); todo:fix this
 		std::shared_ptr<Brush> oddRow = std::make_shared<Brush>();
-		oddRow->m_tintColor = math::float4(0.3f, 0.6f, 0.2f, 1.0f);
+		oddRow->m_tintColorStr = "LightColorLevel2";//math::float4(0.3f, 0.4f, 0.2f, 1.0f); todo:fix this
 		std::shared_ptr<TableRowStyle> comboRow = std::make_shared<TableRowStyle>();
 		comboRow->setEvenRowBackgroundBrush(eventRow);
 		comboRow->setOddRowBackgroundBrush(oddRow);
@@ -265,13 +265,13 @@ namespace GuGu {
 			std::shared_ptr<Brush> normalBrush = std::make_shared<Brush>();
 			normalBrush->m_tiling = false;
 			normalBrush->m_texturePath = u8"asset/white.png";
-			normalBrush->m_tintColor = grayColor;
+			normalBrush->m_tintColorStr = "GrayColor";//math::float4(0.3f, 0.4f, 0.2f, 1.0f); todo:fix this
 			normalBrush->m_drawAs = BrushDrawType::Type::Image;
 
 			std::shared_ptr<Brush> highlightBrush = std::make_shared<Brush>();
 			highlightBrush->m_tiling = false;
 			highlightBrush->m_texturePath = u8"asset/white.png";
-			highlightBrush->m_tintColor = grayHightlightColor;
+			highlightBrush->m_tintColorStr = "GrayHighLightColor";//math::float4(0.3f, 0.4f, 0.2f, 1.0f); todo:fix this
 			highlightBrush->m_drawAs = BrushDrawType::Type::Image;
 
 			splitterStyle->setHandleNormalBrush(normalBrush);

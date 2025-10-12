@@ -251,7 +251,7 @@ namespace GuGu {
 		(
 			WIDGET_NEW(TextBlockWidget)
 			.text(textAttribute) //dynamic text
-			.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+			.textColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9"))
 		)
 		.valueContent()
 		(
@@ -283,7 +283,7 @@ namespace GuGu {
 		(
 			WIDGET_NEW(TextBlockWidget)
 			.text("Anchors")
-			.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+			.textColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9"))
 		)
 		.valueContent()
 		(
@@ -293,17 +293,17 @@ namespace GuGu {
 			(
 				WIDGET_NEW(TextBlockWidget)
 				.text("Anchors")
-				.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+				.textColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9"))
 			)
 			.menuContent
 			(
 				WIDGET_NEW(Border)
 				.padding(5)
-				.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("blueLevel4"))
+				.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("ColorLevel4"))
 				.Content
 				(
 					WIDGET_NEW(Border)
-					.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("blueLevel4"))
+					.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("ColorLevel4"))
 					.verticalAlignment(VerticalAlignment::Center)
 					.horizontalAlignment(HorizontalAlignment::Center)
 					.padding(0)

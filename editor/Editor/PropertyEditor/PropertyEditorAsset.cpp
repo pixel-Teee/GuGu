@@ -74,7 +74,7 @@ namespace GuGu {
 			(
 				WIDGET_NEW(TextBlockWidget)
 				.text(this, &PropertyEditorAsset::onGetAssetName)
-				.textColor(EditorStyleSet::getStyleSet()->getColor("beige9"))
+				.textColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9"))
 			)
 		);
 

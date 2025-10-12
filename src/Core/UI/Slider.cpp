@@ -100,7 +100,7 @@ namespace GuGu {
 		auto thumbImage = getThumbImage();
 		ElementList::addBoxElement(elementList,
 			sliderGeometry.getChildGeometry(barSize, barTopLeft),
-			barImage->m_tintColor * m_sliderBarColor.Get().toFloat4(),
+			barImage->getTintColor() * m_sliderBarColor.Get().toFloat4(),
 			barImage,
 			layer
 		);
@@ -110,7 +110,7 @@ namespace GuGu {
 		//绘制handle
 		ElementList::addBoxElement(elementList,
 			sliderGeometry.getChildGeometry(handleSize, handleTopLeftPoint),
-			thumbImage->m_tintColor,
+			thumbImage->getTintColor(),
 			thumbImage,
 			layer
 		);

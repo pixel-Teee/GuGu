@@ -287,7 +287,7 @@ namespace GuGu {
 		m_childWidget->m_parentWidget = shared_from_this();
 		m_childWidget->m_childWidget = 
 		WIDGET_NEW(Border)
-		.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("grayColor"))
+		.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("GrayColor"))
 		.Content
 		(
             WIDGET_NEW(VerticalBox)
