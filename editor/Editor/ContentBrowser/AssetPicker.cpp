@@ -29,7 +29,9 @@ namespace GuGu {
 		(
 			WIDGET_NEW(Border)
 			.padding(Padding(2.0f, 2.0f, 2.0f, 2.0f))
-			.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel6"))
+			.BorderBackgroundColor(Attribute<math::float4>::Create([=]() {
+				return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel6");
+			}))
 			.Content
 			(
 				WIDGET_ASSIGN_NEW(AssetView, m_assetViewPtr)

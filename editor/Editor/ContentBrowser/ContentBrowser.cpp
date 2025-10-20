@@ -32,9 +32,13 @@
 namespace GuGu {
 	void ContentBrowser::init(const BuilderArguments& arguments, std::shared_ptr<WindowWidget> inParentWindow)
 	{
-		std::vector<math::float4> blueGradientBackground;
-		blueGradientBackground.push_back(EditorStyleSet::getStyleSet()->getColor("LightColorLevel1"));
-		blueGradientBackground.push_back(EditorStyleSet::getStyleSet()->getColor("LightColorLevel2"));
+		std::vector<Attribute<math::float4>> blueGradientBackground;
+		blueGradientBackground.push_back(Attribute<math::float4>::Create([=]() {
+			return EditorStyleSet::getStyleSet()->getColor("LightColorLevel1");
+		}));
+		blueGradientBackground.push_back(Attribute<math::float4>::Create([=]() {
+			return EditorStyleSet::getStyleSet()->getColor("LightColorLevel2");
+		}));
 
 		m_childWidget = std::make_shared<SingleChildSlot>();
 		m_childWidget->m_parentWidget = shared_from_this();
@@ -112,12 +116,16 @@ namespace GuGu {
 		std::shared_ptr<Widget> menuContent;
 		menuContent = 
 		WIDGET_NEW(Border)
-		.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel7"))
+			.BorderBackgroundColor(Attribute<math::float4>::Create([=]() {
+			return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel7");
+		}))
 		.padding(Padding(2.0f, 2.0f, 2.0f, 2.0f))
 		.Content
 		(
 			WIDGET_NEW(Border)
-			.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel4"))
+			.BorderBackgroundColor(Attribute<math::float4>::Create([=]() {
+				return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel4");
+			}))
 			.Content
 			(
 				WIDGET_NEW(VerticalBox)

@@ -75,7 +75,9 @@ namespace GuGu {
 							WIDGET_NEW(TextBlockWidget)
 							.visibility(Attribute<Visibility>::CreateSP(this, &ObjectTreeLabel::getShowNameVisibility))
 							.text(Attribute<GuGuUtf8Str>::CreateSP(this, &ObjectTreeLabel::getDisplayText))
-							.textColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9"))
+							.textColor(Attribute<math::float4>::Create([=]() {
+								return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9");
+							}))
 						)
 						+ VerticalBox::Slot()
 						.FixedHeight()
@@ -160,7 +162,9 @@ namespace GuGu {
 						.Content
 						(
 							WIDGET_NEW(TextBlockWidget)
-							.textColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9"))
+							.textColor(Attribute<math::float4>::Create([=]() {
+								return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9");
+							}))
 							.text("delete game object")
 						)
 					)

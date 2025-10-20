@@ -65,7 +65,9 @@ namespace GuGu {
 				.FixedWidth()
 				(
 					WIDGET_NEW(TextBlockWidget)
-					.textColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9"))
+					.textColor(Attribute<math::float4>::Create([=]() {
+						return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9");
+					}))
 					.text(themeKeysName)
 				)
 				+ HorizontalBox::Slot()
@@ -90,8 +92,9 @@ namespace GuGu {
 	Color ThemePanel::onGetColorForColorBlock(GuGuUtf8Str themeKeys) const
 	{
 		std::shared_ptr<EditorStyleSet> editorStyleSet = std::static_pointer_cast<EditorStyleSet>(EditorStyleSet::getStyleSet());
-		Theme loadedTheme = editorStyleSet->getTheme(editorStyleSet->getCurrentThemeName());
-		return loadedTheme.m_colors[Theme::StrToThemeKeys(themeKeys)];
+		//Theme loadedTheme = editorStyleSet->getTheme(editorStyleSet->getCurrentThemeName());
+		//return loadedTheme.m_colors[Theme::StrToThemeKeys(themeKeys)];
+		return editorStyleSet->getColor(themeKeys);
 	}
 
 	void ThemePanel::createColorPicker(bool bUseAlpha, GuGuUtf8Str themeKeys)

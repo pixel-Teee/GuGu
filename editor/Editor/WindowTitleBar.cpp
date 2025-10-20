@@ -22,10 +22,13 @@ namespace GuGu {
 		m_parentWindow = inParentWindow;
 
 		//blue gradient background
-		std::vector<math::float4> blueGradientBackground;
-		blueGradientBackground.push_back(EditorStyleSet::getStyleSet()->getColor("LightColorLevel1"));
-		blueGradientBackground.push_back(EditorStyleSet::getStyleSet()->getColor("LightColorLevel2"));
-
+		std::vector<Attribute<math::float4>> blueGradientBackground;
+		blueGradientBackground.push_back(Attribute<math::float4>::Create([=]() {
+			return EditorStyleSet::getStyleSet()->getColor("LightColorLevel1");
+		}));
+		blueGradientBackground.push_back(Attribute<math::float4>::Create([=]() {
+			return EditorStyleSet::getStyleSet()->getColor("LightColorLevel2");
+		}));
 
 		std::shared_ptr<Button> closeButton;
 		//std::shared_ptr<EditorMainWindow> editorMainWindow;

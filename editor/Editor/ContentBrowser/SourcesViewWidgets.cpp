@@ -39,7 +39,9 @@ namespace GuGu {
 				(
 					WIDGET_NEW(TextBlockWidget)
 					.text(this, &AssetTreeItem::getNameText)
-					.textColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9"))
+					.textColor(Attribute<math::float4>::Create([=]() {
+						return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9");
+					}))
 				)
 			//)
 		);

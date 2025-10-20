@@ -55,9 +55,13 @@ namespace GuGu {
 		if (true) //todo:修复这个
 		{
 			//blue gradient background
-			std::vector<math::float4> blueGradientBackground;
-			blueGradientBackground.push_back(EditorStyleSet::getStyleSet()->getColor("LightColorLevel1"));
-			blueGradientBackground.push_back(EditorStyleSet::getStyleSet()->getColor("LightColorLevel2"));
+			std::vector<Attribute<math::float4>> blueGradientBackground;
+			blueGradientBackground.push_back(Attribute<math::float4>::Create([=]() {
+				return EditorStyleSet::getStyleSet()->getColor("LightColorLevel1");
+			}));
+			blueGradientBackground.push_back(Attribute<math::float4>::Create([=]() {
+				return EditorStyleSet::getStyleSet()->getColor("LightColorLevel2");
+			}));
 
 			std::shared_ptr<Button> closeButton;
 			//std::shared_ptr<EditorMainWindow> editorMainWindow;
@@ -75,7 +79,9 @@ namespace GuGu {
 			.Content
 			(
 				WIDGET_NEW(Border)
-				.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("GrayColor"))
+				.BorderBackgroundColor(Attribute<math::float4>::Create([=]() {
+					return EditorStyleSet::getStyleSet()->getColor("GrayColor");
+				}))
 				.Content
 				(
 					WIDGET_NEW(VerticalBox) //标题栏
@@ -344,7 +350,9 @@ namespace GuGu {
 		//open menu achor
 		m_openFileMenuAnchor->setMenuContent(
 			WIDGET_NEW(Border)
-			.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel4"))
+			.BorderBackgroundColor(Attribute<math::float4>::Create([=]() {
+				return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel4");
+			}))
 			.Content
 			(
 				WIDGET_NEW(VerticalBox)

@@ -39,7 +39,9 @@ namespace GuGu {
 			(
 				WIDGET_NEW(TextBlockWidget)
 				.text(inArgs.mdisplayName)
-				.textColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9"))
+				.textColor(Attribute<math::float4>::Create([=]() {
+					return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9");
+				}))
 			);
 
 		if (inArgs.mheaderContent)
@@ -86,7 +88,9 @@ namespace GuGu {
 						  .Content
 						  (
 							  WIDGET_NEW(TextBlockWidget)
-							  .textColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9"))
+							  .textColor(Attribute<math::float4>::Create([=]() {
+								  return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9");
+							   }))
 							  .text("delete component")
 						  );
 

@@ -57,7 +57,9 @@ namespace GuGu {
 				.setVerticalAlignment(VerticalAlignment::Stretch)
 				(
 					WIDGET_NEW(Border) //背景
-					.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel5"))
+					.BorderBackgroundColor(Attribute<math::float4>::Create([=]() {
+						return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel5");
+					}))
 					.Content
 					(
 						NullWidget::getNullWidget()
@@ -69,7 +71,9 @@ namespace GuGu {
 				(
 					WIDGET_NEW(TextBlockWidget)
 					.visibility(Attribute<Visibility>::CreateSP(this, &SceneOutliner::getEmptyLabelVisibility))
-					.textColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9"))
+					.textColor(Attribute<math::float4>::Create([=]() {
+						return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9");
+					}))
 					.text("Empty Label")
 				)
 				+ Overlay::Slot()
@@ -129,7 +133,9 @@ namespace GuGu {
 					.Content
 					(
 						WIDGET_NEW(TextBlockWidget)
-						.textColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9"))
+						.textColor(Attribute<math::float4>::Create([=]() {
+							return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9");
+						}))
 						.text("add game object")
 					);
 

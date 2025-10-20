@@ -32,7 +32,9 @@ namespace GuGu {
 		.Content
 		(
 			WIDGET_NEW(Border)
-			.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel4"))
+			.BorderBackgroundColor(Attribute<math::float4>::Create([=]() {
+				return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel4");
+			}))
 			.Content
 			(
 				m_treeViewPtr

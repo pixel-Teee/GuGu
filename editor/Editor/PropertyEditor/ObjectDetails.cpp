@@ -63,7 +63,9 @@ namespace GuGu {
 						.Content
 						(
 							WIDGET_NEW(TextBlockWidget)
-							.textColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9"))
+							.textColor(Attribute<math::float4>::Create([=]() {
+								return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9");
+							}))
 							.text(addNameStr)
 						);
 					box->addSlot()

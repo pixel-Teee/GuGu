@@ -27,7 +27,9 @@ namespace GuGu {
 			+ Overlay::Slot()
 			(
 				WIDGET_NEW(Border) //背景
-				.BorderBackgroundColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel5"))
+				.BorderBackgroundColor(Attribute<math::float4>::Create([=]() {
+					return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel5");
+				}))
 				.verticalAlignment(VerticalAlignment::Stretch)
 				.Content
 				(

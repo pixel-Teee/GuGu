@@ -31,7 +31,7 @@ namespace GuGu {
 		uint32_t maxLayer = 0;
 		//todo:add alpha background
 
-		const std::vector<math::float4>& colors = m_gradientColors;
+		const std::vector<Attribute<math::float4>>& colors = m_gradientColors;
 		int32_t numColors = colors.size();
 
 		if (numColors)
@@ -40,7 +40,7 @@ namespace GuGu {
 
 			for (int32_t colorIndex = 0; colorIndex < numColors; ++colorIndex)
 			{
-				gradientStop.push_back(GradientStop(allocatedGeometry.getLocalSize() * (float(colorIndex) / (numColors - 1)), colors[colorIndex]));
+				gradientStop.push_back(GradientStop(allocatedGeometry.getLocalSize() * (float(colorIndex) / (numColors - 1)), colors[colorIndex].Get()));
 			}
 
 			ElementList::addGradientElement(

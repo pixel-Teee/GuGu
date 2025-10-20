@@ -18,7 +18,7 @@ namespace GuGu {
 
 			~BuilderArguments() = default;
 
-			ARGUMENT_VALUE(std::vector<math::float4>, GradientColors)
+			ARGUMENT_VALUE(std::vector<Attribute<math::float4>>, GradientColors)
 
 			ARGUMENT_VALUE(bool, hasAlphaBackground)
 
@@ -44,7 +44,7 @@ namespace GuGu {
 		virtual uint32_t getSlotsNumber() const override;
 	protected:
 
-		std::vector<math::float4> m_gradientColors;
+		std::vector<Attribute<math::float4>> m_gradientColors;
 
 		std::optional<math::float2> m_desiredSizeOverried;
 
