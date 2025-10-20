@@ -454,4 +454,24 @@ namespace GuGu {
 		m_rootFileSystem->CloseFile();
 	}
 
+	std::map<GuGuUtf8Str, Theme>& EditorStyleSet::getThemeMap()
+	{
+		return m_themes;
+	}
+
+	GuGuUtf8Str EditorStyleSet::getCurrentThemeName()
+	{
+		return m_currentTheme;
+	}
+
+	Theme& EditorStyleSet::getTheme(const GuGuUtf8Str& themeName)
+	{
+		if (m_themes.find(m_currentTheme) != m_themes.end())
+		{
+			return m_themes.find(m_currentTheme)->second;
+		}
+		GuGu_LOGE("get error theme");
+		return Theme();
+	}
+
 }

@@ -17,6 +17,12 @@ namespace GuGu {
 		void loadTheme(const GuGuUtf8Str& themeName);
 
 		void writeTheme(const GuGuUtf8Str& themeName, Theme theme);
+
+		std::map<GuGuUtf8Str, Theme>& getThemeMap();
+
+		GuGuUtf8Str getCurrentThemeName();
+
+		Theme& getTheme(const GuGuUtf8Str& themeName);
 	private:
 		std::shared_ptr<RootFileSystem> m_rootFileSystem;
 
