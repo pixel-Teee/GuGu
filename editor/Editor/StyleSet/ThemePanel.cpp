@@ -8,7 +8,8 @@
 #include <Core/UI/ColorBlock.h>
 #include <Editor/UI/ColorPicker.h>
 //#include <Core/UI/ComplexGradient.h>
-//#include <Core/UI/NullWidget.h>
+#include <Core/UI/Border.h>
+#include <Core/UI/NullWidget.h>
 //#include <Core/UI/Button.h>
 //#include <Core/UI/WindowWidget.h>
 //#include <Editor/StyleSet/EditorStyleSet.h>
@@ -33,6 +34,17 @@ namespace GuGu {
 		m_childWidget->m_parentWidget = shared_from_this();
 
 		std::shared_ptr<Overlay> overlay = WIDGET_NEW(Overlay)
+		+ Overlay::Slot()
+		(
+			WIDGET_NEW(Border)
+			.BorderBackgroundColor(Attribute<math::float4>::Create([=]() {
+				return EditorStyleSet::getStyleSet()->getColor("ColorLevel1");
+			}))
+			.Content
+			(
+				NullWidget::getNullWidget()
+			)
+		)
 		+ Overlay::Slot()
 		(
 			WIDGET_ASSIGN_NEW(VerticalBox, m_themeVerticalBox)
