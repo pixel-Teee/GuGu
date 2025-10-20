@@ -110,9 +110,11 @@ namespace GuGu {
 				//edit color
 				std::shared_ptr<EditorStyleSet> editorStyleSet = std::static_pointer_cast<EditorStyleSet>(EditorStyleSet::getStyleSet());
 				GuGuUtf8Str themeName = editorStyleSet->getCurrentThemeName();
+
+				editorStyleSet->setColor(themeKeys, inColor);
 				//get theme
-				Theme& loadedTheme = editorStyleSet->getTheme(themeName);
-				loadedTheme.m_colors[Theme::StrToThemeKeys(themeKeys)] = inColor.toFloat4();
+				//Theme& loadedTheme = editorStyleSet->getTheme(themeName);
+				//loadedTheme.m_colors[Theme::StrToThemeKeys(themeKeys)] = inColor.toFloat4();
 			};
 			pickerArgs.m_parentWidget = shared_from_this();//todo:fix this
 			pickerArgs.m_initialColorOverride = initialColor;

@@ -41,6 +41,12 @@ namespace GuGu {
 
 		return math::float4(1.0f, 1.0f, 1.0f, 1.0f);
 	}
+
+	void StyleSet::setColor(const GuGuUtf8Str& colorName, Color inColor)
+	{
+		m_colors[colorName] = inColor.toFloat4();
+	}
+
 	//std::shared_ptr<StyleSet> StyleSet::getStyle()
 	//{
 	//	static std::shared_ptr<StyleSet> styleInsance = std::make_shared<StyleSet>();

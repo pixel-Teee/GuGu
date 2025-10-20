@@ -25,6 +25,8 @@ namespace GuGu {
 
 		math::float4 getColor(const GuGuUtf8Str& colorName);
 
+		void setColor(const GuGuUtf8Str& colorName, Color inColor);
+
 		//static std::shared_ptr<StyleSet> getStyle();
 
 		//std::shared_ptr<TextInfo> getTextInfo(const GuGuUtf8Str& str);

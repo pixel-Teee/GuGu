@@ -55,6 +55,8 @@ namespace GuGu {
 
 		Reply redo();
 
+		Reply openTheme();
+
 		void switchEditorAndRuntime(CheckBoxState inCheckBoxState);
 
 		void setRenderTarget(nvrhi::TextureHandle renderTarget);

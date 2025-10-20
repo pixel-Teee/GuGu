@@ -40,6 +40,8 @@
 
 #include <Core/GamePlay/World.h>
 
+#include <Editor/StyleSet/ThemePanel.h> //theme panel
+
 namespace GuGu {
 	EditorMainWindow::EditorMainWindow()
 	{
@@ -62,6 +64,8 @@ namespace GuGu {
 			std::shared_ptr<Button> minimizeButton;
 			//std::shared_ptr<ViewportWidget> viewportWidget;
 			std::shared_ptr<Button> fileButton;
+
+			std::shared_ptr<Button> themeButton;
 
 			std::shared_ptr<Button> undoButton;
 			std::shared_ptr<Button> redoButton;
@@ -118,6 +122,25 @@ namespace GuGu {
 								.Content
 								(
 									NullWidget::getNullWidget()
+								)
+							)
+						)
+						+ HorizontalBox::Slot()
+						.FixedWidth()
+						.setPadding(Padding(10.0f, 0.0f, 0.0f, 0.0f))
+						(
+							WIDGET_NEW(BoxWidget)
+							.HeightOverride(OptionalSize(38.0f))
+							.WidthOverride(OptionalSize(60.0f))
+							.Content
+							(
+								WIDGET_ASSIGN_NEW(Button, themeButton)
+								.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+								.Content
+								(
+									WIDGET_NEW(TextBlockWidget)
+									.text(u8"Theme")
+									.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
 								)
 							)
 						)
@@ -290,6 +313,8 @@ namespace GuGu {
 
 			undoButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::undo, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
 			redoButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::redo, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
+
+			themeButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::openTheme, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
 		}
 		else
 		{
@@ -350,6 +375,7 @@ namespace GuGu {
 				//NullWidget::getNullWidget()
 			)
 		);
+
 		m_saveLevelButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::openLevel, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
 
 		m_openFileMenuAnchor->setIsOpen(true);
@@ -389,6 +415,24 @@ namespace GuGu {
 			return Reply::Handled();
 		}
 		return Reply::Unhandled();
+	}
+
+	Reply EditorMainWindow::openTheme()
+	{
+		math::float2 cursorPos = Application::getApplication()->getCursorPos();
+		std::shared_ptr<WindowWidget> window = WIDGET_NEW(WindowWidget)
+			.ScreenPosition(cursorPos)
+			.sizingRule(SizingRule::AutoSized)
+			.Content
+			(
+				WIDGET_NEW(ThemePanel)
+			);
+
+		WidgetPath widgetPath;
+		Application::getApplication()->generatePathToWidgetUnchecked(shared_from_this(), widgetPath);
+		Application::getApplication()->addWindowAsNativeChild(window, widgetPath.getWindow());
+
+		return Reply::Handled();
 	}
 
 	void EditorMainWindow::switchEditorAndRuntime(CheckBoxState inCheckBoxState)
