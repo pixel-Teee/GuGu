@@ -40,8 +40,9 @@ namespace GuGu {
 				//const char* str = levelType.getGuid().getGuid().getStr();
 				//GuGu_LOGD("type of level:%s", str);
 				meta::Type currentType = meta::Type::getType(assetDatas[i].m_assetTypeGuid);
-				const char* typeStr = currentType.getGuid().getGuid().getStr();
-				GuGu_LOGD("guid of current type:%s", typeStr);
+				GuGu::GGuid guid = currentType.getGuid();
+				GuGuUtf8Str typeStr = guid.getGuid();
+				GuGu_LOGD("guid of current type:%s", typeStr.getStr());
 				if (meta::Type::getType(assetDatas[i].m_assetTypeGuid) == typeof(GStaticMesh))
 				{
 					//GuGu_LOGD("%s\n", assetDatas[i].m_fileName.getStr());
