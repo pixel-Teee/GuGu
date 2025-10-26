@@ -20,6 +20,8 @@
 #include <Core/Animation/GAnimation.h>
 
 #include "Base64.h"
+#include <Core/Reflection/MetaProperty/CustomDeserializeField.h>
+#include <Core/Reflection/MetaProperty/CustomSerializeField.h>
 
 namespace GuGu {
 	AssetManager::AssetManager()
@@ -476,12 +478,24 @@ namespace GuGu {
 		{
 			auto value = field.GetValue(instance);//variant
 
-			//auto json = value.SerializeJson();
-			auto json = serializeJson(field.GetType(), value, context);
+			if (field.GetMeta().GetProperty<meta::CustomSerializeField>() != nullptr)
+			{
+				const meta::CustomSerializeField* customSerializeField = field.GetMeta().GetProperty<meta::CustomSerializeField>();
+				nlohmann::json result = customSerializeField->invokeCallback(field.GetName().getStr(), value);
+				if (result.contains(field.GetName().getStr()))
+				{
+					object[field.GetName().getStr()] = result[field.GetName().getStr()];
+				}
+			}
+			else
+			{
+				//auto json = value.SerializeJson();
+				auto json = serializeJson(field.GetType(), value, context);
 
-			//value.getBase()->OnSerialize(const_cast<nlohmann::json&>(json));
+				//value.getBase()->OnSerialize(const_cast<nlohmann::json&>(json));
 
-			object[field.GetName().getStr()] = json;	
+				object[field.GetName().getStr()] = json;
+			}			
 		}
 
 		return object;
@@ -618,10 +632,19 @@ namespace GuGu {
 			{
 				auto& ctor = fieldType.GetConstructor();
 
-				//auto fieldValue = fieldType.DeserializeJson(fieldData);
-				auto fieldValue = deserializeJson(fieldType, fieldData, ctor, context);
+				if (field.GetMeta().GetProperty<meta::CustomDeserializeField>() != nullptr)
+				{
+					const meta::CustomDeserializeField* customDeserializeField = field.GetMeta().GetProperty<meta::CustomDeserializeField>();
+					meta::Variant fieldValue = customDeserializeField->invokeCallback(field.GetName().getStr(), fieldType, value);
+					field.SetValue(instance, fieldValue);
+				}
+				else
+				{
+					//auto fieldValue = fieldType.DeserializeJson(fieldData);
+					auto fieldValue = deserializeJson(fieldType, fieldData, ctor, context);
 
-				field.SetValue(instance, fieldValue);
+					field.SetValue(instance, fieldValue);
+				}		
 			}
 		}
 

@@ -4,6 +4,10 @@
 #include <Core/Reflection/TypeInfo.h>
 #include <Core/GamePlay/GamePlayerReflectionRegister.h>
 
+#include <Core/Reflection/MetaProperty/CustomDeserializeField.h>
+#include <Core/Reflection/MetaProperty/CustomSerializeField.h>
+#include <Core/AssetManager/Base64.h>
+
 namespace GuGu {
 	static bool registerGuGuGStaticMesh()
 	{
@@ -50,33 +54,66 @@ namespace GuGu {
 
 		auto& type = db.types[typeof(GStaticMesh).GetID()];	
 
+		std::function<nlohmann::json(const GuGuUtf8Str& inFieldName, const meta::Variant& inValue)> callbackSerialize = GStaticMesh::serializeDenseStructArray;
+		std::function<meta::Variant(const GuGuUtf8Str& inFieldName, const meta::Type& inFieldType, const nlohmann::json& inValue)> callbackDeserialize = GStaticMesh::deserializeDenseStructArray;
+		//const meta::MetaProperty* propertyOne = meta::MetaPropertyInitializer<meta::CustomSerializeField>(callbackSerialize);
+		//const meta::MetaProperty* propertyTwo = meta::MetaPropertyInitializer<meta::CustomDeserializeField>(callbackDeserialize);
+// 		std::initializer_list<std::pair<meta::Type, const meta::MetaProperty*>> customSerializeAndDeserializeMeta = {
+// 			std::make_pair(typeof(meta::CustomSerializeField), propertyOne),
+// 			std::make_pair(typeof(meta::CustomDeserializeField), propertyTwo)
+// 		};
+
 		type.AddField<GStaticMesh, Array<uint32_t>>("m_indexData",
 			(meta::FieldGetter<GStaticMesh, Array<uint32_t>, false>::Signature) & GStaticMesh::m_indexData,
-			(meta::FieldSetter<GStaticMesh, Array<uint32_t>, false>::Signature) & GStaticMesh::m_indexData, {});
+			(meta::FieldSetter<GStaticMesh, Array<uint32_t>, false>::Signature) & GStaticMesh::m_indexData, {
+			std::make_pair(typeof(meta::CustomSerializeField), meta::MetaPropertyInitializer<meta::CustomSerializeField>(callbackSerialize)),
+			std::make_pair(typeof(meta::CustomDeserializeField), meta::MetaPropertyInitializer<meta::CustomDeserializeField>(callbackDeserialize))
+		});
 		type.AddField<GStaticMesh, Array<math::float3>>("m_positionData",
 			(meta::FieldGetter<GStaticMesh, Array<math::float3>, false>::Signature) & GStaticMesh::m_positionData,
-			(meta::FieldSetter<GStaticMesh, Array<math::float3>, false>::Signature) & GStaticMesh::m_positionData, {});
+			(meta::FieldSetter<GStaticMesh, Array<math::float3>, false>::Signature) & GStaticMesh::m_positionData, {
+			std::make_pair(typeof(meta::CustomSerializeField), meta::MetaPropertyInitializer<meta::CustomSerializeField>(callbackSerialize)),
+			std::make_pair(typeof(meta::CustomDeserializeField), meta::MetaPropertyInitializer<meta::CustomDeserializeField>(callbackDeserialize))
+		});
 		type.AddField<GStaticMesh, Array<math::float2>>("m_texCoord1Data",
 			(meta::FieldGetter<GStaticMesh, Array<math::float2>, false>::Signature) & GStaticMesh::m_texCoord1Data,
-			(meta::FieldSetter<GStaticMesh, Array<math::float2>, false>::Signature) & GStaticMesh::m_texCoord1Data, {});
+			(meta::FieldSetter<GStaticMesh, Array<math::float2>, false>::Signature) & GStaticMesh::m_texCoord1Data, {
+			std::make_pair(typeof(meta::CustomSerializeField), meta::MetaPropertyInitializer<meta::CustomSerializeField>(callbackSerialize)),
+			std::make_pair(typeof(meta::CustomDeserializeField), meta::MetaPropertyInitializer<meta::CustomDeserializeField>(callbackDeserialize))
+		});
 		type.AddField<GStaticMesh, Array<math::float2>>("m_texCoord2Data",
 			(meta::FieldGetter<GStaticMesh, Array<math::float2>, false>::Signature) & GStaticMesh::m_texCoord2Data,
-			(meta::FieldSetter<GStaticMesh, Array<math::float2>, false>::Signature) & GStaticMesh::m_texCoord2Data, {});
+			(meta::FieldSetter<GStaticMesh, Array<math::float2>, false>::Signature) & GStaticMesh::m_texCoord2Data, {
+			std::make_pair(typeof(meta::CustomSerializeField), meta::MetaPropertyInitializer<meta::CustomSerializeField>(callbackSerialize)),
+			std::make_pair(typeof(meta::CustomDeserializeField), meta::MetaPropertyInitializer<meta::CustomDeserializeField>(callbackDeserialize))
+		});
 		type.AddField<GStaticMesh, Array<math::float3>>("m_normalData",
 			(meta::FieldGetter<GStaticMesh, Array<math::float3>, false>::Signature) & GStaticMesh::m_normalData,
-			(meta::FieldSetter<GStaticMesh, Array<math::float3>, false>::Signature) & GStaticMesh::m_normalData, {});
+			(meta::FieldSetter<GStaticMesh, Array<math::float3>, false>::Signature) & GStaticMesh::m_normalData, {
+			std::make_pair(typeof(meta::CustomSerializeField), meta::MetaPropertyInitializer<meta::CustomSerializeField>(callbackSerialize)),
+			std::make_pair(typeof(meta::CustomDeserializeField), meta::MetaPropertyInitializer<meta::CustomDeserializeField>(callbackDeserialize))
+		});
 		type.AddField<GStaticMesh, Array<math::float3>>("m_tangentData",
 			(meta::FieldGetter<GStaticMesh, Array<math::float3>, false>::Signature) & GStaticMesh::m_tangentData,
-			(meta::FieldSetter<GStaticMesh, Array<math::float3>, false>::Signature) & GStaticMesh::m_tangentData, {});
+			(meta::FieldSetter<GStaticMesh, Array<math::float3>, false>::Signature) & GStaticMesh::m_tangentData, {
+			std::make_pair(typeof(meta::CustomSerializeField), meta::MetaPropertyInitializer<meta::CustomSerializeField>(callbackSerialize)),
+			std::make_pair(typeof(meta::CustomDeserializeField), meta::MetaPropertyInitializer<meta::CustomDeserializeField>(callbackDeserialize))
+		});
 		type.AddField<GStaticMesh, Array<math::float3>>("m_normalData",
 			(meta::FieldGetter<GStaticMesh, Array<math::float3>, false>::Signature) & GStaticMesh::m_normalData,
-			(meta::FieldSetter<GStaticMesh, Array<math::float3>, false>::Signature) & GStaticMesh::m_normalData, {});
+			(meta::FieldSetter<GStaticMesh, Array<math::float3>, false>::Signature) & GStaticMesh::m_normalData, {
+			std::make_pair(typeof(meta::CustomSerializeField), meta::MetaPropertyInitializer<meta::CustomSerializeField>(callbackSerialize)),
+			std::make_pair(typeof(meta::CustomDeserializeField), meta::MetaPropertyInitializer<meta::CustomDeserializeField>(callbackDeserialize))
+		});
 		type.AddField<GStaticMesh, Array<math::vector<int16_t, 4>>>("m_jointData",
 			(meta::FieldGetter<GStaticMesh, Array<math::vector<int16_t, 4>>, false>::Signature) & GStaticMesh::m_jointData,
 			(meta::FieldSetter<GStaticMesh, Array<math::vector<int16_t, 4>>, false>::Signature) & GStaticMesh::m_jointData, {});
 		type.AddField<GStaticMesh, Array<math::float4>>("m_weightData",
 			(meta::FieldGetter<GStaticMesh, Array<math::float4>, false>::Signature) & GStaticMesh::m_weightData,
-			(meta::FieldSetter<GStaticMesh, Array<math::float4>, false>::Signature) & GStaticMesh::m_weightData, {});
+			(meta::FieldSetter<GStaticMesh, Array<math::float4>, false>::Signature) & GStaticMesh::m_weightData, {
+			std::make_pair(typeof(meta::CustomSerializeField), meta::MetaPropertyInitializer<meta::CustomSerializeField>(callbackSerialize)),
+			std::make_pair(typeof(meta::CustomDeserializeField), meta::MetaPropertyInitializer<meta::CustomDeserializeField>(callbackDeserialize))
+		});
 		type.AddField<GStaticMesh, Array<BoneInfo>>("m_boneInfoArray",
 			(meta::FieldGetter<GStaticMesh, Array<BoneInfo>, false>::Signature) & GStaticMesh::m_boneInfoArray,
 			(meta::FieldSetter<GStaticMesh, Array<BoneInfo>, false>::Signature) & GStaticMesh::m_boneInfoArray, {});
@@ -102,6 +139,8 @@ namespace GuGu {
 		if (!ms_priority2.addPriorityThan(&mathuint16_4Priority)) return 0;
 		if (!ms_priority2.addPriorityThan(&mathint16_4Priority)) return 0;
 		if (!ms_priority2.addPriorityThan(&boneInfoPriority)) return 0;
+		ADD_PRIORITY(meta::CustomDeserializeField)
+		ADD_PRIORITY(meta::CustomSerializeField)
 		ADD_INITIAL_FIELDS_FUNCTION_WITH_PRIORITY(registerGuGuGStaticMeshFields)
 	IMPLEMENT_INITIAL_FIELDS_END
 	GStaticMesh::GStaticMesh()
@@ -238,6 +277,152 @@ namespace GuGu {
 	const dm::box3& GStaticMesh::getObjectSpaceBounds() const
 	{
 		return m_objectSpaceBounds;
+	}
+
+	nlohmann::json GStaticMesh::serializeDenseStructArray(const GuGuUtf8Str& inFieldName, const meta::Variant& inValue)
+	{
+		nlohmann::json result;
+		if (inValue.GetType() == typeof(Array<uint32_t>))
+		{
+			Array<uint32_t> uint32Array = inValue.GetValue<Array<uint32_t>>();
+			std::vector<uint8_t> binaryVec(uint32Array.size() * sizeof(uint32_t));
+
+			//copy into binary vec
+			for (int32_t i = 0; i < uint32Array.size(); ++i)
+			{
+				const uint8_t* bytes = reinterpret_cast<const uint8_t*>(&uint32Array[i]);
+				std::memcpy(&binaryVec[i * sizeof(uint32_t)], bytes, sizeof(uint32_t));
+			}
+
+			GuGuUtf8Str base64Str = Base64Encode(binaryVec);
+			result[inFieldName.getStr()] = base64Str.getStr();
+		}
+		if (inValue.GetType() == typeof(Array<math::float2>))
+		{
+			Array<math::float2> vec3Array = inValue.GetValue<Array<math::float2>>();
+			std::vector<uint8_t> binaryVec(vec3Array.size() * sizeof(math::float2));
+
+			//copy into binary vec
+			for (int32_t i = 0; i < vec3Array.size(); ++i)
+			{
+				const uint8_t* bytes = reinterpret_cast<const uint8_t*>(&vec3Array[i]);
+				std::memcpy(&binaryVec[i * sizeof(math::float2)], bytes, sizeof(math::float2));
+			}
+
+			GuGuUtf8Str base64Str = Base64Encode(binaryVec);
+			result[inFieldName.getStr()] = base64Str.getStr();
+			//return result;
+		}
+		else if (inValue.GetType() == typeof(Array<math::float3>))
+		{
+			Array<math::float3> vec3Array = inValue.GetValue<Array<math::float3>>();
+			std::vector<uint8_t> binaryVec(vec3Array.size() * sizeof(math::float3));
+
+			//copy into binary vec
+			for (int32_t i = 0; i < vec3Array.size(); ++i)
+			{
+				const uint8_t* bytes = reinterpret_cast<const uint8_t*>(&vec3Array[i]);
+				std::memcpy(&binaryVec[i * sizeof(math::float3)], bytes, sizeof(math::float3));
+			}
+
+			GuGuUtf8Str base64Str = Base64Encode(binaryVec);
+			result[inFieldName.getStr()] = base64Str.getStr();
+			//return result;
+		}
+		else if (inValue.GetType() == typeof(Array<math::float4>))
+		{
+			Array<math::float4> vec3Array = inValue.GetValue<Array<math::float4>>();
+			std::vector<uint8_t> binaryVec(vec3Array.size() * sizeof(math::float4));
+
+			//copy into binary vec
+			for (int32_t i = 0; i < vec3Array.size(); ++i)
+			{
+				const uint8_t* bytes = reinterpret_cast<const uint8_t*>(&vec3Array[i]);
+				std::memcpy(&binaryVec[i * sizeof(math::float4)], bytes, sizeof(math::float4));
+			}
+
+			GuGuUtf8Str base64Str = Base64Encode(binaryVec);
+			result[inFieldName.getStr()] = base64Str.getStr();
+			
+		}
+		else if (inValue.GetType() == typeof(Array<math::int16_t4>)) //int16
+		{
+			Array<math::int16_t4> int16_4Array = inValue.GetValue<Array<math::int16_t4>>();
+			std::vector<uint8_t> binaryVec(int16_4Array.size() * sizeof(math::int16_t4));
+
+			//copy into binary vec
+			for (int32_t i = 0; i < int16_4Array.size(); ++i)
+			{
+				const uint8_t* bytes = reinterpret_cast<const uint8_t*>(&int16_4Array[i]);
+				std::memcpy(&binaryVec[i * sizeof(math::int16_t4)], bytes, sizeof(math::int16_t4));
+			}
+
+			GuGuUtf8Str base64Str = Base64Encode(binaryVec);
+			result[inFieldName.getStr()] = base64Str.getStr();
+		}
+		return result;
+	}
+
+	meta::Variant GStaticMesh::deserializeDenseStructArray(const GuGuUtf8Str& inFieldName, const meta::Type inFieldType, const nlohmann::json& inValue)
+	{
+		if (inValue.contains(inFieldName.getStr()))
+		{
+			nlohmann::json value = inValue[inFieldName.getStr()];
+			meta::Variant result;
+			//deserialize
+			std::vector<uint8_t> binaryVec = Base64Decode(value.get<std::string>());
+			//from binary vec to float3/float2/float4 vec
+			if (inFieldType == typeof(Array<uint32_t>))
+			{
+				int32_t step = sizeof(uint32_t);
+				std::vector<uint32_t> result(binaryVec.size() / sizeof(uint32_t));
+				for (int32_t i = 0; i < result.size(); ++i)
+				{
+					std::memcpy(&result[i], &binaryVec[i * sizeof(uint32_t)], sizeof(uint32_t));
+				}
+				return Array<uint32_t>(result);
+			}
+			if (inFieldType == typeof(Array<math::float2>))
+			{
+				int32_t step = sizeof(math::float2);
+				std::vector<math::float2> result(binaryVec.size() / sizeof(math::float2));
+				for (int32_t i = 0; i < result.size(); ++i)
+				{
+					std::memcpy(&result[i], &binaryVec[i * sizeof(math::float2)], sizeof(math::float2));
+				}
+				return Array<math::float2>(result);
+			}
+			if (inFieldType == typeof(Array<math::float3>))
+			{
+				int32_t step = sizeof(math::float3);
+				std::vector<math::float3> result(binaryVec.size() / sizeof(math::float3));
+				for (int32_t i = 0; i < result.size(); ++i)
+				{
+					std::memcpy(&result[i], &binaryVec[i * sizeof(math::float3)], sizeof(math::float3));
+				}
+				return Array<math::float3>(result);
+			}
+			if (inFieldType == typeof(Array<math::float4>))
+			{
+				int32_t step = sizeof(math::float4);
+				std::vector<math::float4> result(binaryVec.size() / sizeof(math::float4));
+				for (int32_t i = 0; i < result.size(); ++i)
+				{
+					std::memcpy(&result[i], &binaryVec[i * sizeof(math::float4)], sizeof(math::float4));
+				}
+				return Array<math::float4>(result);
+			}
+			if (inFieldType == typeof(Array<math::int16_t4>))
+			{
+				int32_t step = sizeof(math::int16_t4);
+				std::vector<math::int16_t4> result(binaryVec.size() / sizeof(math::int16_t4));
+				for (int32_t i = 0; i < result.size(); ++i)
+				{
+					std::memcpy(&result[i], &binaryVec[i * sizeof(math::int16_t4)], sizeof(math::int16_t4));
+				}
+				return Array<math::int16_t4>(result);
+			}
+		}
 	}
 
 }

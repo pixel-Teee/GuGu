@@ -18,7 +18,7 @@ namespace GuGu {
 			ADD_INITIAL_FUNCTION_WITH_PRIORITY(registermetaCustomDeserializeField)
 		IMPLEMENT_INITIAL_END
 
-		CustomDeserializeField::CustomDeserializeField(const std::function<nlohmann::json(const meta::Variant& inValue)>& inDeserializeFieldCallback)
+		CustomDeserializeField::CustomDeserializeField(const std::function<meta::Variant(const GuGuUtf8Str& inFieldName, const meta::Type& inFieldType, const nlohmann::json& inValue)>& inDeserializeFieldCallback)
 		{
 			m_deserializeFieldCallback = inDeserializeFieldCallback;
 		}
@@ -43,6 +43,7 @@ namespace GuGu {
 		{
 			//throw std::logic_error("The method or operation is not implemented.");
 			CustomDeserializeField* newCustomDeserializeField = new CustomDeserializeField(*this);
+			newCustomDeserializeField->m_deserializeFieldCallback = m_deserializeFieldCallback;
 			return newCustomDeserializeField;
 		}
 
@@ -51,14 +52,19 @@ namespace GuGu {
 			//throw std::logic_error("The method or operation is not implemented.");
 		}
 
-		nlohmann::json CustomDeserializeField::invokeCallback(const meta::Variant& inValue)
+		meta::Variant CustomDeserializeField::invokeCallback(const GuGuUtf8Str& inFieldName, const meta::Type& inFieldType, const nlohmann::json& inValue) const
 		{
-			nlohmann::json result;
+			//nlohmann::json result;
+			//if (m_deserializeFieldCallback)
+			//{
+			//	result = m_deserializeFieldCallback(inValue);
+			//}
+			//return result;
 			if (m_deserializeFieldCallback)
 			{
-				result = m_deserializeFieldCallback(inValue);
+				return m_deserializeFieldCallback(inFieldName, inFieldType, inValue);
 			}
-			return result;
+			return meta::Variant();//not valid
 		}
 
 	}

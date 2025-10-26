@@ -130,6 +130,7 @@ namespace GuGu{
         DEFINE_CONCRETE_VECTORS(int);
         DEFINE_CONCRETE_VECTORS(uint);
         DEFINE_CONCRETE_VECTORS(bool);
+        DEFINE_CONCRETE_VECTORS(int16_t);
 
 #undef DEFINE_CONCRETE_VECTORS
 

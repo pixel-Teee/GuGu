@@ -10,13 +10,13 @@ namespace GuGu {
 		{
 		public:
 			DECLARE_INITIAL
-			CustomDeserializeField(const std::function<nlohmann::json(const meta::Variant& inValue)>& inDeserializeFieldCallback);
+			CustomDeserializeField(const std::function<meta::Variant(const GuGuUtf8Str& inFieldName, const meta::Type& inFieldType, const nlohmann::json& inValue)>& inDeserializeFieldCallback);
 
 			CustomDeserializeField(const CustomDeserializeField& rhs);
 
 			virtual ~CustomDeserializeField() { }
 
-			std::function<nlohmann::json(const meta::Variant& inValue)> m_deserializeFieldCallback;
+			std::function<meta::Variant(const GuGuUtf8Str& inFieldName, const meta::Type& inFieldType, const nlohmann::json& inValue)> m_deserializeFieldCallback;
 
 			void Update(float fElapsedTimeSeconds) override;
 
@@ -26,7 +26,7 @@ namespace GuGu {
 
 			void PostLoad() override;
 
-			nlohmann::json invokeCallback(const meta::Variant& inValue);
+			meta::Variant invokeCallback(const GuGuUtf8Str& inFieldName, const meta::Type& inFieldType, const nlohmann::json& inValue) const;
 		};
 	}
 }

@@ -69,5 +69,9 @@ namespace GuGu{
 		//runtime info
 		Array<math::float4x4> m_finalBoneMatrices;
 		nvrhi::BufferHandle m_finalBoneMatricesBuffer;
+
+		//序列化稠密结构体数组，用于Array<math::float3>等
+		static nlohmann::json serializeDenseStructArray(const GuGuUtf8Str& inFieldName, const meta::Variant& inValue);
+		static meta::Variant deserializeDenseStructArray(const GuGuUtf8Str& inFieldName, const meta::Type inFieldType, const nlohmann::json& inValue);
 	};
 }
