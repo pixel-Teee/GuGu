@@ -30,6 +30,8 @@ namespace GuGu {
 
 		void createColorPicker(bool bUseAlpha, GuGuUtf8Str themeKeys);
 
+		Reply restore();
+
 	private:
 		std::shared_ptr<VerticalBox> m_themeVerticalBox;
 	};

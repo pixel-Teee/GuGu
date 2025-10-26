@@ -10,7 +10,8 @@
 //#include <Core/UI/ComplexGradient.h>
 #include <Core/UI/Border.h>
 #include <Core/UI/NullWidget.h>
-//#include <Core/UI/Button.h>
+#include <Core/UI/Box.h>
+#include <Core/UI/Button.h>
 //#include <Core/UI/WindowWidget.h>
 //#include <Editor/StyleSet/EditorStyleSet.h>
 //
@@ -93,6 +94,34 @@ namespace GuGu {
 				)
 			);
 		}
+
+		std::shared_ptr<Button> restoreButton;
+
+		m_themeVerticalBox->addSlot()
+		.StretchHeight(1.0f)
+		(
+			WIDGET_NEW(HorizontalBox)
+			+ HorizontalBox::Slot()
+			.FixedWidth()
+			(
+				WIDGET_NEW(BoxWidget)
+				.HeightOverride(OptionalSize(38.0f))
+				.WidthOverride(OptionalSize(80.0f))
+				.Content
+				(
+					WIDGET_ASSIGN_NEW(Button, restoreButton)
+					.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+					.Content
+					(
+						WIDGET_NEW(TextBlockWidget)
+						.text(u8"Restore")
+						.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+					)
+				)
+			)
+		);
+
+		restoreButton->setOnClicked(OnClicked(std::bind(&ThemePanel::restore, this)));
 	}
 
 	Reply ThemePanel::onMouseButtonDownColorBlock(const WidgetGeometry& widgetGeometry, const PointerEvent& pointerEvent, GuGuUtf8Str themeKeys)
@@ -138,5 +167,20 @@ namespace GuGu {
 		openColorPicker(pickerArgs);
 	}
 
+
+	Reply ThemePanel::restore()
+	{
+		std::shared_ptr<EditorStyleSet> editorStyleSet = std::static_pointer_cast<EditorStyleSet>(EditorStyleSet::getStyleSet());
+		GuGuUtf8Str themeName = editorStyleSet->getCurrentThemeName();
+		Theme loadedTheme = editorStyleSet->getTheme(themeName);
+		//editorStyleSet->setColor(themeKeys, inColor);
+		for (int32_t i = 0; i < ThemeKeys::MaxColorCount; ++i)
+		{
+			ThemeKeys keys = static_cast<ThemeKeys>(i);
+			//get color			
+			editorStyleSet->setColor(Theme::ThemeKeysToStr(keys), loadedTheme.m_colors[keys]);
+		}
+		return Reply::Handled();
+	}
 
 }
