@@ -86,11 +86,12 @@ namespace GuGu {
 
 				nlohmann::json whiteTextureJson = serializeJson(whiteTexture);
 				GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
-				whiteTextureJson["GUID"] = guidStr.getStr();
+				//whiteTextureJson["GUID"] = guidStr.getStr();
 				whiteTextureJson["Version"] = std::to_string(GuGu_Version);
 				GuGuUtf8Str fileContent = whiteTextureJson.dump();
 
-				registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GTexture>().ID));
+				guidStr = registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GTexture>().ID));
+				whiteTextureJson["GUID"] = guidStr.getStr();
 				getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
 				getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
 				getRootFileSystem()->CloseFile();
@@ -106,11 +107,12 @@ namespace GuGu {
 
 				nlohmann::json cubeModelJson = serializeJson(cube);
 				GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
-				cubeModelJson["GUID"] = guidStr.getStr();
+				//cubeModelJson["GUID"] = guidStr.getStr();
 				cubeModelJson["Version"] = std::to_string(GuGu_Version);
 				GuGuUtf8Str fileContent = cubeModelJson.dump();
 
-				registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GStaticMesh>().ID));
+				guidStr = registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GStaticMesh>().ID));
+				cubeModelJson["GUID"] = guidStr.getStr();
 				getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
 				getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
 				getRootFileSystem()->CloseFile();
@@ -218,23 +220,43 @@ namespace GuGu {
 		return m_rootFileSystem;
 	}
 
-	void AssetManager::registerAsset(const GuGuUtf8Str& guid, const GuGuUtf8Str& filePath, const GuGuUtf8Str& fileName, meta::Type assetType)
+	GuGuUtf8Str AssetManager::registerAsset(const GuGuUtf8Str& guid, const GuGuUtf8Str& filePath, const GuGuUtf8Str& fileName, meta::Type assetType)
 	{
-		//GuGuUtf8Str relativePath = "content/" + FilePath::getRelativePathForAsset(filePath, m_nativeFileSystem->getNativeFilePath() + "/").getStr();
-		GuGuUtf8Str relativePath = filePath;
-		m_guidToAssetMap.insert({ guid, std::make_shared<AssetData>(relativePath, fileName, assetType.getGuid().getGuid())});
-		m_rootFileSystem->OpenFile("content/AssetRgistry.json", GuGuFile::FileMode::OnlyWrite);
-		
-		nlohmann::json newItem = nlohmann::json::object();
-		newItem["GUID"] = guid.getStr();
-		newItem["FilePath"] = relativePath.getStr();
-		newItem["FileName"] = fileName.getStr();
-		GuGuUtf8Str assetTypeGuid = assetType.getGuid().getGuid();
-		newItem["AssetType"] = assetTypeGuid.getStr();//string
-		m_assetRegistryJson["AssetRegistry"].push_back(newItem);
-		GuGuUtf8Str jsonFileContent = m_assetRegistryJson.dump();
-		m_rootFileSystem->WriteFile((void*)jsonFileContent.getStr(), jsonFileContent.getTotalByteCount());
-		m_rootFileSystem->CloseFile();
+		GuGuUtf8Str fileGuid = guid;
+		bool bFound = false;
+		for (const auto& item : m_guidToAssetMap)
+		{
+			if (item.second->m_filePath == filePath)
+			{
+				bFound = true;
+				fileGuid = item.first.getGuid();//get guid
+				break;
+			}
+		}
+		if (bFound)
+		{
+			return fileGuid;
+		}
+		else
+		{
+			//GuGuUtf8Str relativePath = "content/" + FilePath::getRelativePathForAsset(filePath, m_nativeFileSystem->getNativeFilePath() + "/").getStr();
+			GuGuUtf8Str relativePath = filePath;
+			m_guidToAssetMap.insert({ guid, std::make_shared<AssetData>(relativePath, fileName, assetType.getGuid().getGuid()) });
+			m_rootFileSystem->OpenFile("content/AssetRgistry.json", GuGuFile::FileMode::OnlyWrite);
+
+			nlohmann::json newItem = nlohmann::json::object();
+			newItem["GUID"] = guid.getStr();
+			newItem["FilePath"] = relativePath.getStr();
+			newItem["FileName"] = fileName.getStr();
+			GuGuUtf8Str assetTypeGuid = assetType.getGuid().getGuid();
+			newItem["AssetType"] = assetTypeGuid.getStr();//string
+			m_assetRegistryJson["AssetRegistry"].push_back(newItem);
+			GuGuUtf8Str jsonFileContent = m_assetRegistryJson.dump();
+			m_rootFileSystem->WriteFile((void*)jsonFileContent.getStr(), jsonFileContent.getTotalByteCount());
+			m_rootFileSystem->CloseFile();
+
+			return guid;
+		}	
 	}
 
 	bool AssetManager::isInAssetRegistry(const GGuid& fileGuid) const

@@ -1,1 +1,28 @@
-{"AssetRegistry":[{"AssetType":"026CB8ED-6633-4577-B32C-F3F4D9C2FC22","FileName":"white.json","FilePath":"content/white.json","GUID":"9BB87DDC-0D4E-41E1-B49C-EC50C960390C"},{"AssetType":"C48E6CAE-2E8A-4CD9-A35D-56BF134431C7","FileName":"defaultCube.json","FilePath":"content/defaultCube.json","GUID":"43AD3702-6FD0-464C-A3D8-3176CA15881A"},{"AssetType":"C48E6CAE-2E8A-4CD9-A35D-56BF134431C7","FileName":"Defeated.json","FilePath":"content/Defeated.json","GUID":"ED8410B0-A9F3-4A48-84DB-C94833E76998"},{"AssetType":"64CB643F-2C9C-4857-AA01-4F6F995A4CBE","FileName":"TestModel.json","FilePath":"content/TestModel.json","GUID":"D4FF1C1C-1AF8-4EA8-988D-44DD5043E83D"},{"AssetType":"64CB643F-2C9C-4857-AA01-4F6F995A4CBE","FileName":"TestModel.json","FilePath":"content/TestModel.json","GUID":"9B3F2F0C-BB20-4C64-B2BF-EFB651E0E651"}]}
+{
+  "AssetRegistry": [
+    {
+      "AssetType": "026CB8ED-6633-4577-B32C-F3F4D9C2FC22",
+      "FileName": "white.json",
+      "FilePath": "content/white.json",
+      "GUID": "1A41538D-E94D-4050-A253-C74751F05B60"
+    },
+    {
+      "AssetType": "C48E6CAE-2E8A-4CD9-A35D-56BF134431C7",
+      "FileName": "defaultCube.json",
+      "FilePath": "content/defaultCube.json",
+      "GUID": "7B966BA4-C8CA-4B6D-AB1C-7821149E47DF"
+    },
+    {
+      "AssetType": "C48E6CAE-2E8A-4CD9-A35D-56BF134431C7",
+      "FileName": "Defeated.json",
+      "FilePath": "content/Defeated.json",
+      "GUID": "EF435C55-08DE-40B4-AB6E-D20BA049A511"
+    },
+    {
+      "AssetType": "64CB643F-2C9C-4857-AA01-4F6F995A4CBE",
+      "FileName": "TestModel.json",
+      "FilePath": "content/TestModel.json",
+      "GUID": "290B6110-6840-4A43-899C-0B60FDCBDB4C"
+    }
+  ]
+}

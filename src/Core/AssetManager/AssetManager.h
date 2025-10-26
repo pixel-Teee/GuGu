@@ -40,7 +40,7 @@ namespace GuGu {
 
 		std::shared_ptr<RootFileSystem> getRootFileSystem() const;
 
-		void registerAsset(const GuGuUtf8Str& guid, const GuGuUtf8Str& filePath, const GuGuUtf8Str& fileName, meta::Type assetType);
+		GuGuUtf8Str registerAsset(const GuGuUtf8Str& guid, const GuGuUtf8Str& filePath, const GuGuUtf8Str& fileName, meta::Type assetType);
 
 		bool isInAssetRegistry(const GGuid& fileGuid) const;
 

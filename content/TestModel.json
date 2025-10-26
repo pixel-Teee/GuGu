@@ -1,1 +1,168 @@
-{"GUID":"9B3F2F0C-BB20-4C64-B2BF-EFB651E0E651","Objects":[{"1":{"m_objects":[2,6,9],"type":"64CB643F-2C9C-4857-AA01-4F6F995A4CBE"}},{"2":{"m_childrens":[],"m_components":[3,4,5],"m_name":"GameObject","m_parentGameObject":-1,"type":"764220D9-31E0-448B-9612-79A47B570367"}},{"3":{"m_Rotation":{"pitch":180.0,"roll":0.0,"yaw":0.0},"m_Scaling":{"x":1.0,"y":1.0,"z":1.0},"m_Translation":{"x":0.0,"y":0.0,"z":10.0},"m_owner":2,"type":"57B43954-87AF-495A-8B58-E15890E621D1"}},{"4":{"m_owner":2,"m_staticMeshAsset":"ED8410B0-A9F3-4A48-84DB-C94833E76998","type":"303B0EAC-B07E-42E1-B6E9-A56F00E75814"}},{"5":{"m_albedo":{"a":1.0,"b":1.0,"g":0.9399740099906921,"r":0.6608579754829407},"m_albedoTexture":"9BB87DDC-0D4E-41E1-B49C-EC50C960390C","m_ao":0.0,"m_metallic":0.05000000074505806,"m_owner":2,"m_roughness":0.10000000149011612,"type":"5B3EA494-8F58-4A28-A623-CCF822CDF3A1"}},{"6":{"m_childrens":[],"m_components":[7,8],"m_name":"GameObject","m_parentGameObject":-1,"type":"764220D9-31E0-448B-9612-79A47B570367"}},{"7":{"m_Rotation":{"pitch":0.0,"roll":0.0,"yaw":0.0},"m_Scaling":{"x":1.0,"y":1.0,"z":1.0},"m_Translation":{"x":0.0,"y":262.00784826278687,"z":-52.918609857559204},"m_owner":6,"type":"57B43954-87AF-495A-8B58-E15890E621D1"}},{"8":{"m_lightColor":{"a":1.0,"b":900.0,"g":200.0,"r":200.0},"m_lightPosition":{"w":1.0,"x":0.0,"y":0.0,"z":-10.0},"m_owner":6,"type":"3EF471CA-C9A2-4F2B-AEA9-326276AE4763"}},{"9":{"m_childrens":[],"m_components":[10,11],"m_name":"GameObject","m_parentGameObject":-1,"type":"764220D9-31E0-448B-9612-79A47B570367"}},{"10":{"m_Rotation":{"pitch":0.0,"roll":0.0,"yaw":0.0},"m_Scaling":{"x":1.0,"y":1.0,"z":1.0},"m_Translation":{"x":0.0,"y":121.76577806472778,"z":-59.16741865873337},"m_owner":9,"type":"57B43954-87AF-495A-8B58-E15890E621D1"}},{"11":{"m_farPlane":75.82855987548828,"m_fov":100.0,"m_nearPlane":0.009999999776482582,"m_owner":9,"type":"DE850877-05B1-487C-A11F-CBABB546D177"}}],"Version":"1.000000"}
+{
+  "Objects": [
+    {
+      "1": {
+        "m_objects": [
+          2,
+          6,
+          9
+        ],
+        "type": "64CB643F-2C9C-4857-AA01-4F6F995A4CBE"
+      }
+    },
+    {
+      "2": {
+        "m_childrens": [
+        ],
+        "m_components": [
+          3,
+          4,
+          5
+        ],
+        "m_name": "GameObject",
+        "m_parentGameObject": -1,
+        "type": "764220D9-31E0-448B-9612-79A47B570367"
+      }
+    },
+    {
+      "3": {
+        "m_Rotation": {
+          "pitch": 0.0,
+          "roll": 0.0,
+          "yaw": 0.0
+        },
+        "m_Scaling": {
+          "x": 0.01,
+          "y": 0.01,
+          "z": 0.01
+        },
+        "m_Translation": {
+          "x": 0.0,
+          "y": -0.34351132810115814,
+          "z": 11.895078882575035
+        },
+        "m_owner": 2,
+        "type": "57B43954-87AF-495A-8B58-E15890E621D1"
+      }
+    },
+    {
+      "4": {
+        "m_owner": 2,
+        "m_staticMeshAsset": "EF435C55-08DE-40B4-AB6E-D20BA049A511",
+        "type": "303B0EAC-B07E-42E1-B6E9-A56F00E75814"
+      }
+    },
+    {
+      "5": {
+        "m_albedo": {
+          "a": 1.0,
+          "b": 0.7877039909362793,
+          "g": 1.0,
+          "r": 0.641569972038269
+        },
+        "m_albedoTexture": "1A41538D-E94D-4050-A253-C74751F05B60",
+        "m_ao": 0.0,
+        "m_metallic": 0.05000000074505806,
+        "m_owner": 2,
+        "m_roughness": 0.10000000149011612,
+        "type": "5B3EA494-8F58-4A28-A623-CCF822CDF3A1"
+      }
+    },
+    {
+      "6": {
+        "m_childrens": [
+        ],
+        "m_components": [
+          7,
+          8
+        ],
+        "m_name": "GameObject",
+        "m_parentGameObject": -1,
+        "type": "764220D9-31E0-448B-9612-79A47B570367"
+      }
+    },
+    {
+      "7": {
+        "m_Rotation": {
+          "pitch": 0.0,
+          "roll": 0.0,
+          "yaw": 0.0
+        },
+        "m_Scaling": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "m_Translation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 30.53667889535427
+        },
+        "m_owner": 6,
+        "type": "57B43954-87AF-495A-8B58-E15890E621D1"
+      }
+    },
+    {
+      "8": {
+        "m_lightColor": {
+          "a": 1.0,
+          "b": 0.9896870255470276,
+          "g": 1.0,
+          "r": 0.9767069816589355
+        },
+        "m_lightPosition": {
+          "w": 1.0,
+          "x": 0.0,
+          "y": 0.0,
+          "z": -10.0
+        },
+        "m_owner": 6,
+        "type": "3EF471CA-C9A2-4F2B-AEA9-326276AE4763"
+      }
+    },
+    {
+      "9": {
+        "m_childrens": [
+        ],
+        "m_components": [
+          10,
+          11
+        ],
+        "m_name": "GameObject",
+        "m_parentGameObject": -1,
+        "type": "764220D9-31E0-448B-9612-79A47B570367"
+      }
+    },
+    {
+      "10": {
+        "m_Rotation": {
+          "pitch": 169.46560668945313,
+          "roll": 0.0,
+          "yaw": 0.0
+        },
+        "m_Scaling": {
+          "x": 1.0,
+          "y": 1.0,
+          "z": 1.0
+        },
+        "m_Translation": {
+          "x": 0.0,
+          "y": 0.0,
+          "z": 14.59280338510871
+        },
+        "m_owner": 9,
+        "type": "57B43954-87AF-495A-8B58-E15890E621D1"
+      }
+    },
+    {
+      "11": {
+        "m_farPlane": 20.0,
+        "m_fov": 60.0,
+        "m_nearPlane": 0.009999999776482582,
+        "m_owner": 9,
+        "type": "DE850877-05B1-487C-A11F-CBABB546D177"
+      }
+    }
+  ],
+  "Version": "1.000000"
+}

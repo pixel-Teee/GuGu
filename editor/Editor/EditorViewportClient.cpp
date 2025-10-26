@@ -218,7 +218,7 @@ namespace GuGu {
 				nlohmann::json levelJson = AssetManager::getAssetManager().serializeJson(currentLevel);
 				GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
 				levelJson["Version"] = std::to_string(GuGu_Version);
-				levelJson["GUID"] = guidStr.getStr();
+				//levelJson["GUID"] = guidStr.getStr();
 				GuGuUtf8Str fileContent = levelJson.dump();
 
 				GuGuUtf8Str noFileExtensionsFileName = fileName;
@@ -236,7 +236,8 @@ namespace GuGu {
 				//}					
 				GuGuUtf8Str outputFilePath = ouputDir + "/" + noFileExtensionsFileName + ".json";
 
-				AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<Level>().ID));
+				guidStr = AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<Level>().ID));
+				levelJson["GUID"] = guidStr.getStr();
 				//输出到目录
 				AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
 				AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());

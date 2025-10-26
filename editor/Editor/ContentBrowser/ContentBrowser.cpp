@@ -273,7 +273,7 @@ namespace GuGu {
 					ModelImporter modelImporter;
 					nlohmann::json modelJson = modelImporter.loadModel(filePath);
 					GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
-					modelJson["GUID"] = guidStr.getStr();
+					//modelJson["GUID"] = guidStr.getStr();
 					GuGuUtf8Str fileContent = modelJson.dump();
 
 					GuGuUtf8Str noFileExtensionsFileName = fileName;
@@ -291,7 +291,8 @@ namespace GuGu {
 					//}					
 					GuGuUtf8Str outputFilePath = sourcesData + "/" + noFileExtensionsFileName + ".json";
 
-					AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GStaticMesh>().ID));
+					guidStr = AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GStaticMesh>().ID));
+					modelJson["GUID"] = guidStr.getStr();
 					//输出到目录
 					AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
 					AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
@@ -320,7 +321,7 @@ namespace GuGu {
 					TextureImporter textureImporter;
 					nlohmann::json textureJson = textureImporter.loadTexture(filePath);
 					GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
-					textureJson["GUID"] = guidStr.getStr();
+					//textureJson["GUID"] = guidStr.getStr();
 					GuGuUtf8Str fileContent = textureJson.dump();
 
 					GuGuUtf8Str noFileExtensionsFileName = fileName;
@@ -338,7 +339,8 @@ namespace GuGu {
 					//}					
 					GuGuUtf8Str outputFilePath = sourcesData + "/" + noFileExtensionsFileName + ".json";
 
-					AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GTexture>().ID));
+					guidStr = AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GTexture>().ID));
+					textureJson["GUID"] = guidStr.getStr();
 					//输出到目录
 					AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
 					AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
@@ -365,7 +367,7 @@ namespace GuGu {
 					UITextManager uiTextManager;
 					nlohmann::json fontFileJson = uiTextManager.loadFontFile(filePath);
 					GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
-					fontFileJson["GUID"] = guidStr.getStr();
+					//fontFileJson["GUID"] = guidStr.getStr();
 					GuGuUtf8Str fileContent = fontFileJson.dump();
 
 					GuGuUtf8Str noFileExtensionsFileName = fileName;
@@ -383,7 +385,8 @@ namespace GuGu {
 					//}					
 					GuGuUtf8Str outputFilePath = sourcesData + "/" + noFileExtensionsFileName + ".json";
 
-					AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GFont>().ID));
+					guidStr = AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GFont>().ID));
+					fontFileJson["GUID"] = guidStr.getStr();
 					//输出到目录
 					AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
 					AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
@@ -415,7 +418,7 @@ namespace GuGu {
 					ModelImporter modelImporter;
 					nlohmann::json animationJson = modelImporter.loadAnimation(filePath);
 					GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
-					animationJson["GUID"] = guidStr.getStr();
+					//animationJson["GUID"] = guidStr.getStr();
 					GuGuUtf8Str fileContent = animationJson.dump();
 
 					GuGuUtf8Str noFileExtensionsFileName = fileName;
@@ -433,7 +436,8 @@ namespace GuGu {
 					//}					
 					GuGuUtf8Str outputFilePath = sourcesData + "/" + noFileExtensionsFileName + "_anim" + ".json";
 
-					AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + "_anim" + ".json", meta::Type(meta::TypeIDs<GAnimation>().ID));
+					guidStr = AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + "_anim" + ".json", meta::Type(meta::TypeIDs<GAnimation>().ID));
+					animationJson["GUID"] = guidStr.getStr();
 					//输出到目录
 					AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
 					AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
@@ -464,7 +468,7 @@ namespace GuGu {
 					ModelImporter modelImporter;
 					nlohmann::json modelJson = modelImporter.loadModel(filePath, true);//load skeleton
 					GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
-					modelJson["GUID"] = guidStr.getStr();
+					//modelJson["GUID"] = guidStr.getStr();
 					GuGuUtf8Str fileContent = modelJson.dump();
 
 					GuGuUtf8Str noFileExtensionsFileName = fileName;
@@ -482,7 +486,8 @@ namespace GuGu {
 					//}					
 					GuGuUtf8Str outputFilePath = sourcesData + "/" + noFileExtensionsFileName + ".json";
 
-					AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GStaticMesh>().ID));
+					guidStr = AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GStaticMesh>().ID));
+					modelJson["GUID"] = guidStr.getStr();
 					//输出到目录
 					AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
 					AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
