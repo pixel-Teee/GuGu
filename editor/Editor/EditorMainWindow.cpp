@@ -430,11 +430,35 @@ namespace GuGu {
 		math::float2 cursorPos = Application::getApplication()->getCursorPos();
 		std::shared_ptr<WindowWidget> window = WIDGET_NEW(WindowWidget)
 			.ScreenPosition(cursorPos)
-			.sizingRule(SizingRule::AutoSized)
-			.Content
+			.sizingRule(SizingRule::AutoSized);
+			//.Content
+			//(
+			//	WIDGET_NEW(VerticalBox)
+			//	+ VerticalBox::Slot()
+			//	.FixedHeight()
+			//	(
+			//		WIDGET_NEW(WindowTitleBar)
+			//		)
+			//	+ VerticalBox::Slot()
+			//	.FixedHeight()
+			//	(
+			//		WIDGET_NEW(ThemePanel)
+			//		)
+			//);
+
+		window->setContent(
+			WIDGET_NEW(VerticalBox)
+			+ VerticalBox::Slot()
+			.FixedHeight()
+			(
+				WIDGET_NEW(WindowTitleBar, window)
+			)
+			+ VerticalBox::Slot()
+			.FixedHeight()
 			(
 				WIDGET_NEW(ThemePanel)
-			);
+			)
+		);
 
 		WidgetPath widgetPath;
 		Application::getApplication()->generatePathToWidgetUnchecked(shared_from_this(), widgetPath);
