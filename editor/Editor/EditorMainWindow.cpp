@@ -41,6 +41,7 @@
 #include <Core/GamePlay/World.h>
 
 #include <Editor/StyleSet/ThemePanel.h> //theme panel
+#include <Editor/Debug/ShowTexturePanel.h>
 
 namespace GuGu {
 	EditorMainWindow::EditorMainWindow()
@@ -70,6 +71,8 @@ namespace GuGu {
 			std::shared_ptr<Button> fileButton;
 
 			std::shared_ptr<Button> themeButton;
+
+			std::shared_ptr<Button> debugView;//debug view
 
 			std::shared_ptr<Button> undoButton;
 			std::shared_ptr<Button> redoButton;
@@ -147,6 +150,41 @@ namespace GuGu {
 									WIDGET_NEW(TextBlockWidget)
 									.text(u8"Theme")
 									.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+								)
+							)
+						)
+						+ HorizontalBox::Slot()
+						.FixedWidth()
+						.setPadding(Padding(10.0f, 0.0f, 0.0f, 0.0f))
+						(
+							WIDGET_NEW(VerticalBox)
+							+ VerticalBox::Slot()
+							.FixedHeight()
+							(
+								WIDGET_NEW(BoxWidget)
+								.HeightOverride(OptionalSize(38.0f))
+								.WidthOverride(OptionalSize(60.0f))
+								.Content
+								(
+									WIDGET_ASSIGN_NEW(Button, debugView)
+									.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+									.Content
+									(
+										WIDGET_NEW(TextBlockWidget)
+										.text(u8"Debug")
+										.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+									)
+								)
+							)
+							+ VerticalBox::Slot()
+							.FixedHeight()
+							(
+								WIDGET_ASSIGN_NEW(MenuAnchor, m_debugViewMenuAnchor)
+								.useApplicationMenuStack(true)
+								.method(PopupMethod::CreateNewWindow)
+								.Content
+								(
+									NullWidget::getNullWidget()
 								)
 							)
 						)
@@ -315,6 +353,8 @@ namespace GuGu {
 			.ScreenPosition(arguments.mScreenPosition));
 
 			fileButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::openFileMenu, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
+
+			debugView->setOnClicked(OnClicked(std::bind(&EditorMainWindow::openDebugViewMenu, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
 			//m_switchEditorAndRuntime->setOnClicked(OnClicked(std::bind(&EditorMainWindow::switchEditorAndRuntime, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
 
 			undoButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::undo, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
@@ -388,9 +428,43 @@ namespace GuGu {
 
 		m_openFileMenuAnchor->setIsOpen(true);
 
-		m_saveLevelButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::openLevel, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
+		//m_saveLevelButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::openLevel, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
 		return Reply::Handled();
 	}
+
+	GuGu::Reply EditorMainWindow::openDebugViewMenu()
+	{
+		m_debugViewMenuAnchor->setMenuContent(
+			WIDGET_NEW(Border)
+			.BorderBackgroundColor(Attribute<math::float4>::Create([=]() {
+				return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel4");
+			}))
+			.Content
+			(
+				WIDGET_NEW(VerticalBox)
+				+ VerticalBox::Slot()
+				.FixedHeight()
+				(
+					WIDGET_ASSIGN_NEW(Button, m_openFontAtlasButton)
+					.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+					.Content
+					(
+						WIDGET_NEW(TextBlockWidget)
+						.text(u8"Show Font Atlas")
+						.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+					)
+				)
+			)
+		);
+
+		m_openFontAtlasButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::openFontAtlas, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
+
+		m_debugViewMenuAnchor->setIsOpen(true);
+
+		//m_saveLevelButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::openLevel, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
+		return Reply::Handled();
+	}
+
 	GuGu::Reply EditorMainWindow::openLevel()
 {
 		GuGuUtf8Str fileName;
@@ -457,6 +531,49 @@ namespace GuGu {
 			.FixedHeight()
 			(
 				WIDGET_NEW(ThemePanel)
+			)
+		);
+
+		WidgetPath widgetPath;
+		Application::getApplication()->generatePathToWidgetUnchecked(shared_from_this(), widgetPath);
+		Application::getApplication()->addWindowAsNativeChild(window, widgetPath.getWindow());
+
+		return Reply::Handled();
+	}
+
+	Reply EditorMainWindow::openFontAtlas()
+	{
+		//open editor font atlas
+		math::float2 cursorPos = Application::getApplication()->getCursorPos();
+		std::shared_ptr<WindowWidget> window = WIDGET_NEW(WindowWidget)
+			.ScreenPosition(cursorPos)
+			.sizingRule(SizingRule::AutoSized);
+		//.Content
+		//(
+		//	WIDGET_NEW(VerticalBox)
+		//	+ VerticalBox::Slot()
+		//	.FixedHeight()
+		//	(
+		//		WIDGET_NEW(WindowTitleBar)
+		//		)
+		//	+ VerticalBox::Slot()
+		//	.FixedHeight()
+		//	(
+		//		WIDGET_NEW(ThemePanel)
+		//		)
+		//);
+
+		window->setContent(
+			WIDGET_NEW(VerticalBox)
+			+ VerticalBox::Slot()
+			.FixedHeight()
+			(
+				WIDGET_NEW(WindowTitleBar, window)
+			)
+			+ VerticalBox::Slot()
+			.FixedHeight()
+			(
+				WIDGET_NEW(ShowTexturePanel)//show texture panel
 			)
 		);
 

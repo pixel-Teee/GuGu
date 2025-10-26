@@ -47,6 +47,10 @@ namespace GuGu {
 			.setVerticalAlignment(VerticalAlignment::Top)
 			.setPadding(Padding(locationInPanel.x, locationInPanel.y, 0, 0))
 			(inMenu->getContent());
+
+			
+			std::function<void(std::shared_ptr<GuGu::IMenu>)> func = std::bind(&MenuPanel::onMenuClosed, this, std::placeholders::_1);
+			inMenu->addOnMenuDismissed(func);
 		}
 
 		void onMenuClosed(std::shared_ptr<IMenu> inMenu)

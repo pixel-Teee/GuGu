@@ -1,5 +1,7 @@
 #pragma once
 
+#include <functional>
+
 namespace GuGu {
 	class Widget;
 	class WindowWidget;
@@ -8,12 +10,16 @@ namespace GuGu {
 	class IMenu
 	{
 	public:
+		using OnMenuDismissed = std::function<void(std::shared_ptr<IMenu>)>;
+
 		virtual ~IMenu() {}
 		virtual PopupMethod getPopupMethod() const = 0;
 		virtual std::shared_ptr<WindowWidget> getParentWindow() const = 0;
 		virtual std::shared_ptr<WindowWidget> getOwnedWindow() const = 0;
 		virtual std::shared_ptr<Widget> getContent() const = 0;
 
+		//virtual OnMenuDismissed& getOnMenuDismissed() = 0;
+		virtual void addOnMenuDismissed(OnMenuDismissed func) = 0;
 		virtual bool usingApplicationMenuStack() const = 0;
 		virtual void dismiss() = 0;
 	};

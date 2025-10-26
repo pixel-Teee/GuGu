@@ -86,8 +86,10 @@ namespace GuGu {
 		//返回真，如果 pop up 现在被打开，并且重复使用一个已经存在的窗口
 		bool isOpenAndReusingWindow() const;
 
-		//当关闭 pop up 的时候，就重置一些内容，做善后工作1
+		//当关闭 pop up 的时候，就重置一些内容，做善后工作
 		void resetPopupMenuContent();
+
+		void onMenuClosed(std::shared_ptr<IMenu> inMenu);
 
 		static std::vector<std::weak_ptr<IMenu>> m_openApplicationMenus;
 

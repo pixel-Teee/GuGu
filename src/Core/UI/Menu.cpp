@@ -4,6 +4,12 @@
 #include "WindowWidget.h"
 
 namespace GuGu {
+
+	void MenuBase::addOnMenuDismissed(OnMenuDismissed func)
+	{
+		m_onMenuDismissed.push_back(func);//add callback
+	}
+
 	MenuBase::MenuBase(std::shared_ptr<Widget> inContent, const bool bCollapsedByParent)
 		: m_content(inContent)
 		, m_bDismissing(false)
@@ -67,6 +73,16 @@ namespace GuGu {
 		if (!m_bDismissing)
 		{
 			m_bDismissing = true;
+			if (m_onMenuDismissed.size() > 0)
+			{	
+				for (int32_t i = 0; i < m_onMenuDismissed.size(); ++i)
+				{
+					if (m_onMenuDismissed[i]) //is bound
+					{
+						m_onMenuDismissed[i](shared_from_this());
+					}
+				}
+			}
 		
 			//关闭窗口
 			std::shared_ptr<WindowWidget> windowLocked = m_window.lock();

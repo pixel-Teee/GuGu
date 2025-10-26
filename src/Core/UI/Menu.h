@@ -8,14 +8,17 @@ namespace GuGu {
 	class MenuBase : public IMenu, public std::enable_shared_from_this<MenuBase>
 	{
 	public:
+		//virtual OnMenuDismissed& getOnMenuDismissed() override { return m_onMenuDismissed; }
 		virtual std::shared_ptr<Widget> getContent() const override { return m_content; }
 		
 		virtual bool usingApplicationMenuStack() const override { return false; }
 
 		bool isCollapsedByParent() const { return m_bIsCollapsedByParent; }
+		virtual void addOnMenuDismissed(OnMenuDismissed func);
 	protected:
 		MenuBase(std::shared_ptr<Widget> inContent, const bool bCollapsedByParent);
 
+		std::vector<OnMenuDismissed> m_onMenuDismissed;
 		std::shared_ptr<Widget> m_content;
 		bool m_bDismissing;
 		bool m_bIsCollapsedByParent;

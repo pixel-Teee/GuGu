@@ -336,7 +336,8 @@ namespace GuGu {
 							if (newMenu->getOwnedWindow())
 							{
 								m_popUpMenuPtr = newMenu;
-								//todo:添加回调
+								//这个非常重要，当窗口失去焦点的时候，锚点应该重置开关状态
+								newMenu->addOnMenuDismissed(std::bind(&MenuAnchor::onMenuClosed, this, std::placeholders::_1));
 								m_popupWindowPtr = newMenu->getOwnedWindow();
 							}
 							else
@@ -411,6 +412,22 @@ namespace GuGu {
 		//if (m_childWidget->m_childWidget != NullWidget::getNullWidget())
 		//	m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 	}
+
+	void MenuAnchor::onMenuClosed(std::shared_ptr<IMenu> inMenu)
+	{
+		resetPopupMenuContent();
+
+		if (m_onMenuOpenChanged)
+		{
+			m_onMenuOpenChanged(false);
+		}
+
+		if (m_onGetMenuContent)
+		{
+			setMenuContent(NullWidget::getNullWidget());
+		}
+	}
+
 	std::shared_ptr<WindowWidget> MenuAnchor::getMenuWindow() const
 	{
 		return isOpen() ? m_popupWindowPtr.lock() : std::shared_ptr<WindowWidget>();

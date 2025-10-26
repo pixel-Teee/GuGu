@@ -49,6 +49,8 @@ namespace GuGu {
 
 		Reply openFileMenu();
 
+		Reply openDebugViewMenu();
+
 		Reply openLevel();
 
 		Reply undo();
@@ -56,6 +58,8 @@ namespace GuGu {
 		Reply redo();
 
 		Reply openTheme();
+
+		Reply openFontAtlas();//font atlas
 
 		void switchEditorAndRuntime(CheckBoxState inCheckBoxState);
 
@@ -68,7 +72,11 @@ namespace GuGu {
 
 		std::shared_ptr<MenuAnchor> m_openFileMenuAnchor;
 
+		std::shared_ptr<MenuAnchor> m_debugViewMenuAnchor;
+
 		std::shared_ptr<Button> m_saveLevelButton;
+
+		std::shared_ptr<Button> m_openFontAtlasButton;
 
 		std::shared_ptr<CheckBox> m_switchEditorAndRuntime;
 
