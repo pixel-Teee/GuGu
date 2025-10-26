@@ -184,8 +184,8 @@ namespace GuGu {
 		.ScreenPosition(math::float2(0.0f, 0.0f));
 
 		AssetData assetData;
-		assetData.m_filePath = "content/AnimationTest.json";
-		assetData.m_fileName = "AnimationTest";
+		assetData.m_filePath = "content/TestTerrain.json";
+		assetData.m_fileName = "TestTerrain";
 		assetData.m_assetTypeGuid = typeof(Level).getGuid();
 		World::getWorld()->loadLevel(assetData);
 

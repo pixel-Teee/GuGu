@@ -19,6 +19,8 @@
 #include <Core/Model/GeometryHelper.h>
 #include <Core/Animation/GAnimation.h>
 
+#include "Base64.h"
+
 namespace GuGu {
 	AssetManager::AssetManager()
 	{
@@ -378,8 +380,11 @@ namespace GuGu {
 	{
 		if (type == typeof(Array<uint8_t>))
 		{
-			nlohmann::json binaryBlob = nlohmann::json::binary(instance.GetValue<Array<uint8_t>>());
-			return binaryBlob;
+			//nlohmann::json binaryBlob = nlohmann::json::binary(instance.GetValue<Array<uint8_t>>());
+			//return binaryBlob;
+			GuGuUtf8Str base64Str = Base64Encode(instance.GetValue<Array<uint8_t>>());
+			nlohmann::json base64 = base64Str.getStr();
+			return base64;
 		}
 
 		if (type.IsArray()) //数组
@@ -486,10 +491,15 @@ namespace GuGu {
 	{
 		if (type == typeof(Array<uint8_t>))
 		{
-			if (value.contains("bytes"))
+			//if (value.contains("bytes"))
+			//{
+			//	std::vector<uint8_t> binaryDataCopy = value["bytes"].get<std::vector<uint8_t>>();
+			//	return Array<uint8_t>(binaryDataCopy);
+			//}
+			 //version 2(use base 64)
 			{
-				std::vector<uint8_t> binaryDataCopy = value["bytes"].get<std::vector<uint8_t>>();
-				return Array<uint8_t>(binaryDataCopy);
+				std::vector<uint8_t> base64Data = Base64Decode(value.get<std::string>());
+				return Array<uint8_t>(base64Data);
 			}
 		}
 
