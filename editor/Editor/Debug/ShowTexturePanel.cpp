@@ -26,7 +26,7 @@ namespace GuGu {
 		m_debugFontBrush->m_texture = fontCache->getFontAtlasTexture();
 		m_debugFontBrush->m_startUV = math::double2(0.0f, 0.0f);
 		m_debugFontBrush->m_sizeUV = math::double2(1.0f, 1.0f);
-		m_debugFontBrush->m_actualSize = math::int2(1024, 1024);
+		m_debugFontBrush->m_actualSize = math::int2(512, 512);
 		m_debugFontBrush->m_margin = Padding(0, 0, 0, 0);
 		m_debugFontBrush->m_tiling = false;
 		m_debugFontBrush->m_drawAs = BrushDrawType::Type::Image;

@@ -93,9 +93,9 @@ namespace GuGu {
 		childGeometry.mAbsoluteScale = childGeometry.mAccumulateLayoutTransform.m_linear[0][0];//accumulate transform 只有缩放因子，直接从第一个分量取出来
 		return childGeometry;
 	}
-	WidgetGeometry WidgetGeometry::getChildGeometry(math::float2 inLocalSize, math::float2 inTranslation) const
+	WidgetGeometry WidgetGeometry::getChildGeometry(math::float2 inLocalSize, math::float2 inTranslation, float childScale) const
 	{
-		math::affine2 localLayoutTransform(math::float2x2::identity(), inTranslation);
+		math::affine2 localLayoutTransform(childScale, inTranslation);
 		WidgetGeometry childGeometry;
 		childGeometry.mAccumulateLayoutTransform = localLayoutTransform * mAccumulateLayoutTransform;//this order is important
 		childGeometry.mAccumulateRenderTransform = localLayoutTransform * mAccumulateRenderTransform;
