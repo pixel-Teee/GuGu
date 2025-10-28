@@ -141,7 +141,10 @@ namespace GuGu {
 
 	Reply ShowTexturePanel::OnMouseButtonDown(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
 	{
-		m_bIsDragging = true;
+		if (inMouseEvent.getEffectingButton() == Keys::RightMouseButton)
+		{
+			m_bIsDragging = true;
+		}
 		return Reply::Handled();
 	}
 

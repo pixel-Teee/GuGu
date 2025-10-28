@@ -67,5 +67,6 @@ namespace GuGu {
 		std::vector<uint8_t> m_textureAtlasData;
 
 		nvrhi::TextureHandle m_textureAtlas;
+		uint32_t m_slotPadding;
 	};
 }

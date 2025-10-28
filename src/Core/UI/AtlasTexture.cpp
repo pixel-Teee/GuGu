@@ -5,7 +5,7 @@
 #include <Renderer/TextureCache.h>
 
 namespace GuGu {
-	void copyRow(const FCopyRowData& copyRowData, uint32_t stride)
+	void copyRow(const FCopyRowData& copyRowData, uint32_t stride, uint32_t slotPadding = 1)
 	{
 		const uint8_t* data = copyRowData.srcData;
 		uint8_t* start = copyRowData.destData;
@@ -14,7 +14,7 @@ namespace GuGu {
 		const uint32_t srcRow = copyRowData.srcRow;
 		const uint32_t destRow = copyRowData.destRow;
 
-		const uint32_t padding = 1;
+		const uint32_t padding = slotPadding;
 		const uint8_t* sourceDataAddr = &data[srcRow * sourceWidth * stride];
 		uint8_t* destDataAddr = &start[(destRow * destWidth + padding) * stride];
 		memcpy(destDataAddr, sourceDataAddr, sourceWidth * stride);
@@ -50,6 +50,7 @@ namespace GuGu {
 		std::shared_ptr<AtlasedTextureSlot> rootSlot = std::make_shared<AtlasedTextureSlot>(0, 0, m_atlasSize, m_atlasSize, 1);
 		m_textureAtlasEmptySlots.push_front(rootSlot);
 		m_textureAtlasData.resize(m_atlasSize * m_atlasSize * m_stride, 0);//stride
+		m_slotPadding = 1;
 	}
 	AtlasTexture::~AtlasTexture()
 	{
@@ -68,7 +69,7 @@ namespace GuGu {
 		const uint32_t height = inHeight;
 
 		//account for padding on both sides
-		const uint8_t padding = 1;
+		const uint8_t padding = m_slotPadding;
 		const uint32_t totalPadding = padding * 2;
 		const uint32_t paddedWidth = width + totalPadding;
 		const uint32_t paddedHeight = height + totalPadding;
@@ -145,7 +146,7 @@ namespace GuGu {
 		//copy pixel data to the texture
 		auto start = m_textureAtlasData.begin() + slotToCopyTo->y * m_atlasSize * m_stride + slotToCopyTo->x * m_stride;
 
-		const uint32_t padding = 1;
+		const uint32_t padding = m_slotPadding;
 		const uint32_t allPadding = padding * 2;
 
 		//the width of the source texture without padding(actual width)
@@ -165,7 +166,7 @@ namespace GuGu {
 			copyRowData.srcRow = 0;
 			copyRowData.destRow = 0;
 #if 1
-			copyRow(copyRowData, m_stride);
+			copyRow(copyRowData, m_stride, m_slotPadding);
 #else
 			zeroRow(copyRowData, m_stride);
 #endif
@@ -177,7 +178,7 @@ namespace GuGu {
 			copyRowData.srcRow = row - padding;
 			copyRowData.destRow = row;
 
-			copyRow(copyRowData, m_stride);
+			copyRow(copyRowData, m_stride, m_slotPadding);
 		}
 
 		if (padding > 0)
@@ -186,7 +187,7 @@ namespace GuGu {
 			copyRowData.srcRow = sourceHeight - 1;
 			copyRowData.destRow = slotToCopyTo->height - padding;
 #if 1
-			copyRow(copyRowData, m_stride);
+			copyRow(copyRowData, m_stride, m_slotPadding);
 #else
 			zeroRow(copyRowData, m_stride);
 #endif

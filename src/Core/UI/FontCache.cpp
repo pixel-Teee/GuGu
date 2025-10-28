@@ -411,7 +411,16 @@ namespace GuGu {
 		for (uint8_t& rawPixel : rawPixels)
 		{
 			rawPixel *= grayBoost;
-		}
+ 		}
+		//for (int32_t y = 0; y < bitMap->rows; ++y)
+		//{
+		//	for (int32_t x = 0; x < bitMap->width; ++x)
+		//	{
+		//		unsigned char pixel = bitMap->buffer[y * bitMap->pitch + x];
+		//		GuGu_LOGD("(x, y), pixel value:%d", pixel);
+		//		rawPixels[y * bitMap->pitch + x] = pixel;
+		//	}
+		//}
 
 		uint16_t characterWidth = bitMap->width;
 		uint16_t characterHeight = bitMap->rows;
