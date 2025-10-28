@@ -466,4 +466,9 @@ namespace GuGu{
         return m_renderTransformPivot;
 	}
 
+	void Widget::setRenderTransform(const math::affine2& inRenderTransform)
+	{
+        m_renderTransform = inRenderTransform;
+	}
+
 }

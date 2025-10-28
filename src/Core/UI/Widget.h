@@ -198,6 +198,8 @@ namespace GuGu{
         math::affine2 getRenderTransform() const;
 
         math::float2 getRenderTransformPivot() const;
+
+        void setRenderTransform(const math::affine2& inRenderTransform);
     protected:
         std::weak_ptr<Widget> m_parentWidget;
         WidgetGeometry m_geometry;

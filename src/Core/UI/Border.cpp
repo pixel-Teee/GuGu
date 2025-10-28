@@ -84,7 +84,7 @@ namespace GuGu {
 				AlignmentArrangeResult xalignmentResult = AlignChild<Orientation::Horizontal>(*getSlot(0), allocatedGeometry.getLocalSize().x, slotPadding);
 				AlignmentArrangeResult yAlignmentResult = AlignChild<Orientation::Vertical>(*getSlot(0), allocatedGeometry.getLocalSize().y, slotPadding);
 
-				const WidgetGeometry childGeometry = allocatedGeometry.getChildGeometry(math::float2(xalignmentResult.m_size, yAlignmentResult.m_size), math::float2(xalignmentResult.m_offset, yAlignmentResult.m_offset));
+				const WidgetGeometry childGeometry = allocatedGeometry.getChildGeometry(getSlot(0)->getChildWidget(), math::float2(xalignmentResult.m_size, yAlignmentResult.m_size), math::float2(xalignmentResult.m_offset, yAlignmentResult.m_offset));
 
 				arrangedWidgetArray.pushWidget(childGeometry, getSlot(0)->getChildWidget());
 			}			

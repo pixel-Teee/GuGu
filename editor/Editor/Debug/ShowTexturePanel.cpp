@@ -33,6 +33,9 @@ namespace GuGu {
 		m_debugFontBrush->m_outlineSettings = BrushOutlineSettings(0.0f, math::float4(1.0f, 1.0f, 1.0f, 1.0f), 0.0f);
 		m_debugFontBrush->m_tintColor = math::float4(1.0f, 1.0f, 1.0f, 1.0f);
 		m_debugFontBrush->m_tintColorStr = "";
+
+		m_viewOffset = math::float2(0, 0);
+		m_bIsDragging = false;
 	}
 
 	ShowTexturePanel::~ShowTexturePanel()
@@ -59,7 +62,14 @@ namespace GuGu {
 			)
 			+ Overlay::Slot()
 			(
-				WIDGET_ASSIGN_NEW(VerticalBox, m_showTextureVerticalBox)
+				//WIDGET_NEW(Border)
+				//.brush(CoreStyle::getStyleSet()->getBrush("border"))
+				//.horizontalAlignment(HorizontalAlignment::Center)
+				//.verticalAlignment(VerticalAlignment::Center)
+				//.Content
+				//(
+					WIDGET_ASSIGN_NEW(VerticalBox, m_showTextureVerticalBox)
+				//)
 			);
 
 			//loop texture vertical box
@@ -80,9 +90,31 @@ namespace GuGu {
 		m_showTextureVerticalBox->addSlot()
 		.FixedHeight()
 		(
-			WIDGET_NEW(ImageWidget)
-			.brush(m_debugFontBrush)
+			WIDGET_NEW(Border)
+			.brush(EditorStyleSet::getStyleSet()->getBrush("anchorGrid"))
+			.horizontalAlignment(HorizontalAlignment::Center)
+			.verticalAlignment(VerticalAlignment::Center)
+			.Content
+			(
+				WIDGET_ASSIGN_NEW(ImageWidget, m_showTexture)
+				.brush(m_debugFontBrush)	
+			)
 		);
+	}
+
+	Reply ShowTexturePanel::OnMouseMove(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
+	{
+		//if (inMouseEvent.getCursorDelta().x > 0.0f)
+		//{
+		//	GuGu_LOGD("cursor delta is not equal zero");
+		//}
+		if (m_bIsDragging)
+		{
+			m_viewOffset += inMouseEvent.getCursorDelta();
+			m_showTexture->setRenderTransform(math::affine2(math::float2x2::diagonal(m_currentScale), m_viewOffset));
+		}
+		
+		return Reply::Handled();
 	}
 
 	//wheel to scale
@@ -97,10 +129,25 @@ namespace GuGu {
 
 	Reply ShowTexturePanel::OnMouseWheel(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
 	{
-		float scaleFactor = wheelToScale(inMouseEvent.getCursorDelta().x, inMouseEvent.getCursorDelta().y, 0.001);
+		float scaleFactor = wheelToScale(inMouseEvent.m_wheelOrGestureDelta, inMouseEvent.m_wheelOrGestureDelta, 0.5);
 		m_currentScale *= scaleFactor;
 
+		//scale show texture
+		m_showTexture->setRenderTransform(math::affine2(math::float2x2::diagonal(m_currentScale), m_viewOffset));
+
 		//scale
+		return Reply::Handled();
+	}
+
+	Reply ShowTexturePanel::OnMouseButtonDown(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
+	{
+		m_bIsDragging = true;
+		return Reply::Handled();
+	}
+
+	Reply ShowTexturePanel::OnMouseButtonUp(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
+	{
+		m_bIsDragging = false;
 		return Reply::Handled();
 	}
 
