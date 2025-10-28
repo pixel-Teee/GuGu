@@ -3,6 +3,7 @@
 #include <Core/Math/MyMath.h>
 
 namespace GuGu {
+	class Widget;
 	class WidgetGeometry
 	{
 	public:
@@ -33,6 +34,8 @@ namespace GuGu {
 		WidgetGeometry getChildGeometry(const math::float2& inLocalSize, const math::affine2& inLocalLayoutTransform, const math::affine2& inLocalRenderTransform, const math::float2& inLocalRenderTransformPivot) const;
 
 		WidgetGeometry getChildGeometry(math::float2 inLocalSize, math::float2 inTranslation, float childScale = 1.0f) const;
+
+		WidgetGeometry getChildGeometry(std::shared_ptr<Widget> childWidget, math::float2 inLocalSize, math::float2 inTranslation, float childScale = 1.0f) const;
 
 		WidgetGeometry getOffsetGeometry(math::float2 inTranslation) const;
 

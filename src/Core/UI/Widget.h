@@ -194,6 +194,10 @@ namespace GuGu{
         void setOnMouseMove(PointerEventHandler eventHandler);
 
         void setClipping(WidgetClipping inClipping);
+
+        math::affine2 getRenderTransform() const;
+
+        math::float2 getRenderTransformPivot() const;
     protected:
         std::weak_ptr<Widget> m_parentWidget;
         WidgetGeometry m_geometry;
@@ -213,5 +217,8 @@ namespace GuGu{
 
         //events
         std::vector<std::pair<GuGuUtf8Str, PointerEventHandler>> m_pointerEvents;
+
+        math::affine2 m_renderTransform;
+        math::float2 m_renderTransformPivot;
     };
 }

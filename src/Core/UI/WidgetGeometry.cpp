@@ -1,6 +1,7 @@
 #include <pch.h>
 
 #include "WidgetGeometry.h"
+#include <Core/UI/Widget.h>
 
 namespace GuGu {
 	WidgetGeometry::WidgetGeometry()
@@ -95,7 +96,11 @@ namespace GuGu {
 	}
 	WidgetGeometry WidgetGeometry::getChildGeometry(math::float2 inLocalSize, math::float2 inTranslation, float childScale) const
 	{
-		math::affine2 localLayoutTransform(childScale, inTranslation);
+		//if (childScale > 1.0f)
+		//{
+		//	GuGu_LOGD("trigger break");
+		//}
+		math::affine2 localLayoutTransform(math::float2x2::diagonal(childScale), inTranslation);
 		WidgetGeometry childGeometry;
 		childGeometry.mAccumulateLayoutTransform = localLayoutTransform * mAccumulateLayoutTransform;//this order is important
 		childGeometry.mAccumulateRenderTransform = localLayoutTransform * mAccumulateRenderTransform;
@@ -105,6 +110,16 @@ namespace GuGu {
 		childGeometry.mAbsoluteScale = childGeometry.mAccumulateLayoutTransform.m_linear[0][0];//accumulate transform 只有缩放因子，直接从第一个分量取出来
 		return childGeometry;
 	}
+
+	WidgetGeometry WidgetGeometry::getChildGeometry(std::shared_ptr<Widget> childWidget, math::float2 inLocalSize, math::float2 inTranslation, float childScale /*= 1.0f*/) const
+	{
+		//get child widget render transform
+		math::affine2 renderTransform = childWidget->getRenderTransform();
+		math::float2 renderTransformPivot = childWidget->getRenderTransformPivot();
+		//layout transform, render transform
+		return getChildGeometry(inLocalSize, math::affine2(math::float2x2::diagonal(childScale), inTranslation), renderTransform, renderTransformPivot);
+	}
+
 	WidgetGeometry WidgetGeometry::getOffsetGeometry(math::float2 inTranslation) const
 	{
 		WidgetGeometry offsetGeometry = *this;

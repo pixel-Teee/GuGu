@@ -18,6 +18,8 @@ namespace GuGu{
 
     Widget::Widget()
         : m_widgetClipping(WidgetClipping::Inherit)
+        , m_renderTransform(math::affine2::identity())
+        , m_renderTransformPivot(math::float2(0.5f, 0.5f))
     {
         m_layer = 0;
         m_hovered = false;
@@ -452,6 +454,16 @@ namespace GuGu{
         {
             m_widgetClipping = inClipping;
         }
+	}
+
+	math::affine2 Widget::getRenderTransform() const
+	{
+        return m_renderTransform;
+	}
+
+	math::float2 Widget::getRenderTransformPivot() const
+	{
+        return m_renderTransformPivot;
 	}
 
 }

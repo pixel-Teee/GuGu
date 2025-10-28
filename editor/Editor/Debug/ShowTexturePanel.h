@@ -24,9 +24,13 @@ namespace GuGu {
 		void init(const BuilderArguments& arguments);
 
 		void initShowTextureVerticalBox();
+
+		Reply OnMouseWheel(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent);
 	private:
 		std::shared_ptr<VerticalBox> m_showTextureVerticalBox;
 
 		std::shared_ptr<Brush> m_debugFontBrush;
+
+		float m_currentScale;
 	};
 }

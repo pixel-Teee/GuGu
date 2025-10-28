@@ -63,12 +63,14 @@ namespace GuGu {
 			);
 
 			//loop texture vertical box
-			initShowTextureVerticalBox();
+		initShowTextureVerticalBox();
 
-			m_childWidget->m_childWidget = overlay;
-			m_childWidget->m_childWidget->setParentWidget(shared_from_this());
+		m_childWidget->m_childWidget = overlay;
+		m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 
-			m_visibilityAttribute = Visibility::Visible;
+		m_visibilityAttribute = Visibility::Visible;
+
+		m_currentScale = 1.0f;
 	}
 
 	void ShowTexturePanel::initShowTextureVerticalBox()
@@ -81,6 +83,25 @@ namespace GuGu {
 			WIDGET_NEW(ImageWidget)
 			.brush(m_debugFontBrush)
 		);
+	}
+
+	//wheel to scale
+	float wheelToScale(float deltaX, float deltaY, float sensitivity = 0.001)
+	{
+		const float delta = math::abs(deltaY) > math::abs(deltaX) ? deltaY : deltaX;
+
+		const float scaleFactor = std::exp(-delta * sensitivity);
+
+		return scaleFactor;
+	}
+
+	Reply ShowTexturePanel::OnMouseWheel(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
+	{
+		float scaleFactor = wheelToScale(inMouseEvent.getCursorDelta().x, inMouseEvent.getCursorDelta().y, 0.001);
+		m_currentScale *= scaleFactor;
+
+		//scale
+		return Reply::Handled();
 	}
 
 }
