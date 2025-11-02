@@ -94,6 +94,7 @@ namespace GuGu {
 			.brush(EditorStyleSet::getStyleSet()->getBrush("anchorGrid"))
 			.horizontalAlignment(HorizontalAlignment::Center)
 			.verticalAlignment(VerticalAlignment::Center)
+			.Clip(WidgetClipping::ClipToBounds)
 			.Content
 			(
 				WIDGET_ASSIGN_NEW(ImageWidget, m_showTexture)

@@ -37,6 +37,20 @@ namespace GuGu {
 		}
 		if(haveThisField)
 			return startVarint;
+
+		//bool typeIsEqualStartVariant = false;
+		//meta::Type currentType = parentType;
+		//PropertyNode* currentPropertyNode = m_parentNode;
+		//meta::Type startVariantType = startVarint.GetType();
+		//while (currentType != startVariantType)
+		//{
+		//	if(currentPropertyNode->getField() != nullptr)
+		//		currentType = currentPropertyNode->getField()->GetType();
+		//	currentPropertyNode = currentPropertyNode->getParentNode();
+		//}
+		//if (currentType != startVariantType)
+		//	return meta::Variant();
+
 		if (m_parentNodeWeakPtr.lock())
 		{
 			meta::Variant parentVarint = m_parentNodeWeakPtr.lock()->getOwnerFieldVarint(startVarint);
