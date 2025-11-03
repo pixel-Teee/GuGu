@@ -12,9 +12,12 @@ namespace GuGu{
         CUSTOM = 4,
     };
 
+    //描述了每个子资源在纹理中的信息
     struct TextureSubresourceData
     {
+        //row pitch (行间距)，一行所占用字节数
         size_t rowPitch = 0;
+        //3d texture 每片的字节数
         size_t depthPitch = 0;
         ptrdiff_t dataOffset = 0;
         size_t dataSize = 0;
