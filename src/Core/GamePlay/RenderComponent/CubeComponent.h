@@ -70,6 +70,7 @@ namespace GuGu {
 
 		std::shared_ptr<AssetData> getBottomTextureAsset() const;
 
+		nvrhi::TextureHandle m_textureHandle;
 	private:
 		std::shared_ptr<AssetData> m_left;
 		std::shared_ptr<AssetData> m_right;
@@ -77,8 +78,6 @@ namespace GuGu {
 		std::shared_ptr<AssetData> m_back;
 		std::shared_ptr<AssetData> m_top;
 		std::shared_ptr<AssetData> m_bottom;
-		//
-		//nvrhi::BufferHandle m_bufferHandle;
 	};
 }
 

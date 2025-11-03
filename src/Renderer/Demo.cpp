@@ -29,6 +29,7 @@
 #include <Core/GamePlay/CameraComponent.h>
 #include <Core/GamePlay/TerrainComponent.h>
 #include <Core/GamePlay/WaterComponent.h>
+#include <Core/GamePlay/RenderComponent/CubeComponent.h>
 #include <Core/Model/StaticMesh.h>
 #include <Core/GamePlay/ViewportClient.h>
 #include <Core/Texture/GTexture.h>
@@ -2383,6 +2384,18 @@ namespace GuGu {
 			m_gameUIDebugPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
+		if (!m_skyBoxPipeline)
+		{
+			nvrhi::GraphicsPipelineDesc psoDesc;
+			psoDesc.VS = m_skyBoxVertexShader;
+			psoDesc.PS = m_skyBoxPixelShader;
+			psoDesc.inputLayout = m_skyBoxInputLayout; //顶点属性
+			psoDesc.bindingLayouts = { m_skyBoxBindingLayout }; //constant buffer 这些
+			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+			psoDesc.renderState.depthStencilState.depthTestEnable = false;
+			m_skyBoxPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
+		}
+
 		m_drawItems.clear();
 
 		m_CommandList->open();
@@ -2853,6 +2866,35 @@ namespace GuGu {
 						m_CommandList->drawIndexed(args);
 					}		
 				}
+			}
+		}
+
+		//draw skybox
+		nvrhi::GraphicsState skyBoxGraphicsState;
+		skyBoxGraphicsState.pipeline = m_skyBoxPipeline;
+		skyBoxGraphicsState.framebuffer = inViewportClient->getFramebuffer();
+		skyBoxGraphicsState.viewport.addViewportAndScissorRect(viewport);
+		for (size_t i = 0; i < gameObjects.size(); ++i)
+		{
+			std::shared_ptr<CubeComponent> cubeComponent = gameObjects[i]->getComponent<CubeComponent>();
+			if (cubeComponent)
+			{
+				if (cubeComponent->m_textureHandle == nullptr)
+				{
+					std::vector<std::shared_ptr<GTexture>> skyBoxTextures = {
+						cubeComponent->getLeftTexture(),
+						cubeComponent->getRightTexture(),
+						cubeComponent->getFrontTexture(),
+						cubeComponent->getBackTexture(),
+						cubeComponent->getTopTexture(),
+						cubeComponent->getBottomTexture()
+					};
+					cubeComponent->m_textureHandle = m_textureCache.FinalizeCubeMapTexture(skyBoxTextures, m_commonRenderPass.get(), m_CommandList);
+
+					//draw sky box
+
+				}
+				break;
 			}
 		}
 

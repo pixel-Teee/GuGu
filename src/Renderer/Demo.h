@@ -270,6 +270,21 @@ namespace GuGu {
 		};
 		//------water------
 
+		//------sky box------
+		nvrhi::ShaderHandle m_skyBoxVertexShader;
+		nvrhi::ShaderHandle m_skyBoxPixelShader;
+		nvrhi::InputLayoutHandle m_skyBoxInputLayout;
+		nvrhi::BindingLayoutHandle m_skyBoxBindingLayout;
+		nvrhi::BindingSetHandle m_skyBoxBindingSet;
+		nvrhi::GraphicsPipelineHandle m_skyBoxPipeline;
+		struct SkyBoxConstantBufferEntry {
+			dm::float4x4 viewProjMatrix;
+			dm::float4x4 worldMatrix;
+			dm::float3 camWorldPos;
+			float time;
+		};
+		//------sky box------
+
 		//------debug draw camera------
 		struct CameraBufferEntry {
 			dm::float4x4 viewProjMatrix;

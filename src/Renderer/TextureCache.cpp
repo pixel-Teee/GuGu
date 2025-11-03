@@ -423,7 +423,12 @@ namespace GuGu{
 		commandList->setPermanentTextureState(gTexture->m_texture, nvrhi::ResourceStates::ShaderResource);
 		commandList->commitBarriers();
 		//
-				//++m_TexturesFinalized;
+		//++m_TexturesFinalized;
+	}
+
+    nvrhi::TextureHandle TextureCache::FinalizeCubeMapTexture(std::vector<std::shared_ptr<GTexture>> skyBoxTextures, CommonRenderPasses* passes, nvrhi::ICommandList* commandList)
+	{
+        return nvrhi::TextureHandle();
 	}
 
 }

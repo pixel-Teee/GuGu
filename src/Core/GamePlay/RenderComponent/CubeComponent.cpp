@@ -95,9 +95,15 @@ namespace GuGu {
 
 	CubeComponent::CubeComponent()
 	{
-		//GuGuUtf8Str noFileExtensionsFileName = "white";
-		//GuGuUtf8Str outputFilePath = "content/" + noFileExtensionsFileName + ".json";
-		//m_texture = AssetManager::getAssetManager().loadAsset(AssetManager::getAssetManager().getGuid(outputFilePath, typeof(GTexture)));
+		GuGuUtf8Str noFileExtensionsFileName = "white";
+		GuGuUtf8Str outputFilePath = "content/" + noFileExtensionsFileName + ".json";
+
+		m_left = 
+		m_right = 
+		m_front = 
+		m_back = 
+		m_front = 
+		m_bottom = AssetManager::getAssetManager().loadAsset(AssetManager::getAssetManager().getGuid(outputFilePath, typeof(GTexture)));
 		//
 		//m_color = Color(0.5f, 1.0f, 1.0f, 1.0f);
 	}
@@ -112,6 +118,12 @@ namespace GuGu {
 		CubeComponent* cubeComponent = new CubeComponent();
 		//CubeComponent->m_texture = m_texture;
 		//CubeComponent->m_color = m_color;
+		cubeComponent->m_left = m_left;
+		cubeComponent->m_right = m_right;
+		cubeComponent->m_front = m_front;
+		cubeComponent->m_back = m_back;
+		cubeComponent->m_top = m_top;
+		cubeComponent->m_bottom = m_bottom;
 		return cubeComponent;
 	}
 
