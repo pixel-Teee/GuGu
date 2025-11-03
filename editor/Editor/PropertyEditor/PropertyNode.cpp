@@ -107,11 +107,11 @@ namespace GuGu {
 		return nullptr;
 	}
 
-	meta::Variant PropertyNode::getOwnerFieldVarint(const meta::Variant& startVarint)
+	GuGu::meta::Variant PropertyNode::getOwnerFieldVariant(const meta::Variant& startVarint)
 	{
 		if (m_parentNodeWeakPtr.lock())
 		{
-			return m_parentNodeWeakPtr.lock()->getOwnerFieldVarint(startVarint);
+			return m_parentNodeWeakPtr.lock()->getOwnerFieldVariant(startVarint);
 		}
 		return meta::Variant();//nothing
 	}
@@ -141,7 +141,7 @@ namespace GuGu {
 			for (int32_t i = 0; i < objectsToRead.size(); ++i)
 			{
 				meta::Variant startVarint = ObjectVariant(objectsToRead[i]);
-				meta::Variant owner = getOwnerFieldVarint(startVarint);
+				meta::Variant owner = getOwnerFieldVariant(startVarint);
 				if (owner != meta::Variant())
 					owners.push_back(owner);
 			}

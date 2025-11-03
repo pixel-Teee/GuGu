@@ -74,7 +74,7 @@ namespace GuGu {
 		return m_objects[index];
 	}
 
-	meta::Variant ObjectPropertyNode::getOwnerFieldVarint(const meta::Variant& startVarint)
+	GuGu::meta::Variant ObjectPropertyNode::getOwnerFieldVariant(const meta::Variant& startVarint)
 	{
 		for (int32_t i = 0; i < m_objects.size(); ++i)
 		{
@@ -86,7 +86,7 @@ namespace GuGu {
 		}
 		if (m_parentNodeWeakPtr.lock())
 		{
-			return m_parentNodeWeakPtr.lock()->getOwnerFieldVarint(startVarint);
+			return m_parentNodeWeakPtr.lock()->getOwnerFieldVariant(startVarint);
 		}
 		return meta::Variant();
 	}

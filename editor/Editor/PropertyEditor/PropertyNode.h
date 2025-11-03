@@ -60,7 +60,7 @@ namespace GuGu {
 
 		virtual GuGuUtf8Str getDisplayName() const { return ""; }
 
-		virtual meta::Variant getOwnerFieldVarint(const meta::Variant& startVarint);
+		virtual meta::Variant getOwnerFieldVariant(const meta::Variant& startVarint);
 
 		PropertyAccess::Result getPropertyValueString(GuGuUtf8Str& outString);
 	protected:

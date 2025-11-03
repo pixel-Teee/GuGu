@@ -38,7 +38,7 @@ namespace GuGu {
 
 		virtual meta::Object* getInstanceAsObject(int32_t index) const override;
 
-		virtual meta::Variant getOwnerFieldVarint(const meta::Variant& startVarint) override;
+		virtual meta::Variant getOwnerFieldVariant(const meta::Variant& startVarint) override;
 	protected:
 		virtual void initChildNodes() override;
 

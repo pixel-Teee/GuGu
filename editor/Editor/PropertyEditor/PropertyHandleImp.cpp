@@ -69,7 +69,7 @@ namespace GuGu {
 			meta::Variant startVarint = ObjectVariant(objectsToRead[i]);
 			if (propertyNodeLock != nullptr)
 			{
-				meta::Variant owner = propertyNodeLock->getOwnerFieldVarint(startVarint);
+				meta::Variant owner = propertyNodeLock->getOwnerFieldVariant(startVarint);
 				if (owner != meta::Variant())
 					owners.push_back(owner);
 			}
@@ -129,7 +129,7 @@ namespace GuGu {
 			meta::Variant startVarint = ObjectVariant(objectsToModify[i]);
 			if (inPropertyNode != nullptr)
 			{
-				meta::Variant owner = inPropertyNode->getOwnerFieldVarint(startVarint);
+				meta::Variant owner = inPropertyNode->getOwnerFieldVariant(startVarint);
 				if (owner != meta::Variant())
 					owners.push_back(std::move(owner));
 			}	

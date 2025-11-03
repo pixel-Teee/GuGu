@@ -22,7 +22,7 @@ namespace GuGu {
 		return m_property->GetName();
 	}
 
-	meta::Variant ItemPropertyNode::getOwnerFieldVarint(const meta::Variant& startVarint)
+	GuGu::meta::Variant ItemPropertyNode::getOwnerFieldVariant(const meta::Variant& startVarint)
 	{
 		meta::Variant result;
 		meta::Field* field = getField();
@@ -53,7 +53,7 @@ namespace GuGu {
 
 		if (m_parentNodeWeakPtr.lock())
 		{
-			meta::Variant parentVarint = m_parentNodeWeakPtr.lock()->getOwnerFieldVarint(startVarint);
+			meta::Variant parentVarint = m_parentNodeWeakPtr.lock()->getOwnerFieldVariant(startVarint);
 			//has this field?
 			std::vector<meta::Field> checkFields = meta::ReflectionDatabase::Instance().types[parentVarint.GetType().GetID()].fields;
 
