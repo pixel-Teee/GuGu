@@ -14,7 +14,7 @@ namespace GuGu {
 
 		virtual GuGuUtf8Str getDisplayName() const override;
 
-		virtual meta::Variant getOwnerFieldVariant(const meta::Variant& startVarint) override;
+		virtual meta::Variant getOwnerFieldVariant(const meta::Variant& startVariant) override;
 	protected:
 		virtual void initChildNodes() override;
 	};

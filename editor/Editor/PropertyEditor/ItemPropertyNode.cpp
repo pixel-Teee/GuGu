@@ -2,6 +2,7 @@
 
 #include "ItemPropertyNode.h"
 #include "ObjectPropertyNode.h"
+#include "CategoryPropertyNode.h"
 #include <Core/Reflection/ReflectionDatabase.h>
 #include <Core/AssetManager/AssetData.h>
 
@@ -22,13 +23,13 @@ namespace GuGu {
 		return m_property->GetName();
 	}
 
-	GuGu::meta::Variant ItemPropertyNode::getOwnerFieldVariant(const meta::Variant& startVarint)
+	GuGu::meta::Variant ItemPropertyNode::getOwnerFieldVariant(const meta::Variant& startVariant)
 	{
 		meta::Variant result;
 		meta::Field* field = getField();
 		meta::Type parentType = field->GetClassType();//字段所在的类
 		//先检查自己
-		std::vector<meta::Field> checkFields = meta::ReflectionDatabase::Instance().types[startVarint.GetType().GetID()].fields;
+		std::vector<meta::Field> checkFields = meta::ReflectionDatabase::Instance().types[startVariant.GetType().GetID()].fields;
 		bool haveThisField = false;
 		for (size_t i = 0; i < checkFields.size(); ++i)
 		{
@@ -36,26 +37,36 @@ namespace GuGu {
 				haveThisField = true;
 		}
 		if(haveThisField)
-			return startVarint;
+			return startVariant;
 
 		//bool typeIsEqualStartVariant = false;
-		//meta::Type currentType = parentType;
-		//PropertyNode* currentPropertyNode = m_parentNode;
-		//meta::Type startVariantType = startVarint.GetType();
-		//while (currentType != startVariantType)
-		//{
-		//	if(currentPropertyNode->getField() != nullptr)
-		//		currentType = currentPropertyNode->getField()->GetType();
-		//	currentPropertyNode = currentPropertyNode->getParentNode();
-		//}
-		//if (currentType != startVariantType)
-		//	return meta::Variant();
+		meta::Type currentType = parentType;
+		PropertyNode* currentPropertyNode = m_parentNode;
+		meta::Type startVariantType = startVariant.GetType();
+		while (currentType != startVariantType)
+		{
+			if (currentPropertyNode == nullptr)
+				break;
+			if (currentPropertyNode->getField() != nullptr)
+				currentType = currentPropertyNode->getField()->GetType();
+			if (currentPropertyNode->asCategoryNode() != nullptr)
+			{
+				CategoryPropertyNode* categoryPropertyNode = currentPropertyNode->asCategoryNode();
+				if (categoryPropertyNode)
+				{
+					currentType = meta::Type::GetFromName(categoryPropertyNode->getCategoryName());
+				}
+			}
+			currentPropertyNode = currentPropertyNode->getParentNode();
+		}
+		if (currentType != startVariantType)
+			return meta::Variant();
 
 		if (m_parentNodeWeakPtr.lock())
 		{
-			meta::Variant parentVarint = m_parentNodeWeakPtr.lock()->getOwnerFieldVariant(startVarint);
+			meta::Variant parentVariant = m_parentNodeWeakPtr.lock()->getOwnerFieldVariant(startVariant);
 			//has this field?
-			std::vector<meta::Field> checkFields = meta::ReflectionDatabase::Instance().types[parentVarint.GetType().GetID()].fields;
+			std::vector<meta::Field> checkFields = meta::ReflectionDatabase::Instance().types[parentVariant.GetType().GetID()].fields;
 
 			meta::Field* parentField = m_parentNodeWeakPtr.lock()->getField();
 			if (parentField)
@@ -67,8 +78,8 @@ namespace GuGu {
 						haveThisField = true;
 				}
 
-				if (parentVarint != meta::Variant() && haveThisField)
-					result = parentField->GetValueReference(parentVarint);
+				if (parentVariant != meta::Variant() && haveThisField)
+					result = parentField->GetValueReference(parentVariant);
 			}	
 		}
 		return result;
