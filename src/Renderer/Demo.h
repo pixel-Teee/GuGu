@@ -283,6 +283,8 @@ namespace GuGu {
 			dm::float3 camWorldPos;
 			float time;
 		};
+		nvrhi::BufferHandle m_skyBoxConstantBuffer;
+		GStaticMesh m_cube;
 		//------sky box------
 
 		//------debug draw camera------

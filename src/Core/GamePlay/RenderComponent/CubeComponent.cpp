@@ -102,10 +102,11 @@ namespace GuGu {
 		m_right = 
 		m_front = 
 		m_back = 
-		m_front = 
+		m_top = 
 		m_bottom = AssetManager::getAssetManager().loadAsset(AssetManager::getAssetManager().getGuid(outputFilePath, typeof(GTexture)));
-		//
+
 		//m_color = Color(0.5f, 1.0f, 1.0f, 1.0f);
+		m_bDirty = true;
 	}
 
 	CubeComponent::~CubeComponent()
@@ -225,6 +226,16 @@ namespace GuGu {
 	std::shared_ptr<AssetData> CubeComponent::getBottomTextureAsset() const
 	{
 		return m_bottom;
+	}
+
+	void CubeComponent::setDirty(bool isDirty)
+	{
+		m_bDirty = isDirty;
+	}
+
+	bool CubeComponent::isDirty() const
+	{
+		return m_bDirty;
 	}
 
 	//void CubeComponent::setTextureAsset(const std::shared_ptr<AssetData> inAssetData)

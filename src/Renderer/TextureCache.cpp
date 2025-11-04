@@ -428,7 +428,47 @@ namespace GuGu{
 
     nvrhi::TextureHandle TextureCache::FinalizeCubeMapTexture(std::vector<std::shared_ptr<GTexture>> skyBoxTextures, CommonRenderPasses* passes, nvrhi::ICommandList* commandList)
 	{
-        return nvrhi::TextureHandle();
+        assert(skyBoxTextures.size() == 6);
+        //get max dimensions
+        int32_t maxWidth = 0;
+        int32_t maxHeight = 0;
+        int32_t format = 0;
+        int32_t depth = 0;
+        for (int32_t i = 0; i < skyBoxTextures.size(); ++i)
+        {
+            maxWidth = std::max(maxWidth, (int32_t)skyBoxTextures[i]->m_width);
+            maxHeight = std::max(maxHeight, (int32_t)skyBoxTextures[i]->m_height);
+            format = skyBoxTextures[i]->m_format;
+            depth = skyBoxTextures[i]->m_depth;
+        }
+
+        nvrhi::TextureHandle cubeMapTextureHandle;
+
+		nvrhi::TextureDesc cubeMapTextureDesc;
+		cubeMapTextureDesc.format = static_cast<nvrhi::Format>(format);
+		cubeMapTextureDesc.width = maxWidth;
+		cubeMapTextureDesc.height = maxHeight;
+		cubeMapTextureDesc.depth = depth;
+		cubeMapTextureDesc.arraySize = 6;
+		cubeMapTextureDesc.dimension = nvrhi::TextureDimension::TextureCube;
+		cubeMapTextureDesc.mipLevels = 1;
+		cubeMapTextureDesc.debugName = "skyBox";
+		cubeMapTextureDesc.isRenderTarget = false;
+        cubeMapTextureHandle = m_Device->createTexture(cubeMapTextureDesc);
+
+        commandList->beginTrackingTextureState(cubeMapTextureHandle, nvrhi::AllSubresources, nvrhi::ResourceStates::Common);
+
+        //copy data
+        for (int32_t i = 0; i < skyBoxTextures.size(); ++i)
+        {
+            float rowPitch = skyBoxTextures[i]->m_width * skyBoxTextures[i]->m_bytesPerPixel;
+            commandList->writeTexture(cubeMapTextureHandle, i, 1, skyBoxTextures[i]->m_data.data(), rowPitch, 0);
+        }
+
+		commandList->setPermanentTextureState(cubeMapTextureHandle, nvrhi::ResourceStates::ShaderResource);
+		commandList->commitBarriers();
+
+        return cubeMapTextureHandle;
 	}
 
 }

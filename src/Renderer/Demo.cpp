@@ -1316,6 +1316,59 @@ namespace GuGu {
 			m_gameUIDebugVertexShader);
 		//-----game ui debug info------
 
+		//-----sky box------
+		m_skyBoxConstantBuffer = GetDevice()->createBuffer(
+			nvrhi::utils::CreateStaticConstantBufferDesc(
+				sizeof(SkyBoxConstantBufferEntry), "SkyBoxConstantBufferEntry")
+			.setInitialState(
+				nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
+					true));
+		m_skyBoxVertexShader = shaderFactory->CreateShader("asset/shader/skyBox.hlsl", "main_vs", nullptr,
+			nvrhi::ShaderType::Vertex);
+		m_skyBoxPixelShader = shaderFactory->CreateShader("asset/shader/skyBox.hlsl", "main_ps", nullptr,
+			nvrhi::ShaderType::Pixel);
+		layoutDesc.bindings = {
+			nvrhi::BindingLayoutItem::ConstantBuffer(0), //normal transform
+			nvrhi::BindingLayoutItem::Texture_SRV(0), //cube map
+			nvrhi::BindingLayoutItem::Sampler(0)
+		};
+		m_skyBoxBindingLayout = GetDevice()->createBindingLayout(layoutDesc);
+
+		nvrhi::VertexAttributeDesc skyBoxAttributes[] = {
+			nvrhi::VertexAttributeDesc()
+						.setName("POSITION")
+						.setFormat(nvrhi::Format::RGB32_FLOAT)
+						.setOffset(0)
+						.setBufferIndex(0)
+						.setElementStride(sizeof(math::float3)),
+			nvrhi::VertexAttributeDesc()
+						.setName("NORMAL")
+						.setFormat(nvrhi::Format::RGB32_FLOAT)
+						.setOffset(0)
+						.setBufferIndex(1)
+						.setElementStride(sizeof(math::float3)),
+			nvrhi::VertexAttributeDesc()
+						.setName("TANGENT")
+						.setFormat(nvrhi::Format::RGB32_FLOAT)
+						.setOffset(0)
+						.setBufferIndex(2)
+						.setElementStride(sizeof(math::float3)),
+			nvrhi::VertexAttributeDesc()
+						.setName("UV")
+						.setFormat(nvrhi::Format::RG32_FLOAT)
+						.setOffset(0)
+						.setBufferIndex(3)
+						.setElementStride(sizeof(math::float2)),
+		};
+		m_skyBoxInputLayout = GetDevice()->createInputLayout(skyBoxAttributes,
+			uint32_t(std::size(skyBoxAttributes)),
+			m_skyBoxVertexShader);
+
+		m_cube = m_geometryHelper.createBox(1, 1, 1, 0);
+
+		createVertexBufferAndIndexBuffer(m_cube);
+		//-----sky box------
+
 		m_CommandList->close();
 		GetDevice()->executeCommandList(m_CommandList);
 
@@ -2879,8 +2932,10 @@ namespace GuGu {
 			std::shared_ptr<CubeComponent> cubeComponent = gameObjects[i]->getComponent<CubeComponent>();
 			if (cubeComponent)
 			{
-				if (cubeComponent->m_textureHandle == nullptr)
+				if (cubeComponent->m_textureHandle == nullptr || cubeComponent->isDirty())
 				{
+					cubeComponent->setDirty(false);
+
 					std::vector<std::shared_ptr<GTexture>> skyBoxTextures = {
 						cubeComponent->getLeftTexture(),
 						cubeComponent->getRightTexture(),
@@ -2889,11 +2944,52 @@ namespace GuGu {
 						cubeComponent->getTopTexture(),
 						cubeComponent->getBottomTexture()
 					};
-					cubeComponent->m_textureHandle = m_textureCache.FinalizeCubeMapTexture(skyBoxTextures, m_commonRenderPass.get(), m_CommandList);
-
-					//draw sky box
-
+					cubeComponent->m_textureHandle = m_textureCache.FinalizeCubeMapTexture(skyBoxTextures, m_commonRenderPass.get(), m_CommandList);			
 				}
+				//draw sky box
+				nvrhi::BindingSetHandle skyBoxBindingSet;
+				nvrhi::BindingSetDesc desc;
+				//nvrhi::BindingSetHandle bindingSet;
+				desc.bindings = {
+						nvrhi::BindingSetItem::ConstantBuffer(0, m_skyBoxConstantBuffer),
+						nvrhi::BindingSetItem::Texture_SRV(0, cubeComponent->m_textureHandle),
+						nvrhi::BindingSetItem::Sampler(0, m_pointWrapSampler),
+				};
+				m_skyBoxBindingSet = GetDevice()->createBindingSet(desc, m_skyBoxBindingLayout);
+
+				skyBoxGraphicsState.bindings = { m_skyBoxBindingSet };
+
+				skyBoxGraphicsState.vertexBuffers = {
+					//{cameraComponent->m_debugCameraFrustumVertexBuffer, 0, 0}
+					{m_cube.m_vertexBuffer, 0, 0}
+				};
+
+				skyBoxGraphicsState.indexBuffer = {
+					//cameraComponent->m_debugCameraFrustumIndexBuffer, nvrhi::Format::R32_UINT, 0
+					m_cube.m_indexBuffer, nvrhi::Format::R32_UINT, 0
+				};
+
+				SkyBoxConstantBufferEntry modelConstants;
+				modelConstants.viewProjMatrix = viewProjMatrix;
+				modelConstants.worldMatrix = math::float4x4::identity();;
+				modelConstants.camWorldPos = inViewportClient->getCamPos();
+				//get the global matrix to fill constant buffer		
+				m_CommandList->writeBuffer(m_skyBoxConstantBuffer, &modelConstants, sizeof(modelConstants));
+
+				//CameraPropertiesBuffer propertiesBuffer;
+				//propertiesBuffer.color = math::float3(0.73f, 0.90f, 0.44f);
+				//m_CommandList->writeBuffer(m_cameraPropertiesConstantBuffers[i], &propertiesBuffer, sizeof(propertiesBuffer));
+
+				skyBoxGraphicsState.setPipeline(m_skyBoxPipeline);
+				m_CommandList->setGraphicsState(skyBoxGraphicsState);
+
+				//draw the model
+				nvrhi::DrawArguments args;
+				args.vertexCount = 36;
+				args.instanceCount = 1;
+				args.startVertexLocation = 0;
+				args.startIndexLocation = 0;
+				m_CommandList->drawIndexed(args);
 				break;
 			}
 		}
