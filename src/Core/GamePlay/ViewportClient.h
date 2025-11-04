@@ -39,6 +39,8 @@ namespace GuGu {
 
 		virtual math::float4x4 getWorldToViewMatrix() const = 0;
 
+		virtual math::float4x4 getWorldToViewNoTranslationMatrix() const = 0;
+
 		virtual math::float4x4 getPespectiveMatrix() const = 0;
 
 		virtual math::float3 getCamPos() const = 0;

@@ -20,6 +20,7 @@ namespace GuGu {
 
 		math::float4x4 getWorldToViewMatrix() const override;
 
+		math::float4x4 getWorldToViewNoTranslationMatrix() const override;
 
 		math::float4x4 getPespectiveMatrix() const override;
 

@@ -2433,7 +2433,7 @@ namespace GuGu {
 			psoDesc.inputLayout = m_gameUIDebugInputLayout; //顶点属性
 			psoDesc.bindingLayouts = { m_gameUIDebugBindingLayout }; //constant buffer 这些
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
-			psoDesc.renderState.depthStencilState.depthTestEnable = false;
+			psoDesc.renderState.depthStencilState.depthTestEnable = false;	
 			m_gameUIDebugPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
@@ -2445,8 +2445,10 @@ namespace GuGu {
 			psoDesc.inputLayout = m_skyBoxInputLayout; //顶点属性
 			psoDesc.bindingLayouts = { m_skyBoxBindingLayout }; //constant buffer 这些
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
-			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
-			psoDesc.renderState.depthStencilState.depthTestEnable = false;
+			psoDesc.renderState.rasterState.frontCounterClockwise = true;
+			psoDesc.renderState.depthStencilState.depthTestEnable = true;
+			psoDesc.renderState.depthStencilState.depthWriteEnable = false;
+			psoDesc.renderState.depthStencilState.depthFunc = nvrhi::ComparisonFunc::LessOrEqual;
 			m_skyBoxPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
@@ -2938,12 +2940,12 @@ namespace GuGu {
 					cubeComponent->setDirty(false);
 
 					std::vector<std::shared_ptr<GTexture>> skyBoxTextures = {
-						cubeComponent->getLeftTexture(),
-						cubeComponent->getRightTexture(),
 						cubeComponent->getFrontTexture(),
 						cubeComponent->getBackTexture(),
 						cubeComponent->getTopTexture(),
-						cubeComponent->getBottomTexture()
+						cubeComponent->getBottomTexture(),
+						cubeComponent->getRightTexture(),
+						cubeComponent->getLeftTexture(),
 					};
 					nvrhi::TextureHandle resultHandle = m_textureCache.FinalizeCubeMapTexture(skyBoxTextures, m_commonRenderPass.get(), m_CommandList);
 					if(resultHandle != nullptr)
@@ -2972,17 +2974,17 @@ namespace GuGu {
 					m_cube.m_indexBuffer, nvrhi::Format::R32_UINT, 0
 				};
 
-				math::float4x4 view = math::float4x4::zero();
-				for (int32_t row = 0; row < 3; ++row)
-				{
-					for (int32_t col = 0; col < 3; ++col)
-					{
-						view[row][col] = inViewportClient->getWorldToViewMatrix()[row][col];
-					}
-				}
+				//math::float4x4 view = math::float4x4::zero();
+				//for (int32_t row = 0; row < 3; ++row)
+				//{
+				//	for (int32_t col = 0; col < 3; ++col)
+				//	{
+				//		view[row][col] = inViewportClient->getWorldToViewMatrix()[row][col];
+				//	}
+				//}
 				
 				SkyBoxConstantBufferEntry modelConstants;
-				modelConstants.viewProjMatrix = inViewportClient->getWorldToViewMatrix() * inViewportClient->getPespectiveMatrix();
+				modelConstants.viewProjMatrix = inViewportClient->getWorldToViewNoTranslationMatrix() * inViewportClient->getPespectiveMatrix();
 				modelConstants.worldMatrix = math::float4x4::identity();;
 				modelConstants.camWorldPos = inViewportClient->getCamPos();
 				//get the global matrix to fill constant buffer		

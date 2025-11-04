@@ -263,6 +263,14 @@ namespace GuGu {
 		math::affine3 worldToView = orientation.toAffine() * math::translation(m_position);	
 		return math::inverse(math::affineToHomogeneous(worldToView));
 	}
+
+	math::float4x4 EditorViewportClient::getWorldToViewNoTranslationMatrix() const
+	{
+		math::quat orientation = getOrientation();
+		math::affine3 worldToView = orientation.toAffine();
+		return math::inverse(math::affineToHomogeneous(worldToView));
+	}
+
 	math::float4x4 EditorViewportClient::getPespectiveMatrix() const
 	{
 		math::matrix perspectiveMatrix = math::perspProjD3DStyle(getFov(),

@@ -27,6 +27,8 @@ namespace GuGu {
 
 		virtual math::float4x4 getWorldToViewMatrix() const override;
 
+		virtual math::float4x4 getWorldToViewNoTranslationMatrix() const override;
+
 		virtual math::float4x4 getPespectiveMatrix() const override;
 
 		virtual float getAspectRatio() const override;

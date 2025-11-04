@@ -148,6 +148,11 @@ namespace GuGu {
 		return math::float4x4();
 	}
 
+	GuGu::math::float4x4 GameViewportClient::getWorldToViewNoTranslationMatrix() const
+	{
+		return math::float4x4();
+	}
+
 	GuGu::math::float4x4 GameViewportClient::getPespectiveMatrix() const
 	{
 		math::matrix perspectiveMatrix = math::perspProjD3DStyle(getFov(),

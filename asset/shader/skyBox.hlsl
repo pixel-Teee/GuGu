@@ -22,6 +22,7 @@ void main_vs(
 {
     o_texCoord = i_pos;
     o_pos = mul(mul(float4(i_pos, 1), g_World), g_Transform);
+    o_pos.z = o_pos.w;
 }
 
 void main_ps(
