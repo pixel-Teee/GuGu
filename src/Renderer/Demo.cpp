@@ -2445,6 +2445,7 @@ namespace GuGu {
 			psoDesc.inputLayout = m_skyBoxInputLayout; //顶点属性
 			psoDesc.bindingLayouts = { m_skyBoxBindingLayout }; //constant buffer 这些
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
 			psoDesc.renderState.depthStencilState.depthTestEnable = false;
 			m_skyBoxPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
@@ -2944,7 +2945,9 @@ namespace GuGu {
 						cubeComponent->getTopTexture(),
 						cubeComponent->getBottomTexture()
 					};
-					cubeComponent->m_textureHandle = m_textureCache.FinalizeCubeMapTexture(skyBoxTextures, m_commonRenderPass.get(), m_CommandList);			
+					nvrhi::TextureHandle resultHandle = m_textureCache.FinalizeCubeMapTexture(skyBoxTextures, m_commonRenderPass.get(), m_CommandList);
+					if(resultHandle != nullptr)
+						cubeComponent->m_textureHandle = resultHandle;
 				}
 				//draw sky box
 				nvrhi::BindingSetHandle skyBoxBindingSet;
@@ -2969,8 +2972,17 @@ namespace GuGu {
 					m_cube.m_indexBuffer, nvrhi::Format::R32_UINT, 0
 				};
 
+				math::float4x4 view = math::float4x4::zero();
+				for (int32_t row = 0; row < 3; ++row)
+				{
+					for (int32_t col = 0; col < 3; ++col)
+					{
+						view[row][col] = inViewportClient->getWorldToViewMatrix()[row][col];
+					}
+				}
+				
 				SkyBoxConstantBufferEntry modelConstants;
-				modelConstants.viewProjMatrix = viewProjMatrix;
+				modelConstants.viewProjMatrix = inViewportClient->getWorldToViewMatrix() * inViewportClient->getPespectiveMatrix();
 				modelConstants.worldMatrix = math::float4x4::identity();;
 				modelConstants.camWorldPos = inViewportClient->getCamPos();
 				//get the global matrix to fill constant buffer		

@@ -428,6 +428,20 @@ namespace GuGu{
 
     nvrhi::TextureHandle TextureCache::FinalizeCubeMapTexture(std::vector<std::shared_ptr<GTexture>> skyBoxTextures, CommonRenderPasses* passes, nvrhi::ICommandList* commandList)
 	{
+        bool isEqualDimension = true;
+        for (int32_t i = 0; i < skyBoxTextures.size(); ++i)
+        {
+            for (int32_t j = 0; j < skyBoxTextures.size(); ++j)
+            {
+                if (skyBoxTextures[j]->m_width != skyBoxTextures[i]->m_width || skyBoxTextures[j]->m_height != skyBoxTextures[i]->m_height)
+                {
+                    isEqualDimension = false;
+                    break;
+                }
+            }
+        }
+        if (isEqualDimension == false)
+            return nvrhi::TextureHandle();
         assert(skyBoxTextures.size() == 6);
         //get max dimensions
         int32_t maxWidth = 0;
@@ -462,7 +476,7 @@ namespace GuGu{
         for (int32_t i = 0; i < skyBoxTextures.size(); ++i)
         {
             float rowPitch = skyBoxTextures[i]->m_width * skyBoxTextures[i]->m_bytesPerPixel;
-            commandList->writeTexture(cubeMapTextureHandle, i, 1, skyBoxTextures[i]->m_data.data(), rowPitch, 0);
+            commandList->writeTexture(cubeMapTextureHandle, i, 0, skyBoxTextures[i]->m_data.data(), rowPitch, 0);
         }
 
 		commandList->setPermanentTextureState(cubeMapTextureHandle, nvrhi::ResourceStates::ShaderResource);

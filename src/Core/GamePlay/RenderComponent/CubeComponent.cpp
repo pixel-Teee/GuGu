@@ -50,24 +50,24 @@ namespace GuGu {
 			(meta::FieldSetter<CubeComponent, std::shared_ptr<AssetData>, true>::Signature) & CubeComponent::setLeftTextureAsset, {});
 
 		type.AddField<CubeComponent, std::shared_ptr<AssetData>>("m_right",
-			(meta::FieldGetter<CubeComponent, std::shared_ptr<AssetData>, true>::Signature) & CubeComponent::getLeftTextureAsset,
-			(meta::FieldSetter<CubeComponent, std::shared_ptr<AssetData>, true>::Signature) & CubeComponent::setLeftTextureAsset, {});
+			(meta::FieldGetter<CubeComponent, std::shared_ptr<AssetData>, true>::Signature) & CubeComponent::getRightTextureAsset,
+			(meta::FieldSetter<CubeComponent, std::shared_ptr<AssetData>, true>::Signature) & CubeComponent::setRightTextureAsset, {});
 
 		type.AddField<CubeComponent, std::shared_ptr<AssetData>>("m_front",
-			(meta::FieldGetter<CubeComponent, std::shared_ptr<AssetData>, true>::Signature) & CubeComponent::getLeftTextureAsset,
-			(meta::FieldSetter<CubeComponent, std::shared_ptr<AssetData>, true>::Signature) & CubeComponent::setLeftTextureAsset, {});
+			(meta::FieldGetter<CubeComponent, std::shared_ptr<AssetData>, true>::Signature) & CubeComponent::getFrontTextureAsset,
+			(meta::FieldSetter<CubeComponent, std::shared_ptr<AssetData>, true>::Signature) & CubeComponent::setFrontTextureAsset, {});
 
 		type.AddField<CubeComponent, std::shared_ptr<AssetData>>("m_back",
-			(meta::FieldGetter<CubeComponent, std::shared_ptr<AssetData>, true>::Signature) & CubeComponent::getLeftTextureAsset,
-			(meta::FieldSetter<CubeComponent, std::shared_ptr<AssetData>, true>::Signature) & CubeComponent::setLeftTextureAsset, {});
+			(meta::FieldGetter<CubeComponent, std::shared_ptr<AssetData>, true>::Signature) & CubeComponent::getBackTextureAsset,
+			(meta::FieldSetter<CubeComponent, std::shared_ptr<AssetData>, true>::Signature) & CubeComponent::setBackTextureAsset, {});
 
 		type.AddField<CubeComponent, std::shared_ptr<AssetData>>("m_top",
-			(meta::FieldGetter<CubeComponent, std::shared_ptr<AssetData>, true>::Signature) & CubeComponent::getLeftTextureAsset,
-			(meta::FieldSetter<CubeComponent, std::shared_ptr<AssetData>, true>::Signature) & CubeComponent::setLeftTextureAsset, {});
+			(meta::FieldGetter<CubeComponent, std::shared_ptr<AssetData>, true>::Signature) & CubeComponent::getTopTextureAsset,
+			(meta::FieldSetter<CubeComponent, std::shared_ptr<AssetData>, true>::Signature) & CubeComponent::setTopTextureAsset, {});
 
 		type.AddField<CubeComponent, std::shared_ptr<AssetData>>("m_bottom",
-			(meta::FieldGetter<CubeComponent, std::shared_ptr<AssetData>, true>::Signature) & CubeComponent::getLeftTextureAsset,
-			(meta::FieldSetter<CubeComponent, std::shared_ptr<AssetData>, true>::Signature) & CubeComponent::setLeftTextureAsset, {});
+			(meta::FieldGetter<CubeComponent, std::shared_ptr<AssetData>, true>::Signature) & CubeComponent::getBottomTextureAsset,
+			(meta::FieldSetter<CubeComponent, std::shared_ptr<AssetData>, true>::Signature) & CubeComponent::setBottomTextureAsset, {});
 		//
 		//type.AddField<CubeComponent, Color>("m_color",
 		//	(meta::FieldGetter<CubeComponent, Color, false>::Signature) & CubeComponent::m_color,
