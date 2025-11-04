@@ -141,6 +141,7 @@ namespace GuGu {
 	void CubeComponent::setLeftTextureAsset(const std::shared_ptr<AssetData> inAssetData)
 	{
 		m_left = inAssetData;
+		setDirty(true);
 	}
 
 	std::shared_ptr<GTexture> CubeComponent::getLeftTexture() const
@@ -156,6 +157,7 @@ namespace GuGu {
 	void CubeComponent::setRightTextureAsset(const std::shared_ptr<AssetData> inAssetData)
 	{
 		m_right = inAssetData;
+		setDirty(true);
 	}
 
 	std::shared_ptr<GTexture> CubeComponent::getRightTexture() const
@@ -171,6 +173,7 @@ namespace GuGu {
 	void CubeComponent::setFrontTextureAsset(const std::shared_ptr<AssetData> inAssetData)
 	{
 		m_front = inAssetData;
+		setDirty(true);
 	}
 
 	std::shared_ptr<GTexture> CubeComponent::getFrontTexture() const
@@ -186,6 +189,7 @@ namespace GuGu {
 	void CubeComponent::setBackTextureAsset(const std::shared_ptr<AssetData> inAssetData)
 	{
 		m_back = inAssetData;
+		setDirty(true);
 	}
 
 	std::shared_ptr<GTexture> CubeComponent::getBackTexture() const
@@ -201,6 +205,7 @@ namespace GuGu {
 	void CubeComponent::setTopTextureAsset(const std::shared_ptr<AssetData> inAssetData)
 	{
 		m_top = inAssetData;
+		setDirty(true);
 	}
 
 	std::shared_ptr<GTexture> CubeComponent::getTopTexture() const
@@ -216,6 +221,7 @@ namespace GuGu {
 	void CubeComponent::setBottomTextureAsset(const std::shared_ptr<AssetData> inAssetData)
 	{
 		m_bottom = inAssetData;
+		setDirty(true);
 	}
 
 	std::shared_ptr<GTexture> CubeComponent::getBottomTexture() const
