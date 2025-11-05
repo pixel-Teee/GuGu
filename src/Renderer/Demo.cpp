@@ -1672,6 +1672,21 @@ namespace GuGu {
 			m_gameUIFontPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
+		if (!m_skyBoxPipeline)
+		{
+			nvrhi::GraphicsPipelineDesc psoDesc;
+			psoDesc.VS = m_skyBoxVertexShader;
+			psoDesc.PS = m_skyBoxPixelShader;
+			psoDesc.inputLayout = m_skyBoxInputLayout; //顶点属性
+			psoDesc.bindingLayouts = { m_skyBoxBindingLayout }; //constant buffer 这些
+			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+			psoDesc.renderState.rasterState.frontCounterClockwise = true;
+			psoDesc.renderState.depthStencilState.depthTestEnable = true;
+			psoDesc.renderState.depthStencilState.depthWriteEnable = false;
+			psoDesc.renderState.depthStencilState.depthFunc = nvrhi::ComparisonFunc::LessOrEqual;
+			m_skyBoxPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
+		}
+
 		m_drawItems.clear();
 
 		m_CommandList->open();
@@ -1698,7 +1713,8 @@ namespace GuGu {
 			math::float4x4 projMatrix = math::perspProjD3DStyle(math::radians(cameraComponent->getFov()),
 				inViewportClient->getAspectRatio(), cameraComponent->getNearPlane(), cameraComponent->getFarPlane()
 			);
-			math::float4x4 viewProjMatrix = math::inverse(math::affineToHomogeneous(cameraTransformComponent->GetLocalToWorldTransformFloat())) * projMatrix;
+			math::float4x4 viewMatrix = math::inverse(math::affineToHomogeneous(cameraTransformComponent->GetLocalToWorldTransformFloat()));
+			math::float4x4 viewProjMatrix = viewMatrix * projMatrix;
 			//modelConstants.viewProjMatrix = viewProjMatrix;
 
 			Pass pass;
@@ -2147,6 +2163,89 @@ namespace GuGu {
 				}
 			}
 
+			//draw skybox
+			nvrhi::GraphicsState skyBoxGraphicsState;
+			skyBoxGraphicsState.pipeline = m_skyBoxPipeline;
+			skyBoxGraphicsState.framebuffer = inViewportClient->getFramebuffer();
+			skyBoxGraphicsState.viewport.addViewportAndScissorRect(viewport);
+			for (size_t i = 0; i < gameObjects.size(); ++i)
+			{
+				std::shared_ptr<CubeComponent> cubeComponent = gameObjects[i]->getComponent<CubeComponent>();
+				if (cubeComponent)
+				{
+					if (cubeComponent->m_textureHandle == nullptr || cubeComponent->isDirty())
+					{
+						cubeComponent->setDirty(false);
+
+						std::vector<std::shared_ptr<GTexture>> skyBoxTextures = {
+							cubeComponent->getFrontTexture(),
+							cubeComponent->getBackTexture(),
+							cubeComponent->getTopTexture(),
+							cubeComponent->getBottomTexture(),
+							cubeComponent->getRightTexture(),
+							cubeComponent->getLeftTexture(),
+						};
+						nvrhi::TextureHandle resultHandle = m_textureCache.FinalizeCubeMapTexture(skyBoxTextures, m_commonRenderPass.get(), m_CommandList);
+						if (resultHandle != nullptr)
+							cubeComponent->m_textureHandle = resultHandle;
+					}
+					//draw sky box
+					nvrhi::BindingSetHandle skyBoxBindingSet;
+					nvrhi::BindingSetDesc desc;
+					//nvrhi::BindingSetHandle bindingSet;
+					desc.bindings = {
+							nvrhi::BindingSetItem::ConstantBuffer(0, m_skyBoxConstantBuffer),
+							nvrhi::BindingSetItem::Texture_SRV(0, cubeComponent->m_textureHandle),
+							nvrhi::BindingSetItem::Sampler(0, m_pointWrapSampler),
+					};
+					m_skyBoxBindingSet = GetDevice()->createBindingSet(desc, m_skyBoxBindingLayout);
+
+					skyBoxGraphicsState.bindings = { m_skyBoxBindingSet };
+
+					skyBoxGraphicsState.vertexBuffers = {
+						//{cameraComponent->m_debugCameraFrustumVertexBuffer, 0, 0}
+						{m_cube.m_vertexBuffer, 0, 0}
+					};
+
+					skyBoxGraphicsState.indexBuffer = {
+						//cameraComponent->m_debugCameraFrustumIndexBuffer, nvrhi::Format::R32_UINT, 0
+						m_cube.m_indexBuffer, nvrhi::Format::R32_UINT, 0
+					};
+
+					math::float4x4 getRidTranslationViewMatrix = math::float4x4::zero();
+					for (int32_t row = 0; row < 3; ++row)
+					{
+						for (int32_t col = 0; col < 3; ++col)
+						{
+							getRidTranslationViewMatrix[row][col] = viewMatrix[row][col];
+						}
+					}
+
+					SkyBoxConstantBufferEntry modelConstants;
+					modelConstants.viewProjMatrix = getRidTranslationViewMatrix * projMatrix;
+					modelConstants.worldMatrix = math::float4x4::identity();;
+					modelConstants.camWorldPos = inViewportClient->getCamPos();
+					//get the global matrix to fill constant buffer		
+					m_CommandList->writeBuffer(m_skyBoxConstantBuffer, &modelConstants, sizeof(modelConstants));
+
+					//CameraPropertiesBuffer propertiesBuffer;
+					//propertiesBuffer.color = math::float3(0.73f, 0.90f, 0.44f);
+					//m_CommandList->writeBuffer(m_cameraPropertiesConstantBuffers[i], &propertiesBuffer, sizeof(propertiesBuffer));
+
+					skyBoxGraphicsState.setPipeline(m_skyBoxPipeline);
+					m_CommandList->setGraphicsState(skyBoxGraphicsState);
+
+					//draw the model
+					nvrhi::DrawArguments args;
+					args.vertexCount = 36;
+					args.instanceCount = 1;
+					args.startVertexLocation = 0;
+					args.startIndexLocation = 0;
+					m_CommandList->drawIndexed(args);
+					break;
+				}
+			}
+
 			//------draw game ui------
 			std::vector<std::shared_ptr<UIDrawInfo>> uiDrawInfos;
 			for (size_t i = 0; i < gameObjects.size(); ++i)
@@ -2582,7 +2681,9 @@ namespace GuGu {
 			//m_CommandList->writeBuffer(m_PbrMaterialBuffers[index], &pbrMaterial, sizeof(pbrMaterial));
 			//++index;
 		}
-		m_CommandList->writeBuffer(m_LightBuffers, &light, sizeof(light));
+
+		if(lightCount > 0)
+			m_CommandList->writeBuffer(m_LightBuffers, &light, sizeof(light));
 
 		nvrhi::GraphicsState graphicsState;
 		// Pick the right binding set for this view.
