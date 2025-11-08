@@ -84,6 +84,62 @@ namespace GuGu {
 
 				propertyWidget = numericWidget;
 			}
+			else if (PropertyEditorNumeric<int8_t>::supports(inPropertyEditor))
+			{
+				std::shared_ptr<PropertyEditorNumeric<int8_t>> numericWidget;
+				WIDGET_ASSIGN_NEW(PropertyEditorNumeric<int8_t>, numericWidget, inPropertyEditor);
+				numericWidget->getFixedWidth(m_minFixedWidth, m_maxFixedWidth);
+
+				propertyWidget = numericWidget;
+			}
+			else if (PropertyEditorNumeric<int16_t>::supports(inPropertyEditor))
+			{
+				std::shared_ptr<PropertyEditorNumeric<int16_t>> numericWidget;
+				WIDGET_ASSIGN_NEW(PropertyEditorNumeric<int16_t>, numericWidget, inPropertyEditor);
+				numericWidget->getFixedWidth(m_minFixedWidth, m_maxFixedWidth);
+
+				propertyWidget = numericWidget;
+			}
+			else if (PropertyEditorNumeric<int32_t>::supports(inPropertyEditor))
+			{
+				std::shared_ptr<PropertyEditorNumeric<int32_t>> numericWidget;
+				WIDGET_ASSIGN_NEW(PropertyEditorNumeric<int32_t>, numericWidget, inPropertyEditor);
+				numericWidget->getFixedWidth(m_minFixedWidth, m_maxFixedWidth);
+
+				propertyWidget = numericWidget;
+			}
+			else if (PropertyEditorNumeric<uint8_t>::supports(inPropertyEditor))
+			{
+				std::shared_ptr<PropertyEditorNumeric<uint8_t>> numericWidget;
+				WIDGET_ASSIGN_NEW(PropertyEditorNumeric<uint8_t>, numericWidget, inPropertyEditor);
+				numericWidget->getFixedWidth(m_minFixedWidth, m_maxFixedWidth);
+
+				propertyWidget = numericWidget;
+			}
+			else if (PropertyEditorNumeric<uint16_t>::supports(inPropertyEditor))
+			{
+				std::shared_ptr<PropertyEditorNumeric<uint16_t>> numericWidget;
+				WIDGET_ASSIGN_NEW(PropertyEditorNumeric<uint16_t>, numericWidget, inPropertyEditor);
+				numericWidget->getFixedWidth(m_minFixedWidth, m_maxFixedWidth);
+
+				propertyWidget = numericWidget;
+			}
+			else if (PropertyEditorNumeric<uint32_t>::supports(inPropertyEditor))
+			{
+				std::shared_ptr<PropertyEditorNumeric<uint32_t>> numericWidget;
+				WIDGET_ASSIGN_NEW(PropertyEditorNumeric<uint32_t>, numericWidget, inPropertyEditor);
+				numericWidget->getFixedWidth(m_minFixedWidth, m_maxFixedWidth);
+
+				propertyWidget = numericWidget;
+			}
+			else if (PropertyEditorNumeric<uint64_t>::supports(inPropertyEditor))
+			{
+				std::shared_ptr<PropertyEditorNumeric<uint64_t>> numericWidget;
+				WIDGET_ASSIGN_NEW(PropertyEditorNumeric<uint64_t>, numericWidget, inPropertyEditor);
+				numericWidget->getFixedWidth(m_minFixedWidth, m_maxFixedWidth);
+
+				propertyWidget = numericWidget;
+			}
 			else if (PropertyEditorAsset::supports(inPropertyEditor))
 			{
 				std::shared_ptr<PropertyEditorAsset> assetWidget;
@@ -138,6 +194,10 @@ namespace GuGu {
 			else if (PropertyHandleRotator::supports(inPropertyNode))
 			{
 				propertyHandle = std::make_shared<PropertyHandleRotator>(inPropertyNode);
+			}
+			else if (PropertyHandleInt::supports(inPropertyNode))
+			{
+				propertyHandle = std::make_shared<PropertyHandleInt>(inPropertyNode);
 			}
 			else
 			{

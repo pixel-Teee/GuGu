@@ -219,6 +219,38 @@ namespace GuGu {
 			meta::Variant strInstance = str;
 			fieldValue = std::move(strInstance);
 		}
+		else if (field->GetType() == typeof(int8_t))
+		{
+			fieldValue = (int8_t)std::stoi(actualStr);
+		}
+		else if (field->GetType() == typeof(int16_t))
+		{
+			fieldValue = (int16_t)std::stoi(actualStr);
+		}
+		else if (field->GetType() == typeof(int32_t))
+		{
+			fieldValue = (int32_t)std::stoi(actualStr);
+		}
+		else if (field->GetType() == typeof(int64_t))
+		{
+			fieldValue = (int64_t)std::stoll(actualStr);//long long
+		}
+		else if (field->GetType() == typeof(uint8_t))
+		{
+			fieldValue = (uint8_t)std::stoi(actualStr);
+		}
+		else if (field->GetType() == typeof(uint16_t))
+		{
+			fieldValue = (uint16_t)std::stoul(actualStr);
+		}
+		else if (field->GetType() == typeof(uint32_t))
+		{
+			fieldValue = (uint32_t)std::stoul(actualStr);
+		}
+		else if (field->GetType() == typeof(uint64_t))
+		{
+			fieldValue = (uint64_t)std::stoull(actualStr);
+		}
 		for (int32_t i = 0; i < owners.size(); ++i)
 		{
 			meta::Field curField = meta::ReflectionDatabase::Instance().types[owners[i].GetType().GetID()].GetField(field->GetName().getStr());//have this field?
@@ -317,6 +349,14 @@ namespace GuGu {
 	IMPLEMENT_PROPERTY_ACCESSOR(double)
 	IMPLEMENT_PROPERTY_ACCESSOR(math::double3)
 	IMPLEMENT_PROPERTY_ACCESSOR(AssetData)
+	IMPLEMENT_PROPERTY_ACCESSOR(int8_t)
+	IMPLEMENT_PROPERTY_ACCESSOR(int16_t)
+	IMPLEMENT_PROPERTY_ACCESSOR(int32_t)
+	IMPLEMENT_PROPERTY_ACCESSOR(int64_t)
+	IMPLEMENT_PROPERTY_ACCESSOR(uint8_t)
+	IMPLEMENT_PROPERTY_ACCESSOR(uint16_t)
+	IMPLEMENT_PROPERTY_ACCESSOR(uint32_t)
+	IMPLEMENT_PROPERTY_ACCESSOR(uint64_t)
 
 	PropertyHandleBase::PropertyHandleBase(std::shared_ptr<PropertyNode> propertyNode)
 		: m_implementation(std::make_shared<PropertyValueImpl>(propertyNode))
@@ -479,7 +519,206 @@ namespace GuGu {
 		}
 		return field->GetType() == typeof(double);
 	}
+	
+	PropertyHandleInt::PropertyHandleInt(std::shared_ptr<PropertyNode> propertyNode)
+		: PropertyHandleBase(propertyNode)
+	{
 
+	}
+
+	bool PropertyHandleInt::supports(std::shared_ptr<PropertyNode> propertyNode)
+	{
+		meta::Field* field = propertyNode->getField();
+		if (field == nullptr)
+		{
+			return false;
+		}
+		const bool bIsInteger = 
+			   field->GetType() == typeof(int8_t)
+			|| field->GetType() == typeof(int16_t)
+			|| field->GetType() == typeof(int32_t)
+			|| field->GetType() == typeof(int64_t)
+			|| field->GetType() == typeof(uint8_t)
+			|| field->GetType() == typeof(uint16_t)
+			|| field->GetType() == typeof(uint32_t)
+			|| field->GetType() == typeof(uint64_t);
+	}
+
+	PropertyAccess::Result PropertyHandleInt::getValue(int8_t& outValue) const
+	{
+		meta::Variant fieldValue;
+		PropertyAccess::Result res = m_implementation->getValueData(fieldValue);
+		//outValue = m_implementation->getPropertyValue();
+		outValue = fieldValue.ToInt();
+
+		return res;
+	}
+
+	GuGu::PropertyAccess::Result PropertyHandleInt::getValue(int16_t& outValue) const
+	{
+		meta::Variant fieldValue;
+		PropertyAccess::Result res = m_implementation->getValueData(fieldValue);
+		//outValue = m_implementation->getPropertyValue();
+		outValue = fieldValue.ToInt();
+
+		return res;
+	}
+
+	GuGu::PropertyAccess::Result PropertyHandleInt::getValue(int32_t& outValue) const
+	{
+		meta::Variant fieldValue;
+		PropertyAccess::Result res = m_implementation->getValueData(fieldValue);
+		//outValue = m_implementation->getPropertyValue();
+		outValue = fieldValue.ToInt();
+
+		return res;
+	}
+
+	GuGu::PropertyAccess::Result PropertyHandleInt::getValue(int64_t& outValue) const
+	{
+		meta::Variant fieldValue;
+		PropertyAccess::Result res = m_implementation->getValueData(fieldValue);
+		//outValue = m_implementation->getPropertyValue();
+		outValue = fieldValue.ToInt();
+
+		return res;
+	}
+
+	GuGu::PropertyAccess::Result PropertyHandleInt::getValue(uint8_t& outValue) const
+	{
+		meta::Variant fieldValue;
+		PropertyAccess::Result res = m_implementation->getValueData(fieldValue);
+		//outValue = m_implementation->getPropertyValue();
+		outValue = fieldValue.ToInt();
+
+		return res;
+	}
+
+	GuGu::PropertyAccess::Result PropertyHandleInt::getValue(uint16_t& outValue) const
+	{
+		meta::Variant fieldValue;
+		PropertyAccess::Result res = m_implementation->getValueData(fieldValue);
+		//outValue = m_implementation->getPropertyValue();
+		outValue = fieldValue.ToInt();
+
+		return res;
+	}
+
+	GuGu::PropertyAccess::Result PropertyHandleInt::getValue(uint32_t& outValue) const
+	{
+		meta::Variant fieldValue;
+		PropertyAccess::Result res = m_implementation->getValueData(fieldValue);
+		//outValue = m_implementation->getPropertyValue();
+		outValue = fieldValue.ToInt();
+
+		return res;
+	}
+
+	GuGu::PropertyAccess::Result PropertyHandleInt::getValue(uint64_t& outValue) const
+	{
+		meta::Variant fieldValue;
+		PropertyAccess::Result res = m_implementation->getValueData(fieldValue);
+		//outValue = m_implementation->getPropertyValue();
+		outValue = fieldValue.ToInt();
+
+		return res;
+	}
+
+	PropertyAccess::Result PropertyHandleInt::setValue(const int8_t& inValue)
+	{
+		PropertyAccess::Result res;
+
+		char buffer[64];
+		std::sprintf(buffer, "%d", inValue);
+		GuGuUtf8Str valueStr(buffer);
+		res = m_implementation->importText(valueStr);
+
+		return res;
+	}
+
+	GuGu::PropertyAccess::Result PropertyHandleInt::setValue(const int16_t& inValue)
+	{
+		PropertyAccess::Result res;
+
+		char buffer[64];
+		std::sprintf(buffer, "%d", inValue);
+		GuGuUtf8Str valueStr(buffer);
+		res = m_implementation->importText(valueStr);
+
+		return res;
+	}
+
+	GuGu::PropertyAccess::Result PropertyHandleInt::setValue(const int32_t& inValue)
+	{
+		PropertyAccess::Result res;
+
+		char buffer[64];
+		std::sprintf(buffer, "%d", inValue);
+		GuGuUtf8Str valueStr(buffer);
+		res = m_implementation->importText(valueStr);
+
+		return res;
+	}
+
+	GuGu::PropertyAccess::Result PropertyHandleInt::setValue(const int64_t& inValue)
+	{
+		PropertyAccess::Result res;
+
+		char buffer[64];
+		std::sprintf(buffer, "%lld", inValue);
+		GuGuUtf8Str valueStr(buffer);
+		res = m_implementation->importText(valueStr);
+
+		return res;
+	}
+
+	GuGu::PropertyAccess::Result PropertyHandleInt::setValue(const uint8_t& inValue)
+	{
+		PropertyAccess::Result res;
+
+		char buffer[64];
+		std::sprintf(buffer, "%d", inValue);
+		GuGuUtf8Str valueStr(buffer);
+		res = m_implementation->importText(valueStr);
+
+		return res;
+	}
+
+	GuGu::PropertyAccess::Result PropertyHandleInt::setValue(const uint16_t& inValue)
+	{
+		PropertyAccess::Result res;
+
+		char buffer[64];
+		std::sprintf(buffer, "%d", inValue);
+		GuGuUtf8Str valueStr(buffer);
+		res = m_implementation->importText(valueStr);
+
+		return res;
+	}
+
+	GuGu::PropertyAccess::Result PropertyHandleInt::setValue(const uint32_t& inValue)
+	{
+		PropertyAccess::Result res;
+
+		char buffer[64];
+		std::sprintf(buffer, "%d", inValue);
+		GuGuUtf8Str valueStr(buffer);
+		res = m_implementation->importText(valueStr);
+
+		return res;
+	}
+
+	GuGu::PropertyAccess::Result PropertyHandleInt::setValue(const uint64_t& inValue)
+	{
+		PropertyAccess::Result res;
+
+		char buffer[64];
+		std::sprintf(buffer, "%I64d", inValue);
+		GuGuUtf8Str valueStr(buffer);
+		res = m_implementation->importText(valueStr);
+
+		return res;
+	}
 
 	PropertyAccess::Result PropertyHandleDouble::getValue(double& outValue) const
 	{

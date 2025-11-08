@@ -26,8 +26,8 @@ namespace GuGu {
 			m_propertyEditor = inPropertyEditor;
 
 			//get range
-			NumericType minValue = static_cast<NumericType>(-100.0f);
-			NumericType maxValue = static_cast<NumericType>(100.0f);
+			NumericType minValue = std::numeric_limits<NumericType>::min();
+			NumericType maxValue = std::numeric_limits<NumericType>::max();
 			
 			std::shared_ptr<IPropertyHandle> propertyHandle = inPropertyEditor->getPropertyHandle();
 			if (propertyHandle)
@@ -126,6 +126,54 @@ namespace GuGu {
 		struct TTypeToProperty<double, U>
 		{
 			static bool match(const meta::Field* inField) { return inField->GetType() == typeof(double); }
+		};
+
+		template<typename U>
+		struct TTypeToProperty<int8_t, U>
+		{
+			static bool match(const meta::Field* inField) { return inField->GetType() == typeof(int8_t); }
+		};
+
+		template<typename U>
+		struct TTypeToProperty<int16_t, U>
+		{
+			static bool match(const meta::Field* inField) { return inField->GetType() == typeof(int16_t); }
+		};
+
+		template<typename U>
+		struct TTypeToProperty<int32_t, U>
+		{
+			static bool match(const meta::Field* inField) { return inField->GetType() == typeof(int32_t); }
+		};
+
+		template<typename U>
+		struct TTypeToProperty<int64_t, U>
+		{
+			static bool match(const meta::Field* inField) { return inField->GetType() == typeof(int64_t); }
+		};
+
+		template<typename U>
+		struct TTypeToProperty<uint8_t, U>
+		{
+			static bool match(const meta::Field* inField) { return inField->GetType() == typeof(uint8_t); }
+		};
+
+		template<typename U>
+		struct TTypeToProperty<uint16_t, U>
+		{
+			static bool match(const meta::Field* inField) { return inField->GetType() == typeof(uint16_t); }
+		};
+
+		template<typename U>
+		struct TTypeToProperty<uint32_t, U>
+		{
+			static bool match(const meta::Field* inField) { return inField->GetType() == typeof(uint32_t); }
+		};
+
+		template<typename U>
+		struct TTypeToProperty<uint64_t, U>
+		{
+			static bool match(const meta::Field* inField) { return inField->GetType() == typeof(uint64_t); }
 		};
 		std::shared_ptr<PropertyEditor> m_propertyEditor;
 

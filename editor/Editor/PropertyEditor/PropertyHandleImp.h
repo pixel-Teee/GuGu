@@ -69,6 +69,14 @@ namespace GuGu {
 		DECLARE_PROPERTY_ACCESSOR(double)
 		DECLARE_PROPERTY_ACCESSOR(math::double3)
 		DECLARE_PROPERTY_ACCESSOR(AssetData)
+		DECLARE_PROPERTY_ACCESSOR(int8_t)
+		DECLARE_PROPERTY_ACCESSOR(int16_t)
+		DECLARE_PROPERTY_ACCESSOR(int32_t)
+		DECLARE_PROPERTY_ACCESSOR(int64_t)
+		DECLARE_PROPERTY_ACCESSOR(uint8_t)
+		DECLARE_PROPERTY_ACCESSOR(uint16_t)
+		DECLARE_PROPERTY_ACCESSOR(uint32_t)
+		DECLARE_PROPERTY_ACCESSOR(uint64_t)
 	protected:
 		std::shared_ptr<PropertyValueImpl> m_implementation;
 	};
@@ -99,6 +107,37 @@ namespace GuGu {
 		static bool supports(std::shared_ptr<PropertyNode> propertyNode);
 		virtual PropertyAccess::Result getValue(math::double3& outValue) const override;
 		virtual PropertyAccess::Result setValue(const math::double3& inValue) override;
+	};
+
+	class PropertyHandleInt : public PropertyHandleBase
+	{
+	public:
+		PropertyHandleInt(std::shared_ptr<PropertyNode> propertyNode);
+		static bool supports(std::shared_ptr<PropertyNode> propertyNode);
+
+		virtual PropertyAccess::Result getValue(int8_t& outValue) const override;
+		virtual PropertyAccess::Result setValue(const int8_t& inValue) override;
+
+		virtual PropertyAccess::Result getValue(int16_t& outValue) const override;
+		virtual PropertyAccess::Result setValue(const int16_t& inValue) override;
+
+		virtual PropertyAccess::Result getValue(int32_t& outValue) const override;
+		virtual PropertyAccess::Result setValue(const int32_t& inValue) override;
+
+		virtual PropertyAccess::Result getValue(int64_t& outValue) const override;
+		virtual PropertyAccess::Result setValue(const int64_t& inValue) override;
+
+		virtual PropertyAccess::Result getValue(uint8_t& outValue) const override;
+		virtual PropertyAccess::Result setValue(const uint8_t& inValue) override;
+
+		virtual PropertyAccess::Result getValue(uint16_t& outValue) const override;
+		virtual PropertyAccess::Result setValue(const uint16_t& inValue) override;
+
+		virtual PropertyAccess::Result getValue(uint32_t& outValue) const override;
+		virtual PropertyAccess::Result setValue(const uint32_t& inValue) override;
+
+		virtual PropertyAccess::Result getValue(uint64_t& outValue) const override;
+		virtual PropertyAccess::Result setValue(const uint64_t& inValue) override;
 	};
 
 	class PropertyHandleDouble : public PropertyHandleBase

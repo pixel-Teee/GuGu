@@ -23,6 +23,30 @@ namespace GuGu {
 		virtual PropertyAccess::Result setValue(const double& inValue) = 0;
 		virtual PropertyAccess::Result getValue(double& outValue) const = 0;
 
+		virtual PropertyAccess::Result setValue(const int8_t& inValue) = 0;
+		virtual PropertyAccess::Result getValue(int8_t& outValue) const = 0;
+
+		virtual PropertyAccess::Result setValue(const int16_t& inValue) = 0;
+		virtual PropertyAccess::Result getValue(int16_t& outValue) const = 0;
+
+		virtual PropertyAccess::Result setValue(const int32_t& inValue) = 0;
+		virtual PropertyAccess::Result getValue(int32_t& outValue) const = 0;
+
+		virtual PropertyAccess::Result setValue(const int64_t& inValue) = 0;
+		virtual PropertyAccess::Result getValue(int64_t& outValue) const = 0;
+
+		virtual PropertyAccess::Result setValue(const uint8_t& inValue) = 0;
+		virtual PropertyAccess::Result getValue(uint8_t& outValue) const = 0;
+
+		virtual PropertyAccess::Result setValue(const uint16_t& inValue) = 0;
+		virtual PropertyAccess::Result getValue(uint16_t& outValue) const = 0;
+
+		virtual PropertyAccess::Result setValue(const uint32_t& inValue) = 0;
+		virtual PropertyAccess::Result getValue(uint32_t& outValue) const = 0;
+
+		virtual PropertyAccess::Result setValue(const uint64_t& inValue) = 0;
+		virtual PropertyAccess::Result getValue(uint64_t& outValue) const = 0;
+
 		virtual PropertyAccess::Result setValue(const math::double3& inValue) = 0;
 		virtual PropertyAccess::Result getValue(math::double3& outValue) const = 0;
 

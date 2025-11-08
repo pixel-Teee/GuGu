@@ -364,10 +364,10 @@ namespace GuGu {
 		}
 
 		//todo:这里要根据NumericType类型来获取最小值
-		NumericType getMinSliderValue() const { return m_minSliderValue.Get().value_or(-5000.0f);}
-		NumericType getMaxSliderValue() const { return m_maxSliderValue.Get().value_or(5000.0f); }
-		NumericType getMinValue() const { return m_minValue.Get().value_or(-5000.0f); }
-		NumericType getMaxValue() const { return m_maxValue.Get().value_or(5000.0f); } //todo:这里转换为NumericType，如果不匹配，会崩溃
+		NumericType getMinSliderValue() const { return m_minSliderValue.Get().value_or(std::numeric_limits<NumericType>::min());}
+		NumericType getMaxSliderValue() const { return m_maxSliderValue.Get().value_or(std::numeric_limits<NumericType>::max()); }
+		NumericType getMinValue() const { return m_minValue.Get().value_or(std::numeric_limits<NumericType>::min()); }
+		NumericType getMaxValue() const { return m_maxValue.Get().value_or(std::numeric_limits<NumericType>::max()); } //todo:这里转换为NumericType，如果不匹配，会崩溃
 		
 		bool isCharacterValid(GuGuUtf8Str inChar) const
 		{
