@@ -21,15 +21,46 @@ namespace GuGu {
 		return 10.0f;
 	}
 
-	void ViewportClient::setGameObjectSelectionChangedEvent(std::function<void(const std::vector<GameObject*>&, bool)> inGameObjectSelectionChangedEvent)
+	GuGuUtf8Str ViewportClient::addGameObjectSelectionChangedEvent(std::function<void(const std::vector<GameObject*>&, bool)> inGameObjectSelectionChangedEvent)
 	{
-		m_gameObjectSelectionChangedEvent = inGameObjectSelectionChangedEvent;
+		//m_gameObjectSelectionChangedEvent = inGameObjectSelectionChangedEvent;
+		return m_gameObjectSelectionChangedEvent.addDelegate(inGameObjectSelectionChangedEvent);
 	}
 
 	void ViewportClient::broadcastGameObjectSelectionChanged(const std::vector<GameObject*>& newSelection, bool bForceRefresh)
 	{
-		m_gameObjectSelectionChangedEvent(newSelection, bForceRefresh);
+		m_gameObjectSelectionChangedEvent.invokeAll(newSelection, bForceRefresh);
+
+		//for (const auto& it : m_gameObjectSelectionChangedEvents)
+		//{
+		//	if (it.m_event)
+		//	{
+		//		it.m_event(newSelection, bForceRefresh);
+		//	}		
+		//}
 	}
+
+	void ViewportClient::eraseGameObjectSelectionChangedEvent(const GuGuUtf8Str& inDelegateId)
+	{
+		m_gameObjectSelectionChangedEvent.remove(inDelegateId);
+	}
+
+	//void ViewportClient::addGameObjectSelectionChangedEvent(std::shared_ptr<GameObject> inGameObject, std::function<void(const std::vector<GameObject*>&, bool)> inGameObjectSelectionChangedEvent)
+	//{
+	//	m_gameObjectSelectionChangedEvents.push_back({ inGameObject, inGameObjectSelectionChangedEvent });
+	//}
+	//
+	//void ViewportClient::eraseGameObjectSelectionChangedEvent(std::shared_ptr<GameObject> inGameObject)
+	//{
+	//	auto it = std::find_if(m_gameObjectSelectionChangedEvents.begin(),
+	//		m_gameObjectSelectionChangedEvents.end(), [=](const TrackedEvent& item) {
+	//			return item.gameObject.lock() == inGameObject;
+	//		});
+	//	if (m_gameObjectSelectionChangedEvents.end() != it)
+	//	{
+	//		m_gameObjectSelectionChangedEvents.erase(it);
+	//	}
+	//}
 
 	//------input------
 	void ViewportClient::onMouseButtonDown(UIPointerData uiPointerData)

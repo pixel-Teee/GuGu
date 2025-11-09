@@ -42,6 +42,7 @@
 
 #include <Editor/StyleSet/ThemePanel.h> //theme panel
 #include <Editor/Debug/ShowTexturePanel.h>
+#include <Editor/Terrain/TerrainEditorPanel.h>
 
 namespace GuGu {
 	EditorMainWindow::EditorMainWindow()
@@ -50,6 +51,7 @@ namespace GuGu {
 	EditorMainWindow::~EditorMainWindow()
 	{
 		//EditorStyleSet::getStyleSet()->clear();
+		
 	}
 	void EditorMainWindow::init(const BuilderArguments& arguments)
 	{	
@@ -71,6 +73,8 @@ namespace GuGu {
 			std::shared_ptr<Button> fileButton;
 
 			std::shared_ptr<Button> themeButton;
+
+			std::shared_ptr<Button> terrainButton;
 
 			std::shared_ptr<Button> debugView;//debug view
 
@@ -149,6 +153,25 @@ namespace GuGu {
 								(
 									WIDGET_NEW(TextBlockWidget)
 									.text(u8"Theme")
+									.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+								)
+							)
+						)
+						+ HorizontalBox::Slot()
+						.FixedWidth()
+						.setPadding(Padding(10.0f, 0.0f, 0.0f, 0.0f))
+						(
+							WIDGET_NEW(BoxWidget)
+							.HeightOverride(OptionalSize(38.0f))
+							.WidthOverride(OptionalSize(60.0f))
+							.Content
+							(
+								WIDGET_ASSIGN_NEW(Button, terrainButton)
+								.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+								.Content
+								(
+									WIDGET_NEW(TextBlockWidget)
+									.text(u8"Terrain")
 									.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
 								)
 							)
@@ -361,6 +384,8 @@ namespace GuGu {
 			redoButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::redo, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
 
 			themeButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::openTheme, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
+
+			terrainButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::openTerrainEditorPanel, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
 		}
 		else
 		{
@@ -378,7 +403,7 @@ namespace GuGu {
 		//std::shared_ptr<TileView<GuGuUtf8Str>> test = WIDGET_NEW(TileView<GuGuUtf8Str>);
 		std::function<void(const std::vector<GameObject*>&, bool)> gameObjectSelectionChangedEvent = std::bind(&EditorMainWindow::onItemSelect, this, std::placeholders::_1, std::placeholders::_2);
 		std::shared_ptr<ViewportClient> viewportClient = m_viewportWidget->getViewportClient();
-		viewportClient->setGameObjectSelectionChangedEvent(gameObjectSelectionChangedEvent);
+		m_gameObjectSelectionChangedEventDelegateHandle = viewportClient->addGameObjectSelectionChangedEvent(gameObjectSelectionChangedEvent);
 
 		//PropertyEditorManager::getPropertyEditorManager()->addDetailsView(m_objectDetails);
 
@@ -531,6 +556,48 @@ namespace GuGu {
 			.FixedHeight()
 			(
 				WIDGET_NEW(ThemePanel)
+			)
+		);
+
+		WidgetPath widgetPath;
+		Application::getApplication()->generatePathToWidgetUnchecked(shared_from_this(), widgetPath);
+		Application::getApplication()->addWindowAsNativeChild(window, widgetPath.getWindow());
+
+		return Reply::Handled();
+	}
+
+	GuGu::Reply EditorMainWindow::openTerrainEditorPanel()
+	{
+		math::float2 cursorPos = Application::getApplication()->getCursorPos();
+		std::shared_ptr<WindowWidget> window = WIDGET_NEW(WindowWidget)
+			.ScreenPosition(cursorPos)
+			.sizingRule(SizingRule::AutoSized);
+		//.Content
+		//(
+		//	WIDGET_NEW(VerticalBox)
+		//	+ VerticalBox::Slot()
+		//	.FixedHeight()
+		//	(
+		//		WIDGET_NEW(WindowTitleBar)
+		//		)
+		//	+ VerticalBox::Slot()
+		//	.FixedHeight()
+		//	(
+		//		WIDGET_NEW(ThemePanel)
+		//		)
+		//);
+
+		window->setContent(
+			WIDGET_NEW(VerticalBox)
+			+ VerticalBox::Slot()
+			.FixedHeight()
+			(
+				WIDGET_NEW(WindowTitleBar, window)
+			)
+			+ VerticalBox::Slot()
+			.FixedHeight()
+			(
+				WIDGET_NEW(TerrainEditorPanel)
 			)
 		);
 

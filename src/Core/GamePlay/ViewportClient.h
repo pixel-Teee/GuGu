@@ -6,6 +6,8 @@
 
 #include <Core/GamePlay/GameUI/UIPointerData.h> //ui pointer data
 
+#include <Core/DelegateManager.h>
+
 namespace GuGu {
 	namespace meta
 	{
@@ -88,11 +90,15 @@ namespace GuGu {
 		virtual float getDebugLineWidth();
 
 		//------暂时放在这里------
-		using GameObjectSelectionChangedEvent = std::function<void(const std::vector<GameObject*>&, bool)>;
+		using GameObjectSelectionChangedEvent = DelegateManager<void, const std::vector<GameObject*>&, bool>;
 		//virtual GameObjectSelectionChangedEvent& onGameObjectSelectionChanged() { return m_gameObjectSelectionChangedEvent; }
-		void setGameObjectSelectionChangedEvent(std::function<void(const std::vector<GameObject*>&, bool)> inGameObjectSelectionChangedEvent);
+		GuGuUtf8Str addGameObjectSelectionChangedEvent(std::function<void(const std::vector<GameObject*>&, bool)> inGameObjectSelectionChangedEvent);
 
 		virtual void broadcastGameObjectSelectionChanged(const std::vector<GameObject*>& newSelection, bool bForceRefresh);
+
+		//void addGameObjectSelectionChangedEvent(std::shared_ptr<GameObject> inGameObject, std::function<void(const std::vector<GameObject*>&, bool)> inGameObjectSelectionChangedEvent);
+		//
+		void eraseGameObjectSelectionChangedEvent(const GuGuUtf8Str& inDelegateId);
 		//------暂时放在这里------
 
 		//undo/redo
@@ -110,5 +116,14 @@ namespace GuGu {
 		virtual void onMouseButtonUp(UIPointerData uiPointerData);
 	private:
 		GameObjectSelectionChangedEvent m_gameObjectSelectionChangedEvent;
+
+		//todo:设计一种可以比较唯一ID的委托
+		//struct TrackedEvent
+		//{
+		//	std::weak_ptr<GameObject> gameObject;
+		//	GameObjectSelectionChangedEvent m_event;
+		//};
+		//
+		//std::vector<TrackedEvent> m_gameObjectSelectionChangedEvents;
 	};
 }

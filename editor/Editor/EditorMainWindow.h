@@ -59,6 +59,8 @@ namespace GuGu {
 
 		Reply openTheme();
 
+		Reply openTerrainEditorPanel();
+
 		Reply openFontAtlas();//font atlas
 
 		void switchEditorAndRuntime(CheckBoxState inCheckBoxState);
@@ -91,6 +93,8 @@ namespace GuGu {
 		math::float4 getUndoColor() const;
 
 		math::float4 getRedoColor() const;
+
+		GuGuUtf8Str m_gameObjectSelectionChangedEventDelegateHandle;
 	};
 
 	std::shared_ptr<EditorMainWindow> CreateEditorMainWindow();

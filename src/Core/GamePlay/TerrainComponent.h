@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Component.h"
-#include <nvrhi.h>
+#include <Renderer/nvrhi.h>
 
 namespace GuGu {
 	struct AssetData;
