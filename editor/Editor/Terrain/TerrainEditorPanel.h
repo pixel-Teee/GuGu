@@ -8,6 +8,7 @@ namespace GuGu {
 	class HorizontalBox;
 	class VerticalBox;
 	class Border;
+	class Overlay;
 	//terrain editor
 	class TerrainEditorPanel : public CompoundWidget
 	{
@@ -34,14 +35,28 @@ namespace GuGu {
 		void onGameObjectSelectionChanged(const std::vector<GameObject*>& newSelection, bool bForceRefresh);
 
 		Reply showPanelContent(TerrainEditorContentType inContentType);
+
+		std::optional<int32_t> onGetValue(const GuGuUtf8Str& variableName) const;
+
+		void onValueChanged(int32_t variableValue, GuGuUtf8Str variableName);
+
+		void onValueCommitted(int32_t variableValue, TextCommit::Type commitType, GuGuUtf8Str variableName);
+
+		Reply recreateTerrain();
 	private:
 		//地形笔刷选择按钮的容器
 		std::shared_ptr<HorizontalBox> m_brushSelectButtons;
 
 		std::shared_ptr<Border> m_brushContent;
 
+		std::shared_ptr<Overlay> m_sculptOverlay;
+		std::shared_ptr<VerticalBox> m_sculptVerticalBox;
+
 		GuGuUtf8Str m_gameObjectSelectionChangedDelegateHandle;
 
 		std::weak_ptr<GameObject> m_terrainObject;
+
+		//cache variable value
+		std::map<GuGuUtf8Str, meta::Variant> m_cacheVariableValues;
 	};
 }

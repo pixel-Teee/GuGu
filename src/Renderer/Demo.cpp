@@ -1983,8 +1983,8 @@ namespace GuGu {
 				//get the global matrix to fill constant buffer		
 				m_CommandList->writeBuffer(terrainComponent->m_terrainConstantBuffer, &terrainConstants, sizeof(TerrainConstantBufferEntry));
 
-				math::float2 terrainSize = math::float2((float)terrainComponent->m_rows * (float)terrainComponent->m_tileSize, (float)terrainComponent->m_cols * (float)terrainComponent->m_tileSize);
-				math::float2 terrainBeginXZ = math::float2(-(float)terrainComponent->m_terrainRows * terrainSize.x * 0.5f, -(float)terrainComponent->m_terrainCols * terrainSize.y * 0.5f);
+				math::float2 terrainSize = math::float2((float)terrainComponent->m_cols * (float)terrainComponent->m_tileSize, (float)terrainComponent->m_rows * (float)terrainComponent->m_tileSize);
+				math::float2 terrainBeginXZ = math::float2(-(float)terrainComponent->m_terrainCols * terrainSize.x * 0.5f, -(float)terrainComponent->m_terrainRows * terrainSize.y * 0.5f);
 				for (uint32_t i = 0; i < terrainComponent->m_terrainRows; ++i)
 				{
 					for (uint32_t j = 0; j < terrainComponent->m_terrainCols; ++j)
@@ -2001,7 +2001,7 @@ namespace GuGu {
 						}
 						math::float2 offsetXZ = math::float2(terrainBeginXZ.x + j * terrainSize.x, terrainBeginXZ.y + i * terrainSize.y);
 						TerrainPropertiesBuffer propertiesBuffer;
-						propertiesBuffer.m_heightScale = 10.0f;
+						propertiesBuffer.m_heightScale = terrainComponent->m_heightScale;
 						propertiesBuffer.m_beginXZ = terrainBeginXZ;
 						propertiesBuffer.m_xzOffset = offsetXZ;
 						m_CommandList->writeBuffer(terrainComponent->m_terrainPropertiesConstantBuffer[index], &propertiesBuffer, sizeof(TerrainPropertiesBuffer));
@@ -2795,6 +2795,8 @@ namespace GuGu {
 				if (terrainComponent->m_indexBufferHandle == nullptr || terrainComponent->m_vertexBufferHandle == nullptr)
 				{
 					createTerrainVertexBufferAndIndexBuffer(terrainComponent);
+
+					terrainComponent->m_terrainPropertiesConstantBuffer.resize(terrainComponent->m_terrainCols * terrainComponent->m_terrainRows);
 				}
 
 				if (terrainComponent->getHeightTexture()->m_texture == nullptr)
@@ -2830,10 +2832,6 @@ namespace GuGu {
 							nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
 							true));
 				}
-				if (terrainComponent->m_terrainPropertiesConstantBuffer.empty())
-				{
-					terrainComponent->m_terrainPropertiesConstantBuffer.resize(terrainComponent->m_terrainCols * terrainComponent->m_terrainRows);
-				}
 			}
 			else
 			{
@@ -2845,8 +2843,8 @@ namespace GuGu {
 			//get the global matrix to fill constant buffer		
 			m_CommandList->writeBuffer(terrainComponent->m_terrainConstantBuffer, &terrainConstants, sizeof(TerrainConstantBufferEntry));
 			
-			math::float2 terrainSize = math::float2((float)terrainComponent->m_rows * (float)terrainComponent->m_tileSize, (float)terrainComponent->m_cols * (float)terrainComponent->m_tileSize);
-			math::float2 terrainBeginXZ = math::float2(-(float)terrainComponent->m_terrainRows * terrainSize.x * 0.5f, -(float)terrainComponent->m_terrainCols * terrainSize.y * 0.5f);
+			math::float2 terrainSize = math::float2((float)terrainComponent->m_cols * (float)terrainComponent->m_tileSize, (float)terrainComponent->m_rows * (float)terrainComponent->m_tileSize);
+			math::float2 terrainBeginXZ = math::float2(-(float)terrainComponent->m_terrainCols * terrainSize.x * 0.5f, -(float)terrainComponent->m_terrainRows * terrainSize.y * 0.5f);
 			for (uint32_t i = 0; i < terrainComponent->m_terrainRows; ++i)
 			{
 				for (uint32_t j = 0; j < terrainComponent->m_terrainCols; ++j)
@@ -2863,7 +2861,7 @@ namespace GuGu {
 					}
 					math::float2 offsetXZ = math::float2(terrainBeginXZ.x + j * terrainSize.x, terrainBeginXZ.y + i * terrainSize.y);
 					TerrainPropertiesBuffer propertiesBuffer;
-					propertiesBuffer.m_heightScale = 10.0f;
+					propertiesBuffer.m_heightScale = terrainComponent->m_heightScale;
 					propertiesBuffer.m_beginXZ = terrainBeginXZ;
 					propertiesBuffer.m_xzOffset = offsetXZ;
 					m_CommandList->writeBuffer(terrainComponent->m_terrainPropertiesConstantBuffer[index], &propertiesBuffer, sizeof(TerrainPropertiesBuffer));

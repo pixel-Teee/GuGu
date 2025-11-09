@@ -52,6 +52,9 @@ namespace GuGu {
 		uint32_t m_cols;
 		uint32_t m_tileSize;
 
+		//height scale
+		float m_heightScale;
+
 		//one tile data(一个块的顶点数据和索引数据)
 		std::vector<math::float3> m_vertexData;
 		std::vector<uint32_t> m_indexData;

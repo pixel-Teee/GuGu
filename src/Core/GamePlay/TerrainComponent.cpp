@@ -93,6 +93,10 @@ namespace GuGu {
 			(meta::FieldGetter<TerrainComponent, uint32_t, false>::Signature) & TerrainComponent::m_tileSize,
 			(meta::FieldSetter<TerrainComponent, uint32_t, false>::Signature) & TerrainComponent::m_tileSize, {});
 
+		type.AddField<TerrainComponent, float>("m_heightScale",
+			(meta::FieldGetter<TerrainComponent, float, false>::Signature) & TerrainComponent::m_heightScale,
+			(meta::FieldSetter<TerrainComponent, float, false>::Signature) & TerrainComponent::m_heightScale, {});
+
 		type.AddField<TerrainComponent, std::weak_ptr<GameObject>>("m_owner",
 			(meta::FieldGetter<TerrainComponent, std::weak_ptr<GameObject>&, true>::Signature) & TerrainComponent::getParentGameObject,
 			(meta::FieldSetter<TerrainComponent, std::weak_ptr<GameObject>&, true>::Signature) & TerrainComponent::setParentGameObject, {});
@@ -129,6 +133,7 @@ namespace GuGu {
 		m_rows = 20;
 		m_cols = 20;
 		m_tileSize = 2;
+		m_heightScale = 1.0f;
 		createTileData();
 	}
 
@@ -151,6 +156,7 @@ namespace GuGu {
 		terrainComponent->m_rows			= m_rows;
 		terrainComponent->m_cols			= m_cols;
 		terrainComponent->m_tileSize		= m_tileSize;
+		terrainComponent->m_heightScale		= m_heightScale;
 
 		return terrainComponent;
 	}
@@ -167,11 +173,12 @@ namespace GuGu {
 
 	void TerrainComponent::PostLoad()
 	{
-		//createTileData();
+		createTileData();
 	}
 
 	void TerrainComponent::createTileData()
 	{
+		m_vertexData.clear();
 		int32_t rows = m_rows + 1;
 		int32_t cols = m_cols + 1;
 		uint32_t faceCount = rows * cols * 2;
@@ -193,6 +200,7 @@ namespace GuGu {
 			
 		}
 
+		m_indexData.clear();
 		m_indexData.reserve(faceCount * 3);
 
 		uint32_t k = 0;
@@ -211,9 +219,11 @@ namespace GuGu {
 		}
 		//10.0f 是 height scale
 		//m_objectSpaceBounds = dm::box3(m_vertexData.size(), m_vertexData.data());
-		math::float3 oneBlockSize = math::float3((float)m_rows * (float)m_tileSize, 0, (float)m_cols * (float)m_tileSize);
-		math::float3 beginXZ = math::float3((float)m_terrainRows * oneBlockSize.x * 0.5f, 0, (float)m_terrainCols * oneBlockSize.z * 0.5f);
-		m_objectSpaceBounds = dm::box3(math::float3(-beginXZ.x, 0, -beginXZ.z), math::float3(beginXZ.x, 10.0f, beginXZ.z));
+		math::float3 oneBlockSize = math::float3((float)m_cols * (float)m_tileSize, 0, (float)m_rows * (float)m_tileSize);
+		math::float3 beginXZ = math::float3((float)m_terrainCols * oneBlockSize.x * 0.5f, 0, (float)m_terrainRows * oneBlockSize.z * 0.5f);
+		m_objectSpaceBounds = dm::box3(math::float3(-beginXZ.x, 0, -beginXZ.z), math::float3(beginXZ.x, m_heightScale, beginXZ.z));
+
+		m_indexBufferHandle = m_vertexBufferHandle = nullptr;
 	}
 
 	math::box3 TerrainComponent::getObjectSpaceBounds() const

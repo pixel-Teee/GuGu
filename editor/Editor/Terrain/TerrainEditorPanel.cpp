@@ -14,8 +14,11 @@
 #include <Core/UI/Border.h>
 #include <Core/UI/Button.h>
 #include <Core/UI/TextBlockWidget.h>
+#include <Core/UI/NumericEntryBox.h>
+#include <Core/UI/Reply.h>
 
 #include <Editor/StyleSet/EditorStyleSet.h>
+
 
 namespace GuGu {
 
@@ -83,6 +86,86 @@ namespace GuGu {
 		m_visibilityAttribute = Visibility::Visible;
 
 		sculptButton->setOnClicked(OnClicked(std::bind(&TerrainEditorPanel::showPanelContent, this, TerrainEditorContentType::Scuplt)));
+
+		m_sculptOverlay = 
+			WIDGET_NEW(Overlay)
+			+ Overlay::Slot()
+			(
+				WIDGET_ASSIGN_NEW(VerticalBox, m_sculptVerticalBox)
+				+ VerticalBox::Slot()
+				.FixedHeight()
+				(
+					NullWidget::getNullWidget()
+				)
+			);
+
+		std::vector<GuGuUtf8Str> variableNames = {
+			"m_terrainRows",
+			"m_terrainCols",
+			"m_rows",
+			"m_cols",
+			"m_tileSize",
+			"m_heightScale"
+		};
+
+		for (int32_t i = 0; i < variableNames.size(); ++i)
+		{
+			//loop and variable name
+			m_sculptVerticalBox->addSlot()
+			.FixedHeight()
+			(
+				WIDGET_NEW(HorizontalBox)
+				+ HorizontalBox::Slot()
+				.FixedWidth()
+				(
+					WIDGET_NEW(TextBlockWidget)
+					.text(variableNames[i].getStr())
+					.textColor(Attribute<math::float4>::Create([=]() {
+						return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9");
+					}))
+				)
+				+ HorizontalBox::Slot()
+				.FixedWidth()
+				(
+					WIDGET_NEW(NumericEntryBox<int32_t>)
+					.allowSpain(true)
+					.value(Attribute<std::optional<int32_t>>::Create(std::bind(&TerrainEditorPanel::onGetValue, this, variableNames[i]))) //要显示的值
+					.onValueChanged(this, &TerrainEditorPanel::onValueChanged, variableNames[i])
+					.onValueCommitted(this, &TerrainEditorPanel::onValueCommitted, variableNames[i])
+					.minValue(0)
+					.maxValue(1000)
+				)
+			);
+		}	
+		std::shared_ptr<Button> recreateTerrainButton;
+		m_sculptVerticalBox->addSlot()
+		.FixedHeight()
+		(
+			WIDGET_ASSIGN_NEW(Button, recreateTerrainButton)
+			.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+			.Content
+			(
+				WIDGET_NEW(HorizontalBox)
+				//+ HorizontalBox::Slot()
+				//.FixedWidth()
+				//(
+				//	WIDGET_NEW(ImageWidget)
+				//	.brush(EditorStyleSet::getStyleSet()->getBrush("ImportModel_Icon"))
+				//)
+				+ HorizontalBox::Slot()
+				.setPadding(Padding(5.0f, 0.0f, 5.0f, 0.0f))
+				.FixedWidth()
+				(
+					WIDGET_NEW(TextBlockWidget)
+					.text(u8"RecreateButton")
+					.textColor(Attribute<math::float4>::Create([=]() {
+						return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9");
+					}))
+				)	
+			)
+		);
+
+		recreateTerrainButton->setOnClicked(OnClicked(std::bind(&TerrainEditorPanel::recreateTerrain, this)));
 	}
 
 	void TerrainEditorPanel::onGameObjectSelectionChanged(const std::vector<GameObject*>& newSelection, bool bForceRefresh)
@@ -118,11 +201,121 @@ namespace GuGu {
 	{
 		if (inContentType == TerrainEditorContentType::Scuplt)
 		{
-
+			//terrain info
+			m_brushContent->setContent(m_sculptOverlay);
 		}
 		else if (inContentType == TerrainEditorContentType::Paint)
 		{
 
+		}
+		return Reply::Handled();
+	}
+
+	std::optional<int32_t> TerrainEditorPanel::onGetValue(const GuGuUtf8Str& variableName) const
+	{
+		if (m_terrainObject.lock())
+		{
+			std::shared_ptr<TerrainComponent> terrainComponent = m_terrainObject.lock()->getComponent<TerrainComponent>();
+			if (terrainComponent)
+			{
+				meta::Type type = terrainComponent->GetType();
+				//get field
+				meta::Field field = meta::ReflectionDatabase::Instance().types[type.GetID()].GetField(variableName.getStr());
+				//return field.GetValue(ObjectVariant(terrainComponent.get()));
+				meta::Variant instance = ObjectVariant(terrainComponent.get());
+				meta::Variant value = field.GetValue(instance);
+
+				//if(field.GetType() == typeof(uint32_t))
+				//	return value.GetValue<uint32_t>();
+				//else if(field.GetType() == typeof(float))
+				//	return value.GetValue<float>();
+
+				auto it = m_cacheVariableValues.find(variableName);
+
+				if (it != m_cacheVariableValues.end())
+				{
+					if (field.GetType() == typeof(uint32_t))
+						return it->second.GetValue<uint32_t>();
+					else if (field.GetType() == typeof(float))
+						return it->second.GetValue<float>();
+				}
+				else
+				{
+					if(field.GetType() == typeof(uint32_t))
+						return value.GetValue<uint32_t>();
+					else if(field.GetType() == typeof(float))
+						return value.GetValue<float>();
+
+				}
+			}
+		}
+		return std::optional<int32_t>(0);
+	}
+
+	void TerrainEditorPanel::onValueChanged(int32_t variableValue, GuGuUtf8Str variableName) 
+	{
+		if (m_terrainObject.lock())
+		{
+			std::shared_ptr<TerrainComponent> terrainComponent = m_terrainObject.lock()->getComponent<TerrainComponent>();
+			if (terrainComponent)
+			{
+				meta::Type type = terrainComponent->GetType();
+				//get field
+				meta::Field field = meta::ReflectionDatabase::Instance().types[type.GetID()].GetField(variableName.getStr());
+				//return field.GetValue(ObjectVariant(terrainComponent.get()));
+				meta::Variant instance = ObjectVariant(terrainComponent.get());
+				meta::Variant value;
+				if (field.GetType() == typeof(uint32_t))
+					value = (uint32_t)variableValue;
+				else if (field.GetType() == typeof(float))
+					value = (float)variableValue;
+				//field.SetValue(instance, value);
+
+				m_cacheVariableValues[field.GetName()] = std::move(value);
+			}
+		}
+	}
+
+	void TerrainEditorPanel::onValueCommitted(int32_t variableValue, TextCommit::Type commitType, GuGuUtf8Str variableName)
+	{
+		if (m_terrainObject.lock())
+		{
+			std::shared_ptr<TerrainComponent> terrainComponent = m_terrainObject.lock()->getComponent<TerrainComponent>();
+			if (terrainComponent)
+			{
+				meta::Type type = terrainComponent->GetType();
+				//get field
+				meta::Field field = meta::ReflectionDatabase::Instance().types[type.GetID()].GetField(variableName.getStr());
+				//return field.GetValue(ObjectVariant(terrainComponent.get()));
+				meta::Variant instance = ObjectVariant(terrainComponent.get());
+				meta::Variant value;
+				if (field.GetType() == typeof(uint32_t))
+					value = (uint32_t)variableValue;
+				else if (field.GetType() == typeof(float))
+					value = (float)variableValue;
+				//field.SetValue(instance, value);
+				m_cacheVariableValues[field.GetName()] = std::move(value);
+			}
+		}
+	}
+
+	Reply TerrainEditorPanel::recreateTerrain()
+	{
+		if (m_terrainObject.lock())
+		{
+			std::shared_ptr<TerrainComponent> terrainComponent = m_terrainObject.lock()->getComponent<TerrainComponent>();
+			meta::Type terrainType = terrainComponent->GetType();
+			meta::Variant instance = ObjectVariant(terrainComponent.get());
+			for (const auto& item : m_cacheVariableValues)
+			{
+				meta::Field field = meta::ReflectionDatabase::Instance().types[terrainType.GetID()].GetField(item.first.getStr());
+				//return field.GetValue(ObjectVariant(terrainComponent.get()));
+				field.SetValue(instance, item.second);
+			}
+			if (terrainComponent)
+			{
+				terrainComponent->createTileData();
+			}
 		}
 		return Reply::Handled();
 	}
