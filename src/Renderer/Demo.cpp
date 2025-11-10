@@ -1115,6 +1115,7 @@ namespace GuGu {
 		layoutDesc.bindings = {
 			nvrhi::BindingLayoutItem::ConstantBuffer(0), //normal transform
 			nvrhi::BindingLayoutItem::ConstantBuffer(1), //ambient color
+			nvrhi::BindingLayoutItem::ConstantBuffer(2), //light
 			nvrhi::BindingLayoutItem::Texture_SRV(0), //terrain height
 			nvrhi::BindingLayoutItem::Texture_SRV(1), //terrain color1
 			nvrhi::BindingLayoutItem::Texture_SRV(2), //terrain color2
@@ -2876,6 +2877,7 @@ namespace GuGu {
 					propertiesBuffer.m_heightScale = terrainComponent->m_heightScale;
 					propertiesBuffer.m_beginXZ = terrainBeginXZ;
 					propertiesBuffer.m_xzOffset = offsetXZ;
+					propertiesBuffer.m_heightTextureSize = math::float2(terrainComponent->getHeightTexture()->m_width, terrainComponent->getHeightTexture()->m_height);
 					m_CommandList->writeBuffer(terrainComponent->m_terrainPropertiesConstantBuffer[index], &propertiesBuffer, sizeof(TerrainPropertiesBuffer));
 					//draw terrain
 					nvrhi::BindingSetHandle terrainBindingSet;
@@ -2884,6 +2886,7 @@ namespace GuGu {
 					desc.bindings = {
 							nvrhi::BindingSetItem::ConstantBuffer(0, terrainComponent->m_terrainConstantBuffer),
 							nvrhi::BindingSetItem::ConstantBuffer(1, terrainComponent->m_terrainPropertiesConstantBuffer[index]),
+							nvrhi::BindingSetItem::ConstantBuffer(2, m_LightBuffers),
 							nvrhi::BindingSetItem::Texture_SRV(0, terrainComponent->getHeightTexture()->m_texture),
 							nvrhi::BindingSetItem::Texture_SRV(1, terrainComponent->getBlendTexture()->m_texture),
 							nvrhi::BindingSetItem::Texture_SRV(2, terrainComponent->getTerrainTexture1()->m_texture),

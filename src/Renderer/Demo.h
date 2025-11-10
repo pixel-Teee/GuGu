@@ -241,6 +241,7 @@ namespace GuGu {
 		struct TerrainPropertiesBuffer {
 			dm::float2 m_beginXZ;//x, z方向上的起始偏移
 			dm::float2 m_xzOffset;//x, z方向上的位置偏移
+			dm::float2 m_heightTextureSize;
 			float m_heightScale;
 		};
 		struct TerrainConstantBufferEntry {
