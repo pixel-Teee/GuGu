@@ -102,6 +102,8 @@ namespace GuGu {
 
 				std::shared_ptr<GTexture> heightTexture = terrainComponent->getHeightTexture();
 
+				float heightScale = terrainComponent->m_heightScale;
+
 				float tmin = std::numeric_limits<float>::infinity();
 				if (intersectsWithBox(localRayOrigin, localRayDir, tmin, boundingBox))
 				{
@@ -130,7 +132,7 @@ namespace GuGu {
 								math::float3 position3;
 								math::float3 position4;
 								math::float3 position5;
-								getTerrainPosition(position0, position1, position2, position3, position4, position5, offsetXZ, terrainBeginXZ, heightTexture);
+								getTerrainPosition(position0, position1, position2, position3, position4, position5, offsetXZ, terrainBeginXZ, heightTexture, heightScale);
 									
 								float t = 0.0f;
 								if (intersectWithTriangle(localRayOrigin, localRayDir, position3, position4, position5, t))
@@ -423,7 +425,7 @@ namespace GuGu {
 
 	void Collision3D::getTerrainPosition(math::float3 position0, math::float3 position1, math::float3 position2, 
 	math::float3& position3, math::float3& position4, math::float3& position5, 
-	math::float2 offsetXZ, math::float2 beginXZ, std::shared_ptr<GTexture> heightTexture)
+	math::float2 offsetXZ, math::float2 beginXZ, std::shared_ptr<GTexture> heightTexture, float heightScale)
 	{
 		float x = position0.x + offsetXZ.x;
 		float z = position0.z + offsetXZ.y;
@@ -434,7 +436,7 @@ namespace GuGu {
 		math::float2 newUV = uv * math::float2(heightTexture->m_width - 1, heightTexture->m_height - 1);
 
 		//height
-		float height = (heightTexture->getColor(newUV.x, newUV.y).x / 255.0f) * 10.0f;
+		float height = (heightTexture->getColor(newUV.x, newUV.y).x / 255.0f) * heightScale;
 
 		position3 = math::float3(x, height, z);
 
@@ -443,7 +445,7 @@ namespace GuGu {
 		uv = math::float2((x - beginXZ.x) / h, (1.0 - (z - beginXZ.y) / v));
 		uv = math::clamp(uv, math::float2(0, 0), math::float2(1, 1));
 		newUV = uv * math::float2(heightTexture->m_width - 1, heightTexture->m_height - 1);
-		height = (heightTexture->getColor(newUV.x, newUV.y).x / 255.0f) * 10.0f;
+		height = (heightTexture->getColor(newUV.x, newUV.y).x / 255.0f) * heightScale;
 
 		position4 = math::float3(x, height, z);
 
@@ -452,7 +454,7 @@ namespace GuGu {
 		uv = math::float2((x - beginXZ.x) / h, (1.0 - (z - beginXZ.y) / v));
 		uv = math::clamp(uv, math::float2(0, 0), math::float2(1, 1));
 		newUV = uv * math::float2(heightTexture->m_width - 1, heightTexture->m_height - 1);
-		height = (heightTexture->getColor(newUV.x, newUV.y).x / 255.0f) * 10.0f;
+		height = (heightTexture->getColor(newUV.x, newUV.y).x / 255.0f) * heightScale;
 
 		position5 = math::float3(x, height, z);
 	}

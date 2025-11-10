@@ -47,6 +47,6 @@ namespace GuGu {
 		static void getTerrainPosition(math::float3 position0, math::float3 position1, math::float3 position2,
 		math::float3& position3,
 		math::float3& position4,
-		math::float3& position5, math::float2 offsetXZ, math::float2 beginXZ, std::shared_ptr<GTexture> heightTexture);
+		math::float3& position5, math::float2 offsetXZ, math::float2 beginXZ, std::shared_ptr<GTexture> heightTexture, float heightScale);
 	};
 }

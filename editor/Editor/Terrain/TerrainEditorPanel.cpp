@@ -16,6 +16,10 @@
 #include <Core/UI/TextBlockWidget.h>
 #include <Core/UI/NumericEntryBox.h>
 #include <Core/UI/Reply.h>
+#include <Core/UI/Slider.h>
+#include <Core/UI/Box.h>
+#include <Core/UI/ListView.h>
+#include <Core/UI/ComboBox.h>
 
 #include <Editor/StyleSet/EditorStyleSet.h>
 
@@ -24,7 +28,7 @@ namespace GuGu {
 
 	TerrainEditorPanel::TerrainEditorPanel()
 	{
-
+		m_brushType = 0;
 	}
 
 	TerrainEditorPanel::~TerrainEditorPanel()
@@ -83,6 +87,7 @@ namespace GuGu {
 
 		std::function<void(const std::vector<GameObject*>&, bool)> registerFunc = std::bind(&TerrainEditorPanel::onGameObjectSelectionChanged, this, std::placeholders::_1, std::placeholders::_2);
 		m_gameObjectSelectionChangedDelegateHandle = viewportClient->addGameObjectSelectionChangedEvent(registerFunc);
+		viewportClient->setBrushSize(1.0f);//brush size
 
 		m_visibilityAttribute = Visibility::Visible;
 
@@ -167,6 +172,116 @@ namespace GuGu {
 		);
 
 		recreateTerrainButton->setOnClicked(OnClicked(std::bind(&TerrainEditorPanel::recreateTerrain, this)));
+
+		m_sculptVerticalBox->addSlot()
+		.FixedHeight()
+		(
+			WIDGET_NEW(HorizontalBox)
+			+ HorizontalBox::Slot()
+			.FixedWidth()
+			(
+				WIDGET_NEW(TextBlockWidget)
+				.text(u8"Brush Size")
+				.textColor(Attribute<math::float4>::Create([=]() {
+					return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9");
+				}))
+			)
+			+ HorizontalBox::Slot()
+			.FixedWidth()
+			(
+				WIDGET_NEW(BoxWidget)
+				.MinDesiredWidth(200.0f)
+				.Content
+				(
+					WIDGET_NEW(Slider)
+					.visibility(Visibility::Visible)
+					.MinValue(1.0f)
+					.MaxValue(10.0f) //max brush size
+					.OnValueChanged(this, &TerrainEditorPanel::onBrushSizeChanged)
+					.Value(this, &TerrainEditorPanel::getBrushSize)
+				)
+			)
+		);
+
+		m_sculptVerticalBox->addSlot()
+		.FixedHeight()
+		(
+			WIDGET_NEW(HorizontalBox)
+			+ HorizontalBox::Slot()
+			.FixedWidth()
+			(
+				WIDGET_NEW(TextBlockWidget)
+				.text(u8"Brush Strength")
+				.textColor(Attribute<math::float4>::Create([=]() {
+					return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9");
+				}))
+			)
+			+ HorizontalBox::Slot()
+			.FixedWidth()
+			(
+				WIDGET_NEW(BoxWidget)
+				.MinDesiredWidth(200.0f)
+				.Content
+				(
+					WIDGET_NEW(Slider)
+					.visibility(Visibility::Visible)
+					.MinValue(1.0f)
+					.MaxValue(10.0f) //max brush size
+					.OnValueChanged(this, &TerrainEditorPanel::onBrushStrengthChanged)
+					.Value(this, &TerrainEditorPanel::getBrushStrength)
+				)
+			)
+		);
+
+		m_brushTypeStrSources.push_back("Increase");
+		m_brushTypeStrSources.push_back("Decrease");
+
+		m_sculptVerticalBox->addSlot()
+		.FixedHeight()
+		(
+			WIDGET_NEW(HorizontalBox)
+			+ HorizontalBox::Slot()
+			.FixedWidth()
+			(
+				WIDGET_NEW(TextBlockWidget)
+				.text(u8"Brush Type")
+				.textColor(Attribute<math::float4>::Create([=]() {
+					return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9");
+				}))
+			)
+			+ HorizontalBox::Slot()
+			.FixedWidth()
+			(
+				WIDGET_NEW(ComboBox<GuGuUtf8Str>)
+				.visibility(Visibility::Visible)
+				.optionSource(&m_brushTypeStrSources)
+				.onGenerateWidgetLambda([&](GuGuUtf8Str inOption)->std::shared_ptr<Widget> {
+					return WIDGET_NEW(TextBlockWidget)
+						.text(inOption)
+						.textColor(Attribute<math::float4>::Create([=]() {
+						return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9");
+					}));
+				})
+				.onSelectionChanged(this, &TerrainEditorPanel::onBrushTypeSelect)
+				//.maxListHeight(60.0f)
+				.Content
+				(
+					WIDGET_NEW(Border)
+					.BorderBackgroundColor(Attribute<math::float4>::Create([=]() {
+						return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel4");
+					}))
+					.Content
+					(
+						WIDGET_NEW(TextBlockWidget)
+						.text(Attribute<GuGuUtf8Str>::Create(std::bind(&TerrainEditorPanel::getBrushTypeStr, this)))
+						.textColor(Attribute<math::float4>::Create([=]() {
+							return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9");
+						}))
+					)
+				)
+				.initiallySelectedItem(u8"Increase")
+			)
+		);
 	}
 
 	void TerrainEditorPanel::onGameObjectSelectionChanged(const std::vector<GameObject*>& newSelection, bool bForceRefresh)
@@ -321,6 +436,54 @@ namespace GuGu {
 			}
 		}
 		return Reply::Handled();
+	}
+
+	float TerrainEditorPanel::getBrushSize() const
+	{
+		return m_brushSize;
+	}
+
+	void TerrainEditorPanel::onBrushSizeChanged(float inNewBrushSize)
+	{
+		m_brushSize = inNewBrushSize;
+		std::shared_ptr<ViewportClient> viewportClient = World::getWorld()->getViewportClient().lock();
+		if (viewportClient)
+		{
+			viewportClient->setBrushSize(inNewBrushSize);
+		}
+	}
+
+	float TerrainEditorPanel::getBrushStrength() const
+	{
+		return m_brushStrength;
+	}
+
+	void TerrainEditorPanel::onBrushStrengthChanged(float inNewBrushStrength)
+	{
+		m_brushStrength = inNewBrushStrength;
+		std::shared_ptr<ViewportClient> viewportClient = World::getWorld()->getViewportClient().lock();
+		if (viewportClient)
+		{
+			viewportClient->setBrushStrength(inNewBrushStrength);
+		}
+	}
+
+	void TerrainEditorPanel::onBrushTypeSelect(GuGuUtf8Str inOption, SelectInfo::Type)
+	{
+		if(inOption == "Increase")
+			m_brushType = 0;
+		else if(inOption == "Decrease")
+			m_brushType = 1;
+		std::shared_ptr<ViewportClient> viewportClient = World::getWorld()->getViewportClient().lock();
+		if (viewportClient)
+		{
+			viewportClient->setBrushType((ViewportClient::BrushType)m_brushType);
+		}
+	}
+
+	GuGu::GuGuUtf8Str TerrainEditorPanel::getBrushTypeStr() const
+	{
+		return m_brushTypeStrSources[m_brushType];
 	}
 
 }

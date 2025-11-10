@@ -207,6 +207,31 @@ namespace GuGu {
 		m_isDirty = true;
 	}
 
+	void GTexture::writeOffsetColorRadius(int32_t centerX, int32_t centerY, float radius, Channel inChannel, float inColor)
+	{
+		for (int32_t x = 0; x < m_width; ++x)
+		{
+			for (int32_t y = 0; y < m_height; ++y)
+			{
+				int32_t dx = x - centerX;
+				int32_t dy = y - centerY;
+				int32_t distSqr = dx * dx + dy * dy;
+				if (distSqr <= radius * radius)
+				{
+					int32_t index = y * m_width + x;
+					if (inChannel < m_bytesPerPixel)
+					{
+						uint8_t oldValue = m_data[index * m_bytesPerPixel + inChannel];
+						uint8_t newValue = (uint8_t)((uint32_t)inColor + m_data[index * m_bytesPerPixel + inChannel]);
+						//GuGu_LOGD("texture coordinate:(%d, %d) (%d) old value, (%d) new value", x, y, oldValue, newValue);
+						m_data[index * m_bytesPerPixel + inChannel] = newValue;
+					}
+				}
+			}
+		}
+		m_isDirty = true;
+	}
+
 	void GTexture::writeColorRadius(int32_t centerX, int32_t centerY, float radius, Channel inChannel, float inColor)
 	{
 		for (int32_t x = 0; x < m_width; ++x)

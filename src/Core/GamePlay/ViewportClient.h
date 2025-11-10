@@ -31,6 +31,13 @@ namespace GuGu {
 			Rotation,
 			Scale
 		};
+
+		enum BrushType
+		{
+			Increase = 0,
+			Decrease = 1
+		};
+
 		ViewportClient();
 
 		virtual ~ViewportClient();
@@ -118,8 +125,20 @@ namespace GuGu {
 		void setIsInTerrainEditor(bool isInTerrainEditor);
 
 		bool getIsInTerrainEditor() const;
+
+		void setBrushSize(float inNewTerrainBrushSize);
+
+		void setBrushStrength(float inNewBrushStrength);
+
+		void setBrushType(BrushType inNewBrushType);
 	protected:
 		bool m_isInTerrainEditor;
+
+		float m_newTerrainBrushSize;
+
+		float m_newBrushStrength;
+
+		BrushType m_brushType;//increase, fall
 	private:
 		GameObjectSelectionChangedEvent m_gameObjectSelectionChangedEvent;
 	};

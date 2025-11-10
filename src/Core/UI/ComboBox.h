@@ -193,6 +193,7 @@ namespace GuGu {
 				.hasDownArrow(arguments.mhasDownArrow)
 				.contentPadding(arguments.mcontentPadding)
 				.isFocusable(arguments.misFocusable)
+				.method(std::optional<PopupMethod>(PopupMethod::CreateNewWindow))//todo:fix this
 				//.collapseMenuOnParentFocus(arguments.mcollapseMenuOnParentFocus) //combo button 应该增加一个 on menu open changed
 			);
 

@@ -12,6 +12,9 @@ namespace GuGu {
 	ViewportClient::ViewportClient()
 	{
 		m_isInTerrainEditor = false;
+		m_newTerrainBrushSize = 1.0f;
+		m_newBrushStrength = 2.0f;
+		m_brushType = BrushType::Increase;
 	}
 	ViewportClient::~ViewportClient()
 	{
@@ -164,6 +167,21 @@ namespace GuGu {
 	bool ViewportClient::getIsInTerrainEditor() const
 	{
 		return m_isInTerrainEditor;
+	}
+
+	void ViewportClient::setBrushSize(float inNewTerrainBrushSize)
+	{
+		m_newTerrainBrushSize = inNewTerrainBrushSize;
+	}
+
+	void ViewportClient::setBrushStrength(float inNewBrushStrength)
+	{
+		m_newBrushStrength = inNewBrushStrength;
+	}
+
+	void ViewportClient::setBrushType(BrushType inNewBrushType)
+	{
+		m_brushType = inNewBrushType;
 	}
 
 	//------input------

@@ -410,6 +410,7 @@ namespace GuGu {
 					if (terrainComponent)
 					{
 						std::shared_ptr<GTexture> terrainBlendTexture = terrainComponent->getBlendTexture();
+						std::shared_ptr<GTexture> heightTexture = terrainComponent->getHeightTexture();
 						if (terrainBlendTexture)
 						{
 							//terrainBlendTexture->writeColorRadius()
@@ -431,9 +432,14 @@ namespace GuGu {
 
 								float textureWidth = terrainBlendTexture->m_width;
 								float textureHeight = terrainBlendTexture->m_height;
-								float brushSize = 5.0f;
+								float brushSize = m_newTerrainBrushSize;
+								float brushStrength = m_brushType == BrushType::Increase ? m_newBrushStrength : -m_newBrushStrength;
 								if(uv.x > 0.0f && uv.y > 0.0f)
 									terrainBlendTexture->writeColorRadius(textureWidth * uv.x, textureHeight * uv.y, brushSize, GTexture::Channel::A, 255.0f);
+
+								//offset height
+								if(uv.x > 0.0f && uv.y > 0.0f)
+									heightTexture->writeOffsetColorRadius(textureWidth * uv.x, textureHeight * uv.y, brushSize, GTexture::Channel::R, brushStrength); //todo:add strength
 							}
 						}
 					}

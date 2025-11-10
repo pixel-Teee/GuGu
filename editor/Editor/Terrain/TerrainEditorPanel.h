@@ -43,6 +43,18 @@ namespace GuGu {
 		void onValueCommitted(int32_t variableValue, TextCommit::Type commitType, GuGuUtf8Str variableName);
 
 		Reply recreateTerrain();
+
+		float getBrushSize() const;
+
+		void onBrushSizeChanged(float inNewBrushSize);
+
+		float getBrushStrength() const;
+
+		void onBrushStrengthChanged(float inNewBrushStrength);
+
+		void onBrushTypeSelect(GuGuUtf8Str inOption, SelectInfo::Type);
+
+		GuGuUtf8Str getBrushTypeStr() const;
 	private:
 		//地形笔刷选择按钮的容器
 		std::shared_ptr<HorizontalBox> m_brushSelectButtons;
@@ -58,5 +70,13 @@ namespace GuGu {
 
 		//cache variable value
 		std::map<GuGuUtf8Str, meta::Variant> m_cacheVariableValues;
+
+		float m_brushSize;
+
+		float m_brushStrength;
+
+		int32_t m_brushType;
+
+		std::vector<GuGuUtf8Str> m_brushTypeStrSources;
 	};
 }

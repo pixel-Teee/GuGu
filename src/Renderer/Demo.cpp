@@ -2839,6 +2839,11 @@ namespace GuGu {
 					m_textureCache.FinalizeTexture(terrainComponent->getBlendTexture(), m_commonRenderPass.get(), m_CommandList);
 					terrainComponent->getBlendTexture()->m_isDirty = false;
 				}
+				if (terrainComponent->getHeightTexture()->m_isDirty)
+				{
+					m_textureCache.FinalizeTexture(terrainComponent->getHeightTexture(), m_commonRenderPass.get(), m_CommandList);
+					terrainComponent->getBlendTexture()->m_isDirty = false;
+				}
 			}
 			else
 			{

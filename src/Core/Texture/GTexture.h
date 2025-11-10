@@ -40,6 +40,9 @@ namespace GuGu {
 
 		void clearChannel(Channel inChannel, float inColor);
 
+		//offset color
+		void writeOffsetColorRadius(int32_t centerX, int32_t centerY, float radius, Channel inChannel, float inColor);
+
 		void writeColorRadius(int32_t centerX, int32_t centerY, float radius, Channel inChannel, float inColor);
 
 		//gpu texture
