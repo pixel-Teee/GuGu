@@ -427,7 +427,7 @@ namespace GuGu {
 
 								math::float2 uv = math::float2((x - terrainBeginXZ.x) / h, 1.0 - (z - terrainBeginXZ.y) / v);
 
-								//GuGu_LOGD("Collision Terrain Tri UV:(%f, %f)", uv.x, uv.y);
+								GuGu_LOGD("Collision Terrain Tri UV:(%f, %f)", uv.x, uv.y);
 
 								float textureWidth = terrainBlendTexture->m_width;
 								float textureHeight = terrainBlendTexture->m_height;

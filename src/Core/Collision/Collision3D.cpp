@@ -102,7 +102,7 @@ namespace GuGu {
 
 				std::shared_ptr<GTexture> heightTexture = terrainComponent->getHeightTexture();
 
-				float tmin = 0.0f;
+				float tmin = std::numeric_limits<float>::infinity();
 				if (intersectsWithBox(localRayOrigin, localRayDir, tmin, boundingBox))
 				{
 					const auto& positions = terrainComponent->m_vertexData;
