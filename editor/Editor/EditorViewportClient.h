@@ -71,6 +71,8 @@ namespace GuGu {
 
 		float zoomSpeed();
 
+		void terrain();//calculate terrain brush pos
+
 		void gizmos(float fElapsedTimeSecond);
 
 		virtual const std::vector<std::shared_ptr<GStaticMesh>>& getGizmos() const override;

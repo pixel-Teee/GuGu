@@ -30,6 +30,18 @@ namespace GuGu {
 
 		math::float3 getColor(int32_t x, int32_t y) const;
 
+		enum Channel
+		{
+			R = 0,
+			G = 1,
+			B = 2,
+			A = 3
+		};
+
+		void clearChannel(Channel inChannel, float inColor);
+
+		void writeColorRadius(int32_t centerX, int32_t centerY, float radius, Channel inChannel, float inColor);
+
 		//gpu texture
 		nvrhi::TextureHandle m_texture;
 
@@ -45,5 +57,7 @@ namespace GuGu {
 		std::vector<std::vector<TextureSubresourceData>> m_dataLayout;
 		//GuGuUtf8Str m_debugName;
 		Array<uint8_t> m_data;
+
+		bool m_isDirty;
 	};
 }

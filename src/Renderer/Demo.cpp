@@ -2832,6 +2832,13 @@ namespace GuGu {
 							nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
 							true));
 				}
+
+				if (terrainComponent->getBlendTexture()->m_isDirty)
+				{
+					//todo:update small region
+					m_textureCache.FinalizeTexture(terrainComponent->getBlendTexture(), m_commonRenderPass.get(), m_CommandList);
+					terrainComponent->getBlendTexture()->m_isDirty = false;
+				}
 			}
 			else
 			{
@@ -2859,7 +2866,7 @@ namespace GuGu {
 								nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
 									true));
 					}
-					math::float2 offsetXZ = math::float2(terrainBeginXZ.x + j * terrainSize.x, terrainBeginXZ.y + i * terrainSize.y);
+					math::float2 offsetXZ = math::float2(terrainBeginXZ.x + j * terrainSize.x + terrainSize.x / 2.0f, terrainBeginXZ.y + i * terrainSize.y + terrainSize.y / 2.0f);
 					TerrainPropertiesBuffer propertiesBuffer;
 					propertiesBuffer.m_heightScale = terrainComponent->m_heightScale;
 					propertiesBuffer.m_beginXZ = terrainBeginXZ;

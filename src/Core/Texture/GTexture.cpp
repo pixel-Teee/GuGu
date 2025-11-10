@@ -94,6 +94,7 @@ namespace GuGu {
 		m_mipLevels = 1;
 		m_dimension = static_cast<uint32_t>(nvrhi::TextureDimension::Unknown);
 		m_bytesPerPixel = 0;
+		m_isDirty = false;
 	}
 	GTexture::~GTexture()
 	{
@@ -182,6 +183,50 @@ namespace GuGu {
 			return math::float3(m_data[index * 4], m_data[index * 4 + 1], m_data[index * 4 + 2]);
 		}
 		return math::float3(0, 0, 0);
+	}
+
+	void GTexture::clearChannel(Channel inChannel, float inColor)
+	{
+		for (int32_t x = 0; x < m_width; ++x)
+		{
+			for (int32_t y = 0; y < m_height; ++y)
+			{
+				//int32_t dx = x - centerX;
+				//int32_t dy = y - centerY;
+				//int32_t distSqr = dx * dx + dy * dy;
+				//if (distSqr <= radius * radius)
+				//{
+				int32_t index = y * m_width + x;
+				if (inChannel < m_bytesPerPixel)
+				{
+					m_data[index * m_bytesPerPixel + inChannel] = (uint8_t)inColor;
+				}
+				//}
+			}
+		}
+		m_isDirty = true;
+	}
+
+	void GTexture::writeColorRadius(int32_t centerX, int32_t centerY, float radius, Channel inChannel, float inColor)
+	{
+		for (int32_t x = 0; x < m_width; ++x)
+		{
+			for (int32_t y = 0; y < m_height; ++y)
+			{
+				int32_t dx = x - centerX;
+				int32_t dy = y - centerY;
+				int32_t distSqr = dx * dx + dy * dy;
+				if (distSqr <= radius * radius)
+				{
+					int32_t index = y * m_width + x;
+					if (inChannel < m_bytesPerPixel)
+					{
+						m_data[index * m_bytesPerPixel + inChannel] = (uint8_t)inColor;
+					}
+				}
+			}
+		}
+		m_isDirty = true;
 	}
 
 }

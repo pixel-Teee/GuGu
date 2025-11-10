@@ -69,7 +69,7 @@ namespace GuGu{
     public:
         bool FillTextureData(const std::vector<uint8_t>& fileData, const std::shared_ptr<TextureData>& texture, const GuGuUtf8Str& extension, const GuGuUtf8Str& mimeType) const;
         void FinalizeTexture(std::shared_ptr<TextureData> texture, CommonRenderPasses* passes, nvrhi::ICommandList* commandList);
-        void FinalizeTexture(std::shared_ptr<GTexture> gTexture, CommonRenderPasses* passes, nvrhi::ICommandList* commandList);
+        void FinalizeTexture(std::shared_ptr<GTexture> gTexture, CommonRenderPasses* passes, nvrhi::ICommandList* commandList, bool isEditable = false);
         nvrhi::TextureHandle FinalizeCubeMapTexture(std::vector<std::shared_ptr<GTexture>> skyBoxTextures, CommonRenderPasses* passes, nvrhi::ICommandList* commandList);
     public:
         TextureCache(nvrhi::IDevice* device, std::shared_ptr<FileSystem> fileSysem);

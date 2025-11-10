@@ -54,5 +54,8 @@ void main_ps(
     float4 color3 = t_TerrainTexture3.Sample(s_Sampler, i_uv).xyzw;
     float4 color4 = t_TerrainTexture4.Sample(s_Sampler, i_uv).xyzw;
     float4 totalColor = color1 * weight.x + color2 * weight.y + color3 * weight.z + color4 * (1.0 - weight.x - weight.y - weight.z);
-    o_color = float4(totalColor.xyz, 1.0f);
+    if(weight.w >= 1.0f)
+        o_color = float4(1.0f, 1.0f, 1.0f, 1.0f);
+    else
+        o_color = float4(totalColor.xyz, 1.0f);
 }

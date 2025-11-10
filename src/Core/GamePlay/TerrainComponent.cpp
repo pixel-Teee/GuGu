@@ -179,12 +179,12 @@ namespace GuGu {
 	void TerrainComponent::createTileData()
 	{
 		m_vertexData.clear();
-		int32_t rows = m_rows + 1;
+		int32_t rows = m_rows + 1;//generate vertex
 		int32_t cols = m_cols + 1;
 		uint32_t faceCount = rows * cols * 2;
 
-		float halfWidth = 0.5f * m_tileSize * cols;
-		float halfDepth = 0.5f * m_tileSize * rows;
+		float halfWidth = 0.5f * m_tileSize * m_rows;
+		float halfDepth = 0.5f * m_tileSize * m_cols;
 
 		float dx = m_tileSize;
 		float dz = m_tileSize;
@@ -221,7 +221,7 @@ namespace GuGu {
 		//m_objectSpaceBounds = dm::box3(m_vertexData.size(), m_vertexData.data());
 		math::float3 oneBlockSize = math::float3((float)m_cols * (float)m_tileSize, 0, (float)m_rows * (float)m_tileSize);
 		math::float3 beginXZ = math::float3((float)m_terrainCols * oneBlockSize.x * 0.5f, 0, (float)m_terrainRows * oneBlockSize.z * 0.5f);
-		m_objectSpaceBounds = dm::box3(math::float3(-beginXZ.x, 0, -beginXZ.z), math::float3(beginXZ.x, m_heightScale, beginXZ.z));
+		m_objectSpaceBounds = dm::box3(math::float3(-beginXZ.x, -m_heightScale, -beginXZ.z), math::float3(beginXZ.x, m_heightScale, beginXZ.z));
 
 		m_indexBufferHandle = m_vertexBufferHandle = nullptr;
 	}

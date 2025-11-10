@@ -15,7 +15,7 @@ namespace GuGu {
 	std::shared_ptr<GameObject> Collision3D::pick(uint32_t x, uint32_t y,
 						   uint32_t clientWidth, uint32_t clientHeight, 
 						   math::float4x4 perspectiveMatrix, math::float4x4 viewMatrix, 
-						   const std::vector<std::shared_ptr<GameObject>>& objects, math::float4& debugDrawWorldPos)
+						   const std::vector<std::shared_ptr<GameObject>>& objects, math::float4& debugDrawWorldPos, math::float3& triLocalPos)
 	{
 		//观察空间中的摄像
 		float vx = (2.0f * x / clientWidth - 1.0f) / perspectiveMatrix[0][0];
@@ -76,6 +76,8 @@ namespace GuGu {
 							if (t < tmin)
 							{
 								tmin = t;
+								debugDrawWorldPos = localRayOrigin + t * localRayDir;
+								triLocalPos = position0; //todo:fix this
 								pickedGameObject = item;
 							}
 						}
@@ -95,8 +97,8 @@ namespace GuGu {
 
 				math::box3 boundingBox = terrainComponent->getObjectSpaceBounds();
 
-				math::float2 terrainSize = math::float2((float)terrainComponent->m_rows * (float)terrainComponent->m_tileSize, (float)terrainComponent->m_cols * (float)terrainComponent->m_tileSize);
-				math::float2 terrainBeginXZ = math::float2(-(float)terrainComponent->m_terrainRows * terrainSize.x * 0.5f, -(float)terrainComponent->m_terrainCols * terrainSize.y * 0.5f);
+				math::float2 terrainSize = math::float2((float)terrainComponent->m_cols * (float)terrainComponent->m_tileSize, (float)terrainComponent->m_rows * (float)terrainComponent->m_tileSize);
+				math::float2 terrainBeginXZ = math::float2(-(float)terrainComponent->m_terrainCols * terrainSize.x * 0.5f, -(float)terrainComponent->m_terrainRows * terrainSize.y * 0.5f);
 
 				std::shared_ptr<GTexture> heightTexture = terrainComponent->getHeightTexture();
 
@@ -107,6 +109,8 @@ namespace GuGu {
 					const auto& indices = terrainComponent->m_indexData;
 					uint32_t triCount = indices.size() / 3;
 					tmin = std::numeric_limits<float>::infinity();
+
+					//GuGu_LOGD("click terrain");
 					for (uint32_t i = 0; i < triCount; ++i)
 					{
 						uint32_t i0 = indices[i * 3 + 0];
@@ -121,7 +125,7 @@ namespace GuGu {
 						{
 							for (uint32_t j = 0; j < terrainComponent->m_terrainCols; ++j)
 							{
-								math::float2 offsetXZ = math::float2(terrainBeginXZ.x + j * terrainSize.x, terrainBeginXZ.y + i * terrainSize.y);
+								math::float2 offsetXZ = math::float2(terrainBeginXZ.x + j * terrainSize.x + terrainSize.x / 2.0f, terrainBeginXZ.y + i * terrainSize.y + terrainSize.y / 2.0f);
 
 								math::float3 position3;
 								math::float3 position4;
@@ -131,9 +135,18 @@ namespace GuGu {
 								float t = 0.0f;
 								if (intersectWithTriangle(localRayOrigin, localRayDir, position3, position4, position5, t))
 								{
+									float h = (-terrainBeginXZ.x * 2.0);
+									float v = (-terrainBeginXZ.y * 2.0);
+									math::float2 uv = math::float2((position3.x - terrainBeginXZ.x) / h,
+									(1.0f - (position3.z - terrainBeginXZ.y) / v));
+
+									GuGu_LOGD("click terrain uv(%f, %f)", uv.x, uv.y);
+
 									if (t < tmin)
 									{
 										tmin = t;
+										triLocalPos = position3;//todo:fix this
+										debugDrawWorldPos = worldRayOrigin + t * worldRayDir;
 										pickedGameObject = item;
 									}
 								}
@@ -208,7 +221,7 @@ namespace GuGu {
 						{
 							tmin = t;
 							//debug draw world pos
-							debugDrawWorldPos = localRayOrigin + t * localRayDir;
+							debugDrawWorldPos = worldRayOrigin + t * worldRayDir;
 							pickedGameObject = item;
 						}
 					}

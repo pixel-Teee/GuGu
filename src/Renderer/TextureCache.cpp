@@ -289,14 +289,11 @@ namespace GuGu{
         //++m_TexturesFinalized;
     }
 
-	void TextureCache::FinalizeTexture(std::shared_ptr<GTexture> gTexture, CommonRenderPasses* passes, nvrhi::ICommandList* commandList)
+	void TextureCache::FinalizeTexture(std::shared_ptr<GTexture> gTexture, CommonRenderPasses* passes, nvrhi::ICommandList* commandList, bool isEditable)
 	{
-		//assert(texture->data);
- //assert(commandList);
-
 		uint32_t originalWidth = gTexture->m_width;
 		uint32_t originalHeight = gTexture->m_height;
-		//
+		
 		bool isBlockCompressed =
 			(static_cast<nvrhi::Format>(gTexture->m_format) == nvrhi::Format::BC1_UNORM) ||
 			(static_cast<nvrhi::Format>(gTexture->m_format) == nvrhi::Format::BC1_UNORM_SRGB) ||
@@ -312,16 +309,16 @@ namespace GuGu{
 			(static_cast<nvrhi::Format>(gTexture->m_format) == nvrhi::Format::BC6H_UFLOAT) ||
 			(static_cast<nvrhi::Format>(gTexture->m_format) == nvrhi::Format::BC7_UNORM) ||
 			(static_cast<nvrhi::Format>(gTexture->m_format) == nvrhi::Format::BC7_UNORM_SRGB);
-		//
+		
 		if (isBlockCompressed)
 		{
 			originalWidth = (originalWidth + 3) & ~3;
 			originalHeight = (originalHeight + 3) & ~3;
 		}
-		//
+		
 		uint32_t scaledWidth = originalWidth;
 		uint32_t scaledHeight = originalHeight;
-		//
+		
         bool isRenderTarget = false;
 		if (m_MaxTextureSize > 0 && int(std::max(originalWidth, originalHeight)) > m_MaxTextureSize && isRenderTarget && static_cast<nvrhi::TextureDimension>(gTexture->m_dimension) == nvrhi::TextureDimension::Texture2D)
 		{
@@ -336,9 +333,9 @@ namespace GuGu{
 				scaledHeight = m_MaxTextureSize;
 			}
 		}
-		//
+		
 		const char* dataPointer = reinterpret_cast<const char*>(static_cast<const uint8_t*>(gTexture->m_data.data())); //todo:fix this
-		//
+		
 		nvrhi::TextureDesc textureDesc;
 		textureDesc.format = static_cast<nvrhi::Format>(gTexture->m_format);
 		textureDesc.width = scaledWidth;
@@ -352,78 +349,21 @@ namespace GuGu{
 		textureDesc.debugName = "";
 		textureDesc.isRenderTarget = isRenderTarget;
         gTexture->m_texture = m_Device->createTexture(textureDesc);
-		//
+		
 		commandList->beginTrackingTextureState(gTexture->m_texture, nvrhi::AllSubresources, nvrhi::ResourceStates::Common);
-		//
-				//if (m_DescriptorTable)
-				//    texture->bindlessDescriptor = m_DescriptorTable->CreateDescriptorHandle(nvrhi::BindingSetItem::Texture_SRV(0, texture->texture));
-		//
-				//if (scaledWidth != originalWidth || scaledHeight != originalHeight)
-				//{
-				//    nvrhi::TextureDesc tempTextureDesc;
-				//    tempTextureDesc.format = texture->format;
-				//    tempTextureDesc.width = originalWidth;
-				//    tempTextureDesc.height = originalHeight;
-				//    tempTextureDesc.depth = textureDesc.depth;
-				//    tempTextureDesc.arraySize = textureDesc.arraySize;
-				//    tempTextureDesc.mipLevels = 1;
-				//    tempTextureDesc.dimension = textureDesc.dimension;
-		//
-				//    nvrhi::TextureHandle tempTexture = m_Device->createTexture(tempTextureDesc);
-				//    assert(tempTexture);
-				//    commandList->beginTrackingTextureState(tempTexture, nvrhi::AllSubresources, nvrhi::ResourceStates::Common);
-		//
-				//    for (uint32_t arraySlice = 0; arraySlice < texture->arraySize; arraySlice++)
-				//    {
-				//        const TextureSubresourceData& layout = texture->dataLayout[arraySlice][0];
-		//
-				//        commandList->writeTexture(tempTexture, arraySlice, 0, dataPointer + layout.dataOffset, layout.rowPitch, layout.depthPitch);
-				//    }
-		//
-				//    nvrhi::FramebufferHandle framebuffer = m_Device->createFramebuffer(nvrhi::FramebufferDesc()
-				//                                                                               .addColorAttachment(texture->texture));
-		//
-				//    passes->BlitTexture(commandList, framebuffer, tempTexture);
-				//}
-				//else
 		{
 			for (uint32_t arraySlice = 0; arraySlice < gTexture->m_arraySize; arraySlice++)
 			{
 				for (uint32_t mipLevel = 0; mipLevel < gTexture->m_mipLevels; mipLevel++)
 				{
 					const TextureSubresourceData& layout = gTexture->m_dataLayout[arraySlice][mipLevel];
-					//
+					
 					commandList->writeTexture(gTexture->m_texture, arraySlice, mipLevel, dataPointer + layout.dataOffset, layout.rowPitch, layout.depthPitch);
 				}
 			}
 		}
-		//
-        // gTexture->m_data.clear();
-		//
-				//uint width = scaledWidth;
-				//uint height = scaledHeight;
-				//for (uint mipLevel = texture->mipLevels; mipLevel < textureDesc.mipLevels; mipLevel++)
-				//{
-				//    width /= 2;
-				//    height /= 2;
-		//
-				//    nvrhi::FramebufferHandle framebuffer = m_Device->createFramebuffer(nvrhi::FramebufferDesc()
-				//                                                                               .addColorAttachment(nvrhi::FramebufferAttachment()
-				//                                                                                                           .setTexture(texture->texture)
-				//                                                                                                           .setArraySlice(0)
-				//                                                                                                           .setMipLevel(mipLevel)));
-		//
-				//    BlitParameters blitParams;
-				//    blitParams.sourceTexture = texture->texture;
-				//    blitParams.sourceMip = mipLevel - 1;
-				//    blitParams.targetFramebuffer = framebuffer;
-				//    passes->BlitTexture(commandList, blitParams);
-				//}
-		//
 		commandList->setPermanentTextureState(gTexture->m_texture, nvrhi::ResourceStates::ShaderResource);
 		commandList->commitBarriers();
-		//
-		//++m_TexturesFinalized;
 	}
 
     nvrhi::TextureHandle TextureCache::FinalizeCubeMapTexture(std::vector<std::shared_ptr<GTexture>> skyBoxTextures, CommonRenderPasses* passes, nvrhi::ICommandList* commandList)

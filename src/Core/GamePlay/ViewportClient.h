@@ -114,16 +114,13 @@ namespace GuGu {
 		virtual void onMouseButtonDown(UIPointerData uiPointerData);
 
 		virtual void onMouseButtonUp(UIPointerData uiPointerData);
+
+		void setIsInTerrainEditor(bool isInTerrainEditor);
+
+		bool getIsInTerrainEditor() const;
+	protected:
+		bool m_isInTerrainEditor;
 	private:
 		GameObjectSelectionChangedEvent m_gameObjectSelectionChangedEvent;
-
-		//todo:设计一种可以比较唯一ID的委托
-		//struct TrackedEvent
-		//{
-		//	std::weak_ptr<GameObject> gameObject;
-		//	GameObjectSelectionChangedEvent m_event;
-		//};
-		//
-		//std::vector<TrackedEvent> m_gameObjectSelectionChangedEvents;
 	};
 }

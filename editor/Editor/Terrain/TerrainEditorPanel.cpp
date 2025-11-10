@@ -31,6 +31,7 @@ namespace GuGu {
 	{
 		std::shared_ptr<ViewportClient> viewportClient = World::getWorld()->getViewportClient().lock();
 		viewportClient->eraseGameObjectSelectionChangedEvent(m_gameObjectSelectionChangedDelegateHandle);
+		viewportClient->setIsInTerrainEditor(false);
 	}
 
 	void TerrainEditorPanel::init(const BuilderArguments& arguments)
@@ -192,6 +193,8 @@ namespace GuGu {
 		}
 		else
 		{
+			std::shared_ptr<ViewportClient> viewportClient = World::getWorld()->getViewportClient().lock();
+			viewportClient->setIsInTerrainEditor(true);
 			//m_brushContent->setContent();
 			showPanelContent(TerrainEditorContentType::Scuplt);
 		}

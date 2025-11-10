@@ -11,6 +11,7 @@
 namespace GuGu {
 	ViewportClient::ViewportClient()
 	{
+		m_isInTerrainEditor = false;
 	}
 	ViewportClient::~ViewportClient()
 	{
@@ -154,5 +155,16 @@ namespace GuGu {
 			}
 		}
 	}
+
+	void ViewportClient::setIsInTerrainEditor(bool isInTerrainEditor)
+	{
+		m_isInTerrainEditor = isInTerrainEditor;
+	}
+
+	bool ViewportClient::getIsInTerrainEditor() const
+	{
+		return m_isInTerrainEditor;
+	}
+
 	//------input------
 }

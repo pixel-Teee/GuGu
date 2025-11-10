@@ -14,9 +14,11 @@
 #include <Core/GamePlay/TransformComponent.h>
 #include <Core/GamePlay/GameUI/UITransformComponent.h>
 #include <Core/GamePlay/StaticMeshComponent.h>
+#include <Core/GamePlay/TerrainComponent.h>
 #include <Core/Model/GeometryHelper.h>
 #include <Core/AssetManager/AssetManager.h>
 #include <Editor/Transaction/TransactionManager.h>
+#include <Core/Texture/GTexture.h>
 
 #ifdef WIN32
 #include <Application/Platform/Windows/WindowsMisc.h>
@@ -179,7 +181,15 @@ namespace GuGu {
 		move(fElapsedTimeSecond);
 		rotate(fElapsedTimeSecond);
 		zoom(fElapsedTimeSecond);
-		gizmos(fElapsedTimeSecond);
+		if (m_isInTerrainEditor)
+		{
+			terrain();
+		}
+		else
+		{
+			gizmos(fElapsedTimeSecond);
+		}
+		
 		focus(fElapsedTimeSecond);
 
 		//save level
@@ -371,6 +381,67 @@ namespace GuGu {
 		speed = std::min(speed, 100.0f);//max speed = 100
 		return speed;
 	}
+
+	void EditorViewportClient::terrain()
+	{
+		if (InputManager::getInputManager().isMouseDown(Keys::LeftMouseButton))
+		{
+			math::float2 mousePosition = InputManager::getInputManager().getMousePosition();
+
+			math::float3 triLocalPos;
+
+			std::shared_ptr<GameObject> pickedItem = Collision3D::pick(mousePosition.x, mousePosition.y,
+			m_width, m_height, 
+			getPespectiveMatrix(), getWorldToViewMatrix(), 
+			World::getWorld()->getCurrentLevel()->getGameObjects(), 
+			m_debugDrawWorldPos, triLocalPos);
+
+			if (pickedItem)
+			{
+				m_pickedGameObject = pickedItem;
+			}
+
+			//write brush show data to terrain texture
+			if (pickedItem)
+			{
+				if (pickedItem->getComponent<TerrainComponent>())
+				{
+					std::shared_ptr<TerrainComponent> terrainComponent = pickedItem->getComponent<TerrainComponent>();
+					if (terrainComponent)
+					{
+						std::shared_ptr<GTexture> terrainBlendTexture = terrainComponent->getBlendTexture();
+						if (terrainBlendTexture)
+						{
+							//terrainBlendTexture->writeColorRadius()
+							terrainBlendTexture->clearChannel(GTexture::Channel::A, 0.0f);
+							//get uv
+							math::float2 terrainSize = math::float2((float)terrainComponent->m_cols * (float)terrainComponent->m_tileSize, (float)terrainComponent->m_rows * (float)terrainComponent->m_tileSize);
+							math::float2 terrainBeginXZ = math::float2(-(float)terrainComponent->m_terrainCols * terrainSize.x * 0.5f, -(float)terrainComponent->m_terrainRows * terrainSize.y * 0.5f);
+
+							{
+								float x = triLocalPos.x;
+								float z = triLocalPos.z;
+
+								float h = -terrainBeginXZ.x * 2.0f;
+								float v = -terrainBeginXZ.y * 2.0f;
+
+								math::float2 uv = math::float2((x - terrainBeginXZ.x) / h, 1.0 - (z - terrainBeginXZ.y) / v);
+
+								//GuGu_LOGD("Collision Terrain Tri UV:(%f, %f)", uv.x, uv.y);
+
+								float textureWidth = terrainBlendTexture->m_width;
+								float textureHeight = terrainBlendTexture->m_height;
+								float brushSize = 5.0f;
+								if(uv.x > 0.0f && uv.y > 0.0f)
+									terrainBlendTexture->writeColorRadius(textureWidth * uv.x, textureHeight * uv.y, brushSize, GTexture::Channel::A, 255.0f);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	void EditorViewportClient::gizmos(float fElapsedTimeSecond)
 	{
 		if (m_bShowGizmos)
