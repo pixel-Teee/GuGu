@@ -28,7 +28,7 @@ namespace GuGu {
 		//反序列化
 		virtual void OnDeserialize(const nlohmann::json& input) override;
 
-		math::float3 getColor(int32_t x, int32_t y) const;
+		math::float4 getColor(int32_t x, int32_t y) const;
 
 		enum Channel
 		{
@@ -44,6 +44,10 @@ namespace GuGu {
 		void writeOffsetColorRadius(int32_t centerX, int32_t centerY, float radius, Channel inChannel, float inColor);
 
 		void writeColorRadius(int32_t centerX, int32_t centerY, float radius, Channel inChannel, float inColor);
+
+		void setColor(int32_t x, int32_t y, math::float4 inColor);
+
+		//math::float4 getColor(int32_t x, int32_t y);
 
 		//gpu texture
 		nvrhi::TextureHandle m_texture;

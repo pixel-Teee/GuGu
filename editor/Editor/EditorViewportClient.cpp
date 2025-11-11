@@ -428,7 +428,7 @@ namespace GuGu {
 								float h = -terrainBeginXZ.x * 2.0f;
 								float v = -terrainBeginXZ.y * 2.0f;
 
-								math::float2 uv = math::float2((x - terrainBeginXZ.x) / h, 1.0f - (z - terrainBeginXZ.y) / v);
+								math::float2 uv = math::float2((x - terrainBeginXZ.x) / h, 1.0f - ((z - terrainBeginXZ.y) / v));
 
 								GuGu_LOGD("Collision Terrain Tri UV:(%f, %f)", uv.x, uv.y);
 
@@ -446,8 +446,8 @@ namespace GuGu {
 								//	terrainBlendTexture->writeColorRadius(textureWidth * uv.x, textureHeight * uv.y, brushSize, GTexture::Channel::A, 255.0f);
 								//
 								////offset height
-								//if(uv.x > 0.0f && uv.y > 0.0f)
-								//	heightTexture->writeOffsetColorRadius(textureWidth * uv.x, textureHeight * uv.y, brushSize, GTexture::Channel::R, brushStrength); //todo:add strength
+								if(uv.x > 0.0f && uv.y > 0.0f)
+									heightTexture->writeOffsetColorRadius(textureWidth * uv.x, textureHeight * uv.y, brushSize, GTexture::Channel::R, brushStrength); //todo:add strength
 							}
 						}
 					}

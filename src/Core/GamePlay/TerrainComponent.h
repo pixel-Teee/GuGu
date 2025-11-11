@@ -27,6 +27,10 @@ namespace GuGu {
 
 		math::box3 getObjectSpaceBounds() const;
 
+		float getHeightScale() const;
+
+		void setHeightScale(float inHeightScale);
+
 		std::shared_ptr<GTexture> getHeightTexture() const;
 		std::shared_ptr<GTexture> getTerrainTexture1() const;
 		std::shared_ptr<GTexture> getTerrainTexture2() const;

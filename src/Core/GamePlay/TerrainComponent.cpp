@@ -94,8 +94,8 @@ namespace GuGu {
 			(meta::FieldSetter<TerrainComponent, uint32_t, false>::Signature) & TerrainComponent::m_tileSize, {});
 
 		type.AddField<TerrainComponent, float>("m_heightScale",
-			(meta::FieldGetter<TerrainComponent, float, false>::Signature) & TerrainComponent::m_heightScale,
-			(meta::FieldSetter<TerrainComponent, float, false>::Signature) & TerrainComponent::m_heightScale, {});
+			(meta::FieldGetter<TerrainComponent, float, true>::Signature) & TerrainComponent::getHeightScale,
+			(meta::FieldSetter<TerrainComponent, float, true>::Signature) & TerrainComponent::setHeightScale, {});
 
 		type.AddField<TerrainComponent, std::weak_ptr<GameObject>>("m_owner",
 			(meta::FieldGetter<TerrainComponent, std::weak_ptr<GameObject>&, true>::Signature) & TerrainComponent::getParentGameObject,
@@ -229,6 +229,38 @@ namespace GuGu {
 	math::box3 TerrainComponent::getObjectSpaceBounds() const
 	{
 		return m_objectSpaceBounds;
+	}
+
+	float TerrainComponent::getHeightScale() const
+	{
+		return m_heightScale;
+	}
+
+	void TerrainComponent::setHeightScale(float inHeightScale)
+	{
+		if (m_heightScale != inHeightScale)
+		{
+			std::shared_ptr<GTexture> heightTexture = getHeightTexture();
+			if (heightTexture)
+			{
+				int32_t textureWidth = heightTexture->m_width;
+				int32_t textureHeight = heightTexture->m_height;
+				for (int32_t i = 0; i < textureWidth; ++i)
+				{
+					for (int32_t j = 0; j < textureHeight; ++j)
+					{
+						math::float3 originalColor = heightTexture->getColor(i, j);
+						math::float3 newColor = originalColor * (m_heightScale / inHeightScale);
+						math::float4 result = math::float4(newColor.x, newColor.x, newColor.x, newColor.x);
+						heightTexture->setColor(i, j, result);
+					}
+				}
+			}
+
+			heightTexture->m_isDirty = true;
+
+			m_heightScale = inHeightScale;
+		}
 	}
 
 	std::shared_ptr<GTexture> TerrainComponent::getHeightTexture() const

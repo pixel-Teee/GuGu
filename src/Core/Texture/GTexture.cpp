@@ -171,7 +171,7 @@ namespace GuGu {
 		}
 	}
 
-	math::float3 GTexture::getColor(int32_t x, int32_t y) const
+	math::float4 GTexture::getColor(int32_t x, int32_t y) const
 	{
 		int32_t index = y * m_width + x;
 		if (m_bytesPerPixel == 1 && index < m_data.size())
@@ -184,7 +184,7 @@ namespace GuGu {
 		}
 		else if (m_bytesPerPixel == 4 && (index * 4 + 2) < m_data.size())
 		{
-			return math::float3(m_data[index * 4], m_data[index * 4 + 1], m_data[index * 4 + 2]);
+			return math::float4(m_data[index * 4], m_data[index * 4 + 1], m_data[index * 4 + 2], m_data[index * 4 + 3]);
 		}
 		return math::float3(0, 0, 0);
 	}
@@ -256,6 +256,28 @@ namespace GuGu {
 			}
 		}
 		m_isDirty = true;
+	}
+
+	void GTexture::setColor(int32_t x, int32_t y, math::float4 inColor)
+	{
+		int32_t index = y * m_width + x;
+		if (m_bytesPerPixel == 1 && index < m_data.size())
+		{
+			m_data[index] = (uint8_t)inColor.x;
+		}
+		else if (m_bytesPerPixel == 3 && (index * 3 + 2) < m_data.size())
+		{
+			m_data[index * 3] = (uint8_t)inColor.x;
+			m_data[index * 3 + 1] = (uint8_t)inColor.y;
+			m_data[index * 3 + 2] = (uint8_t)inColor.z;
+		}
+		else if (m_bytesPerPixel == 4 && (index * 4 + 2) < m_data.size())
+		{
+			m_data[index * 4] = (uint8_t)inColor.x;
+			m_data[index * 4 + 1] = (uint8_t)inColor.y;
+			m_data[index * 4 + 2] = (uint8_t)inColor.z;
+			m_data[index * 4 + 3] = (uint8_t)inColor.w;
+		}
 	}
 
 }
