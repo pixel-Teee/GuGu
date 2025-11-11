@@ -2845,6 +2845,7 @@ namespace GuGu {
 		TerrainBrushBuffer terrainBrushBuffer;
 		terrainBrushBuffer.brushColor = math::float4(0.4f, 0.3f, 1.0f, 1.0f);
 		terrainBrushBuffer.brushRadius = inViewportClient->getBrushSize();
+		terrainBrushBuffer.innerBrushRadius = inViewportClient->getBrushSize() * 0.5f;//half
 		//math::float3 brushRadius = inViewportClient->getBrushPositionWS();
 		terrainBrushBuffer.brushPositionWS = inViewportClient->getBrushPositionWS();
 		//terrainGraphicsState.framebuffer = inViewportClient->getFramebuffer();

@@ -27,6 +27,7 @@ cbuffer cbBrush : register(b3)
     float4 g_brushColor;
     float3 g_brushPositionWS;
     float g_brushRadius;
+    float g_brushInnerRadius;
 }
 #endif
 
@@ -100,9 +101,14 @@ void main_ps(
         float dist = distance(o_posWS, g_brushPositionWS);
         if(dist < g_brushRadius)
         {
-            //float strength = 1.0 - smoothstep(0.0, g_brushRadius, dist);
-            //strength = pow(strength, g_brushHardness);
-             o_color = lighting * g_brushColor;
+            float alpha = 1.0 - smoothstep(g_brushInnerRadius, g_brushRadius, dist);
+            float4 weight = t_BlendTexture.Sample(s_Sampler, i_uv).xyzw;
+            float4 color1 = t_TerrainTexture1.Sample(s_Sampler, i_uv).xyzw;
+            float4 color2 = t_TerrainTexture2.Sample(s_Sampler, i_uv).xyzw;
+            float4 color3 = t_TerrainTexture3.Sample(s_Sampler, i_uv).xyzw;
+            float4 color4 = t_TerrainTexture4.Sample(s_Sampler, i_uv).xyzw;
+            float4 totalColor = color1 * weight.x + color2 * weight.y + color3 * weight.z + color4 * (1.0 - weight.x - weight.y - weight.z);
+            o_color = float4(totalColor.xyz * lighting * (1.0 - alpha) + g_brushColor.xyz * lighting * alpha, 1.0f);
         }
         else
         {
@@ -115,6 +121,7 @@ void main_ps(
 
             o_color = float4(totalColor.xyz * lighting, 1.0f);
         }
+        return;
 #else
     float4 weight = t_BlendTexture.Sample(s_Sampler, i_uv).xyzw;
     float4 color1 = t_TerrainTexture1.Sample(s_Sampler, i_uv).xyzw;

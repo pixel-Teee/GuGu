@@ -257,7 +257,8 @@ namespace GuGu {
 		{
 			dm::float4 brushColor;
 			dm::float3 brushPositionWS;
-			float brushRadius;
+			float brushRadius; //outer radius
+			float innerBrushRadius;
 		};
 		//------terrain------
 

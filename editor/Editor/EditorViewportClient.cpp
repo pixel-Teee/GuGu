@@ -406,39 +406,42 @@ namespace GuGu {
 			{
 				if (pickedItem->getComponent<TerrainComponent>())
 				{
+					std::shared_ptr<TransformComponent> transformComponent = pickedItem->getComponent<TransformComponent>();
 					std::shared_ptr<TerrainComponent> terrainComponent = pickedItem->getComponent<TerrainComponent>();
 					if (terrainComponent)
 					{
 						std::shared_ptr<GTexture> terrainBlendTexture = terrainComponent->getBlendTexture();
 						std::shared_ptr<GTexture> heightTexture = terrainComponent->getHeightTexture();
-						if (terrainBlendTexture)
+						if (heightTexture)
 						{
 							//terrainBlendTexture->writeColorRadius()
-							terrainBlendTexture->clearChannel(GTexture::Channel::A, 0.0f);
+							//terrainBlendTexture->clearChannel(GTexture::Channel::A, 0.0f);
 							//get uv
 							math::float2 terrainSize = math::float2((float)terrainComponent->m_cols * (float)terrainComponent->m_tileSize, (float)terrainComponent->m_rows * (float)terrainComponent->m_tileSize);
 							math::float2 terrainBeginXZ = math::float2(-(float)terrainComponent->m_terrainCols * terrainSize.x * 0.5f, -(float)terrainComponent->m_terrainRows * terrainSize.y * 0.5f);
 
 							{
-								float x = triLocalPos.x;
-								float z = triLocalPos.z;
+								math::float3 triWorldPosition = math::float4(triLocalPos, 1.0f) * math::affineToHomogeneous(transformComponent->GetLocalToWorldTransformFloat());
+								float x = triWorldPosition.x;
+								float z = triWorldPosition.z;
 
 								float h = -terrainBeginXZ.x * 2.0f;
 								float v = -terrainBeginXZ.y * 2.0f;
 
-								math::float2 uv = math::float2((x - terrainBeginXZ.x) / h, 1.0 - (z - terrainBeginXZ.y) / v);
+								math::float2 uv = math::float2((x - terrainBeginXZ.x) / h, 1.0f - (z - terrainBeginXZ.y) / v);
 
 								GuGu_LOGD("Collision Terrain Tri UV:(%f, %f)", uv.x, uv.y);
 
-								float textureWidth = terrainBlendTexture->m_width;
-								float textureHeight = terrainBlendTexture->m_height;
+								float textureWidth = heightTexture->m_width;
+								float textureHeight = heightTexture->m_height;
 								float brushSize = m_newTerrainBrushSize;
 								float brushStrength = m_brushType == BrushType::Increase ? m_newBrushStrength : -m_newBrushStrength;
 
-								math::float3 height = heightTexture->getColor(uv.x * textureWidth, uv.y * textureHeight);
+								math::float3 height = heightTexture->getColor(uv.x * (textureWidth - 1), uv.y * (textureHeight - 1));
 								
-								//todo:fix this
-								m_brushPositionWS = math::float3(x, height.x / 255.0f, z);
+								float colorMax = 255.0f;//todo:fix this
+	
+								m_brushPositionWS = math::float3(x, height.x / colorMax, z);
 								//if(uv.x > 0.0f && uv.y > 0.0f)
 								//	terrainBlendTexture->writeColorRadius(textureWidth * uv.x, textureHeight * uv.y, brushSize, GTexture::Channel::A, 255.0f);
 								//
