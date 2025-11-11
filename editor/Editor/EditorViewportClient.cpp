@@ -434,12 +434,17 @@ namespace GuGu {
 								float textureHeight = terrainBlendTexture->m_height;
 								float brushSize = m_newTerrainBrushSize;
 								float brushStrength = m_brushType == BrushType::Increase ? m_newBrushStrength : -m_newBrushStrength;
-								if(uv.x > 0.0f && uv.y > 0.0f)
-									terrainBlendTexture->writeColorRadius(textureWidth * uv.x, textureHeight * uv.y, brushSize, GTexture::Channel::A, 255.0f);
 
-								//offset height
-								if(uv.x > 0.0f && uv.y > 0.0f)
-									heightTexture->writeOffsetColorRadius(textureWidth * uv.x, textureHeight * uv.y, brushSize, GTexture::Channel::R, brushStrength); //todo:add strength
+								math::float3 height = heightTexture->getColor(uv.x * textureWidth, uv.y * textureHeight);
+								
+								//todo:fix this
+								m_brushPositionWS = math::float3(x, height.x / 255.0f, z);
+								//if(uv.x > 0.0f && uv.y > 0.0f)
+								//	terrainBlendTexture->writeColorRadius(textureWidth * uv.x, textureHeight * uv.y, brushSize, GTexture::Channel::A, 255.0f);
+								//
+								////offset height
+								//if(uv.x > 0.0f && uv.y > 0.0f)
+								//	heightTexture->writeOffsetColorRadius(textureWidth * uv.x, textureHeight * uv.y, brushSize, GTexture::Channel::R, brushStrength); //todo:add strength
 							}
 						}
 					}

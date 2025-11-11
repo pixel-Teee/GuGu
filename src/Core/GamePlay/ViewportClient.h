@@ -131,6 +131,13 @@ namespace GuGu {
 		void setBrushStrength(float inNewBrushStrength);
 
 		void setBrushType(BrushType inNewBrushType);
+
+		float getBrushSize() const;
+
+		float getBrushStrength();
+
+		//world space
+		math::float3 getBrushPositionWS();
 	protected:
 		bool m_isInTerrainEditor;
 
@@ -139,6 +146,8 @@ namespace GuGu {
 		float m_newBrushStrength;
 
 		BrushType m_brushType;//increase, fall
+
+		math::float3 m_brushPositionWS;
 	private:
 		GameObjectSelectionChangedEvent m_gameObjectSelectionChangedEvent;
 	};

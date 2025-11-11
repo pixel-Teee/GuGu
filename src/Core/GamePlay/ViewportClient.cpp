@@ -184,5 +184,20 @@ namespace GuGu {
 		m_brushType = inNewBrushType;
 	}
 
+	float ViewportClient::getBrushSize() const
+	{
+		return m_newTerrainBrushSize;
+	}
+
+	float ViewportClient::getBrushStrength()
+	{
+		return m_newBrushStrength;
+	}
+
+	math::float3 ViewportClient::getBrushPositionWS()
+	{
+		return m_brushPositionWS;
+	}
+
 	//------input------
 }

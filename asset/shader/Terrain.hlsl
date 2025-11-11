@@ -21,6 +21,15 @@ cbuffer cbLight : register(b2)
     float4 lightColors[4];
 };
 
+#if USE_BRUSH == 1
+cbuffer cbBrush : register(b3)
+{
+    float4 g_brushColor;
+    float3 g_brushPositionWS;
+    float g_brushRadius;
+}
+#endif
+
 Texture2D t_HeightTexture : register(t0);
 Texture2D t_BlendTexture : register(t1);
 Texture2D t_TerrainTexture1 : register(t2);
@@ -87,14 +96,33 @@ void main_ps(
     
     float lighting = ambient + (1.0 - ambient) * diffuse;
     
+#if USE_BRUSH == 1
+        float dist = distance(o_posWS, g_brushPositionWS);
+        if(dist < g_brushRadius)
+        {
+            //float strength = 1.0 - smoothstep(0.0, g_brushRadius, dist);
+            //strength = pow(strength, g_brushHardness);
+             o_color = lighting * g_brushColor;
+        }
+        else
+        {
+            float4 weight = t_BlendTexture.Sample(s_Sampler, i_uv).xyzw;
+            float4 color1 = t_TerrainTexture1.Sample(s_Sampler, i_uv).xyzw;
+            float4 color2 = t_TerrainTexture2.Sample(s_Sampler, i_uv).xyzw;
+            float4 color3 = t_TerrainTexture3.Sample(s_Sampler, i_uv).xyzw;
+            float4 color4 = t_TerrainTexture4.Sample(s_Sampler, i_uv).xyzw;
+            float4 totalColor = color1 * weight.x + color2 * weight.y + color3 * weight.z + color4 * (1.0 - weight.x - weight.y - weight.z);
+
+            o_color = float4(totalColor.xyz * lighting, 1.0f);
+        }
+#else
     float4 weight = t_BlendTexture.Sample(s_Sampler, i_uv).xyzw;
     float4 color1 = t_TerrainTexture1.Sample(s_Sampler, i_uv).xyzw;
     float4 color2 = t_TerrainTexture2.Sample(s_Sampler, i_uv).xyzw;
     float4 color3 = t_TerrainTexture3.Sample(s_Sampler, i_uv).xyzw;
     float4 color4 = t_TerrainTexture4.Sample(s_Sampler, i_uv).xyzw;
     float4 totalColor = color1 * weight.x + color2 * weight.y + color3 * weight.z + color4 * (1.0 - weight.x - weight.y - weight.z);
-    if(weight.w >= 1.0f)
-        o_color = float4(float3(1.0f, 1.0f, 1.0f) * lighting, 1.0f);
-    else
-        o_color = float4(totalColor.xyz * lighting, 1.0f);
+
+    o_color = float4(totalColor.xyz * lighting, 1.0f);
+#endif
 }

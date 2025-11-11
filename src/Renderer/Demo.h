@@ -234,10 +234,14 @@ namespace GuGu {
 		//------terrain------
 		nvrhi::ShaderHandle m_terrainVertexShader;
 		nvrhi::ShaderHandle m_terrainPixelShader;
+		nvrhi::ShaderHandle m_terrainVertexShaderWithBrush;
+		nvrhi::ShaderHandle m_terrainPixelShaderWithBrush;
 		nvrhi::InputLayoutHandle m_terrainInputLayout;
+		nvrhi::BufferHandle m_terrainBrushConstantBuffer;
 		nvrhi::BindingLayoutHandle m_terrainBindingLayout;
 		nvrhi::BindingSetHandle m_terrainBindingSet;
 		nvrhi::GraphicsPipelineHandle m_terrainPipeline;
+		nvrhi::GraphicsPipelineHandle m_terrainPipelineWithBrush;
 		struct TerrainPropertiesBuffer {
 			dm::float2 m_beginXZ;//x, z方向上的起始偏移
 			dm::float2 m_xzOffset;//x, z方向上的位置偏移
@@ -248,6 +252,12 @@ namespace GuGu {
 			dm::float4x4 viewProjMatrix;
 			dm::float4x4 worldMatrix;
 			dm::float3 camWorldPos;
+		};
+		struct TerrainBrushBuffer
+		{
+			dm::float4 brushColor;
+			dm::float3 brushPositionWS;
+			float brushRadius;
 		};
 		//------terrain------
 

@@ -1108,14 +1108,23 @@ namespace GuGu {
 		//------gizmos------
 
 		//------terrain------
-		m_terrainVertexShader = shaderFactory->CreateShader("asset/shader/Terrain.hlsl", "main_vs", nullptr,
+		std::vector<ShaderMacro> terrainMacros;
+		terrainMacros.push_back(ShaderMacro("USE_BRUSH", "0"));
+		m_terrainVertexShader = shaderFactory->CreateShader("asset/shader/Terrain.hlsl", "main_vs", &terrainMacros,
 			nvrhi::ShaderType::Vertex);
-		m_terrainPixelShader = shaderFactory->CreateShader("asset/shader/Terrain.hlsl", "main_ps", nullptr,
+		m_terrainPixelShader = shaderFactory->CreateShader("asset/shader/Terrain.hlsl", "main_ps", &terrainMacros,
+			nvrhi::ShaderType::Pixel);
+		terrainMacros.clear();
+		terrainMacros.push_back(ShaderMacro("USE_BRUSH", "1"));
+		m_terrainVertexShaderWithBrush = shaderFactory->CreateShader("asset/shader/Terrain.hlsl", "main_vs", &terrainMacros,
+			nvrhi::ShaderType::Vertex);
+		m_terrainPixelShaderWithBrush = shaderFactory->CreateShader("asset/shader/Terrain.hlsl", "main_ps", &terrainMacros,
 			nvrhi::ShaderType::Pixel);
 		layoutDesc.bindings = {
 			nvrhi::BindingLayoutItem::ConstantBuffer(0), //normal transform
 			nvrhi::BindingLayoutItem::ConstantBuffer(1), //ambient color
 			nvrhi::BindingLayoutItem::ConstantBuffer(2), //light
+			nvrhi::BindingLayoutItem::ConstantBuffer(3), //brush
 			nvrhi::BindingLayoutItem::Texture_SRV(0), //terrain height
 			nvrhi::BindingLayoutItem::Texture_SRV(1), //terrain color1
 			nvrhi::BindingLayoutItem::Texture_SRV(2), //terrain color2
@@ -1137,6 +1146,13 @@ namespace GuGu {
 		m_terrainInputLayout = GetDevice()->createInputLayout(terrainAttributes,
 			uint32_t(std::size(terrainAttributes)),
 			m_terrainVertexShader);
+
+		m_terrainBrushConstantBuffer = GetDevice()->createBuffer(
+			nvrhi::utils::CreateStaticConstantBufferDesc(
+				sizeof(TerrainBrushBuffer), "TerrainBrushConstantBuffer")
+			.setInitialState(
+				nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
+					true));
 		//------terrain------
 
 		//------water------
@@ -1619,6 +1635,20 @@ namespace GuGu {
 			m_terrainPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
+		if (!m_terrainPipelineWithBrush)
+		{
+			nvrhi::GraphicsPipelineDesc psoDesc;
+			psoDesc.VS = m_terrainVertexShaderWithBrush; //terrain
+			psoDesc.PS = m_terrainPixelShaderWithBrush; //terrain
+			psoDesc.inputLayout = m_terrainInputLayout; //顶点属性
+			psoDesc.bindingLayouts = { m_terrainBindingLayout }; //constant buffer 这些
+			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+			//psoDesc.renderState.rasterState.fillMode = nvrhi::RasterFillMode::Wireframe;
+			psoDesc.renderState.depthStencilState.depthTestEnable = true;
+			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
+			m_terrainPipelineWithBrush = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
+		}
+
 		if (!m_waterPipeline)
 		{
 			nvrhi::GraphicsPipelineDesc psoDesc;
@@ -1922,8 +1952,8 @@ namespace GuGu {
 
 			//draw terrain
 			nvrhi::GraphicsState terrainGraphicsState;
-			terrainGraphicsState.pipeline = m_terrainPipeline;
 			terrainGraphicsState.framebuffer = inViewportClient->getFramebuffer();
+			terrainGraphicsState.pipeline = m_terrainPipeline;
 			terrainGraphicsState.viewport.addViewportAndScissorRect(viewport);
 			for (size_t i = 0; i < gameObjects.size(); ++i)
 			{
@@ -1984,6 +2014,8 @@ namespace GuGu {
 				//get the global matrix to fill constant buffer		
 				m_CommandList->writeBuffer(terrainComponent->m_terrainConstantBuffer, &terrainConstants, sizeof(TerrainConstantBufferEntry));
 
+				//m_CommandList->writeBuffer(m_terrainBrushConstantBuffer, &terrainBrushBuffer, sizeof(TerrainBrushBuffer));
+
 				math::float2 terrainSize = math::float2((float)terrainComponent->m_cols * (float)terrainComponent->m_tileSize, (float)terrainComponent->m_rows * (float)terrainComponent->m_tileSize);
 				math::float2 terrainBeginXZ = math::float2(-(float)terrainComponent->m_terrainCols * terrainSize.x * 0.5f, -(float)terrainComponent->m_terrainRows * terrainSize.y * 0.5f);
 				for (uint32_t i = 0; i < terrainComponent->m_terrainRows; ++i)
@@ -2014,7 +2046,8 @@ namespace GuGu {
 						desc.bindings = {
 								nvrhi::BindingSetItem::ConstantBuffer(0, terrainComponent->m_terrainConstantBuffer),
 								nvrhi::BindingSetItem::ConstantBuffer(1, terrainComponent->m_terrainPropertiesConstantBuffer[index]),
-								nvrhi::BindingSetItem::ConstantBuffer(1, m_LightBuffers),
+								nvrhi::BindingSetItem::ConstantBuffer(2, m_LightBuffers),
+								nvrhi::BindingSetItem::ConstantBuffer(3, m_terrainBrushConstantBuffer),
 								nvrhi::BindingSetItem::Texture_SRV(0, terrainComponent->getHeightTexture()->m_texture),
 								nvrhi::BindingSetItem::Texture_SRV(1, terrainComponent->getBlendTexture()->m_texture),
 								nvrhi::BindingSetItem::Texture_SRV(2, terrainComponent->getTerrainTexture1()->m_texture),
@@ -2035,7 +2068,7 @@ namespace GuGu {
 							terrainComponent->m_indexBufferHandle, nvrhi::Format::R32_UINT, 0
 						};
 
-						terrainGraphicsState.setPipeline(m_terrainPipeline);
+						//terrainGraphicsState.setPipeline(m_terrainPipeline);
 						m_CommandList->setGraphicsState(terrainGraphicsState);
 
 						// Draw the model.
@@ -2442,6 +2475,20 @@ namespace GuGu {
 			m_terrainPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
+		if (!m_terrainPipelineWithBrush)
+		{
+			nvrhi::GraphicsPipelineDesc psoDesc;
+			psoDesc.VS = m_terrainVertexShaderWithBrush; //terrain
+			psoDesc.PS = m_terrainPixelShaderWithBrush; //terrain
+			psoDesc.inputLayout = m_terrainInputLayout; //顶点属性
+			psoDesc.bindingLayouts = { m_terrainBindingLayout }; //constant buffer 这些
+			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+			//psoDesc.renderState.rasterState.fillMode = nvrhi::RasterFillMode::Wireframe;
+			psoDesc.renderState.depthStencilState.depthTestEnable = true;
+			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
+			m_terrainPipelineWithBrush = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
+		}
+
 		if (!m_waterPipeline)
 		{
 			nvrhi::GraphicsPipelineDesc psoDesc;
@@ -2789,6 +2836,19 @@ namespace GuGu {
 		terrainGraphicsState.pipeline = m_terrainPipeline;
 		terrainGraphicsState.framebuffer = inViewportClient->getFramebuffer();
 		terrainGraphicsState.viewport.addViewportAndScissorRect(viewport);
+
+		if (inViewportClient->getIsInTerrainEditor())
+			terrainGraphicsState.pipeline = m_terrainPipelineWithBrush;
+		else
+			terrainGraphicsState.pipeline = m_terrainPipeline;
+
+		TerrainBrushBuffer terrainBrushBuffer;
+		terrainBrushBuffer.brushColor = math::float4(0.4f, 0.3f, 1.0f, 1.0f);
+		terrainBrushBuffer.brushRadius = inViewportClient->getBrushSize();
+		//math::float3 brushRadius = inViewportClient->getBrushPositionWS();
+		terrainBrushBuffer.brushPositionWS = inViewportClient->getBrushPositionWS();
+		//terrainGraphicsState.framebuffer = inViewportClient->getFramebuffer();
+
 		for (size_t i = 0; i < gameObjects.size(); ++i)
 		{
 			std::shared_ptr<TransformComponent> transformComponent = gameObjects[i]->getComponent<TransformComponent>();
@@ -2857,7 +2917,9 @@ namespace GuGu {
 			terrainConstants.worldMatrix = math::affineToHomogeneous(transformComponent->GetLocalToWorldTransformFloat());
 			//get the global matrix to fill constant buffer		
 			m_CommandList->writeBuffer(terrainComponent->m_terrainConstantBuffer, &terrainConstants, sizeof(TerrainConstantBufferEntry));
-			
+
+			m_CommandList->writeBuffer(m_terrainBrushConstantBuffer, &terrainBrushBuffer, sizeof(TerrainBrushBuffer));
+
 			math::float2 terrainSize = math::float2((float)terrainComponent->m_cols * (float)terrainComponent->m_tileSize, (float)terrainComponent->m_rows * (float)terrainComponent->m_tileSize);
 			math::float2 terrainBeginXZ = math::float2(-(float)terrainComponent->m_terrainCols * terrainSize.x * 0.5f, -(float)terrainComponent->m_terrainRows * terrainSize.y * 0.5f);
 			for (uint32_t i = 0; i < terrainComponent->m_terrainRows; ++i)
@@ -2889,6 +2951,7 @@ namespace GuGu {
 							nvrhi::BindingSetItem::ConstantBuffer(0, terrainComponent->m_terrainConstantBuffer),
 							nvrhi::BindingSetItem::ConstantBuffer(1, terrainComponent->m_terrainPropertiesConstantBuffer[index]),
 							nvrhi::BindingSetItem::ConstantBuffer(2, m_LightBuffers),
+							nvrhi::BindingSetItem::ConstantBuffer(3, m_terrainBrushConstantBuffer),
 							nvrhi::BindingSetItem::Texture_SRV(0, terrainComponent->getHeightTexture()->m_texture),
 							nvrhi::BindingSetItem::Texture_SRV(1, terrainComponent->getBlendTexture()->m_texture),
 							nvrhi::BindingSetItem::Texture_SRV(2, terrainComponent->getTerrainTexture1()->m_texture),
@@ -2909,7 +2972,10 @@ namespace GuGu {
 						terrainComponent->m_indexBufferHandle, nvrhi::Format::R32_UINT, 0
 					};
 
-					terrainGraphicsState.setPipeline(m_terrainPipeline);
+					if(inViewportClient->getIsInTerrainEditor())
+						terrainGraphicsState.setPipeline(m_terrainPipelineWithBrush);
+					else
+						terrainGraphicsState.setPipeline(m_terrainPipeline);
 					m_CommandList->setGraphicsState(terrainGraphicsState);
 
 					// Draw the model.
