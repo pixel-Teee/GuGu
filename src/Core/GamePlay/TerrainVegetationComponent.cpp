@@ -2,7 +2,7 @@
 
 #include "TerrainVegetationComponent.h"
 #include <Core/AssetManager/AssetManager.h>
-//#include <Core/Texture/GTexture.h>
+#include <Core/Texture/GTexture.h>
 #include <Core/Reflection/TypeInfo.h>
 #include <Core/GamePlay/GameObject.h>
 #include "TerrainComponent.h"
@@ -105,7 +105,36 @@ namespace GuGu {
 
 	float TerrainVegetationComponent::getYOffset(math::float3 worldTranslation) const
 	{
-		return 0;//from terrain component height texture to get y offset
+		//from terrain component height texture to get y offset
+		if (m_terrainOwner.lock())
+		{
+			std::shared_ptr<TerrainComponent> terrainComponent = m_terrainOwner.lock();
+			if (terrainComponent)
+			{
+
+				std::shared_ptr<GTexture> heightTexture = terrainComponent->getHeightTexture();
+
+				//get uv
+				math::float2 terrainSize = math::float2((float)terrainComponent->m_cols * (float)terrainComponent->m_tileSize, (float)terrainComponent->m_rows * (float)terrainComponent->m_tileSize);
+				math::float2 terrainBeginXZ = math::float2(-(float)terrainComponent->m_terrainCols * terrainSize.x * 0.5f, -(float)terrainComponent->m_terrainRows * terrainSize.y * 0.5f);
+
+				float x = worldTranslation.x;
+				float z = worldTranslation.z;
+
+				float h = -terrainBeginXZ.x * 2.0f;
+				float v = -terrainBeginXZ.y * 2.0f;
+
+				math::float2 uv = math::float2((x - terrainBeginXZ.x) / h, 1.0 - (z - terrainBeginXZ.y) / v);
+
+				//GuGu_LOGD("Collision Terrain Tri UV:(%f, %f)", uv.x, uv.y);
+
+				float textureWidth = heightTexture->m_width;
+				float textureHeight = heightTexture->m_height;
+				
+				return heightTexture->getColor(uv.x * textureWidth, uv.y * textureHeight).x;
+			}
+		}
+		return 0;
 	}
 
 	std::weak_ptr<TerrainComponent>& TerrainVegetationComponent::getTerrainOwner()
