@@ -23,10 +23,11 @@ namespace GuGu {
 
 		virtual void PostLoad() override;
 
-		math::float4 m_bottomColor;
+		Color m_bottomColor;
+		Color m_middleColor;
+		Color m_topColor;
 
-		math::float4 m_middleColor;
-
-		math::float4 m_topColor;
+		//grass constant buffer
+		nvrhi::BufferHandle m_grassConstantBuffer;
 	};
 }

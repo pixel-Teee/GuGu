@@ -50,6 +50,18 @@ namespace GuGu {
 		auto& db = meta::ReflectionDatabase::Instance();
 		auto& type = db.types[typeof(GrassComponent).GetID()];
 
+		type.AddField<GrassComponent, Color>("m_bottomColor",
+			(meta::FieldGetter<GrassComponent, Color, false>::Signature) & GrassComponent::m_bottomColor,
+			(meta::FieldSetter<GrassComponent, Color, false>::Signature) & GrassComponent::m_bottomColor, {});
+
+		type.AddField<GrassComponent, Color>("m_middleColor",
+			(meta::FieldGetter<GrassComponent, Color, false>::Signature) & GrassComponent::m_middleColor,
+			(meta::FieldSetter<GrassComponent, Color, false>::Signature) & GrassComponent::m_middleColor, {});
+
+		type.AddField<GrassComponent, Color>("m_topColor",
+			(meta::FieldGetter<GrassComponent, Color, false>::Signature) & GrassComponent::m_topColor,
+			(meta::FieldSetter<GrassComponent, Color, false>::Signature) & GrassComponent::m_topColor, {});
+
 		type.AddField<GrassComponent, std::weak_ptr<GameObject>>("m_owner",
 			(meta::FieldGetter<GrassComponent, std::weak_ptr<GameObject>&, true>::Signature) & GrassComponent::getParentGameObject,
 			(meta::FieldSetter<GrassComponent, std::weak_ptr<GameObject>&, true>::Signature) & GrassComponent::setParentGameObject, {});
@@ -68,7 +80,9 @@ namespace GuGu {
 	IMPLEMENT_INITIAL_FIELDS_END
 	GrassComponent::GrassComponent()
 	{
-
+		m_bottomColor = Color(0.024f, 0.294f, 0.012f, 1.0f);
+		m_middleColor = Color(0.082f, 0.385f, 0.113f, 1.0f);
+		m_topColor = Color(0.310f, 1.0f, 0.415f, 1.0f);
 	}
 	GrassComponent::~GrassComponent()
 	{

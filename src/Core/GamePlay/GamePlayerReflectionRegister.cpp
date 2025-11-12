@@ -18,6 +18,7 @@
 #include <Core/GamePlay/CameraComponent.h>
 #include <Core/GamePlay/TerrainComponent.h>
 #include <Core/GamePlay/WaterComponent.h>
+#include <Core/GamePlay/GrassComponent.h>
 
 #include <Core/GamePlay/GameUI/UIComponent.h>
 #include <Core/GamePlay/GameUI/ImageComponent.h>
@@ -839,6 +840,9 @@ namespace GuGu {
 
 		GuGuScriptDelegate::registerMainFactory();
 		GuGuScriptDelegate::registerMainFactory2();
+
+		GrassComponent::registerMainFactory();
+		GrassComponent::registerMainFactory2();
 
 		ReflectionMain::initialize();
 

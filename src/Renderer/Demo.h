@@ -25,6 +25,13 @@ namespace GuGu {
 	class WaterComponent;
 	class CameraComponent;
 	class TransformComponent;
+
+	enum class DrawItemType
+	{
+		NormalOpaque,
+		Grass
+	};
+
 	struct DrawItem
 	{
 		const MeshInfo* mesh;
@@ -32,10 +39,12 @@ namespace GuGu {
 		const MeshGeometry* meshGeometry;
 		nvrhi::BufferHandle m_worldMatrix;
 		nvrhi::BufferHandle m_skinnedMatrix;
+		nvrhi::BufferHandle m_grassBuffer;
 		bool m_isSkinned = false;
 		nvrhi::BufferHandle m_pbrMaterial;
 		nvrhi::TextureHandle m_albedoTexture;
 		GStaticMesh* m_staticMesh;
+		DrawItemType m_drawItemType = DrawItemType::NormalOpaque;
 	};
 	//struct UIData;
 	struct UIDrawInfo;
@@ -265,12 +274,15 @@ namespace GuGu {
 		//------grass------
 		nvrhi::ShaderHandle m_grassVertexShader;
 		nvrhi::ShaderHandle m_grassPixelShader;
+		nvrhi::BindingLayoutHandle m_grassBindingLayout;
+		nvrhi::BindingSetHandle m_grassBindingSet;
 		struct GrassGradientBuffer
 		{
 			dm::float4 bottomColor;
 			dm::float4 middleColor;
 			dm::float4 topColor;
 		};
+		nvrhi::GraphicsPipelineHandle m_grassPipeline;
 		//------grass------
 
 		//------water------
