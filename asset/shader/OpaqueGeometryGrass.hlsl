@@ -86,7 +86,7 @@ void main_ps(
 )
 {
     
-    float3 Albedo = sampleColorSmooth(i_uv, bottomColor, middleColor, topColor) * albedo.xyz;
+    float3 Albedo = sampleColorSmooth(i_uv, middleColor, topColor, bottomColor) * albedo.xyz;
     //o_color = t_Texture.Sample(s_Sampler, i_uv);
     
     float3 N = normalize(i_normal);
