@@ -262,6 +262,17 @@ namespace GuGu {
 		};
 		//------terrain------
 
+		//------grass------
+		nvrhi::ShaderHandle m_grassVertexShader;
+		nvrhi::ShaderHandle m_grassPixelShader;
+		struct GrassGradientBuffer
+		{
+			dm::float4 bottomColor;
+			dm::float4 middleColor;
+			dm::float4 topColor;
+		};
+		//------grass------
+
 		//------water------
 		nvrhi::ShaderHandle m_waterVertexShader;
 		nvrhi::ShaderHandle m_waterPixelShader;
