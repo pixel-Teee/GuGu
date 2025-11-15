@@ -26,6 +26,25 @@
 #include <Core/LuaContext/LuaContext.h>
 
 namespace GuGu{
+	static void removeWindowFromList(std::vector<std::shared_ptr<WindowWidget>>& windows, const std::shared_ptr<WindowWidget>& windowToRemove)
+	{
+		bool bFound = false;
+		auto it = std::find(windows.begin(), windows.end(), windowToRemove);
+		if (it != windows.end())
+		{
+			bFound = true;
+			windows.erase(it);
+		}
+
+		if (!bFound)
+		{
+			for (int32_t childIndex = 0; childIndex < windows.size(); ++childIndex)
+			{
+				removeWindowFromList(windows[childIndex]->getChildWindows(), windowToRemove);
+			}
+		}
+	}
+
 	WindowActivateEvent::ActivationType translationWindowActivationMessage(const WindowActivation activationType)
 	{
 		WindowActivateEvent::ActivationType result = WindowActivateEvent::Activate;
@@ -720,14 +739,24 @@ namespace GuGu{
 		local::helper(windowToDestroy, m_windowsDestroyQueue);//收集完毕所有窗口，销毁队列里面待销毁的窗口
 
 		destroyWindowsImmediately();
+
+		removeWindowFromList(m_windowWidgets, windowToDestroy);
 	}
 
 	void Application::destroyWindowsImmediately()
 	{
+		UIRenderPass* uiRenderPass = m_renderer->getUIRenderPass();
 		for (int32_t i = 0; i < m_windowsDestroyQueue.size(); ++i)
 		{
 			//真正的销毁
 			m_renderer->onWindowDestroyed(m_windowsDestroyQueue[i]);
+
+			//from ui render pass to destroy
+			
+			if (uiRenderPass)
+			{
+				uiRenderPass->clearWindow(m_windowsDestroyQueue[i]);
+			}
 
 			m_windowsDestroyQueue[i]->destroyNativeWindow();
 

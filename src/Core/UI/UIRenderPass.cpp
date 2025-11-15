@@ -1033,6 +1033,12 @@ namespace GuGu {
 	void UIRenderPass::generateWidgetElement(WidgetGeometry& allocatedWidgetGeometry, std::shared_ptr<WindowWidget> window)
 	{
 		m_allWidgets[window.get()].clear();
+		//std::vector<std::weak_ptr<Widget>> weakWidgets;
+		//for (int32_t i = 0; i < m_allWidgets[window.get()].size(); ++i)
+		//{
+		//	std::weak_ptr<Widget> weakPtr = m_allWidgets[window.get()][i];
+		//	weakWidgets.push_back(weakPtr);
+		//}
 		PaintArgs paintArgs(m_allWidgets[window.get()], window->getPositionInScreen(), Application::getApplication()->getTimer()->GetTotalTime(), Application::getApplication()->getTimer()->GetDeltaTime());
 
 		math::box2 cullingRect(math::float2(0.0f, 0.0f), math::float2(allocatedWidgetGeometry.getLocalSize().x, allocatedWidgetGeometry.getLocalSize().y));
@@ -1968,4 +1974,12 @@ namespace GuGu {
 	{
 		return m_selectUINode;
 	}
+
+	void UIRenderPass::clearWindow(std::shared_ptr<WindowWidget> inWindowWidget)
+	{
+		auto it = m_allWidgets.find(inWindowWidget.get());
+
+		m_allWidgets.erase(it);
+	}
+
 }

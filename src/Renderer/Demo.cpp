@@ -2545,6 +2545,7 @@ namespace GuGu {
 			//psoDesc.renderState.rasterState.fillMode = nvrhi::RasterFillMode::Wireframe;
 			psoDesc.renderState.depthStencilState.depthTestEnable = true;
 			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
+			//psoDesc.renderState.rasterState.setFillWireframe();
 			m_terrainPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
@@ -2684,6 +2685,7 @@ namespace GuGu {
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
 			psoDesc.renderState.depthStencilState.depthTestEnable = true;
 			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
+
 			m_grassPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 

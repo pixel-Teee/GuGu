@@ -68,6 +68,7 @@ namespace GuGu {
 		//nvrhi::FramebufferHandle m_frameBuffer;
 		//
 		//void initRenderTargetAndDepthTarget();
+		void clearWindow(std::shared_ptr<WindowWidget> inWindowWidget);
 	private:
 		void loadStyleTextures();
 
