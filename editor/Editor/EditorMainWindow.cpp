@@ -479,6 +479,30 @@ namespace GuGu {
 						.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
 					)
 				)
+				+ VerticalBox::Slot()
+				.FixedHeight()
+				(
+					WIDGET_NEW(HorizontalBox)
+					+ HorizontalBox::Slot()
+					.FixedWidth()
+					(
+						WIDGET_ASSIGN_NEW(CheckBox, m_terrainUseWireFrameCheckBox)
+						.visibility(Visibility::Visible)
+						.checkBoxStyle(EditorStyleSet::getStyleSet()->getStyle<CheckBoxStyle>("EditorNormalCheckBox"))
+						.Content
+						(
+							WIDGET_NEW(NullWidget)
+						)
+						.onCheckStateChanged(this, &EditorMainWindow::switchTerrainWireFrame)
+					)
+					+ HorizontalBox::Slot()
+					.FixedWidth()
+					(
+						WIDGET_NEW(TextBlockWidget)
+						.text(u8"Show Font Atlas")
+						.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+					)
+				)
 			)
 		);
 
@@ -664,6 +688,20 @@ namespace GuGu {
 			viewportClient->setViewportState(ViewportClient::ViewportState::Runtime);
 		}
 		//return Reply::Handled();
+	}
+
+	void EditorMainWindow::switchTerrainWireFrame(CheckBoxState inCheckBoxState)
+	{
+		std::shared_ptr<ViewportClient> viewportClient = m_viewportWidget->getViewportClient();
+		ViewportClient::ViewportState state = viewportClient->getViewportState();
+		if (inCheckBoxState == CheckBoxState::Unchecked)
+		{
+			viewportClient->setTerrainUseWireFrame(false);
+		}
+		else
+		{
+			viewportClient->setTerrainUseWireFrame(true);
+		}
 	}
 
 	void EditorMainWindow::setRenderTarget(nvrhi::TextureHandle renderTarget)

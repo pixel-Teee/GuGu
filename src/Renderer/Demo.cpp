@@ -2549,6 +2549,21 @@ namespace GuGu {
 			m_terrainPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
+		if (!m_terrainPipelineWithWireFrame)
+		{
+			nvrhi::GraphicsPipelineDesc psoDesc;
+			psoDesc.VS = m_terrainVertexShader; //terrain
+			psoDesc.PS = m_terrainPixelShader; //terrain
+			psoDesc.inputLayout = m_terrainInputLayout; //顶点属性
+			psoDesc.bindingLayouts = { m_terrainBindingLayout }; //constant buffer 这些
+			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+			//psoDesc.renderState.rasterState.fillMode = nvrhi::RasterFillMode::Wireframe;
+			psoDesc.renderState.depthStencilState.depthTestEnable = true;
+			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
+			psoDesc.renderState.rasterState.setFillWireframe();
+			m_terrainPipelineWithWireFrame = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
+		}
+
 		if (!m_terrainPipelineWithBrush)
 		{
 			nvrhi::GraphicsPipelineDesc psoDesc;
@@ -2975,9 +2990,14 @@ namespace GuGu {
 		terrainGraphicsState.viewport.addViewportAndScissorRect(viewport);
 
 		if (inViewportClient->getIsInTerrainEditor())
+		{
 			terrainGraphicsState.pipeline = m_terrainPipelineWithBrush;
+		}
 		else
 			terrainGraphicsState.pipeline = m_terrainPipeline;
+
+		if (inViewportClient->getTerrainUseWireFrame())
+			terrainGraphicsState.pipeline = m_terrainPipelineWithWireFrame;
 
 		TerrainBrushBuffer terrainBrushBuffer;
 		terrainBrushBuffer.brushColor = math::float4(0.4f, 0.3f, 1.0f, 1.0f);
@@ -3114,6 +3134,9 @@ namespace GuGu {
 						terrainGraphicsState.setPipeline(m_terrainPipelineWithBrush);
 					else
 						terrainGraphicsState.setPipeline(m_terrainPipeline);
+
+					if (inViewportClient->getTerrainUseWireFrame())
+						terrainGraphicsState.pipeline = m_terrainPipelineWithWireFrame;
 					m_CommandList->setGraphicsState(terrainGraphicsState);
 
 					// Draw the model.

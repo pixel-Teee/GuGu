@@ -138,6 +138,10 @@ namespace GuGu {
 
 		//world space
 		math::float3 getBrushPositionWS();
+
+		void setTerrainUseWireFrame(bool inValue);
+
+		bool getTerrainUseWireFrame() const;
 	protected:
 		bool m_isInTerrainEditor;
 
@@ -148,6 +152,8 @@ namespace GuGu {
 		BrushType m_brushType;//increase, fall
 
 		math::float3 m_brushPositionWS;
+
+		bool m_terrainUseWireFrame;
 	private:
 		GameObjectSelectionChangedEvent m_gameObjectSelectionChangedEvent;
 	};

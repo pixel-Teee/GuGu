@@ -250,6 +250,7 @@ namespace GuGu {
 		nvrhi::BindingLayoutHandle m_terrainBindingLayout;
 		nvrhi::BindingSetHandle m_terrainBindingSet;
 		nvrhi::GraphicsPipelineHandle m_terrainPipeline;
+		nvrhi::GraphicsPipelineHandle m_terrainPipelineWithWireFrame;
 		nvrhi::GraphicsPipelineHandle m_terrainPipelineWithBrush;
 		struct TerrainPropertiesBuffer {
 			dm::float2 m_beginXZ;//x, z方向上的起始偏移

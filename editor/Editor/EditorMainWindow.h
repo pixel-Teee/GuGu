@@ -65,6 +65,8 @@ namespace GuGu {
 
 		void switchEditorAndRuntime(CheckBoxState inCheckBoxState);
 
+		void switchTerrainWireFrame(CheckBoxState inCheckBoxState);
+
 		void setRenderTarget(nvrhi::TextureHandle renderTarget);
 
 		void onItemSelect(const std::vector<GameObject*>&, bool);
@@ -79,6 +81,8 @@ namespace GuGu {
 		std::shared_ptr<Button> m_saveLevelButton;
 
 		std::shared_ptr<Button> m_openFontAtlasButton;
+
+		std::shared_ptr<CheckBox> m_terrainUseWireFrameCheckBox;
 
 		std::shared_ptr<CheckBox> m_switchEditorAndRuntime;
 

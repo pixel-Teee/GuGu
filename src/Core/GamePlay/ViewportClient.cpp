@@ -15,6 +15,7 @@ namespace GuGu {
 		m_newTerrainBrushSize = 1.0f;
 		m_newBrushStrength = 2.0f;
 		m_brushType = BrushType::Increase;
+		m_terrainUseWireFrame = false;
 	}
 	ViewportClient::~ViewportClient()
 	{
@@ -197,6 +198,16 @@ namespace GuGu {
 	math::float3 ViewportClient::getBrushPositionWS()
 	{
 		return m_brushPositionWS;
+	}
+
+	void ViewportClient::setTerrainUseWireFrame(bool inValue)
+	{
+		m_terrainUseWireFrame = inValue;
+	}
+
+	bool ViewportClient::getTerrainUseWireFrame() const
+	{
+		return m_terrainUseWireFrame;
 	}
 
 	//------input------

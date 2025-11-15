@@ -274,6 +274,22 @@ namespace GuGu {
 			m_styles.insert({ u8"StartAndStop", checkBoxStyle });
 		}
 
+		ADD_IMAGE(CheckBox_Checked)
+		ADD_IMAGE(CheckBox_Checked_Hovered)
+		ADD_IMAGE(CheckBox_Unchecked)
+		ADD_IMAGE(CheckBox_Unchecked_Hovered)
+		{
+			//normal box style
+			std::shared_ptr<CheckBoxStyle> checkBoxStyle = std::make_shared<CheckBoxStyle>();
+			checkBoxStyle->setCheckedImage(CheckBox_Checked);
+			checkBoxStyle->setUncheckedImage(CheckBox_Unchecked);
+			checkBoxStyle->setCheckedHoveredImage(CheckBox_Checked_Hovered);
+			checkBoxStyle->setUncheckedHoveredImage(CheckBox_Unchecked_Hovered);
+			checkBoxStyle->setBackgroundImage(noResource);
+
+			m_styles.insert({ u8"EditorNormalCheckBox", checkBoxStyle });
+		}
+
 		{
 			std::shared_ptr<TableColumnHeaderStyle> columnStyle = std::make_shared<TableColumnHeaderStyle>();
 			std::shared_ptr<Brush> normalColumnBrush = std::make_shared<Brush>();
