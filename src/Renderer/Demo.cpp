@@ -1734,6 +1734,19 @@ namespace GuGu {
 			m_skyBoxPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
+		if (!m_grassPipeline)
+		{
+			nvrhi::GraphicsPipelineDesc psoDesc;
+			psoDesc.VS = m_grassVertexShader;
+			psoDesc.PS = m_grassPixelShader;
+			psoDesc.inputLayout = m_InputLayout; //顶点属性
+			psoDesc.bindingLayouts = { m_grassBindingLayout }; //constant buffer 这些
+			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
+			psoDesc.renderState.depthStencilState.depthTestEnable = true;
+			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
+			m_grassPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
+		}
+
 		m_drawItems.clear();
 
 		m_CommandList->open();
@@ -1796,6 +1809,7 @@ namespace GuGu {
 				std::shared_ptr<StaticMeshComponent> staticMeshComponent = gameObjects[i]->getComponent<StaticMeshComponent>();
 				//std::shared_ptr<StaticMeshComponent> staticMeshComponent = m_cylinderMeshComponent;
 				std::shared_ptr<MaterialComponent> materialComponent = gameObjects[i]->getComponent<MaterialComponent>();
+				std::shared_ptr<GrassComponent> grassComponent = gameObjects[i]->getComponent<GrassComponent>();
 				//todo:修复这里
 				if (transformComponent == nullptr || staticMeshComponent == nullptr || materialComponent == nullptr)
 					continue;
@@ -1824,6 +1838,15 @@ namespace GuGu {
 							nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
 								true));
 				}
+				if (grassComponent != nullptr)
+				{
+					grassComponent->m_grassConstantBuffer = GetDevice()->createBuffer(
+						nvrhi::utils::CreateStaticConstantBufferDesc(
+							3 * sizeof(Color), "GrassConstantBuffer")
+						.setInitialState(
+							nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
+								true));
+				}
 				PbrMaterial pbrMaterial;
 				pbrMaterial.albedo = materialComponent->m_albedo;
 				pbrMaterial.metallic = materialComponent->m_metallic;;
@@ -1840,7 +1863,16 @@ namespace GuGu {
 					//write bone matrices
 					m_CommandList->writeBuffer(staticMesh->m_finalBoneMatricesBuffer, staticMesh->m_finalBoneMatrices.data(), sizeof(math::float4x4) * staticMesh->m_finalBoneMatrices.size());
 				}
-
+				//write color
+				if (grassComponent)
+				{
+					Color colors[] = {
+						grassComponent->m_bottomColor,
+						grassComponent->m_middleColor,
+						grassComponent->m_topColor
+					};
+					m_CommandList->writeBuffer(grassComponent->m_grassConstantBuffer, colors, sizeof(Color) * 3);
+				}
 				const math::affine3& worldMatrix = transformComponent->GetLocalToWorldTransformFloat();
 
 				DrawItem drawItem;
@@ -1853,6 +1885,9 @@ namespace GuGu {
 				drawItem.m_albedoTexture = materialComponent->getAlbedoTexture()->m_texture;
 				drawItem.m_isSkinned = staticMesh.get()->m_bIsSkeletonMesh;
 				drawItem.m_skinnedMatrix = staticMesh->m_finalBoneMatricesBuffer;//final bone
+				if (grassComponent)
+					drawItem.m_grassBuffer = grassComponent->m_grassConstantBuffer;
+				drawItem.m_drawItemType = (grassComponent == nullptr) ? DrawItemType::NormalOpaque : DrawItemType::Grass;
 				m_drawItems.push_back(drawItem);
 
 				//get the world matrix
@@ -1899,31 +1934,46 @@ namespace GuGu {
 				nvrhi::BindingSetDesc desc;
 
 				nvrhi::BindingSetHandle bindingSet;
-				if (!m_drawItems[i].m_isSkinned)
+				if (m_drawItems[i].m_drawItemType == DrawItemType::NormalOpaque)
 				{
-					desc.bindings = {
-						nvrhi::BindingSetItem::ConstantBuffer(0, m_drawItems[i].m_worldMatrix),
-						nvrhi::BindingSetItem::ConstantBuffer(2, m_drawItems[i].m_pbrMaterial),
-						nvrhi::BindingSetItem::ConstantBuffer(3, m_LightBuffers),
-						nvrhi::BindingSetItem::ConstantBuffer(4, m_PassBuffers),
-						nvrhi::BindingSetItem::Texture_SRV(0, m_drawItems[i].m_albedoTexture),
-						nvrhi::BindingSetItem::Sampler(0, m_pointWrapSampler)
-					};
-					bindingSet = GetDevice()->createBindingSet(desc, m_BindingLayout);
+					if (!m_drawItems[i].m_isSkinned)
+					{
+						desc.bindings = {
+							nvrhi::BindingSetItem::ConstantBuffer(0, m_drawItems[i].m_worldMatrix),
+							nvrhi::BindingSetItem::ConstantBuffer(2, m_drawItems[i].m_pbrMaterial),
+							nvrhi::BindingSetItem::ConstantBuffer(3, m_LightBuffers),
+							nvrhi::BindingSetItem::ConstantBuffer(4, m_PassBuffers),
+							nvrhi::BindingSetItem::Texture_SRV(0, m_drawItems[i].m_albedoTexture),
+							nvrhi::BindingSetItem::Sampler(0, m_pointWrapSampler)
+						};
+						bindingSet = GetDevice()->createBindingSet(desc, m_BindingLayout);
+					}
+					else
+					{
+						desc.bindings = {
+							nvrhi::BindingSetItem::ConstantBuffer(0, m_drawItems[i].m_worldMatrix),
+							nvrhi::BindingSetItem::ConstantBuffer(1, m_drawItems[i].m_skinnedMatrix),
+							nvrhi::BindingSetItem::ConstantBuffer(2, m_drawItems[i].m_pbrMaterial),
+							nvrhi::BindingSetItem::ConstantBuffer(3, m_LightBuffers),
+							nvrhi::BindingSetItem::ConstantBuffer(4, m_PassBuffers),
+							nvrhi::BindingSetItem::Texture_SRV(0, m_drawItems[i].m_albedoTexture),
+							nvrhi::BindingSetItem::Sampler(0, m_pointWrapSampler)
+						};
+						bindingSet = GetDevice()->createBindingSet(desc, m_SkinnedBindingLayout);
+					}
 				}
-				else
+				else if (m_drawItems[i].m_drawItemType == DrawItemType::Grass)
 				{
+					//grass
 					desc.bindings = {
-						nvrhi::BindingSetItem::ConstantBuffer(0, m_drawItems[i].m_worldMatrix),
-						nvrhi::BindingSetItem::ConstantBuffer(1, m_drawItems[i].m_skinnedMatrix),
-						nvrhi::BindingSetItem::ConstantBuffer(2, m_drawItems[i].m_pbrMaterial),
-						nvrhi::BindingSetItem::ConstantBuffer(3, m_LightBuffers),
-						nvrhi::BindingSetItem::ConstantBuffer(4, m_PassBuffers),
-						nvrhi::BindingSetItem::Texture_SRV(0, m_drawItems[i].m_albedoTexture),
-						nvrhi::BindingSetItem::Sampler(0, m_pointWrapSampler)
+							nvrhi::BindingSetItem::ConstantBuffer(0, m_drawItems[i].m_worldMatrix),
+							nvrhi::BindingSetItem::ConstantBuffer(1, m_drawItems[i].m_pbrMaterial),
+							nvrhi::BindingSetItem::ConstantBuffer(2, m_LightBuffers),
+							nvrhi::BindingSetItem::ConstantBuffer(3, m_PassBuffers),
+							nvrhi::BindingSetItem::ConstantBuffer(4, m_drawItems[i].m_grassBuffer)
 					};
-					bindingSet = GetDevice()->createBindingSet(desc, m_SkinnedBindingLayout);
-				}
+					bindingSet = GetDevice()->createBindingSet(desc, m_grassBindingLayout);
+				}			
 
 				graphicsState.bindings = { bindingSet };
 
@@ -1943,13 +1993,20 @@ namespace GuGu {
 					m_drawItems[i].m_staticMesh->m_indexBuffer, nvrhi::Format::R32_UINT, 0
 				};
 
-				if (!m_drawItems[i].m_isSkinned)
+				if (m_drawItems[i].m_drawItemType == DrawItemType::NormalOpaque)
 				{
-					graphicsState.pipeline = m_Pipeline;
+					if (!m_drawItems[i].m_isSkinned)
+					{
+						graphicsState.pipeline = m_Pipeline;
+					}
+					else
+					{
+						graphicsState.pipeline = m_SkinnedPipeline;
+					}
 				}
 				else
 				{
-					graphicsState.pipeline = m_SkinnedPipeline;
+					graphicsState.pipeline = m_grassPipeline;
 				}
 
 				//update the pipeline, bindings, and other state.

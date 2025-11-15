@@ -845,8 +845,9 @@ namespace GuGu {
 		if (InputManager::getInputManager().isMouseDown(Keys::LeftMouseButton) && !m_bdragging)//不处于拖动
 		{
 			math::float2 mousePosition = InputManager::getInputManager().getMousePosition();
+			math::float3 triPos;
 			//GuGu_LOGD("%f %f", mousePosition.x, mousePosition.y);
-			std::shared_ptr<GameObject> pickedItem = Collision3D::pick(mousePosition.x, mousePosition.y, m_width, m_height, getPespectiveMatrix(), getWorldToViewMatrix(), World::getWorld()->getCurrentLevel()->getGameObjects(), m_debugDrawWorldPos);
+			std::shared_ptr<GameObject> pickedItem = Collision3D::pick(mousePosition.x, mousePosition.y, m_width, m_height, getPespectiveMatrix(), getWorldToViewMatrix(), World::getWorld()->getCurrentLevel()->getGameObjects(), m_debugDrawWorldPos, triPos);
 			if (pickedItem)
 			{
 				m_bShowGizmos = true;

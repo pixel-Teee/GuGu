@@ -176,17 +176,17 @@ namespace GuGu {
 		int32_t index = y * m_width + x;
 		if (m_bytesPerPixel == 1 && index < m_data.size())
 		{
-			return math::float3(m_data[index], m_data[index], m_data[index]);
+			return math::float4(m_data[index], m_data[index], m_data[index], m_data[index]);
 		}
 		else if (m_bytesPerPixel == 3 && (index * 3 + 2) < m_data.size())
 		{
-			return math::float3(m_data[index * 3], m_data[index * 3 + 1], m_data[index * 3 + 2]);
+			return math::float4(m_data[index * 3], m_data[index * 3 + 1], m_data[index * 3 + 2], m_data[index * 3 + 2]);
 		}
 		else if (m_bytesPerPixel == 4 && (index * 4 + 2) < m_data.size())
 		{
 			return math::float4(m_data[index * 4], m_data[index * 4 + 1], m_data[index * 4 + 2], m_data[index * 4 + 3]);
 		}
-		return math::float3(0, 0, 0);
+		return math::float4(0, 0, 0, 0);
 	}
 
 	void GTexture::clearChannel(Channel inChannel, float inColor)

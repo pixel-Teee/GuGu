@@ -18,7 +18,7 @@ namespace GuGu {
 						 uint32_t clientWidth, uint32_t clientHeight, 
 						 math::float4x4 perspectiveMatrix, 
 						 math::float4x4 viewMatrix,
-						 const std::vector<std::shared_ptr<GameObject>>& objects, math::float4& debugDrawWorldPos, math::float3& triLocalPos = math::float3(1.0f, 1.0f, 1.0f));
+						 const std::vector<std::shared_ptr<GameObject>>& objects, math::float4& debugDrawWorldPos, math::float3& triLocalPos);
 
 		static std::shared_ptr<GStaticMesh> pick(uint32_t x, uint32_t y,
 			uint32_t clientWidth, uint32_t clientHeight,
