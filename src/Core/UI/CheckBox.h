@@ -71,6 +71,8 @@ namespace GuGu {
 		std::shared_ptr<Brush> getCheckedImage() const;
 
 		void toggleCheckedState();
+
+		void setIsChecked(Attribute<CheckBoxState> inIsChecked);
 	private:
 		std::shared_ptr<SingleChildSlot> m_childWidget;
 

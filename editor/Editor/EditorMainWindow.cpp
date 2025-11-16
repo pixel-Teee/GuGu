@@ -499,7 +499,7 @@ namespace GuGu {
 					.FixedWidth()
 					(
 						WIDGET_NEW(TextBlockWidget)
-						.text(u8"Show Font Atlas")
+						.text(u8"Terrain WireFrame")
 						.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
 					)
 				)
@@ -509,6 +509,9 @@ namespace GuGu {
 		m_openFontAtlasButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::openFontAtlas, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
 
 		m_debugViewMenuAnchor->setIsOpen(true);
+
+		std::shared_ptr<ViewportClient> viewportClient = m_viewportWidget->getViewportClient();
+		m_terrainUseWireFrameCheckBox->setIsChecked(viewportClient->getTerrainUseWireFrame());
 
 		//m_saveLevelButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::openLevel, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
 		return Reply::Handled();

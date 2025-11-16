@@ -15,6 +15,12 @@ namespace GuGu {
 	texture->m_texturePath = u8"asset/EditorAsset/"#texture".png"; \
 	m_brushes.insert({ u8""#texture"", texture });
 
+#define ADD_IMAGE_WITH_COLOR(texture, colorStr) \
+	std::shared_ptr<Brush> texture = std::make_shared<Brush>(); \
+	texture->m_tiling = false; \
+	texture->m_texturePath = u8"asset/EditorAsset/"#texture".png"; \
+	texture->m_tintColorStr = colorStr;\
+	m_brushes.insert({ u8""#texture"", texture });
 	EditorStyleSet::EditorStyleSet()
 	{
 		//register editor style set
@@ -274,10 +280,10 @@ namespace GuGu {
 			m_styles.insert({ u8"StartAndStop", checkBoxStyle });
 		}
 
-		ADD_IMAGE(CheckBox_Checked)
-		ADD_IMAGE(CheckBox_Checked_Hovered)
-		ADD_IMAGE(CheckBox_Unchecked)
-		ADD_IMAGE(CheckBox_Unchecked_Hovered)
+		ADD_IMAGE_WITH_COLOR(CheckBox_Checked, Theme::ThemeKeysToStr(ColorLevel4))
+		ADD_IMAGE_WITH_COLOR(CheckBox_Checked_Hovered, Theme::ThemeKeysToStr(ColorLevel4))
+		ADD_IMAGE_WITH_COLOR(CheckBox_Unchecked, Theme::ThemeKeysToStr(ColorLevel4))
+		ADD_IMAGE_WITH_COLOR(CheckBox_Unchecked_Hovered, Theme::ThemeKeysToStr(ColorLevel4))
 		{
 			//normal box style
 			std::shared_ptr<CheckBoxStyle> checkBoxStyle = std::make_shared<CheckBoxStyle>();

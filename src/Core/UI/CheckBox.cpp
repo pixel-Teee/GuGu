@@ -276,6 +276,11 @@ namespace GuGu {
 		}
 	}
 
+	void CheckBox::setIsChecked(Attribute<CheckBoxState> inIsChecked)
+	{
+		m_isCheckboxChecked = inIsChecked;
+	}
+
 	EnumAsByte<ButtonClickMethod::Type> CheckBox::getClickMethodFromInputType(const PointerEvent& mouseEvent) const
 	{
 		return m_clickMethod;
