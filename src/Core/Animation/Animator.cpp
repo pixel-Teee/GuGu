@@ -122,6 +122,7 @@ namespace GuGu {
 	meta::Object* GAnimator::Clone(void) const
 	{
 		GAnimator* animator = new GAnimator();
+		//animator do not clone
 		return animator;
 	}
 

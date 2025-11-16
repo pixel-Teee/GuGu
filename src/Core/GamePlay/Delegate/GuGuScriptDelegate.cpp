@@ -92,7 +92,9 @@ namespace GuGu {
 	meta::Object* GuGuScriptDelegate::Clone(void) const
 	{
 		GuGuScriptDelegate* myDelegate = new GuGuScriptDelegate();
-
+		myDelegate->m_objectPtr = m_objectPtr;
+		myDelegate->m_functionName = m_functionName;
+		myDelegate->m_scriptObject = m_scriptObject;
 		return myDelegate;
 	}
 

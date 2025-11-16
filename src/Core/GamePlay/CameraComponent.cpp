@@ -106,7 +106,11 @@ namespace GuGu {
 
 	meta::Object* CameraComponent::Clone(void) const
 	{
-		return nullptr;
+		CameraComponent* camera = new CameraComponent();
+		camera->m_fov = m_fov;
+		camera->m_nearPlane = m_nearPlane;
+		camera->m_farPlane = m_farPlane;
+		return camera;
 	}
 
 	void CameraComponent::Update(float fElapsedTimeSeconds)
