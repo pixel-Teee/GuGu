@@ -74,6 +74,9 @@ namespace GuGu {
 				.FixedHeight()
 				(
 					WIDGET_ASSIGN_NEW(Border, m_brushContent)
+					.BorderBackgroundColor(Attribute<math::float4>::Create([=]() {
+						return EditorStyleSet::getStyleSet()->getColor("ColorLevel4");
+					}))
 					.Content
 					(
 						NullWidget::getNullWidget()
