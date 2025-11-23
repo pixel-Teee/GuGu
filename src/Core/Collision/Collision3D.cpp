@@ -15,7 +15,8 @@ namespace GuGu {
 	std::shared_ptr<GameObject> Collision3D::pick(uint32_t x, uint32_t y,
 						   uint32_t clientWidth, uint32_t clientHeight, 
 						   math::float4x4 perspectiveMatrix, math::float4x4 viewMatrix, 
-						   const std::vector<std::shared_ptr<GameObject>>& objects, math::float4& debugDrawWorldPos, math::float3& triLocalPos)
+						   const std::vector<std::shared_ptr<GameObject>>& objects, math::float4& debugDrawLocalPos, math::float3& triLocalPos1,
+		math::float3& triLocalPos2, math::float3& triLocalPos3)
 	{
 		//观察空间中的摄像
 		float vx = (2.0f * x / clientWidth - 1.0f) / perspectiveMatrix[0][0];
@@ -76,8 +77,11 @@ namespace GuGu {
 							if (t < tmin)
 							{
 								tmin = t;
-								debugDrawWorldPos = localRayOrigin + t * localRayDir;
-								triLocalPos = position0; //todo:fix this
+								debugDrawLocalPos = localRayOrigin + t * localRayDir;
+								//collision tri
+								triLocalPos1 = position0;
+								triLocalPos2 = position1;
+								triLocalPos3 = position2;
 								pickedGameObject = item;
 							}
 						}
@@ -147,8 +151,10 @@ namespace GuGu {
 									if (t < tmin)
 									{
 										tmin = t;
-										triLocalPos = position3;//todo:fix this
-										debugDrawWorldPos = worldRayOrigin + t * worldRayDir;
+										triLocalPos1 = position3;
+										triLocalPos2 = position4;
+										triLocalPos3 = position5;
+										debugDrawLocalPos = localRayOrigin + t * localRayDir;
 										pickedGameObject = item;
 									}
 								}

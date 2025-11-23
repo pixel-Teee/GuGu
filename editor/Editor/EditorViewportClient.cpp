@@ -388,13 +388,15 @@ namespace GuGu {
 		{
 			math::float2 mousePosition = InputManager::getInputManager().getMousePosition();
 
-			math::float3 triLocalPos;
+			math::float3 triLocalPos1;
+			math::float3 triLocalPos2;
+			math::float3 triLocalPos3;
 
 			std::shared_ptr<GameObject> pickedItem = Collision3D::pick(mousePosition.x, mousePosition.y,
 			m_width, m_height, 
 			getPespectiveMatrix(), getWorldToViewMatrix(), 
 			World::getWorld()->getCurrentLevel()->getGameObjects(), 
-			m_debugDrawWorldPos, triLocalPos);
+			m_debugDrawLocalPos, triLocalPos1, triLocalPos2, triLocalPos3);
 
 			if (pickedItem)
 			{
@@ -421,16 +423,16 @@ namespace GuGu {
 							math::float2 terrainBeginXZ = math::float2(-(float)terrainComponent->m_terrainCols * terrainSize.x * 0.5f, -(float)terrainComponent->m_terrainRows * terrainSize.y * 0.5f);
 
 							{
-								math::float3 triWorldPosition = math::float4(triLocalPos, 1.0f) * math::affineToHomogeneous(transformComponent->GetLocalToWorldTransformFloat());
-								float x = triWorldPosition.x;
-								float z = triWorldPosition.z;
+								math::float3 triWorldPosition = math::float4(m_debugDrawLocalPos, 1.0f) * math::affineToHomogeneous(transformComponent->GetLocalToWorldTransformFloat());
+								float x = m_debugDrawLocalPos.x;
+								float z = m_debugDrawLocalPos.z;
 
 								float h = -terrainBeginXZ.x * 2.0f;
 								float v = -terrainBeginXZ.y * 2.0f;
 
 								math::float2 uv = math::float2((x - terrainBeginXZ.x) / h, 1.0f - ((z - terrainBeginXZ.y) / v));
 
-								GuGu_LOGD("Collision Terrain Tri UV:(%f, %f)", uv.x, uv.y);
+								//GuGu_LOGD("Collision Terrain Tri UV:(%f, %f)", uv.x, uv.y);
 
 								float textureWidth = heightTexture->m_width;
 								float textureHeight = heightTexture->m_height;
@@ -441,13 +443,13 @@ namespace GuGu {
 								
 								float colorMax = 255.0f;//todo:fix this
 	
-								m_brushPositionWS = math::float3(x, height.x / colorMax, z);
-								//if(uv.x > 0.0f && uv.y > 0.0f)
-								//	terrainBlendTexture->writeColorRadius(textureWidth * uv.x, textureHeight * uv.y, brushSize, GTexture::Channel::A, 255.0f);
-								//
-								////offset height
-								if(uv.x > 0.0f && uv.y > 0.0f)
-									heightTexture->writeOffsetColorRadius(textureWidth * uv.x, textureHeight * uv.y, brushSize, GTexture::Channel::R, brushStrength); //todo:add strength
+								m_brushPositionWS = math::float3(triWorldPosition.x, height.x / colorMax, triWorldPosition.z);
+
+								//offset height
+								if (uv.x > 0.0f && uv.y > 0.0f)
+								{
+									heightTexture->writeOffsetColorRadius(textureWidth * uv.x, textureHeight * uv.y, brushSize, GTexture::Channel::R, brushStrength);
+								}
 							}
 						}
 					}
@@ -500,7 +502,7 @@ namespace GuGu {
 
 						std::shared_ptr<GStaticMesh> gStaticMesh = Collision3D::pick(mousePosition.x, mousePosition.y, m_width, m_height,
 							getPespectiveMatrix(), getWorldToViewMatrix(),
-							m_currentGizmos, math::float4x4(math::affineToHomogeneous(noScalingAffine)), m_debugDrawWorldPos);
+							m_currentGizmos, math::float4x4(math::affineToHomogeneous(noScalingAffine)), m_debugDrawLocalPos);
 
 						if (gStaticMesh) //点击到了
 						{
@@ -566,7 +568,7 @@ namespace GuGu {
 
 						std::shared_ptr<GStaticMesh> gStaticMesh = Collision3D::pick(mousePosition.x, mousePosition.y, m_width, m_height,
 							getPespectiveMatrix(), getWorldToViewMatrix(),
-							m_currentGizmos, math::float4x4(math::affineToHomogeneous(noScalingNoRotationAffine)), m_debugDrawWorldPos);
+							m_currentGizmos, math::float4x4(math::affineToHomogeneous(noScalingNoRotationAffine)), m_debugDrawLocalPos);
 
 						if (gStaticMesh) //点击到了
 						{
@@ -630,7 +632,7 @@ namespace GuGu {
 
 						std::shared_ptr<GStaticMesh> gStaticMesh = Collision3D::pick(mousePosition.x, mousePosition.y, m_width, m_height,
 							getPespectiveMatrix(), getWorldToViewMatrix(),
-							m_currentGizmos, math::float4x4(math::affineToHomogeneous(noScalingAffine)), m_debugDrawWorldPos);
+							m_currentGizmos, math::float4x4(math::affineToHomogeneous(noScalingAffine)), m_debugDrawLocalPos);
 
 						if (gStaticMesh) //点击到了
 						{
@@ -845,9 +847,11 @@ namespace GuGu {
 		if (InputManager::getInputManager().isMouseDown(Keys::LeftMouseButton) && !m_bdragging)//不处于拖动
 		{
 			math::float2 mousePosition = InputManager::getInputManager().getMousePosition();
-			math::float3 triPos;
+			math::float3 triPos1;
+			math::float3 triPos2;
+			math::float3 triPos3;
 			//GuGu_LOGD("%f %f", mousePosition.x, mousePosition.y);
-			std::shared_ptr<GameObject> pickedItem = Collision3D::pick(mousePosition.x, mousePosition.y, m_width, m_height, getPespectiveMatrix(), getWorldToViewMatrix(), World::getWorld()->getCurrentLevel()->getGameObjects(), m_debugDrawWorldPos, triPos);
+			std::shared_ptr<GameObject> pickedItem = Collision3D::pick(mousePosition.x, mousePosition.y, m_width, m_height, getPespectiveMatrix(), getWorldToViewMatrix(), World::getWorld()->getCurrentLevel()->getGameObjects(), m_debugDrawLocalPos, triPos1, triPos2, triPos3);
 			if (pickedItem)
 			{
 				m_bShowGizmos = true;
@@ -1065,7 +1069,7 @@ namespace GuGu {
 
 	math::float3 EditorViewportClient::getDebugDrawPos()
 	{
-		return m_debugDrawWorldPos;
+		return m_debugDrawLocalPos;
 	}
 
 	float EditorViewportClient::getDebugLineWidth()

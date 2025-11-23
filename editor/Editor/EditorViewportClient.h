@@ -163,7 +163,7 @@ namespace GuGu {
 		std::vector<std::shared_ptr<GStaticMesh>> m_scaleGizmos;
 		std::vector<math::float3> m_scaleGizmoPos;
 
-		math::float4 m_debugDrawWorldPos = math::float4(1.0f);
+		math::float4 m_debugDrawLocalPos = math::float4(1.0f);
 
 		ViewportState m_viewportState;
 	};

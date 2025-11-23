@@ -227,7 +227,7 @@ namespace GuGu {
 					{
 						uint8_t oldValue = m_data[index * m_bytesPerPixel + inChannel];
 						uint8_t newValue = (uint8_t)((uint32_t)inColor + m_data[index * m_bytesPerPixel + inChannel]);
-						//GuGu_LOGD("texture coordinate:(%d, %d) (%d) old value, (%d) new value", x, y, oldValue, newValue);
+						GuGu_LOGD("texture coordinate:(%d, %d) (%d) old value, (%d) new value", x, y, oldValue, newValue);
 						m_data[index * m_bytesPerPixel + inChannel] = newValue;
 					}
 				}
