@@ -42,10 +42,11 @@ namespace GuGu {
 			return typeof(Range);
 		}
 
-		GuGu::meta::Object* Range::Clone(void) const
+		meta::Object* Range::Clone(void) const
 		{
-			//throw std::logic_error("The method or operation is not implemented.");
 			Range* newRange = new Range(*this);
+			newRange->m_minValue = m_minValue;
+			newRange->m_maxValue = m_maxValue;
 			return newRange;
 		}
 

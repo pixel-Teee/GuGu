@@ -39,9 +39,8 @@ namespace GuGu {
 			return typeof(CustomDeserializeField);
 		}
 
-		GuGu::meta::Object* CustomDeserializeField::Clone(void) const
+		meta::Object* CustomDeserializeField::Clone(void) const
 		{
-			//throw std::logic_error("The method or operation is not implemented.");
 			CustomDeserializeField* newCustomDeserializeField = new CustomDeserializeField(*this);
 			newCustomDeserializeField->m_deserializeFieldCallback = m_deserializeFieldCallback;
 			return newCustomDeserializeField;

@@ -40,10 +40,10 @@ namespace GuGu {
 			return typeof(DisplayName);
 		}
 
-		GuGu::meta::Object* DisplayName::Clone(void) const
+		meta::Object* DisplayName::Clone(void) const
 		{
-			//throw std::logic_error("The method or operation is not implemented.");
 			DisplayName* newDisplayName = new DisplayName(*this);
+			newDisplayName->m_displayName = m_displayName;
 			return newDisplayName;
 		}
 

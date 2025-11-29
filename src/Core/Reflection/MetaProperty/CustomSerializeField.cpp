@@ -41,7 +41,6 @@ namespace GuGu {
 
 		GuGu::meta::Object* CustomSerializeField::Clone(void) const
 		{
-			//throw std::logic_error("The method or operation is not implemented.");
 			CustomSerializeField* newCustomSerializeField = new CustomSerializeField(*this);
 			newCustomSerializeField->m_serializeFieldCallback = m_serializeFieldCallback;
 			return newCustomSerializeField;

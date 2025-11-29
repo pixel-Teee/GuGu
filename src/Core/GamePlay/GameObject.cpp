@@ -154,8 +154,13 @@ namespace GuGu {
 	{
 		GameObject* gameObject = new GameObject();
 		gameObject->m_name = m_name;
-		gameObject->m_components = m_components;
-		gameObject->m_childrens = m_childrens;
+		for (int32_t i = 0; i < m_components.size(); ++i)
+		{
+			Component* component = static_cast<Component*>(m_components[i]->Clone());
+			//cast to shared ptr
+			std::shared_ptr<Component> componentPtr(component);
+			gameObject->addComponent(componentPtr);
+		}
 		return gameObject;
 	}
 	void GameObject::OnSerialize(nlohmann::json& output) const

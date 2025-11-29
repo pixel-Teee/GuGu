@@ -91,10 +91,11 @@ namespace GuGu {
 
 	meta::Object* GuGuScriptDelegate::Clone(void) const
 	{
+		//通常不会拷贝委托的数据
 		GuGuScriptDelegate* myDelegate = new GuGuScriptDelegate();
-		myDelegate->m_objectPtr = m_objectPtr;
-		myDelegate->m_functionName = m_functionName;
-		myDelegate->m_scriptObject = m_scriptObject;
+		//myDelegate->m_objectPtr = m_objectPtr;
+		//myDelegate->m_functionName = m_functionName;
+		//myDelegate->m_scriptObject = m_scriptObject;
 		return myDelegate;
 	}
 

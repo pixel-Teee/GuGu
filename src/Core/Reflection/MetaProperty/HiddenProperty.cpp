@@ -40,9 +40,8 @@ namespace GuGu {
 			return typeof(HiddenProperty);
 		}
 
-		GuGu::meta::Object* HiddenProperty::Clone(void) const
+		meta::Object* HiddenProperty::Clone(void) const
 		{
-			//throw std::logic_error("The method or operation is not implemented.");
 			HiddenProperty* hiddenProperty = new HiddenProperty(*this);
 			return hiddenProperty;
 		}

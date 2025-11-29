@@ -60,7 +60,7 @@ namespace GuGu {
 		assetData->m_filePath = m_filePath;
 		assetData->m_fileName = m_fileName;
 		assetData->m_assetTypeGuid = m_assetTypeGuid;
-		assetData->m_loadedResource = m_loadedResource;//todo:可能要修复
+		assetData->m_loadedResource = m_loadedResource;//资产还是唯一一份
 		return assetData;
 	}
 	AssetData::AssetData(const GuGuUtf8Str& filePath, const GuGuUtf8Str& fileName, const GuGuUtf8Str& assetTypeGuid)
