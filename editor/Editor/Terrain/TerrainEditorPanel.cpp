@@ -22,7 +22,7 @@
 #include <Core/UI/ComboBox.h>
 
 #include <Editor/StyleSet/EditorStyleSet.h>
-
+#include <Editor/PropertyEditor/ObjectDetails.h>
 
 namespace GuGu {
 
@@ -46,6 +46,7 @@ namespace GuGu {
 		//std::shared_ptr<ViewportClient> viewportClient = World::getWorld()->getViewportClient().lock();
 
 		std::shared_ptr<Button> sculptButton;
+		std::shared_ptr<Button> paintButton;
 
 		std::shared_ptr<Overlay> overlay = 
 			WIDGET_NEW(Overlay)
@@ -66,6 +67,19 @@ namespace GuGu {
 						(
 							WIDGET_NEW(TextBlockWidget)
 							.text(u8"sculpt")
+							.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+						)
+					)
+					+ HorizontalBox::Slot()
+					.setPadding(Padding(10.0f, 0.0f, 0.0f, 0.0f)) //left padding
+					.FixedWidth()
+					(
+						WIDGET_ASSIGN_NEW(Button, paintButton)
+						.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+						.Content
+						(
+							WIDGET_NEW(TextBlockWidget)
+							.text(u8"paint")
 							.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
 						)
 					)
@@ -95,6 +109,9 @@ namespace GuGu {
 		m_visibilityAttribute = Visibility::Visible;
 
 		sculptButton->setOnClicked(OnClicked(std::bind(&TerrainEditorPanel::showPanelContent, this, TerrainEditorContentType::Scuplt)));
+		paintButton->setOnClicked(OnClicked(std::bind(&TerrainEditorPanel::showPanelContent, this, TerrainEditorContentType::Paint)));
+
+		m_paintDetailsView = WIDGET_NEW(ObjectDetails);
 
 		m_sculptOverlay = 
 			WIDGET_NEW(Overlay)
@@ -327,7 +344,7 @@ namespace GuGu {
 		}
 		else if (inContentType == TerrainEditorContentType::Paint)
 		{
-
+			m_brushContent->setContent(m_paintDetailsView);
 		}
 		return Reply::Handled();
 	}

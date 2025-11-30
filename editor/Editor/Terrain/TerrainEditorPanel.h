@@ -9,6 +9,7 @@ namespace GuGu {
 	class VerticalBox;
 	class Border;
 	class Overlay;
+	class ObjectDetails;
 	//terrain editor
 	class TerrainEditorPanel : public CompoundWidget
 	{
@@ -78,5 +79,8 @@ namespace GuGu {
 		int32_t m_brushType;
 
 		std::vector<GuGuUtf8Str> m_brushTypeStrSources;
+
+		//paint details view
+		std::shared_ptr<ObjectDetails> m_paintDetailsView;
 	};
 }
