@@ -126,7 +126,14 @@ namespace GuGu {
 	meta::Object* Level::Clone(void) const
 	{
 		Level* level = new Level();
-		level->m_objects = m_objects;
+		//level->m_objects = m_objects;
+		for (int32_t i = 0; i < m_objects.size(); ++i)
+		{
+			GameObject* gameObject = static_cast<GameObject*>(m_objects[i]->Clone());
+			//cast shared ptr
+			std::shared_ptr<GameObject> gameObjectPtr(gameObject);
+			level->m_objects.push_back(gameObjectPtr);
+		}
 		return level;
 	}
 	void Level::OnSerialize(nlohmann::json& output) const

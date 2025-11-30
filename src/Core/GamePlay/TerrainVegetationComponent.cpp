@@ -83,7 +83,7 @@ namespace GuGu {
 	meta::Object* TerrainVegetationComponent::Clone(void) const
 	{
 		TerrainVegetationComponent* terrainVegetationComponent = new TerrainVegetationComponent();
-		terrainVegetationComponent->m_terrainOwner = m_terrainOwner;
+		//terrainVegetationComponent->m_terrainOwner = m_terrainOwner;
 
 		return terrainVegetationComponent;
 	}

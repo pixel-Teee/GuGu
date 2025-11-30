@@ -93,6 +93,7 @@ namespace GuGu {
 	{
 		ImageComponent* imageComponent = new ImageComponent();
 		imageComponent->m_texture = m_texture;
+		imageComponent->m_color = m_color;
 		return imageComponent;
 	}
 

@@ -115,6 +115,7 @@ namespace GuGu {
 	meta::Object* UIAtlas::Clone(void) const
 	{
 		UIAtlas* atlas = new UIAtlas();
+		atlas->m_fontAtlasData = m_fontAtlasData;
 		return atlas;
 	}
 

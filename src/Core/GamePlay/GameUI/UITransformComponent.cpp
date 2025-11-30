@@ -148,11 +148,12 @@ namespace GuGu {
 		transformComponent->m_Translation = m_Translation;
 		transformComponent->m_Scaling = m_Scaling;
 		transformComponent->m_Rotation = m_Rotation;
-		transformComponent->m_owner = m_owner;//todo:这里要修复
 
 		transformComponent->m_anchorData.m_anchors = m_anchorData.m_anchors; //anchor
 		transformComponent->m_anchorData.m_offset = m_anchorData.m_offset; //offset
-		transformComponent->m_anchorData.m_alignment = m_anchorData.m_alignment;
+		transformComponent->m_anchorData.m_alignment = m_anchorData.m_alignment; //alignment
+		
+		transformComponent->m_autoSize = m_autoSize;
 		return transformComponent;
 	}
 

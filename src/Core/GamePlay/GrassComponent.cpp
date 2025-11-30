@@ -90,7 +90,9 @@ namespace GuGu {
 	meta::Object* GrassComponent::Clone(void) const
 	{
 		GrassComponent* grassComponent = new GrassComponent();
-
+		grassComponent->m_bottomColor = m_bottomColor;
+		grassComponent->m_middleColor = m_middleColor;
+		grassComponent->m_topColor = m_topColor;
 		return grassComponent;
 	}
 	void GrassComponent::Update(float fElapsedTimeSeconds)

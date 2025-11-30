@@ -83,7 +83,7 @@ namespace GuGu {
 	meta::Object* CanvasComponent::Clone(void) const
 	{
 		CanvasComponent* canvasComponent = new CanvasComponent();
-		
+		canvasComponent->m_scaleFactor = m_scaleFactor;
 		return canvasComponent;
 	}
 

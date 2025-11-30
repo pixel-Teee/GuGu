@@ -106,7 +106,7 @@ namespace GuGu {
 		transformComponent->m_Translation = m_Translation;
 		transformComponent->m_Scaling = m_Scaling;
 		transformComponent->m_Rotation = m_Rotation;
-		transformComponent->m_owner = m_owner;//todo:这里要修复
+
 		return transformComponent;
 	}
 

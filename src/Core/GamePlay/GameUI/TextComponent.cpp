@@ -113,6 +113,10 @@ namespace GuGu {
 	{
 		TextComponent* textComponent = new TextComponent();
 		textComponent->m_color = m_color;
+		textComponent->m_text = m_text;
+		textComponent->m_fontAsset = m_fontAsset;
+		textComponent->m_fontPoint = m_fontPoint;
+		textComponent->m_alignment = m_alignment;
 		return textComponent;
 	}
 

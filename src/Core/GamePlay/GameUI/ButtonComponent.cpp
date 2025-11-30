@@ -118,9 +118,10 @@ namespace GuGu {
 		ButtonComponent* buttonComponent = new ButtonComponent();
 		buttonComponent->m_buttonImage = this->m_buttonImage;
 		buttonComponent->m_normalColor = this->m_normalColor;
+		buttonComponent->m_hoveredColor = this->m_hoveredColor;
 		buttonComponent->m_pressedColor = this->m_pressedColor;
 		buttonComponent->m_disabledColor = this->m_disabledColor;
-		buttonComponent->m_onClicked = this->m_onClicked;
+		//buttonComponent->m_onClicked = this->m_onClicked;
 		return buttonComponent;
 	}
 

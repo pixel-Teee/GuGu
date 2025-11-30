@@ -109,7 +109,7 @@ namespace GuGu {
 		materialComponent->m_metallic = m_metallic;
 		materialComponent->m_roughness = m_roughness;
 		materialComponent->m_ao = m_ao;
-		materialComponent->m_albedoTexture = m_albedoTexture;
+		materialComponent->m_albedoTexture = m_albedoTexture;//asset data reference
 		return materialComponent;
 	}
 	void MaterialComponent::Update(float fElapsedTimeSeconds)
