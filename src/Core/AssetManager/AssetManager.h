@@ -98,6 +98,8 @@ namespace GuGu {
 
 		nlohmann::json getDiffJson(nlohmann::json lhs, nlohmann::json rhs);
 
+		//clone
+		std::shared_ptr<meta::Object> cloneObject(std::shared_ptr<meta::Object> inClonedObject);
 	private:
 		//遍历目录和文件
 		void traverseDirectoryAndFile_private(const GuGuUtf8Str& directory, std::function<void(GuGuUtf8Str, bool)> enumerateCallBack);

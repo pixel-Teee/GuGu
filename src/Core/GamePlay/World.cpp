@@ -286,7 +286,8 @@ namespace GuGu {
 	{
 		if (state == ViewportClient::ViewportState::Runtime)
 		{
-			m_currentLevel = std::shared_ptr<Level>(static_cast<Level*>(static_cast<meta::Object*>(m_editorLevel->Clone())));
+			//m_currentLevel = std::shared_ptr<Level>(static_cast<Level*>(static_cast<meta::Object*>(m_editorLevel->Clone())));
+			m_currentLevel = std::static_pointer_cast<Level>(AssetManager::getAssetManager().cloneObject(m_editorLevel));
 
 			//start script
 			Array<std::shared_ptr<GameObject>>& gameObjects = m_currentLevel->getGameObjects();

@@ -1140,6 +1140,14 @@ namespace GuGu {
 		return result;//默认返回空对象
 	}
 
+	std::shared_ptr<meta::Object> AssetManager::cloneObject(std::shared_ptr<meta::Object> inClonedObject)
+	{
+		//临时方案(先序列化，再序列化)
+		nlohmann::json resultJson = AssetManager::getAssetManager().serializeJson(inClonedObject);
+
+		return deserializeJsonNormalObject(resultJson, inClonedObject->GetType());
+	}
+
 	//遍历目录
 	void AssetManager::traverseDirectoryAndFile_private(const GuGuUtf8Str& directory, std::function<void(GuGuUtf8Str, bool)> enumerateCallBack)
 	{

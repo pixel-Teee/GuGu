@@ -690,6 +690,7 @@ namespace GuGu {
 		{
 			viewportClient->setViewportState(ViewportClient::ViewportState::Runtime);
 		}
+		m_sceneOutliner->fullRefresh();
 		//return Reply::Handled();
 	}
 
