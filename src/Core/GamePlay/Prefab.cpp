@@ -52,7 +52,9 @@ namespace GuGu {
 
 		auto& type = db.types[typeof(Prefab).GetID()];
 
-
+		type.AddField<Level, Array<std::shared_ptr<GameObject>>>("m_objects",
+			(meta::FieldGetter<Level, Array<std::shared_ptr<GameObject>>&, true>::Signature) & Level::getGameObjects,
+			(meta::FieldSetter<Level, Array<std::shared_ptr<GameObject>>&, true>::Signature) & Level::setGameObjects, {});
 
 		return true;
 	}
@@ -62,6 +64,7 @@ namespace GuGu {
 	IMPLEMENT_INITIAL_END
 
 	IMPLEMENT_INITIAL_FIELDS_BEGIN(Prefab)
+		ADD_PRIORITY(GameObject)
 		ADD_INITIAL_FIELDS_FUNCTION_WITH_PRIORITY(registerGuGuPrefabFields)
 	IMPLEMENT_INITIAL_FIELDS_END
 	Prefab::Prefab()
