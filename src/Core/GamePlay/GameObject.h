@@ -121,6 +121,8 @@ namespace GuGu {
 		std::shared_ptr<World> getWorld();
 
 		void clearChildrens();
+
+		void traverseGameObjectTrees(std::function<void(std::shared_ptr<GameObject> inGameObject)> callBack);
 	protected:
 		Array<std::shared_ptr<Component>> m_components;
 

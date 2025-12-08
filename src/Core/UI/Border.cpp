@@ -107,6 +107,10 @@ namespace GuGu {
 	void Border::setContent(std::shared_ptr<Widget> inWidget)
 	{
 		m_childWidget->setChildWidget(inWidget);
+
+		//TODO:this has problem?
+		inWidget->setParentWidget(shared_from_this());
+		m_childWidget->m_parentWidget = shared_from_this();
 	}
 
 }

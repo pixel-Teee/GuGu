@@ -367,4 +367,17 @@ namespace GuGu {
 		m_childrens.clear();
 	}
 
+	void GameObject::traverseGameObjectTrees(std::function<void(std::shared_ptr<GameObject> inGameObject)> callBack)
+	{
+		if (callBack)
+		{
+			callBack(std::static_pointer_cast<GameObject>(shared_from_this()));
+		}
+		
+		for (int32_t i = 0; i < m_childrens.size(); ++i)
+		{
+			traverseGameObjectTrees(callBack);
+		}
+	}
+
 }

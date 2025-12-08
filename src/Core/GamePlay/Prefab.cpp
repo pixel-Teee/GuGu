@@ -52,10 +52,6 @@ namespace GuGu {
 
 		auto& type = db.types[typeof(Prefab).GetID()];
 
-		type.AddField<Level, Array<std::shared_ptr<GameObject>>>("m_objects",
-			(meta::FieldGetter<Level, Array<std::shared_ptr<GameObject>>&, true>::Signature) & Level::getGameObjects,
-			(meta::FieldSetter<Level, Array<std::shared_ptr<GameObject>>&, true>::Signature) & Level::setGameObjects, {});
-
 		return true;
 	}
 	IMPLEMENT_INITIAL_BEGIN(Prefab)
@@ -112,6 +108,11 @@ namespace GuGu {
 	void Prefab::OnDeserialize(const nlohmann::json& input)
 	{
 
+	}
+
+	void Prefab::setGameObjects(Array<std::shared_ptr<GameObject>> inObjects)
+	{
+		m_objects = inObjects;
 	}
 
 }

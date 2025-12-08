@@ -93,6 +93,9 @@ namespace GuGu {
 		bool shouldFilterRecursively();
 
 		void assetSelectionChanged(std::shared_ptr<AssetViewItem> assetItem, SelectInfo::Type selectInfo);
+
+		Reply OnDrop(const WidgetGeometry& myGeometry, const DragDropEvent& dragDropEvent);
+
 	private:
 
 		GuGuUtf8Str m_soucesData;//当前所处于的文件夹

@@ -8,8 +8,11 @@
 #include <Core/UI/Box.h>
 #include <Core/UI/Overlay.h>
 #include <Core/UI/AssetDragDrop.h>
+#include <Core/GamePlay/GameObject.h>
+#include <Core/GamePlay/Prefab.h>
 #include "AssetViewWidgets.h"
 #include <Editor/StyleSet/EditorStyleSet.h>
+#include <Editor/SceneOutliner/ObjectDragDropOperation.h> //todo:fix this, move drag drop operation to new folder
 
 #include <Core/AssetManager/AssetManager.h>
 
@@ -478,6 +481,61 @@ namespace GuGu {
 				m_onAssetSelectionChanged(std::static_pointer_cast<AssetViewAsset>(assetItem)->m_data, selectInfo);
 			}
 		}
+	}
+
+	Reply AssetView::OnDrop(const WidgetGeometry& myGeometry, const DragDropEvent& dragDropEvent)
+	{
+		std::shared_ptr<ObjectDragDropOperation> objectDragDrop = dragDropEvent.getOperationAs<ObjectDragDropOperation>();
+		if (objectDragDrop)
+		{
+			std::shared_ptr<meta::Object> object = objectDragDrop->getObject();
+			if (object)
+			{
+				std::shared_ptr<GameObject> gameObject = std::static_pointer_cast<GameObject>(object);
+
+				//generate prefab asset
+				std::shared_ptr<Prefab> prefab = std::make_shared<Prefab>();
+
+				std::shared_ptr<GameObject> clonedGameObject = std::static_pointer_cast<GameObject>(AssetManager::getAssetManager().cloneObject(gameObject));
+				if (clonedGameObject)
+				{
+					Array<std::shared_ptr<GameObject>> gameObjects;
+					clonedGameObject->traverseGameObjectTrees([&](std::shared_ptr<GameObject> inGameObject) {
+						gameObjects.push_back(inGameObject);
+					});
+					prefab->setGameObjects(gameObjects);
+
+					//serialize 
+					nlohmann::json prefabJson = AssetManager::getAssetManager().serializeJson(prefab);
+					GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
+					prefabJson["Version"] = std::to_string(GuGu_Version);
+					GuGuUtf8Str fileContent = prefabJson.dump();
+
+					GuGuUtf8Str fileName = "";
+
+					GuGuUtf8Str noFileExtensionsFileName = fileName;
+					int32_t dotPos = noFileExtensionsFileName.findLastOf(".");
+					if (dotPos != -1)
+					{
+						noFileExtensionsFileName = noFileExtensionsFileName.substr(0, dotPos);
+					}
+
+					//file name
+					fileName = clonedGameObject->getName();
+					GuGuUtf8Str outputFilePath = m_soucesData + "/" + fileName + ".json";
+
+					guidStr = AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<Level>().ID));
+					prefabJson["GUID"] = guidStr.getStr();
+					//输出到目录
+					AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
+					AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
+					AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
+				}
+
+				return Reply::Handled();
+			}
+		}
+		return Reply::Unhandled();
 	}
 
 }

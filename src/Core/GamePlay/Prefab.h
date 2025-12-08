@@ -21,6 +21,8 @@ namespace GuGu {
 		virtual Object* Clone(void) const override;
 		virtual void OnSerialize(nlohmann::json& output) const;
 		virtual void OnDeserialize(const nlohmann::json& input);
+
+		void setGameObjects(Array<std::shared_ptr<GameObject>> inObjects);
 	private:
 		Array<std::shared_ptr<GameObject>> m_objects; //game object tree
 	};
