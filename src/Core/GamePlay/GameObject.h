@@ -123,6 +123,9 @@ namespace GuGu {
 		void clearChildrens();
 
 		void traverseGameObjectTrees(std::function<void(std::shared_ptr<GameObject> inGameObject)> callBack);
+
+		void setPrefab(const GuGuUtf8Str& prefabAssetGuid);
+		GuGuUtf8Str getPrefab() const;
 	protected:
 		Array<std::shared_ptr<Component>> m_components;
 
@@ -133,5 +136,9 @@ namespace GuGu {
 		GuGuUtf8Str m_name;
 
 		uint32_t m_id;//don't save
+
+		//file path to prefab
+		//如果这个 game object 关联了一个预制体，这个变量将不为空
+		GuGuUtf8Str m_prefabAssetGuid;
 	};
 }

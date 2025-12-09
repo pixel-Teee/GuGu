@@ -526,6 +526,9 @@ namespace GuGu {
 
 					guidStr = AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<Level>().ID));
 					prefabJson["GUID"] = guidStr.getStr();
+
+					gameObject->setPrefab(guidStr);
+
 					//输出到目录
 					AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
 					AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());

@@ -73,6 +73,10 @@ namespace GuGu {
 			(meta::FieldGetter<GameObject, std::weak_ptr<GameObject>&, true>::Signature) & GameObject::getParentGameObject,
 			(meta::FieldSetter<GameObject, std::weak_ptr<GameObject>&, true>::Signature) & GameObject::setParentGameObject, {});
 
+		type.AddField<GameObject, GuGuUtf8Str>("m_prefabAssetGuid",
+			(meta::FieldGetter<GameObject, GuGuUtf8Str, true>::Signature) & GameObject::getPrefab,
+			(meta::FieldSetter<GameObject, GuGuUtf8Str, true>::Signature) & GameObject::setPrefab, {});
+
 		//method functions
 		type.AddMethod("setName", &GameObject::setName, {});
 
@@ -378,6 +382,16 @@ namespace GuGu {
 		{
 			traverseGameObjectTrees(callBack);
 		}
+	}
+
+	void GameObject::setPrefab(const GuGuUtf8Str& prefabAssetGuid)
+	{
+		m_prefabAssetGuid = prefabAssetGuid;
+	}
+
+	GuGuUtf8Str GameObject::getPrefab() const
+	{
+		return m_prefabAssetGuid;
 	}
 
 }
