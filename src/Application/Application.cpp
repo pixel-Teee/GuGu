@@ -432,6 +432,11 @@ namespace GuGu{
 		}
 	}
 
+	void Application::clearKeyboardFocus()
+	{
+		setFocus(nullptr, WidgetPath());
+	}
+
 	bool Application::doesWidgetHaveMouseCapture(std::shared_ptr<const Widget> inWidget) const
 	{
 		//if (!m_captorWidgetsPath.empty())

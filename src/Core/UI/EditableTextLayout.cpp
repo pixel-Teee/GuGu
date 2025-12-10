@@ -484,7 +484,17 @@ namespace GuGu {
         return true;
     }
 
-    void EditableTextLayout::insertTextAtCursorImpl(const GuGuUtf8Str& inString)
+	void EditableTextLayout::setText(const Attribute<GuGuUtf8Str>& inText)
+	{
+        m_boundText = inText;
+	}
+
+	GuGuUtf8Str EditableTextLayout::getText() const
+	{
+        return m_boundText.Get("");//default is empty string
+	}
+
+	void EditableTextLayout::insertTextAtCursorImpl(const GuGuUtf8Str& inString)
     {
         std::vector<TextRange> lineRanges;
         TextRange::CalculateLineRangesFromString(inString, lineRanges);//参数是要插入的文本

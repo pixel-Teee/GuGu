@@ -70,6 +70,8 @@ namespace GuGu {
 		virtual bool shouldSelectAllTextWhenFocused() const override;
 		
 		virtual bool shouldSelectAllTextOnCommit() const override;
+
+		void setText(const Attribute<GuGuUtf8Str>& inNewText);
 	protected:
 		//填充TextLayout的Marshaller(装配器)，TextLayout是根据一串字符串处理成渲染可用的信息的集合体
 		std::shared_ptr<PlainTextLayoutMarshaller> m_plainTextMarshaller;

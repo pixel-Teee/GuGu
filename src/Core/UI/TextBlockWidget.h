@@ -45,6 +45,8 @@ namespace GuGu {
 		void setText(GuGuUtf8Str& newText);
 
 		std::shared_ptr<TextInfo> getFont() const;
+
+		GuGuUtf8Str getText() const;
 	private:
 		//获取计算的 text style ，用于 text marshaller
 		TextBlockStyle getComputedTextStyle() const;

@@ -87,6 +87,8 @@ namespace GuGu {
 		virtual uint32_t getSlotsNumber() const override;
 
 		void clearChildren();
+
+		int32_t removeSlot(const std::shared_ptr<Widget>& slotWidget);
 	protected:
 		template<typename SlotType>
 		struct ScopedWidgetSlotArguments : public SlotType::SlotBuilderArguments

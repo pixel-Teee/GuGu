@@ -231,6 +231,19 @@ namespace GuGu {
 		m_childrens.clear();
 	}
 
+	int32_t BoxPanel::removeSlot(const std::shared_ptr<Widget>& slotWidget)
+	{
+		for (int32_t slotIndex = 0; slotIndex < m_childrens.size(); ++slotIndex)
+		{
+			if (slotWidget == m_childrens[slotIndex]->getChildWidget())
+			{
+				m_childrens.erase(m_childrens.begin() + slotIndex);
+				return slotIndex;
+			}
+		}
+		return -1;
+	}
+
 	HorizontalBox::HorizontalBox()
 		: BoxPanel(Orientation::Horizontal)
 	{
@@ -238,6 +251,7 @@ namespace GuGu {
 	HorizontalBox::~HorizontalBox()
 	{
 	}
+
 	void HorizontalBox::init(const BuilderArguments& arguments)
 	{
 		m_childrens.resize(arguments.mSlots.size());

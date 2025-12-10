@@ -69,6 +69,8 @@ namespace GuGu {
 
 		bool handleBackspace();
 
+		void setText(const Attribute<GuGuUtf8Str>& inText);
+		GuGuUtf8Str getText() const;
 	private:
 		/*插入给定的文本在现在的光标位置*/
 		void insertTextAtCursorImpl(const GuGuUtf8Str& inString);

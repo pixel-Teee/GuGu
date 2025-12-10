@@ -126,6 +126,8 @@ namespace GuGu {
 
 		void setKeyboardFocus(const std::shared_ptr<Widget>& optionalWidgetToFocus);
 
+		void clearKeyboardFocus();
+
 		bool doesWidgetHaveMouseCapture(std::shared_ptr<const Widget> inWidget) const;
 
 		bool hasCapture() const;

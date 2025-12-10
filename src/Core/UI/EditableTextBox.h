@@ -41,6 +41,8 @@ namespace GuGu {
 		virtual Reply OnFocusReceived(const WidgetGeometry& myGeometry);
 
 		void onEditableTextCommitted(const GuGuUtf8Str& inText, TextCommit::Type inCommitType);
+
+		void setText(const Attribute<GuGuUtf8Str>& inNewText);
 	private:
 		Padding determinePadding() const { return Padding(8.0f, 3.0f, 8.0f, 4.0f); }//todo:fix this, 使用 style 的 padding
 

@@ -69,6 +69,11 @@ namespace GuGu {
         }
 	}
 
+	void EditableTextBox::setText(const Attribute<GuGuUtf8Str>& inNewText)
+	{
+        m_editableText->setText(inNewText);
+	}
+
 	std::shared_ptr<Brush> EditableTextBox::getBorderImage() const
     {
         return m_style->m_backgroundImageNormal;

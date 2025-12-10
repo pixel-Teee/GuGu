@@ -129,4 +129,9 @@ namespace GuGu {
 		return m_bSelectAllTextOnCommit.Get(false);
 	}
 
+	void EditableText::setText(const Attribute<GuGuUtf8Str>& inNewText)
+	{
+		m_editableTextLayout->setText(inNewText);
+	}	
+
 }

@@ -73,6 +73,12 @@ namespace GuGu {
 	{
 		return m_font.IsSet() ? m_font.Get() : m_textStyle->m_textInfo;
 	}
+
+	GuGuUtf8Str TextBlockWidget::getText() const
+	{
+		return m_text.Get();
+	}
+
 	TextBlockStyle TextBlockWidget::getComputedTextStyle() const
 	{
 		TextBlockStyle computedStyle = *m_textStyle;
