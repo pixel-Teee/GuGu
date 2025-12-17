@@ -20,6 +20,8 @@
 #include <Core/UI/BoxPanel.h>
 #include <Core/UI/CheckBox.h>
 
+#include <Core/GamePlay/Prefab.h>
+
 #include <Application/Application.h>//用于退出
 
 #ifdef WIN32
@@ -80,6 +82,9 @@ namespace GuGu {
 
 			std::shared_ptr<Button> undoButton;
 			std::shared_ptr<Button> redoButton;
+
+			std::shared_ptr<Button> applyPrefab;
+			std::shared_ptr<Button> revertToPrefab;
 
 			WindowWidget::init(
 			WindowWidget::BuilderArguments()
@@ -357,7 +362,45 @@ namespace GuGu {
 								.cornerRadius(math::float4(5.0f, 5.0f, 5.0f, 5.0f))
 								.Content
 								(
-									WIDGET_ASSIGN_NEW(ObjectDetails, m_objectDetails)
+									WIDGET_NEW(VerticalBox)
+									+ VerticalBox::Slot()
+									.FixedHeight()
+									(
+										//prefab edit
+										WIDGET_NEW(HorizontalBox)
+										.visibility(Attribute<Visibility>::CreateSP(this, &EditorMainWindow::getGameObjectPrefabEditVisiblity))
+										+ HorizontalBox::Slot()
+										.FixedWidth()
+										(
+											//apply prefab
+											WIDGET_ASSIGN_NEW(Button, applyPrefab)
+											.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+											.Content
+											(
+												WIDGET_NEW(TextBlockWidget)
+												.text(u8"applyPrefab")
+												.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+											)
+										)
+										+ HorizontalBox::Slot()
+										.FixedWidth()
+										(
+											//revert prefab
+											WIDGET_ASSIGN_NEW(Button, revertToPrefab)
+											.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+											.Content
+											(
+												WIDGET_NEW(TextBlockWidget)
+												.text(u8"revertToPrefab")
+												.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+											)
+										)
+									)
+									+ VerticalBox::Slot()
+									.FixedHeight()
+									(
+										WIDGET_ASSIGN_NEW(ObjectDetails, m_objectDetails)
+									)
 								)
 							)
 						)		
@@ -386,6 +429,9 @@ namespace GuGu {
 			themeButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::openTheme, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
 
 			terrainButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::openTerrainEditorPanel, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
+
+			applyPrefab->setOnClicked(OnClicked(std::bind(&EditorMainWindow::applyPrefab, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
+			revertToPrefab->setOnClicked(OnClicked(std::bind(&EditorMainWindow::revertToPrefab, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
 		}
 		else
 		{
@@ -487,7 +533,6 @@ namespace GuGu {
 					.FixedWidth()
 					(
 						WIDGET_ASSIGN_NEW(CheckBox, m_terrainUseWireFrameCheckBox)
-						.visibility(Visibility::Visible)
 						.checkBoxStyle(EditorStyleSet::getStyleSet()->getStyle<CheckBoxStyle>("EditorNormalCheckBox"))
 						.Content
 						(
@@ -724,6 +769,77 @@ namespace GuGu {
 			std::shared_ptr<GameObject> gameObject = std::static_pointer_cast<GameObject>(inObjects[0]->shared_from_this());
 			viewportClient->setSelectItem(gameObject);
 		}
+	}
+
+	Visibility EditorMainWindow::getGameObjectPrefabEditVisiblity() const
+	{
+		std::shared_ptr<ViewportClient> viewportClient = m_viewportWidget->getViewportClient();
+		std::shared_ptr<GameObject> selectItem = viewportClient->getSelectedItems();
+		if (selectItem)
+		{
+			if(selectItem->isPrefabChildren())
+				return Visibility::Visible;
+		}
+		return Visibility::SelfHitTestInvisible;
+	}
+
+	Reply EditorMainWindow::applyPrefab()
+	{
+		//apply modify to prefab asset
+		std::shared_ptr<ViewportClient> viewportClient = m_viewportWidget->getViewportClient();
+		std::shared_ptr<GameObject> selectItem = viewportClient->getSelectedItems();
+		if (selectItem)
+		{
+			if (selectItem->isPrefabChildren())
+			{
+				//get prefab asset
+				std::shared_ptr<GameObject> prefabRoot = selectItem->getPrefabRootGameObject();
+				if (prefabRoot)
+				{
+					GuGuUtf8Str prefabAssetGuidStr = prefabRoot->getPrefab();
+					const AssetData& assetData = AssetManager::getAssetManager().getAssetData(prefabAssetGuidStr);
+					if (prefabAssetGuidStr != "")
+					{
+						nlohmann::json gameObjectTreeJson = AssetManager::getAssetManager().serializeJson(prefabRoot);
+						gameObjectTreeJson["Version"] = std::to_string(GuGu_Version);
+
+						GuGuUtf8Str fileContent = gameObjectTreeJson.dump();
+
+						GuGuUtf8Str noFileExtensionsFileName = assetData.m_fileName;
+						int32_t dotPos = noFileExtensionsFileName.findLastOf(".");
+
+						GuGuUtf8Str outputFilePath = assetData.m_filePath;
+
+						prefabAssetGuidStr = AssetManager::getAssetManager().registerAsset(prefabAssetGuidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<Prefab>().ID));
+						gameObjectTreeJson["GUID"] = prefabAssetGuidStr.getStr();
+						//输出到目录
+						AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
+						AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
+						AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
+					}
+				}	
+
+				return Reply::Handled();
+			}
+			return Reply::Unhandled();
+		}
+		return Reply::Unhandled();
+	}
+
+	Reply EditorMainWindow::revertToPrefab()
+	{
+		std::shared_ptr<ViewportClient> viewportClient = m_viewportWidget->getViewportClient();
+		std::shared_ptr<GameObject> selectItem = viewportClient->getSelectedItems();
+		if (selectItem)
+		{
+			if (selectItem->isPrefabChildren())
+			{
+				
+				return Reply::Handled();
+			}
+			return Reply::Unhandled();
+		}
+		return Reply::Unhandled();
 	}
 
 	math::float4 EditorMainWindow::getUndoColor() const

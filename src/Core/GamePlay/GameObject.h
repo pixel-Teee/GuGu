@@ -128,6 +128,8 @@ namespace GuGu {
 		GuGuUtf8Str getPrefab() const;
 		//这个 game object 是否属于预制体的一部分
 		bool isPrefabChildren() const;
+		//获取预制体根对象
+		std::shared_ptr<GameObject> getPrefabRootGameObject();
 	protected:
 		Array<std::shared_ptr<Component>> m_components;
 

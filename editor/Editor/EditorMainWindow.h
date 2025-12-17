@@ -70,6 +70,13 @@ namespace GuGu {
 		void setRenderTarget(nvrhi::TextureHandle renderTarget);
 
 		void onItemSelect(const std::vector<GameObject*>&, bool);
+
+		Visibility getGameObjectPrefabEditVisiblity() const;
+
+		//prefab
+		Reply applyPrefab();
+
+		Reply revertToPrefab();
 	private:
 
 		std::shared_ptr<ViewportWidget> m_viewportWidget;

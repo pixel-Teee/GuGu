@@ -18,6 +18,7 @@
 #include <Core/GamePlay/GameUI/GFont.h>
 #include <Core/Model/GeometryHelper.h>
 #include <Core/Animation/GAnimation.h>
+#include <Core/GamePlay/Prefab.h>
 
 #include "Base64.h"
 #include <Core/Reflection/MetaProperty/CustomDeserializeField.h>
@@ -281,6 +282,16 @@ namespace GuGu {
 		for (const auto& item : m_guidToAssetMap)
 		{
 			if (item.second->m_filePath == filePath)
+				return *item.second;
+		}
+		return AssetData();
+	}
+
+	const AssetData& AssetManager::getAssetData(const GuGuUtf8Str& guidStr, bool isGuid) const
+	{
+		for (const auto& item : m_guidToAssetMap)
+		{
+			if (item.second->m_assetTypeGuid == guidStr)
 				return *item.second;
 		}
 		return AssetData();
@@ -1039,6 +1050,12 @@ namespace GuGu {
 					{
 						//load asset
 						std::shared_ptr<meta::Object> loadedObject = AssetManager::getAssetManager().deserializeJson<GFont>(nlohmann::json::parse(json.getStr()));
+						item.second->m_loadedResource = loadedObject;
+					}
+					else if (meta::Type::getType(item.second->m_assetTypeGuid) == typeof(Prefab))
+					{
+						//load asset
+						std::shared_ptr<meta::Object> loadedObject = AssetManager::getAssetManager().deserializeJson<Prefab>(nlohmann::json::parse(json.getStr()));
 						item.second->m_loadedResource = loadedObject;
 					}
 					//AssetManager::getAssetManager().deserializeJson(nlohmann::json::parse(modelJson.getStr()))

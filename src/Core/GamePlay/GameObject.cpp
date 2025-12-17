@@ -403,4 +403,13 @@ namespace GuGu {
 		return false;
 	}
 
+	std::shared_ptr<GameObject> GameObject::getPrefabRootGameObject()
+	{
+		if(m_prefabAssetGuid != "")
+			return std::static_pointer_cast<GameObject>(shared_from_this());
+		if(m_parentGameObject.lock())
+			return m_parentGameObject.lock()->getPrefabRootGameObject();
+		return nullptr;
+	}
+
 }
