@@ -100,6 +100,9 @@ namespace GuGu {
 
 		//clone
 		std::shared_ptr<meta::Object> cloneObject(std::shared_ptr<meta::Object> inClonedObject);
+
+		//检查同一目录下是否有相同命名的文件
+		bool CheckIsDuplicateFile(const GuGuUtf8Str& filePath);
 	private:
 		//遍历目录和文件
 		void traverseDirectoryAndFile_private(const GuGuUtf8Str& directory, std::function<void(GuGuUtf8Str, bool)> enumerateCallBack);

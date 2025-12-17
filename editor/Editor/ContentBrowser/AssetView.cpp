@@ -511,7 +511,17 @@ namespace GuGu {
 					prefabJson["Version"] = std::to_string(GuGu_Version);
 					GuGuUtf8Str fileContent = prefabJson.dump();
 
-					GuGuUtf8Str fileName = "";
+					//file name
+					GuGuUtf8Str fileName = clonedGameObject->getName();
+
+					//检查同个目录下是否有同名文件，如果有，则文件名加数字标记，防止重复
+					GuGuUtf8Str outputFilePath = m_soucesData + "/" + fileName + ".json";
+					if (AssetManager::getAssetManager().CheckIsDuplicateFile(outputFilePath))
+					{
+						fileName = fileName + "_1";
+						//rename
+						outputFilePath = m_soucesData + "/" + fileName + ".json";
+					}
 
 					GuGuUtf8Str noFileExtensionsFileName = fileName;
 					int32_t dotPos = noFileExtensionsFileName.findLastOf(".");
@@ -519,10 +529,6 @@ namespace GuGu {
 					{
 						noFileExtensionsFileName = noFileExtensionsFileName.substr(0, dotPos);
 					}
-
-					//file name
-					fileName = clonedGameObject->getName();
-					GuGuUtf8Str outputFilePath = m_soucesData + "/" + fileName + ".json";
 
 					guidStr = AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<Level>().ID));
 					prefabJson["GUID"] = guidStr.getStr();

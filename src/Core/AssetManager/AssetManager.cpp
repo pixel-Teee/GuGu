@@ -1148,6 +1148,16 @@ namespace GuGu {
 		return deserializeJsonNormalObject(resultJson, inClonedObject->GetType());
 	}
 
+	bool AssetManager::CheckIsDuplicateFile(const GuGuUtf8Str& filePath)
+	{
+		for (const auto& item : m_guidToAssetMap)
+		{
+			if (item.second->m_filePath == filePath)
+				return true;
+		}
+		return false;
+	}
+
 	//遍历目录
 	void AssetManager::traverseDirectoryAndFile_private(const GuGuUtf8Str& directory, std::function<void(GuGuUtf8Str, bool)> enumerateCallBack)
 	{
