@@ -368,6 +368,7 @@ namespace GuGu {
 									(
 										//prefab edit
 										WIDGET_NEW(HorizontalBox)
+										.Clip(WidgetClipping::ClipToBounds)
 										.visibility(Attribute<Visibility>::CreateSP(this, &EditorMainWindow::getGameObjectPrefabEditVisiblity))
 										+ HorizontalBox::Slot()
 										.FixedWidth()
@@ -383,6 +384,7 @@ namespace GuGu {
 											)
 										)
 										+ HorizontalBox::Slot()
+										.setPadding(Padding(20.0f, 0.0f, 0.0f, 0.0f)) //left padding
 										.FixedWidth()
 										(
 											//revert prefab
