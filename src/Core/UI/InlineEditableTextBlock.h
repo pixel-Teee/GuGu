@@ -22,7 +22,7 @@ namespace GuGu {
 
 		struct BuilderArguments : public Arguments<InlineEditableTextBlock>
 		{
-			BuilderArguments();
+			BuilderArguments() = default;
 
 			~BuilderArguments() = default;
 
@@ -35,14 +35,14 @@ namespace GuGu {
 
 			//文本提交的回调
 			UI_EVENT(OnTextCommitted, onTextCommitted)
+
+			UI_EVENT(IsSelected, isSelected)
 		};
 		void init(const BuilderArguments& arguments);
 
 		virtual bool supportsKeyboardFocus() const override;
 
 		virtual Reply OnMouseButtonDown(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent) override;
-
-		virtual Reply OnMouseButtonUp(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent) override;
 
 		virtual Reply OnMouseButtonDoubleClick(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent) override;
 
@@ -68,5 +68,7 @@ namespace GuGu {
 		std::shared_ptr<HorizontalBox> m_horizontalBox;
 
 		std::weak_ptr<Widget> m_widgetToFocus;
+
+		IsSelected m_isSelected;
 	};
 }

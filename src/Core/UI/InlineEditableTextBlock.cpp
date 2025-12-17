@@ -29,16 +29,22 @@ namespace GuGu {
 		.FixedWidth()
 		(
 			WIDGET_ASSIGN_NEW(TextBlockWidget, m_textBlock)
+			.textColor(arguments.mtextColor)
 			.text(arguments.mtext)
 		);
 
+		m_childWidget = std::make_shared<SingleChildSlot>();//slot
+		m_childWidget->m_parentWidget = shared_from_this();
 		m_childWidget->m_childWidget = m_horizontalBox;
 		m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 	}
 
 	bool InlineEditableTextBlock::supportsKeyboardFocus() const
 	{
-		return true;
+		//如果这个控件的状态选择被其他控件管理，则不能有键盘焦点
+		if(m_isSelected)
+			return true;
+		return false;
 	}
 
 	Reply InlineEditableTextBlock::OnMouseButtonDown(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
@@ -55,11 +61,6 @@ namespace GuGu {
 		}
 
 		return Reply::Unhandled();
-	}
-
-	Reply InlineEditableTextBlock::OnMouseButtonUp(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
-	{
-		return Reply::Handled();
 	}
 
 	Reply InlineEditableTextBlock::OnMouseButtonDoubleClick(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)

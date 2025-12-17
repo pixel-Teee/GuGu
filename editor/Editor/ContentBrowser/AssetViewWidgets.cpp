@@ -6,6 +6,7 @@
 #include <Core/UI/ImageWidget.h>
 #include <Core/UI/Box.h>
 #include <Core/UI/BoxPanel.h>
+#include <Core/UI/InlineEditableTextBlock.h>
 #include <Editor/StyleSet/EditorStyleSet.h>
 
 #include <Core/Model/StaticMesh.h> //GStaticMesh
@@ -159,16 +160,21 @@ namespace GuGu {
             .setHorizontalAlignment(HorizontalAlignment::Center)
             .setVerticalAlignment(VerticalAlignment::Center)
             (
-                WIDGET_NEW(TextBlockWidget)
-                .text(getNameText())
-                .textColor(Attribute<math::float4>::Create([=]() {
-                    return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9");
-                }))
+				//WIDGET_NEW(TextBlockWidget)
+				//.text(getNameText())
+				//.textColor(Attribute<math::float4>::Create([=]() {
+				//    return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9");
+				//}))
+                WIDGET_NEW(InlineEditableTextBlock)
+                .text(Attribute<GuGuUtf8Str>::CreateSP(this, &GAssetTileItem::getNameText))
+				.textColor(Attribute<math::float4>::Create([=]() {
+					return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9");
+				}))
             )
         );
 
         m_childWidget->m_childWidget = border;
-        m_childWidget->m_childWidget->setParentWidget(border);
+        m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 	}
 
     OptionalSize GAssetTileItem::getThumbnailBoxSize() const
