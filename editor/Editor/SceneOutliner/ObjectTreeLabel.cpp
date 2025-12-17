@@ -76,7 +76,20 @@ namespace GuGu {
 							.visibility(Attribute<Visibility>::CreateSP(this, &ObjectTreeLabel::getShowNameVisibility))
 							.text(Attribute<GuGuUtf8Str>::CreateSP(this, &ObjectTreeLabel::getDisplayText))
 							.textColor(Attribute<math::float4>::Create([=]() {
-								return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9");
+								//如果这个 game object 是预制体，那么就显示成别的颜色
+								if (m_objectPtr.lock())
+								{
+									std::shared_ptr<GameObject> gameObject = m_objectPtr.lock();
+									if (gameObject->isPrefabChildren())
+									{
+										return EditorStyleSet::getStyleSet()->getColor("ColorLevel5");
+									}
+									return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9");
+								}
+								else
+								{
+									return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9");
+								}
 							}))
 						)
 						+ VerticalBox::Slot()

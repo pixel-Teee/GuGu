@@ -380,7 +380,7 @@ namespace GuGu {
 		
 		for (int32_t i = 0; i < m_childrens.size(); ++i)
 		{
-			traverseGameObjectTrees(callBack);
+			m_childrens[i]->traverseGameObjectTrees(callBack);
 		}
 	}
 
@@ -392,6 +392,15 @@ namespace GuGu {
 	GuGuUtf8Str GameObject::getPrefab() const
 	{
 		return m_prefabAssetGuid;
+	}
+
+	bool GameObject::isPrefabChildren() const
+	{
+		if (m_prefabAssetGuid != "")
+			return true;
+		if(m_parentGameObject.lock())
+			return m_parentGameObject.lock()->isPrefabChildren();
+		return false;
 	}
 
 }

@@ -126,6 +126,8 @@ namespace GuGu {
 
 		void setPrefab(const GuGuUtf8Str& prefabAssetGuid);
 		GuGuUtf8Str getPrefab() const;
+		//这个 game object 是否属于预制体的一部分
+		bool isPrefabChildren() const;
 	protected:
 		Array<std::shared_ptr<Component>> m_components;
 
