@@ -530,7 +530,7 @@ namespace GuGu {
 						noFileExtensionsFileName = noFileExtensionsFileName.substr(0, dotPos);
 					}
 
-					guidStr = AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<Level>().ID));
+					guidStr = AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<Prefab>().ID));
 					prefabJson["GUID"] = guidStr.getStr();
 
 					gameObject->setPrefab(guidStr);

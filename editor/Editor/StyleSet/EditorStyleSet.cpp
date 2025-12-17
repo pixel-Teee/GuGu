@@ -263,6 +263,7 @@ namespace GuGu {
 		ADD_IMAGE(TextureAssetIcon)
 		ADD_IMAGE(FontAssetIcon)
 		ADD_IMAGE(AnimationAssetIcon)
+		ADD_IMAGE(PrefabAssetIcon)
 
 		ADD_IMAGE(Start_Normal)
 		ADD_IMAGE(Start_Hover)
