@@ -12,6 +12,7 @@ namespace GuGu {
 	class TextBlockWidget;
 	class EditableTextBox;
 	class HorizontalBox;
+	struct CallBackInfo;
 	//inline editable text(use for rename)
 	class InlineEditableTextBlock : public CompoundWidget
 	{
@@ -52,6 +53,7 @@ namespace GuGu {
 
 		void exitEditingMode();
 
+		void triggerEditMode();
 	private:
 		void setEditableText(const Attribute<GuGuUtf8Str>& inNewText);
 
@@ -79,5 +81,7 @@ namespace GuGu {
 
 		//attribute
 		Attribute<GuGuUtf8Str> m_text;
+
+		std::weak_ptr<CallBackInfo> m_activeTimerHandle;
 	};
 }

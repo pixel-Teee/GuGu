@@ -6,6 +6,7 @@
 #include <Core/UI/EditableTextBox.h>
 
 #include <Application/Application.h>
+#include <Core/Timer.h>
 
 namespace GuGu {
 
@@ -23,6 +24,7 @@ namespace GuGu {
 	{
 		m_OnTextCommittedCallback = arguments.monTextCommitted;
 		m_text = arguments.mtext; //attribute
+		m_isSelected = arguments.misSelected;
 
 		WIDGET_ASSIGN_NEW(HorizontalBox, m_horizontalBox)
 		+ HorizontalBox::Slot()
@@ -59,10 +61,23 @@ namespace GuGu {
 			return Reply::Unhandled();
 		}
 
-		if (hasKeyboardFocus())
+		if (m_isSelected)
 		{
-			enterEditingMode();
-			return Reply::Handled();
+			if (m_isSelected() && !m_activeTimerHandle.lock())
+			{
+				m_activeTimerHandle = Application::getApplication()->getTimer()->registerCallback(0.5f, [&](int32_t callbackId) {
+					this->triggerEditMode();
+					Application::getApplication()->getTimer()->removeCallback(callbackId);
+				});
+			}
+		}
+		else
+		{
+			if (hasKeyboardFocus())
+			{
+				enterEditingMode();
+				return Reply::Handled();
+			}
 		}
 
 		return Reply::Unhandled();
@@ -70,11 +85,17 @@ namespace GuGu {
 
 	Reply InlineEditableTextBlock::OnMouseButtonDoubleClick(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
 	{
-		return Reply::Handled();
+		std::shared_ptr<CallBackInfo> lockedActiveTimer = m_activeTimerHandle.lock();
+		if (lockedActiveTimer)
+		{
+			Application::getApplication()->getTimer()->removeCallback(lockedActiveTimer);
+		}
+		return Reply::Unhandled();
 	}
 
 	Reply InlineEditableTextBlock::OnKeyDown(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent)
 	{
+		//TODO:press f2 to enter edit mode
 		return Reply::Handled();
 	}
 
@@ -116,6 +137,11 @@ namespace GuGu {
 		{
 			Application::getApplication()->clearKeyboardFocus();
 		}
+	}
+
+	void InlineEditableTextBlock::triggerEditMode()
+	{
+		enterEditingMode();
 	}
 
 	void InlineEditableTextBlock::setEditableText(const Attribute<GuGuUtf8Str>& inNewText)
