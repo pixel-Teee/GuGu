@@ -22,6 +22,7 @@ namespace GuGu {
 	void InlineEditableTextBlock::init(const BuilderArguments& arguments)
 	{
 		m_OnTextCommittedCallback = arguments.monTextCommitted;
+		m_text = arguments.mtext; //attribute
 
 		WIDGET_ASSIGN_NEW(HorizontalBox, m_horizontalBox)
 		+ HorizontalBox::Slot()
@@ -32,6 +33,10 @@ namespace GuGu {
 			.textColor(arguments.mtextColor)
 			.text(arguments.mtext)
 		);
+
+		WIDGET_ASSIGN_NEW(EditableTextBox, m_textBox)
+		.Text(arguments.mtext)
+		.onTextCommitted(this, &InlineEditableTextBlock::onTextBoxCommitted);
 
 		m_childWidget = std::make_shared<SingleChildSlot>();//slot
 		m_childWidget->m_parentWidget = shared_from_this();
@@ -121,6 +126,47 @@ namespace GuGu {
 	std::shared_ptr<Widget> InlineEditableTextBlock::getEditableTextWidget() const
 	{
 		return m_textBox;
+	}
+
+	void InlineEditableTextBlock::onTextBoxCommitted(const GuGuUtf8Str& inText, TextCommit::Type inCommitType)
+	{
+		if (inCommitType == TextCommit::OnCleared)
+		{
+			GuGuUtf8Str sourceTextInEditMode = m_text.Get();
+			
+			cancelEditMode();
+
+			if (m_OnTextCommittedCallback)
+			{
+				m_OnTextCommittedCallback(sourceTextInEditMode, inCommitType);
+			}
+		}
+		else if(isInEditMode())
+		{
+			exitEditingMode();
+
+			if (m_OnTextCommittedCallback)
+			{
+				m_OnTextCommittedCallback(inText, inCommitType);
+			}
+
+			if (!m_text.IsBound())
+			{
+				m_textBlock->setText(m_text);
+			}
+		}
+	}
+
+	void InlineEditableTextBlock::cancelEditMode()
+	{
+		exitEditingMode();
+
+		setEditableText(m_text);
+	}
+
+	bool InlineEditableTextBlock::isInEditMode()
+	{
+		return m_textBlock->getVisibility() == Visibility::Collapsed;
 	}
 
 }

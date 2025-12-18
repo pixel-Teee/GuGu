@@ -65,7 +65,7 @@ namespace GuGu {
 
 		//return FontCache::getFontCache()->measureText(m_text.Get(), *m_textStyle->m_textInfo, inLayoutScaleMultiplier);
 	}
-	void TextBlockWidget::setText(GuGuUtf8Str& newText)
+	void TextBlockWidget::setText(const Attribute<GuGuUtf8Str>& newText)
 	{
 		m_text = newText;
 	}

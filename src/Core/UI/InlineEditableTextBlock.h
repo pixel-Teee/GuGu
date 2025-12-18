@@ -57,6 +57,12 @@ namespace GuGu {
 
 		std::shared_ptr<Widget> getEditableTextWidget() const;
 	protected:
+		void onTextBoxCommitted(const GuGuUtf8Str& inText, TextCommit::Type inCommitType);
+
+		void cancelEditMode();
+
+		bool isInEditMode();
+
 		//label
 		std::shared_ptr<TextBlockWidget> m_textBlock;
 
@@ -70,5 +76,8 @@ namespace GuGu {
 		std::weak_ptr<Widget> m_widgetToFocus;
 
 		IsSelected m_isSelected;
+
+		//attribute
+		Attribute<GuGuUtf8Str> m_text;
 	};
 }

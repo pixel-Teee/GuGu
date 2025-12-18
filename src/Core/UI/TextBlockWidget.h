@@ -42,7 +42,7 @@ namespace GuGu {
 
 		virtual math::float2 ComputeFixedSize(float inLayoutScaleMultiplier) override;
 
-		void setText(GuGuUtf8Str& newText);
+		void setText(const Attribute<GuGuUtf8Str>& newText);
 
 		std::shared_ptr<TextInfo> getFont() const;
 
