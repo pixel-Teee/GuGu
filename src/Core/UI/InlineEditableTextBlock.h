@@ -77,6 +77,7 @@ namespace GuGu {
 
 		std::weak_ptr<Widget> m_widgetToFocus;
 
+		//manager by other widget(list view or tree view)
 		IsSelected m_isSelected;
 
 		//attribute
