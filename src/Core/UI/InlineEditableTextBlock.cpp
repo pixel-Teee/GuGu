@@ -32,6 +32,7 @@ namespace GuGu {
 		.FixedWidth()
 		(
 			WIDGET_ASSIGN_NEW(TextBlockWidget, m_textBlock)
+			.visibility(Visibility::Visible)
 			.textColor(arguments.mtextColor)
 			.text(arguments.mtext)
 		);
@@ -110,11 +111,12 @@ namespace GuGu {
 
 				std::shared_ptr<Widget> activeTextBox = getEditableTextWidget();
 				m_horizontalBox->addSlot()
+				.FixedWidth()
 				(
 					activeTextBox
 				);
 
-				m_textBlock->setVisibility(Visibility::Collapsed);
+				//m_textBlock->setVisibility(Visibility::Collapsed);
 				m_widgetToFocus = Application::getApplication()->getKeyboardFocusedWidget();
 				Application::getApplication()->setKeyboardFocus(activeTextBox);
 

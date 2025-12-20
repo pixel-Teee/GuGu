@@ -402,7 +402,7 @@ namespace GuGu {
 									.FixedHeight()
 									(
 										WIDGET_ASSIGN_NEW(ObjectDetails, m_objectDetails)
-									)
+										)
 								)
 							)
 						)		
@@ -782,7 +782,7 @@ namespace GuGu {
 			if(selectItem->isPrefabChildren())
 				return Visibility::Visible;
 		}
-		return Visibility::SelfHitTestInvisible;
+		return Visibility::Collapsed;
 	}
 
 	Reply EditorMainWindow::applyPrefab()

@@ -117,6 +117,10 @@ namespace GuGu {
 				WIDGET_NEW(GAssetTileItem)
 				.assetItem(assetItem)
 				.itemWidth(this, &AssetView::getTileViewItemWidth)
+				.onRenameCommit(this, &AssetView::assetRenameCommitted)
+				.isSelectedLambda([=]() {
+					return tableRowWidget->isSelected();
+				}) //is selected
 			);
 
 			tableRowWidget->setToolTipText(folderItem->m_folderName);
@@ -140,11 +144,20 @@ namespace GuGu {
 				.Style(EditorStyleSet::getStyleSet()->getStyle<TableRowStyle>(u8"tablerow.assetview"))
 				.Content
 				(
-					WIDGET_NEW(GAssetTileItem)
-					.assetItem(assetItem)
-					.itemWidth(this, &AssetView::getTileViewItemWidth)
+					NullWidget::getNullWidget()
 				)
 				.onDragDetected(this, &AssetView::onDraggingAssetItem);
+
+				std::shared_ptr<GAssetTileItem> item = 
+				WIDGET_NEW(GAssetTileItem)
+					.assetItem(assetItem)
+					.itemWidth(this, &AssetView::getTileViewItemWidth)
+					.onRenameCommit(this, &AssetView::assetRenameCommitted)
+					.isSelectedLambda([=]() {
+					return tableRowWidget->isSelected();
+				}); //is selected
+
+				tableRowWidget->setContent(item);
 
 				GuGuUtf8Str assetType = meta::Type::getType(assetItemAsAsset->m_data.m_assetTypeGuid).GetName();
 				GuGuUtf8Str tooltip = "filePath:" + assetItemAsAsset->m_data.m_filePath + "\r\n" + "assetType:" + assetType;
@@ -214,6 +227,11 @@ namespace GuGu {
 
 			return nullptr;
 		}
+	}
+
+	void AssetView::assetRenameCommitted(const std::shared_ptr<AssetViewItem>& inItem, const GuGuUtf8Str& newName, const math::box2& messageAnchor, const TextCommit::Type commitType)
+	{
+
 	}
 
 	void AssetView::setSourcesData(const GuGuUtf8Str& inSourcesData)
@@ -546,5 +564,4 @@ namespace GuGu {
 		}
 		return Reply::Unhandled();
 	}
-
 }

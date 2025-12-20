@@ -54,6 +54,8 @@ namespace GuGu {
 
 		std::shared_ptr<ITableRow> makeListViewWidget(std::shared_ptr<AssetViewItem> assetItem, const std::shared_ptr<TableViewBase>& ownerTable);
 
+		void assetRenameCommitted(const std::shared_ptr<AssetViewItem>& inItem, const GuGuUtf8Str& newName, const math::box2& messageAnchor, const TextCommit::Type commitType);
+
 		void setSourcesData(const GuGuUtf8Str& inSourcesData);
 
 		//重新生成资产

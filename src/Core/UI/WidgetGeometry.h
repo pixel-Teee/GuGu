@@ -48,6 +48,10 @@ namespace GuGu {
 		static WidgetGeometry makeRoot(const math::float2& inLocalSize, const math::affine2& inLocalLayoutTransform);
 
 		bool isUnderLocation(const math::float2& absoluteCoordinate) const;
+
+		math::box2 getLayoutBoundingRect() const;
+
+		math::box2 getLayoutBoundingRect(const math::box2& localSpaceRect) const;
 	public:
 		math::affine2 mAccumulateRenderTransform;//相比于 accumulate layout transform ，多了旋转、斜切
 		math::float2 mLocalPosition;//local layout transform 导出

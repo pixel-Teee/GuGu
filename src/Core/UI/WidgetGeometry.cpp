@@ -190,4 +190,20 @@ namespace GuGu {
 		return false;
 	}
 
+	math::box2 WidgetGeometry::getLayoutBoundingRect(const math::box2& localSpaceRect) const
+	{
+		//math::box2 localRect = math::box2(math::float2(0.0f, 0.0f), math::float2(mLocalSize.x, mLocalSize.y));
+		math::box2 rect;
+		math::float2 topLeft = mAccumulateLayoutTransform.transformPoint(math::float2(localSpaceRect.m_mins.x, localSpaceRect.m_mins.y));
+		rect.m_mins = math::float2(topLeft.x, topLeft.y);
+		math::float2 extent = mAccumulateLayoutTransform.transformVector(math::float2(localSpaceRect.m_maxs.x, localSpaceRect.m_maxs.y));
+		rect.m_maxs = math::float2(extent.x, extent.y);
+		return rect;
+	}
+
+	math::box2 WidgetGeometry::getLayoutBoundingRect() const
+	{
+		return getLayoutBoundingRect(math::box2(math::float2(0.0f, 0.0f), math::float2(mLocalSize.x, mLocalSize.y)));
+	}
+
 }

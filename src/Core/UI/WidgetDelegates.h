@@ -52,5 +52,5 @@ namespace GuGu {
 
 	using GOnDragDetected = std::function<Reply(const WidgetGeometry&, const PointerEvent&)>;
 
-	using IsSelected = std::function<bool()>;
+	using IsSelected = std::function<bool()>;						
 }

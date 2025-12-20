@@ -21,12 +21,21 @@ namespace GuGu {
     void GAssetViewItem::init(const BuilderArguments& arguments)
     {
         m_assetItem = arguments.massetItem;
+        m_isSelected = arguments.misSelected;
 
         m_childWidget = std::make_shared<SingleChildSlot>();
         m_childWidget->m_parentWidget = shared_from_this();
     }
 
-    bool GAssetViewItem::isFolder() const
+	void GAssetViewItem::handleNameCommitted(const GuGuUtf8Str& newText, TextCommit::Type commitInfo)
+	{
+        if (m_onRenameCommit)
+        {
+            m_onRenameCommit(m_assetItem, newText, m_lastGeometry.getLayoutBoundingRect(), commitInfo);
+        }
+	}
+
+	bool GAssetViewItem::isFolder() const
     {
         return m_assetItem && m_assetItem->getType() == AssetItemType::Folder;
     }
@@ -52,7 +61,9 @@ namespace GuGu {
 	void GAssetTileItem::init(const BuilderArguments& arguments)
 	{
         GAssetViewItem::init(GAssetViewItem::BuilderArguments()
-            .assetItem(arguments.massetItem));
+            .assetItem(arguments.massetItem)
+            .isSelected(arguments.misSelected)
+            .onRenameCommit(arguments.monRenameCommit));
 
         m_itemWidth = arguments.mitemWidth;
 
@@ -170,6 +181,8 @@ namespace GuGu {
 				.textColor(Attribute<math::float4>::Create([=]() {
 					return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9");
 				}))
+                .isSelected(m_isSelected)
+                .onTextCommitted(this, &GAssetViewItem::handleNameCommitted)
             )
         );
 

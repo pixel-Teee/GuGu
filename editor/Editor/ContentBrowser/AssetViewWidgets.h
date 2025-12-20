@@ -6,6 +6,11 @@
 #include <Core/UI/TileView.h>
 
 namespace GuGu {
+
+	using OnRenameCommit = std::function<void(const std::shared_ptr<AssetViewItem>&, //asset item
+		const GuGuUtf8Str&, //original name
+		const math::box2&, //message anchor
+		TextCommit::Type)>; //commit type
 	//在 asset tile view 中的一个项
 	//处理拖动
 	class GAssetViewItem : public CompoundWidget
@@ -19,15 +24,27 @@ namespace GuGu {
 
 			//数据源
 			ARGUMENT_VALUE(std::shared_ptr<AssetViewItem>, assetItem)
+
+			UI_EVENT(IsSelected, isSelected)
+
+			UI_EVENT(OnRenameCommit, onRenameCommit)
 		};
 
 		void init(const BuilderArguments& arguments);
+
+		void handleNameCommitted(const GuGuUtf8Str& newText, TextCommit::Type commitInfo);
 
 		std::shared_ptr<AssetViewItem> m_assetItem;
 
 		bool isFolder() const;
 
 		GuGuUtf8Str getNameText() const;
+
+		IsSelected m_isSelected;//call back
+
+		OnRenameCommit m_onRenameCommit;//rename commit
+
+		WidgetGeometry m_lastGeometry;
 	};
 
 	class GAssetTileItem : public GAssetViewItem
@@ -44,6 +61,10 @@ namespace GuGu {
 			ARGUMENT_ATTRIBUTE(float, itemWidth)
 
 			ARGUMENT_VALUE(std::shared_ptr<AssetViewItem>, assetItem)
+
+			UI_EVENT(IsSelected, isSelected)
+
+			UI_EVENT(OnRenameCommit, onRenameCommit)
 		};
 
 		void init(const BuilderArguments& arguments);
