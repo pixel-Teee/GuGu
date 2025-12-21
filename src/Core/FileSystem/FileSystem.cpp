@@ -65,6 +65,22 @@ namespace GuGu {
 		return m_file->folderExists(folderPath);
 	}
 
+	void NativeFileSystem::rename(const GuGuUtf8Str& oldPath, const GuGuUtf8Str& newPath)
+	{
+		GuGuUtf8Str nativeOldPath;
+		if (m_nativePath == "")
+			nativeOldPath = oldPath;
+		else
+			nativeOldPath = m_nativePath + "/" + oldPath;
+		GuGuUtf8Str nativeNewPath;
+		if (m_nativePath == "")
+			nativeNewPath = newPath;
+		else
+			nativeNewPath = m_nativePath + "/" + newPath;
+
+		std::filesystem::rename(nativeOldPath.getStr(), nativeNewPath.getStr());
+	}
+
 	//------archiver file system------
 	int32_t getInt(std::shared_ptr<FileSystem> in) {
 		unsigned char buffer[4];
@@ -201,6 +217,11 @@ namespace GuGu {
 		return false;
 	}
 
+	void ArchiverFileSystem::rename(const GuGuUtf8Str& oldPath, const GuGuUtf8Str& newPath)
+	{
+
+	}
+
 	//------root file system------
 	RootFileSystem::RootFileSystem()
 	{
@@ -323,6 +344,16 @@ namespace GuGu {
 	bool RootFileSystem::folderExists(const GuGuUtf8Str& folderPath)
 	{
 		return m_currentOpenFileSystem->folderExists(folderPath);
+	}
+
+	void RootFileSystem::rename(const GuGuUtf8Str& oldPath, const GuGuUtf8Str& newPath)
+	{
+		GuGuUtf8Str relativeOldPath = "";
+		GuGuUtf8Str relativeNewPath = "";
+		std::shared_ptr<FileSystem> tempFileSystem;
+		findMountPoint(oldPath, &relativeOldPath, tempFileSystem);
+		findMountPoint(newPath, &relativeNewPath, tempFileSystem);
+		m_currentOpenFileSystem->rename(relativeOldPath, relativeNewPath);
 	}
 
 	void CreateArchiveFiles(std::shared_ptr<RootFileSystem> rootFileSystem, std::shared_ptr<RootFileSystem> assetRootFileSystem, const std::vector<GuGuUtf8Str>& fileVirtualPaths, const GuGuUtf8Str& archiveVirtualPaths, const GuGuUtf8Str& mountPoint)

@@ -418,10 +418,27 @@ namespace GuGu {
 
 		for (int32_t i = endPos; i >= 0; --i)
 		{
-			for (int32_t j = 0; j < substrByteCount; ++j)
+			bool bFound = true;
+			int32_t j = 0;
+			for (j = 0; j < substrByteCount; ++j)
 			{
-				if (m_str[i] == str[j])
-					return bytePosToCharacterPos(i);
+				if (i + j <= endPos)
+				{
+					if (m_str[i + j] != str[j])
+					{
+						bFound = false;
+					}
+				}
+				else
+				{
+					bFound = false;
+				}
+			}
+			if (j != substrByteCount)
+				bFound = false;
+			if (bFound)
+			{
+				return bytePosToCharacterPos(i);
 			}
 		}
 		return -1;

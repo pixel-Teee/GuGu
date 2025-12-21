@@ -22,6 +22,7 @@ namespace GuGu {
     {
         m_assetItem = arguments.massetItem;
         m_isSelected = arguments.misSelected;
+        m_onRenameCommit = arguments.monRenameCommit;
 
         m_childWidget = std::make_shared<SingleChildSlot>();
         m_childWidget->m_parentWidget = shared_from_this();

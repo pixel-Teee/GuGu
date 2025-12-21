@@ -260,6 +260,60 @@ namespace GuGu {
 		}	
 	}
 
+	void AssetManager::renameAsset(const GuGuUtf8Str& guid, const GuGuUtf8Str& filePath, const GuGuUtf8Str& fileName)
+	{
+		bool bFound = false;
+		std::shared_ptr<AssetData> assetData;
+		for (const auto& item : m_guidToAssetMap)
+		{
+			if (item.first == guid)
+			{
+				bFound = true;
+				assetData = item.second;
+				break;
+			}
+		}
+		if (bFound && assetData)
+		{
+			//std::filesystem::rename(assetData->m_filePath.getStr(), filePath.getStr());
+			m_rootFileSystem->OpenFile("content/AssetRgistry.json", GuGuFile::FileMode::OnlyWrite);
+			m_rootFileSystem->rename(assetData->m_filePath, filePath);
+			m_rootFileSystem->CloseFile();
+
+			assetData->m_filePath = filePath;
+			assetData->m_fileName = fileName;
+
+			m_rootFileSystem->OpenFile("content/AssetRgistry.json", GuGuFile::FileMode::OnlyWrite);
+
+			nlohmann::json root = m_assetRegistryJson["AssetRegistry"];
+			for (auto& item : root)
+			{
+				//GGuid key = GuGuUtf8Str(item.at("GUID").get<std::string>());
+				//GuGuUtf8Str filePath = item.at("FilePath").get<std::string>();
+				//GuGuUtf8Str fileName = item.at("FileName").get<std::string>();
+				//GuGuUtf8Str assetTypeGuid = item.at("AssetType").get<std::string>();
+				//m_guidToAssetMap.insert({ key, std::make_shared<AssetData>(filePath, fileName, assetTypeGuid) });
+				if (item["GUID"].get<std::string>() == guid.getStr())
+				{
+					item["FilePath"] = filePath.getStr();
+					item["FileName"] = fileName.getStr();
+					item["AssetType"] = assetData->m_assetTypeGuid.getGuid().getStr();
+				}
+			}
+			m_assetRegistryJson["AssetRegistry"] = root;
+
+			GuGuUtf8Str jsonFileContent = m_assetRegistryJson.dump();
+			m_rootFileSystem->WriteFile((void*)jsonFileContent.getStr(), jsonFileContent.getTotalByteCount());
+			m_rootFileSystem->CloseFile();
+
+			GuGu_LOGD("rename file successfully");
+		}
+		else
+		{
+			GuGu_LOGE("rename file error");
+		}
+	}
+
 	bool AssetManager::isInAssetRegistry(const GGuid& fileGuid) const
 	{
 		if (m_guidToAssetMap.find(fileGuid) == m_guidToAssetMap.end())

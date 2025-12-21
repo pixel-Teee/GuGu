@@ -319,6 +319,10 @@ namespace GuGu {
 			m##EventName = std::bind(inConstMethodPtr, inObject, std::placeholders::_1, std::forward<VarTypes>(vars)...); \
 		else if constexpr (paramCount == 2) \
 			m##EventName = std::bind(inConstMethodPtr, inObject, std::placeholders::_1, std::placeholders::_2, std::forward<VarTypes>(vars)...); \
+		else if constexpr (paramCount == 3) \
+			m##EventName = std::bind(inConstMethodPtr, inObject, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::forward<VarTypes>(vars)...); \
+		else if constexpr (paramCount == 4) \
+			m##EventName = std::bind(inConstMethodPtr, inObject, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::forward<VarTypes>(vars)...); \
 		return static_cast<BuilderArguments*>(this)->Me(); \
 	}\
 	template<class Class, typename... VarTypes>\
@@ -331,6 +335,10 @@ namespace GuGu {
 			m##EventName = std::bind(inMethodPtr, inObject, std::placeholders::_1, std::forward<VarTypes>(vars)...); \
 		else if constexpr (paramCount == 2) \
 			m##EventName = std::bind(inMethodPtr, inObject, std::placeholders::_1, std::placeholders::_2, std::forward<VarTypes>(vars)...); \
+		else if constexpr (paramCount == 3) \
+			m##EventName = std::bind(inMethodPtr, inObject, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::forward<VarTypes>(vars)...); \
+		else if constexpr (paramCount == 4) \
+			m##EventName = std::bind(inMethodPtr, inObject, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::forward<VarTypes>(vars)...); \
 		return static_cast<BuilderArguments*>(this)->Me(); \
 	}
 #define SLOT_CONTENT(SlotType, Name) \

@@ -231,7 +231,50 @@ namespace GuGu {
 
 	void AssetView::assetRenameCommitted(const std::shared_ptr<AssetViewItem>& inItem, const GuGuUtf8Str& newName, const math::box2& messageAnchor, const TextCommit::Type commitType)
 	{
-
+		//asset rename
+		if (inItem->getType() == AssetItemType::Type::Normal)
+		{
+			std::shared_ptr<AssetViewAsset> assetItemAsAsset = std::static_pointer_cast<AssetViewAsset>(inItem);
+			if (assetItemAsAsset)
+			{
+				AssetData& assetData = assetItemAsAsset->m_data;
+				GuGuUtf8Str filePath = assetData.m_filePath;
+				GuGuUtf8Str fileName = assetData.m_fileName;
+				
+				int32_t findPos = filePath.findLastOf(fileName.getStr());
+				if (findPos != -1)
+				{
+					if (findPos + fileName.getTotalByteCount() == filePath.getTotalByteCount())
+					{
+						GuGuUtf8Str prefixFilePath = filePath.substr(0, findPos);
+						//assetData.m_fileName = newName + ".json";
+						//assetData.m_filePath = prefixFilePath + newName + ".json";
+						GuGuUtf8Str newFilePath = prefixFilePath + newName + ".json";
+						if (AssetManager::getAssetManager().isInAssetRegistry(newFilePath) == false)
+						{
+							GGuid guid = AssetManager::getAssetManager().getGuid(assetData.m_filePath, meta::Type::getType(assetData.m_assetTypeGuid));
+							AssetManager::getAssetManager().renameAsset(guid.getGuid(), newFilePath, newName + ".json");
+						}
+						else
+						{
+							GuGu_LOGE("file name and file path don't match");
+						}
+					}
+					else
+					{
+						GuGu_LOGE("file name and file path don't match");
+					}
+				}
+				else
+				{
+					GuGu_LOGE("file name and file path don't match");
+				}
+			}
+		}
+		else if (inItem->getType() == AssetItemType::Type::Folder)
+		{
+			//nothing
+		}
 	}
 
 	void AssetView::setSourcesData(const GuGuUtf8Str& inSourcesData)

@@ -30,6 +30,8 @@ namespace GuGu
 		virtual bool fileExists(const GuGuUtf8Str& filePath) = 0;
 
 		virtual bool folderExists(const GuGuUtf8Str& folderPath) = 0;
+
+		virtual void rename(const GuGuUtf8Str& oldPath, const GuGuUtf8Str& newPath) = 0;
 	};
 	
 	class NativeFileSystem : public FileSystem
@@ -58,6 +60,8 @@ namespace GuGu
 		virtual bool fileExists(const GuGuUtf8Str& filePath) override;
 
 		virtual bool folderExists(const GuGuUtf8Str& folderPath) override;
+
+		virtual void rename(const GuGuUtf8Str& oldPath, const GuGuUtf8Str& newPath) override;
 	private:
 		std::shared_ptr<GuGuFile> m_file;
 
@@ -93,6 +97,7 @@ namespace GuGu
 
 		virtual bool folderExists(const GuGuUtf8Str& folderPath) override;
 
+		virtual void rename(const GuGuUtf8Str& oldPath, const GuGuUtf8Str& newPath) override;
 	private:
 		std::shared_ptr<FileSystem> m_underlyingFileSystem;
 
@@ -137,6 +142,7 @@ namespace GuGu
 
 		virtual bool folderExists(const GuGuUtf8Str& folderPath) override;
 
+		virtual void rename(const GuGuUtf8Str& oldPath, const GuGuUtf8Str& newPath) override;
 	private:
 		std::vector<std::pair<GuGuUtf8Str, std::shared_ptr<FileSystem>>> m_mountPoints;
 
