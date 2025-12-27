@@ -42,7 +42,7 @@ namespace GuGu {
 
 		GuGuUtf8Str registerAsset(const GuGuUtf8Str& guid, const GuGuUtf8Str& filePath, const GuGuUtf8Str& fileName, meta::Type assetType);
 
-		void renameAsset(const GuGuUtf8Str& guid, const GuGuUtf8Str& filePath, const GuGuUtf8Str& fileName);
+		bool renameAsset(const GuGuUtf8Str& guid, const GuGuUtf8Str& filePath, const GuGuUtf8Str& fileName);
 
 		bool isInAssetRegistry(const GGuid& fileGuid) const;
 

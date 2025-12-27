@@ -253,7 +253,12 @@ namespace GuGu {
 						if (AssetManager::getAssetManager().isInAssetRegistry(newFilePath) == false)
 						{
 							GGuid guid = AssetManager::getAssetManager().getGuid(assetData.m_filePath, meta::Type::getType(assetData.m_assetTypeGuid));
-							AssetManager::getAssetManager().renameAsset(guid.getGuid(), newFilePath, newName + ".json");
+							bool renameSuccessfully = AssetManager::getAssetManager().renameAsset(guid.getGuid(), newFilePath, newName + ".json");
+							if (renameSuccessfully)
+							{
+								assetData.m_filePath = newFilePath;
+								assetData.m_fileName = newName + ".json";
+							}
 						}
 						else
 						{

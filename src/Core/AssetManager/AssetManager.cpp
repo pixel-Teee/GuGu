@@ -260,7 +260,7 @@ namespace GuGu {
 		}	
 	}
 
-	void AssetManager::renameAsset(const GuGuUtf8Str& guid, const GuGuUtf8Str& filePath, const GuGuUtf8Str& fileName)
+	bool AssetManager::renameAsset(const GuGuUtf8Str& guid, const GuGuUtf8Str& filePath, const GuGuUtf8Str& fileName)
 	{
 		bool bFound = false;
 		std::shared_ptr<AssetData> assetData;
@@ -307,10 +307,12 @@ namespace GuGu {
 			m_rootFileSystem->CloseFile();
 
 			GuGu_LOGD("rename file successfully");
+			return true;
 		}
 		else
 		{
 			GuGu_LOGE("rename file error");
+			return false;
 		}
 	}
 
