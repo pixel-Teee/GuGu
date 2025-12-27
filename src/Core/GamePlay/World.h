@@ -36,6 +36,8 @@ namespace GuGu {
 
 		void loadLevel(AssetData& assetData);
 
+		void loadPrefab(AssetData& assetData);
+
 		//load texture
 		std::shared_ptr<AssetData> loadTexture(const GuGuUtf8Str& filePath);
 

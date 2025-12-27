@@ -115,4 +115,9 @@ namespace GuGu {
 		m_objects = inObjects;
 	}
 
+	Array<std::shared_ptr<GameObject>> Prefab::getGameObjects()
+	{
+		return m_objects;
+	}
+
 }

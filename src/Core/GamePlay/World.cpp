@@ -19,6 +19,7 @@
 #include <Core/GamePlay/ScriptComponent.h>
 #include <Application/Application.h>
 #include <Core/Timer.h>
+#include <Core/GamePlay/Prefab.h>
 
 namespace GuGu {
 	static bool registerGuGuWorld()
@@ -207,6 +208,38 @@ namespace GuGu {
 						scriptComponent->initialize();
 					}
 				}
+			}
+		}
+		for (uint32_t i = 0; i < World::getWorld()->m_onLevelChanged.size(); ++i)
+		{
+			World::getWorld()->m_onLevelChanged[i]();
+		}
+	}
+
+	void World::loadPrefab(AssetData& assetData)
+	{
+		if (meta::Type::getType(assetData.m_assetTypeGuid) == meta::Type(meta::TypeIDs<Prefab>::ID))
+		{
+			GuGuUtf8Str filePath = assetData.m_filePath;
+			AssetManager::getAssetManager().getRootFileSystem()->OpenFile(filePath.getStr(), GuGuFile::FileMode::OnlyRead);
+			uint32_t fileSize = AssetManager::getAssetManager().getRootFileSystem()->getFileSize();
+			char* fileContent = new char[fileSize + 1];
+			fileContent[fileSize] = '\0';
+			int32_t numberBytesHavedReaded = 0;
+			AssetManager::getAssetManager().getRootFileSystem()->ReadFile((void*)fileContent, fileSize, numberBytesHavedReaded);
+			AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
+			GuGuUtf8Str prefablJson(fileContent);
+			//load prefab
+			std::shared_ptr<Prefab> prefabInstance = std::shared_ptr<Prefab>(AssetManager::getAssetManager().deserializeJson<Prefab>(nlohmann::json::parse(prefablJson.getStr())));
+			assetData.m_loadedResource = std::static_pointer_cast<meta::Object>(prefabInstance);
+			//AssetManager::getAssetManager().deserializeJson(nlohmann::json::parse(modelJson.getStr()))
+
+			delete[] fileContent;
+
+			if (m_viewportClient->getViewportState() == ViewportClient::Editor)
+			{
+				//m_currentLevel->addGameObject();
+				m_currentLevel->addGameObjects(prefabInstance->getGameObjects());
 			}
 		}
 		for (uint32_t i = 0; i < World::getWorld()->m_onLevelChanged.size(); ++i)

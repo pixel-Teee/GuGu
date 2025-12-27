@@ -23,6 +23,8 @@ namespace GuGu {
 		virtual void OnDeserialize(const nlohmann::json& input);
 
 		void setGameObjects(Array<std::shared_ptr<GameObject>> inObjects);
+
+		Array<std::shared_ptr<GameObject>> getGameObjects();
 	private:
 		Array<std::shared_ptr<GameObject>> m_objects; //game object tree
 	};

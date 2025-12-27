@@ -3,6 +3,7 @@
 #include "LevelViewport.h"
 #include <Core/UI/AssetDragDrop.h>
 #include <Core/GamePlay/World.h>
+#include <Core/GamePlay/Prefab.h>
 #include "EditorViewportClient.h"
 
 namespace GuGu {
@@ -51,7 +52,11 @@ namespace GuGu {
 				else if(meta::Type::getType(assetDatas[i].m_assetTypeGuid) == typeof(Level))
 				{
 					World::getWorld()->loadLevel(assetDatas[i]);
-				}			
+				}		
+				else if (meta::Type::getType(assetDatas[i].m_assetTypeGuid) == typeof(Prefab))
+				{
+					World::getWorld()->loadPrefab(assetDatas[i]);
+				}
 			}
 			return Reply::Handled();
 		}

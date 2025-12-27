@@ -167,6 +167,23 @@ namespace GuGu {
 		}
 	}
 
+	void Level::addGameObjects(Array<std::shared_ptr<GameObject>> inGameObjects)
+	{
+		for (int32_t i = 0; i < inGameObjects.size(); ++i)
+		{
+			m_objects.push_back(inGameObjects[i]);
+		}
+
+		if (!World::getWorld()->m_onObjectAdded.empty())
+		{
+			for (uint32_t i = 0; i < World::getWorld()->m_onObjectAdded.size(); ++i)
+			{
+				for(uint32_t j = 0; j < inGameObjects.size(); ++j)
+					World::getWorld()->m_onObjectAdded[i](inGameObjects[j]);
+			}
+		}
+	}
+
 	void Level::deleteGameObject(std::shared_ptr<GameObject> inGameObject)
 	{
 		//delete game object
