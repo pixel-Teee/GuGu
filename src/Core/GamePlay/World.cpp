@@ -230,16 +230,18 @@ namespace GuGu {
 			AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
 			GuGuUtf8Str prefablJson(fileContent);
 			//load prefab
-			std::shared_ptr<Prefab> prefabInstance = std::shared_ptr<Prefab>(AssetManager::getAssetManager().deserializeJson<Prefab>(nlohmann::json::parse(prefablJson.getStr())));
-			assetData.m_loadedResource = std::static_pointer_cast<meta::Object>(prefabInstance);
+			std::shared_ptr<Prefab> prefab = std::shared_ptr<Prefab>(AssetManager::getAssetManager().deserializeJson<Prefab>(nlohmann::json::parse(prefablJson.getStr())));
+			assetData.m_loadedResource = std::static_pointer_cast<meta::Object>(prefab);
 			//AssetManager::getAssetManager().deserializeJson(nlohmann::json::parse(modelJson.getStr()))
 
 			delete[] fileContent;
 
+			std::shared_ptr<Prefab> instance = std::static_pointer_cast<Prefab>(AssetManager::getAssetManager().cloneObject(prefab));
+
 			if (m_viewportClient->getViewportState() == ViewportClient::Editor)
 			{
 				//m_currentLevel->addGameObject();
-				m_currentLevel->addGameObjects(prefabInstance->getGameObjects());
+				m_currentLevel->addGameObjects(instance->getGameObjects());
 			}
 		}
 		//for (uint32_t i = 0; i < World::getWorld()->m_onLevelChanged.size(); ++i)
