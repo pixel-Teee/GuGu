@@ -3,6 +3,7 @@
 #include <Core/UI/CompoundWidget.h>
 #include <Core/UI/UIMacros.h>
 #include <Renderer/Color.h>
+#include <Core/AssetManager/AssetData.h>
 
 namespace GuGu {
 	class HorizontalBox;
@@ -56,6 +57,10 @@ namespace GuGu {
 		void onBrushTypeSelect(GuGuUtf8Str inOption, SelectInfo::Type);
 
 		GuGuUtf8Str getBrushTypeStr() const;
+
+		void onPaintAssetSelected(const AssetData& inAsset);
+
+		void paintVegetation(math::float3 inBrushPos);
 	private:
 		//地形笔刷选择按钮的容器
 		std::shared_ptr<HorizontalBox> m_brushSelectButtons;
@@ -80,7 +85,9 @@ namespace GuGu {
 
 		std::vector<GuGuUtf8Str> m_brushTypeStrSources;
 
-		//paint details view
-		std::shared_ptr<ObjectDetails> m_paintDetailsView;
+		//paint
+		std::shared_ptr<VerticalBox> m_paintPanel;
+
+		AssetData m_paintVegetation;
 	};
 }

@@ -170,6 +170,17 @@ namespace GuGu {
 		return m_isInTerrainEditor;
 	}
 
+	void ViewportClient::setIsInVegetationPaint(bool isInVegetation)
+	{
+		m_isInPaintVegetation = isInVegetation;
+		m_paintVegeCoolDownTime = 0.0f;
+	}
+
+	bool ViewportClient::getIsInVegetationPaint()
+	{
+		return m_isInPaintVegetation;
+	}
+
 	void ViewportClient::setBrushSize(float inNewTerrainBrushSize)
 	{
 		m_newTerrainBrushSize = inNewTerrainBrushSize;

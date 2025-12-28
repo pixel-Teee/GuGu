@@ -70,6 +70,14 @@ namespace GuGu {
 	{
 	}
 
+	AssetData::AssetData(const AssetData& rhs)
+	{
+		m_filePath = rhs.m_filePath;
+		m_fileName = rhs.m_fileName;
+		m_assetTypeGuid = rhs.m_assetTypeGuid;
+		m_loadedResource = rhs.m_loadedResource;
+	}
+
 	GuGuUtf8Str AssetData::toString() const
 	{
 		char buf[128];

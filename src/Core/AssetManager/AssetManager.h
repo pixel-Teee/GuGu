@@ -100,6 +100,8 @@ namespace GuGu {
 
 		std::shared_ptr<AssetData> loadAsset(GGuid guid);
 
+		std::shared_ptr<AssetData> loadPrefab(const GuGuUtf8Str& filePath);
+
 		nlohmann::json getDiffJson(nlohmann::json lhs, nlohmann::json rhs);
 
 		//clone

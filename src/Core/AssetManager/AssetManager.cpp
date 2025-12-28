@@ -1128,6 +1128,42 @@ namespace GuGu {
 		return nullptr;
 	}
 
+	std::shared_ptr<AssetData> AssetManager::loadPrefab(const GuGuUtf8Str& filePath)
+	{
+		for (const auto& item : m_guidToAssetMap)
+		{
+			if (item.second->m_filePath == filePath)
+			{
+				if (item.second->m_loadedResource == nullptr)
+				{
+					//load
+					AssetManager::getAssetManager().getRootFileSystem()->OpenFile(item.second->m_filePath, GuGuFile::FileMode::OnlyRead);
+					uint32_t fileSize = AssetManager::getAssetManager().getRootFileSystem()->getFileSize();
+					char* fileContent = new char[fileSize + 1];
+					fileContent[fileSize] = '\0';
+					int32_t numberBytesHavedReaded = 0;
+					AssetManager::getAssetManager().getRootFileSystem()->ReadFile((void*)fileContent, fileSize, numberBytesHavedReaded);
+					AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
+					GuGuUtf8Str json(fileContent);
+					if (meta::Type::getType(item.second->m_assetTypeGuid) == typeof(Prefab))
+					{
+						//load asset
+						std::shared_ptr<meta::Object> loadedObject = AssetManager::getAssetManager().deserializeJson<Prefab>(nlohmann::json::parse(json.getStr()));
+						item.second->m_loadedResource = loadedObject;
+					}
+
+					delete[] fileContent;
+					return item.second;
+				}
+				else
+				{
+					return item.second;
+				}
+			}
+		}
+		return nullptr;
+	}
+
 	nlohmann::json AssetManager::getDiffJson(nlohmann::json lhs, nlohmann::json rhs)
 	{
 		nlohmann::json result = nlohmann::json::object();

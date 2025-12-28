@@ -39,6 +39,8 @@ namespace GuGu {
 		m_pitch = 0;
 		m_bShowGizmos = false;
 		m_viewportState = ViewportClient::Editor;
+		m_isInTerrainEditor = false;
+		m_isInPaintVegetation = false;
 		updateView();
 		makeGizmos();
 
@@ -183,6 +185,7 @@ namespace GuGu {
 		zoom(fElapsedTimeSecond);
 		if (m_isInTerrainEditor)
 		{
+			m_paintVegeCoolDownTime = m_paintVegeCoolDownTime + fElapsedTimeSecond;
 			terrain();
 		}
 		else
@@ -445,11 +448,22 @@ namespace GuGu {
 	
 								m_brushPositionWS = math::float3(triWorldPosition.x, height.x / colorMax, triWorldPosition.z);
 
-								//offset height
-								if (uv.x > 0.0f && uv.y > 0.0f)
+								if (m_isInPaintVegetation)
 								{
-									heightTexture->writeOffsetColorRadius(textureWidth * uv.x, textureHeight * uv.y, brushSize, GTexture::Channel::R, brushStrength);
+									if (m_paintVegeCoolDownTime >= 0.2f)
+									{
+										m_paintPositionCallback(m_brushPositionWS);
+										m_paintVegeCoolDownTime = 0.0f;
+									}		
 								}
+								else
+								{
+									//offset height
+									if (uv.x > 0.0f && uv.y > 0.0f)
+									{
+										heightTexture->writeOffsetColorRadius(textureWidth * uv.x, textureHeight * uv.y, brushSize, GTexture::Channel::R, brushStrength);
+									}
+								}	
 							}
 						}
 					}

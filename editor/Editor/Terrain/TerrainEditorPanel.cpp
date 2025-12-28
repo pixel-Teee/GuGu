@@ -21,8 +21,15 @@
 #include <Core/UI/ListView.h>
 #include <Core/UI/ComboBox.h>
 
+#include <Core/AssetManager/AssetManager.h>
+#include <Core/GamePlay/Prefab.h>
+#include <Core/GamePlay/TerrainVegetationComponent.h>
+#include <Core/GamePlay/TransformComponent.h>
+#include <Core/GamePlay/Level.h>
+
 #include <Editor/StyleSet/EditorStyleSet.h>
 #include <Editor/PropertyEditor/ObjectDetails.h>
+#include <Editor/ContentBrowser/ContentBrowserSingleton.h>
 
 namespace GuGu {
 
@@ -36,6 +43,7 @@ namespace GuGu {
 		std::shared_ptr<ViewportClient> viewportClient = World::getWorld()->getViewportClient().lock();
 		viewportClient->eraseGameObjectSelectionChangedEvent(m_gameObjectSelectionChangedDelegateHandle);
 		viewportClient->setIsInTerrainEditor(false);
+		viewportClient->setIsInVegetationPaint(false);
 	}
 
 	void TerrainEditorPanel::init(const BuilderArguments& arguments)
@@ -111,7 +119,18 @@ namespace GuGu {
 		sculptButton->setOnClicked(OnClicked(std::bind(&TerrainEditorPanel::showPanelContent, this, TerrainEditorContentType::Scuplt)));
 		paintButton->setOnClicked(OnClicked(std::bind(&TerrainEditorPanel::showPanelContent, this, TerrainEditorContentType::Paint)));
 
-		m_paintDetailsView = WIDGET_NEW(ObjectDetails);
+		AssetPickerConfig assetPickerConfig;
+		assetPickerConfig.m_initialAssetViewType = AssetViewType::List;
+		assetPickerConfig.m_onAssetSelected = std::bind(&TerrainEditorPanel::onPaintAssetSelected, this, std::placeholders::_1);
+		assetPickerConfig.m_filter.m_classNames.push_back("GuGu::Prefab");
+
+		m_paintPanel = 
+			WIDGET_NEW(VerticalBox)
+			+ VerticalBox::Slot()
+			.FixedHeight()
+			(
+				createAssetPicker(assetPickerConfig)
+			);
 
 		m_sculptOverlay = 
 			WIDGET_NEW(Overlay)
@@ -344,7 +363,11 @@ namespace GuGu {
 		}
 		else if (inContentType == TerrainEditorContentType::Paint)
 		{
-			m_brushContent->setContent(m_paintDetailsView);
+			m_brushContent->setContent(m_paintPanel);
+			std::shared_ptr<ViewportClient> viewportClient = World::getWorld()->getViewportClient().lock();
+			viewportClient->m_paintPositionCallback = std::bind(&TerrainEditorPanel::paintVegetation, this, std::placeholders::_1);
+			viewportClient->setIsInTerrainEditor(true);
+			viewportClient->setIsInVegetationPaint(true);
 		}
 		return Reply::Handled();
 	}
@@ -504,6 +527,63 @@ namespace GuGu {
 	GuGu::GuGuUtf8Str TerrainEditorPanel::getBrushTypeStr() const
 	{
 		return m_brushTypeStrSources[m_brushType];
+	}
+
+	void TerrainEditorPanel::onPaintAssetSelected(const AssetData& inAsset)
+	{
+		m_paintVegetation = inAsset;
+	}
+
+	void TerrainEditorPanel::paintVegetation(math::float3 inBrushPos)
+	{
+		if (m_paintVegetation.m_filePath != "" && m_terrainObject.lock() != nullptr)
+		{
+			if (meta::Type::getType(m_paintVegetation.m_assetTypeGuid).GetID() == meta::TypeIDs<Prefab>::ID)
+			{
+				std::shared_ptr<AssetData> loadedAssetData = AssetManager::getAssetManager().loadPrefab(m_paintVegetation.m_filePath);
+				if (loadedAssetData)
+				{
+					std::shared_ptr<Prefab> instancePrefab = std::static_pointer_cast<Prefab>(loadedAssetData->m_loadedResource);
+					if (instancePrefab->getGameObjects().size() == 1)
+					{
+						std::shared_ptr<GameObject> gameObj = std::static_pointer_cast<GameObject>(AssetManager::getAssetManager().cloneObject(instancePrefab->getGameObjects()[0]));
+						if (gameObj)
+						{
+							std::shared_ptr<TerrainComponent> terrainComponent = m_terrainObject.lock()->getComponent<TerrainComponent>();
+							if (terrainComponent)
+							{
+								//paint
+								std::shared_ptr<TerrainVegetationComponent> terrainVegetationComp = std::static_pointer_cast<TerrainVegetationComponent>(gameObj->getComponent<TerrainVegetationComponent>());
+								if (terrainVegetationComp && m_terrainObject.lock())
+								{
+									if (terrainComponent)
+									{
+										terrainVegetationComp->setTerrainOwner(terrainComponent);
+									}
+								}
+								else
+								{
+									terrainVegetationComp = std::make_shared<TerrainVegetationComponent>();
+									gameObj->addComponent(terrainVegetationComp);
+									terrainVegetationComp->setTerrainOwner(terrainComponent);
+								}
+								std::shared_ptr<TransformComponent> transformComponent = gameObj->getComponent<TransformComponent>();
+								if (transformComponent)
+								{
+									transformComponent->SetTranslation(math::double3(inBrushPos));
+								}
+								//add to current level
+								std::shared_ptr<World> currentWorld = World::getWorld();
+								if (currentWorld)
+								{
+									currentWorld->getCurrentLevel()->addGameObject(gameObj);
+								}
+							}
+						}
+					}			
+				}
+			}
+		}	
 	}
 
 }

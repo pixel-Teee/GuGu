@@ -22,6 +22,8 @@ namespace GuGu {
 
 		AssetData() {}
 
+		AssetData(const AssetData& rhs);
+
 		AssetData(const GuGuUtf8Str& filePath, const GuGuUtf8Str& fileName, const GuGuUtf8Str& assetTypeGuid);
 
 		GuGuUtf8Str toString() const;

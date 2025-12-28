@@ -13,6 +13,9 @@ namespace GuGu {
 	{
 		class Object;
 	}
+
+	using PaintPositionCallback = std::function<void(math::float3)>;
+
 	class GStaticMesh;
 	class GameObject;
 	class ViewportWidget;
@@ -126,6 +129,10 @@ namespace GuGu {
 
 		bool getIsInTerrainEditor() const;
 
+		void setIsInVegetationPaint(bool isInVegetation);
+
+		bool getIsInVegetationPaint();
+
 		void setBrushSize(float inNewTerrainBrushSize);
 
 		void setBrushStrength(float inNewBrushStrength);
@@ -142,8 +149,13 @@ namespace GuGu {
 		void setTerrainUseWireFrame(bool inValue);
 
 		bool getTerrainUseWireFrame() const;
+
+		//editor
+		PaintPositionCallback m_paintPositionCallback;
 	protected:
 		bool m_isInTerrainEditor;
+
+		bool m_isInPaintVegetation;
 
 		float m_newTerrainBrushSize;
 
@@ -154,6 +166,8 @@ namespace GuGu {
 		math::float3 m_brushPositionWS;
 
 		bool m_terrainUseWireFrame;
+
+		float m_paintVegeCoolDownTime = 0.0f;
 	private:
 		GameObjectSelectionChangedEvent m_gameObjectSelectionChangedEvent;
 	};
