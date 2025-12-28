@@ -282,7 +282,7 @@ namespace GuGu {
 				//	registerFilePath = filePath.substr(0, dotPos);
 				//}					
 				GuGuUtf8Str outputFilePath = ouputDir + "/" + filePath + ".json";
-				if (outputFilePath.findLastOf(".") != -1)
+				if (filePath.findLastOf(".") != -1)
 					outputFilePath = ouputDir + "/" + filePath;
 				else
 					outputFilePath = ouputDir + "/" + filePath + ".json";
