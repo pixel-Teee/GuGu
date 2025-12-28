@@ -22,9 +22,9 @@ namespace GuGu {
 		virtual void OnSerialize(nlohmann::json& output) const;
 		virtual void OnDeserialize(const nlohmann::json& input);
 
-		void setGameObjects(Array<std::shared_ptr<GameObject>> inObjects);
+		void setGameObjects(const Array<std::shared_ptr<GameObject>>& inObjects);
 
-		Array<std::shared_ptr<GameObject>> getGameObjects();
+		Array<std::shared_ptr<GameObject>>& getGameObjects();
 	private:
 		Array<std::shared_ptr<GameObject>> m_objects; //game object tree
 	};

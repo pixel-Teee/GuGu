@@ -242,10 +242,10 @@ namespace GuGu {
 				m_currentLevel->addGameObjects(prefabInstance->getGameObjects());
 			}
 		}
-		for (uint32_t i = 0; i < World::getWorld()->m_onLevelChanged.size(); ++i)
-		{
-			World::getWorld()->m_onLevelChanged[i]();
-		}
+		//for (uint32_t i = 0; i < World::getWorld()->m_onLevelChanged.size(); ++i)
+		//{
+		//	World::getWorld()->m_onLevelChanged[i]();
+		//}
 	}
 
 	std::shared_ptr<GuGu::AssetData> World::loadTexture(const GuGuUtf8Str& filePath)

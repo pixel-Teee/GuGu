@@ -399,10 +399,10 @@ namespace GuGu {
 										)
 									)
 									+ VerticalBox::Slot()
-									.FixedHeight()
+									.StretchHeight(1.0f)
 									(
 										WIDGET_ASSIGN_NEW(ObjectDetails, m_objectDetails)
-										)
+									)
 								)
 							)
 						)		

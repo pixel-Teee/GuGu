@@ -26,7 +26,7 @@ namespace GuGu {
 
 				type.AddConstructor<Prefab, true, true>({});
 
-				type.LoadBaseClasses(db, id, { typeof(Prefab) });
+				type.LoadBaseClasses(db, id, { typeof(meta::Object) });
 
 				meta::TypeInfo<Prefab>::Defined = true;
 			}
@@ -51,6 +51,10 @@ namespace GuGu {
 		auto& db = meta::ReflectionDatabase::Instance();
 
 		auto& type = db.types[typeof(Prefab).GetID()];
+
+		type.AddField<Prefab, Array<std::shared_ptr<GameObject>>>("m_objects",
+			(meta::FieldGetter<Prefab, Array<std::shared_ptr<GameObject>>&, true>::Signature) & Prefab::getGameObjects,
+			(meta::FieldSetter<Prefab, Array<std::shared_ptr<GameObject>>&, true>::Signature) & Prefab::setGameObjects, {});
 
 		return true;
 	}
@@ -110,12 +114,12 @@ namespace GuGu {
 
 	}
 
-	void Prefab::setGameObjects(Array<std::shared_ptr<GameObject>> inObjects)
+	void Prefab::setGameObjects(const Array<std::shared_ptr<GameObject>>& inObjects)
 	{
 		m_objects = inObjects;
 	}
 
-	Array<std::shared_ptr<GameObject>> Prefab::getGameObjects()
+	Array<std::shared_ptr<GameObject>>& Prefab::getGameObjects()
 	{
 		return m_objects;
 	}
