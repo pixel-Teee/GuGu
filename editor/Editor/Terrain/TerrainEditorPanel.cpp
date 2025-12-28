@@ -543,41 +543,52 @@ namespace GuGu {
 				std::shared_ptr<AssetData> loadedAssetData = AssetManager::getAssetManager().loadPrefab(m_paintVegetation.m_filePath);
 				if (loadedAssetData)
 				{
+					//find root
 					std::shared_ptr<Prefab> instancePrefab = std::static_pointer_cast<Prefab>(loadedAssetData->m_loadedResource);
-					if (instancePrefab->getGameObjects().size() == 1)
+
+					std::shared_ptr<GameObject> rootGameObj;
+					Array<std::shared_ptr<GameObject>> objs = instancePrefab->getGameObjects();
+					for (int32_t i = 0; i < objs.size(); ++i)
 					{
-						std::shared_ptr<GameObject> gameObj = std::static_pointer_cast<GameObject>(AssetManager::getAssetManager().cloneObject(instancePrefab->getGameObjects()[0]));
+						if (objs[i]->getParentGameObject().lock() == nullptr)
+							rootGameObj = objs[i];
+					}
+					if (rootGameObj)
+					{
+						std::shared_ptr<GameObject> gameObj = std::static_pointer_cast<GameObject>(AssetManager::getAssetManager().cloneObject(rootGameObj));
 						if (gameObj)
 						{
 							std::shared_ptr<TerrainComponent> terrainComponent = m_terrainObject.lock()->getComponent<TerrainComponent>();
 							if (terrainComponent)
 							{
-								//paint
-								std::shared_ptr<TerrainVegetationComponent> terrainVegetationComp = std::static_pointer_cast<TerrainVegetationComponent>(gameObj->getComponent<TerrainVegetationComponent>());
-								if (terrainVegetationComp && m_terrainObject.lock())
-								{
-									if (terrainComponent)
+								gameObj->traverseGameObjectTrees([=](std::shared_ptr<GameObject> inGameObj) {
+									//paint
+									std::shared_ptr<TerrainVegetationComponent> terrainVegetationComp = std::static_pointer_cast<TerrainVegetationComponent>(inGameObj->getComponent<TerrainVegetationComponent>());
+									if (terrainVegetationComp && m_terrainObject.lock())
 									{
+										if (terrainComponent)
+										{
+											terrainVegetationComp->setTerrainOwner(terrainComponent);
+										}
+									}
+									else
+									{
+										terrainVegetationComp = std::make_shared<TerrainVegetationComponent>();
+										inGameObj->addComponent(terrainVegetationComp);
 										terrainVegetationComp->setTerrainOwner(terrainComponent);
 									}
-								}
-								else
-								{
-									terrainVegetationComp = std::make_shared<TerrainVegetationComponent>();
-									gameObj->addComponent(terrainVegetationComp);
-									terrainVegetationComp->setTerrainOwner(terrainComponent);
-								}
-								std::shared_ptr<TransformComponent> transformComponent = gameObj->getComponent<TransformComponent>();
-								if (transformComponent)
-								{
-									transformComponent->SetTranslation(math::double3(inBrushPos));
-								}
-								//add to current level
-								std::shared_ptr<World> currentWorld = World::getWorld();
-								if (currentWorld)
-								{
-									currentWorld->getCurrentLevel()->addGameObject(gameObj);
-								}
+									//add to current level
+									std::shared_ptr<World> currentWorld = World::getWorld();
+									if (currentWorld)
+									{
+										currentWorld->getCurrentLevel()->addGameObject(inGameObj);
+									}
+								});	
+							}
+							std::shared_ptr<TransformComponent> transformComponent = gameObj->getComponent<TransformComponent>();
+							if (transformComponent)
+							{
+								transformComponent->SetTranslation(math::double3(inBrushPos));
 							}
 						}
 					}			

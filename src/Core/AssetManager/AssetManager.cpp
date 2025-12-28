@@ -1322,7 +1322,15 @@ namespace GuGu {
 	{
 		for (const auto& item : m_guidToAssetMap)
 		{
-			if (item.second->m_filePath == filePath)
+			std::string filePath1 = item.second->m_filePath.getStr();
+			std::string filePath2 = filePath.getStr();
+			std::transform(filePath1.begin(), filePath1.end(), filePath1.begin(), [](unsigned char C) {
+				return std::toupper(C);
+			});
+			std::transform(filePath2.begin(), filePath2.end(), filePath2.begin(), [](unsigned char C) {
+				return std::toupper(C);
+			});
+			if (filePath1 == filePath2)
 				return true;
 		}
 		return false;
