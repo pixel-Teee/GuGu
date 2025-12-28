@@ -224,6 +224,21 @@ namespace GuGu {
 
 			PlatformMisc::getSaveFilePathAndFileName(rootWindow, initDir, filePath, fileName, filterArray);
 
+			filePath = filePath.replace("\\", "/");
+			fileName = fileName.replace("\\", "/");
+			filePath = filePath.replace(initDir, "");
+			fileName = fileName.replace(initDir, "");
+			if (filePath.len() > 0)
+			{
+				if (filePath[0] == "/")
+					filePath = filePath.substr(1, -1);
+			}
+			if (fileName.len() > 0)
+			{
+				if (fileName[0] == "/")
+					fileName = fileName.substr(1, -1);
+			}
+
 			if (fileName != "")
 			{
 				//get current level
@@ -234,11 +249,30 @@ namespace GuGu {
 				//levelJson["GUID"] = guidStr.getStr();
 				GuGuUtf8Str fileContent = levelJson.dump();
 
+				//root path
+				GuGuUtf8Str rootActualFilePath = AssetManager::getAssetManager().getActualPhysicalPath("");
+
 				GuGuUtf8Str noFileExtensionsFileName = fileName;
 				int32_t dotPos = noFileExtensionsFileName.findLastOf(".");
 				if (dotPos != -1)
 				{
-					noFileExtensionsFileName = noFileExtensionsFileName.substr(0, dotPos);
+					int32_t fileNameStartPos = noFileExtensionsFileName.findLastOf("/");
+					if (fileNameStartPos == -1)
+					{
+						fileNameStartPos = noFileExtensionsFileName.findLastOf("\\");
+					}
+					if (fileNameStartPos != -1)
+					{
+						noFileExtensionsFileName = noFileExtensionsFileName.substr(0, std::max(dotPos - fileNameStartPos - 1, 0));
+					}
+					else
+					{
+						noFileExtensionsFileName = noFileExtensionsFileName.substr(0, dotPos);
+					}
+				}
+				else
+				{
+					noFileExtensionsFileName = noFileExtensionsFileName.substr(0, -1);
 				}
 
 				//GuGuUtf8Str registerFilePath = filePath;
@@ -247,7 +281,11 @@ namespace GuGu {
 				//{
 				//	registerFilePath = filePath.substr(0, dotPos);
 				//}					
-				GuGuUtf8Str outputFilePath = ouputDir + "/" + noFileExtensionsFileName + ".json";
+				GuGuUtf8Str outputFilePath = ouputDir + "/" + filePath + ".json";
+				if (outputFilePath.findLastOf(".") != -1)
+					outputFilePath = ouputDir + "/" + filePath;
+				else
+					outputFilePath = ouputDir + "/" + filePath + ".json";
 
 				guidStr = AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<Level>().ID));
 				levelJson["GUID"] = guidStr.getStr();

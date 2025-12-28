@@ -24,6 +24,8 @@
 #include <Core/Reflection/MetaProperty/CustomDeserializeField.h>
 #include <Core/Reflection/MetaProperty/CustomSerializeField.h>
 
+#include <stack>
+
 namespace GuGu {
 	AssetManager::AssetManager()
 	{
@@ -206,14 +208,73 @@ namespace GuGu {
 
 	GuGuUtf8Str AssetManager::getActualPhysicalPath(const GuGuUtf8Str& relativePath)
 	{
+		GuGuUtf8Str resFilePath;
 		if (relativePath != "")
 		{
-			return m_nativeFileSystem->getNativeFilePath() + "/" + relativePath;
+			resFilePath = m_nativeFileSystem->getNativeFilePath() + "/" + relativePath;
 		}
 		else
 		{
-			return m_nativeFileSystem->getNativeFilePath();
+			resFilePath = m_nativeFileSystem->getNativeFilePath();
 		}
+
+		std::stack<GuGuUtf8Str> pathStack;
+		std::vector<GuGuUtf8Str> splitPath;
+		int32_t i = 0;
+		for (i = 0; i < resFilePath.len(); ++i)
+		{
+			int32_t findPos = resFilePath.findFirstOf("/", i);
+			if (findPos == -1)
+			{
+				findPos = resFilePath.findFirstOf("\\");	
+			}
+			if (findPos != -1)
+			{
+				if (resFilePath.substr(i, findPos - i) == "..")
+				{
+					pathStack.pop();
+				}
+				else
+				{
+					pathStack.push(resFilePath.substr(i, findPos - i));
+				}
+				//splitPath.push_back(resFilePath.substr(i, findPos - i));
+				i = findPos;
+			}
+			else
+			{
+				break;
+			}
+		}
+		if (i != resFilePath.len())
+		{
+			if (resFilePath.substr(i, -1) == "..")
+			{
+				pathStack.pop();
+			}
+			else
+			{
+				pathStack.push(resFilePath.substr(i, -1));
+			}
+		}
+
+		while (pathStack.size())
+		{
+			splitPath.push_back(pathStack.top());
+			pathStack.pop();
+		}
+
+		resFilePath = "";
+		for (int32_t i = splitPath.size() - 1; i >= 1; --i)
+		{
+			resFilePath = resFilePath + splitPath[i] + "/";
+		}
+		if (splitPath.size() > 0)
+		{
+			resFilePath = resFilePath + splitPath[0];
+		}
+		
+		return resFilePath;
 	}
 
 	std::shared_ptr<RootFileSystem> AssetManager::getRootFileSystem() const

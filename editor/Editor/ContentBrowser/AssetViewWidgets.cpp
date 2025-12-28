@@ -259,6 +259,15 @@ namespace GuGu {
 							.brush(assetImage)
 						);
 				}
+				else if (meta::Type::getType(assetViewAsset->m_data.m_assetTypeGuid).GetID() == meta::TypeIDs<Prefab>::ID)
+				{
+					std::shared_ptr<Brush> assetImage = EditorStyleSet::getStyleSet()->getBrush("PrefabAssetIcon");
+					itemContentsOverlay->addSlot()
+						(
+							WIDGET_NEW(ImageWidget)
+							.brush(assetImage)
+						);
+				}
             }	
         }
 

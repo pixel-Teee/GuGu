@@ -280,7 +280,19 @@ namespace GuGu {
 					int32_t dotPos = noFileExtensionsFileName.findLastOf(".");
 					if (dotPos != -1)
 					{
-						noFileExtensionsFileName = noFileExtensionsFileName.substr(0, dotPos);
+						int32_t fileNameStartPos = noFileExtensionsFileName.findLastOf("/");
+						if (fileNameStartPos == -1)
+						{
+							fileNameStartPos = noFileExtensionsFileName.findLastOf("\\");
+						}
+						if (fileNameStartPos != -1)
+						{
+							noFileExtensionsFileName = noFileExtensionsFileName.substr(fileNameStartPos + 1, std::max(dotPos - fileNameStartPos - 1, 0));
+						}				
+						else
+						{
+							noFileExtensionsFileName = noFileExtensionsFileName.substr(0, dotPos);
+						}
 					}
 
 					//GuGuUtf8Str registerFilePath = filePath;

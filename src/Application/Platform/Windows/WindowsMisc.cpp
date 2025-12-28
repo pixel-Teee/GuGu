@@ -115,7 +115,10 @@ namespace GuGu {
 				//note:output file name
 				filePath = GuGuUtf8Str::fromUtf16ToUtf8(ofn.lpstrFile);
 
-				fileName = filePath.substr(filePath.findLastOf("\\/") + 1);
+				if(filePath.findLastOf("\\") != -1)
+					fileName = filePath.substr(filePath.findLastOf("\\") + 1);
+				if (filePath.findLastOf("/") != -1)
+					fileName = filePath.substr(filePath.findLastOf("/") + 1);
 				//filePath肯定是文件路径，但不是目录
 				//FilePath relativeFilePath = FilePath::getRelativePath(filePath, Application::getApplication()->GetExecutableFilePath());
 				GuGu_LOGD("%s", fileName.getStr());
