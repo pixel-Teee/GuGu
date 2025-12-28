@@ -25,6 +25,7 @@
 #include <Core/GamePlay/GameUI/CanvasComponent.h>
 #include <Core/GamePlay/GameUI/ButtonComponent.h>
 #include <Core/GamePlay/ScriptComponent.h>
+#include <Core/GamePlay/TerrainVegetationComponent.h>
 
 #include <Renderer/Color.h>
 
@@ -843,6 +844,9 @@ namespace GuGu {
 
 		GrassComponent::registerMainFactory();
 		GrassComponent::registerMainFactory2();
+
+		TerrainVegetationComponent::registerMainFactory();
+		TerrainVegetationComponent::registerMainFactory2();
 
 		ReflectionMain::initialize();
 
