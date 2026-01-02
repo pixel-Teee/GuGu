@@ -1136,10 +1136,12 @@ namespace GuGu {
 
 	std::shared_ptr<AssetData> AssetManager::loadAsset(GGuid guid)
 	{
+		bool bFoundAsset = false;
 		for (const auto& item : m_guidToAssetMap)
 		{
 			if (item.first == guid)
 			{
+				bFoundAsset = true;
 				if (item.second->m_loadedResource == nullptr)
 				{
 					//load
@@ -1185,6 +1187,33 @@ namespace GuGu {
 					return item.second;
 				}
 			}
+		}
+		if (bFoundAsset == false)
+		{
+			for (const auto& item : m_guidToAssetMap)
+			{
+				if (item.first == guid)
+				{
+					//use default asset
+					if (meta::Type::getType(item.second->m_assetTypeGuid) == typeof(GStaticMesh))
+					{
+						item.second->m_loadedResource = loadAsset(AssetManager::getAssetManager().getGuid("content/defaultCube.json", typeof(GStaticMesh)));
+					}
+					else if (meta::Type::getType(item.second->m_assetTypeGuid) == typeof(GTexture))
+					{
+						item.second->m_loadedResource = loadAsset(AssetManager::getAssetManager().getGuid("content/white.json", typeof(GTexture)));
+					}
+					else if (meta::Type::getType(item.second->m_assetTypeGuid) == typeof(GFont))
+					{						
+						//load asset
+						std::shared_ptr<meta::Object> loadedObject = loadAsset(AssetManager::getAssetManager().getGuid("content/STKAITI.json", typeof(GTexture)));
+					}
+					else if (meta::Type::getType(item.second->m_assetTypeGuid) == typeof(Prefab))
+					{
+						item.second->m_loadedResource = nullptr;
+					}
+				}
+			}	
 		}
 		return nullptr;
 	}
