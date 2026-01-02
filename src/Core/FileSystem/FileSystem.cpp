@@ -81,6 +81,16 @@ namespace GuGu {
 		std::filesystem::rename(nativeOldPath.getStr(), nativeNewPath.getStr());
 	}
 
+	void NativeFileSystem::deleteFile(const GuGuUtf8Str& filePath)
+	{
+		GuGuUtf8Str nativePath;
+		if (m_nativePath == "")
+			nativePath = filePath;
+		else
+			nativePath = m_nativePath + "/" + filePath;
+		std::remove(nativePath.getStr());
+	}
+
 	//------archiver file system------
 	int32_t getInt(std::shared_ptr<FileSystem> in) {
 		unsigned char buffer[4];
@@ -222,6 +232,11 @@ namespace GuGu {
 
 	}
 
+	void ArchiverFileSystem::deleteFile(const GuGuUtf8Str& filePath)
+	{
+
+	}
+
 	//------root file system------
 	RootFileSystem::RootFileSystem()
 	{
@@ -354,6 +369,14 @@ namespace GuGu {
 		findMountPoint(oldPath, &relativeOldPath, tempFileSystem);
 		findMountPoint(newPath, &relativeNewPath, tempFileSystem);
 		m_currentOpenFileSystem->rename(relativeOldPath, relativeNewPath);
+	}
+
+	void RootFileSystem::deleteFile(const GuGuUtf8Str& filePath)
+	{
+		GuGuUtf8Str relativeFilePath = "";
+		std::shared_ptr<FileSystem> tempFileSystem;
+		findMountPoint(filePath, &relativeFilePath, tempFileSystem);
+		m_currentOpenFileSystem->deleteFile(relativeFilePath);
 	}
 
 	void CreateArchiveFiles(std::shared_ptr<RootFileSystem> rootFileSystem, std::shared_ptr<RootFileSystem> assetRootFileSystem, const std::vector<GuGuUtf8Str>& fileVirtualPaths, const GuGuUtf8Str& archiveVirtualPaths, const GuGuUtf8Str& mountPoint)

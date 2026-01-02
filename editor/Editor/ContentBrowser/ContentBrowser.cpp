@@ -114,399 +114,471 @@ namespace GuGu {
 		std::shared_ptr<Button> importFontFileButton;
 		std::shared_ptr<Button> importAnimationFileButton;
 		std::shared_ptr<Widget> menuContent;
-		menuContent = 
-		WIDGET_NEW(Border)
-			.BorderBackgroundColor(Attribute<math::float4>::Create([=]() {
-			return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel7");
-		}))
-		.padding(Padding(2.0f, 2.0f, 2.0f, 2.0f))
-		.Content
-		(
+
+		//asset handle
+		std::shared_ptr<Button> deleteAssetButton;
+
+		if (selectedAssets.size() == 0) //empty area click
+		{
+			menuContent = 
 			WIDGET_NEW(Border)
-			.BorderBackgroundColor(Attribute<math::float4>::Create([=]() {
-				return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel4");
+				.BorderBackgroundColor(Attribute<math::float4>::Create([=]() {
+				return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel7");
 			}))
+			.padding(Padding(2.0f, 2.0f, 2.0f, 2.0f))
 			.Content
 			(
-				WIDGET_NEW(VerticalBox)
-				+ VerticalBox::Slot()
-				.FixedHeight()
+				WIDGET_NEW(Border)
+				.BorderBackgroundColor(Attribute<math::float4>::Create([=]() {
+					return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel4");
+				}))
+				.Content
 				(
-					WIDGET_ASSIGN_NEW(Button, importModelButton)
-					.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
-					.Content
+					WIDGET_NEW(VerticalBox)
+					+ VerticalBox::Slot()
+					.FixedHeight()
 					(
-						WIDGET_NEW(HorizontalBox)
-						+ HorizontalBox::Slot()
-						.FixedWidth()
+						WIDGET_ASSIGN_NEW(Button, importModelButton)
+						.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+						.Content
 						(
-							WIDGET_NEW(ImageWidget)
-							.brush(EditorStyleSet::getStyleSet()->getBrush("ImportModel_Icon"))
-						)
-						+ HorizontalBox::Slot()
-						.setPadding(Padding(5.0f, 0.0f, 5.0f, 0.0f))
-						.FixedWidth()
-						(
-							WIDGET_NEW(TextBlockWidget)
-							.text(u8"Import Model")
-							.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
-						)	
-					)
-				)
-				+ VerticalBox::Slot()
-				.FixedHeight()
-				(
-					WIDGET_ASSIGN_NEW(Button, importTextureButton)
-					.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
-					.Content
-					(
-						WIDGET_NEW(HorizontalBox)
-						+ HorizontalBox::Slot()
-						.FixedWidth()
-						(
-							WIDGET_NEW(ImageWidget)
-							.brush(EditorStyleSet::getStyleSet()->getBrush("ImportTexture_Icon"))
-						)
-						+ HorizontalBox::Slot()
-						.setPadding(Padding(5.0f, 0.0f, 5.0f, 0.0f))
-						.FixedWidth()
-						(
-							WIDGET_NEW(TextBlockWidget)
-							.text(u8"Import Texture")
-							.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+							WIDGET_NEW(HorizontalBox)
+							+ HorizontalBox::Slot()
+							.FixedWidth()
+							(
+								WIDGET_NEW(ImageWidget)
+								.brush(EditorStyleSet::getStyleSet()->getBrush("ImportModel_Icon"))
+							)
+							+ HorizontalBox::Slot()
+							.setPadding(Padding(5.0f, 0.0f, 5.0f, 0.0f))
+							.FixedWidth()
+							(
+								WIDGET_NEW(TextBlockWidget)
+								.text(u8"Import Model")
+								.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+							)	
 						)
 					)
-				)
-				+ VerticalBox::Slot()
-				.FixedHeight()
-				(
-					WIDGET_ASSIGN_NEW(Button, importFontFileButton)
-					.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
-					.Content
+					+ VerticalBox::Slot()
+					.FixedHeight()
 					(
-						WIDGET_NEW(HorizontalBox)
-						+ HorizontalBox::Slot()
-						.FixedWidth()
+						WIDGET_ASSIGN_NEW(Button, importTextureButton)
+						.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+						.Content
 						(
-							WIDGET_NEW(ImageWidget)
-							.brush(EditorStyleSet::getStyleSet()->getBrush("ImportFont_Icon"))
+							WIDGET_NEW(HorizontalBox)
+							+ HorizontalBox::Slot()
+							.FixedWidth()
+							(
+								WIDGET_NEW(ImageWidget)
+								.brush(EditorStyleSet::getStyleSet()->getBrush("ImportTexture_Icon"))
+							)
+							+ HorizontalBox::Slot()
+							.setPadding(Padding(5.0f, 0.0f, 5.0f, 0.0f))
+							.FixedWidth()
+							(
+								WIDGET_NEW(TextBlockWidget)
+								.text(u8"Import Texture")
+								.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+							)
 						)
-						+ HorizontalBox::Slot()
-						.setPadding(Padding(5.0f, 0.0f, 5.0f, 0.0f))
-						.FixedWidth()
+					)
+					+ VerticalBox::Slot()
+					.FixedHeight()
+					(
+						WIDGET_ASSIGN_NEW(Button, importFontFileButton)
+						.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+						.Content
 						(
-							WIDGET_NEW(TextBlockWidget)
-							.text(u8"Import Font")
-							.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+							WIDGET_NEW(HorizontalBox)
+							+ HorizontalBox::Slot()
+							.FixedWidth()
+							(
+								WIDGET_NEW(ImageWidget)
+								.brush(EditorStyleSet::getStyleSet()->getBrush("ImportFont_Icon"))
+							)
+							+ HorizontalBox::Slot()
+							.setPadding(Padding(5.0f, 0.0f, 5.0f, 0.0f))
+							.FixedWidth()
+							(
+								WIDGET_NEW(TextBlockWidget)
+								.text(u8"Import Font")
+								.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+							)
+						)
+					)
+					+ VerticalBox::Slot()
+					.FixedHeight()
+					(
+						WIDGET_ASSIGN_NEW(Button, importAnimationFileButton)
+						.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+						.Content
+						(
+							WIDGET_NEW(HorizontalBox)
+							+ HorizontalBox::Slot()
+							.FixedWidth()
+							(
+								WIDGET_NEW(ImageWidget)
+								.brush(EditorStyleSet::getStyleSet()->getBrush("ImportAnimation_Icon"))
+							)
+							+ HorizontalBox::Slot()
+							.setPadding(Padding(5.0f, 0.0f, 5.0f, 0.0f))
+							.FixedWidth()
+							(
+								WIDGET_NEW(TextBlockWidget)
+								.text(u8"Import Animation")
+								.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+							)
+						)
+					)
+					+ VerticalBox::Slot()
+					.FixedHeight()
+					(
+						WIDGET_ASSIGN_NEW(Button, importSkeletonButton)
+						.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+						.Content
+						(
+							WIDGET_NEW(HorizontalBox)
+							+ HorizontalBox::Slot()
+							.FixedWidth()
+							(
+								WIDGET_NEW(ImageWidget)
+								.brush(EditorStyleSet::getStyleSet()->getBrush("ImportModel_Icon"))
+							)
+							+ HorizontalBox::Slot()
+							.setPadding(Padding(5.0f, 0.0f, 5.0f, 0.0f))
+							.FixedWidth()
+							(
+								WIDGET_NEW(TextBlockWidget)
+								.text(u8"Import Skeleton Model")
+								.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+							)	
 						)
 					)
 				)
-				+ VerticalBox::Slot()
-				.FixedHeight()
+			);
+		}
+		else
+		{
+			menuContent = 
+			WIDGET_NEW(Border)
+				.BorderBackgroundColor(Attribute<math::float4>::Create([=]() {
+				return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel7");
+			}))
+			.padding(Padding(2.0f, 2.0f, 2.0f, 2.0f))
+			.Content
+			(
+				WIDGET_NEW(Border)
+				.BorderBackgroundColor(Attribute<math::float4>::Create([=]() {
+					return EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel4");
+				}))
+				.Content
 				(
-					WIDGET_ASSIGN_NEW(Button, importAnimationFileButton)
-					.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
-					.Content
+					WIDGET_NEW(VerticalBox)
+					+ VerticalBox::Slot()
+					.FixedHeight()
 					(
-						WIDGET_NEW(HorizontalBox)
-						+ HorizontalBox::Slot()
-						.FixedWidth()
+						WIDGET_ASSIGN_NEW(Button, deleteAssetButton)
+						.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+						.Content
 						(
-							WIDGET_NEW(ImageWidget)
-							.brush(EditorStyleSet::getStyleSet()->getBrush("ImportAnimation_Icon"))
-						)
-						+ HorizontalBox::Slot()
-						.setPadding(Padding(5.0f, 0.0f, 5.0f, 0.0f))
-						.FixedWidth()
-						(
-							WIDGET_NEW(TextBlockWidget)
-							.text(u8"Import Animation")
-							.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+							WIDGET_NEW(HorizontalBox)
+							+ HorizontalBox::Slot()
+							.FixedWidth()
+							(
+								WIDGET_NEW(ImageWidget)
+								.brush(EditorStyleSet::getStyleSet()->getBrush("DeleteAsset_Icon"))
+							)
+							+ HorizontalBox::Slot()
+							.setPadding(Padding(5.0f, 0.0f, 5.0f, 0.0f))
+							.FixedWidth()
+							(
+								WIDGET_NEW(TextBlockWidget)
+								.text(u8"delete asset")
+								.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+							)	
 						)
 					)
 				)
-				+ VerticalBox::Slot()
-				.FixedHeight()
-				(
-					WIDGET_ASSIGN_NEW(Button, importSkeletonButton)
-					.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
-					.Content
-					(
-						WIDGET_NEW(HorizontalBox)
-						+ HorizontalBox::Slot()
-						.FixedWidth()
-						(
-							WIDGET_NEW(ImageWidget)
-							.brush(EditorStyleSet::getStyleSet()->getBrush("ImportModel_Icon"))
-						)
-						+ HorizontalBox::Slot()
-						.setPadding(Padding(5.0f, 0.0f, 5.0f, 0.0f))
-						.FixedWidth()
-						(
-							WIDGET_NEW(TextBlockWidget)
-							.text(u8"Import Skeleton Model")
-							.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
-						)	
-					)
-				)
-			)
-		);
-		importModelButton->setOnClicked(
-			OnClicked([=]() {
-				GuGuUtf8Str initDir = sourcesData + "/";
-				std::vector<GuGuUtf8Str> filterArray;
-				filterArray.push_back("FBX(*.fbx)\0");
-				filterArray.push_back("*.fbx\0");
-				filterArray.push_back("OBJ(*.obj)\0");
-				filterArray.push_back("*.obj\0");
-				filterArray.push_back("DAE(*.dae)\0");
-				filterArray.push_back("*.dae\0");
-				initDir = sourcesData.substr(initDir.findFirstOf("/"));
-				initDir = AssetManager::getAssetManager().getActualPhysicalPath(initDir);
-				GuGuUtf8Str fileName;
-				GuGuUtf8Str filePath;
-				PlatformMisc::getOpenFilePathAndFileName(m_parentWindow, initDir, filePath, fileName, filterArray);
+			);
+		}
+		
+		if (selectedAssets.size() == 0)
+		{
+			importModelButton->setOnClicked(
+				OnClicked([=]() {
+					GuGuUtf8Str initDir = sourcesData + "/";
+					std::vector<GuGuUtf8Str> filterArray;
+					filterArray.push_back("FBX(*.fbx)\0");
+					filterArray.push_back("*.fbx\0");
+					filterArray.push_back("OBJ(*.obj)\0");
+					filterArray.push_back("*.obj\0");
+					filterArray.push_back("DAE(*.dae)\0");
+					filterArray.push_back("*.dae\0");
+					initDir = sourcesData.substr(initDir.findFirstOf("/"));
+					initDir = AssetManager::getAssetManager().getActualPhysicalPath(initDir);
+					GuGuUtf8Str fileName;
+					GuGuUtf8Str filePath;
+					PlatformMisc::getOpenFilePathAndFileName(m_parentWindow, initDir, filePath, fileName, filterArray);
 
-				if (fileName != "")
-				{
-					//import model
-					ModelImporter modelImporter;
-					nlohmann::json modelJson = modelImporter.loadModel(filePath);
-					GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
-					//modelJson["GUID"] = guidStr.getStr();
-					GuGuUtf8Str fileContent = modelJson.dump();
-
-					GuGuUtf8Str noFileExtensionsFileName = fileName;
-					int32_t dotPos = noFileExtensionsFileName.findLastOf(".");
-					if (dotPos != -1)
+					if (fileName != "")
 					{
-						int32_t fileNameStartPos = noFileExtensionsFileName.findLastOf("/");
-						if (fileNameStartPos == -1)
+						//import model
+						ModelImporter modelImporter;
+						nlohmann::json modelJson = modelImporter.loadModel(filePath);
+						GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
+						//modelJson["GUID"] = guidStr.getStr();
+						GuGuUtf8Str fileContent = modelJson.dump();
+
+						GuGuUtf8Str noFileExtensionsFileName = fileName;
+						int32_t dotPos = noFileExtensionsFileName.findLastOf(".");
+						if (dotPos != -1)
 						{
-							fileNameStartPos = noFileExtensionsFileName.findLastOf("\\");
+							int32_t fileNameStartPos = noFileExtensionsFileName.findLastOf("/");
+							if (fileNameStartPos == -1)
+							{
+								fileNameStartPos = noFileExtensionsFileName.findLastOf("\\");
+							}
+							if (fileNameStartPos != -1)
+							{
+								noFileExtensionsFileName = noFileExtensionsFileName.substr(fileNameStartPos + 1, std::max(dotPos - fileNameStartPos - 1, 0));
+							}
+							else
+							{
+								noFileExtensionsFileName = noFileExtensionsFileName.substr(0, dotPos);
+							}
 						}
-						if (fileNameStartPos != -1)
-						{
-							noFileExtensionsFileName = noFileExtensionsFileName.substr(fileNameStartPos + 1, std::max(dotPos - fileNameStartPos - 1, 0));
-						}				
-						else
+
+						//GuGuUtf8Str registerFilePath = filePath;
+						//dotPos = filePath.findLastOf(".");
+						//if (dotPos != -1)
+						//{
+						//	registerFilePath = filePath.substr(0, dotPos);
+						//}					
+						GuGuUtf8Str outputFilePath = sourcesData + "/" + noFileExtensionsFileName + ".json";
+
+						guidStr = AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GStaticMesh>().ID));
+						modelJson["GUID"] = guidStr.getStr();
+						//输出到目录
+						AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
+						AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
+						AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
+					}
+					return Reply::Handled();
+				}));
+
+			importTextureButton->setOnClicked(
+				OnClicked([=]() {
+					GuGuUtf8Str initDir = sourcesData + "/";
+					std::vector<GuGuUtf8Str> filterArray;
+					filterArray.push_back("JPG(*.jpg)\0");
+					filterArray.push_back("*.jpg\0");
+					filterArray.push_back("PNG(*.png)\0");
+					filterArray.push_back("*.png\0");
+					initDir = sourcesData.substr(initDir.findFirstOf("/"));
+					initDir = AssetManager::getAssetManager().getActualPhysicalPath(initDir);
+					GuGuUtf8Str fileName;
+					GuGuUtf8Str filePath;
+					PlatformMisc::getOpenFilePathAndFileName(m_parentWindow, initDir, filePath, fileName, filterArray);
+
+					if (fileName != "")
+					{
+						//import texture
+						TextureImporter textureImporter;
+						nlohmann::json textureJson = textureImporter.loadTexture(filePath);
+						GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
+						//textureJson["GUID"] = guidStr.getStr();
+						GuGuUtf8Str fileContent = textureJson.dump();
+
+						GuGuUtf8Str noFileExtensionsFileName = fileName;
+						int32_t dotPos = noFileExtensionsFileName.findLastOf(".");
+						if (dotPos != -1)
 						{
 							noFileExtensionsFileName = noFileExtensionsFileName.substr(0, dotPos);
 						}
+
+						//GuGuUtf8Str registerFilePath = filePath;
+						//dotPos = filePath.findLastOf(".");
+						//if (dotPos != -1)
+						//{
+						//	registerFilePath = filePath.substr(0, dotPos);
+						//}					
+						GuGuUtf8Str outputFilePath = sourcesData + "/" + noFileExtensionsFileName + ".json";
+
+						guidStr = AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GTexture>().ID));
+						textureJson["GUID"] = guidStr.getStr();
+						//输出到目录
+						AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
+						AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
+						AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
 					}
+					return Reply::Handled();
+				}));
 
-					//GuGuUtf8Str registerFilePath = filePath;
-					//dotPos = filePath.findLastOf(".");
-					//if (dotPos != -1)
-					//{
-					//	registerFilePath = filePath.substr(0, dotPos);
-					//}					
-					GuGuUtf8Str outputFilePath = sourcesData + "/" + noFileExtensionsFileName + ".json";
+			importFontFileButton->setOnClicked(
+				OnClicked([=]() {
+					GuGuUtf8Str initDir = sourcesData + "/";
+					std::vector<GuGuUtf8Str> filterArray;
+					filterArray.push_back("TTF(*.ttf)\0");
+					filterArray.push_back("*.ttf\0");
+					initDir = sourcesData.substr(initDir.findFirstOf("/"));
+					initDir = AssetManager::getAssetManager().getActualPhysicalPath(initDir);
+					GuGuUtf8Str fileName;
+					GuGuUtf8Str filePath;
+					PlatformMisc::getOpenFilePathAndFileName(m_parentWindow, initDir, filePath, fileName, filterArray);
 
-					guidStr = AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GStaticMesh>().ID));
-					modelJson["GUID"] = guidStr.getStr();
-					//输出到目录
-					AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
-					AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
-					AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
-				}
-				return Reply::Handled();
-		}));
-
-		importTextureButton->setOnClicked(
-			OnClicked([=]() {
-				GuGuUtf8Str initDir = sourcesData + "/";
-				std::vector<GuGuUtf8Str> filterArray;
-				filterArray.push_back("JPG(*.jpg)\0");
-				filterArray.push_back("*.jpg\0");
-				filterArray.push_back("PNG(*.png)\0");
-				filterArray.push_back("*.png\0");
-				initDir = sourcesData.substr(initDir.findFirstOf("/"));
-				initDir = AssetManager::getAssetManager().getActualPhysicalPath(initDir);
-				GuGuUtf8Str fileName;
-				GuGuUtf8Str filePath;
-				PlatformMisc::getOpenFilePathAndFileName(m_parentWindow, initDir, filePath, fileName, filterArray);
-
-				if (fileName != "")
-				{
-					//import texture
-					TextureImporter textureImporter;
-					nlohmann::json textureJson = textureImporter.loadTexture(filePath);
-					GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
-					//textureJson["GUID"] = guidStr.getStr();
-					GuGuUtf8Str fileContent = textureJson.dump();
-
-					GuGuUtf8Str noFileExtensionsFileName = fileName;
-					int32_t dotPos = noFileExtensionsFileName.findLastOf(".");
-					if (dotPos != -1)
+					if (fileName != "")
 					{
-						noFileExtensionsFileName = noFileExtensionsFileName.substr(0, dotPos);
+						//import texture
+						UITextManager uiTextManager;
+						nlohmann::json fontFileJson = uiTextManager.loadFontFile(filePath);
+						GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
+						//fontFileJson["GUID"] = guidStr.getStr();
+						GuGuUtf8Str fileContent = fontFileJson.dump();
+
+						GuGuUtf8Str noFileExtensionsFileName = fileName;
+						int32_t dotPos = noFileExtensionsFileName.findLastOf(".");
+						if (dotPos != -1)
+						{
+							noFileExtensionsFileName = noFileExtensionsFileName.substr(0, dotPos);
+						}
+
+						//GuGuUtf8Str registerFilePath = filePath;
+						//dotPos = filePath.findLastOf(".");
+						//if (dotPos != -1)
+						//{
+						//	registerFilePath = filePath.substr(0, dotPos);
+						//}					
+						GuGuUtf8Str outputFilePath = sourcesData + "/" + noFileExtensionsFileName + ".json";
+
+						guidStr = AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GFont>().ID));
+						fontFileJson["GUID"] = guidStr.getStr();
+						//输出到目录
+						AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
+						AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
+						AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
+					}
+					return Reply::Handled();
+				}));
+
+
+			importAnimationFileButton->setOnClicked(
+				OnClicked([=]() {
+					GuGuUtf8Str initDir = sourcesData + "/";
+					std::vector<GuGuUtf8Str> filterArray;
+					filterArray.push_back("FBX(*.fbx)\0");
+					filterArray.push_back("*.fbx\0");
+					filterArray.push_back("OBJ(*.obj)\0");
+					filterArray.push_back("*.obj\0");
+					filterArray.push_back("DAE(*.dae)\0");
+					filterArray.push_back("*.dae\0");
+					initDir = sourcesData.substr(initDir.findFirstOf("/"));
+					initDir = AssetManager::getAssetManager().getActualPhysicalPath(initDir);
+					GuGuUtf8Str fileName;
+					GuGuUtf8Str filePath;
+					PlatformMisc::getOpenFilePathAndFileName(m_parentWindow, initDir, filePath, fileName, filterArray);
+
+					if (fileName != "")
+					{
+						//import anim
+						ModelImporter modelImporter;
+						nlohmann::json animationJson = modelImporter.loadAnimation(filePath);
+						GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
+						//animationJson["GUID"] = guidStr.getStr();
+						GuGuUtf8Str fileContent = animationJson.dump();
+
+						GuGuUtf8Str noFileExtensionsFileName = fileName;
+						int32_t dotPos = noFileExtensionsFileName.findLastOf(".");
+						if (dotPos != -1)
+						{
+							noFileExtensionsFileName = noFileExtensionsFileName.substr(0, dotPos);
+						}
+
+						//GuGuUtf8Str registerFilePath = filePath;
+						//dotPos = filePath.findLastOf(".");
+						//if (dotPos != -1)
+						//{
+						//	registerFilePath = filePath.substr(0, dotPos);
+						//}					
+						GuGuUtf8Str outputFilePath = sourcesData + "/" + noFileExtensionsFileName + "_anim" + ".json";
+
+						guidStr = AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + "_anim" + ".json", meta::Type(meta::TypeIDs<GAnimation>().ID));
+						animationJson["GUID"] = guidStr.getStr();
+						//输出到目录
+						AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
+						AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
+						AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
+					}
+					return Reply::Handled();
+				}));
+
+			importSkeletonButton->setOnClicked(
+				OnClicked([=]() {
+					GuGuUtf8Str initDir = sourcesData + "/";
+					std::vector<GuGuUtf8Str> filterArray;
+					filterArray.push_back("FBX(*.fbx)\0");
+					filterArray.push_back("*.fbx\0");
+					filterArray.push_back("OBJ(*.obj)\0");
+					filterArray.push_back("*.obj\0");
+					filterArray.push_back("DAE(*.dae)\0");
+					filterArray.push_back("*.dae\0");
+					initDir = sourcesData.substr(initDir.findFirstOf("/"));
+					initDir = AssetManager::getAssetManager().getActualPhysicalPath(initDir);
+					GuGuUtf8Str fileName;
+					GuGuUtf8Str filePath;
+					PlatformMisc::getOpenFilePathAndFileName(m_parentWindow, initDir, filePath, fileName, filterArray);
+
+					if (fileName != "")
+					{
+						//import model
+						ModelImporter modelImporter;
+						nlohmann::json modelJson = modelImporter.loadModel(filePath, true);//load skeleton
+						GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
+						//modelJson["GUID"] = guidStr.getStr();
+						GuGuUtf8Str fileContent = modelJson.dump();
+
+						GuGuUtf8Str noFileExtensionsFileName = fileName;
+						int32_t dotPos = noFileExtensionsFileName.findLastOf(".");
+						if (dotPos != -1)
+						{
+							noFileExtensionsFileName = noFileExtensionsFileName.substr(0, dotPos);
+						}
+
+						//GuGuUtf8Str registerFilePath = filePath;
+						//dotPos = filePath.findLastOf(".");
+						//if (dotPos != -1)
+						//{
+						//	registerFilePath = filePath.substr(0, dotPos);
+						//}					
+						GuGuUtf8Str outputFilePath = sourcesData + "/" + noFileExtensionsFileName + ".json";
+
+						guidStr = AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GStaticMesh>().ID));
+						modelJson["GUID"] = guidStr.getStr();
+						//输出到目录
+						AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
+						AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
+						AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
+					}
+					return Reply::Handled();
+				}));
+		}
+		else
+		{
+			deleteAssetButton->setOnClicked(
+				OnClicked([=]() {
+
+					if (selectedAssets.size() > 0)
+					{
+						//delete asset
+						for (int32_t i = 0; i < selectedAssets.size(); ++i)
+						{
+							AssetManager::getAssetManager().deleteAsset(selectedAssets[i]);
+						}
 					}
 
-					//GuGuUtf8Str registerFilePath = filePath;
-					//dotPos = filePath.findLastOf(".");
-					//if (dotPos != -1)
-					//{
-					//	registerFilePath = filePath.substr(0, dotPos);
-					//}					
-					GuGuUtf8Str outputFilePath = sourcesData + "/" + noFileExtensionsFileName + ".json";
-
-					guidStr = AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GTexture>().ID));
-					textureJson["GUID"] = guidStr.getStr();
-					//输出到目录
-					AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
-					AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
-					AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
-				}		
-				return Reply::Handled();
+					return Reply::Handled();
 			}));
-
-		importFontFileButton->setOnClicked(
-			OnClicked([=]() {
-				GuGuUtf8Str initDir = sourcesData + "/";
-				std::vector<GuGuUtf8Str> filterArray;
-				filterArray.push_back("TTF(*.ttf)\0");
-				filterArray.push_back("*.ttf\0");
-				initDir = sourcesData.substr(initDir.findFirstOf("/"));
-				initDir = AssetManager::getAssetManager().getActualPhysicalPath(initDir);
-				GuGuUtf8Str fileName;
-				GuGuUtf8Str filePath;
-				PlatformMisc::getOpenFilePathAndFileName(m_parentWindow, initDir, filePath, fileName, filterArray);
-
-				if (fileName != "")
-				{
-					//import texture
-					UITextManager uiTextManager;
-					nlohmann::json fontFileJson = uiTextManager.loadFontFile(filePath);
-					GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
-					//fontFileJson["GUID"] = guidStr.getStr();
-					GuGuUtf8Str fileContent = fontFileJson.dump();
-
-					GuGuUtf8Str noFileExtensionsFileName = fileName;
-					int32_t dotPos = noFileExtensionsFileName.findLastOf(".");
-					if (dotPos != -1)
-					{
-						noFileExtensionsFileName = noFileExtensionsFileName.substr(0, dotPos);
-					}
-
-					//GuGuUtf8Str registerFilePath = filePath;
-					//dotPos = filePath.findLastOf(".");
-					//if (dotPos != -1)
-					//{
-					//	registerFilePath = filePath.substr(0, dotPos);
-					//}					
-					GuGuUtf8Str outputFilePath = sourcesData + "/" + noFileExtensionsFileName + ".json";
-
-					guidStr = AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GFont>().ID));
-					fontFileJson["GUID"] = guidStr.getStr();
-					//输出到目录
-					AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
-					AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
-					AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
-				}
-				return Reply::Handled();
-		}));
-
-		
-		importAnimationFileButton->setOnClicked(
-			OnClicked([=]() {
-				GuGuUtf8Str initDir = sourcesData + "/";
-				std::vector<GuGuUtf8Str> filterArray;
-				filterArray.push_back("FBX(*.fbx)\0");
-				filterArray.push_back("*.fbx\0");
-				filterArray.push_back("OBJ(*.obj)\0");
-				filterArray.push_back("*.obj\0");
-				filterArray.push_back("DAE(*.dae)\0");
-				filterArray.push_back("*.dae\0");
-				initDir = sourcesData.substr(initDir.findFirstOf("/"));
-				initDir = AssetManager::getAssetManager().getActualPhysicalPath(initDir);
-				GuGuUtf8Str fileName;
-				GuGuUtf8Str filePath;
-				PlatformMisc::getOpenFilePathAndFileName(m_parentWindow, initDir, filePath, fileName, filterArray);
-
-				if (fileName != "")
-				{
-					//import anim
-					ModelImporter modelImporter;
-					nlohmann::json animationJson = modelImporter.loadAnimation(filePath);
-					GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
-					//animationJson["GUID"] = guidStr.getStr();
-					GuGuUtf8Str fileContent = animationJson.dump();
-
-					GuGuUtf8Str noFileExtensionsFileName = fileName;
-					int32_t dotPos = noFileExtensionsFileName.findLastOf(".");
-					if (dotPos != -1)
-					{
-						noFileExtensionsFileName = noFileExtensionsFileName.substr(0, dotPos);
-					}
-
-					//GuGuUtf8Str registerFilePath = filePath;
-					//dotPos = filePath.findLastOf(".");
-					//if (dotPos != -1)
-					//{
-					//	registerFilePath = filePath.substr(0, dotPos);
-					//}					
-					GuGuUtf8Str outputFilePath = sourcesData + "/" + noFileExtensionsFileName + "_anim" + ".json";
-
-					guidStr = AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + "_anim" + ".json", meta::Type(meta::TypeIDs<GAnimation>().ID));
-					animationJson["GUID"] = guidStr.getStr();
-					//输出到目录
-					AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
-					AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
-					AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
-				}
-				return Reply::Handled();
-		}));
-
-		importSkeletonButton->setOnClicked(
-			OnClicked([=]() {
-				GuGuUtf8Str initDir = sourcesData + "/";
-				std::vector<GuGuUtf8Str> filterArray;
-				filterArray.push_back("FBX(*.fbx)\0");
-				filterArray.push_back("*.fbx\0");
-				filterArray.push_back("OBJ(*.obj)\0");
-				filterArray.push_back("*.obj\0");
-				filterArray.push_back("DAE(*.dae)\0");
-				filterArray.push_back("*.dae\0");
-				initDir = sourcesData.substr(initDir.findFirstOf("/"));
-				initDir = AssetManager::getAssetManager().getActualPhysicalPath(initDir);
-				GuGuUtf8Str fileName;
-				GuGuUtf8Str filePath;
-				PlatformMisc::getOpenFilePathAndFileName(m_parentWindow, initDir, filePath, fileName, filterArray);
-
-				if (fileName != "")
-				{
-					//import model
-					ModelImporter modelImporter;
-					nlohmann::json modelJson = modelImporter.loadModel(filePath, true);//load skeleton
-					GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
-					//modelJson["GUID"] = guidStr.getStr();
-					GuGuUtf8Str fileContent = modelJson.dump();
-
-					GuGuUtf8Str noFileExtensionsFileName = fileName;
-					int32_t dotPos = noFileExtensionsFileName.findLastOf(".");
-					if (dotPos != -1)
-					{
-						noFileExtensionsFileName = noFileExtensionsFileName.substr(0, dotPos);
-					}
-
-					//GuGuUtf8Str registerFilePath = filePath;
-					//dotPos = filePath.findLastOf(".");
-					//if (dotPos != -1)
-					//{
-					//	registerFilePath = filePath.substr(0, dotPos);
-					//}					
-					GuGuUtf8Str outputFilePath = sourcesData + "/" + noFileExtensionsFileName + ".json";
-
-					guidStr = AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GStaticMesh>().ID));
-					modelJson["GUID"] = guidStr.getStr();
-					//输出到目录
-					AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
-					AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
-					AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
-				}
-				return Reply::Handled();
-		}));
+		}	
 
 		return menuContent;
 	}

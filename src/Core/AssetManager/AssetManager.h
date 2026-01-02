@@ -109,6 +109,8 @@ namespace GuGu {
 
 		//检查同一目录下是否有相同命名的文件
 		bool CheckIsDuplicateFile(const GuGuUtf8Str& filePath);
+
+		void deleteAsset(const AssetData& inAssetData);
 	private:
 		//遍历目录和文件
 		void traverseDirectoryAndFile_private(const GuGuUtf8Str& directory, std::function<void(GuGuUtf8Str, bool)> enumerateCallBack);

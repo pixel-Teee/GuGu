@@ -122,12 +122,6 @@
     },
     {
       "AssetType": "27FA1875-C32A-411C-9B51-AABEC9E28152",
-      "FileName": "GrassPrefab.json",
-      "FilePath": "content/Grass/GrassPrefab.json",
-      "GUID": "0BE0E28D-04BB-4102-8538-72D3ADD0D025"
-    },
-    {
-      "AssetType": "27FA1875-C32A-411C-9B51-AABEC9E28152",
       "FileName": "GrassPrefab_2.json",
       "FilePath": "content/Grass/GrassPrefab_2.json",
       "GUID": "A2C0802C-C899-4509-BBDC-E200E352A7B4"

@@ -337,7 +337,7 @@ namespace GuGu {
 		if (bFound && assetData)
 		{
 			//std::filesystem::rename(assetData->m_filePath.getStr(), filePath.getStr());
-			m_rootFileSystem->OpenFile("content/AssetRgistry.json", GuGuFile::FileMode::OnlyWrite);
+			m_rootFileSystem->OpenFile("content/AssetRgistry.json", GuGuFile::FileMode::OnlyRead);
 			m_rootFileSystem->rename(assetData->m_filePath, filePath);
 			m_rootFileSystem->CloseFile();
 
@@ -1363,6 +1363,46 @@ namespace GuGu {
 				return true;
 		}
 		return false;
+	}
+
+	void AssetManager::deleteAsset(const AssetData& inAssetData)
+	{
+		GGuid fileGuid;
+		//delete asset and delete file
+		bool bDeleteAssetRegistrySuccessfully = false;
+		for (auto it = m_guidToAssetMap.begin(); it != m_guidToAssetMap.end(); ++it)
+		{
+			if (it->second->m_filePath == inAssetData.m_filePath)
+			{
+				bDeleteAssetRegistrySuccessfully = true;
+				fileGuid = it->first;
+				m_guidToAssetMap.erase(it);
+				break;
+			}
+		}
+		if (bDeleteAssetRegistrySuccessfully)
+		{
+			//todo:fix this
+			m_rootFileSystem->OpenFile("content/AssetRgistry.json", GuGuFile::FileMode::OnlyWrite);
+
+			nlohmann::json root = m_assetRegistryJson["AssetRegistry"];
+
+			root.erase(std::remove_if(root.begin(), root.end(), [=](const nlohmann::json& obj) {
+				return obj["GUID"].get<std::string>() == fileGuid.getGuid().getStr();
+			}), root.end());
+
+			m_assetRegistryJson["AssetRegistry"] = root;
+
+			GuGuUtf8Str jsonFileContent = m_assetRegistryJson.dump();
+			m_rootFileSystem->WriteFile((void*)jsonFileContent.getStr(), jsonFileContent.getTotalByteCount());
+
+			m_rootFileSystem->deleteFile(inAssetData.m_filePath);
+			m_rootFileSystem->CloseFile();
+		}
+		else
+		{
+			GuGu_LOGE("delete file error, don't find file");
+		}
 	}
 
 	//遍历目录
