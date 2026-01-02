@@ -25,9 +25,17 @@ namespace GuGu {
 
 		Reply miniMizeWindow();
 
+		Reply maximizeWindow();
+
+		Reply restoreWindow();
+
 		WindowZone::Type getWindowZoneOverride() const override;
+
+		Visibility getRestoreButtonVisibility() const;
 	private:
 
 		std::weak_ptr<WindowWidget> m_parentWindow;
+
+		bool m_bIsMaximize;//maximize
 	};
 }

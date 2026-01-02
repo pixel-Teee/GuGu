@@ -133,6 +133,18 @@ namespace GuGu {
 		ShowWindow(windowsWindow->getNativeWindowHandle(), SW_MINIMIZE);
 	}
 
+	void WindowsApplication::maximizeWindow(std::shared_ptr<WindowWidget> windowWidget)
+	{
+		std::shared_ptr<WindowsWindow> windowsWindow = std::static_pointer_cast<WindowsWindow>(windowWidget->getNativeWindow());
+		ShowWindow(windowsWindow->getNativeWindowHandle(), SW_MAXIMIZE);
+	}
+
+	void WindowsApplication::restoreWindow(std::shared_ptr<WindowWidget> windowWidget)
+	{
+		std::shared_ptr<WindowsWindow> windowsWindow = std::static_pointer_cast<WindowsWindow>(windowWidget->getNativeWindow());
+		ShowWindow(windowsWindow->getNativeWindowHandle(), SW_RESTORE);
+	}
+
 	math::box2 WindowsApplication::getWorkArea(const math::box2& currentWindow) const
 	{
 		RECT windowsWindowDim;

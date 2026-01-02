@@ -138,6 +138,28 @@ namespace GuGu {
 		MinimizeButton->setDisabled(noResource);
 		m_styles.insert({ u8"MinimizeButton", MinimizeButton });
 
+		ADD_IMAGE(MaximizeButton_Normal);
+		ADD_IMAGE(MaximizeButton_Hover);
+		ADD_IMAGE(MaximizeButton_Pressed);
+
+		std::shared_ptr<ButtonStyle> MaximizeButton = std::make_shared<ButtonStyle>();
+		MaximizeButton->setNormal(MaximizeButton_Normal);
+		MaximizeButton->setHovered(MaximizeButton_Hover);
+		MaximizeButton->setPressed(MaximizeButton_Pressed);
+		MaximizeButton->setDisabled(noResource);
+		m_styles.insert({ u8"MaximizeButton", MaximizeButton });
+
+		ADD_IMAGE(RestoreButton_Normal);
+		ADD_IMAGE(RestoreButton_Hover);
+		ADD_IMAGE(RestoreButton_Pressed);
+
+		std::shared_ptr<ButtonStyle> RestoreButton = std::make_shared<ButtonStyle>();
+		RestoreButton->setNormal(RestoreButton_Normal);
+		RestoreButton->setHovered(RestoreButton_Hover);
+		RestoreButton->setPressed(RestoreButton_Pressed);
+		RestoreButton->setDisabled(noResource);
+		m_styles.insert({ u8"RestoreButton", RestoreButton });
+
 		//normal blue button
 		{
 			std::shared_ptr<Brush> normalBlueColor = std::make_shared<Brush>();

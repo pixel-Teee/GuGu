@@ -78,6 +78,10 @@ namespace GuGu {
 
 		virtual void miniMizeWindow(std::shared_ptr<WindowWidget> windowWidget);
 
+		virtual void maximizeWindow(std::shared_ptr<WindowWidget> windowWidget);
+
+		virtual void restoreWindow(std::shared_ptr<WindowWidget> windowWidget);
+
 		void calculateFrameStats();
 
 		virtual std::shared_ptr<Window> getWindow(uint32_t index);

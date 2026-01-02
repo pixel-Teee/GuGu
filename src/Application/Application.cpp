@@ -139,7 +139,18 @@ namespace GuGu{
     void Application::miniMizeWindow(std::shared_ptr<WindowWidget> windowWidget)
     {
     }
-    void Application::calculateFrameStats()
+
+	void Application::maximizeWindow(std::shared_ptr<WindowWidget> windowWidget)
+	{
+
+	}
+
+	void Application::restoreWindow(std::shared_ptr<WindowWidget> windowWidget)
+	{
+
+	}
+
+	void Application::calculateFrameStats()
     {
         static int32_t frameCnt = 0;
         static float timeElapsed = 0.0f;

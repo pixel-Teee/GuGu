@@ -13,6 +13,7 @@
 namespace GuGu {
 	WindowTitleBar::WindowTitleBar()
 	{
+		m_bIsMaximize = false;
 	}
 	WindowTitleBar::~WindowTitleBar()
 	{
@@ -33,6 +34,10 @@ namespace GuGu {
 		std::shared_ptr<Button> closeButton;
 		//std::shared_ptr<EditorMainWindow> editorMainWindow;
 		std::shared_ptr<Button> minimizeButton;
+
+		std::shared_ptr<Button> maximizeButton;
+
+		std::shared_ptr<Button> restoreButton;
 		//std::shared_ptr<ViewportWidget> viewportWidget;
 		std::shared_ptr<Button> fileButton;
 
@@ -53,10 +58,35 @@ namespace GuGu {
 		+ Overlay::Slot()
 		.setHorizontalAlignment(HorizontalAlignment::Right)
 		.setVerticalAlignment(VerticalAlignment::Center)
-		.setPadding(Padding(0.0f, 0.0f, 67.0f, 0.0f))
+		.setPadding(Padding(0.0f, 0.0f, 127.0f, 0.0f))
 		(
 			WIDGET_ASSIGN_NEW(Button, minimizeButton)
 			.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"MinimizeButton"))
+			.Content
+			(
+				NullWidget::getNullWidget()
+			)
+		)
+		+ Overlay::Slot()
+		.setHorizontalAlignment(HorizontalAlignment::Right)
+		.setVerticalAlignment(VerticalAlignment::Center)
+		.setPadding(Padding(0.0f, 0.0f, 67.0f, 0.0f))
+		(
+			WIDGET_ASSIGN_NEW(Button, maximizeButton)
+			.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"MaximizeButton"))
+			.Content
+			(
+				NullWidget::getNullWidget()
+			)
+		)
+		+ Overlay::Slot()
+		.setHorizontalAlignment(HorizontalAlignment::Right)
+		.setVerticalAlignment(VerticalAlignment::Center)
+		.setPadding(Padding(0.0f, 0.0f, 67.0f, 0.0f))
+		(
+			WIDGET_ASSIGN_NEW(Button, restoreButton)
+			.visibility(Attribute<Visibility>::CreateSP(this, &WindowTitleBar::getRestoreButtonVisibility))
+			.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"RestoreButton"))
 			.Content
 			(
 				NullWidget::getNullWidget()
@@ -80,7 +110,8 @@ namespace GuGu {
 
 		closeButton->setOnClicked(OnClicked(std::bind(&WindowTitleBar::exitApplication, std::static_pointer_cast<WindowTitleBar>(shared_from_this()))));
 		minimizeButton->setOnClicked(OnClicked(std::bind(&WindowTitleBar::miniMizeWindow, std::static_pointer_cast<WindowTitleBar>(shared_from_this()))));
-
+		maximizeButton->setOnClicked(OnClicked(std::bind(&WindowTitleBar::maximizeWindow, std::static_pointer_cast<WindowTitleBar>(shared_from_this()))));
+		restoreButton->setOnClicked(OnClicked(std::bind(&WindowTitleBar::restoreWindow, std::static_pointer_cast<WindowTitleBar>(shared_from_this()))));
 		m_visibilityAttribute = Visibility::Visible;
 	}
 
@@ -98,8 +129,29 @@ namespace GuGu {
 		Application::getApplication()->miniMizeWindow(m_parentWindow.lock());
 		return Reply::Handled();
 	}
+
+	Reply WindowTitleBar::maximizeWindow()
+	{
+		m_bIsMaximize = true;
+		Application::getApplication()->maximizeWindow(m_parentWindow.lock());
+		return Reply::Handled();
+	}
+
+	Reply WindowTitleBar::restoreWindow()
+	{
+		m_bIsMaximize = false;
+		Application::getApplication()->restoreWindow(m_parentWindow.lock());
+		return Reply::Handled();
+	}
+
 	WindowZone::Type WindowTitleBar::getWindowZoneOverride() const
 	{
 		return WindowZone::Type::TitleBar;
 	}
+
+	Visibility WindowTitleBar::getRestoreButtonVisibility() const
+	{
+		return m_bIsMaximize ? Visibility::Visible : Visibility::Collapsed;
+	}
+
 }
