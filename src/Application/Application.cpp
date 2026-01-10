@@ -24,6 +24,7 @@
 #include <Core/GamePlay/InputManager.h>
 
 #include <Core/LuaContext/LuaContext.h>
+#include <Core/Physics/PhysicsManager.h>
 
 namespace GuGu{
 	static void removeWindowFromList(std::vector<std::shared_ptr<WindowWidget>>& windows, const std::shared_ptr<WindowWidget>& windowToRemove)
@@ -83,7 +84,8 @@ namespace GuGu{
 	}
 	void Application::init(std::shared_ptr<WindowWidget> inWindowWidget)
 	{
-
+		//create physics world
+		PhysicsManager::getPhysicsManager().init();
 	}
     void Application::Run()
     {
@@ -115,6 +117,7 @@ namespace GuGu{
         }
 
         m_renderer->onDestroy();
+		PhysicsManager::getPhysicsManager().destroy();
     }
     void Application::pumpMessage()
     {
