@@ -2,10 +2,17 @@ cmake_minimum_required(VERSION 3.15.0)
 
 project(GuGuEngine)
 
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build static libraries" FORCE)
+set(BUILD_BULLET2_DEMOS OFF CACHE BOOL "Disable Bullet2 demos" FORCE)
+set(BUILD_OPENGL3_DEMOS OFF CACHE BOOL "Disable OpenGL3 demos" FORCE)
+set(BUILD_EXTRAS OFF CACHE BOOL "Disable extras" FORCE)
+set(BUILD_UNIT_TESTS OFF CACHE BOOL "Disable unit tests" FORCE)
+
 add_subdirectory("src")
 add_subdirectory("thirdParty/freetype-2.13.2")
 add_subdirectory("game")
 add_subdirectory("thirdParty/lua")
+add_subdirectory("thirdParty/bullet3-3.17")
 if(WIN32)
     add_subdirectory("editor")
     set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build shared libraries" FORCE)

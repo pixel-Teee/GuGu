@@ -47,7 +47,9 @@ file(GLOB SourceFile "main.cpp"
 "Core/LuaContext/*.h"
 "Core/LuaContext/*.cpp"
 "Core/GamePlay/2D/*.h"
-"Core/GamePlay/2D/*.cpp")
+"Core/GamePlay/2D/*.cpp"
+"Core/Physics/*.h"
+"Core/Physics/*.cpp")
 
 if(WIN32)
     message("[message]:this platform is windows!")
@@ -62,7 +64,7 @@ if(WIN32)
         source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SourceFile})
 
         add_library(GuGu ${SourceFile})
-        target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer" PRIVATE "Core" PRIVATE "../thirdParty/nlohmann")
+        target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer" PRIVATE "Core" PRIVATE "../thirdParty/nlohmann" PRIVATE "../thirdParty/bullet3-3.17/src")
         target_link_libraries(GuGu freetype Lua)
         add_definitions(-DUSE_DX12)
     elseif(USE_VK)
@@ -74,8 +76,8 @@ if(WIN32)
         source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${SourceFile})
 
         add_library(GuGu ${SourceFile} ${ThirdPartyFile})
-        target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer" PRIVATE "Core" PRIVATE "../thirdParty/nlohmann")
-        target_link_libraries(GuGu Vulkan::Vulkan freetype Lua)
+        target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer" PRIVATE "Core" PRIVATE "../thirdParty/nlohmann" PRIVATE "../thirdParty/bullet3-3.17/src")
+        target_link_libraries(GuGu Vulkan::Vulkan freetype Lua Bullet3Common BulletDynamics BulletCollision LinearMath)
         add_definitions(-DUSE_VK)
     endif()
 
@@ -96,7 +98,7 @@ if(WIN32)
 elseif(ANDROID)
     message("[message]:this platform is android!")
     # set(CMAKE_BUILD_TYPE Debug)
-    # find_package(Vulkan REQUIRED)
+    find_package(Vulkan REQUIRED)
     # message("hello")
     file(GLOB PlatformSourceFile "Window/Platform/Android/*.h" "Window/Platform/Android/*.cpp" "Application/Platform/Android/*.h" "Application/Platform/Android/*.cpp"
     "Renderer/Platform/Vulkan/*.h" "Renderer/Platform/Vulkan/*.cpp"
@@ -107,13 +109,13 @@ elseif(ANDROID)
     source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${ThirdPartyFile})
 
     add_library(GuGu STATIC ${SourceFile} ${ThirdPartyFile})
-    target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer" PRIVATE "Core" PRIVATE "../thirdParty/nlohmann")
+    target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer" PRIVATE "Core" PRIVATE "../thirdParty/nlohmann" PRIVATE "../thirdParty/bullet3-3.17/src")
     add_definitions(-DVK_USE_PLATFORM_ANDROID_KHR=TRUE) #fix this
     add_definitions(-DUSE_VK)
     add_definitions(-D_DEBUG=TRUE)
     find_package(game-activity REQUIRED CONFIG)
     find_library(log-lib log) #ndk library
-    target_link_libraries(GuGu android game-activity::game-activity_static ${log-lib} vulkan freetype Lua)
+    target_link_libraries(GuGu android game-activity::game-activity_static ${log-lib} vulkan freetype Lua Bullet3Common BulletDynamics BulletCollision LinearMath)
     target_compile_features(GuGu PRIVATE cxx_std_17)
 endif()
 
