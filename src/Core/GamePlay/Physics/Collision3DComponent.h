@@ -1,10 +1,19 @@
 #pragma once
 
 #include <Core/GamePlay/Component.h>
+#include <Math/MyMath.h>
 
 class btCollisionShape;
 class btRigidBody;
+class btDefaultMotionState;
 namespace GuGu {
+	enum class CollisionShape {
+		//shape
+		Box = 0,
+		Sphere = 1,
+		Capsule = 2
+	};
+
 	class Collision3DComponent : public Component
 	{
 	public:
@@ -20,10 +29,40 @@ namespace GuGu {
 
 		virtual meta::Type GetType() const override;
 
-	private:
-		//shape
+		CollisionShape getShape() const;
+		void setShape(CollisionShape inCollisionShape);
 
-		//质量
+		void recreateBulletShape();
+
+		void setBoxHalfExtents(math::float3 inBoxHalfExtents);
+		math::float3 getBoxHalfExtents() const;
+
+		void setSphereRadius(float sphereRadius);
+		float getSphereRadius() const;
+
+		void setCapsuleRadius(float capsuleRadius);
+		float getCapsuleRadius() const;
+
+		void setCapsuleHeight(float inHeight);
+		float getCapsuleHeight() const;
+
+		void setMass(float newMass);
+		float getMass() const;
+
+		void updateMassAndInertia(float newMass);
+
+		void syncFromPhysics();
+
+
+		//shape
+		CollisionShape m_shape;
+
+		math::float3 m_boxHalfExtents;
+		float m_sphereRadius; //sphere
+		float m_capsuleRadius; //capsule
+		float m_capsuleHeight; //capsule
+
+		//质量(质量为0是static，>0是dynamic)
 		float m_mass;
 
 		//摩擦力
@@ -34,5 +73,6 @@ namespace GuGu {
 
 		std::shared_ptr<btCollisionShape> m_collisionShape;
 		std::shared_ptr<btRigidBody> m_rigidBody;
+		std::shared_ptr<btDefaultMotionState> m_motionState;
 	};
 }

@@ -856,5 +856,7 @@ namespace GuGu {
 			meta::TypeData& typeData = meta::ReflectionDatabase::Instance().types[type.GetID()];
 			db.registerGuid(typeData.typeGuid, type.GetID());
 		}
+
+		meta::ReflectionDatabase::Instance().checkHaveSameTypeGuid();
 	}
 }

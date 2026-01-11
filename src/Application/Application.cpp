@@ -22,6 +22,7 @@
 #include <Core/GamePlay/TransformComponent.h>
 #include <Core/GamePlay/World.h>
 #include <Core/GamePlay/InputManager.h>
+#include <Core/GamePlay/ViewportClient.h>
 
 #include <Core/LuaContext/LuaContext.h>
 #include <Core/Physics/PhysicsManager.h>
@@ -102,6 +103,16 @@ namespace GuGu{
 
             if(m_focused)
             {
+				std::shared_ptr<ViewportClient> viewportClient = World::getWorld()->getViewportClient().lock();
+				if (viewportClient)
+				{
+					ViewportClient::ViewportState viewportState = viewportClient->getViewportState();
+					if (viewportState == ViewportClient::ViewportState::Runtime)
+					{
+						PhysicsManager::getPhysicsManager().stepSimulation(m_timer->GetDeltaTime());
+					}
+				}
+				
 				//1.更新关卡和里面的game object
 				//World::getWorld()->getCurrentLevel()->Update(m_timer->GetDeltaTime()); //todo:可能会崩，记得修复
 				World::getWorld()->update(m_timer->GetDeltaTime());

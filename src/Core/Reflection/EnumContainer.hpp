@@ -71,7 +71,7 @@ namespace GuGu {
 		}
 
 		template<typename EnumType>
-		Variant EnumContainer<EnumType>::GetValue(const std::string& key) const
+		Variant EnumContainer<EnumType>::GetValue(const GuGuUtf8Str& key) const
 		{
 			auto search = m_keyToValue.find(key);
 

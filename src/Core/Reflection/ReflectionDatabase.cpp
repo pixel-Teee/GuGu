@@ -129,6 +129,23 @@ namespace GuGu {
 			guids[guid] = id;
 		}
 
+		void ReflectionDatabase::checkHaveSameTypeGuid()
+		{
+			for (int32_t i = 0; i < types.size(); ++i)
+			{
+				for (int32_t j = 0; j < types.size(); ++j)
+				{
+					if (i != j)
+					{
+						if (types[i].typeGuid == types[j].typeGuid)
+						{
+							GuGu_LOGE("%s have same type with %s", types[i].name.getStr(), types[j].name.getStr());
+						}
+					}
+				}
+			}
+		}
+
 	}
 }
 

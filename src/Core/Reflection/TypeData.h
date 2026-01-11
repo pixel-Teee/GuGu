@@ -7,6 +7,7 @@
 #include "MetaManager.h"
 #include "Method.h"
 #include "Function.h"
+#include "EnumContainer.h"
 
 #include <Core/GuGuUtf8Str.h>
 #include <Core/Guid.h>
@@ -168,6 +169,12 @@ namespace GuGu {
 				const InvokableSignature& signature
 			);
 			//------static method------
+
+			template<typename EnumType>
+			void SetEnum(
+				const std::string& name,
+				const typename EnumContainer<EnumType>::Initializer& initalizer
+			);
 
 			const Field& GetField(const std::string& name) const;
 

@@ -17,6 +17,10 @@ namespace GuGu {
 		void init();//init physics world
 
 		void destroy();
+
+		std::shared_ptr<btDynamicsWorld> getDynamicsWorld();
+
+		void stepSimulation(float deltaTime);
 	private:
 		std::shared_ptr<btDefaultCollisionConfiguration> m_collisionConfig;
 

@@ -20,6 +20,7 @@
 #include <Application/Application.h>
 #include <Core/Timer.h>
 #include <Core/GamePlay/Prefab.h>
+#include <Core/GamePlay/Physics/Collision3DComponent.h>
 
 namespace GuGu {
 	static bool registerGuGuWorld()
@@ -271,6 +272,20 @@ namespace GuGu {
 
 	void World::update(float fElapsedTimeSeconds)
 	{	
+		if (m_viewportClient->getViewportState() == ViewportClient::Runtime)
+		{
+			//sync
+			Array<std::shared_ptr<GameObject>>& gameObjects = m_currentLevel->getGameObjects();
+			for (int32_t i = 0; i < gameObjects.size(); ++i)
+			{
+				//check have component
+				std::shared_ptr<Collision3DComponent> collision3DComponent = gameObjects[i]->getComponent<Collision3DComponent>();
+				if (collision3DComponent)
+				{
+					collision3DComponent->syncFromPhysics();
+				}
+			}
+		}
 		getCurrentLevel()->Update(fElapsedTimeSeconds);
         if(m_viewportClient != nullptr)
 		    m_viewportClient->update(fElapsedTimeSeconds);

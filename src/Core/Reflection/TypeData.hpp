@@ -231,5 +231,13 @@ namespace GuGu {
 			fields.back().m_meta = meta;
 		}
 
+		template<typename EnumType>
+		void TypeData::SetEnum(
+			const std::string& name,
+			const typename EnumContainer<EnumType>::Initializer& initializer
+		)
+		{
+			enumeration = new EnumContainer<EnumType>(name, initializer);
+		}
 	}
 }

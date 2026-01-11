@@ -61,4 +61,15 @@ namespace GuGu {
 		m_debugDraw = nullptr;
 	}
 
+	std::shared_ptr<btDynamicsWorld> PhysicsManager::getDynamicsWorld()
+	{
+		return m_dynamicsWorld;
+	}
+
+	void PhysicsManager::stepSimulation(float deltaTime)
+	{
+		//(1 / 60秒模拟)
+		m_dynamicsWorld->stepSimulation(deltaTime, 10, 1.0f / 60.0f);
+	}
+
 }

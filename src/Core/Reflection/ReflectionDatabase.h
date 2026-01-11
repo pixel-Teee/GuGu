@@ -34,6 +34,8 @@ namespace GuGu {
 			TypeID AllocateType(const GuGuUtf8Str& name);
 
 			void registerGuid(const GGuid& guid, int32_t id);
+
+			void checkHaveSameTypeGuid();
 		private:
 			TypeID m_nextID;
 		};
