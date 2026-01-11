@@ -48,13 +48,13 @@ namespace GuGu {
 		{
 			auto id = db.AllocateType("std::shared_ptr<Collision3DComponent>");
 			auto& type = db.types[id];
-			meta::TypeInfo<std::shared_ptr<Collision3DComponent>>::Register(id, type, false, "D866D79C-DC28-4F6B-AF00-E6E592E3C8A3");
+			meta::TypeInfo<std::shared_ptr<Collision3DComponent>>::Register(id, type, false, "092FBE34-35E6-42B0-B5E5-77A350673442");
 		}
 
 		{
 			auto id = db.AllocateType("std::weak_ptr<Collision3DComponent>");
 			auto& type = db.types[id];
-			meta::TypeInfo<std::weak_ptr<Collision3DComponent>>::Register(id, type, false, "1E51EEDA-262E-4608-A995-864D1CB5B6C3");
+			meta::TypeInfo<std::weak_ptr<Collision3DComponent>>::Register(id, type, false, "2ECFEF8E-C22F-45AE-8F27-E213B8CF3627");
 		}
 		return true;
 	}
