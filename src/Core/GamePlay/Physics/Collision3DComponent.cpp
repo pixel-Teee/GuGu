@@ -92,7 +92,7 @@ namespace GuGu {
 			(meta::FieldGetter<Collision3DComponent, CollisionShape, true>::Signature) & Collision3DComponent::getShape,
 			(meta::FieldSetter<Collision3DComponent, CollisionShape, true>::Signature) & Collision3DComponent::setShape, {});
 		type.AddField<Collision3DComponent, math::float3>("m_boxHalfExtents",
-			(meta::FieldGetter<Collision3DComponent, math::float3, true>::Signature) & Collision3DComponent::getBoxHalfExtents,
+			(meta::FieldGetter<Collision3DComponent, math::float3&, true>::Signature) & Collision3DComponent::getBoxHalfExtents,
 			(meta::FieldSetter<Collision3DComponent, math::float3, true>::Signature) & Collision3DComponent::setBoxHalfExtents, {});
 		type.AddField<Collision3DComponent, float>("m_sphereRadius",
 			(meta::FieldGetter<Collision3DComponent, float, true>::Signature) & Collision3DComponent::getSphereRadius,
@@ -146,7 +146,10 @@ namespace GuGu {
 		//弹性系数
 		m_restitution = 1.0f;
 
-		recreateBulletShape();
+		//default shape
+		m_shape = CollisionShape::Box;
+
+		//recreateBulletShape();
 	}
 
 	Collision3DComponent::~Collision3DComponent()
@@ -163,7 +166,41 @@ namespace GuGu {
 
 	void Collision3DComponent::Update(float fElapsedTimeSeconds)
 	{
+		if (m_shape == CollisionShape::Box)
+		{
+			std::shared_ptr<btBoxShape> boxShape = std::static_pointer_cast<btBoxShape>(m_collisionShape);
+			btVector3 halfExtents = boxShape->getHalfExtentsWithoutMargin();
+			math::float3 halfExtents2(halfExtents.x(), halfExtents.y(), halfExtents.z());
+			math::bool3 isEqual = math::isnear(m_boxHalfExtents, halfExtents2);
+			if (!math::all(isEqual))
+			{
+				//update shape
+				boxShape->setImplicitShapeDimensions(btVector3(m_boxHalfExtents.x, m_boxHalfExtents.y, m_boxHalfExtents.z));
+				std::shared_ptr<btDynamicsWorld> physicsWorld = PhysicsManager::getPhysicsManager().getDynamicsWorld();
+				if (physicsWorld)
+				{
+					physicsWorld->updateAabbs();
+				}
+			}
+		}
+		else if (m_shape == CollisionShape::Capsule)
+		{
 
+		}
+		else if (m_shape == CollisionShape::Sphere)
+		{
+			std::shared_ptr<btSphereShape> sphereShape = std::static_pointer_cast<btSphereShape>(m_collisionShape);
+			float radius = sphereShape->getRadius();
+			if (!math::isnear(m_sphereRadius, radius))
+			{
+				sphereShape->setUnscaledRadius(m_sphereRadius);
+				std::shared_ptr<btDynamicsWorld> physicsWorld = PhysicsManager::getPhysicsManager().getDynamicsWorld();
+				if (physicsWorld)
+				{
+					physicsWorld->updateAabbs();
+				}
+			}		
+		}	
 	}
 
 	meta::Type Collision3DComponent::GetType() const
@@ -214,24 +251,16 @@ namespace GuGu {
 			m_collisionShape->calculateLocalInertia(m_mass, localInertia);
 		}
 
-		std::shared_ptr<GameObject> ownerGameObj = m_owner.lock();
-		if (ownerGameObj)
-		{
-			std::shared_ptr<TransformComponent> trans = ownerGameObj->getComponent<TransformComponent>();
+		btTransform startTransform;
+		startTransform.setIdentity();
+		startTransform.setOrigin(btVector3(0, 0, 0));
 
-			math::double3 translation = trans->getTranslation();
+		m_motionState = std::make_shared<btDefaultMotionState>(startTransform);
+		btRigidBody::btRigidBodyConstructionInfo rbInfo(m_mass, m_motionState.get(), m_collisionShape.get(), localInertia);
+		m_rigidBody = std::make_shared<btRigidBody>(rbInfo);
 
-			btTransform startTransform;
-			startTransform.setIdentity();
-			startTransform.setOrigin(btVector3(translation.x, translation.y, translation.z));
-
-			m_motionState = std::make_shared<btDefaultMotionState>(startTransform);
-			btRigidBody::btRigidBodyConstructionInfo rbInfo(m_mass, m_motionState.get(), m_collisionShape.get(), localInertia);
-			m_rigidBody = std::make_shared<btRigidBody>(rbInfo);
-
-			//添加新的刚体
-			physicsWorld->addRigidBody(m_rigidBody.get());
-		}	
+		//添加新的刚体
+		physicsWorld->addRigidBody(m_rigidBody.get());
 	}
 
 	void Collision3DComponent::setBoxHalfExtents(math::float3 inBoxHalfExtents)
@@ -240,11 +269,14 @@ namespace GuGu {
 		std::shared_ptr<btBoxShape> boxShape = std::static_pointer_cast<btBoxShape>(m_collisionShape);
 		boxShape->setImplicitShapeDimensions(btVector3(m_boxHalfExtents.x, m_boxHalfExtents.y, m_boxHalfExtents.z));
 
-		//更新刚体的AABB
-		m_rigidBody->getCollisionShape()->setLocalScaling(btVector3(1, 1, 1));
+		std::shared_ptr<btDynamicsWorld> physicsWorld = PhysicsManager::getPhysicsManager().getDynamicsWorld();
+		if (physicsWorld)
+		{
+			physicsWorld->updateAabbs();
+		}
 	}
 
-	math::float3 Collision3DComponent::getBoxHalfExtents() const
+	math::float3& Collision3DComponent::getBoxHalfExtents()
 	{
 		return m_boxHalfExtents;
 	}
@@ -255,8 +287,11 @@ namespace GuGu {
 		std::shared_ptr<btSphereShape> sphereShape = std::static_pointer_cast<btSphereShape>(m_collisionShape);
 		sphereShape->setUnscaledRadius(m_sphereRadius);
 
-		//更新刚体的AABB
-		m_rigidBody->getCollisionShape()->setLocalScaling(btVector3(1, 1, 1));
+		std::shared_ptr<btDynamicsWorld> physicsWorld = PhysicsManager::getPhysicsManager().getDynamicsWorld();
+		if (physicsWorld)
+		{
+			physicsWorld->updateAabbs();
+		}
 	}
 
 	float Collision3DComponent::getSphereRadius() const
@@ -299,20 +334,22 @@ namespace GuGu {
 				if(m_rigidBody)
 					physicsWorld->removeRigidBody(m_rigidBody.get());
 
-				//更新碰撞标志
-				int32_t flags = m_rigidBody->getCollisionFlags();
-				if (willBeStatic)
-				{
-					flags |= btCollisionObject::CF_STATIC_OBJECT;
-					flags &= ~btCollisionObject::CF_DYNAMIC_OBJECT;
-				}
-				else
-				{
-					flags |= btCollisionObject::CF_DYNAMIC_OBJECT;
-					flags &= ~btCollisionObject::CF_STATIC_OBJECT;
-				}
 				if (m_rigidBody)
+				{
+					//更新碰撞标志
+					int32_t flags = m_rigidBody->getCollisionFlags();
+					if (willBeStatic)
+					{
+						flags |= btCollisionObject::CF_STATIC_OBJECT;
+						flags &= ~btCollisionObject::CF_DYNAMIC_OBJECT;
+					}
+					else
+					{
+						flags |= btCollisionObject::CF_DYNAMIC_OBJECT;
+						flags &= ~btCollisionObject::CF_STATIC_OBJECT;
+					}
 					m_rigidBody->setCollisionFlags(flags);
+				}
 
 				//更新质量和惯性
 				updateMassAndInertia(newMass);
@@ -320,13 +357,16 @@ namespace GuGu {
 				// 重新添加回物理世界（可能需要更新碰撞过滤组）
 				// short group = willBeStatic ? COLLISION_GROUP_STATIC : COLLISION_GROUP_DYNAMIC;
 				// short mask = willBeStatic ? COLLISION_MASK_STATIC : COLLISION_MASK_DYNAMIC;
-				physicsWorld->addRigidBody(m_rigidBody.get());
+				if(m_rigidBody)
+					physicsWorld->addRigidBody(m_rigidBody.get());
 			}
 		}
 		else if (!willBeStatic) //动态到动态，仅仅只改变质量
 		{
 			updateMassAndInertia(newMass);
 		}
+
+		m_mass = newMass;
 	}
 
 	float Collision3DComponent::getMass() const
@@ -339,16 +379,22 @@ namespace GuGu {
 		btVector3 localInertia(0, 0, 0);
 
 		if (newMass > 0.0f) {
-			//对于动态物体，根据形状重新计算惯性
-			m_rigidBody->getCollisionShape()->calculateLocalInertia(newMass, localInertia);
+			if (m_rigidBody)
+			{
+				//对于动态物体，根据形状重新计算惯性
+				m_rigidBody->getCollisionShape()->calculateLocalInertia(newMass, localInertia);
+			}	
 		}
 		//对于静态物体（newMass == 0），惯性保持为零
 
-		//这是更新质量和惯性的核心Bullet API
-		m_rigidBody->setMassProps(newMass, localInertia);
+		if (m_rigidBody)
+		{
+			//这是更新质量和惯性的核心Bullet API
+			m_rigidBody->setMassProps(newMass, localInertia);
 
-		//更新内部缓存的质心变换（重要步骤，确保后续计算正确）
-		m_rigidBody->updateInertiaTensor();
+			//更新内部缓存的质心变换（重要步骤，确保后续计算正确）
+			m_rigidBody->updateInertiaTensor();
+		}
 	}
 
 	void Collision3DComponent::syncFromPhysics()
@@ -373,6 +419,36 @@ namespace GuGu {
 				trans->SetRotationQuat(math::dquat(rot.x(), rot.y(), rot.z(), rot.w()));
 			}
 		}
+	}
+
+	void Collision3DComponent::syncToPhysics() {
+		if (!m_rigidBody || !m_owner.lock()) return;
+
+		math::double3 translation;
+		math::dquat rot;
+
+		if (m_owner.lock())
+		{
+			std::shared_ptr<GameObject> ownerGameObj = m_owner.lock();
+			std::shared_ptr<TransformComponent> trans = ownerGameObj->getComponent<TransformComponent>();
+			if (trans)
+			{
+				translation = trans->getTranslation();
+				rot = trans->getRotationQuat();
+			}
+		}
+		
+		btTransform transform;
+		transform.setOrigin(btVector3(translation.x, translation.y, translation.z));
+		transform.setRotation(btQuaternion(rot.x, rot.y, rot.z, rot.w));
+
+		m_rigidBody->setWorldTransform(transform);
+		m_rigidBody->getMotionState()->setWorldTransform(transform);
+	}
+
+	void Collision3DComponent::PostLoad()
+	{
+		recreateBulletShape();
 	}
 
 }

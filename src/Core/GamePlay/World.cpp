@@ -286,6 +286,20 @@ namespace GuGu {
 				}
 			}
 		}
+		else
+		{
+			//sync
+			Array<std::shared_ptr<GameObject>>& gameObjects = m_currentLevel->getGameObjects();
+			for (int32_t i = 0; i < gameObjects.size(); ++i)
+			{
+				//check have component
+				std::shared_ptr<Collision3DComponent> collision3DComponent = gameObjects[i]->getComponent<Collision3DComponent>();
+				if (collision3DComponent)
+				{
+					collision3DComponent->syncToPhysics();
+				}
+			}
+		}
 		getCurrentLevel()->Update(fElapsedTimeSeconds);
         if(m_viewportClient != nullptr)
 		    m_viewportClient->update(fElapsedTimeSeconds);
@@ -343,6 +357,12 @@ namespace GuGu {
 			Array<std::shared_ptr<GameObject>>& gameObjects = m_currentLevel->getGameObjects();
 			for (int32_t i = 0; i < gameObjects.size(); ++i)
 			{
+				std::shared_ptr<Collision3DComponent> collision3DComponent = gameObjects[i]->getComponent<Collision3DComponent>();
+				if (collision3DComponent)
+				{
+					collision3DComponent->syncToPhysics();
+				}
+
 				//check have script component
 				std::shared_ptr<ScriptComponent> scriptComponent = gameObjects[i]->getComponent<ScriptComponent>();
 				if (scriptComponent)

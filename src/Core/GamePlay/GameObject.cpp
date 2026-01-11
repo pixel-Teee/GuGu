@@ -9,6 +9,7 @@
 #include <Core/GamePlay/GameUI/CanvasComponent.h>
 #include <Core/GamePlay/GameUI/UITransformComponent.h>
 #include <Core/GamePlay/TransformComponent.h>
+#include <Core/GamePlay/Physics/Collision3DComponent.h>
 //------component------
 #include <Core/GamePlay/World.h>
 #include <Core/GamePlay/Level.h>
@@ -136,6 +137,11 @@ namespace GuGu {
 		{
 			getComponent<CanvasComponent>()->Update(fElapsedTimeSeconds);
 		}
+
+		if (getComponent<Collision3DComponent>())
+		{
+			getComponent<Collision3DComponent>()->Update(fElapsedTimeSeconds);
+		}
 		
 		//1.更新变化组件
 		getComponent<TransformComponent>()->Update(fElapsedTimeSeconds);
@@ -205,6 +211,12 @@ namespace GuGu {
 		}
 		inComponent->setParentGameObject(std::static_pointer_cast<GameObject>(shared_from_this()));
 		m_components.push_back(inComponent);
+
+		if (inComponent->GetType() == typeof(Collision3DComponent))
+		{
+			std::shared_ptr<Collision3DComponent> collision3DComponent = std::static_pointer_cast<Collision3DComponent>(inComponent);
+			collision3DComponent->recreateBulletShape();
+		}
 
 		return inComponent;
 	}

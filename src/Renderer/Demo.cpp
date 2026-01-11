@@ -83,6 +83,15 @@ namespace GuGu {
 		inAtlas->m_bNeedToUpdateAtlas = false;
 	}
 
+	void Demo::addDebugPhysicsInfo(math::float3 from, math::float3 to, math::float4 inColor)
+	{
+		PhysicsDebugVertex vertex1(from, inColor);
+		PhysicsDebugVertex vertex2(to, inColor);
+
+		m_physicsDebugVertex.push_back(vertex1);
+		m_physicsDebugVertex.push_back(vertex2);
+	}
+
 	void Demo::createVertexBufferAndIndexBuffer(GStaticMesh& staticMesh)
 	{
 		std::vector<uint32_t>& indexData = staticMesh.m_indexData;
@@ -499,6 +508,54 @@ namespace GuGu {
 		nvrhi::ResourceStates state = nvrhi::ResourceStates::VertexBuffer;
 		//m_CommandList->setPermanentBufferState(inCameraComponent->m_debugCameraFrustumVertexBuffer, state);
 		m_CommandList->commitBarriers();
+	}
+
+	void Demo::createPhysicsDebugVertexBufferAndIndexBuffer()
+	{
+		{
+			//draw info
+			nvrhi::BufferDesc bufferDesc;
+			bufferDesc.isIndexBuffer = true;
+			bufferDesc.byteSize = m_physicsDebugVertex.size() * sizeof(uint32_t); //line (0, 1)
+			bufferDesc.debugName = "PhysicsDebugIndexBuffer";
+			bufferDesc.canHaveTypedViews = true;
+			bufferDesc.canHaveRawViews = true;
+			bufferDesc.format = nvrhi::Format::R32_UINT;
+			//bufferDesc.isAccelStructBuildInput = m_RayTracingSupported;
+
+			std::vector<uint32_t> indexDatas;
+			indexDatas.reserve(m_physicsDebugVertex.size());
+			for (int32_t i = 0; i < m_physicsDebugVertex.size(); i += 2)
+			{
+				indexDatas.push_back(i);
+				indexDatas.push_back(i + 1);
+			}
+
+			m_physicsIndexHandle = GetDevice()->createBuffer(bufferDesc);
+			m_CommandList->beginTrackingBufferState(m_physicsIndexHandle, nvrhi::ResourceStates::Common);
+			m_CommandList->writeBuffer(m_physicsIndexHandle, indexDatas.data(), indexDatas.size() * sizeof(uint32_t));
+			nvrhi::ResourceStates state = nvrhi::ResourceStates::IndexBuffer | nvrhi::ResourceStates::ShaderResource;
+			m_CommandList->setPermanentBufferState(m_physicsIndexHandle, state);
+			m_CommandList->commitBarriers();
+		}
+
+		{
+			nvrhi::BufferDesc bufferDesc;
+			bufferDesc.isVertexBuffer = true;
+			bufferDesc.byteSize = m_physicsDebugVertex.size() * sizeof(PhysicsDebugVertex);
+			bufferDesc.debugName = "PhysicsDebugVertexHandle";
+			bufferDesc.canHaveTypedViews = true;
+			bufferDesc.canHaveRawViews = true;
+			bufferDesc.keepInitialState = true;
+			bufferDesc.canHaveRawViews = true;
+			m_physicsVertexHandle = GetDevice()->createBuffer(bufferDesc);
+
+			//m_CommandList->beginTrackingBufferState(inCameraComponent->m_debugCameraFrustumVertexBuffer, nvrhi::ResourceStates::CopyDest);
+			m_CommandList->writeBuffer(m_physicsVertexHandle, m_physicsDebugVertex.data(), m_physicsDebugVertex.size() * sizeof(PhysicsDebugVertex), 0);
+			nvrhi::ResourceStates state = nvrhi::ResourceStates::VertexBuffer;
+			//m_CommandList->setPermanentBufferState(inCameraComponent->m_debugCameraFrustumVertexBuffer, state);
+			m_CommandList->commitBarriers();
+		}
 	}
 
 	bool Demo::Init(std::shared_ptr<UIData> uiData)
@@ -1401,6 +1458,55 @@ namespace GuGu {
 
 		createVertexBufferAndIndexBuffer(m_cube);
 		//-----sky box------
+
+		//------physics debug info------
+		m_PhysicsDebugVertexShader = shaderFactory->CreateShader("asset/shader/physicsDebug.hlsl", "main_vs", nullptr,
+			nvrhi::ShaderType::Vertex);
+		m_PhysicsDebugPixelShader = shaderFactory->CreateShader("asset/shader/physicsDebug.hlsl", "main_ps", nullptr,
+			nvrhi::ShaderType::Pixel);
+		m_PhysicsDebugConstantBuffer.resize(1);//max objects
+		for (size_t i = 0; i < m_PhysicsDebugConstantBuffer.size(); ++i)
+		{
+			m_PhysicsDebugConstantBuffer[i] = GetDevice()->createBuffer(
+				nvrhi::utils::CreateStaticConstantBufferDesc(
+					sizeof(PhysicsDebugBufferEntry), "PhysicsDebugBufferEntry")
+				.setInitialState(
+					nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
+						true));
+		}
+		for (size_t i = 0; i < m_PhysicsDebugPropertiesConstantBuffers.size(); ++i)
+		{
+			m_PhysicsDebugPropertiesConstantBuffers[i] = GetDevice()->createBuffer(
+				nvrhi::utils::CreateStaticConstantBufferDesc(
+					sizeof(PhysicsPropertiesBuffer), "PhysicsPropertiesBuffer")
+				.setInitialState(
+					nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
+						true));
+		}
+		layoutDesc.bindings = {
+			nvrhi::BindingLayoutItem::ConstantBuffer(0), //normal transform
+			//nvrhi::BindingLayoutItem::ConstantBuffer(1)  //properties
+		};
+		m_PhysicsDebugBindingLayout = GetDevice()->createBindingLayout(layoutDesc);
+
+		nvrhi::VertexAttributeDesc physicsDebugAttributes[] = {
+			nvrhi::VertexAttributeDesc()
+						.setName("POSITION")
+						.setFormat(nvrhi::Format::RGB32_FLOAT)
+						.setOffset(0)
+						.setBufferIndex(0)
+						.setElementStride(sizeof(PhysicsDebugVertex)),
+			nvrhi::VertexAttributeDesc()
+						.setName("COLOR0")
+						.setFormat(nvrhi::Format::RGBA32_FLOAT)
+						.setOffset(0)
+						.setBufferIndex(1)
+						.setElementStride(sizeof(PhysicsDebugVertex))
+		};
+		m_PhysicsDebugInputLayout = GetDevice()->createInputLayout(physicsDebugAttributes,
+			uint32_t(std::size(physicsDebugAttributes)),
+			m_PhysicsDebugVertexShader);
+		//------physics debug info------
 
 		m_CommandList->close();
 		GetDevice()->executeCommandList(m_CommandList);
@@ -2675,6 +2781,18 @@ namespace GuGu {
 			m_gameUIDebugPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
+		if (!m_PhysicsDebugPipeline)
+		{
+			nvrhi::GraphicsPipelineDesc psoDesc;
+			psoDesc.VS = m_PhysicsDebugVertexShader;
+			psoDesc.PS = m_PhysicsDebugPixelShader;
+			psoDesc.inputLayout = m_PhysicsDebugInputLayout; //顶点属性
+			psoDesc.bindingLayouts = { m_PhysicsDebugBindingLayout }; //constant buffer 这些
+			psoDesc.primType = nvrhi::PrimitiveType::LineList;
+			psoDesc.renderState.depthStencilState.depthTestEnable = false;
+			m_PhysicsDebugPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
+		}
+
 		if (!m_skyBoxPipeline)
 		{
 			nvrhi::GraphicsPipelineDesc psoDesc;
@@ -3723,6 +3841,57 @@ namespace GuGu {
 				args.startIndexLocation = 0;
 				m_CommandList->drawIndexed(args);
 			}
+		}
+
+		//draw debug physics info
+		{
+			if (m_physicsDebugVertex.size() > 0)
+			{
+				//check is enable
+				nvrhi::GraphicsState physicsGraphicsState;
+				physicsGraphicsState.pipeline = m_PhysicsDebugPipeline;
+				physicsGraphicsState.framebuffer = inViewportClient->getFramebuffer();
+				physicsGraphicsState.viewport.addViewportAndScissorRect(viewport);
+
+				createPhysicsDebugVertexBufferAndIndexBuffer();
+
+				//draw
+				nvrhi::BindingSetHandle physicsDebugBindingSet;
+				nvrhi::BindingSetDesc desc;
+				nvrhi::BindingSetHandle bindingSet;
+				desc.bindings = {
+						nvrhi::BindingSetItem::ConstantBuffer(0, m_PhysicsDebugConstantBuffer[0]),
+				};
+				physicsDebugBindingSet = GetDevice()->createBindingSet(desc, m_PhysicsDebugBindingLayout);
+
+				physicsGraphicsState.bindings = { physicsDebugBindingSet };
+
+				physicsGraphicsState.vertexBuffers = {
+					{m_physicsVertexHandle, 0, 0}
+				};
+
+				physicsGraphicsState.indexBuffer = {
+					m_physicsIndexHandle, nvrhi::Format::R32_UINT, 0
+				};
+
+				PhysicsDebugBufferEntry debugConstants;
+				debugConstants.viewProjMatrix = viewProjMatrix;
+				//get the global matrix to fill constant buffer		
+				m_CommandList->writeBuffer(m_PhysicsDebugConstantBuffer[0], &debugConstants, sizeof(debugConstants));
+
+				physicsGraphicsState.setPipeline(m_PhysicsDebugPipeline);
+				m_CommandList->setGraphicsState(physicsGraphicsState);
+
+				// draw the model
+				nvrhi::DrawArguments args;
+				args.vertexCount = m_physicsDebugVertex.size();
+				args.instanceCount = 1;
+				args.startVertexLocation = 0;
+				args.startIndexLocation = 0;
+				m_CommandList->drawIndexed(args);
+
+				m_physicsDebugVertex.clear();
+			}	
 		}
 
 		m_CommandList->close();

@@ -83,9 +83,14 @@ namespace GuGu {
 
 		void createUIDebugVertexBufferAndIndexBuffer(std::shared_ptr<UIDebugInfo> inUIDebugInfo);
 
+		void createPhysicsDebugVertexBufferAndIndexBuffer();
+
 		void initRenderTargetAndDepthTarget(ViewportClient& viewportClient, math::float2 viewportSize);
 
 		void updateAtlas(std::shared_ptr<UIAtlas> inAtlas);
+
+		//debug physics info
+		void addDebugPhysicsInfo(math::float3 from, math::float3 to, math::float4 inColor);
 	private:
 		void RenderView(nvrhi::GraphicsState& graphicsState, nvrhi::GraphicsState& gridGraphicsState, math::float4x4 viewProjMatrix);
 
@@ -417,6 +422,39 @@ namespace GuGu {
 		nvrhi::BindingLayoutHandle m_gameUIDebugBindingLayout;
 		nvrhi::GraphicsPipelineHandle m_gameUIDebugPipeline;
 		//-----game ui debug info------
+
+		//------debug physics info------
+		struct PhysicsDebugBufferEntry {
+			dm::float4x4 viewProjMatrix;
+		};
+
+		struct PhysicsPropertiesBuffer {
+			dm::float3 color;
+		};
+
+		struct PhysicsDebugVertex
+		{
+			math::float3 m_position;
+			math::float4 m_color;
+			PhysicsDebugVertex(math::float3 inPosition, math::float4 inColor)
+			{
+				m_position = inPosition;
+				m_color = inColor;
+			}
+		};
+
+		nvrhi::ShaderHandle m_PhysicsDebugVertexShader;
+		nvrhi::ShaderHandle m_PhysicsDebugPixelShader;
+		std::vector<nvrhi::BufferHandle> m_PhysicsDebugConstantBuffer;
+		std::vector<nvrhi::BufferHandle> m_PhysicsDebugPropertiesConstantBuffers;
+		nvrhi::InputLayoutHandle m_PhysicsDebugInputLayout;
+		nvrhi::BindingLayoutHandle m_PhysicsDebugBindingLayout;
+		nvrhi::GraphicsPipelineHandle m_PhysicsDebugPipeline;
+
+		std::vector<PhysicsDebugVertex> m_physicsDebugVertex;
+		nvrhi::BufferHandle m_physicsVertexHandle;
+		nvrhi::BufferHandle m_physicsIndexHandle;
+		//------debug physics info------
 
 		uint32_t m_maxLightCounts = 4;
 	};

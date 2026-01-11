@@ -53,11 +53,11 @@ namespace GuGu {
 
 	void PhysicsManager::destroy()
 	{
+		m_dynamicsWorld = nullptr;
 		m_collisionConfig = nullptr;
 		m_dispatcher = nullptr;
 		m_broadphase = nullptr;
 		m_solver = nullptr;
-		m_dynamicsWorld = nullptr;
 		m_debugDraw = nullptr;
 	}
 

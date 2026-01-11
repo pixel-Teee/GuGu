@@ -19,5 +19,8 @@ namespace GuGu {
 		void setDebugMode(int debugMode) override;
 
 		int getDebugMode() const override;
+
+	private:
+		int32_t m_debugMode;
 	};
 }

@@ -35,7 +35,7 @@ namespace GuGu {
 		void recreateBulletShape();
 
 		void setBoxHalfExtents(math::float3 inBoxHalfExtents);
-		math::float3 getBoxHalfExtents() const;
+		math::float3& getBoxHalfExtents();
 
 		void setSphereRadius(float sphereRadius);
 		float getSphereRadius() const;
@@ -53,6 +53,9 @@ namespace GuGu {
 
 		void syncFromPhysics();
 
+		void syncToPhysics();
+
+		virtual void PostLoad() override;
 
 		//shape
 		CollisionShape m_shape;
