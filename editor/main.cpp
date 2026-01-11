@@ -57,6 +57,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
     GuGu::gamePlayerReflectionRegister();
 	//lua context
     GuGu::LuaContext::getLuaContext()->initialize();
+
 	std::shared_ptr<GuGu::Application> application = GuGu::CreateApplicationFactory();
 	std::shared_ptr<GuGu::WindowsApplication> windowsApplication = std::static_pointer_cast<GuGu::WindowsApplication>(application);
 	windowsApplication->setNativeApplicationHandleAndCmdShow(hInstance, nCmdShow);
@@ -172,6 +173,7 @@ void android_main(struct android_app *pApp) {
     std::shared_ptr<GuGu::AndroidApplication> androidApplication = std::static_pointer_cast<GuGu::AndroidApplication>(application);
     androidApplication->setAndroidApp(pApp);
     GuGu::LuaContext::getLuaContext()->initialize();
+    GuGu::PhysicsManager::getPhysicsManager().init();
     android_app_set_key_event_filter(pApp, key_event_filter);
     android_app_set_motion_event_filter(pApp, motion_event_filter);
 

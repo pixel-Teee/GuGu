@@ -40,6 +40,7 @@ namespace GuGu{
             }
             else
             {
+                GuGu_LOGE("open file error, try to read file %s from asset manager", path.getStr());
                 m_usingAssetManager = false;
             }
         }

@@ -51,6 +51,10 @@ namespace GuGu {
 
 		//create game object
 		std::shared_ptr<GameObject> createGameObject(const GuGuUtf8Str& name);
+
+		void removeRigidBodyFromPhysics();
+
+		void addRigidBodyToPhysics();
 	private:
 		Array<std::shared_ptr<GameObject>> m_objects; //all game objects
 	};

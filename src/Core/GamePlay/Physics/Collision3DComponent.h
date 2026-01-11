@@ -57,6 +57,12 @@ namespace GuGu {
 
 		virtual void PostLoad() override;
 
+		void removeRigidBodyFromPhysics();
+
+		void addRigidBodyToPhysics();
+
+		bool isRigidBodyInPhysics();
+
 		//shape
 		CollisionShape m_shape;
 

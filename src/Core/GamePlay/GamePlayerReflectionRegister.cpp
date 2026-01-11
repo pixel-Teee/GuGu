@@ -26,6 +26,7 @@
 #include <Core/GamePlay/GameUI/ButtonComponent.h>
 #include <Core/GamePlay/ScriptComponent.h>
 #include <Core/GamePlay/TerrainVegetationComponent.h>
+#include <Core/GamePlay/Physics/Collision3DComponent.h>
 
 #include <Renderer/Color.h>
 
@@ -848,6 +849,8 @@ namespace GuGu {
 		TerrainVegetationComponent::registerMainFactory();
 		TerrainVegetationComponent::registerMainFactory2();
 
+        Collision3DComponent::registerMainFactory();
+        Collision3DComponent::registerMainFactory2();
 		ReflectionMain::initialize();
 
 		meta::Type::List types = meta::Type::GetTypes();

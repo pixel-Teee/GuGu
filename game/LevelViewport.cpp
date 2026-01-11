@@ -3,6 +3,7 @@
 #include "LevelViewport.h"
 #include <Core/GamePlay/World.h>
 #include "GameViewportClient.h"
+#include <Core/AssetManager/AssetData.h>
 
 namespace GuGu {
 	void LevelViewport::init(const BuilderArguments& arguments)

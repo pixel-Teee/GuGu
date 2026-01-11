@@ -202,6 +202,11 @@ namespace GuGu {
 				Array<std::shared_ptr<GameObject>>& gameObjects = m_currentLevel->getGameObjects();
 				for (int32_t i = 0; i < gameObjects.size(); ++i)
 				{
+					std::shared_ptr<Collision3DComponent> collision3DComponent = gameObjects[i]->getComponent<Collision3DComponent>();
+					if (collision3DComponent)
+					{
+						collision3DComponent->syncToPhysics();
+					}
 					//check have script component
 					std::shared_ptr<ScriptComponent> scriptComponent = gameObjects[i]->getComponent<ScriptComponent>();
 					if (scriptComponent)
@@ -350,9 +355,11 @@ namespace GuGu {
 	{
 		if (state == ViewportClient::ViewportState::Runtime)
 		{
+			m_editorLevel->removeRigidBodyFromPhysics();
 			//m_currentLevel = std::shared_ptr<Level>(static_cast<Level*>(static_cast<meta::Object*>(m_editorLevel->Clone())));
 			m_currentLevel = std::static_pointer_cast<Level>(AssetManager::getAssetManager().cloneObject(m_editorLevel));
 
+			m_currentLevel->addRigidBodyToPhysics();
 			//start script
 			Array<std::shared_ptr<GameObject>>& gameObjects = m_currentLevel->getGameObjects();
 			for (int32_t i = 0; i < gameObjects.size(); ++i)
@@ -373,8 +380,9 @@ namespace GuGu {
 		}
 		else if(state == ViewportClient::ViewportState::Editor)
 		{
+			m_currentLevel->removeRigidBodyFromPhysics();
 			m_currentLevel = m_editorLevel;
-
+			m_editorLevel->addRigidBodyToPhysics();
 			//close script
 			Array<std::shared_ptr<GameObject>>& gameObjects = m_currentLevel->getGameObjects();
 			for (int32_t i = 0; i < gameObjects.size(); ++i)

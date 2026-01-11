@@ -43,8 +43,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
 	windowsApplication->setNativeApplicationHandleAndCmdShow(hInstance, nCmdShow);
 
 	std::shared_ptr<GuGu::WindowWidget> gameWindowWidget = GuGu::CreateGameMainWindow();
-
 	application->init(gameWindowWidget);
+	GuGu::loadLevel();//load default level
+
 	application->Run();
 	return 0;
 }
@@ -171,7 +172,7 @@ extern "C" {
 		//GuGu::InitArchive();
         std::shared_ptr<GuGu::WindowWidget> gameWindowWidget = GuGu::CreateGameMainWindow();
 		androidApplication->init(gameWindowWidget);
-
+		GuGu::loadLevel();//load default level
 		androidApplication->Run();
 
 	}

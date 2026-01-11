@@ -259,8 +259,11 @@ namespace GuGu {
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(m_mass, m_motionState.get(), m_collisionShape.get(), localInertia);
 		m_rigidBody = std::make_shared<btRigidBody>(rbInfo);
 
-		//添加新的刚体
-		physicsWorld->addRigidBody(m_rigidBody.get());
+		if (physicsWorld)
+		{
+			//添加新的刚体
+			physicsWorld->addRigidBody(m_rigidBody.get());
+		}
 	}
 
 	void Collision3DComponent::setBoxHalfExtents(math::float3 inBoxHalfExtents)
@@ -449,6 +452,29 @@ namespace GuGu {
 	void Collision3DComponent::PostLoad()
 	{
 		recreateBulletShape();
+	}
+
+	void Collision3DComponent::removeRigidBodyFromPhysics()
+	{
+		std::shared_ptr<btDynamicsWorld> physicsWorld = PhysicsManager::getPhysicsManager().getDynamicsWorld();
+		if (m_rigidBody && isRigidBodyInPhysics())
+			physicsWorld->removeRigidBody(m_rigidBody.get());
+	}
+
+	void Collision3DComponent::addRigidBodyToPhysics()
+	{
+		std::shared_ptr<btDynamicsWorld> physicsWorld = PhysicsManager::getPhysicsManager().getDynamicsWorld();
+		if (m_rigidBody && !isRigidBodyInPhysics())
+			physicsWorld->addRigidBody(m_rigidBody.get());
+	}
+
+	bool Collision3DComponent::isRigidBodyInPhysics()
+	{
+		if (m_rigidBody && m_rigidBody->getBroadphaseHandle() != nullptr)
+		{
+			return true;
+		}
+		return false;
 	}
 
 }

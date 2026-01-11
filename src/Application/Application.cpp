@@ -26,6 +26,7 @@
 
 #include <Core/LuaContext/LuaContext.h>
 #include <Core/Physics/PhysicsManager.h>
+#include <Core/AssetManager/AssetManager.h>
 
 namespace GuGu{
 	static void removeWindowFromList(std::vector<std::shared_ptr<WindowWidget>>& windows, const std::shared_ptr<WindowWidget>& windowToRemove)

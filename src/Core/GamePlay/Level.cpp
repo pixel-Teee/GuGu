@@ -6,6 +6,7 @@
 
 #include <Core/GamePlay/GameUI/CanvasComponent.h>
 #include <Core/GamePlay/GameUI/UITransformComponent.h>
+#include <Core/GamePlay/Physics/Collision3DComponent.h>
 
 namespace GuGu {
 	static bool registerGuGuLevel()
@@ -270,6 +271,26 @@ namespace GuGu {
 		gameObject->setName(name);
 		m_objects.push_back(gameObject);
 		return gameObject;
+	}
+
+	void Level::removeRigidBodyFromPhysics()
+	{
+		for (int32_t i = 0; i < m_objects.size(); ++i)
+		{
+			std::shared_ptr<Collision3DComponent> collision3D = m_objects[i]->getComponent<Collision3DComponent>();
+			if(collision3D)
+				collision3D->removeRigidBodyFromPhysics();
+		}
+	}
+
+	void Level::addRigidBodyToPhysics()
+	{
+		for (int32_t i = 0; i < m_objects.size(); ++i)
+		{
+			std::shared_ptr<Collision3DComponent> collision3D = m_objects[i]->getComponent<Collision3DComponent>();
+			if(collision3D)
+				collision3D->addRigidBodyToPhysics();
+		}
 	}
 
 }

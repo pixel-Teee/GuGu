@@ -188,13 +188,18 @@ namespace GuGu {
 		)
 		.ScreenPosition(math::float2(0.0f, 0.0f));
 
-		AssetData assetData;
-		assetData.m_filePath = "content/Tree/TestTree2.json";
-		assetData.m_fileName = "TestTree2.json";
-		assetData.m_assetTypeGuid = typeof(Level).getGuid();
-		World::getWorld()->loadLevel(assetData);
-
 		return mainWindow;
+	}
+
+	void loadLevel()
+	{
+		GuGu::AssetData assetData;
+		assetData.m_filePath = "content/TestPhysics.json";
+		assetData.m_fileName = "TestPhysics.json";
+		assetData.m_assetTypeGuid = typeof(GuGu::Level).getGuid();
+		GuGu::World::getWorld()->loadLevel(assetData);
+
+		World::getWorld()->switchState(World::Runtime);
 	}
 
 }

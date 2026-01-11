@@ -102,4 +102,6 @@ namespace GuGu {
 	};
 
 	std::shared_ptr<WindowWidget> CreateGameMainWindow();
+
+	void loadLevel();
 }
