@@ -7,6 +7,7 @@
 #include "PropertyHandleImp.h"//property handle float/double
 #include "PropertyEditorAsset.h"
 #include "PropertyEditorText.h"
+#include "PropertyEditorCombo.h"
 #include <Core/UI/BoxPanel.h>
 #include <Core/UI/Border.h>
 
@@ -155,6 +156,14 @@ namespace GuGu {
 				textWidget->getFixedWidth(m_minFixedWidth, m_maxFixedWidth);
 
 				propertyWidget = textWidget;
+			}
+			else if (PropertyEditorCombo::supports(inPropertyEditor))
+			{
+				std::shared_ptr<PropertyEditorCombo> comboWidget;
+				WIDGET_ASSIGN_NEW(PropertyEditorCombo, comboWidget, inPropertyEditor);
+				comboWidget->getFixedWidth(m_minFixedWidth, m_maxFixedWidth);
+
+				propertyWidget = comboWidget;
 			}
 		}
 

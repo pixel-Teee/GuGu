@@ -38,7 +38,7 @@ namespace GuGu {
 			data.isSigned = std::is_signed<Decayed>::value;
 			data.isSharedPointer = isSharedPtr<T>::value;
 			data.isWeakPointer = isWeakPtr<T>::value;
-			data.isStruct = std::is_standard_layout<T>::value && !data.isPrimitive && !data.isPointer && !data.isSharedPointer && !data.isWeakPointer;
+			data.isStruct = std::is_standard_layout<T>::value && !data.isPrimitive && !data.isPointer && !data.isSharedPointer && !data.isWeakPointer && !data.isEnum;
 			
 			if (beingDefined)
 			{

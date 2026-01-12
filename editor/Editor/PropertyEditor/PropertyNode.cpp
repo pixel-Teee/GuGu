@@ -154,6 +154,16 @@ namespace GuGu {
 					return PropertyAccess::Success;
 				}
 			}
+			if (curType.IsEnum())
+			{
+				//enum just return str
+				meta::Field checkField = meta::ReflectionDatabase::Instance().types[owners[0].GetType().GetID()].GetField(getField()->GetName().getStr());//have this field?
+				if (checkField.GetType() == getField()->GetType() && checkField.GetName() == getField()->GetName())
+				{
+					outString = checkField.GetType().GetEnum().GetKey(checkField.GetValue(owners[0]));
+					return PropertyAccess::Success;
+				}
+			}
 			if (owners.size() > 0)
 			{
 				const meta::Variant& instance = getField()->GetValue(owners[0]);
