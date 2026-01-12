@@ -145,7 +145,7 @@ namespace GuGu {
 				if (owner != meta::Variant())
 					owners.push_back(owner);
 			}
-			if (curType == typeof(GuGuUtf8Str))
+			if (curType == typeof(GuGuUtf8Str) && owners.size() > 0)
 			{
 				meta::Field checkField = meta::ReflectionDatabase::Instance().types[owners[0].GetType().GetID()].GetField(getField()->GetName().getStr());//have this field?
 				if (checkField.GetType() == getField()->GetType() && checkField.GetName() == getField()->GetName())
@@ -154,7 +154,7 @@ namespace GuGu {
 					return PropertyAccess::Success;
 				}
 			}
-			if (curType.IsEnum())
+			if (curType.IsEnum() && owners.size() > 0)
 			{
 				//enum just return str
 				meta::Field checkField = meta::ReflectionDatabase::Instance().types[owners[0].GetType().GetID()].GetField(getField()->GetName().getStr());//have this field?
