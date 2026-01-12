@@ -20,6 +20,7 @@
 
 #include <Core/GamePlay/TransformComponent.h>
 #include <Core/GamePlay/GameUI/UITransformComponent.h>
+#include <Core/AssetManager/AssetManager.h>
 
 namespace GuGu {
 
@@ -193,6 +194,19 @@ namespace GuGu {
 							.textColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9"))
 							.text("add child game object")
 						)
+					)
+					+ VerticalBox::Slot()
+					.FixedHeight()
+					(
+						WIDGET_NEW(Button)
+						.Clicked(this, &ObjectTreeLabel::rightClickCloneGameObject)
+						.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+						.Content
+						(
+							WIDGET_NEW(TextBlockWidget)
+							.textColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9"))
+							.text("clone game object")
+						)
 					);
 
 				WidgetPath widgetPath = WidgetPath();
@@ -297,6 +311,34 @@ namespace GuGu {
 						parentWindowLocked->onItemSelect(emptyGameObjects, true);
 					}
 				}
+			}
+
+			return Reply::Handled();
+		}
+
+		Reply ObjectTreeLabel::rightClickCloneGameObject()
+		{
+			//clone game object
+			m_menu->dismiss();
+
+			std::shared_ptr<Level> currentLevel = World::getWorld()->getCurrentLevel();
+			if (currentLevel)
+			{
+				//undo/redo
+				TransactionManager& transactionManager = TransactionManager::getTransactionManager();
+				transactionManager.beginTransaction();
+				transactionManager.modifyObject(currentLevel);
+				//World::getWorld()->getCurrentLevel()->deleteGameObject(m_objectPtr.lock());
+
+				//create game object and add child
+				if (m_objectPtr.lock())
+				{
+					std::shared_ptr<GameObject> clonedObject = std::static_pointer_cast<GameObject>(AssetManager::getAssetManager().cloneObject(m_objectPtr.lock()));
+
+					World::getWorld()->getCurrentLevel()->addGameObject(clonedObject);
+				}
+
+				transactionManager.commit();
 			}
 
 			return Reply::Handled();

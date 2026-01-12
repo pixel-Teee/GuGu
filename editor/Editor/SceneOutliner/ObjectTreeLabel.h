@@ -40,6 +40,8 @@ namespace GuGu {
 
 			Reply rightClickAddChildGameObject();
 
+			Reply rightClickCloneGameObject();
+
 			Reply OnDragDetected(const WidgetGeometry& myGeometry, const PointerEvent& mouseEvent) override;
 
 			void OnDragEnter(const WidgetGeometry& myGeometry, const DragDropEvent& dragDropEvent) override;
