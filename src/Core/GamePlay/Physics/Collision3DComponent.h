@@ -63,6 +63,9 @@ namespace GuGu {
 
 		bool isRigidBodyInPhysics();
 
+		void setKinematic(bool isKinematic);
+		bool getKinematic() const;
+
 		//shape
 		CollisionShape m_shape;
 
@@ -73,6 +76,9 @@ namespace GuGu {
 
 		//质量(质量为0是static，>0是dynamic)
 		float m_mass;
+
+		//质量为0，这个为 true，则是 kinematic (用于角色控制器等)
+		bool m_bKinematic;
 
 		//摩擦力
 		float m_friction;

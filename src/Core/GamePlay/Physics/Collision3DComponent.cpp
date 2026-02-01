@@ -113,6 +113,10 @@ namespace GuGu {
 			(meta::FieldGetter<Collision3DComponent, float, false>::Signature) & Collision3DComponent::m_restitution,
 			(meta::FieldSetter<Collision3DComponent, float, false>::Signature) & Collision3DComponent::m_restitution, {});
 
+		type.AddField<Collision3DComponent, float>("m_bKinematic",
+			(meta::FieldGetter<Collision3DComponent, float, true>::Signature) & Collision3DComponent::getKinematic,
+			(meta::FieldSetter<Collision3DComponent, float, true>::Signature) & Collision3DComponent::setKinematic, {});
+
 		type.AddField<Collision3DComponent, std::weak_ptr<GameObject>>("m_owner",
 			(meta::FieldGetter<Collision3DComponent, std::weak_ptr<GameObject>&, true>::Signature) & Collision3DComponent::getParentGameObject,
 			(meta::FieldSetter<Collision3DComponent, std::weak_ptr<GameObject>&, true>::Signature) & Collision3DComponent::setParentGameObject, {});
@@ -149,6 +153,7 @@ namespace GuGu {
 		//default shape
 		m_shape = CollisionShape::Box;
 
+		m_bKinematic = false;
 		//recreateBulletShape();
 	}
 
@@ -475,6 +480,16 @@ namespace GuGu {
 			return true;
 		}
 		return false;
+	}
+
+	void Collision3DComponent::setKinematic(bool isKinematic)
+	{
+		m_bKinematic = isKinematic;
+	}
+
+	bool Collision3DComponent::getKinematic() const
+	{
+		return m_bKinematic;
 	}
 
 }
