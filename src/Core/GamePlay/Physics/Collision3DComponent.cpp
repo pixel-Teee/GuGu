@@ -75,7 +75,8 @@ namespace GuGu {
 				type.SetEnum<GuGu::CollisionShape>("GuGu::CollisionShape", {
 					{"Box", CollisionShape::Box},
 					{"Sphere", CollisionShape::Sphere},
-					{"Capsule", CollisionShape::Capsule}
+					{"Capsule", CollisionShape::Capsule},
+					{"HeightField", CollisionShape::HeightField}
 				});
 			}
 		}

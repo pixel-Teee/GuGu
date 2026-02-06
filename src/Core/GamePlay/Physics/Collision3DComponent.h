@@ -11,7 +11,8 @@ namespace GuGu {
 		//shape
 		Box = 0,
 		Sphere = 1,
-		Capsule = 2
+		Capsule = 2,
+		HeightField = 3
 	};
 
 	class Collision3DComponent : public Component
