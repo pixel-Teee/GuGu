@@ -1753,7 +1753,7 @@ namespace GuGu {
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
 			//psoDesc.renderState.rasterState.fillMode = nvrhi::RasterFillMode::Wireframe;
 			psoDesc.renderState.depthStencilState.depthTestEnable = true;
-			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
+			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
 			m_terrainPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
@@ -2576,6 +2576,57 @@ namespace GuGu {
 				m_CommandList->drawIndexed(args);
 			}
 			//------draw game ui------
+
+			//draw debug physics info
+			{
+				if (m_physicsDebugVertex.size() > 0)
+				{
+					//check is enable
+					nvrhi::GraphicsState physicsGraphicsState;
+					physicsGraphicsState.pipeline = m_PhysicsDebugPipeline;
+					physicsGraphicsState.framebuffer = inViewportClient->getFramebuffer();
+					physicsGraphicsState.viewport.addViewportAndScissorRect(viewport);
+
+					createPhysicsDebugVertexBufferAndIndexBuffer();
+
+					//draw
+					nvrhi::BindingSetHandle physicsDebugBindingSet;
+					nvrhi::BindingSetDesc desc;
+					nvrhi::BindingSetHandle bindingSet;
+					desc.bindings = {
+							nvrhi::BindingSetItem::ConstantBuffer(0, m_PhysicsDebugConstantBuffer[0]),
+					};
+					physicsDebugBindingSet = GetDevice()->createBindingSet(desc, m_PhysicsDebugBindingLayout);
+
+					physicsGraphicsState.bindings = { physicsDebugBindingSet };
+
+					physicsGraphicsState.vertexBuffers = {
+						{m_physicsVertexHandle, 0, 0}
+					};
+
+					physicsGraphicsState.indexBuffer = {
+						m_physicsIndexHandle, nvrhi::Format::R32_UINT, 0
+					};
+
+					PhysicsDebugBufferEntry debugConstants;
+					debugConstants.viewProjMatrix = viewProjMatrix;
+					//get the global matrix to fill constant buffer		
+					m_CommandList->writeBuffer(m_PhysicsDebugConstantBuffer[0], &debugConstants, sizeof(debugConstants));
+
+					physicsGraphicsState.setPipeline(m_PhysicsDebugPipeline);
+					m_CommandList->setGraphicsState(physicsGraphicsState);
+
+					// draw the model
+					nvrhi::DrawArguments args;
+					args.vertexCount = m_physicsDebugVertex.size();
+					args.instanceCount = 1;
+					args.startVertexLocation = 0;
+					args.startIndexLocation = 0;
+					m_CommandList->drawIndexed(args);
+
+					m_physicsDebugVertex.clear();
+				}
+			}
 		}
 
 		m_CommandList->close();
@@ -2650,8 +2701,9 @@ namespace GuGu {
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
 			//psoDesc.renderState.rasterState.fillMode = nvrhi::RasterFillMode::Wireframe;
 			psoDesc.renderState.depthStencilState.depthTestEnable = true;
-			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
+			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
 			//psoDesc.renderState.rasterState.setFillWireframe();
+
 			m_terrainPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 

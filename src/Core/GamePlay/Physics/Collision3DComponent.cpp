@@ -4,9 +4,12 @@
 #include <Core/Reflection/TypeInfo.h>
 #include <Core/GamePlay/GameObject.h>
 #include <Core/GamePlay/TransformComponent.h>
+#include <Core/GamePlay/TerrainComponent.h>
 #include <btBulletDynamicsCommon.h>
 #include <AssetManager/GameObjectLevelRef.h>
 #include <Core/Physics/PhysicsManager.h>
+#include <BulletCollision/CollisionShapes/btHeightfieldTerrainShape.h>
+#include <Core/Texture/GTexture.h>
 
 namespace GuGu {
 	static bool registerGuGuCollision3DComponent()
@@ -256,6 +259,67 @@ namespace GuGu {
 		{
 
 		}
+		else if (m_shape == CollisionShape::HeightField) //地形
+		{
+			//get collision
+			if (m_gameObjectRef)
+			{
+				std::shared_ptr<GameObject> inGameObject = m_gameObjectRef->getGameObject();
+				if (inGameObject)
+				{
+					std::shared_ptr<TerrainComponent> terrainComp = inGameObject->getComponent<TerrainComponent>();
+
+					if (terrainComp)
+					{
+						int32_t terrainHeightTextureWidth = terrainComp->getHeightTexture()->m_width;
+						int32_t terrainHeightTextureLength = terrainComp->getHeightTexture()->m_height;
+						Array<uint8_t>& heightData = terrainComp->getHeightTexture()->m_data;
+						uint32_t channelNum = terrainComp->getHeightTexture()->m_bytesPerPixel;
+						m_heightChannelData.clear();
+						float minHeight = 255;
+						float maxHeight = 40;
+						for (int32_t i = 0; i < terrainHeightTextureWidth - 1; i = i + 4) //todo:(fix this)
+						{
+							for (int32_t j = terrainHeightTextureLength - 1; j >= 0; j = j - 4)
+							{
+								float averageHeight = (heightData[(j * terrainHeightTextureWidth + i) * channelNum] +
+									heightData[(j * terrainHeightTextureWidth + i + 1) * channelNum] +
+									heightData[(j * terrainHeightTextureWidth + i + 2) * channelNum] +
+									heightData[(j * terrainHeightTextureWidth + i + 3) * channelNum]) / 4.0f;
+								//get r channel
+								m_heightChannelData.push_back(averageHeight);
+								minHeight = std::min(minHeight, averageHeight);
+								maxHeight = std::max(maxHeight, averageHeight);
+							}
+						}
+						float heightScale = 1.0 / 255.0f * terrainComp->getHeightScale();
+						m_collisionShape = std::make_shared<btHeightfieldTerrainShape>(
+							terrainHeightTextureWidth / 4,
+							terrainHeightTextureLength / 4,
+							m_heightChannelData.data(),
+							heightScale,
+							minHeight / 255.0f,
+							maxHeight / 255.0f,
+							1,
+							PHY_UCHAR,
+							false
+						);
+						m_collisionShape->setLocalScaling(btVector3(1.0f / 4.0f, 1.0f, 1.0f / 4.0f));
+					}
+					else
+					{
+						GuGu_LOGD("dont have a terrain to create collision shape");
+						return;
+					}
+				}
+				else
+				{
+					GuGu_LOGD("dont have a terrain to create collision shape");
+					return;
+				}
+			}		
+		}
+
 		//惯性张量
 		btVector3 localInertia(0, 0, 0);
 		if (m_mass != 0.0f)
@@ -281,13 +345,16 @@ namespace GuGu {
 	void Collision3DComponent::setBoxHalfExtents(math::float3 inBoxHalfExtents)
 	{
 		m_boxHalfExtents = inBoxHalfExtents;
-		std::shared_ptr<btBoxShape> boxShape = std::static_pointer_cast<btBoxShape>(m_collisionShape);
-		boxShape->setImplicitShapeDimensions(btVector3(m_boxHalfExtents.x, m_boxHalfExtents.y, m_boxHalfExtents.z));
-
-		std::shared_ptr<btDynamicsWorld> physicsWorld = PhysicsManager::getPhysicsManager().getDynamicsWorld();
-		if (physicsWorld)
+		if (m_collisionShape)
 		{
-			physicsWorld->updateAabbs();
+			std::shared_ptr<btBoxShape> boxShape = std::static_pointer_cast<btBoxShape>(m_collisionShape);
+			boxShape->setImplicitShapeDimensions(btVector3(m_boxHalfExtents.x, m_boxHalfExtents.y, m_boxHalfExtents.z));
+
+			std::shared_ptr<btDynamicsWorld> physicsWorld = PhysicsManager::getPhysicsManager().getDynamicsWorld();
+			if (physicsWorld)
+			{
+				physicsWorld->updateAabbs();
+			}
 		}
 	}
 
@@ -299,13 +366,16 @@ namespace GuGu {
 	void Collision3DComponent::setSphereRadius(float sphereRadius)
 	{
 		m_sphereRadius = sphereRadius;
-		std::shared_ptr<btSphereShape> sphereShape = std::static_pointer_cast<btSphereShape>(m_collisionShape);
-		sphereShape->setUnscaledRadius(m_sphereRadius);
-
-		std::shared_ptr<btDynamicsWorld> physicsWorld = PhysicsManager::getPhysicsManager().getDynamicsWorld();
-		if (physicsWorld)
+		if (m_collisionShape)
 		{
-			physicsWorld->updateAabbs();
+			std::shared_ptr<btSphereShape> sphereShape = std::static_pointer_cast<btSphereShape>(m_collisionShape);
+			sphereShape->setUnscaledRadius(m_sphereRadius);
+
+			std::shared_ptr<btDynamicsWorld> physicsWorld = PhysicsManager::getPhysicsManager().getDynamicsWorld();
+			if (physicsWorld)
+			{
+				physicsWorld->updateAabbs();
+			}
 		}
 	}
 
@@ -431,7 +501,7 @@ namespace GuGu {
 			if (trans)
 			{
 				trans->SetTranslation(math::double3(pos.x(), pos.y(), pos.z()));
-				trans->SetRotationQuat(math::dquat(rot.x(), rot.y(), rot.z(), rot.w()));
+				trans->SetRotationQuat(math::dquat(rot.w(), rot.x(), rot.y(), rot.z()));
 			}
 		}
 	}
@@ -502,6 +572,7 @@ namespace GuGu {
 	void Collision3DComponent::setGameObjectRef(const std::shared_ptr<GameObjectLevelRef>& inGameObjectRef)
 	{
 		m_gameObjectRef = inGameObjectRef;
+		recreateBulletShape();
 	}
 
 	std::shared_ptr<GameObjectLevelRef>& Collision3DComponent::getGameObjectRef()

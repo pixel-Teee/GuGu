@@ -112,6 +112,7 @@ namespace GuGu{
 					if (viewportState == ViewportClient::ViewportState::Runtime)
 					{
 						PhysicsManager::getPhysicsManager().stepSimulation(m_timer->GetDeltaTime());
+						PhysicsManager::getPhysicsManager().getDynamicsWorld()->debugDrawWorld();
 					}
 					else
 					{

@@ -49,6 +49,10 @@ namespace GuGu {
 
 		m_debugDraw = std::make_shared<PhysicsDebugDraw>();
 		m_dynamicsWorld->setDebugDrawer(m_debugDraw.get());
+
+		int32_t currentDebugMode = m_debugDraw->getDebugMode();
+		currentDebugMode &= ~btIDebugDraw::DBG_DrawNormals;
+		m_debugDraw->setDebugMode(currentDebugMode);
 	}
 
 	void PhysicsManager::destroy()

@@ -96,5 +96,6 @@ namespace GuGu {
 
 		//to generate height field
 		std::shared_ptr<GameObjectLevelRef> m_gameObjectRef;
+		std::vector<uint8_t> m_heightChannelData;
 	};
 }
