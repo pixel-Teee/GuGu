@@ -9,23 +9,39 @@ namespace GuGu {
 	static bool registerGuGuGameObjectLevelRef()
 	{
 		auto& db = meta::ReflectionDatabase::Instance();
-		{
-			auto id = db.AllocateType("GuGu::GameObjectLevelRef");
-			auto& type = db.types[id];
-			meta::TypeInfo<GameObjectLevelRef>::Register(id, type, true, "7443F429-C6FC-43BE-9435-D03E1C8F9BBB");
+		auto id = db.AllocateType("GuGu::GameObjectLevelRef");
+		auto& type = db.types[id];
+		meta::TypeInfo<GameObjectLevelRef>::Register(id, type, true, "7443F429-C6FC-43BE-9435-D03E1C8F9BBB");
 
-			type.LoadBaseClasses(db, id, { typeof(meta::Object) });
-		}
+		auto typeID = typeidof(GameObjectLevelRef);
+		if (typeID != meta::InvalidTypeID && !meta::TypeInfo<GameObjectLevelRef>::Defined)
 		{
-			auto id = db.AllocateType("std::shared_ptr<GuGu::GameObjectLevelRef>");
-			auto& type = db.types[id];
-			meta::TypeInfo<std::shared_ptr<GameObjectLevelRef>>::Register(id, type, false, "2943E43F-DBA1-4BCB-83D5-83BFC154C7A9");
+			auto& type = db.types[typeID];
+
+			//array constructor
+			type.SetArrayConstructor<GameObjectLevelRef>();
+
+			type.AddConstructor<GameObjectLevelRef, false, false>({});
+
+			type.AddConstructor<GameObjectLevelRef, true, true>({});
+
+			type.LoadBaseClasses(db, typeID, { typeof(meta::Object) });
+
+			meta::TypeInfo<GameObjectLevelRef>::Defined = true;
+
+			{
+				auto id = db.AllocateType("std::shared_ptr<GuGu::GameObjectLevelRef>");
+				auto& type = db.types[id];
+				meta::TypeInfo<std::shared_ptr<GameObjectLevelRef>>::Register(id, type, false, "2943E43F-DBA1-4BCB-83D5-83BFC154C7A9");
+			}
+
+			{
+				auto id = db.AllocateType("std::weak_ptr<GuGu::GameObjectLevelRef>");
+				auto& type = db.types[id];
+				meta::TypeInfo<std::weak_ptr<GameObjectLevelRef>>::Register(id, type, false, "E6E2776B-E20D-4230-979A-85DBEDB0E6C7");
+			}
 		}
-		{
-			auto id = db.AllocateType("std::weak_ptr<GuGu::GameObjectLevelRef>");
-			auto& type = db.types[id];
-			meta::TypeInfo<std::weak_ptr<GameObjectLevelRef>>::Register(id, type, false, "E6E2776B-E20D-4230-979A-85DBEDB0E6C7");
-		}
+		
 		return true;
 	}
 
