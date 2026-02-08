@@ -14,7 +14,7 @@ namespace GuGu {
 		Capsule = 2,
 		HeightField = 3
 	};
-
+	struct GameObjectLevelRef;
 	class Collision3DComponent : public Component
 	{
 	public:
@@ -67,6 +67,9 @@ namespace GuGu {
 		void setKinematic(bool isKinematic);
 		bool getKinematic() const;
 
+		void setGameObjectRef(const std::shared_ptr<GameObjectLevelRef>& inGameObjectRef);
+		std::shared_ptr<GameObjectLevelRef>& getGameObjectRef();
+
 		//shape
 		CollisionShape m_shape;
 
@@ -90,5 +93,8 @@ namespace GuGu {
 		std::shared_ptr<btCollisionShape> m_collisionShape;
 		std::shared_ptr<btRigidBody> m_rigidBody;
 		std::shared_ptr<btDefaultMotionState> m_motionState;
+
+		//to generate height field
+		std::shared_ptr<GameObjectLevelRef> m_gameObjectRef;
 	};
 }

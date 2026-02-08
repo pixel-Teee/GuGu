@@ -2,6 +2,7 @@
 
 #include "PropertyCustomizationHelpers.h"
 #include "PropertyMenuAssetPicker.h"
+#include "PropertyMenuGameObjectPicker.h"
 
 namespace GuGu {
 
@@ -14,5 +15,12 @@ namespace GuGu {
 				   .allowedClasses(allowClasses)
 				   .onAssetSelected(onSet);
 		}
+
+		std::shared_ptr<GuGu::Widget> makeGameObjectPickerWithMenu(const GameObjectLevelRef& inGameObjectLevelRef, OnGameObjectSelected onSet)
+		{
+			return WIDGET_NEW(PropertyMenuGameObjectPicker)
+				   .onGameObjectSelected(onSet);
+		}
+
 	}
 }

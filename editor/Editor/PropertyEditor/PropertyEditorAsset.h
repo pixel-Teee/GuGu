@@ -14,6 +14,8 @@ namespace GuGu {
 	class Brush;
 	struct AssetData;
 	class IPropertyHandle;
+	class GameObject;
+	struct GameObjectLevelRef;
 	class PropertyEditorAsset : public CompoundWidget
 	{
 	public:
@@ -48,9 +50,15 @@ namespace GuGu {
 
 		PropertyAccess::Result getValue(AssetData& outValue) const;
 
+		PropertyAccess::Result getValue(GameObjectLevelRef& outValue) const;
+
 		void onAssetSelected(const AssetData& assetData);
 
+		void onGameObjectSelected(std::shared_ptr<GameObject> inGameObject);
+
 		void setValue(const AssetData& assetData);
+
+		void setValue(const GameObjectLevelRef& inGameObjectLevelRef);
 	private:
 		std::shared_ptr<ComboButton> m_assetComboButton;
 
@@ -64,5 +72,7 @@ namespace GuGu {
 		meta::Type m_objectClass;
 
 		std::vector<meta::Type> m_allowedClassFilters;
+
+		bool m_isGameObjectLevelRef;
 	};
 }

@@ -3,6 +3,14 @@
 #include <Core/GuGuUtf8Str.h>
 
 namespace GuGu {
+	//fwd
+	class ISceneOutlinerMode;
+	namespace SceneOutlinerNameSpace
+	{
+		class SceneOutliner;
+	}
+	using CreateSceneOutlinerMode = std::function<std::shared_ptr<ISceneOutlinerMode>(SceneOutlinerNameSpace::SceneOutliner*)>;
+
 	namespace SceneOutlinerNameSpace
 	{
 		struct BuiltInColumnTypes
@@ -29,4 +37,9 @@ namespace GuGu {
 			}
 		};
 	}
+
+	struct SceneOutlinerInitializationOptions
+	{
+		CreateSceneOutlinerMode m_modeFactory;
+	};
 }

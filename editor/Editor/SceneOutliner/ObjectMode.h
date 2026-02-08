@@ -37,5 +37,7 @@ namespace GuGu {
 		virtual bool isInteractive() const { return false; }
 
 		bool m_bHideComponents;
+	protected:
+		SceneOutlinerNameSpace::SceneOutliner* m_sceneOutliner;
 	};
 }

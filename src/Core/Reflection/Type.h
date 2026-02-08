@@ -124,6 +124,8 @@ namespace GuGu {
 			void importStr(const GuGuUtf8Str& inBuffer, meta::Variant& owner);
 
 			bool CheckIsDerivedFromMetaObject();
+
+			bool CheckIsDerivedFromGameObject();
 		private:
 			friend struct TypeData;
 			//一个无符号整数

@@ -13,6 +13,7 @@ namespace GuGu {
 	class TableViewBase;
 	class ISceneOutlinerColumn;
 	class IMenu;
+	struct SceneOutlinerInitializationOptions;
 	namespace SceneOutlinerNameSpace
 	{
 		class OutlinerTreeView;
@@ -66,9 +67,11 @@ namespace GuGu {
 				BuilderArguments() {}
 
 				~BuilderArguments() = default;
+
+				UI_EVENT(OnSceneOutlinerItemPicker, onItemPicked)
 			};
 
-			void init(const BuilderArguments& arguments, std::shared_ptr<Widget> inParentWindow);
+			void init(const BuilderArguments& arguments, const SceneOutlinerInitializationOptions& options, std::shared_ptr<Widget> inParentWindow);
 
 			Visibility getEmptyLabelVisibility() const;
 
@@ -87,6 +90,8 @@ namespace GuGu {
 			void onLevelObjectAttached(std::shared_ptr<GameObject>& inObject, std::shared_ptr<GameObject>& inParent);
 
 			void onLevelObjectDetached(std::shared_ptr<GameObject>& inObject, std::shared_ptr<GameObject>& inParent);
+
+			virtual std::vector<TreeItemPtr> getSelectedItems() const;
 		public:
 			const std::map<GuGuUtf8Str, std::shared_ptr<ISceneOutlinerColumn>>& getColumns() const
 			{
@@ -182,6 +187,8 @@ namespace GuGu {
 
 			//父窗口
 			std::weak_ptr<Widget> m_parentWindow;
+
+			OnSceneOutlinerItemPicker m_onItemPicked;
 		};
 	}
 }

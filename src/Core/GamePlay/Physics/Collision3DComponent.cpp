@@ -5,7 +5,7 @@
 #include <Core/GamePlay/GameObject.h>
 #include <Core/GamePlay/TransformComponent.h>
 #include <btBulletDynamicsCommon.h>
-
+#include <AssetManager/GameObjectLevelRef.h>
 #include <Core/Physics/PhysicsManager.h>
 
 namespace GuGu {
@@ -114,9 +114,13 @@ namespace GuGu {
 			(meta::FieldGetter<Collision3DComponent, float, false>::Signature) & Collision3DComponent::m_restitution,
 			(meta::FieldSetter<Collision3DComponent, float, false>::Signature) & Collision3DComponent::m_restitution, {});
 
-		type.AddField<Collision3DComponent, float>("m_bKinematic",
-			(meta::FieldGetter<Collision3DComponent, float, true>::Signature) & Collision3DComponent::getKinematic,
-			(meta::FieldSetter<Collision3DComponent, float, true>::Signature) & Collision3DComponent::setKinematic, {});
+		type.AddField<Collision3DComponent, bool>("m_bKinematic",
+			(meta::FieldGetter<Collision3DComponent, bool, true>::Signature) & Collision3DComponent::getKinematic,
+			(meta::FieldSetter<Collision3DComponent, bool, true>::Signature) & Collision3DComponent::setKinematic, {});
+
+		type.AddField<Collision3DComponent, std::shared_ptr<GameObjectLevelRef>>("m_gameObjectRef",
+			(meta::FieldGetter<Collision3DComponent, std::shared_ptr<GameObjectLevelRef>&, true>::Signature) & Collision3DComponent::getGameObjectRef,
+			(meta::FieldSetter<Collision3DComponent, std::shared_ptr<GameObjectLevelRef>&, true>::Signature) & Collision3DComponent::setGameObjectRef, {});
 
 		type.AddField<Collision3DComponent, std::weak_ptr<GameObject>>("m_owner",
 			(meta::FieldGetter<Collision3DComponent, std::weak_ptr<GameObject>&, true>::Signature) & Collision3DComponent::getParentGameObject,
@@ -156,6 +160,8 @@ namespace GuGu {
 
 		m_bKinematic = false;
 		//recreateBulletShape();
+
+		m_gameObjectRef = std::make_shared<GameObjectLevelRef>();
 	}
 
 	Collision3DComponent::~Collision3DComponent()
@@ -491,6 +497,16 @@ namespace GuGu {
 	bool Collision3DComponent::getKinematic() const
 	{
 		return m_bKinematic;
+	}
+
+	void Collision3DComponent::setGameObjectRef(const std::shared_ptr<GameObjectLevelRef>& inGameObjectRef)
+	{
+		m_gameObjectRef = inGameObjectRef;
+	}
+
+	std::shared_ptr<GameObjectLevelRef>& Collision3DComponent::getGameObjectRef()
+	{
+		return m_gameObjectRef;
 	}
 
 }

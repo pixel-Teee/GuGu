@@ -128,7 +128,8 @@ namespace GuGu {
 		for (int32_t i = 0; i < getNumObjects(); ++i)
 		{
 			meta::Object* tempObject = getObject(i);
-			classesToConsider.insert(tempObject->GetType());
+			if(tempObject != nullptr)
+				classesToConsider.insert(tempObject->GetType());
 		}
 
 		std::set<GuGuUtf8Str> categoriesFromProperties;
@@ -146,8 +147,8 @@ namespace GuGu {
 		for (int32_t i = 0; i < getNumObjects(); ++i)
 		{
 			meta::Object* tempObject = getObject(i);
-
-			componentTypes.insert(tempObject->GetType());
+			if(tempObject != nullptr)
+				componentTypes.insert(tempObject->GetType());
 		}
 		for (auto& type : componentTypes)
 		{

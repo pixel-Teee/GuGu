@@ -6,6 +6,8 @@
 #include "ArrayWrapper.h"
 #include "TypeCreator.h"
 
+#include <Core/GamePlay/GameObject.h>
+
 namespace GuGu {
 	namespace meta {
 		namespace
@@ -417,56 +419,59 @@ namespace GuGu {
 		void Type::importStr(const GuGuUtf8Str& inBuffer, meta::Variant& owner)
 		{
 			//only implement struct
-			if (owner.GetType().IsStruct())
-			{
-				//解析字符串
-				//去除两边的括号
-				GuGuUtf8Str ridBracket = inBuffer.substr(1, inBuffer.len() - 2);
-				//按逗号分割键值对
-				std::vector<GuGuUtf8Str> pairs = splitByComma(ridBracket);
+			//if (owner.GetType().IsStruct())
+			//{
+			//解析字符串
+			//去除两边的括号
+			GuGuUtf8Str ridBracket = inBuffer.substr(1, inBuffer.len() - 2);
+			//按逗号分割键值对
+			std::vector<GuGuUtf8Str> pairs = splitByComma(ridBracket);
 
-				auto& fields = gDatabase.types[m_id].fields;
-				for (auto& field : fields)
-				{
-					auto fieldType = field.GetType();
+			auto& fields = gDatabase.types[m_id].fields;
+			for (auto& field : fields)
+			{
+				auto fieldType = field.GetType();
 					
-					for (auto& item : pairs)
+				for (auto& item : pairs)
+				{
+					//------get key and value------
+					int32_t eqPos = item.find("=");
+					if (eqPos == -1) continue;
+					GuGuUtf8Str key = item.substr(0, eqPos);
+					key = key.trim();
+					GuGuUtf8Str value = item.substr(eqPos + 1);
+					value = value.trim();
+					//------get key and value------
+					if (fieldType.IsStruct())
+					{						
+						if(key == field.GetName())
+                        {
+                            meta::Variant valueReference = field.GetValueReference(owner);
+                            fieldType.importStr(value, valueReference);
+                        }
+					}
+					else
 					{
-						//------get key and value------
-						int32_t eqPos = item.find("=");
-						if (eqPos == -1) continue;
-						GuGuUtf8Str key = item.substr(0, eqPos);
-						key = key.trim();
-						GuGuUtf8Str value = item.substr(eqPos + 1);
-						value = value.trim();
-						//------get key and value------
-						if (fieldType.IsStruct())
+						if (key == field.GetName())
 						{
-							
-							if(key == field.GetName())
-                            {
-                                meta::Variant valueReference = field.GetValueReference(owner);
-                                fieldType.importStr(value, valueReference);
-                            }
-						}
-						else
-						{
-							if (key == field.GetName())
+							//primitive
+							if (fieldType == typeof(float))
 							{
-								//primitive
-								if (fieldType == typeof(float))
-								{
-									field.SetValue(owner, std::stof(value.getStr()));
-								}
-								else if (fieldType == typeof(double))
-								{
-									field.SetValue(owner, std::stod(value.getStr()));
-								}
-							}	
-						}
+								field.SetValue(owner, std::stof(value.getStr()));
+							}
+							else if (fieldType == typeof(double))
+							{
+								field.SetValue(owner, std::stod(value.getStr()));
+							}
+							else if (fieldType == typeof(GuGuUtf8Str))
+							{
+								field.SetValue(owner, GuGuUtf8Str(value.getStr()));
+							}
+						}	
 					}
 				}
 			}
+			//}
 		}
 
 		bool Type::CheckIsDerivedFromMetaObject()
@@ -476,6 +481,19 @@ namespace GuGu {
 			while (!baseClassesType.empty())
 			{
 				if (*baseClassesType.begin() == typeof(meta::Object))
+					return true;
+				baseClassesType = (*baseClassesType.begin()).GetBaseClasses();
+			}
+			return false;
+		}
+
+		bool Type::CheckIsDerivedFromGameObject()
+		{
+			//bool isMetaObject = false;
+			meta::Type::Set baseClassesType = GetBaseClasses();
+			while (!baseClassesType.empty())
+			{
+				if (*baseClassesType.begin() == typeof(GameObject))
 					return true;
 				baseClassesType = (*baseClassesType.begin()).GetBaseClasses();
 			}

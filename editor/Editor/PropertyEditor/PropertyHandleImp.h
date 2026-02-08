@@ -77,6 +77,7 @@ namespace GuGu {
 		DECLARE_PROPERTY_ACCESSOR(uint16_t)
 		DECLARE_PROPERTY_ACCESSOR(uint32_t)
 		DECLARE_PROPERTY_ACCESSOR(uint64_t)
+		DECLARE_PROPERTY_ACCESSOR(GameObjectLevelRef)
 	protected:
 		std::shared_ptr<PropertyValueImpl> m_implementation;
 	};
@@ -156,5 +157,14 @@ namespace GuGu {
 		static bool supports(std::shared_ptr<PropertyNode> propertyNode);
 		virtual PropertyAccess::Result getValue(AssetData& outValue) const override;
 		virtual PropertyAccess::Result setValue(const AssetData& inValue) override;
+	};
+
+	class PropertyHandleGameObjectRef : public PropertyHandleBase
+	{
+	public:
+		PropertyHandleGameObjectRef(std::shared_ptr<PropertyNode> propertyNode);
+		static bool supports(std::shared_ptr<PropertyNode> propertyNode);
+		virtual PropertyAccess::Result getValue(GameObjectLevelRef& outValue) const override;
+		virtual PropertyAccess::Result setValue(const GameObjectLevelRef& inValue) override;
 	};
 }

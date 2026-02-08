@@ -176,20 +176,11 @@ namespace GuGu {
 		if (meta::Type::getType(assetData.m_assetTypeGuid) == meta::Type(meta::TypeIDs<Level>::ID))
 		{
 			GuGuUtf8Str filePath = assetData.m_filePath;
-			AssetManager::getAssetManager().getRootFileSystem()->OpenFile(filePath.getStr(), GuGuFile::FileMode::OnlyRead);
-			uint32_t fileSize = AssetManager::getAssetManager().getRootFileSystem()->getFileSize();
-			char* fileContent = new char[fileSize + 1];
-			fileContent[fileSize] = '\0';
-			int32_t numberBytesHavedReaded = 0;
-			AssetManager::getAssetManager().getRootFileSystem()->ReadFile((void*)fileContent, fileSize, numberBytesHavedReaded);
-			AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
-			GuGuUtf8Str modelJson(fileContent);
-			//load model
-			std::shared_ptr<Level> level = std::shared_ptr<Level>(AssetManager::getAssetManager().deserializeJson<Level>(nlohmann::json::parse(modelJson.getStr())));
-			assetData.m_loadedResource = std::static_pointer_cast<meta::Object>(level);
-			//AssetManager::getAssetManager().deserializeJson(nlohmann::json::parse(modelJson.getStr()))
-
-			delete[] fileContent;
+			std::shared_ptr<AssetData> loadedAssetData = AssetManager::getAssetManager().loadAssetData(filePath);
+			std::shared_ptr<Level> level = std::static_pointer_cast<Level>(loadedAssetData->m_loadedResource);
+			assetData.m_loadedResource = level;
+			assetData.m_filePath = loadedAssetData->m_filePath;
+			assetData.m_fileName = loadedAssetData->m_fileName;
 			
 			//m_currentLevel = level;
 			m_editorLevel = level;

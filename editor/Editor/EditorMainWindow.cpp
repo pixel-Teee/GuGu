@@ -39,12 +39,14 @@
 #include "PropertyEditor/ObjectDetails.h"
 #include <Editor/PropertyEditor/PropertyEditorManager.h>
 #include <Editor/Transaction/TransactionManager.h>
+#include <Editor/SceneOutliner/SceneOutlinerTypes.h>
 
 #include <Core/GamePlay/World.h>
 
 #include <Editor/StyleSet/ThemePanel.h> //theme panel
 #include <Editor/Debug/ShowTexturePanel.h>
 #include <Editor/Terrain/TerrainEditorPanel.h>
+#include <Editor/SceneOutliner/ObjectBrowingMode.h>
 
 namespace GuGu {
 	EditorMainWindow::EditorMainWindow()
@@ -54,6 +56,11 @@ namespace GuGu {
 	{
 		//EditorStyleSet::getStyleSet()->clear();
 		
+	}
+	static std::shared_ptr<ISceneOutlinerMode> createSceneOutlinerMode(SceneOutlinerNameSpace::SceneOutliner* inSceneOutliner)
+	{
+		std::shared_ptr<ObjectBrowsingMode> browsingMode = std::make_shared<ObjectBrowsingMode>(inSceneOutliner);
+		return browsingMode;
 	}
 	void EditorMainWindow::init(const BuilderArguments& arguments)
 	{	
@@ -85,6 +92,9 @@ namespace GuGu {
 
 			std::shared_ptr<Button> applyPrefab;
 			std::shared_ptr<Button> revertToPrefab;
+
+			SceneOutlinerInitializationOptions options;
+			options.m_modeFactory = createSceneOutlinerMode;
 
 			WindowWidget::init(
 			WindowWidget::BuilderArguments()
@@ -307,7 +317,7 @@ namespace GuGu {
 // 										.text(u8"Test")
 // 										.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
 // 									)
-									WIDGET_ASSIGN_NEW(SceneOutlinerNameSpace::SceneOutliner, m_sceneOutliner, shared_from_this())
+									WIDGET_ASSIGN_NEW(SceneOutlinerNameSpace::SceneOutliner, m_sceneOutliner, options, shared_from_this())
 								)
 							)
 							+ Splitter::Slot()

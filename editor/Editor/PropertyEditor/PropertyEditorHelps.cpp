@@ -208,6 +208,10 @@ namespace GuGu {
 			{
 				propertyHandle = std::make_shared<PropertyHandleInt>(inPropertyNode);
 			}
+			else if (PropertyHandleGameObjectRef::supports(inPropertyNode))
+			{
+				propertyHandle = std::make_shared<PropertyHandleGameObjectRef>(inPropertyNode);
+			}
 			else
 			{
 				propertyHandle = std::make_shared<PropertyHandleBase>(inPropertyNode);

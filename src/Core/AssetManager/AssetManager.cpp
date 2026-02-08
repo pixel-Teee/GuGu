@@ -19,6 +19,7 @@
 #include <Core/Model/GeometryHelper.h>
 #include <Core/Animation/GAnimation.h>
 #include <Core/GamePlay/Prefab.h>
+#include <Core/GamePlay/Level.h>
 
 #include "Base64.h"
 #include <Core/Reflection/MetaProperty/CustomDeserializeField.h>
@@ -412,6 +413,17 @@ namespace GuGu {
 				return *item.second;
 		}
 		return AssetData();
+	}
+
+	std::shared_ptr<AssetData> AssetManager::getAssetData(std::shared_ptr<meta::Object> inObject) const
+	{
+		//前提是要加载好
+		for (const auto& item : m_guidToAssetMap)
+		{
+			if (item.second->m_loadedResource == inObject)
+				return item.second;
+		}
+		return nullptr;
 	}
 
 	nlohmann::json AssetManager::serializeJson(std::shared_ptr<meta::Object> object, std::function<void(std::unordered_map<uint32_t, std::shared_ptr<meta::Object>>)> callback)
@@ -1118,6 +1130,11 @@ namespace GuGu {
 					{
 						//load asset
 						std::shared_ptr<meta::Object> loadedObject = AssetManager::getAssetManager().deserializeJson<GAnimation>(nlohmann::json::parse(json.getStr()));
+						item.second->m_loadedResource = loadedObject;
+					}
+					else if (meta::Type::getType(item.second->m_assetTypeGuid) == typeof(Level))
+					{
+						std::shared_ptr<meta::Object> loadedObject = AssetManager::getAssetManager().deserializeJson<Level>(nlohmann::json::parse(json.getStr()));
 						item.second->m_loadedResource = loadedObject;
 					}
 					//AssetManager::getAssetManager().deserializeJson(nlohmann::json::parse(modelJson.getStr()))

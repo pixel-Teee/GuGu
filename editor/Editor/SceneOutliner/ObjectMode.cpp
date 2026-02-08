@@ -8,7 +8,7 @@ namespace GuGu {
 		: ISceneOutlinerMode(params.m_sceneoutliner)
 		, m_bHideComponents(params.m_bHideComponents)
 	{
-
+		m_sceneOutliner = params.m_sceneoutliner;
 	}
 
 	ObjectMode::~ObjectMode()

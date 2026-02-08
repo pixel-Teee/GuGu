@@ -24,7 +24,7 @@
 namespace GuGu {
 	namespace SceneOutlinerNameSpace
 	{
-		void SceneOutliner::init(const BuilderArguments& arguments, std::shared_ptr<Widget> inParentWindow)
+		void SceneOutliner::init(const BuilderArguments& arguments, const SceneOutlinerInitializationOptions& options, std::shared_ptr<Widget> inParentWindow)
 		{
 			m_parentWindow = inParentWindow;
 
@@ -32,6 +32,8 @@ namespace GuGu {
 			m_bNeedsRefresh = true;
 			m_bSortDirty = true;
 			m_bNeedsColumnRefresh = true;
+			
+			m_onItemPicked = arguments.monItemPicked;
 
 			m_sortByName = BuiltInColumnTypes::Label();//根据标签列来排序
 			m_sortMode = ColumnSortMode::Ascending;//升序排序默认
@@ -109,7 +111,8 @@ namespace GuGu {
 			//(
 			//	verticalBox
 			//);
-			m_mode = std::make_shared<ObjectBrowsingMode>(this);
+			//m_mode = std::make_shared<ObjectBrowsingMode>(this);
+			m_mode = options.m_modeFactory(this);
 
 			m_childWidget = std::make_shared<SingleChildSlot>();
 			m_childWidget->m_childWidget = verticalBox;
@@ -282,6 +285,11 @@ namespace GuGu {
 					}
 				}
 			}
+		}
+
+		std::vector<TreeItemPtr> SceneOutliner::getSelectedItems() const
+		{
+			return m_outlinerTreeView->getSelectedItems();
 		}
 
 		void SceneOutliner::populate()

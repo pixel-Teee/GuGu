@@ -11,4 +11,5 @@ namespace GuGu {
 
 		class SceneOutliner;
 	}
+	using OnSceneOutlinerItemPicker = std::function<void(std::shared_ptr<SceneOutlinerNameSpace::ITreeItem>)>;
 }

@@ -13,6 +13,7 @@
 #include <Core/GamePlay/GameUI/UIAnchors.h>
 #include <Core/GamePlay/GameUI/UIPadding.h>
 #include <Core/AssetManager/AssetData.h>
+#include <Core/AssetManager/GameObjectLevelRef.h>
 #include <Core/Reflection/ReflectionDatabase.h>
 #include <Core/AssetManager/AssetManager.h>
 #include <Editor/Transaction/TransactionManager.h>
@@ -195,6 +196,16 @@ namespace GuGu {
 			meta::Variant assetDataInstance(AssetManager::getAssetManager().loadAsset(guid));
 			fieldValue = std::move(assetDataInstance);
 		}
+		else if (field->GetType() == typeof(std::shared_ptr<GameObjectLevelRef>))
+		{
+			//level ref
+			std::shared_ptr<GameObjectLevelRef> objLevelRef = std::make_shared<GameObjectLevelRef>();
+			meta::Variant objLevelRefInstance = *objLevelRef;
+			objLevelRef->GetType().importStr(inValue, objLevelRefInstance);
+			*objLevelRef = objLevelRefInstance.GetValue<GameObjectLevelRef>();
+			meta::Variant objLevelRefInstance2 = objLevelRef;
+			fieldValue = std::move(objLevelRefInstance2);
+		}
 		else if (field->GetType() == typeof(UIAnchors))
 		{
 			meta::Variant anchorsInstance = UIAnchors();
@@ -362,6 +373,7 @@ namespace GuGu {
 	IMPLEMENT_PROPERTY_ACCESSOR(uint16_t)
 	IMPLEMENT_PROPERTY_ACCESSOR(uint32_t)
 	IMPLEMENT_PROPERTY_ACCESSOR(uint64_t)
+	IMPLEMENT_PROPERTY_ACCESSOR(GameObjectLevelRef)
 
 	PropertyHandleBase::PropertyHandleBase(std::shared_ptr<PropertyNode> propertyNode)
 		: m_implementation(std::make_shared<PropertyValueImpl>(propertyNode))
@@ -448,6 +460,7 @@ namespace GuGu {
 
 	IMPLEMENT_PROPERTY_VALUE(PropertyHandleFloat)
 	IMPLEMENT_PROPERTY_VALUE(PropertyHandleObject)
+	IMPLEMENT_PROPERTY_VALUE(PropertyHandleGameObjectRef)
 	IMPLEMENT_PROPERTY_VALUE(PropertyHandleRotator)
 
 	bool PropertyHandleFloat::supports(std::shared_ptr<PropertyNode> propertyNode)
@@ -547,6 +560,7 @@ namespace GuGu {
 			|| field->GetType() == typeof(uint16_t)
 			|| field->GetType() == typeof(uint32_t)
 			|| field->GetType() == typeof(uint64_t);
+		return bIsInteger;
 	}
 
 	PropertyAccess::Result PropertyHandleInt::getValue(int8_t& outValue) const
@@ -796,6 +810,37 @@ namespace GuGu {
 	PropertyAccess::Result PropertyHandleRotator::setValue(const math::double3& inValue)
 	{
 		return PropertyAccess::Result::Success;
+	}
+
+	bool PropertyHandleGameObjectRef::supports(std::shared_ptr<PropertyNode> propertyNode)
+	{
+		meta::Field* field = propertyNode->getField();
+		if (field == nullptr)
+		{
+			return false;
+		}
+		return field->GetType() == typeof(std::shared_ptr<GameObjectLevelRef>);
+	}
+
+	PropertyAccess::Result PropertyHandleGameObjectRef::getValue(GameObjectLevelRef& outValue) const
+	{
+		meta::Variant fieldValue;
+		PropertyAccess::Result res = m_implementation->getValueData(fieldValue);
+		//outValue = m_implementation->getPropertyValue();
+
+		if (fieldValue.IsValid())
+			outValue = *fieldValue.GetValue<std::shared_ptr<GameObjectLevelRef>>();
+
+		return res;
+	}
+
+	PropertyAccess::Result PropertyHandleGameObjectRef::setValue(const GameObjectLevelRef& inValue)
+	{
+		PropertyAccess::Result res;
+		GuGuUtf8Str valueStr = inValue.toString();
+		res = m_implementation->importText(valueStr);
+
+		return res;
 	}
 
 }
