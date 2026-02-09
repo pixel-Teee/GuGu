@@ -32,6 +32,10 @@ namespace GuGu {
 
 		void TypeData::LoadBaseClasses(ReflectionDatabase& db, TypeID thisType, const std::initializer_list<Type>& classes)
 		{
+			if (thisType == 35)
+			{
+				GuGu_LOGE("Error");
+			}
 			for (auto& base : classes)
 			{
 				if(base == Type::Invalid())
@@ -61,6 +65,15 @@ namespace GuGu {
 				return Constructor::Invalid();
 
 			return search->second;
+		}
+
+		const Global& TypeData::GetStaticField(const std::string& name) const
+		{
+			for (auto& field : staticFields)
+				if (field.GetName() == name)
+					return field;
+
+			return Global::Invalid();
 		}
 
 		const Method& TypeData::GetMethod(const GuGuUtf8Str& name)

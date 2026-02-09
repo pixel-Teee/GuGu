@@ -46,6 +46,10 @@ namespace GuGu {
 	static Priority meshGeometryPriority;
 
 	static Priority collisionResultPriority;
+
+	static Priority keysPriority;
+
+	static Priority inputManagerPriority;
 	//------struct------
 
 	void registerThirdParty();

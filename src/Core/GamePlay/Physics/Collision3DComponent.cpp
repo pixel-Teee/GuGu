@@ -129,7 +129,7 @@ namespace GuGu {
 			(meta::FieldGetter<Collision3DComponent, std::weak_ptr<GameObject>&, true>::Signature) & Collision3DComponent::getParentGameObject,
 			(meta::FieldSetter<Collision3DComponent, std::weak_ptr<GameObject>&, true>::Signature) & Collision3DComponent::setParentGameObject, {});
 
-		type.AddMethod("rayTest", &Collision3DComponent::rayTest, {});
+		type.AddStaticMethod<Collision3DComponent>("rayTest", &Collision3DComponent::rayTest, {});
 
 		type.AddMethod("syncToPhysics", &Collision3DComponent::syncToPhysics, {});
 		return true;

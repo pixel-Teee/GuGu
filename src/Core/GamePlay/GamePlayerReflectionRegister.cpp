@@ -28,6 +28,7 @@
 #include <Core/GamePlay/TerrainVegetationComponent.h>
 #include <Core/GamePlay/Physics/Collision3DComponent.h>
 #include <Core/GamePlay/Physics/CollisionResult.h>
+#include <Core/GamePlay/InputManager.h>
 
 #include <Renderer/Color.h>
 
@@ -748,6 +749,82 @@ namespace GuGu {
 		return true;
 	}
 
+	static bool registerKeys()
+	{
+		//key
+		{
+			auto& db = meta::ReflectionDatabase::Instance();
+			auto id = db.AllocateType("GuGu::Key");
+			auto& type = db.types[id];
+			meta::TypeInfo<Key>::Register(id, type, true, "FAD2C2EA-6B75-410D-9708-59C264CAE7D7");
+
+			type.AddConstructor<Key, false, false>({});
+
+			type.AddConstructor<Key, true, false>({});
+
+			type.SetArrayConstructor<Key>();
+		}
+
+		//keys
+		{
+			auto& db = meta::ReflectionDatabase::Instance();
+			auto id = db.AllocateType("GuGu::Keys");
+			auto& type = db.types[id];
+			meta::TypeInfo<Keys>::Register(id, type, true, "0FDD1FEB-2F82-475A-9CC2-B74DC1109A3B");
+
+			type.AddConstructor<Keys, false, false>({});
+
+			type.AddConstructor<Keys, true, false>({});
+
+			type.SetArrayConstructor<Keys>();
+
+			//TODO:add static field
+			type.AddStaticField<Keys, Key>("W",
+				(Key*)&Keys::W,
+				(Key*)&Keys::W, {});
+
+			type.AddStaticField<Keys, Key>("S",
+				(Key*)&Keys::S,
+				(Key*)&Keys::S, {});
+
+			type.AddStaticField<Keys, Key>("A",
+				(Key*)&Keys::A,
+				(Key*)&Keys::A, {});
+
+			type.AddStaticField<Keys, Key>("D",
+				(Key*)&Keys::D,
+				(Key*)&Keys::D, {});
+
+			type.AddStaticField<Keys, Key>("SpaceBar",
+				(Key*)&Keys::SpaceBar,
+				(Key*)&Keys::SpaceBar, {});
+		}
+		
+		return true;
+	}
+
+	static bool registerInputManager()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto id = db.AllocateType("GuGu::InputManager");
+		auto& type = db.types[id];
+		meta::TypeInfo<InputManager>::Register(id, type, true, "0464021E-7145-468E-94CD-A302D25D2DF3");
+
+		type.AddConstructor<InputManager, false, false>({});
+
+		type.AddConstructor<InputManager, true, false>({});
+
+		type.SetArrayConstructor<InputManager>();
+
+		type.AddMethod("isKeyDown", &InputManager::isKeyDown, {});
+
+		type.AddMethod("getMouseDelta", &InputManager::getMouseDelta, {});
+
+		type.AddStaticMethod<InputManager>("getInputManager", &InputManager::getInputManager, {});
+
+		return true;
+	}
+
 	void registerThirdParty()
 	{
 		//Priority metaDisplayNamePriority;
@@ -831,6 +908,8 @@ namespace GuGu {
 		ReflectionMain::addInitialTypeFunction(registerChannel, &channelPriority);
 		ReflectionMain::addInitialTypeFunction(registerMeshGeometry, &meshGeometryPriority);
 		ReflectionMain::addInitialTypeFunction(registerCollisionResult, &collisionResultPriority);
+		ReflectionMain::addInitialTypeFunction(registerKeys, &keysPriority);
+		ReflectionMain::addInitialTypeFunction(registerInputManager, &inputManagerPriority);
 		keyPositionPriority.addPriorityThan(&mathfloat3Priority);
 		keyRotationPriority.addPriorityThan(&mathquatPriority);
 		keyScalePriority.addPriorityThan(&mathfloat3Priority);
@@ -838,6 +917,7 @@ namespace GuGu {
 		channelPriority.addPriorityThan(&keyRotationPriority);
 		channelPriority.addPriorityThan(&keyScalePriority);
 		collisionResultPriority.addPriorityThan(&mathfloat3Priority);
+		inputManagerPriority.addPriorityThan(&keysPriority);
 
 		//UIComponent register
 		UIComponent::registerMainFactory();

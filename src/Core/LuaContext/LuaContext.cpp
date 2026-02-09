@@ -118,7 +118,7 @@ namespace GuGu {
 				lua_pushboolean(L, value.ToBool());
 			else if (type == typeof(GuGuUtf8Str))
 				lua_pushstring(L, value.ToString().getStr());//is correct?
-			else if (isMetaObjectPtr || typeData.isStruct)
+			else if (isMetaObjectPtr || typeData.isStruct || typeData.isClass)
 			{
 				//meta::Object* obj = static_cast<meta::Object*>(value.getBase()->GetPtr());
 				if (isMetaObjectPtr && value.GetValue<std::shared_ptr<meta::Object>>() == nullptr)
@@ -206,6 +206,48 @@ namespace GuGu {
 		return 1;
 	}
 
+	static int32_t universalStaticMethodInvoker(lua_State* L)
+	{
+		//获取方法
+		meta::Function func = *static_cast<meta::Function*>(lua_touserdata(L, lua_upvalueindex(1)));
+
+		meta::InvokableSignature signature;
+		if (func.GetSignature().size() > 0)
+		{
+			//first
+			signature = func.GetSignature();
+		}
+
+		//收集参数
+		int argc = lua_gettop(L);//减去self
+		meta::ArgumentList args;
+		std::vector<meta::Variant> vars;
+		for (int i = 0; i < argc; ++i)
+		{
+			meta::Type argType = signature[i];
+			meta::Variant var = LuaContext::luaToVariant(L, i + 1, argType);
+
+			//check args is meta object
+			if (var.GetType().CheckIsDerivedFromMetaObject())
+			{
+				meta::Object* obj = static_cast<meta::Object*>(var.getBase()->GetPtr());
+				const meta::Variant newVar = obj->shared_from_this();
+				vars.push_back(newVar);
+			}
+			else
+			{
+				vars.push_back(var);
+			}
+			args.push_back(vars.back());
+		}
+
+		//通过反射系统调用
+		meta::Variant result = func.Invoke(args);
+
+		LuaContext::pushVariantToLua(L, result);
+		return 1;
+	}
+
 	//通用构造函数
 	static int universalConstructor(lua_State* L)
 	{
@@ -237,8 +279,6 @@ namespace GuGu {
 
 	static int universalIndex(lua_State* L)
 	{
-		//LuaContext::getLuaContext()->debugStack(L, u8"print access index");
-		//void* userData = lua_touserdata(L, 1);
 		//获取对象实例
 		meta::Variant& instance = *static_cast<meta::Variant*>(lua_touserdata(L, 1));
 		
@@ -342,6 +382,42 @@ namespace GuGu {
 		return lua_error(L);
 	}
 
+	static int universalStaticIndex(lua_State* L)
+	{
+		meta::TypeData& typeData = *static_cast<meta::TypeData*>(lua_touserdata(L, lua_upvalueindex(1)));
+
+		//获取字段/方法名
+		const char* key = lua_tostring(L, 2);
+
+		//首先尝试查找字段
+		auto& staticFields = typeData.staticFields;
+		for (const auto& field : staticFields)
+		{
+			if (field.GetName() == key)
+			{
+				meta::Variant value = field.GetValue();
+				LuaContext::pushVariantToLua(L, value);
+				return 1;
+			}
+		}
+
+		//然后尝试查找方法
+		auto& methods = typeData.staticMethods;
+		for (const auto& method : methods)
+		{
+			if (method.second.size() > 0 && method.second.begin()->second.GetName() == key)
+			{
+				//返回方法闭包
+				lua_pushlightuserdata(L, (void*)(&method.second.begin()->second));//universalMethodInvoker会使用
+				lua_pushcclosure(L, &universalStaticMethodInvoker, 1);
+				return 1;
+			}
+		}
+
+		lua_pushnil(L);
+		return 1;
+	}
+
 	static void registerType(lua_State* L, meta::TypeData& typeData)
 	{
 		GuGuUtf8Str className = typeData.name.replace("::", ".");
@@ -380,8 +456,10 @@ namespace GuGu {
 					lastPos = i + 1;
 				}
 			}
-			// 添加最后的函数名
-			GuGuUtf8Str functionName = className.substr(lastPos);
+			if (lastPos != 0 && lastPos < className.len())
+			{
+				tableNames.push_back(className.substr(lastPos));
+			}
 
 			// 确保所有表都存在
 			lua_getglobal(L, tableNames[0].getStr()); // 获取全局表
@@ -407,10 +485,19 @@ namespace GuGu {
 				//现在栈顶是当前子表
 			}
 
+			//int32_t topSize = lua_gettop(L);
+			//GuGu_LOGD("top size:%d", topSize);
+	
+			lua_newtable(L);
+			lua_pushlightuserdata(L, &typeData);
+			lua_pushcclosure(L, &universalStaticIndex, 1);//1是上值数量
+			lua_setfield(L, -2, "__index");
+			lua_setmetatable(L, -2);
+
 			//注册全局构造函数
 			lua_pushlightuserdata(L, &typeData);
 			lua_pushcclosure(L, &universalConstructor, 1);
-			lua_setfield(L, -2, functionName.getStr()); //设置到最内层表
+			lua_setfield(L, -2, "new"); //设置到最内层表
 
 			lua_pop(L, tableNames.size());
 		}

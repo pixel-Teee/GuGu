@@ -8,6 +8,7 @@
 #include "Method.h"
 #include "Function.h"
 #include "EnumContainer.h"
+#include "Global.h"
 
 #include <Core/GuGuUtf8Str.h>
 #include <Core/Guid.h>
@@ -54,6 +55,7 @@ namespace GuGu {
 			std::vector<Field> fields;
 
 			//静态字段
+			std::vector<Global> staticFields;
 
 			//方法
 			std::unordered_map<GuGuUtf8Str, InvokableOverloadMap<Method>> methods;
@@ -139,6 +141,43 @@ namespace GuGu {
 				typename FieldSetter<ClassType, FieldType, false>::Signature fieldSetter,
 				const MetaManager::Initializer& meta
 			);
+
+			template<typename ClassType, typename FieldType, typename GetterType, typename SetterType>
+			void AddStaticField(
+				const std::string& name,
+				GetterType getter,
+				SetterType setter,
+				const MetaManager::Initializer& meta
+			);
+
+			// Method Getter, Field Setter
+			template<typename ClassType, typename FieldType, typename GetterType>
+			void AddStaticField(
+				const std::string& name,
+				GetterType getter,
+				FieldType* fieldSetter,
+				const MetaManager::Initializer& meta
+			);
+
+			// Field Getter, Method Setter
+			template<typename ClassType, typename FieldType, typename SetterType>
+			void AddStaticField(
+				const std::string& name,
+				FieldType* fieldGetter,
+				SetterType setter,
+				const MetaManager::Initializer& meta
+			);
+
+			// Field Getter, Field Setter
+			template<typename ClassType, typename FieldType>
+			void AddStaticField(
+				const std::string& name,
+				FieldType* fieldGetter,
+				FieldType* fieldSetter,
+				const MetaManager::Initializer& meta
+			);
+
+			const Global& GetStaticField(const std::string& name) const;
 
 			//------method------
 			template<typename MethodType>

@@ -33,6 +33,14 @@ namespace GuGu {
 		static const Key Enter;
 		static const Key Pause;
 
+		static const Key CapsLock;
+		static const Key Escape;
+		static const Key SpaceBar;
+		static const Key PageUp;
+		static const Key PageDown;
+		static const Key End;
+		static const Key Home;
+
 		static const Key Left;
 		static const Key Right;
 		static const Key Down;

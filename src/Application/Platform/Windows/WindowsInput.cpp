@@ -25,10 +25,18 @@ namespace GuGu {
 			ADDKEYMAP(VK_RETURN, "Enter");
 			ADDKEYMAP(VK_PAUSE, "Pause");
 
+			ADDKEYMAP(VK_CAPITAL, "CapsLock");
+			ADDKEYMAP(VK_ESCAPE, "Escape");
+			ADDKEYMAP(VK_SPACE, "SpaceBar");
+			ADDKEYMAP(VK_PRIOR, "PageUp");
+			ADDKEYMAP(VK_NEXT, "PageDown");
+			ADDKEYMAP(VK_END, "End");
+			ADDKEYMAP(VK_HOME, "Home");
+
 			ADDKEYMAP(VK_LEFT, "Left");
 			ADDKEYMAP(VK_RIGHT, "Right");
-			ADDKEYMAP(VK_UP, "UP");
-			ADDKEYMAP(VK_DOWN, "DOWN");
+			ADDKEYMAP(VK_UP, "Up");
+			ADDKEYMAP(VK_DOWN, "Down");
 
 			ADDKEYMAP(VK_LSHIFT, "LeftShift");
 			ADDKEYMAP(VK_RSHIFT, "RightShift");

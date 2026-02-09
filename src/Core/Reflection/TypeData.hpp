@@ -239,5 +239,89 @@ namespace GuGu {
 		{
 			enumeration = new EnumContainer<EnumType>(name, initializer);
 		}
+
+		///////////////////////////////////////////////////////////////////////
+
+		template<typename ClassType, typename FieldType, typename GetterType, typename SetterType>
+		void TypeData::AddStaticField(const std::string& name, GetterType getter, SetterType setter, const MetaManager::Initializer& meta)
+		{
+			typedef GlobalGetter<FieldType, true> GlobalGetterType;
+			typedef GlobalSetter<FieldType, true> GlobalSetterType;
+
+			staticFields.emplace_back(
+				name,
+				typeof(FieldType),
+				!getter ? nullptr : new GlobalGetterType(
+					reinterpret_cast<typename GlobalGetterType::Signature>(getter)
+				),
+				!setter ? nullptr : new GlobalSetterType(
+					reinterpret_cast<typename GlobalSetterType::Signature>(setter)
+				),
+				typeof(ClassType)
+			);
+
+			staticFields.back().m_meta = meta;
+		}
+
+		///////////////////////////////////////////////////////////////////////
+
+		template<typename ClassType, typename FieldType, typename GetterType>
+		void TypeData::AddStaticField(const std::string& name, GetterType getter, FieldType* fieldSetter, const MetaManager::Initializer& meta)
+		{
+			typedef GlobalGetter<FieldType, true> GlobalGetterType;
+			typedef GlobalSetter<FieldType, false> GlobalSetterType;
+
+			staticFields.emplace_back(
+				name,
+				typeof(FieldType),
+				!getter ? nullptr : new GlobalGetterType(
+					reinterpret_cast<typename GlobalGetterType::Signature>(getter)
+				),
+				!fieldSetter ? nullptr : new GlobalSetterType(fieldSetter),
+				typeof(ClassType)
+			);
+
+			staticFields.back().m_meta = meta;
+		}
+
+		///////////////////////////////////////////////////////////////////////
+
+		template<typename ClassType, typename FieldType, typename SetterType>
+		void TypeData::AddStaticField(const std::string& name, FieldType* fieldGetter, SetterType setter, const MetaManager::Initializer& meta)
+		{
+			typedef GlobalGetter<FieldType, false> GlobalGetterType;
+			typedef GlobalSetter<FieldType, true> GlobalSetterType;
+
+			staticFields.emplace_back(
+				name,
+				typeof(FieldType),
+				!fieldGetter ? nullptr : new GlobalGetterType(fieldGetter),
+				!setter ? nullptr : new GlobalSetterType(
+					reinterpret_cast<typename GlobalSetterType::Signature>(setter)
+				),
+				typeof(ClassType)
+			);
+
+			staticFields.back().m_meta = meta;
+		}
+
+		///////////////////////////////////////////////////////////////////////
+
+		template<typename ClassType, typename FieldType>
+		void TypeData::AddStaticField(const std::string& name, FieldType* fieldGetter, FieldType* fieldSetter, const MetaManager::Initializer& meta)
+		{
+			typedef GlobalGetter<FieldType, false> GlobalGetterType;
+			typedef GlobalSetter<FieldType, false> GlobalSetterType;
+
+			staticFields.emplace_back(
+				name,
+				typeof(FieldType),
+				!fieldGetter ? nullptr : new GlobalGetterType(fieldGetter),
+				!fieldSetter ? nullptr : new GlobalSetterType(fieldSetter),
+				typeof(ClassType)
+			);
+
+			staticFields.back().m_meta = meta;
+		}
 	}
 }

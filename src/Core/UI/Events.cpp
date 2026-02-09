@@ -8,6 +8,14 @@ namespace GuGu {
 	const Key Keys::Enter("Enter");
 	const Key Keys::Pause("Pause");
 
+	const Key Keys::CapsLock("CapsLock");
+	const Key Keys::Escape("Escape");
+	const Key Keys::SpaceBar("SpaceBar");
+	const Key Keys::PageUp("PageUp");
+	const Key Keys::PageDown("PageDown");
+	const Key Keys::End("End");
+	const Key Keys::Home("Home");
+
 	const Key Keys::Left("Left");
 	const Key Keys::Right("Right");
 	const Key Keys::Down("Down");

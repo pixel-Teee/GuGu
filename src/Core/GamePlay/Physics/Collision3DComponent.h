@@ -73,7 +73,7 @@ namespace GuGu {
 		std::shared_ptr<GameObjectLevelRef>& getGameObjectRef();
 
 		//检测性函数
-		CollisionResult rayTest(math::double3 rayStart, math::double3 rayEnd);
+		static CollisionResult rayTest(math::double3 rayStart, math::double3 rayEnd);
 
 		//shape
 		CollisionShape m_shape;
