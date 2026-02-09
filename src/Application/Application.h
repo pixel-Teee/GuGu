@@ -250,6 +250,8 @@ namespace GuGu {
 		void setUnhandledKeyDownEventHandler(const OnKeyEvent& newHandler);
 
 		bool isDragDropping() const;
+
+		virtual void setCursorPos(math::float2 inCursorPos);
 	protected:
 		std::shared_ptr<Renderer> m_renderer;
 

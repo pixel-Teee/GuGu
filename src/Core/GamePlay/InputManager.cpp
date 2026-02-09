@@ -2,6 +2,8 @@
 
 #include "InputManager.h"
 
+#include <Application/Application.h>
+
 namespace GuGu {
     InputManager::InputManager()
     {
@@ -105,6 +107,37 @@ namespace GuGu {
         GuGuUtf8Str keyName = Keys::Invalid.getKeyName();
 
         return math::float2(m_currentMouseState[keyName].m_mouseX, m_currentMouseState[keyName].m_mouseY);
+	}
+
+	void InputManager::setViewportLeftUpperCornerPos(math::float2 inLeftCornerPos)
+	{
+        m_leftUpperCornerPos = inLeftCornerPos;
+	}
+
+	math::float2 InputManager::getViewportLeftUpperCornerPos() const
+	{
+        return m_leftUpperCornerPos;
+	}
+
+	void InputManager::setViewportWidthAndHeight(math::float2 inWidthAndHeight)
+	{
+        m_width = inWidthAndHeight.x;
+        m_height = inWidthAndHeight.y;
+	}
+
+	math::float2 InputManager::getViewportWidthAndHeight() const
+	{
+        return math::float2(m_width, m_height);
+	}
+
+	math::float2 InputManager::getViewportCenter() const
+	{
+        return math::float2(m_leftUpperCornerPos.x + m_width / 2.0f, m_leftUpperCornerPos.y + m_height / 2.0f);
+	}
+
+	void InputManager::setCursorPos(math::float2 inCursorPos)
+	{
+        Application::getApplication()->setCursorPos(inCursorPos);
 	}
 
 }

@@ -25,6 +25,8 @@ namespace GuGu {
 		if (m_viewportClient.lock())
 		{
 			m_viewportClient.lock()->update(inDeltaTime);
+
+			m_viewportClient.lock()->setLeftUpperCornerPosAndWidthAndHeight(allocatedGeometry.getAbsolutePosition(), allocatedGeometry.getLocalSize().x, allocatedGeometry.getLocalSize().y);
 		}	
 	}
 	Reply LevelViewport::OnDrop(const WidgetGeometry& myGeometry, const DragDropEvent& dragDropEvent)

@@ -798,6 +798,10 @@ namespace GuGu {
 			type.AddStaticField<Keys, Key>("SpaceBar",
 				(Key*)&Keys::SpaceBar,
 				(Key*)&Keys::SpaceBar, {});
+
+			type.AddStaticField<Keys, Key>("Escape",
+				(Key*)&Keys::Escape,
+				(Key*)&Keys::Escape, {});
 		}
 		
 		return true;
@@ -819,6 +823,12 @@ namespace GuGu {
 		type.AddMethod("isKeyDown", &InputManager::isKeyDown, {});
 
 		type.AddMethod("getMouseDelta", &InputManager::getMouseDelta, {});
+
+		type.AddMethod("getViewportCenter", &InputManager::getViewportCenter, {});
+
+		type.AddMethod("getMousePosition", &InputManager::getMousePosition, {});
+
+		type.AddMethod("setCursorPos", &InputManager::setCursorPos, {});
 
 		type.AddStaticMethod<InputManager>("getInputManager", &InputManager::getInputManager, {});
 

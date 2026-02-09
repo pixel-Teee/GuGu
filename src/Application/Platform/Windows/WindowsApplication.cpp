@@ -198,6 +198,11 @@ namespace GuGu {
 #endif
 	}
 
+	void WindowsApplication::setCursorPos(math::float2 inCursorPos)
+	{
+		SetCursorPos(inCursorPos.x, inCursorPos.y);
+	}
+
 	static bool FolderExists(const GuGuUtf8Str& folderPath)
 	{
 		DWORD dwAttrib = GetFileAttributesA(folderPath.getStr());

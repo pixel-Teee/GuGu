@@ -25,6 +25,8 @@ function Character:init(owner)
     self.right.y = 0
     self.right.z = 0
 
+    self.bLocked = true
+
     -- local transformComponent = self.owner:getComponent("GuGu::TransformComponent")
     -- local trans = transformComponent:getTranslation()
     -- self.groundHeight = trans.y + 0.5
@@ -59,10 +61,8 @@ end
 function Character:updateView(inputManager, deltaTime)
     -- 获取鼠标位移（假设inputManager能提供）
     -- 注意：这里需要你的输入系统支持获取鼠标增量
-    local mouseDelta = inputManager:getMouseDelta()
-    local mouseDeltaX = mouseDelta.x or 0
-    local mouseDeltaY = mouseDelta.y or 0
-    
+    local mouseDeltaX, mouseDeltaY = self:updateMouseInput(inputManager)
+ 
     -- 鼠标灵敏度
     local sensitivity = 0.002
     
@@ -214,6 +214,28 @@ function Character:getQuaternionFromYawPitch(yaw, pitch)
     
     -- 返回四元数，格式为 {w, x, y, z}
     return {w = w, x = x, y = y, z = z}
+end
+
+function Character:updateMouseInput(inputManager)
+    local deltaX = 0
+    local deltaY = 0
+    if self.bLocked == true then
+        local viewportCenter = inputManager:getViewportCenter()
+
+        local currentMousePos = inputManager:getMousePosition()
+    
+        deltaX = currentMousePos.x - viewportCenter.y
+        deltaY = currentMousePos.x - viewportCenter.y
+
+        print(viewportCenter.x)
+        print(viewportCenter.y)
+        --inputManager:setCursorPos(viewportCenter)
+    end 
+
+    if inputManager:isKeyDown(GuGu.Keys.Escape) then
+        self.bLocked = false
+    end
+    return deltaX, deltaY
 end
 
 return Character

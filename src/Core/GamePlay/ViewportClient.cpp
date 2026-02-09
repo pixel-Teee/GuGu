@@ -7,6 +7,7 @@
 #include <Core/GamePlay/GameUI/UITransformComponent.h>
 #include <Core/GamePlay/GameUI/UIComponent.h>
 #include <Core/Collision/Collision3D.h>
+#include <Core/GamePlay/InputManager.h>
 
 namespace GuGu {
 	ViewportClient::ViewportClient()
@@ -219,6 +220,18 @@ namespace GuGu {
 	bool ViewportClient::getTerrainUseWireFrame() const
 	{
 		return m_terrainUseWireFrame;
+	}
+
+	void ViewportClient::setLeftUpperCornerPosAndWidthAndHeight(math::float2 leftUpperCornerPos, float inWidth, float inHeight)
+	{
+		m_leftUpperCorner = leftUpperCornerPos;
+		m_width = inWidth;
+		m_height = inHeight;
+
+		InputManager inputManager = InputManager::getInputManager();
+
+		inputManager.setViewportLeftUpperCornerPos(m_leftUpperCorner);
+		inputManager.setViewportWidthAndHeight(math::float2(m_width, m_height));
 	}
 
 	//------input------

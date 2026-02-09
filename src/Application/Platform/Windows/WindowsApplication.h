@@ -61,6 +61,8 @@ namespace GuGu {
 		virtual WindowZone::Type getWindowZoneForPoint(const std::shared_ptr<Window>& window, const int32_t X, const int32_t Y) override;
 
 		virtual math::float2 getCursorPos() const override;
+
+		virtual void setCursorPos(math::float2 inCursorPos) override;
 	private:
 		HINSTANCE m_applicationInstance;
 

@@ -981,6 +981,11 @@ namespace GuGu{
 		return m_dragDropContent != nullptr;
 	}
 
+	void Application::setCursorPos(math::float2 inCursorPos)
+	{
+		//nothing
+	}
+
 	bool Application::processMouseButtonDownEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
     {
 		m_pressedMouseButtons.insert(mouseEvent.getEffectingButton());

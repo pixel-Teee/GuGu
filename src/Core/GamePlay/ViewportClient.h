@@ -150,6 +150,8 @@ namespace GuGu {
 
 		bool getTerrainUseWireFrame() const;
 
+		void setLeftUpperCornerPosAndWidthAndHeight(math::float2 leftUpperCornerPos, float inWidth, float inHeight);
+
 		//editor
 		PaintPositionCallback m_paintPositionCallback;
 	protected:
@@ -168,6 +170,11 @@ namespace GuGu {
 		bool m_terrainUseWireFrame;
 
 		float m_paintVegeCoolDownTime = 0.0f;
+
+		//viewport left upper corner pos and width/height
+		math::float2 m_leftUpperCorner;
+		float m_width;
+		float m_height;
 	private:
 		GameObjectSelectionChangedEvent m_gameObjectSelectionChangedEvent;
 	};

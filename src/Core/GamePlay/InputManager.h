@@ -75,6 +75,15 @@ namespace GuGu {
 		math::float2 getMouseDelta();
 
 		math::float2 getMousePosition();
+
+		void setViewportLeftUpperCornerPos(math::float2 inLeftCornerPos);
+		math::float2 getViewportLeftUpperCornerPos() const;
+
+		void setViewportWidthAndHeight(math::float2 inWidthAndHeight);
+		math::float2 getViewportWidthAndHeight() const;
+
+		math::float2 getViewportCenter() const;
+		void setCursorPos(math::float2 inCursorPos);
 	private:
 		std::map<GuGuUtf8Str, bool> m_currentState;
 
@@ -87,5 +96,9 @@ namespace GuGu {
 		std::vector<Event> m_events;//key event
 
 		float m_wheelDelta;
+
+		math::float2 m_leftUpperCornerPos;
+		float m_width;
+		float m_height;
 	};
 }
