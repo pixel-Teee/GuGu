@@ -1055,11 +1055,11 @@ namespace GuGu {
 		m_viewportState = state;
 		if (state == ViewportClient::Editor)
 		{
-			World::getWorld()->switchState(World::Runtime);
+			World::getWorld()->switchState(World::Editor);
 		}
 		else
 		{
-			World::getWorld()->switchState(World::Editor);
+			World::getWorld()->switchState(World::Runtime);
 		}
 	}
 

@@ -1853,6 +1853,18 @@ namespace GuGu {
 			m_grassPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
+		if (!m_PhysicsDebugPipeline)
+		{
+			nvrhi::GraphicsPipelineDesc psoDesc;
+			psoDesc.VS = m_PhysicsDebugVertexShader;
+			psoDesc.PS = m_PhysicsDebugPixelShader;
+			psoDesc.inputLayout = m_PhysicsDebugInputLayout; //顶点属性
+			psoDesc.bindingLayouts = { m_PhysicsDebugBindingLayout }; //constant buffer 这些
+			psoDesc.primType = nvrhi::PrimitiveType::LineList;
+			psoDesc.renderState.depthStencilState.depthTestEnable = false;
+			m_PhysicsDebugPipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
+		}
+
 		m_drawItems.clear();
 
 		m_CommandList->open();
@@ -2211,7 +2223,7 @@ namespace GuGu {
 									nvrhi::ResourceStates::ConstantBuffer).setKeepInitialState(
 										true));
 						}
-						math::float2 offsetXZ = math::float2(terrainBeginXZ.x + j * terrainSize.x, terrainBeginXZ.y + i * terrainSize.y);
+						math::float2 offsetXZ = math::float2(terrainBeginXZ.x + j * terrainSize.x + terrainSize.x / 2.0f, terrainBeginXZ.y + i * terrainSize.y + terrainSize.y / 2.0f);
 						TerrainPropertiesBuffer propertiesBuffer;
 						propertiesBuffer.m_heightScale = terrainComponent->m_heightScale;
 						propertiesBuffer.m_beginXZ = terrainBeginXZ;

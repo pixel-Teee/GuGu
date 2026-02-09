@@ -5,6 +5,7 @@
 #include <Core/Texture/GTexture.h>
 #include <Core/Reflection/TypeInfo.h>
 #include <Core/GamePlay/GameObject.h>
+#include <Core/Collision/Collision3D.h>
 
 namespace GuGu {
 	static bool registerGuGuTerrainComponent()
@@ -291,6 +292,45 @@ namespace GuGu {
 	std::shared_ptr<GTexture> TerrainComponent::getBlendTexture() const
 	{
 		return std::static_pointer_cast<GTexture>(m_blendTexture->m_loadedResource);
+	}
+
+	std::vector<uint8_t> TerrainComponent::getSampleArray() const
+	{
+		std::vector<uint8_t> sampleCountArray;
+		math::float2 terrainSize = math::float2((float)m_cols * (float)m_tileSize, (float)m_rows * (float)m_tileSize);
+		math::float2 terrainBeginXZ = math::float2(-(float)m_terrainCols * terrainSize.x * 0.5f, -(float)m_terrainRows * terrainSize.y * 0.5f);
+
+		std::shared_ptr<GTexture> heightTexture = getHeightTexture();
+
+		float heightScale = m_heightScale;
+		const auto& positions = m_vertexData;
+		const auto& indices = m_indexData;
+		uint32_t triCount = indices.size() / 3;
+		for (uint32_t i = 0; i < triCount; i = i + 2)
+		{
+			uint32_t i0 = indices[i * 3 + 0];
+			uint32_t i1 = indices[i * 3 + 1];
+			uint32_t i2 = indices[i * 3 + 2];
+
+			math::float3 position0 = positions[i0];
+			math::float3 position1 = positions[i1];
+			math::float3 position2 = positions[i2];
+
+			for (uint32_t i = 0; i < m_terrainRows; ++i)
+			{
+				for (uint32_t j = 0; j < m_terrainCols; ++j)
+				{
+					math::float2 offsetXZ = math::float2(terrainBeginXZ.x + j * terrainSize.x + terrainSize.x / 2.0f, terrainBeginXZ.y + i * terrainSize.y + terrainSize.y / 2.0f);
+
+					math::float3 position3;
+					math::float3 position4;
+					math::float3 position5;
+					Collision3D::getTerrainPosition(position0, position1, position2, position3, position4, position5, offsetXZ, terrainBeginXZ, heightTexture, heightScale);
+					sampleCountArray.push_back(position3.y * 255.0);//height
+				}
+			}
+		}
+		return sampleCountArray;
 	}
 
 }

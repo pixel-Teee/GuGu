@@ -344,7 +344,7 @@ namespace GuGu {
 
 	void World::switchState(WorldState state)
 	{
-		if (state == ViewportClient::ViewportState::Runtime)
+		if (state == WorldState::Runtime)
 		{
 			m_editorLevel->removeRigidBodyFromPhysics();
 			//m_currentLevel = std::shared_ptr<Level>(static_cast<Level*>(static_cast<meta::Object*>(m_editorLevel->Clone())));
@@ -369,7 +369,7 @@ namespace GuGu {
 				}
 			}
 		}
-		else if(state == ViewportClient::ViewportState::Editor)
+		else if(state == WorldState::Editor)
 		{
 			m_currentLevel->removeRigidBodyFromPhysics();
 			m_currentLevel = m_editorLevel;

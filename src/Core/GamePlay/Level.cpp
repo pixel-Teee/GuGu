@@ -288,8 +288,11 @@ namespace GuGu {
 		for (int32_t i = 0; i < m_objects.size(); ++i)
 		{
 			std::shared_ptr<Collision3DComponent> collision3D = m_objects[i]->getComponent<Collision3DComponent>();
-			if(collision3D)
+			if (collision3D)
+			{
+				//collision3D->recreateBulletShape();
 				collision3D->addRigidBodyToPhysics();
+			}
 		}
 	}
 

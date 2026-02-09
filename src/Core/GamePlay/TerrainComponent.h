@@ -38,6 +38,9 @@ namespace GuGu {
 		std::shared_ptr<GTexture> getTerrainTexture4() const;
 		std::shared_ptr<GTexture> getBlendTexture() const;
 
+		//get sample array
+		std::vector<uint8_t> getSampleArray() const;
+
 		//terrainTexture
 		std::shared_ptr<AssetData> m_heightTexture;
 		std::shared_ptr<AssetData> m_terrainTexture1;

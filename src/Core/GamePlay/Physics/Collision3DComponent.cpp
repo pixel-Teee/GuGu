@@ -236,6 +236,10 @@ namespace GuGu {
 
 	void Collision3DComponent::recreateBulletShape()
 	{
+		btTransform startTransform;
+		startTransform.setIdentity();
+		startTransform.setOrigin(btVector3(0, 0, 0));
+
 		std::shared_ptr<btDynamicsWorld> physicsWorld = PhysicsManager::getPhysicsManager().getDynamicsWorld();
 		if (physicsWorld)
 		{
@@ -271,31 +275,19 @@ namespace GuGu {
 
 					if (terrainComp)
 					{
-						int32_t terrainHeightTextureWidth = terrainComp->getHeightTexture()->m_width;
-						int32_t terrainHeightTextureLength = terrainComp->getHeightTexture()->m_height;
-						Array<uint8_t>& heightData = terrainComp->getHeightTexture()->m_data;
-						uint32_t channelNum = terrainComp->getHeightTexture()->m_bytesPerPixel;
-						m_heightChannelData.clear();
-						float minHeight = 255;
-						float maxHeight = 40;
-						for (int32_t i = 0; i < terrainHeightTextureWidth - 1; i = i + 4) //todo:(fix this)
+						std::vector<uint8_t> sampleCountArray = terrainComp->getSampleArray();
+						m_heightChannelData = sampleCountArray;
+						float minHeight = 255.0f;
+						float maxHeight = 0.0f;
+						for (int32_t i = 0; i < m_heightChannelData.size(); ++i)
 						{
-							for (int32_t j = terrainHeightTextureLength - 1; j >= 0; j = j - 4)
-							{
-								float averageHeight = (heightData[(j * terrainHeightTextureWidth + i) * channelNum] +
-									heightData[(j * terrainHeightTextureWidth + i + 1) * channelNum] +
-									heightData[(j * terrainHeightTextureWidth + i + 2) * channelNum] +
-									heightData[(j * terrainHeightTextureWidth + i + 3) * channelNum]) / 4.0f;
-								//get r channel
-								m_heightChannelData.push_back(averageHeight);
-								minHeight = std::min(minHeight, averageHeight);
-								maxHeight = std::max(maxHeight, averageHeight);
-							}
+							minHeight = std::min(minHeight, (float)m_heightChannelData[i]);
+							maxHeight = std::max(maxHeight, (float)m_heightChannelData[i]);
 						}
 						float heightScale = 1.0 / 255.0f * terrainComp->getHeightScale();
 						m_collisionShape = std::make_shared<btHeightfieldTerrainShape>(
-							terrainHeightTextureWidth / 4,
-							terrainHeightTextureLength / 4,
+							terrainComp->m_terrainRows * terrainComp->m_rows,
+							terrainComp->m_terrainCols * terrainComp->m_cols,
 							m_heightChannelData.data(),
 							heightScale,
 							minHeight / 255.0f,
@@ -304,7 +296,10 @@ namespace GuGu {
 							PHY_UCHAR,
 							false
 						);
-						m_collisionShape->setLocalScaling(btVector3(1.0f / 4.0f, 1.0f, 1.0f / 4.0f));
+						m_collisionShape->setLocalScaling(btVector3(1.0f, 1.0f, 1.0f));
+						m_mass = 0.0f;
+
+						//startTransform.setOrigin(btVector3(0, 0, 0));
 					}
 					else
 					{
@@ -327,14 +322,14 @@ namespace GuGu {
 			m_collisionShape->calculateLocalInertia(m_mass, localInertia);
 		}
 
-		btTransform startTransform;
-		startTransform.setIdentity();
-		startTransform.setOrigin(btVector3(0, 0, 0));
+		//btTransform startTransform;
+		//startTransform.setIdentity();
+		//startTransform.setOrigin(btVector3(0, 0, 0));
 
 		m_motionState = std::make_shared<btDefaultMotionState>(startTransform);
 		btRigidBody::btRigidBodyConstructionInfo rbInfo(m_mass, m_motionState.get(), m_collisionShape.get(), localInertia);
 		m_rigidBody = std::make_shared<btRigidBody>(rbInfo);
-
+		//m_rigidBody->setWorldTransform(startTransform);
 		if (physicsWorld)
 		{
 			//添加新的刚体
