@@ -61,6 +61,7 @@ namespace GuGu {
 									)
 								)
 						);
+		m_isCheckboxChecked = arguments.misChecked;
 		m_checkBoxStyle = arguments.mcheckBoxStyle;
 		m_childWidget->m_childWidget->setParentWidget(shared_from_this());
 		m_visibilityAttribute = arguments.mVisibility;

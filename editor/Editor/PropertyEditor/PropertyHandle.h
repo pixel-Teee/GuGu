@@ -18,6 +18,9 @@ namespace GuGu {
 
 		virtual std::shared_ptr<Widget> createPropertyNameWidget(const GuGuUtf8Str& nameOverride) = 0;
 
+		virtual PropertyAccess::Result setValue(const bool& inValue) = 0;
+		virtual PropertyAccess::Result getValue(bool& outValue) const = 0;
+
 		virtual PropertyAccess::Result setValue(const float& inValue) = 0;
 		virtual PropertyAccess::Result getValue(float& outValue) const = 0;
 

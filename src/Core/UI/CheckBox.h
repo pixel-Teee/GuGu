@@ -36,6 +36,8 @@ namespace GuGu {
 			ARGUMENT_VALUE(ButtonClickMethod::Type, clickMethod)
 
 			UI_EVENT(OnCheckStateChanged, onCheckStateChanged)
+
+			ARGUMENT_ATTRIBUTE(CheckBoxState, isChecked)
 		};
 
 		void init(const BuilderArguments& arguments);

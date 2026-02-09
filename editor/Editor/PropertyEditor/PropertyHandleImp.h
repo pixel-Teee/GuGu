@@ -65,6 +65,7 @@ namespace GuGu {
 
 		virtual void getOuterObjects(std::vector<meta::Object*>& outerObjects) const;
 
+		DECLARE_PROPERTY_ACCESSOR(bool)
 		DECLARE_PROPERTY_ACCESSOR(float)
 		DECLARE_PROPERTY_ACCESSOR(double)
 		DECLARE_PROPERTY_ACCESSOR(math::double3)
@@ -80,6 +81,16 @@ namespace GuGu {
 		DECLARE_PROPERTY_ACCESSOR(GameObjectLevelRef)
 	protected:
 		std::shared_ptr<PropertyValueImpl> m_implementation;
+	};
+
+	class PropertyHandleBool : public PropertyHandleBase
+	{
+	public:
+		PropertyHandleBool(std::shared_ptr<PropertyNode> propertyNode);
+		static bool supports(std::shared_ptr<PropertyNode> propertyNode);
+		virtual PropertyAccess::Result getValue(bool& outValue) const;
+		virtual PropertyAccess::Result setValue(const bool& inValue) override;
+
 	};
 
 	class PropertyHandleFloat : public PropertyHandleBase

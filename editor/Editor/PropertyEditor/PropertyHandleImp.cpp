@@ -262,6 +262,17 @@ namespace GuGu {
 		{
 			fieldValue = (uint64_t)std::stoull(actualStr);
 		}
+		else if (field->GetType() == typeof(bool))
+		{
+			if (actualStr == "false")
+			{
+				fieldValue = false;
+			}
+			else
+			{
+				fieldValue = true;
+			}
+		}
 		else if (field->GetType().IsEnum())
 		{
 			//enum
@@ -361,6 +372,7 @@ namespace GuGu {
 		return PropertyAccess::Fail;\
 	}\
 
+	IMPLEMENT_PROPERTY_ACCESSOR(bool)
 	IMPLEMENT_PROPERTY_ACCESSOR(float)
 	IMPLEMENT_PROPERTY_ACCESSOR(double)
 	IMPLEMENT_PROPERTY_ACCESSOR(math::double3)
@@ -462,6 +474,7 @@ namespace GuGu {
 	IMPLEMENT_PROPERTY_VALUE(PropertyHandleObject)
 	IMPLEMENT_PROPERTY_VALUE(PropertyHandleGameObjectRef)
 	IMPLEMENT_PROPERTY_VALUE(PropertyHandleRotator)
+	IMPLEMENT_PROPERTY_VALUE(PropertyHandleBool)
 
 	bool PropertyHandleFloat::supports(std::shared_ptr<PropertyNode> propertyNode)
 	{
@@ -838,6 +851,45 @@ namespace GuGu {
 	{
 		PropertyAccess::Result res;
 		GuGuUtf8Str valueStr = inValue.toString();
+		res = m_implementation->importText(valueStr);
+
+		return res;
+	}
+
+	bool PropertyHandleBool::supports(std::shared_ptr<PropertyNode> propertyNode)
+	{
+		meta::Field* field = propertyNode->getField();
+		if (field == nullptr)
+		{
+			return false;
+		}
+		return field->GetType() == typeof(bool);
+	}
+
+	PropertyAccess::Result PropertyHandleBool::getValue(bool& outValue) const
+	{
+		meta::Variant fieldValue;
+		PropertyAccess::Result res = m_implementation->getValueData(fieldValue);
+		//outValue = m_implementation->getPropertyValue();
+
+		if (fieldValue.IsValid())
+			outValue = fieldValue.GetValue<bool>();
+
+		return res;
+	}
+
+	PropertyAccess::Result PropertyHandleBool::setValue(const bool& inValue)
+	{
+		PropertyAccess::Result res;
+		GuGuUtf8Str valueStr = "false";
+		if (inValue == false)
+		{
+			valueStr = "false";
+		}
+		else
+		{
+			valueStr = "true";
+		}
 		res = m_implementation->importText(valueStr);
 
 		return res;

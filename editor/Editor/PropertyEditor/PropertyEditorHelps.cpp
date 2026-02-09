@@ -8,6 +8,7 @@
 #include "PropertyEditorAsset.h"
 #include "PropertyEditorText.h"
 #include "PropertyEditorCombo.h"
+#include "PropertyEditorBool.h"
 #include <Core/UI/BoxPanel.h>
 #include <Core/UI/Border.h>
 
@@ -165,6 +166,14 @@ namespace GuGu {
 
 				propertyWidget = comboWidget;
 			}
+			else if (PropertyEditorBool::supports(inPropertyEditor))
+			{
+				std::shared_ptr<PropertyEditorBool> boolWidget;
+				WIDGET_ASSIGN_NEW(PropertyEditorBool, boolWidget, inPropertyEditor);
+				boolWidget->getFixedWidth(m_minFixedWidth, m_maxFixedWidth);
+
+				propertyWidget = boolWidget;
+			}
 		}
 
 		if (!propertyWidget)
@@ -211,6 +220,10 @@ namespace GuGu {
 			else if (PropertyHandleGameObjectRef::supports(inPropertyNode))
 			{
 				propertyHandle = std::make_shared<PropertyHandleGameObjectRef>(inPropertyNode);
+			}
+			else if (PropertyHandleBool::supports(inPropertyNode))
+			{
+				propertyHandle = std::make_shared<PropertyHandleBool>(inPropertyNode);
 			}
 			else
 			{
