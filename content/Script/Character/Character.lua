@@ -35,9 +35,9 @@ end
 --【核心函数】根据yaw和pitch更新前向和右向向量
 function Character:updateVectors()
     -- 计算前向向量 (基于球面坐标)
-    self.forward.x = math.cos(self.yaw) * math.cos(self.pitch)
-    self.forward.y = math.sin(self.pitch)
-    self.forward.z = math.sin(self.yaw) * math.cos(self.pitch)
+    self.forward.x = math.sin(self.yaw)
+    self.forward.y = -math.sin(self.pitch) * math.cos(self.yaw)
+    self.forward.z = math.cos(self.pitch) * math.cos(self.yaw)
     
     -- 归一化前向向量（在水平面上投影）
     local horizontalForward = {x = self.forward.x, y = 0, z = self.forward.z}
@@ -67,8 +67,8 @@ function Character:updateView(inputManager, deltaTime)
     local sensitivity = 0.002
     
     -- 更新旋转角度
-    self.yaw = self.yaw - mouseDeltaX * sensitivity  -- 注意符号根据你的坐标系调整
-    self.pitch = self.pitch - mouseDeltaY * sensitivity
+    self.yaw = self.yaw + mouseDeltaX * sensitivity  -- 注意符号根据你的坐标系调整
+    self.pitch = self.pitch + mouseDeltaY * sensitivity
     
     -- 限制上下视角，防止摄像机翻转
     if self.pitch > self.maxPitch then
@@ -108,12 +108,12 @@ function Character:updateMovement(inputManager, deltaTime)
         moveInput.z = moveInput.z - self.forward.z
     end
     if inputManager:isKeyDown(GuGu.Keys.A) then
-        moveInput.x = moveInput.x + self.right.x  -- 注意：A键向左，即负右向
-        moveInput.z = moveInput.z + self.right.z
+        moveInput.x = moveInput.x - self.right.x  -- 注意：A键向左，即负右向
+        moveInput.z = moveInput.z - self.right.z
     end
     if inputManager:isKeyDown(GuGu.Keys.D) then
-        moveInput.x = moveInput.x - self.right.x  -- D键向右，即正右向
-        moveInput.z = moveInput.z - self.right.z
+        moveInput.x = moveInput.x + self.right.x  -- D键向右，即正右向
+        moveInput.z = moveInput.z + self.right.z
     end
     
     -- 归一化对角线移动，防止斜向移动更快
@@ -148,6 +148,8 @@ function Character:updateMovement(inputManager, deltaTime)
     newPos.x = currentPos.x + moveInput.x
     newPos.y = currentPos.y + moveInput.y
     newPos.z = currentPos.z + moveInput.z
+
+    --print(newPos.y)
     
     -- 回退方案：直接设置位置（不推荐，会穿墙）
     transformComponent:SetTranslation(newPos)
@@ -198,40 +200,20 @@ function Character:updateGroundDetection()
 end
 
 function Character:getQuaternionFromYawPitch(yaw, pitch)
-    -- 1. 创建绕Y轴旋转的四元数 (yaw， 影响左右朝向)
     local halfYaw = yaw * 0.5
-    local cosYaw = math.cos(halfYaw)
-    local sinYaw = math.sin(halfYaw)
-    -- 绕Y轴(0,1,0)旋转的四元数公式: (cosYaw, 0, sinYaw, 0)
-    local quatYaw = {w = cosYaw, x = 0.0, y = sinYaw, z = 0.0}
-
-    -- 2. 创建绕X轴旋转的四元数 (pitch， 影响上下视角)
     local halfPitch = pitch * 0.5
-    local cosPitch = math.cos(halfPitch)
-    local sinPitch = math.sin(halfPitch)
-    -- 绕X轴(1,0,0)旋转的四元数公式: (cosPitch, sinPitch, 0, 0)
-    local quatPitch = {w = cosPitch, x = sinPitch, y = 0.0, z = 0.0}
-
-    -- 3. 按顺序组合：先yaw，后pitch （四元数乘法：q_result = q_pitch * q_yaw）
-    -- 注意乘法顺序：由于我们采用“局部旋转”思想（先转yaw，再在当前基础上转pitch），
-    -- 所以是后发生的旋转（pitch）乘以前面的旋转（yaw）。
-    local qy = quatYaw
-    local qp = quatPitch
-    local combinedQuat = {
-        w = qp.w * qy.w - qp.x * qy.x - qp.y * qy.y - qp.z * qy.z,
-        x = qp.w * qy.x + qp.x * qy.w + qp.y * qy.z - qp.z * qy.y,
-        y = qp.w * qy.y - qp.x * qy.z + qp.y * qy.w + qp.z * qy.x,
-        z = qp.w * qy.z + qp.x * qy.y - qp.y * qy.x + qp.z * qy.w
-    }
-    -- 可选：归一化四元数，确保其长度为1（对于旋转四元数，这通常是必需的）
-    local len = math.sqrt(combinedQuat.w^2 + combinedQuat.x^2 + combinedQuat.y^2 + combinedQuat.z^2)
-    if len > 0 then
-        combinedQuat.w = combinedQuat.w / len
-        combinedQuat.x = combinedQuat.x / len
-        combinedQuat.y = combinedQuat.y / len
-        combinedQuat.z = combinedQuat.z / len
-    end
-    return combinedQuat
+    local cy = math.cos(halfYaw)
+    local sy = math.sin(halfYaw)
+    local cp = math.cos(halfPitch)
+    local sp = math.sin(halfPitch)
+    
+    local w = cp * cy
+    local x = sp * cy
+    local y = cp * sy
+    local z = sp * sy
+    
+    -- 返回四元数，格式为 {w, x, y, z}
+    return {w = w, x = x, y = y, z = z}
 end
 
 return Character

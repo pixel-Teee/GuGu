@@ -566,6 +566,7 @@ namespace GuGu {
 
 		if (m_rigidBody)
 		{
+			setMass(0);
 			m_rigidBody->setCollisionFlags(m_rigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
 			m_rigidBody->setActivationState(DISABLE_DEACTIVATION);
 		}
