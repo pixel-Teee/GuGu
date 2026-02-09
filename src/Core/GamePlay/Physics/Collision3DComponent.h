@@ -2,6 +2,7 @@
 
 #include <Core/GamePlay/Component.h>
 #include <Math/MyMath.h>
+#include "CollisionResult.h"
 
 class btCollisionShape;
 class btRigidBody;
@@ -14,6 +15,7 @@ namespace GuGu {
 		Capsule = 2,
 		HeightField = 3
 	};
+
 	struct GameObjectLevelRef;
 	class Collision3DComponent : public Component
 	{
@@ -69,6 +71,9 @@ namespace GuGu {
 
 		void setGameObjectRef(const std::shared_ptr<GameObjectLevelRef>& inGameObjectRef);
 		std::shared_ptr<GameObjectLevelRef>& getGameObjectRef();
+
+		//检测性函数
+		CollisionResult rayTest(math::double3 rayStart, math::double3 rayEnd);
 
 		//shape
 		CollisionShape m_shape;

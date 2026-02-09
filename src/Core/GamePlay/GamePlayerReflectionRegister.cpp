@@ -27,6 +27,7 @@
 #include <Core/GamePlay/ScriptComponent.h>
 #include <Core/GamePlay/TerrainVegetationComponent.h>
 #include <Core/GamePlay/Physics/Collision3DComponent.h>
+#include <Core/GamePlay/Physics/CollisionResult.h>
 
 #include <Renderer/Color.h>
 
@@ -723,6 +724,30 @@ namespace GuGu {
 		return true;
 	}
 
+	static bool registerCollisionResult()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto id = db.AllocateType("GuGu::CollisionResult");
+		auto& type = db.types[id];
+		meta::TypeInfo<CollisionResult>::Register(id, type, true, "5B835168-14F8-43DE-A823-3DB4AB386F3E");
+
+		type.AddConstructor<CollisionResult, false, false>({});
+
+		type.AddConstructor<CollisionResult, true, false>({});
+
+		type.SetArrayConstructor<CollisionResult>();
+
+		type.AddField<CollisionResult, math::float3>("m_hitNormal",
+			(meta::FieldGetter<CollisionResult, math::float3, false>::Signature) & CollisionResult::m_hitNormal,
+			(meta::FieldSetter<CollisionResult, math::float3, false>::Signature) & CollisionResult::m_hitNormal, {});
+
+		type.AddField<CollisionResult, math::float3>("m_hitPosition",
+			(meta::FieldGetter<CollisionResult, math::float3, false>::Signature) & CollisionResult::m_hitPosition,
+			(meta::FieldSetter<CollisionResult, math::float3, false>::Signature) & CollisionResult::m_hitPosition, {});
+
+		return true;
+	}
+
 	void registerThirdParty()
 	{
 		//Priority metaDisplayNamePriority;
@@ -805,12 +830,14 @@ namespace GuGu {
 		ReflectionMain::addInitialTypeFunction(registerKeyScale, &keyScalePriority);
 		ReflectionMain::addInitialTypeFunction(registerChannel, &channelPriority);
 		ReflectionMain::addInitialTypeFunction(registerMeshGeometry, &meshGeometryPriority);
+		ReflectionMain::addInitialTypeFunction(registerCollisionResult, &collisionResultPriority);
 		keyPositionPriority.addPriorityThan(&mathfloat3Priority);
 		keyRotationPriority.addPriorityThan(&mathquatPriority);
 		keyScalePriority.addPriorityThan(&mathfloat3Priority);
 		channelPriority.addPriorityThan(&keyPositionPriority);
 		channelPriority.addPriorityThan(&keyRotationPriority);
 		channelPriority.addPriorityThan(&keyScalePriority);
+		collisionResultPriority.addPriorityThan(&mathfloat3Priority);
 
 		//UIComponent register
 		UIComponent::registerMainFactory();

@@ -129,6 +129,9 @@ namespace GuGu {
 			(meta::FieldGetter<Collision3DComponent, std::weak_ptr<GameObject>&, true>::Signature) & Collision3DComponent::getParentGameObject,
 			(meta::FieldSetter<Collision3DComponent, std::weak_ptr<GameObject>&, true>::Signature) & Collision3DComponent::setParentGameObject, {});
 
+		type.AddMethod("rayTest", &Collision3DComponent::rayTest, {});
+
+		type.AddMethod("syncToPhysics", &Collision3DComponent::syncToPhysics, {});
 		return true;
 	}
 
@@ -481,6 +484,9 @@ namespace GuGu {
 	{
 		if (!m_rigidBody || !m_owner.lock()) return;
 
+		if(this->m_bKinematic)
+			return;
+
 		btTransform transform;
 		m_rigidBody->getMotionState()->getWorldTransform(transform);
 
@@ -557,6 +563,12 @@ namespace GuGu {
 	void Collision3DComponent::setKinematic(bool isKinematic)
 	{
 		m_bKinematic = isKinematic;
+
+		if (m_rigidBody)
+		{
+			m_rigidBody->setCollisionFlags(m_rigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+			m_rigidBody->setActivationState(DISABLE_DEACTIVATION);
+		}
 	}
 
 	bool Collision3DComponent::getKinematic() const
@@ -573,6 +585,46 @@ namespace GuGu {
 	std::shared_ptr<GameObjectLevelRef>& Collision3DComponent::getGameObjectRef()
 	{
 		return m_gameObjectRef;
+	}
+
+	CollisionResult Collision3DComponent::rayTest(math::double3 rayStart, math::double3 rayEnd)
+	{
+		btVector3 rayStartBt(rayStart.x, rayStart.y, rayStart.z);
+		btVector3 rayEndBt(rayEnd.x, rayEnd.y, rayEnd.z);
+		btCollisionWorld::ClosestRayResultCallback callback(rayStartBt, rayEndBt);
+
+		CollisionResult collisionResult;
+		//TODO:(设置过滤组)
+
+		std::shared_ptr<btDynamicsWorld> physicsWorld = PhysicsManager::getPhysicsManager().getDynamicsWorld();
+		if (physicsWorld)
+		{	
+			if (!math::all(math::isnear(rayStart, rayEnd)))
+			{
+				physicsWorld->rayTest(rayStartBt, rayEndBt, callback);
+				if (callback.hasHit())
+				{
+					collisionResult.m_hitNormal = math::float3(callback.m_hitNormalWorld.x(), callback.m_hitNormalWorld.y(), callback.m_hitNormalWorld.z());
+					collisionResult.m_hitPosition = math::float3(callback.m_hitPointWorld.x(), callback.m_hitPointWorld.y(), callback.m_hitPointWorld.z());
+				}
+				else
+				{
+					collisionResult.m_hitNormal = math::float3(0.0f, 0.0f, 0.0f);
+					collisionResult.m_hitPosition = math::float3(0.0f, 0.0f, 0.0f);
+				}
+			}
+			else
+			{
+				collisionResult.m_hitNormal = math::float3(0.0f, 0.0f, 0.0f);
+				collisionResult.m_hitPosition = math::float3(0.0f, 0.0f, 0.0f);
+			}
+		}
+		else
+		{
+			collisionResult.m_hitNormal = math::float3(0.0f, 0.0f, 0.0f);
+			collisionResult.m_hitPosition = math::float3(0.0f, 0.0f, 0.0f);
+		}
+		return collisionResult;
 	}
 
 }
