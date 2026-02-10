@@ -21,7 +21,7 @@ function Character:init(owner)
     self.forward.y = 0
     self.forward.z = 1
     self.right = GuGu.math.double3.new()
-    self.right.x = 0
+    self.right.x = 1
     self.right.y = 0
     self.right.z = 0
 
@@ -42,10 +42,11 @@ end
 
 --【核心函数】根据yaw和pitch更新前向和右向向量
 function Character:updateVectors()
+
     -- 计算前向向量 (基于球面坐标)
-    self.forward.x = math.sin(self.yaw)
-    self.forward.y = -math.sin(self.pitch) * math.cos(self.yaw)
-    self.forward.z = math.cos(self.pitch) * math.cos(self.yaw)
+    self.forward.x = math.sin(self.yaw * math.pi / 180.0) * math.cos(self.pitch * math.pi / 180.0)
+    self.forward.y = -math.sin(self.pitch * math.pi / 180.0)
+    self.forward.z = math.cos(self.yaw * math.pi / 180.0) * math.cos(self.pitch * math.pi / 180.0)
     
     -- 归一化前向向量（在水平面上投影）
     local horizontalForward = {x = self.forward.x, y = 0, z = self.forward.z}
@@ -61,7 +62,8 @@ function Character:updateVectors()
     self.right.y = 0
     self.right.z = -horizontalForward.x
 
-    self.right = self:normalize3D(self.right.x, self.right.y, self.right.z)
+    print("forward x"..tostring(self.forward.x).."forward y"..tostring(self.forward.y).."forward z"..tostring(self.forward.z))
+    --self.right = self:normalize3D(self.right.x, self.right.y, self.right.z)
     
     -- 可选：也可以在这里计算真正的上向量，用于复杂摄像机
 end
@@ -70,14 +72,16 @@ end
 function Character:updateView(inputManager, deltaTime)
     -- 获取鼠标位移（假设inputManager能提供）
     -- 注意：这里需要你的输入系统支持获取鼠标增量
-    local mouseDeltaX, mouseDeltaY = self:updateMouseInput(inputManager)
+    local mouseDelta = inputManager:getMouseDelta()
  
     -- 鼠标灵敏度
-    local sensitivity = 0.002
+    local sensitivity = 0.4
+
+    print("mouseDelta x"..tostring(mouseDelta.x).."mouseDelta y"..tostring(mouseDelta.y))
     
     -- 更新旋转角度
-    self.yaw = self.yaw + mouseDeltaX * sensitivity  -- 注意符号根据你的坐标系调整
-    self.pitch = self.pitch + mouseDeltaY * sensitivity
+    self.yaw = self.yaw + mouseDelta.x * sensitivity  -- 注意符号根据你的坐标系调整
+    self.pitch = self.pitch + mouseDelta.y* sensitivity
     
     -- 限制上下视角，防止摄像机翻转
     if self.pitch > self.maxPitch then
@@ -85,6 +89,8 @@ function Character:updateView(inputManager, deltaTime)
     elseif self.pitch < -self.maxPitch then
         self.pitch = -self.maxPitch
     end
+
+    print("yaw"..tostring(self.yaw).."pitch"..tostring(self.pitch))
     
     -- 更新朝向向量
     self:updateVectors()
@@ -94,13 +100,12 @@ function Character:updateView(inputManager, deltaTime)
     local transformComponent = self.owner:getComponent("GuGu::TransformComponent")
     -- 将四元数旋转应用到变换组件（你需要根据引擎API调整）
     -- 例如：transformComponent:setRotation(从yaw和pitch创建的四元数)
-    local rotationQuat = self:getQuaternionFromYawPitch(0, self.pitch)
-    local newQuat = GuGu.math.dquat.new()
-    newQuat.w = rotationQuat.w
-    newQuat.x = rotationQuat.x
-    newQuat.y = rotationQuat.y
-    newQuat.z = rotationQuat.z
-    transformComponent:SetRotationQuat(newQuat)
+    -- local rotationQuat = self:getQuaternionFromYawPitch(self.yaw, self.pitch)
+    local newRotator = GuGu.math.Rotator.new()
+    newRotator.pitch = self.pitch
+    newRotator.yaw = self.yaw
+    newRotator.roll = 0
+    transformComponent:SetRotator(newRotator)
 end
 
 --【核心函数】更新移动（基于朝向）
@@ -143,10 +148,10 @@ function Character:updateMovement(inputManager, deltaTime)
     end
     
     -- 应用重力
-    -- if not self.isOnGround then
-    --     self.verticalVelocity = self.verticalVelocity + self.gravity * deltaTime
-    -- end
-    -- moveInput.y = self.verticalVelocity * deltaTime
+    if not self.isOnGround then
+        self.verticalVelocity = self.verticalVelocity + self.gravity * deltaTime
+    end
+    moveInput.y = self.verticalVelocity * deltaTime
     
     -- 获取当前角色位置
     local transformComponent = self.owner:getComponent("GuGu::TransformComponent")

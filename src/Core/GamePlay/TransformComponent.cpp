@@ -78,6 +78,8 @@ namespace GuGu {
 
 		type.AddMethod("SetRotationQuat", &TransformComponent::SetRotationQuat, {});
 
+		type.AddMethod("SetRotator", &TransformComponent::SetRotator, {});
+
 		math::double3&(TransformComponent::*getTranslation)() = &TransformComponent::getTranslation;
 		type.AddMethod("getTranslation", getTranslation, {});
 		return true;
