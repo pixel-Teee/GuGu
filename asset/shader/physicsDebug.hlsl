@@ -15,17 +15,19 @@ cbuffer CB : register(b0)
 void main_vs(
 	float3 i_pos : POSITION,
     float4 i_color : COLOR0,
-	out float4 o_pos : SV_Position
+	out float4 o_pos : SV_Position,
+    out float4 color : COLOR1
 )
 {
     o_pos = mul(float4(i_pos, 1), g_Transform);
+    color = i_color;
 }
 
 void main_ps(
 	in float4 i_pos : SV_Position,
-    in float4 i_color : COLOR0,
+    in float4 color : COLOR1,
     out float4 o_color : SV_Target0
 )
 {
-    o_color = i_color;
+    o_color = color;
 }
