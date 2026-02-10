@@ -34,6 +34,12 @@ function Character:init(owner)
     self:updateVectors()
 end
 
+function Character:normalize3D(x, y, z)
+    local length = math.sqrt(x * x + y * y + z * z)
+    if length == 0 then return {x = 0, y = 0, z = 0} end -- 避免除零
+    return {x = x / length, y = y / length, z = z / length}
+end
+
 --【核心函数】根据yaw和pitch更新前向和右向向量
 function Character:updateVectors()
     -- 计算前向向量 (基于球面坐标)
@@ -48,11 +54,14 @@ function Character:updateVectors()
         horizontalForward.x = horizontalForward.x / len
         horizontalForward.z = horizontalForward.z / len
     end
+    self.forward = self:normalize3D(self.forward.x, self.forward.y, self.forward.z)
     
     -- 右向向量 = 前向向量水平分量 × 世界上向量(0,1,0)
     self.right.x = horizontalForward.z  -- 注意叉积顺序
     self.right.y = 0
     self.right.z = -horizontalForward.x
+
+    self.right = self:normalize3D(self.right.x, self.right.y, self.right.z)
     
     -- 可选：也可以在这里计算真正的上向量，用于复杂摄像机
 end
@@ -85,7 +94,7 @@ function Character:updateView(inputManager, deltaTime)
     local transformComponent = self.owner:getComponent("GuGu::TransformComponent")
     -- 将四元数旋转应用到变换组件（你需要根据引擎API调整）
     -- 例如：transformComponent:setRotation(从yaw和pitch创建的四元数)
-    local rotationQuat = self:getQuaternionFromYawPitch(self.yaw, self.pitch)
+    local rotationQuat = self:getQuaternionFromYawPitch(0, self.pitch)
     local newQuat = GuGu.math.dquat.new()
     newQuat.w = rotationQuat.w
     newQuat.x = rotationQuat.x
@@ -198,6 +207,31 @@ function Character:updateGroundDetection()
         end
     end
 end
+
+function Character:multiplyQuaternions(q1, q2)
+    -- q1, q2 都是包含 w, x, y, z 键的表
+    local w1, x1, y1, z1 = q1.w, q1.x, q1.y, q1.z
+    local w2, x2, y2, z2 = q2.w, q2.x, q2.y, q2.z
+    
+    local result = {
+        w = w1*w2 - x1*x2 - y1*y2 - z1*z2,
+        x = w1*x2 + x1*w2 + y1*z2 - z1*y2,
+        y = w1*y2 - x1*z2 + y1*w2 + z1*x2,
+        z = w1*z2 + x1*y2 - y1*x2 + z1*w2
+    }
+    
+    -- 可选：归一化结果（通常旋转四元数需要保持单位长度）
+    local len = math.sqrt(result.w ^ 2 + result.x ^ 2 + result.y ^ 2 + result.z ^ 2)
+    if len > 0 then
+        result.w = result.w / len
+        result.x = result.x / len
+        result.y = result.y / len
+        result.z = result.z / len
+    end
+    
+    return result
+end
+
 
 function Character:getQuaternionFromYawPitch(yaw, pitch)
     local halfYaw = yaw * 0.5
