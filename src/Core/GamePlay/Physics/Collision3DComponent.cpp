@@ -145,6 +145,29 @@ namespace GuGu {
 		ADD_INITIAL_FIELDS_FUNCTION_WITH_PRIORITY(registerGuGuCollision3DComponentFields)
 	IMPLEMENT_INITIAL_FIELDS_END
 
+	std::vector<uint8_t> rotateClockWise90(std::vector<uint8_t>& src, int32_t width, int32_t height, int32_t channel)
+	{
+		int32_t newWidth = height;
+		int32_t newHeight = width;
+
+		std::vector<uint8_t> dst;
+		dst.resize(newWidth * newHeight * channel);
+
+		for (int32_t y = 0; y < height; y++) {
+			for (int32_t x = 0; x < width; x++) {
+
+				int32_t srcIndex = y * width + x;
+				int32_t dstIndex = x * newWidth + (height - 1 - y);
+				dst[dstIndex * channel] = src[srcIndex * channel];
+				dst[dstIndex * channel + 1] = src[srcIndex * channel + 1];
+				dst[dstIndex * channel + 2] = src[srcIndex * channel + 2];
+				dst[dstIndex * channel + 3] = src[srcIndex * channel + 3];
+			}
+		}
+
+		return dst;
+	}
+
 	Collision3DComponent::Collision3DComponent()
 	{
 		m_boxHalfExtents = math::float3(0.5f, 0.5f, 0.5f);
@@ -278,19 +301,22 @@ namespace GuGu {
 
 					if (terrainComp)
 					{
-						std::vector<uint8_t> heightDataArray = terrainComp->getHeightTexture()->m_data;
+						std::vector<uint8_t>& heightDataArray = terrainComp->getHeightTexture()->m_data;
 						int32_t textureWidth = terrainComp->getHeightTexture()->m_width;
 						int32_t textureHeight = terrainComp->getHeightTexture()->m_height;
 						int32_t channel = terrainComp->getHeightTexture()->m_bytesPerPixel;
+						std::vector<uint8_t> rotatedHeightData = rotateClockWise90(heightDataArray, textureWidth, textureHeight, channel);//顺时针旋转90度
+
 						m_heightChannelData.clear();
 						for (int32_t i = 0; i < textureWidth; i = i + 4)
 						{
-							for (int32_t j = textureHeight - 1; j >= 0; j = j - 4)
+							for (int32_t j = 0; j < textureHeight; j = j + 4)
 							{
 								//int32_t minRow = std::max(j - 1, 0);
-								m_heightChannelData.push_back(heightDataArray[(j * textureWidth + i) * channel]);
+								m_heightChannelData.push_back(rotatedHeightData[(j * textureWidth + i) * channel]);
 							}
 						}
+
 						//get r channel data
 						//for (int32_t i = 0; i < heightDataArray.size(); i = i + channel)
 						//{
