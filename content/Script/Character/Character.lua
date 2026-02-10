@@ -148,10 +148,10 @@ function Character:updateMovement(inputManager, deltaTime)
     end
     
     -- 应用重力
-    if not self.isOnGround then
-        self.verticalVelocity = self.verticalVelocity + self.gravity * deltaTime
-    end
-    moveInput.y = self.verticalVelocity * deltaTime
+    -- if not self.isOnGround then
+    --     self.verticalVelocity = self.verticalVelocity + self.gravity * deltaTime
+    -- end
+    -- moveInput.y = self.verticalVelocity * deltaTime
     
     -- 获取当前角色位置
     local transformComponent = self.owner:getComponent("GuGu::TransformComponent")

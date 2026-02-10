@@ -278,8 +278,16 @@ namespace GuGu {
 
 					if (terrainComp)
 					{
-						std::vector<uint8_t> sampleCountArray = terrainComp->getSampleArray();
-						m_heightChannelData = sampleCountArray;
+						std::vector<uint8_t> heightDataArray = terrainComp->getHeightTexture()->m_data;
+						int32_t textureWidth = terrainComp->getHeightTexture()->m_width;
+						int32_t textureHeight = terrainComp->getHeightTexture()->m_height;
+						int32_t channel = terrainComp->getHeightTexture()->m_bytesPerPixel;
+						m_heightChannelData.clear();
+						//get r channel data
+						for (int32_t i = 0; i < heightDataArray.size(); i = i + channel)
+						{
+							m_heightChannelData.push_back(heightDataArray[i]);
+						}
 						float minHeight = 255.0f;
 						float maxHeight = 0.0f;
 						for (int32_t i = 0; i < m_heightChannelData.size(); ++i)
@@ -289,8 +297,8 @@ namespace GuGu {
 						}
 						float heightScale = 1.0 / 255.0f * terrainComp->getHeightScale();
 						m_collisionShape = std::make_shared<btHeightfieldTerrainShape>(
-							terrainComp->m_terrainRows * terrainComp->m_rows,
-							terrainComp->m_terrainCols * terrainComp->m_cols,
+							textureWidth,
+							textureHeight,
 							m_heightChannelData.data(),
 							heightScale,
 							minHeight / 255.0f,
@@ -299,7 +307,11 @@ namespace GuGu {
 							PHY_UCHAR,
 							false
 						);
-						m_collisionShape->setLocalScaling(btVector3(1.0f, 1.0f, 1.0f));
+						float scaleX = (float)(terrainComp->m_rows * terrainComp->m_terrainRows * terrainComp->m_tileSize) / (float)textureWidth;
+						float scaleZ = (float)(terrainComp->m_cols * terrainComp->m_terrainCols * terrainComp->m_tileSize) / (float)textureHeight;
+						m_collisionShape->setLocalScaling(btVector3(scaleX,
+						1.0f,
+						scaleZ));
 						m_mass = 0.0f;
 
 						//startTransform.setOrigin(btVector3(0, 0, 0));
