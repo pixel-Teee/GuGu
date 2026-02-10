@@ -148,10 +148,10 @@ function Character:updateMovement(inputManager, deltaTime)
     end
     
     -- 应用重力
-    -- if not self.isOnGround then
-    --     self.verticalVelocity = self.verticalVelocity + self.gravity * deltaTime
-    -- end
-    -- moveInput.y = self.verticalVelocity * deltaTime
+    if not self.isOnGround then
+        self.verticalVelocity = self.verticalVelocity + self.gravity * deltaTime
+    end
+    moveInput.y = self.verticalVelocity * deltaTime
     
     -- 获取当前角色位置
     local transformComponent = self.owner:getComponent("GuGu::TransformComponent")
@@ -192,7 +192,7 @@ function Character:updateGroundDetection()
     -- 射线向下发射，长度略大于角色到地面的距离
     local rayEnd = GuGu.math.double3.new()
     rayEnd.x = rayStart.x
-    rayEnd.y = rayStart.y - 1.1
+    rayEnd.y = rayStart.y - 10
     rayEnd.z = rayStart.z
     
     local collision3DComponent = self.owner:getComponent("GuGu::Collision3DComponent")
