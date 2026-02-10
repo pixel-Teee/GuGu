@@ -348,7 +348,7 @@ namespace GuGu {
 						scaleZ));
 						m_mass = 0.0f;
 
-						//startTransform.setOrigin(btVector3(0, 0, 0));
+						startTransform.setOrigin(btVector3(0, 0.0f, 0)); //TODO:FIX THIS
 					}
 					else
 					{
