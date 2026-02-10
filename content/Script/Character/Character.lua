@@ -62,7 +62,7 @@ function Character:updateVectors()
     self.right.y = 0
     self.right.z = -horizontalForward.x
 
-    print("forward x"..tostring(self.forward.x).."forward y"..tostring(self.forward.y).."forward z"..tostring(self.forward.z))
+    --print("forward x"..tostring(self.forward.x).."forward y"..tostring(self.forward.y).."forward z"..tostring(self.forward.z))
     --self.right = self:normalize3D(self.right.x, self.right.y, self.right.z)
     
     -- 可选：也可以在这里计算真正的上向量，用于复杂摄像机
@@ -77,7 +77,7 @@ function Character:updateView(inputManager, deltaTime)
     -- 鼠标灵敏度
     local sensitivity = 0.4
 
-    print("mouseDelta x"..tostring(mouseDelta.x).."mouseDelta y"..tostring(mouseDelta.y))
+    --print("mouseDelta x"..tostring(mouseDelta.x).."mouseDelta y"..tostring(mouseDelta.y))
     
     -- 更新旋转角度
     self.yaw = self.yaw + mouseDelta.x * sensitivity  -- 注意符号根据你的坐标系调整
@@ -90,7 +90,7 @@ function Character:updateView(inputManager, deltaTime)
         self.pitch = -self.maxPitch
     end
 
-    print("yaw"..tostring(self.yaw).."pitch"..tostring(self.pitch))
+    --print("yaw"..tostring(self.yaw).."pitch"..tostring(self.pitch))
     
     -- 更新朝向向量
     self:updateVectors()
@@ -270,9 +270,9 @@ function Character:updateMouseInput(inputManager)
         deltaX = currentMousePos.x - viewportCenter.x
         deltaY = currentMousePos.y - viewportCenter.y
 
-        print("viewportCenter x : "..tostring(viewportCenter.x).."viewportCenter y : "..tostring(viewportCenter.y))
-        print("currentMousePos x : "..tostring(currentMousePos.x).."currentMousePos y : "..tostring(currentMousePos.y))
-        print("deltaX : "..tostring(deltaX).."deltaY : "..tostring(deltaY))
+        --print("viewportCenter x : "..tostring(viewportCenter.x).."viewportCenter y : "..tostring(viewportCenter.y))
+        --print("currentMousePos x : "..tostring(currentMousePos.x).."currentMousePos y : "..tostring(currentMousePos.y))
+        --print("deltaX : "..tostring(deltaX).."deltaY : "..tostring(deltaY))
         inputManager:setCursorPos(viewportCenter)
     end 
 
