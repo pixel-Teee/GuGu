@@ -4,9 +4,9 @@ namespace GuGu {
 	namespace math
 	{
 		struct Rotator {
-			float yaw;//z
-			float pitch;//y
-			float roll;//x
+			float pitch; //x
+			float yaw; //y
+			float roll; //z
 			Rotator() { yaw = pitch = roll = 0; }
 			Rotator(float inYaw, float inPitch, float inRoll) : yaw(inYaw), pitch(inPitch), roll(inRoll) {}
 			Rotator(math::float3 inFloat3) { roll = inFloat3.x, pitch = inFloat3.y, yaw = inFloat3.z; }

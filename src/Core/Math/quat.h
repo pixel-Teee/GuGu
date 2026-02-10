@@ -404,11 +404,11 @@ namespace GuGu {
 			template<typename T>
 			quaternion<T> rotationQuat(const vector<T, 3>& euler)
 			{
-				T sinHalfX = std::sin(T(0.5) * euler.x);//roll
+				T sinHalfX = std::sin(T(0.5) * euler.x);//pitch
 				T cosHalfX = std::cos(T(0.5) * euler.x);
-				T sinHalfY = std::sin(T(0.5) * euler.y);//pitch
+				T sinHalfY = std::sin(T(0.5) * euler.y);//yaw
 				T cosHalfY = std::cos(T(0.5) * euler.y);
-				T sinHalfZ = std::sin(T(0.5) * euler.z);//yaw
+				T sinHalfZ = std::sin(T(0.5) * euler.z);//roll
 				T cosHalfZ = std::cos(T(0.5) * euler.z);
 
 				quaternion<T> quatX = quaternion<T>(cosHalfX, sinHalfX, 0, 0);
@@ -416,6 +416,7 @@ namespace GuGu {
 				quaternion<T> quatZ = quaternion<T>(cosHalfZ, 0, 0, sinHalfZ);
 
 				// Note: multiplication order for quats is like column-vector convention
+				//先绕x轴，再绕y轴，再绕z轴
 				return quatZ * quatY * quatX;
 			}
 
