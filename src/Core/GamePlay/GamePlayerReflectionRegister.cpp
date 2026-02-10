@@ -830,6 +830,10 @@ namespace GuGu {
 
 		type.AddMethod("setCursorPos", &InputManager::setCursorPos, {});
 
+		type.AddMethod("getViewportLeftUpperCornerPos", &InputManager::getViewportLeftUpperCornerPos, {});
+
+		type.AddMethod("getViewportWidthAndHeight", &InputManager::getViewportWidthAndHeight, {});
+
 		type.AddStaticMethod<InputManager>("getInputManager", &InputManager::getInputManager, {});
 
 		return true;

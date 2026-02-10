@@ -134,10 +134,10 @@ function Character:updateMovement(inputManager, deltaTime)
     end
     
     -- 应用重力
-    if not self.isOnGround then
-        self.verticalVelocity = self.verticalVelocity + self.gravity * deltaTime
-    end
-    moveInput.y = self.verticalVelocity * deltaTime
+    -- if not self.isOnGround then
+    --     self.verticalVelocity = self.verticalVelocity + self.gravity * deltaTime
+    -- end
+    -- moveInput.y = self.verticalVelocity * deltaTime
     
     -- 获取当前角色位置
     local transformComponent = self.owner:getComponent("GuGu::TransformComponent")
@@ -223,18 +223,29 @@ function Character:updateMouseInput(inputManager)
         local viewportCenter = inputManager:getViewportCenter()
 
         local currentMousePos = inputManager:getMousePosition()
-    
-        deltaX = currentMousePos.x - viewportCenter.y
-        deltaY = currentMousePos.x - viewportCenter.y
 
-        print(viewportCenter.x)
-        print(viewportCenter.y)
-        --inputManager:setCursorPos(viewportCenter)
+        local leftCornerPos = inputManager:getViewportLeftUpperCornerPos()
+        currentMousePos.x = currentMousePos.x + leftCornerPos.x
+        currentMousePos.y = currentMousePos.y + leftCornerPos.y
+    
+        deltaX = currentMousePos.x - viewportCenter.x
+        deltaY = currentMousePos.y - viewportCenter.y
+
+        print("viewportCenter x : "..tostring(viewportCenter.x).."viewportCenter y : "..tostring(viewportCenter.y))
+        print("currentMousePos x : "..tostring(currentMousePos.x).."currentMousePos y : "..tostring(currentMousePos.y))
+        print("deltaX : "..tostring(deltaX).."deltaY : "..tostring(deltaY))
+        inputManager:setCursorPos(viewportCenter)
     end 
 
     if inputManager:isKeyDown(GuGu.Keys.Escape) then
         self.bLocked = false
     end
+    -- if math.abs(deltaX) < 0.03 then
+    --     deltaX = 0.0
+    -- end
+    -- if math.abs(deltaY) < 1.5 then
+    --     deltaY = 0.0
+    -- end
     return deltaX, deltaY
 end
 

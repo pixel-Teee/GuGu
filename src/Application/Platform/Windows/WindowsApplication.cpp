@@ -200,6 +200,14 @@ namespace GuGu {
 
 	void WindowsApplication::setCursorPos(math::float2 inCursorPos)
 	{
+		//传入的是相对于当前屏幕左上角的坐标
+		//TODO:(FIX THIS)
+		int32_t monitorLeft = GetSystemMetrics(SM_XVIRTUALSCREEN);
+		int32_t monitorTop = GetSystemMetrics(SM_YVIRTUALSCREEN);
+
+		inCursorPos.x = inCursorPos.x + monitorLeft;
+		inCursorPos.y = inCursorPos.y + monitorTop;
+
 		SetCursorPos(inCursorPos.x, inCursorPos.y);
 	}
 
@@ -677,8 +685,11 @@ namespace GuGu {
 			}
 			case WM_MOVE:
 			{
-				const int32_t NewX = (int)(short)(LOWORD(lParam));
-				const int32_t NewY = (int)(short)(HIWORD(lParam));
+				int32_t monitorLeft = GetSystemMetrics(SM_XVIRTUALSCREEN);
+				int32_t monitorTop = GetSystemMetrics(SM_YVIRTUALSCREEN);			
+
+				const int32_t NewX = (int)(short)(LOWORD(lParam)) - monitorLeft;
+				const int32_t NewY = (int)(short)(HIWORD(lParam)) - monitorTop;
 				
 				std::shared_ptr<Window> window;
 				//find native window
@@ -688,6 +699,8 @@ namespace GuGu {
 					if (windows[i]->getNativeWindowHandle() == hwnd)
 					{
 						window = windows[i];
+
+						
 					}
 				}
 				globalApplication->onMovedWindow(window, NewX, NewY);

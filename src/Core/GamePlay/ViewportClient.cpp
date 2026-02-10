@@ -228,7 +228,7 @@ namespace GuGu {
 		m_width = inWidth;
 		m_height = inHeight;
 
-		InputManager inputManager = InputManager::getInputManager();
+		InputManager& inputManager = InputManager::getInputManager();
 
 		inputManager.setViewportLeftUpperCornerPos(m_leftUpperCorner);
 		inputManager.setViewportWidthAndHeight(math::float2(m_width, m_height));

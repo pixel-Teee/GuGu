@@ -74,6 +74,7 @@ namespace GuGu {
 
 		math::float2 getMouseDelta();
 
+		//相对于视口的光标坐标
 		math::float2 getMousePosition();
 
 		void setViewportLeftUpperCornerPos(math::float2 inLeftCornerPos);

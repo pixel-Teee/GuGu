@@ -132,6 +132,7 @@ namespace GuGu {
 
 	math::float2 InputManager::getViewportCenter() const
 	{
+        //math::float2 currentCursorPos = Application::getApplication()->getCursorPos();
         return math::float2(m_leftUpperCornerPos.x + m_width / 2.0f, m_leftUpperCornerPos.y + m_height / 2.0f);
 	}
 
