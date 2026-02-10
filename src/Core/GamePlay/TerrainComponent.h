@@ -57,7 +57,7 @@ namespace GuGu {
 		//one block
 		uint32_t m_rows;
 		uint32_t m_cols;
-		uint32_t m_tileSize;
+		float m_tileSize;
 
 		//height scale
 		float m_heightScale;

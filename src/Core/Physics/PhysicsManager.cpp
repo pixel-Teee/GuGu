@@ -52,7 +52,13 @@ namespace GuGu {
 
 		int32_t currentDebugMode = m_debugDraw->getDebugMode();
 		currentDebugMode &= ~btIDebugDraw::DBG_DrawNormals;
-		m_debugDraw->setDebugMode(currentDebugMode);
+		m_debugDraw->setDebugMode(
+			btIDebugDraw::DBG_DrawWireframe |    // 主要线框
+			// btIDebugDraw::DBG_DrawAabb |      // 关闭AABB绘制（通常很多）
+			// btIDebugDraw::DBG_DrawFeaturesText | // 关闭文本
+			// btIDebugDraw::DBG_DrawNormals |   // 关闭法线（很耗）
+			0
+		);
 	}
 
 	void PhysicsManager::destroy()

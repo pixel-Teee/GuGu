@@ -283,11 +283,19 @@ namespace GuGu {
 						int32_t textureHeight = terrainComp->getHeightTexture()->m_height;
 						int32_t channel = terrainComp->getHeightTexture()->m_bytesPerPixel;
 						m_heightChannelData.clear();
-						//get r channel data
-						for (int32_t i = 0; i < heightDataArray.size(); i = i + channel)
+						for (int32_t i = 0; i < textureWidth; i = i + 4)
 						{
-							m_heightChannelData.push_back(heightDataArray[i]);
+							for (int32_t j = textureHeight - 1; j >= 0; j = j - 4)
+							{
+								//int32_t minRow = std::max(j - 1, 0);
+								m_heightChannelData.push_back(heightDataArray[(j * textureWidth + i) * channel]);
+							}
 						}
+						//get r channel data
+						//for (int32_t i = 0; i < heightDataArray.size(); i = i + channel)
+						//{
+						//	m_heightChannelData.push_back(heightDataArray[i]);
+						//}
 						float minHeight = 255.0f;
 						float maxHeight = 0.0f;
 						for (int32_t i = 0; i < m_heightChannelData.size(); ++i)
@@ -297,8 +305,8 @@ namespace GuGu {
 						}
 						float heightScale = 1.0 / 255.0f * terrainComp->getHeightScale();
 						m_collisionShape = std::make_shared<btHeightfieldTerrainShape>(
-							textureWidth,
-							textureHeight,
+							textureWidth / 4,
+							textureHeight / 4,
 							m_heightChannelData.data(),
 							heightScale,
 							minHeight / 255.0f,
@@ -307,8 +315,8 @@ namespace GuGu {
 							PHY_UCHAR,
 							false
 						);
-						float scaleX = (float)(terrainComp->m_rows * terrainComp->m_terrainRows * terrainComp->m_tileSize) / (float)textureWidth;
-						float scaleZ = (float)(terrainComp->m_cols * terrainComp->m_terrainCols * terrainComp->m_tileSize) / (float)textureHeight;
+						float scaleX = (float)(terrainComp->m_rows * terrainComp->m_terrainRows * terrainComp->m_tileSize) / ((float)textureWidth / 4);
+						float scaleZ = (float)(terrainComp->m_cols * terrainComp->m_terrainCols * terrainComp->m_tileSize) / ((float)textureHeight / 4);
 						m_collisionShape->setLocalScaling(btVector3(scaleX,
 						1.0f,
 						scaleZ));

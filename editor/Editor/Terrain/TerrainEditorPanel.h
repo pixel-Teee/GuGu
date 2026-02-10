@@ -40,9 +40,9 @@ namespace GuGu {
 
 		std::optional<int32_t> onGetValue(const GuGuUtf8Str& variableName) const;
 
-		void onValueChanged(int32_t variableValue, GuGuUtf8Str variableName);
+		void onValueChanged(float variableValue, GuGuUtf8Str variableName);
 
-		void onValueCommitted(int32_t variableValue, TextCommit::Type commitType, GuGuUtf8Str variableName);
+		void onValueCommitted(float variableValue, TextCommit::Type commitType, GuGuUtf8Str variableName);
 
 		Reply recreateTerrain();
 

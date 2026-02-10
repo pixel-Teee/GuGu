@@ -90,9 +90,9 @@ namespace GuGu {
 			(meta::FieldGetter<TerrainComponent, uint32_t, false>::Signature) & TerrainComponent::m_cols,
 			(meta::FieldSetter<TerrainComponent, uint32_t, false>::Signature) & TerrainComponent::m_cols, {});
 
-		type.AddField<TerrainComponent, uint32_t>("m_tileSize",
-			(meta::FieldGetter<TerrainComponent, uint32_t, false>::Signature) & TerrainComponent::m_tileSize,
-			(meta::FieldSetter<TerrainComponent, uint32_t, false>::Signature) & TerrainComponent::m_tileSize, {});
+		type.AddField<TerrainComponent, float>("m_tileSize",
+			(meta::FieldGetter<TerrainComponent, float, false>::Signature) & TerrainComponent::m_tileSize,
+			(meta::FieldSetter<TerrainComponent, float, false>::Signature) & TerrainComponent::m_tileSize, {});
 
 		type.AddField<TerrainComponent, float>("m_heightScale",
 			(meta::FieldGetter<TerrainComponent, float, true>::Signature) & TerrainComponent::getHeightScale,

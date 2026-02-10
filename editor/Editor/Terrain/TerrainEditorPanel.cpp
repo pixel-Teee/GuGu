@@ -172,9 +172,9 @@ namespace GuGu {
 				+ HorizontalBox::Slot()
 				.FixedWidth()
 				(
-					WIDGET_NEW(NumericEntryBox<int32_t>)
+					WIDGET_NEW(NumericEntryBox<float>)
 					.allowSpain(true)
-					.value(Attribute<std::optional<int32_t>>::Create(std::bind(&TerrainEditorPanel::onGetValue, this, variableNames[i]))) //要显示的值
+					.value(Attribute<std::optional<float>>::Create(std::bind(&TerrainEditorPanel::onGetValue, this, variableNames[i]))) //要显示的值
 					.onValueChanged(this, &TerrainEditorPanel::onValueChanged, variableNames[i])
 					.onValueCommitted(this, &TerrainEditorPanel::onValueCommitted, variableNames[i])
 					.minValue(0)
@@ -413,7 +413,7 @@ namespace GuGu {
 		return std::optional<int32_t>(0);
 	}
 
-	void TerrainEditorPanel::onValueChanged(int32_t variableValue, GuGuUtf8Str variableName) 
+	void TerrainEditorPanel::onValueChanged(float variableValue, GuGuUtf8Str variableName)
 	{
 		if (m_terrainObject.lock())
 		{
@@ -437,7 +437,7 @@ namespace GuGu {
 		}
 	}
 
-	void TerrainEditorPanel::onValueCommitted(int32_t variableValue, TextCommit::Type commitType, GuGuUtf8Str variableName)
+	void TerrainEditorPanel::onValueCommitted(float variableValue, TextCommit::Type commitType, GuGuUtf8Str variableName)
 	{
 		if (m_terrainObject.lock())
 		{
