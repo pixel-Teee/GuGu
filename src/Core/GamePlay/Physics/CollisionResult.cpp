@@ -4,6 +4,7 @@
 namespace GuGu {
 
 	CollisionResult::CollisionResult()
+		: m_bHaveResult(false)
 	{
 		
 	}

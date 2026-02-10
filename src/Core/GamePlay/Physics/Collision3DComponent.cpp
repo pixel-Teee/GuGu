@@ -619,23 +619,27 @@ namespace GuGu {
 				{
 					collisionResult.m_hitNormal = math::float3(callback.m_hitNormalWorld.x(), callback.m_hitNormalWorld.y(), callback.m_hitNormalWorld.z());
 					collisionResult.m_hitPosition = math::float3(callback.m_hitPointWorld.x(), callback.m_hitPointWorld.y(), callback.m_hitPointWorld.z());
+					collisionResult.m_bHaveResult = true;
 				}
 				else
 				{
 					collisionResult.m_hitNormal = math::float3(0.0f, 0.0f, 0.0f);
 					collisionResult.m_hitPosition = math::float3(0.0f, 0.0f, 0.0f);
+					collisionResult.m_bHaveResult = false;
 				}
 			}
 			else
 			{
 				collisionResult.m_hitNormal = math::float3(0.0f, 0.0f, 0.0f);
 				collisionResult.m_hitPosition = math::float3(0.0f, 0.0f, 0.0f);
+				collisionResult.m_bHaveResult = false;
 			}
 		}
 		else
 		{
 			collisionResult.m_hitNormal = math::float3(0.0f, 0.0f, 0.0f);
 			collisionResult.m_hitPosition = math::float3(0.0f, 0.0f, 0.0f);
+			collisionResult.m_bHaveResult = false;
 		}
 		return collisionResult;
 	}

@@ -12,6 +12,7 @@ namespace GuGu {
 
 		math::float3 m_hitNormal;
 		math::float3 m_hitPosition;
+		bool m_bHaveResult;
 	};
 }
 

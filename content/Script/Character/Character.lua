@@ -194,16 +194,37 @@ function Character:updateGroundDetection()
     rayEnd.x = rayStart.x
     rayEnd.y = rayStart.y - 10
     rayEnd.z = rayStart.z
+
+    local color = GuGu.math.float3.new()
+    color.x = 0.4
+    color.y = 0.3
+    color.z = 0.6
+    local copyedRayStart = GuGu.math.float3.new()
+    copyedRayStart.x = rayStart.x
+    copyedRayStart.y = rayStart.y
+    copyedRayStart.z = rayStart.z
+    local copyedRayEnd = GuGu.math.float3.new()
+    copyedRayEnd.x = rayEnd.x
+    copyedRayEnd.y = rayEnd.y
+    copyedRayEnd.z = rayEnd.z
+    --draw ray
+    GuGu.DebugDraw.drawRay(copyedRayStart, copyedRayEnd, color)
     
     local collision3DComponent = self.owner:getComponent("GuGu::Collision3DComponent")
     if collision3DComponent then
         local hitResult = GuGu.Collision3DComponent.rayTest(rayStart, rayEnd)
-        if hitResult then
+        if hitResult.m_bHaveResult then
             local distanceToGround = rayStart.y - hitResult.m_hitPosition.y
             -- 如果距离地面很近，则认为在地面上
-            if distanceToGround < 1.05 and distanceToGround > 0.95 then
+            if distanceToGround < 1.5 and distanceToGround > 0.2 then
                 self.isOnGround = true
                 self.verticalVelocity = math.max(self.verticalVelocity, 0) -- 重置下落速度
+                local newPos = GuGu.math.double3.new()
+                newPos.x = rayStart.x
+                newPos.y = hitResult.m_hitPosition.y + 0.5
+                newPos.z = rayStart.z
+                print("hit position:"..tostring(hitResult.m_hitPosition.y))
+                transformComponent:SetTranslation(newPos)
             else
                 self.isOnGround = false
             end

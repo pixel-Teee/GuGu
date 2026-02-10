@@ -51,7 +51,9 @@ file(GLOB SourceFile "main.cpp"
 "Core/GamePlay/2D/*.h"
 "Core/GamePlay/2D/*.cpp"
 "Core/Physics/*.h"
-"Core/Physics/*.cpp")
+"Core/Physics/*.cpp"
+"Core/Debug/*.h"
+"Core/Debug/*.cpp")
 
 if(WIN32)
     message("[message]:this platform is windows!")

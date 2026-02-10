@@ -50,6 +50,8 @@ namespace GuGu {
 	static Priority keysPriority;
 
 	static Priority inputManagerPriority;
+
+	static Priority debugDrawPriority;
 	//------struct------
 
 	void registerThirdParty();

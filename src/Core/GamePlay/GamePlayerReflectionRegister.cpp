@@ -47,6 +47,8 @@
 #include <Core/Animation/Animator.h>
 #include <Core/Animation/GAnimation.h>
 
+#include <Core/Debug/DebugDraw.h>
+
 namespace GuGu {
 
 	static bool registermetaDisplayName()
@@ -746,6 +748,10 @@ namespace GuGu {
 			(meta::FieldGetter<CollisionResult, math::float3, false>::Signature) & CollisionResult::m_hitPosition,
 			(meta::FieldSetter<CollisionResult, math::float3, false>::Signature) & CollisionResult::m_hitPosition, {});
 
+		type.AddField<CollisionResult, bool>("m_bHaveResult",
+			(meta::FieldGetter<CollisionResult, bool, false>::Signature) & CollisionResult::m_bHaveResult,
+			(meta::FieldSetter<CollisionResult, bool, false>::Signature) & CollisionResult::m_bHaveResult, {});
+
 		return true;
 	}
 
@@ -839,6 +845,24 @@ namespace GuGu {
 		return true;
 	}
 
+	static bool registerDebugDraw()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto id = db.AllocateType("GuGu::DebugDraw");
+		auto& type = db.types[id];
+		meta::TypeInfo<DebugDraw>::Register(id, type, true, "A6384BFD-0DAE-4BE2-94AE-E4EECF01D9BB");
+
+		type.AddConstructor<DebugDraw, false, false>({});
+
+		type.AddConstructor<DebugDraw, true, false>({});
+
+		type.SetArrayConstructor<DebugDraw>();
+
+		type.AddStaticMethod<DebugDraw>("drawRay", &DebugDraw::drawRay, {});
+
+		return true;
+	}
+
 	void registerThirdParty()
 	{
 		//Priority metaDisplayNamePriority;
@@ -924,6 +948,7 @@ namespace GuGu {
 		ReflectionMain::addInitialTypeFunction(registerCollisionResult, &collisionResultPriority);
 		ReflectionMain::addInitialTypeFunction(registerKeys, &keysPriority);
 		ReflectionMain::addInitialTypeFunction(registerInputManager, &inputManagerPriority);
+		ReflectionMain::addInitialTypeFunction(registerDebugDraw, &debugDrawPriority);
 		keyPositionPriority.addPriorityThan(&mathfloat3Priority);
 		keyRotationPriority.addPriorityThan(&mathquatPriority);
 		keyScalePriority.addPriorityThan(&mathfloat3Priority);
@@ -932,6 +957,7 @@ namespace GuGu {
 		channelPriority.addPriorityThan(&keyScalePriority);
 		collisionResultPriority.addPriorityThan(&mathfloat3Priority);
 		inputManagerPriority.addPriorityThan(&keysPriority);
+		debugDrawPriority.addPriorityThan(&mathfloat3Priority);
 
 		//UIComponent register
 		UIComponent::registerMainFactory();
