@@ -13,7 +13,7 @@ function Character:init(owner)
     -- 视角旋转 (欧拉角，单位：弧度)
     self.yaw = 0.0      -- 左右旋转 (绕Y轴)
     self.pitch = 0.0    -- 上下旋转 (绕X轴)
-    self.maxPitch = math.rad(89) -- 限制上下看的角度，避免翻转
+    self.maxPitch = 89 -- 限制上下看的角度，避免翻转
 
     -- 初始化朝向向量
     self.forward = GuGu.math.double3.new()
@@ -103,9 +103,23 @@ function Character:updateView(inputManager, deltaTime)
     -- local rotationQuat = self:getQuaternionFromYawPitch(self.yaw, self.pitch)
     local newRotator = GuGu.math.Rotator.new()
     newRotator.pitch = self.pitch
-    newRotator.yaw = self.yaw
+    newRotator.yaw = self.yaw --绕y轴旋转
     newRotator.roll = 0
     transformComponent:SetRotator(newRotator)
+
+    -- local cameraObj = self.owner:getChildren("Camera")
+    -- if cameraObj then
+    --     local cameraRotator = GuGu.math.Rotator.new()
+    --     cameraRotator.pitch = self.pitch
+    --     cameraRotator.yaw = 0
+    --     cameraRotator.roll = 0
+    --     local cameraTrans = cameraObj:getComponent("GuGu::TransformComponent")
+    --     if cameraTrans then
+    --         --print("cameraTrans")
+    --         print("new pitch:"..tostring(self.pitch))
+    --         cameraTrans:SetRotator(cameraRotator)
+    --     end
+    -- end
 end
 
 --【核心函数】更新移动（基于朝向）
