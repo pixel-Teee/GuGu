@@ -149,7 +149,8 @@ function Character:updateMovement(inputManager, deltaTime)
     
     -- 应用重力
     if not self.isOnGround then
-        self.verticalVelocity = self.verticalVelocity + self.gravity * deltaTime
+        self.verticalVelocity = self.verticalVelocity + self.gravity
+        print("verticalVelocity"..tostring(self.verticalVelocity))
     end
     moveInput.y = self.verticalVelocity * deltaTime
     
@@ -223,7 +224,7 @@ function Character:updateGroundDetection()
                 newPos.x = rayStart.x
                 newPos.y = hitResult.m_hitPosition.y + 0.5
                 newPos.z = rayStart.z
-                print("hit position:"..tostring(hitResult.m_hitPosition.y))
+                --print("hit position:"..tostring(hitResult.m_hitPosition.y))
                 transformComponent:SetTranslation(newPos)
             else
                 self.isOnGround = false

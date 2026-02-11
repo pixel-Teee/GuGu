@@ -335,7 +335,7 @@ namespace GuGu {
 							textureHeight / 4,
 							m_heightChannelData.data(),
 							heightScale,
-							minHeight / 255.0f,
+							(-maxHeight) / 255.0f,
 							maxHeight / 255.0f,
 							1,
 							PHY_UCHAR,
