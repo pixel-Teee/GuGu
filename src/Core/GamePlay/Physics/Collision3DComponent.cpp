@@ -195,7 +195,8 @@ namespace GuGu {
 
 	Collision3DComponent::~Collision3DComponent()
 	{
-
+		//remove from physics world
+		this->removeRigidBodyFromPhysics();
 	}
 
 	meta::Object* Collision3DComponent::Clone(void) const

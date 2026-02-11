@@ -411,7 +411,8 @@ namespace GuGu {
 			else
 			{
 				auto findIt = std::find(m_rootTreeItems.begin(), m_rootTreeItems.end(), inItem);
-				m_rootTreeItems.erase(findIt);
+				if(findIt != m_rootTreeItems.end())
+					m_rootTreeItems.erase(findIt);
 			}
 
 			parent = ensureParentForItem(inItem);
@@ -463,7 +464,8 @@ namespace GuGu {
 
 			if (m_treeItemMap.find(itemId) != m_treeItemMap.end())
 			{
-				GuGu_LOGE("tree item error");
+				GuGu_LOGD("already add parent to trees");
+				return;
 			}
 
 			m_treeItemMap.insert({itemId, item});

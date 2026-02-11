@@ -338,6 +338,24 @@ namespace GuGu {
 		//}
 	}
 
+	void GameObject::deleteChildren(std::shared_ptr<GameObject> children)
+	{
+		int32_t pos = -1;
+		for (int32_t i = 0; i < m_childrens.size(); ++i)
+		{
+			if (m_childrens[i] == children)
+			{
+				pos = i;
+				break;
+			}
+		}
+		if (pos != -1)
+		{
+			m_childrens.erase(m_childrens.begin() + pos);
+			children->setParentGameObject(std::shared_ptr<GameObject>());
+		}
+	}
+
 	void GameObject::insertChildren(std::shared_ptr<GameObject> children, int32_t index)
 	{
 		m_childrens.insert(m_childrens.begin() + index, children);

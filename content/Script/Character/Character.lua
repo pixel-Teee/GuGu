@@ -7,7 +7,7 @@ function Character:init(owner)
 
     self.verticalVelocity = 0.0  -- 垂直速度，用于跳跃和重力
     self.gravity = -9.8 * 2.0    -- 重力加速度 (可调节强度)
-    self.jumpForce = 5.0         -- 跳跃力量
+    self.jumpForce = 15.0         -- 跳跃力量
     self.moveSpeed = 3.0         -- 移动速度
 
     -- 视角旋转 (欧拉角，单位：弧度)
@@ -149,8 +149,8 @@ function Character:updateMovement(inputManager, deltaTime)
     
     -- 应用重力
     if not self.isOnGround then
-        self.verticalVelocity = self.verticalVelocity + self.gravity
-        print("verticalVelocity"..tostring(self.verticalVelocity))
+        self.verticalVelocity = self.verticalVelocity + self.gravity * deltaTime
+        --print("verticalVelocity"..tostring(self.verticalVelocity))
     end
     moveInput.y = self.verticalVelocity * deltaTime
     
@@ -215,9 +215,9 @@ function Character:updateGroundDetection()
     if collision3DComponent then
         local hitResult = GuGu.Collision3DComponent.rayTest(rayStart, rayEnd)
         if hitResult.m_bHaveResult then
-            local distanceToGround = rayStart.y - hitResult.m_hitPosition.y
-            -- 如果距离地面很近，则认为在地面上
-            if distanceToGround < 1.5 and distanceToGround > 0.2 then
+            local distanceToGround = rayStart.y - 0.5 - hitResult.m_hitPosition.y
+            if distanceToGround < 0.3 then
+                -- 如果距离地面很近，则认为在地面上
                 self.isOnGround = true
                 self.verticalVelocity = math.max(self.verticalVelocity, 0) -- 重置下落速度
                 local newPos = GuGu.math.double3.new()

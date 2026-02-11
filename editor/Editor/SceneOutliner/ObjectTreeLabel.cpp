@@ -507,6 +507,7 @@ namespace GuGu {
 								{
 									transactionManager.modifyObject(currentLevel);
 									transactionManager.modifyObject(droppedGameObject);
+									droppedGameObject->setParentGameObject(std::weak_ptr<GameObject>());//break link
 									currentLevel->insertChildren(droppedGameObject, index);
 								}
 								else
@@ -564,6 +565,7 @@ namespace GuGu {
 								{
 									transactionManager.modifyObject(currentLevel);
 									transactionManager.modifyObject(droppedGameObject);
+									droppedGameObject->setParentGameObject(std::weak_ptr<GameObject>());//break link
 									currentLevel->insertChildren(droppedGameObject, index + 1);
 								}
 								else
@@ -597,9 +599,14 @@ namespace GuGu {
 
 		void ObjectTreeLabel::deleteGameObjectsAndItsChildrens(std::shared_ptr<GameObject> inGameObject, TransactionManager& inTransactionManager)
 		{
-			inGameObject->setParentGameObject(std::shared_ptr<GameObject>());
+			//from parent to delete this game object
+			std::shared_ptr<GameObject> parentGameObject = inGameObject->getParentGameObject().lock();
+			if (parentGameObject)
+			{
+				parentGameObject->deleteChildren(inGameObject);
+			}
 			auto& childrens = inGameObject->getChildrens();
-			for (size_t i = 0; i < childrens.size(); ++i)
+			for (int32_t i = childrens.size() - 1; i >= 0; --i)
 			{
 				//childrens[i]->setParentGameObject(std::shared_ptr<GameObject>());
 				deleteGameObjectsAndItsChildrens(childrens[i], inTransactionManager);
