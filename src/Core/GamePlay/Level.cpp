@@ -200,7 +200,14 @@ namespace GuGu {
 				}
 			}
 			if (foundPos != -1)
+			{
+				std::shared_ptr<Collision3DComponent> collision3DComponent = inGameObject->getComponent<Collision3DComponent>();
+				if (collision3DComponent)
+				{
+					collision3DComponent->removeRigidBodyFromPhysics();
+				}
 				m_objects.erase(m_objects.begin() + foundPos);
+			}
 
 			//refresh
 			if (!World::getWorld()->m_onObjectRemoved.empty())
