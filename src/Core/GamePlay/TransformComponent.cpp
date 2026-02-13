@@ -82,6 +82,9 @@ namespace GuGu {
 
 		math::double3&(TransformComponent::*getTranslation)() = &TransformComponent::getTranslation;
 		type.AddMethod("getTranslation", getTranslation, {});
+
+		math::double3 (TransformComponent::*getGlobalTranslation)() const = &TransformComponent::getGlobalTranslation;
+		type.AddMethod("getGlobalTranslation", getGlobalTranslation, {});
 		return true;
 	}
 
@@ -138,7 +141,7 @@ namespace GuGu {
 			{
 				std::shared_ptr<TransformComponent> parentTransformComponent =
 					parentGameObject->getComponent<TransformComponent>();
-				m_GlobalTransform = parentTransformComponent->GetLocalToWorldTransform() * m_LocalTransform;
+				m_GlobalTransform = m_LocalTransform * parentTransformComponent->GetLocalToWorldTransform();
 			}
 			else
 			{
@@ -175,6 +178,31 @@ namespace GuGu {
 	void TransformComponent::SetTranslation(math::double3 translation)
 	{
 		SetTransform(&translation, nullptr, nullptr);
+	}
+
+	math::double3 TransformComponent::getGlobalTranslation() const
+	{
+		std::shared_ptr<GameObject> owner = m_owner.lock();
+		if (owner != nullptr)
+		{
+			std::shared_ptr<GameObject> parentGameObject = owner->getParentGameObject().lock();
+
+			if (parentGameObject != nullptr)
+			{
+				std::shared_ptr<TransformComponent> parentTransformComponent =
+					parentGameObject->getComponent<TransformComponent>();
+				//return global trans
+				return parentTransformComponent->GetLocalToWorldTransform().transformPoint(m_Translation);
+			}
+			else
+			{
+				return m_Translation;
+			}
+		}
+		else
+		{
+			return m_Translation;
+		}
 	}
 
 	math::double3 TransformComponent::getTranslation() const

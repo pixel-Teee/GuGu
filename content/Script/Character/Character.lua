@@ -100,10 +100,24 @@ function Character:updateView(inputManager, deltaTime)
     pivotXTransformComponent:SetRotator(newRotator2)
 
     local cameraTransform = self.camera:getComponent("GuGu::TransformComponent")
+    local originalTrans = cameraTransform:getTranslation()
     local cameraNewPos = GuGu.math.double3.new()
-    cameraNewPos.x = 0
-    cameraNewPos.y = 0.5
+    cameraNewPos.x = originalTrans.x
+    cameraNewPos.y = originalTrans.y
     cameraNewPos.z = -self.distance
+    local collision3DComponent = self.camera:getComponent("GuGu::Collision3DComponent")
+    local rayStart = cameraTransform:getGlobalTranslation()
+    local rayEnd = GuGu.math.double3.new()
+    rayEnd.x = rayStart.x
+    rayEnd.y = rayStart.y + 10
+    rayEnd.z = rayStart.z
+    if collision3DComponent then
+        local hitResult = GuGu.Collision3DComponent.rayTest(rayStart, rayEnd)
+        if hitResult.m_bHaveResult then
+            print("camera hit terrain"..tostring(hitResult.m_hitPosition.y))
+            cameraNewPos.y = hitResult.m_hitPosition.y + 0.5
+        end
+    end
     cameraTransform:SetTranslation(cameraNewPos)
 end
 

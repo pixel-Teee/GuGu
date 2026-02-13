@@ -36,6 +36,9 @@ namespace GuGu {
 		void SetRotator(math::Rotator inRotator);
 		void SetTranslation(math::double3 translation);
 
+		//get global translation
+		math::double3 getGlobalTranslation() const;
+
 		math::double3 getTranslation() const;
 		math::double3& getTranslation();
 		math::dquat getRotationQuat() const;
