@@ -81,6 +81,8 @@ namespace GuGu {
 		//method functions
 		type.AddMethod("setName", &GameObject::setName, {});
 
+		type.AddMethod("getName", &GameObject::getName, {});
+
 		std::shared_ptr<Component>(GameObject::*getComponentPtr)(const GuGuUtf8Str& componentTypeName) = &GameObject::getComponent; //non const
 		type.AddMethod("getComponent", getComponentPtr, {});
 
@@ -98,6 +100,9 @@ namespace GuGu {
 		type.AddMethod("addComponentFromName", &GameObject::addComponentFromName, {});
 
 		type.AddMethod("clearChildrens", &GameObject::clearChildrens, {});
+
+		std::weak_ptr<GameObject>&(GameObject:: * getParentGameObjectPtr)() = &GameObject::getParentGameObject; //non const
+		type.AddMethod("getParentGameObject", getParentGameObjectPtr, {});
 
 		return true;
 	}

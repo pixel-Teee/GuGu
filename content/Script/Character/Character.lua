@@ -27,11 +27,15 @@ function Character:init(owner)
 
     self.bLocked = true
 
-    -- local transformComponent = self.owner:getComponent("GuGu::TransformComponent")
-    -- local trans = transformComponent:getTranslation()
-    -- self.groundHeight = trans.y + 0.5
+    --camera parameter
+    self.distance = 2.5
+    self.maxDistance = 15.0
+    self.minDistance = 3.0
+    self.zoomSpeed = 2.0
 
-    self:updateVectors()
+    self.player = self.owner:getParentGameObject()
+    self.pitchPivot = self.owner:getChildren("PivotX")
+    self.camera = self.pitchPivot:getChildren("MainCamera")
 end
 
 function Character:normalize3D(x, y, z)
@@ -40,9 +44,8 @@ function Character:normalize3D(x, y, z)
     return {x = x / length, y = y / length, z = z / length}
 end
 
---【核心函数】根据yaw和pitch更新前向和右向向量
+--根据yaw和pitch更新前向和右向向量
 function Character:updateVectors()
-
     -- 计算前向向量 (基于球面坐标)
     self.forward.x = math.sin(self.yaw * math.pi / 180.0) * math.cos(self.pitch * math.pi / 180.0)
     self.forward.y = -math.sin(self.pitch * math.pi / 180.0)
@@ -61,24 +64,14 @@ function Character:updateVectors()
     self.right.x = horizontalForward.z  -- 注意叉积顺序
     self.right.y = 0
     self.right.z = -horizontalForward.x
-
-    --print("forward x"..tostring(self.forward.x).."forward y"..tostring(self.forward.y).."forward z"..tostring(self.forward.z))
-    --self.right = self:normalize3D(self.right.x, self.right.y, self.right.z)
-    
-    -- 可选：也可以在这里计算真正的上向量，用于复杂摄像机
 end
 
---【核心函数】处理鼠标输入，更新视角
+--处理鼠标输入，更新视角
 function Character:updateView(inputManager, deltaTime)
-    -- 获取鼠标位移（假设inputManager能提供）
-    -- 注意：这里需要你的输入系统支持获取鼠标增量
     local mouseDelta = inputManager:getMouseDelta()
  
     -- 鼠标灵敏度
     local sensitivity = 0.4
-
-    --print("mouseDelta x"..tostring(mouseDelta.x).."mouseDelta y"..tostring(mouseDelta.y))
-    
     -- 更新旋转角度
     self.yaw = self.yaw + mouseDelta.x * sensitivity  -- 注意符号根据你的坐标系调整
     self.pitch = self.pitch + mouseDelta.y* sensitivity
@@ -89,37 +82,29 @@ function Character:updateView(inputManager, deltaTime)
     elseif self.pitch < -self.maxPitch then
         self.pitch = -self.maxPitch
     end
-
-    --print("yaw"..tostring(self.yaw).."pitch"..tostring(self.pitch))
-    
     -- 更新朝向向量
     self:updateVectors()
-    
-    -- 【关键】将旋转应用到角色的变换组件（如果是第一人称，通常只旋转摄像机或角色模型）
-    -- 这里我们更新角色的整体朝向（如果角色模型和摄像机是一体的）
+    --pivot y
     local transformComponent = self.owner:getComponent("GuGu::TransformComponent")
-    -- 将四元数旋转应用到变换组件（你需要根据引擎API调整）
-    -- 例如：transformComponent:setRotation(从yaw和pitch创建的四元数)
-    -- local rotationQuat = self:getQuaternionFromYawPitch(self.yaw, self.pitch)
     local newRotator = GuGu.math.Rotator.new()
-    newRotator.pitch = self.pitch
+    newRotator.pitch = 0
     newRotator.yaw = self.yaw --绕y轴旋转
     newRotator.roll = 0
     transformComponent:SetRotator(newRotator)
+    --pivot x
+    local pivotXTransformComponent = self.pitchPivot:getComponent("GuGu::TransformComponent")
+    local newRotator2 = GuGu.math.Rotator.new()
+    newRotator2.pitch = self.pitch --绕x轴旋转
+    newRotator2.yaw = 0
+    newRotator2.roll = 0
+    pivotXTransformComponent:SetRotator(newRotator2)
 
-    -- local cameraObj = self.owner:getChildren("Camera")
-    -- if cameraObj then
-    --     local cameraRotator = GuGu.math.Rotator.new()
-    --     cameraRotator.pitch = self.pitch
-    --     cameraRotator.yaw = 0
-    --     cameraRotator.roll = 0
-    --     local cameraTrans = cameraObj:getComponent("GuGu::TransformComponent")
-    --     if cameraTrans then
-    --         --print("cameraTrans")
-    --         print("new pitch:"..tostring(self.pitch))
-    --         cameraTrans:SetRotator(cameraRotator)
-    --     end
-    -- end
+    local cameraTransform = self.camera:getComponent("GuGu::TransformComponent")
+    local cameraNewPos = GuGu.math.double3.new()
+    cameraNewPos.x = 0
+    cameraNewPos.y = 0.5
+    cameraNewPos.z = -self.distance
+    cameraTransform:SetTranslation(cameraNewPos)
 end
 
 --【核心函数】更新移动（基于朝向）
@@ -169,7 +154,7 @@ function Character:updateMovement(inputManager, deltaTime)
     moveInput.y = self.verticalVelocity * deltaTime
     
     -- 获取当前角色位置
-    local transformComponent = self.owner:getComponent("GuGu::TransformComponent")
+    local transformComponent = self.player:getComponent("GuGu::TransformComponent")
     local currentPos = transformComponent:getTranslation()
     
     -- 计算新位置
@@ -195,13 +180,13 @@ function Character:update(delta)
      -- 3. 更新移动（处理键盘）
      self:updateMovement(inputManager, delta) 
 
-    local collision3DComponent = self.owner:getComponent("GuGu::Collision3DComponent")
+    local collision3DComponent = self.player:getComponent("GuGu::Collision3DComponent")
     collision3DComponent:syncToPhysics()
 end
 
 -- 改进的地面检测（用于更新isOnGround状态）
 function Character:updateGroundDetection()
-    local transformComponent = self.owner:getComponent("GuGu::TransformComponent")
+    local transformComponent = self.player:getComponent("GuGu::TransformComponent")
     local rayStart = transformComponent:getTranslation()
     
     -- 射线向下发射，长度略大于角色到地面的距离
@@ -225,7 +210,7 @@ function Character:updateGroundDetection()
     --draw ray
     GuGu.DebugDraw.drawRay(copyedRayStart, copyedRayEnd, color)
     
-    local collision3DComponent = self.owner:getComponent("GuGu::Collision3DComponent")
+    local collision3DComponent = self.player:getComponent("GuGu::Collision3DComponent")
     if collision3DComponent then
         local hitResult = GuGu.Collision3DComponent.rayTest(rayStart, rayEnd)
         if hitResult.m_bHaveResult then

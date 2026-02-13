@@ -104,6 +104,7 @@ namespace GuGu {
 			const meta::Type::Set& baseclasses = type.GetBaseClasses();
 			bool isMetaObjectPtr = baseclasses.find(typeof(meta::Object)) != baseclasses.end();
 			isMetaObjectPtr |= type.IsSharedPtr();//todo:fix this
+			isMetaObjectPtr |= type.IsWeakPtr();
 			if (type == typeof(int))
 				lua_pushnumber(L, value.ToDouble());
 			else if (type == typeof(unsigned int))
@@ -288,6 +289,11 @@ namespace GuGu {
 			std::shared_ptr<meta::Object> metaObject = *static_cast<std::shared_ptr<meta::Object>*>(instance.getBase()->GetPtr());
 			instance = ObjectVariant(metaObject.get());
 		}
+		else if (instance.GetType().IsWeakPtr())
+		{
+			std::weak_ptr<meta::Object> metaObject = *static_cast<std::shared_ptr<meta::Object>*>(instance.getBase()->GetPtr());
+			instance = ObjectVariant(metaObject.lock().get());
+		}
 
 		if (instance.IsValid() == false)
 		{
@@ -345,6 +351,11 @@ namespace GuGu {
 		{
 			std::shared_ptr<meta::Object> metaObject = *static_cast<std::shared_ptr<meta::Object>*>(instance.getBase()->GetPtr());
 			instance = ObjectVariant(metaObject.get());
+		}
+		else if(instance.GetType().IsWeakPtr())
+		{
+			std::weak_ptr<meta::Object> metaObject = *static_cast<std::shared_ptr<meta::Object>*>(instance.getBase()->GetPtr());
+			instance = ObjectVariant(metaObject.lock().get());
 		}
 
 		if (instance.IsValid() == false)
