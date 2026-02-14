@@ -566,8 +566,8 @@ namespace GuGu {
 			std::shared_ptr<TransformComponent> trans = ownerGameObj->getComponent<TransformComponent>();
 			if (trans)
 			{
-				translation = trans->getTranslation();
-				rot = trans->getRotationQuat();
+				translation = trans->getGlobalTranslation();
+				rot = trans->getRotationQuat();//TODO:FIX THIS, use global rotation
 			}
 		}
 		
