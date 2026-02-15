@@ -428,13 +428,13 @@ namespace GuGu {
 				float z = inQuat.z;
 				float w = inQuat.w;
 
-				float yaw = std::atan2(2.0 * (w * z + x * y), 1.0 - 2.0 * (y * y + z * z));
-				float pitch = std::asin(2.0 * (w * y - x * z));
-				float roll = std::atan2(2.0 * (w * x + y * z), 1.0 - 2.0 * (x * x + y * y));
+				float roll = std::atan2(2.0 * (w * z + x * y), 1.0 - 2.0 * (y * y + z * z));
+				float yaw = std::asin(2.0 * (w * y - x * z));
+				float pitch = std::atan2(2.0 * (w * x + y * z), 1.0 - 2.0 * (x * x + y * y));
 
 				T toDegree = 180.0 / math::PI_d;
 				//pitch, yaw, roll
-				return math::vector<T, 3>(roll * toDegree, pitch * toDegree, yaw * toDegree);
+				return math::vector<T, 3>(pitch * toDegree, yaw * toDegree, roll * toDegree);
 			}
 
 			template<typename T>

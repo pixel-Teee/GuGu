@@ -205,6 +205,39 @@ namespace GuGu {
 		}
 	}
 
+	math::Rotator TransformComponent::getGlobalRotator() const
+	{
+		std::shared_ptr<GameObject> owner = m_owner.lock();
+		if (owner != nullptr)
+		{
+			std::shared_ptr<GameObject> parentGameObject = owner->getParentGameObject().lock();
+
+			if (parentGameObject != nullptr)
+			{
+				std::shared_ptr<TransformComponent> parentTransformComponent =
+					parentGameObject->getComponent<TransformComponent>();
+				//return global trans
+				math::daffine3 localRotation = math::rotationQuat(m_Rotation.getRadians()).toAffine();
+				math::daffine3 globalRotation = localRotation * parentTransformComponent->GetLocalToWorldTransform();
+				//to rotator
+				math::double3 tempTrans;
+				math::dquat tempRotation;
+				math::double3 tempScaling;
+				math::decomposeAffine(globalRotation, &tempTrans, &tempRotation, &tempScaling);
+				return math::quatToEuler(tempRotation);
+
+			}
+			else
+			{
+				return m_Rotation;
+			}
+		}
+		else
+		{
+			return m_Rotation;
+		}
+	}
+
 	math::double3 TransformComponent::getTranslation() const
 	{
 		return m_Translation;

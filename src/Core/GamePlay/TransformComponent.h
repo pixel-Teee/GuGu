@@ -38,6 +38,7 @@ namespace GuGu {
 
 		//get global translation
 		math::double3 getGlobalTranslation() const;
+		math::Rotator getGlobalRotator() const;
 
 		math::double3 getTranslation() const;
 		math::double3& getTranslation();

@@ -567,7 +567,7 @@ namespace GuGu {
 			if (trans)
 			{
 				translation = trans->getGlobalTranslation();
-				rot = trans->getRotationQuat();//TODO:FIX THIS, use global rotation
+				rot = math::rotationQuat(trans->getGlobalRotator().getRadians());
 			}
 		}
 		
