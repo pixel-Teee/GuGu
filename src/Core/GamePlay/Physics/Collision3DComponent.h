@@ -72,6 +72,8 @@ namespace GuGu {
 		void setGameObjectRef(const std::shared_ptr<GameObjectLevelRef>& inGameObjectRef);
 		std::shared_ptr<GameObjectLevelRef>& getGameObjectRef();
 
+		virtual void OnDelete() override;
+
 		//检测性函数
 		static CollisionResult rayTest(math::double3 rayStart, math::double3 rayEnd);
 

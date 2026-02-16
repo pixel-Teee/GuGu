@@ -30,5 +30,8 @@ namespace GuGu {
 		void setParentGameObject(const std::weak_ptr<GameObject>& inGameObject);
 
 		std::weak_ptr<GameObject> m_owner;//parent
+
+		//delete component
+		virtual void OnDelete() {}
 	};
 }

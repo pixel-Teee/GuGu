@@ -255,6 +255,7 @@ namespace GuGu {
 		}
 		if (foundPos != -1)
 		{
+			m_components[foundPos]->OnDelete();
 			//delete
 			m_components.erase(m_components.begin() + foundPos);
 		}

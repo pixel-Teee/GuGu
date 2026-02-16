@@ -908,6 +908,11 @@ namespace GuGu {
 			{
 				m_bShowGizmos = true;
 				m_pickedGameObject = pickedItem;
+
+				//trigger callback
+				std::vector<GameObject*> gameObjs;
+				gameObjs.push_back(m_pickedGameObject.get());
+				broadcastGameObjectSelectionChanged(gameObjs, true);
 			}
 			else if(!m_bdragging)
 			{

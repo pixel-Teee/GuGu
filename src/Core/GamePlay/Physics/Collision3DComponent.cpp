@@ -635,6 +635,11 @@ namespace GuGu {
 		return m_gameObjectRef;
 	}
 
+	void Collision3DComponent::OnDelete()
+	{
+		this->removeRigidBodyFromPhysics();
+	}
+
 	CollisionResult Collision3DComponent::rayTest(math::double3 rayStart, math::double3 rayEnd)
 	{
 		btVector3 rayStartBt(rayStart.x, rayStart.y, rayStart.z);
