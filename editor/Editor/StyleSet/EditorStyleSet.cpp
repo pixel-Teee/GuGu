@@ -365,25 +365,65 @@ namespace GuGu {
 			m_styles.insert({ u8"SceneOutliner.header", headerRowStyle });
 		}
 
-		//undo/redo
-		ADD_IMAGE(Undo_Normal)
-		ADD_IMAGE(Undo_Hover)
-		ADD_IMAGE(Undo_Pressed)
-		ADD_IMAGE(Redo_Normal)
-		ADD_IMAGE(Redo_Hover)
-		ADD_IMAGE(Redo_Pressed)
-		std::shared_ptr<ButtonStyle> undoButton = std::make_shared<ButtonStyle>();
-		undoButton->setNormal(Undo_Normal);
-		undoButton->setHovered(Undo_Hover);
-		undoButton->setPressed(Undo_Pressed);
-		undoButton->setDisabled(noResource);
-		m_styles.insert({ u8"undoButton", undoButton });
-		std::shared_ptr<ButtonStyle> redoButton = std::make_shared<ButtonStyle>();
-		redoButton->setNormal(Redo_Normal);
-		redoButton->setHovered(Redo_Hover);
-		redoButton->setPressed(Redo_Pressed);
-		redoButton->setDisabled(noResource);
-		m_styles.insert({ u8"redoButton", redoButton });
+		{
+			//undo
+			std::shared_ptr<Brush> undoNormal = std::make_shared<Brush>();
+			undoNormal->m_tiling = false;
+			undoNormal->m_texturePath = u8"asset/EditorAsset/undo.png";
+			undoNormal->m_tintColorStr = Theme::ThemeKeysToStr(ColorLevel1);
+			undoNormal->m_drawAs = BrushDrawType::Type::Image;
+			m_brushes.insert({ u8"undoNormal", undoNormal });
+
+			std::shared_ptr<Brush> undoHover = std::make_shared<Brush>();
+			undoHover->m_tiling = false;
+			undoHover->m_texturePath = u8"asset/EditorAsset/undo.png";
+			undoHover->m_tintColorStr = Theme::ThemeKeysToStr(ColorLevel3);
+			undoHover->m_drawAs = BrushDrawType::Type::Image;
+			m_brushes.insert({ u8"undoHover", undoHover });
+
+			std::shared_ptr<Brush> undoPressed = std::make_shared<Brush>();
+			undoPressed->m_tiling = false;
+			undoPressed->m_texturePath = u8"asset/EditorAsset/undo.png";
+			undoPressed->m_tintColorStr = Theme::ThemeKeysToStr(ColorLevel6);
+			undoPressed->m_drawAs = BrushDrawType::Type::Image;
+			m_brushes.insert({ u8"undoPressed", undoPressed });
+
+			//redo
+			std::shared_ptr<Brush> redoNormal = std::make_shared<Brush>();
+			redoNormal->m_tiling = false;
+			redoNormal->m_texturePath = u8"asset/EditorAsset/redo.png";
+			redoNormal->m_tintColorStr = Theme::ThemeKeysToStr(ColorLevel1);
+			redoNormal->m_drawAs = BrushDrawType::Type::Image;
+			m_brushes.insert({ u8"redoNormal", redoNormal });
+
+			std::shared_ptr<Brush> redoHover = std::make_shared<Brush>();
+			redoHover->m_tiling = false;
+			redoHover->m_texturePath = u8"asset/EditorAsset/redo.png";
+			redoHover->m_tintColorStr = Theme::ThemeKeysToStr(ColorLevel3);
+			redoHover->m_drawAs = BrushDrawType::Type::Image;
+			m_brushes.insert({ u8"redoHover", redoHover });
+
+			std::shared_ptr<Brush> redoPressed = std::make_shared<Brush>();
+			redoPressed->m_tiling = false;
+			redoPressed->m_texturePath = u8"asset/EditorAsset/redo.png";
+			redoPressed->m_tintColorStr = Theme::ThemeKeysToStr(ColorLevel6);
+			redoPressed->m_drawAs = BrushDrawType::Type::Image;
+			m_brushes.insert({ u8"redoPressed", redoPressed });
+
+			std::shared_ptr<ButtonStyle> undoButton = std::make_shared<ButtonStyle>();
+			undoButton->setNormal(undoNormal);
+			undoButton->setHovered(undoHover);
+			undoButton->setPressed(undoPressed);
+			undoButton->setDisabled(noResource);
+			m_styles.insert({ u8"undoButton", undoButton });
+
+			std::shared_ptr<ButtonStyle> redoButton = std::make_shared<ButtonStyle>();
+			redoButton->setNormal(redoNormal);
+			redoButton->setHovered(redoHover);
+			redoButton->setPressed(redoPressed);
+			redoButton->setDisabled(noResource);
+			m_styles.insert({ u8"redoButton", redoButton });
+		}
 
 		//brush
 		{
