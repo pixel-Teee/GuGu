@@ -2665,7 +2665,7 @@ namespace GuGu {
 			psoDesc.bindingLayouts = { m_BindingLayout }; //constant buffer 这些
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
 			psoDesc.renderState.depthStencilState.depthTestEnable = true;
-			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
+			//psoDesc.renderState.rasterState.frontCounterClockwise = true;
 			m_Pipeline = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
 
