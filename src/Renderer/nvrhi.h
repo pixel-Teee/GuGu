@@ -853,7 +853,7 @@ namespace GuGu{
         {
             RasterFillMode fillMode = RasterFillMode::Solid;
             RasterCullMode cullMode = RasterCullMode::Back;
-            bool frontCounterClockwise = false;
+            bool frontCounterClockwise = true;
             bool depthClipEnable = false;
             bool scissorEnable = false;
             bool multisampleEnable = false;

@@ -474,50 +474,52 @@ namespace GuGu {
 		box.m_tangentData.push_back(math::float3(0.0f, 0.0f, 1.0f));
 		box.m_texCoord1Data.push_back(math::float2(1.0f, 1.0f));
 
+		//CCW
+
 		//indices
 		box.m_indexData.resize(36);
 		//front
 		box.m_indexData[0] = 0;
-		box.m_indexData[1] = 1;
-		box.m_indexData[2] = 2;
+		box.m_indexData[1] = 2;
+		box.m_indexData[2] = 1;
 		box.m_indexData[3] = 0;
-		box.m_indexData[4] = 2;
-		box.m_indexData[5] = 3;
+		box.m_indexData[4] = 3;
+		box.m_indexData[5] = 2;
 		//back
 		box.m_indexData[6] = 4;
-		box.m_indexData[7] = 5;
-		box.m_indexData[8] = 6;
+		box.m_indexData[7] = 6;
+		box.m_indexData[8] = 5;
 		box.m_indexData[9] = 4;
-		box.m_indexData[10] = 6;
-		box.m_indexData[11] = 7;
+		box.m_indexData[10] = 7;
+		box.m_indexData[11] = 6;
 		//top
 		box.m_indexData[12] = 8;
-		box.m_indexData[13] = 9;
-		box.m_indexData[14] = 10;
+		box.m_indexData[13] = 10;
+		box.m_indexData[14] = 9;
 		box.m_indexData[15] = 8;
-		box.m_indexData[16] = 10;
-		box.m_indexData[17] = 11;
+		box.m_indexData[16] = 11;
+		box.m_indexData[17] = 10;
 		//bottom
 		box.m_indexData[18] = 12;
-		box.m_indexData[19] = 13;
-		box.m_indexData[20] = 14;
+		box.m_indexData[19] = 14;
+		box.m_indexData[20] = 13;
 		box.m_indexData[21] = 12;
-		box.m_indexData[22] = 14;
-		box.m_indexData[23] = 15;
+		box.m_indexData[22] = 15;
+		box.m_indexData[23] = 14;
 		//left
 		box.m_indexData[24] = 16;
-		box.m_indexData[25] = 17;
-		box.m_indexData[26] = 18;
+		box.m_indexData[25] = 18;
+		box.m_indexData[26] = 17;
 		box.m_indexData[27] = 16;
-		box.m_indexData[28] = 18;
-		box.m_indexData[29] = 19;
+		box.m_indexData[28] = 19;
+		box.m_indexData[29] = 18;
 		//right
 		box.m_indexData[30] = 20;
-		box.m_indexData[31] = 21;
-		box.m_indexData[32] = 22;
+		box.m_indexData[31] = 22;
+		box.m_indexData[32] = 21;
 		box.m_indexData[33] = 20;
-		box.m_indexData[34] = 22;
-		box.m_indexData[35] = 23;
+		box.m_indexData[34] = 23;
+		box.m_indexData[35] = 22;
 
 		//细分次数
 		numSubdivisions = std::min<uint32_t>(numSubdivisions, 6u);

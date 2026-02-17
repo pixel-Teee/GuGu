@@ -1833,7 +1833,7 @@ namespace GuGu {
 			psoDesc.inputLayout = m_skyBoxInputLayout; //顶点属性
 			psoDesc.bindingLayouts = { m_skyBoxBindingLayout }; //constant buffer 这些
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
-			psoDesc.renderState.rasterState.frontCounterClockwise = true;
+			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::Front;
 			psoDesc.renderState.depthStencilState.depthTestEnable = true;
 			psoDesc.renderState.depthStencilState.depthWriteEnable = false;
 			psoDesc.renderState.depthStencilState.depthFunc = nvrhi::ComparisonFunc::LessOrEqual;
@@ -2865,7 +2865,7 @@ namespace GuGu {
 			psoDesc.inputLayout = m_skyBoxInputLayout; //顶点属性
 			psoDesc.bindingLayouts = { m_skyBoxBindingLayout }; //constant buffer 这些
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
-			psoDesc.renderState.rasterState.frontCounterClockwise = true;
+			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::Front;
 			psoDesc.renderState.depthStencilState.depthTestEnable = true;
 			psoDesc.renderState.depthStencilState.depthWriteEnable = false;
 			psoDesc.renderState.depthStencilState.depthFunc = nvrhi::ComparisonFunc::LessOrEqual;

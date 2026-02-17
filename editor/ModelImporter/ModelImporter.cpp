@@ -47,7 +47,7 @@ namespace GuGu {
 		//从文件的实际路径去加载模型
 		Assimp::Importer import;
 		
-		const aiScene* scene = import.ReadFile(modelPhysicalFilePath.getStr(), aiProcess_Triangulate | aiProcess_FlipUVs);
+		const aiScene* scene = import.ReadFile(modelPhysicalFilePath.getStr(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_MakeLeftHanded);
 
 		//加载模型去转换成游戏引擎的格式(json)
 		if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
@@ -110,7 +110,7 @@ namespace GuGu {
 		//从文件的实际路径去加载模型
 		Assimp::Importer import;
 
-		const aiScene * scene = import.ReadFile(animationFilePath.getStr(), aiProcess_Triangulate | aiProcess_FlipUVs);
+		const aiScene * scene = import.ReadFile(animationFilePath.getStr(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_MakeLeftHanded);
 
 		//获取动画
 		auto animation = scene->mAnimations[0];

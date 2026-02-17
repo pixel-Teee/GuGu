@@ -180,121 +180,125 @@ namespace GuGu {
 
 	void EditorViewportClient::update(float fElapsedTimeSecond)
 	{
-		move(fElapsedTimeSecond);
-		rotate(fElapsedTimeSecond);
-		zoom(fElapsedTimeSecond);
-		if (m_isInTerrainEditor)
+		//check switch
+		if (getViewportState() == ViewportState::Editor)
 		{
-			m_paintVegeCoolDownTime = m_paintVegeCoolDownTime + fElapsedTimeSecond;
-			terrain();
-		}
-		else
-		{
-			gizmos(fElapsedTimeSecond);
-		}
-		
-		focus(fElapsedTimeSecond);
-
-		//save level
-		if (InputManager::getInputManager().isKeyDown(Keys::S) && InputManager::getInputManager().isKeyDown(Keys::LeftControl)) //save level
-		{
-			InputManager::getInputManager().updateKeyboard(Keys::S, false);//立马释放掉
-			GuGuUtf8Str ouputDir = "content";
-			GuGuUtf8Str initDir = "";
-			std::vector<GuGuUtf8Str> filterArray;
-			filterArray.push_back("JSON(*.json)\0");
-			filterArray.push_back("*.json\0");
-			//initDir = sourcesData.substr(initDir.findFirstOf("/"));
-			initDir = AssetManager::getAssetManager().getActualPhysicalPath(initDir);
-			GuGuUtf8Str fileName;
-			GuGuUtf8Str filePath;
-
-			std::shared_ptr<WindowWidget> rootWindow;
-			std::shared_ptr<Widget> widget = m_viewportWidget.lock()->getParentWidget();
-			while (widget)
+			move(fElapsedTimeSecond);
+			rotate(fElapsedTimeSecond);
+			zoom(fElapsedTimeSecond);
+			if (m_isInTerrainEditor)
 			{
-				if (widget->getParentWidget() == nullptr)
+				m_paintVegeCoolDownTime = m_paintVegeCoolDownTime + fElapsedTimeSecond;
+				terrain();
+			}
+			else
+			{
+				gizmos(fElapsedTimeSecond);
+			}
+
+			focus(fElapsedTimeSecond);
+
+			//save level
+			if (InputManager::getInputManager().isKeyDown(Keys::S) && InputManager::getInputManager().isKeyDown(Keys::LeftControl)) //save level
+			{
+				InputManager::getInputManager().updateKeyboard(Keys::S, false);//立马释放掉
+				GuGuUtf8Str ouputDir = "content";
+				GuGuUtf8Str initDir = "";
+				std::vector<GuGuUtf8Str> filterArray;
+				filterArray.push_back("JSON(*.json)\0");
+				filterArray.push_back("*.json\0");
+				//initDir = sourcesData.substr(initDir.findFirstOf("/"));
+				initDir = AssetManager::getAssetManager().getActualPhysicalPath(initDir);
+				GuGuUtf8Str fileName;
+				GuGuUtf8Str filePath;
+
+				std::shared_ptr<WindowWidget> rootWindow;
+				std::shared_ptr<Widget> widget = m_viewportWidget.lock()->getParentWidget();
+				while (widget)
 				{
-					rootWindow = std::static_pointer_cast<WindowWidget>(widget);
-					break;
-				}
-				else
-					widget = widget->getParentWidget();
-			}
-
-			PlatformMisc::getSaveFilePathAndFileName(rootWindow, initDir, filePath, fileName, filterArray);
-
-			filePath = filePath.replace("\\", "/");
-			fileName = fileName.replace("\\", "/");
-			filePath = filePath.replace(initDir, "");
-			fileName = fileName.replace(initDir, "");
-			if (filePath.len() > 0)
-			{
-				if (filePath[0] == "/")
-					filePath = filePath.substr(1, -1);
-			}
-			if (fileName.len() > 0)
-			{
-				if (fileName[0] == "/")
-					fileName = fileName.substr(1, -1);
-			}
-
-			if (fileName != "")
-			{
-				//get current level
-				std::shared_ptr<Level> currentLevel = World::getWorld()->getCurrentLevel();
-				nlohmann::json levelJson = AssetManager::getAssetManager().serializeJson(currentLevel);
-				GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
-				levelJson["Version"] = std::to_string(GuGu_Version);
-				//levelJson["GUID"] = guidStr.getStr();
-				GuGuUtf8Str fileContent = levelJson.dump();
-
-				//root path
-				GuGuUtf8Str rootActualFilePath = AssetManager::getAssetManager().getActualPhysicalPath("");
-
-				GuGuUtf8Str noFileExtensionsFileName = fileName;
-				int32_t dotPos = noFileExtensionsFileName.findLastOf(".");
-				if (dotPos != -1)
-				{
-					int32_t fileNameStartPos = noFileExtensionsFileName.findLastOf("/");
-					if (fileNameStartPos == -1)
+					if (widget->getParentWidget() == nullptr)
 					{
-						fileNameStartPos = noFileExtensionsFileName.findLastOf("\\");
+						rootWindow = std::static_pointer_cast<WindowWidget>(widget);
+						break;
 					}
-					if (fileNameStartPos != -1)
+					else
+						widget = widget->getParentWidget();
+				}
+
+				PlatformMisc::getSaveFilePathAndFileName(rootWindow, initDir, filePath, fileName, filterArray);
+
+				filePath = filePath.replace("\\", "/");
+				fileName = fileName.replace("\\", "/");
+				filePath = filePath.replace(initDir, "");
+				fileName = fileName.replace(initDir, "");
+				if (filePath.len() > 0)
+				{
+					if (filePath[0] == "/")
+						filePath = filePath.substr(1, -1);
+				}
+				if (fileName.len() > 0)
+				{
+					if (fileName[0] == "/")
+						fileName = fileName.substr(1, -1);
+				}
+
+				if (fileName != "")
+				{
+					//get current level
+					std::shared_ptr<Level> currentLevel = World::getWorld()->getCurrentLevel();
+					nlohmann::json levelJson = AssetManager::getAssetManager().serializeJson(currentLevel);
+					GuGuUtf8Str guidStr = GGuid::generateGuid().getGuid();
+					levelJson["Version"] = std::to_string(GuGu_Version);
+					//levelJson["GUID"] = guidStr.getStr();
+					GuGuUtf8Str fileContent = levelJson.dump();
+
+					//root path
+					GuGuUtf8Str rootActualFilePath = AssetManager::getAssetManager().getActualPhysicalPath("");
+
+					GuGuUtf8Str noFileExtensionsFileName = fileName;
+					int32_t dotPos = noFileExtensionsFileName.findLastOf(".");
+					if (dotPos != -1)
 					{
-						noFileExtensionsFileName = noFileExtensionsFileName.substr(0, std::max(dotPos - fileNameStartPos - 1, 0));
+						int32_t fileNameStartPos = noFileExtensionsFileName.findLastOf("/");
+						if (fileNameStartPos == -1)
+						{
+							fileNameStartPos = noFileExtensionsFileName.findLastOf("\\");
+						}
+						if (fileNameStartPos != -1)
+						{
+							noFileExtensionsFileName = noFileExtensionsFileName.substr(0, std::max(dotPos - fileNameStartPos - 1, 0));
+						}
+						else
+						{
+							noFileExtensionsFileName = noFileExtensionsFileName.substr(0, dotPos);
+						}
 					}
 					else
 					{
-						noFileExtensionsFileName = noFileExtensionsFileName.substr(0, dotPos);
+						noFileExtensionsFileName = noFileExtensionsFileName.substr(0, -1);
 					}
-				}
-				else
-				{
-					noFileExtensionsFileName = noFileExtensionsFileName.substr(0, -1);
-				}
 
-				//GuGuUtf8Str registerFilePath = filePath;
-				//dotPos = filePath.findLastOf(".");
-				//if (dotPos != -1)
-				//{
-				//	registerFilePath = filePath.substr(0, dotPos);
-				//}					
-				GuGuUtf8Str outputFilePath = ouputDir + "/" + filePath + ".json";
-				if (filePath.findLastOf(".") != -1)
-					outputFilePath = ouputDir + "/" + filePath;
-				else
-					outputFilePath = ouputDir + "/" + filePath + ".json";
+					//GuGuUtf8Str registerFilePath = filePath;
+					//dotPos = filePath.findLastOf(".");
+					//if (dotPos != -1)
+					//{
+					//	registerFilePath = filePath.substr(0, dotPos);
+					//}					
+					GuGuUtf8Str outputFilePath = ouputDir + "/" + filePath + ".json";
+					if (filePath.findLastOf(".") != -1)
+						outputFilePath = ouputDir + "/" + filePath;
+					else
+						outputFilePath = ouputDir + "/" + filePath + ".json";
 
-				guidStr = AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<Level>().ID));
-				levelJson["GUID"] = guidStr.getStr();
-				//输出到目录
-				AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
-				AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
-				AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
-			}		
-		}
+					guidStr = AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<Level>().ID));
+					levelJson["GUID"] = guidStr.getStr();
+					//输出到目录
+					AssetManager::getAssetManager().getRootFileSystem()->OpenFile(outputFilePath, GuGuFile::FileMode::OnlyWrite);
+					AssetManager::getAssetManager().getRootFileSystem()->WriteFile((void*)fileContent.getStr(), fileContent.getTotalByteCount());
+					AssetManager::getAssetManager().getRootFileSystem()->CloseFile();
+				}
+			}
+		}		
 
 		updateView();
 
