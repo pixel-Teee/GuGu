@@ -613,9 +613,19 @@ namespace GuGu {
 
 		if (m_rigidBody)
 		{
-			setMass(0);
-			m_rigidBody->setCollisionFlags(m_rigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
-			m_rigidBody->setActivationState(DISABLE_DEACTIVATION);
+			if (m_bKinematic)
+			{
+				setMass(0);
+				m_rigidBody->setCollisionFlags(m_rigidBody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT);
+				m_rigidBody->setActivationState(DISABLE_DEACTIVATION);
+			}
+			else
+			{
+				setMass(m_mass);
+				int32_t newCollisionFlags = m_rigidBody->getCollisionFlags() & (~btCollisionObject::CF_KINEMATIC_OBJECT);
+				m_rigidBody->setCollisionFlags(newCollisionFlags);
+				m_rigidBody->setActivationState(ACTIVE_TAG);
+			}
 		}
 	}
 
