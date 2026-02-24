@@ -7,13 +7,13 @@ function Character:init(owner)
 
     self.verticalVelocity = 0.0  -- 垂直速度，用于跳跃和重力
     self.gravity = -9.8 * 2.0    -- 重力加速度 (可调节强度)
-    self.jumpForce = 5.0         -- 跳跃力量
+    self.jumpForce = 15.0         -- 跳跃力量
     self.moveSpeed = 3.0         -- 移动速度
 
     -- 视角旋转 (欧拉角，单位：弧度)
     self.yaw = 0.0      -- 左右旋转 (绕Y轴)
     self.pitch = 0.0    -- 上下旋转 (绕X轴)
-    self.maxPitch = math.rad(89) -- 限制上下看的角度，避免翻转
+    self.maxPitch = 89 -- 限制上下看的角度，避免翻转
 
     -- 初始化朝向向量
     self.forward = GuGu.math.double3.new()
@@ -27,11 +27,20 @@ function Character:init(owner)
 
     self.bLocked = true
 
-    -- local transformComponent = self.owner:getComponent("GuGu::TransformComponent")
-    -- local trans = transformComponent:getTranslation()
-    -- self.groundHeight = trans.y + 0.5
+    --camera parameter
+    self.distance = 2.5
+    self.maxDistance = 15.0
+    self.minDistance = 3.0
+    self.zoomSpeed = 2.0
 
-    self:updateVectors()
+    self.player = self.owner:getParentGameObject()
+    self.pitchPivot = self.owner:getChildren("PivotX")
+    self.camera = self.pitchPivot:getChildren("MainCamera")
+    self.mesh = self.player:getChildren("Mesh")
+    self.staticMesh = self.player:getChildren("Mesh"):getComponent("GuGu::StaticMeshComponent")
+    self.animator = GuGu.GAnimator.new()
+    self.idleAnimation = self.owner:getWorld():loadAnimation("content/Idle_1.json")
+    self.runningAnimation = self.owner:getWorld():loadAnimation("content/RunningInPlace.json")
 end
 
 function Character:normalize3D(x, y, z)
@@ -40,9 +49,8 @@ function Character:normalize3D(x, y, z)
     return {x = x / length, y = y / length, z = z / length}
 end
 
---【核心函数】根据yaw和pitch更新前向和右向向量
+--根据yaw和pitch更新前向和右向向量
 function Character:updateVectors()
-
     -- 计算前向向量 (基于球面坐标)
     self.forward.x = math.sin(self.yaw * math.pi / 180.0) * math.cos(self.pitch * math.pi / 180.0)
     self.forward.y = -math.sin(self.pitch * math.pi / 180.0)
@@ -61,24 +69,14 @@ function Character:updateVectors()
     self.right.x = horizontalForward.z  -- 注意叉积顺序
     self.right.y = 0
     self.right.z = -horizontalForward.x
-
-    --print("forward x"..tostring(self.forward.x).."forward y"..tostring(self.forward.y).."forward z"..tostring(self.forward.z))
-    --self.right = self:normalize3D(self.right.x, self.right.y, self.right.z)
-    
-    -- 可选：也可以在这里计算真正的上向量，用于复杂摄像机
 end
 
---【核心函数】处理鼠标输入，更新视角
+--处理鼠标输入，更新视角
 function Character:updateView(inputManager, deltaTime)
-    -- 获取鼠标位移（假设inputManager能提供）
-    -- 注意：这里需要你的输入系统支持获取鼠标增量
     local mouseDelta = inputManager:getMouseDelta()
  
     -- 鼠标灵敏度
     local sensitivity = 0.4
-
-    --print("mouseDelta x"..tostring(mouseDelta.x).."mouseDelta y"..tostring(mouseDelta.y))
-    
     -- 更新旋转角度
     self.yaw = self.yaw + mouseDelta.x * sensitivity  -- 注意符号根据你的坐标系调整
     self.pitch = self.pitch + mouseDelta.y* sensitivity
@@ -89,23 +87,51 @@ function Character:updateView(inputManager, deltaTime)
     elseif self.pitch < -self.maxPitch then
         self.pitch = -self.maxPitch
     end
-
-    --print("yaw"..tostring(self.yaw).."pitch"..tostring(self.pitch))
-    
     -- 更新朝向向量
     self:updateVectors()
-    
-    -- 【关键】将旋转应用到角色的变换组件（如果是第一人称，通常只旋转摄像机或角色模型）
-    -- 这里我们更新角色的整体朝向（如果角色模型和摄像机是一体的）
+    --pivot y
     local transformComponent = self.owner:getComponent("GuGu::TransformComponent")
-    -- 将四元数旋转应用到变换组件（你需要根据引擎API调整）
-    -- 例如：transformComponent:setRotation(从yaw和pitch创建的四元数)
-    -- local rotationQuat = self:getQuaternionFromYawPitch(self.yaw, self.pitch)
     local newRotator = GuGu.math.Rotator.new()
-    newRotator.pitch = self.pitch
-    newRotator.yaw = self.yaw
+    newRotator.pitch = 0
+    newRotator.yaw = self.yaw --绕y轴旋转
     newRotator.roll = 0
     transformComponent:SetRotator(newRotator)
+    --pivot x
+    local pivotXTransformComponent = self.pitchPivot:getComponent("GuGu::TransformComponent")
+    local newRotator2 = GuGu.math.Rotator.new()
+    newRotator2.pitch = self.pitch --绕x轴旋转
+    newRotator2.yaw = 0
+    newRotator2.roll = 0
+    pivotXTransformComponent:SetRotator(newRotator2)
+
+    local cameraTransform = self.camera:getComponent("GuGu::TransformComponent")
+    local originalTrans = cameraTransform:getTranslation()
+    local cameraNewPos = GuGu.math.double3.new()
+    cameraNewPos.x = originalTrans.x
+    cameraNewPos.y = originalTrans.y
+    cameraNewPos.z = -self.distance
+    local collision3DComponent = self.camera:getComponent("GuGu::Collision3DComponent")
+    local rayStart = cameraTransform:getGlobalTranslation()
+    local rayEnd = GuGu.math.double3.new()
+    rayEnd.x = rayStart.x
+    rayEnd.y = rayStart.y + 10
+    rayEnd.z = rayStart.z
+    if collision3DComponent then
+        local hitResult = GuGu.Collision3DComponent.rayTest(rayStart, rayEnd)
+        if hitResult.m_bHaveResult then
+            print("camera hit terrain"..tostring(hitResult.m_hitPosition.y))
+            cameraNewPos.y = hitResult.m_hitPosition.y + 0.5
+        end
+    end
+    cameraTransform:SetTranslation(cameraNewPos)
+
+    --set Rotator
+    local meshTransform = self.mesh:getComponent("GuGu::TransformComponent")
+    local newRotator3 = GuGu.math.Rotator.new()
+    newRotator3.pitch = 0
+    newRotator3.yaw = self.yaw + 180.0 --绕y轴旋转
+    newRotator3.roll = 0
+    meshTransform:SetRotator(newRotator3)
 end
 
 --【核心函数】更新移动（基于朝向）
@@ -150,11 +176,12 @@ function Character:updateMovement(inputManager, deltaTime)
     -- 应用重力
     if not self.isOnGround then
         self.verticalVelocity = self.verticalVelocity + self.gravity * deltaTime
+        --print("verticalVelocity"..tostring(self.verticalVelocity))
     end
     moveInput.y = self.verticalVelocity * deltaTime
     
     -- 获取当前角色位置
-    local transformComponent = self.owner:getComponent("GuGu::TransformComponent")
+    local transformComponent = self.player:getComponent("GuGu::TransformComponent")
     local currentPos = transformComponent:getTranslation()
     
     -- 计算新位置
@@ -162,6 +189,18 @@ function Character:updateMovement(inputManager, deltaTime)
     newPos.x = currentPos.x + moveInput.x
     newPos.y = currentPos.y + moveInput.y
     newPos.z = currentPos.z + moveInput.z
+
+    if moveInput.x ~= 0.0 or moveInput.z ~= 0.0 then
+        if not self.animator:currentAnimationIsRunning(self.runningAnimation) then
+            print("trigger runningAnimation")
+            self.animator:playAnimationWithAsset(self.runningAnimation, self.staticMesh:getStaticMeshAsset())
+        end
+        
+    else
+        if not self.animator:currentAnimationIsRunning(self.idleAnimation) then
+            self.animator:playAnimationWithAsset(self.idleAnimation, self.staticMesh:getStaticMeshAsset())
+        end
+    end
 
     --print(newPos.y)
     
@@ -178,15 +217,18 @@ function Character:update(delta)
     self:updateGroundDetection()
     
      -- 3. 更新移动（处理键盘）
-     self:updateMovement(inputManager, delta) 
+    self:updateMovement(inputManager, delta) 
 
-    local collision3DComponent = self.owner:getComponent("GuGu::Collision3DComponent")
+    -- 4.更新动画
+    self.animator:Update(delta)
+
+    local collision3DComponent = self.player:getComponent("GuGu::Collision3DComponent")
     collision3DComponent:syncToPhysics()
 end
 
 -- 改进的地面检测（用于更新isOnGround状态）
 function Character:updateGroundDetection()
-    local transformComponent = self.owner:getComponent("GuGu::TransformComponent")
+    local transformComponent = self.player:getComponent("GuGu::TransformComponent")
     local rayStart = transformComponent:getTranslation()
     
     -- 射线向下发射，长度略大于角色到地面的距离
@@ -210,20 +252,20 @@ function Character:updateGroundDetection()
     --draw ray
     GuGu.DebugDraw.drawRay(copyedRayStart, copyedRayEnd, color)
     
-    local collision3DComponent = self.owner:getComponent("GuGu::Collision3DComponent")
+    local collision3DComponent = self.player:getComponent("GuGu::Collision3DComponent")
     if collision3DComponent then
         local hitResult = GuGu.Collision3DComponent.rayTest(rayStart, rayEnd)
         if hitResult.m_bHaveResult then
-            local distanceToGround = rayStart.y - hitResult.m_hitPosition.y
-            -- 如果距离地面很近，则认为在地面上
-            if distanceToGround < 1.5 and distanceToGround > 0.2 then
+            local distanceToGround = rayStart.y - 0.5 - hitResult.m_hitPosition.y
+            if distanceToGround < 0.3 then
+                -- 如果距离地面很近，则认为在地面上
                 self.isOnGround = true
                 self.verticalVelocity = math.max(self.verticalVelocity, 0) -- 重置下落速度
                 local newPos = GuGu.math.double3.new()
                 newPos.x = rayStart.x
                 newPos.y = hitResult.m_hitPosition.y + 0.5
                 newPos.z = rayStart.z
-                print("hit position:"..tostring(hitResult.m_hitPosition.y))
+                --print("hit position:"..tostring(hitResult.m_hitPosition.y))
                 transformComponent:SetTranslation(newPos)
             else
                 self.isOnGround = false
