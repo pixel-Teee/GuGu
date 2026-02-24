@@ -38,6 +38,8 @@ namespace GuGu {
 		void calculateBoneTransform(const GMeshGeometry& inCurrentNode, math::float4x4 parentTransform);
 
 		bool isRunning() const;
+
+		bool currentAnimationIsRunning(std::shared_ptr<AssetData> anim) const;
 		
 		Array<math::float4x4> m_finalBoneMatrices;
 

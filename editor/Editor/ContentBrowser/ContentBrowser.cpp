@@ -357,6 +357,13 @@ namespace GuGu {
 						//}					
 						GuGuUtf8Str outputFilePath = sourcesData + "/" + noFileExtensionsFileName + ".json";
 
+						if (AssetManager::getAssetManager().CheckIsDuplicateFile(outputFilePath))
+						{
+							noFileExtensionsFileName = noFileExtensionsFileName + "_1";
+							//rename
+							outputFilePath = sourcesData + "/" + noFileExtensionsFileName + ".json";
+						}
+
 						guidStr = AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GStaticMesh>().ID));
 						modelJson["GUID"] = guidStr.getStr();
 						//输出到目录
@@ -417,6 +424,13 @@ namespace GuGu {
 						//}					
 						GuGuUtf8Str outputFilePath = sourcesData + "/" + noFileExtensionsFileName + ".json";
 
+						if (AssetManager::getAssetManager().CheckIsDuplicateFile(outputFilePath))
+						{
+							noFileExtensionsFileName = noFileExtensionsFileName + "_1";
+							//rename
+							outputFilePath = sourcesData + "/" + noFileExtensionsFileName + ".json";
+						}
+
 						guidStr = AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GTexture>().ID));
 						textureJson["GUID"] = guidStr.getStr();
 						//输出到目录
@@ -474,6 +488,13 @@ namespace GuGu {
 						//	registerFilePath = filePath.substr(0, dotPos);
 						//}					
 						GuGuUtf8Str outputFilePath = sourcesData + "/" + noFileExtensionsFileName + ".json";
+
+						if (AssetManager::getAssetManager().CheckIsDuplicateFile(outputFilePath))
+						{
+							noFileExtensionsFileName = noFileExtensionsFileName + "_1";
+							//rename
+							outputFilePath = sourcesData + "/" + noFileExtensionsFileName + ".json";
+						}
 
 						guidStr = AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GFont>().ID));
 						fontFileJson["GUID"] = guidStr.getStr();
@@ -538,6 +559,13 @@ namespace GuGu {
 						//}					
 						GuGuUtf8Str outputFilePath = sourcesData + "/" + noFileExtensionsFileName + ".json";
 
+						if (AssetManager::getAssetManager().CheckIsDuplicateFile(outputFilePath))
+						{
+							noFileExtensionsFileName = noFileExtensionsFileName + "_1";
+							//rename
+							outputFilePath = sourcesData + "/" + noFileExtensionsFileName + ".json";
+						}
+
 						guidStr = AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GAnimation>().ID));
 						animationJson["GUID"] = guidStr.getStr();
 						//输出到目录
@@ -599,6 +627,13 @@ namespace GuGu {
 						//	registerFilePath = filePath.substr(0, dotPos);
 						//}					
 						GuGuUtf8Str outputFilePath = sourcesData + "/" + noFileExtensionsFileName + ".json";
+
+						if (AssetManager::getAssetManager().CheckIsDuplicateFile(outputFilePath))
+						{
+							noFileExtensionsFileName = noFileExtensionsFileName + "_1";
+							//rename
+							outputFilePath = sourcesData + "/" + noFileExtensionsFileName + ".json";
+						}
 
 						guidStr = AssetManager::getAssetManager().registerAsset(guidStr, outputFilePath, noFileExtensionsFileName + ".json", meta::Type(meta::TypeIDs<GStaticMesh>().ID));
 						modelJson["GUID"] = guidStr.getStr();

@@ -64,6 +64,8 @@ namespace GuGu {
 
 		type.AddMethod("isRunning", &GAnimator::isRunning, {});
 
+		type.AddMethod("currentAnimationIsRunning", &GAnimator::currentAnimationIsRunning, {});
+
 		return true;
 	}
 	IMPLEMENT_INITIAL_BEGIN(GAnimator)
@@ -224,6 +226,15 @@ namespace GuGu {
 	bool GAnimator::isRunning() const
 	{
 		return m_isRunning;
+	}
+
+	bool GAnimator::currentAnimationIsRunning(std::shared_ptr<AssetData> anim) const
+	{
+		std::shared_ptr<GAnimation> animResource = std::static_pointer_cast<GAnimation>(anim->m_loadedResource);
+		std::shared_ptr<GAnimation> lockedAnimation = m_anim.lock();
+		bool result = (lockedAnimation == animResource) && isRunning();
+		return result;
+		//return (m_anim.lock() == anim) && isRunning();
 	}
 
 }

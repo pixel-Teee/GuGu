@@ -36,6 +36,11 @@ function Character:init(owner)
     self.player = self.owner:getParentGameObject()
     self.pitchPivot = self.owner:getChildren("PivotX")
     self.camera = self.pitchPivot:getChildren("MainCamera")
+    self.mesh = self.player:getChildren("Mesh")
+    self.staticMesh = self.player:getChildren("Mesh"):getComponent("GuGu::StaticMeshComponent")
+    self.animator = GuGu.GAnimator.new()
+    self.idleAnimation = self.owner:getWorld():loadAnimation("content/Idle_1.json")
+    self.runningAnimation = self.owner:getWorld():loadAnimation("content/RunningInPlace.json")
 end
 
 function Character:normalize3D(x, y, z)
@@ -119,6 +124,14 @@ function Character:updateView(inputManager, deltaTime)
         end
     end
     cameraTransform:SetTranslation(cameraNewPos)
+
+    --set Rotator
+    local meshTransform = self.mesh:getComponent("GuGu::TransformComponent")
+    local newRotator3 = GuGu.math.Rotator.new()
+    newRotator3.pitch = 0
+    newRotator3.yaw = self.yaw + 180.0 --绕y轴旋转
+    newRotator3.roll = 0
+    meshTransform:SetRotator(newRotator3)
 end
 
 --【核心函数】更新移动（基于朝向）
@@ -177,6 +190,18 @@ function Character:updateMovement(inputManager, deltaTime)
     newPos.y = currentPos.y + moveInput.y
     newPos.z = currentPos.z + moveInput.z
 
+    if moveInput.x ~= 0.0 or moveInput.z ~= 0.0 then
+        if not self.animator:currentAnimationIsRunning(self.runningAnimation) then
+            print("trigger runningAnimation")
+            self.animator:playAnimationWithAsset(self.runningAnimation, self.staticMesh:getStaticMeshAsset())
+        end
+        
+    else
+        if not self.animator:currentAnimationIsRunning(self.idleAnimation) then
+            self.animator:playAnimationWithAsset(self.idleAnimation, self.staticMesh:getStaticMeshAsset())
+        end
+    end
+
     --print(newPos.y)
     
     -- 回退方案：直接设置位置（不推荐，会穿墙）
@@ -192,7 +217,10 @@ function Character:update(delta)
     self:updateGroundDetection()
     
      -- 3. 更新移动（处理键盘）
-     self:updateMovement(inputManager, delta) 
+    self:updateMovement(inputManager, delta) 
+
+    -- 4.更新动画
+    self.animator:Update(delta)
 
     local collision3DComponent = self.player:getComponent("GuGu::Collision3DComponent")
     collision3DComponent:syncToPhysics()

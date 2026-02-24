@@ -2729,6 +2729,7 @@ namespace GuGu {
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
 			//psoDesc.renderState.rasterState.fillMode = nvrhi::RasterFillMode::Wireframe;
 			psoDesc.renderState.depthStencilState.depthTestEnable = true;
+			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
 			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
 			psoDesc.renderState.rasterState.setFillWireframe();
 			m_terrainPipelineWithWireFrame = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
@@ -2744,6 +2745,7 @@ namespace GuGu {
 			psoDesc.primType = nvrhi::PrimitiveType::TriangleList;
 			//psoDesc.renderState.rasterState.fillMode = nvrhi::RasterFillMode::Wireframe;
 			psoDesc.renderState.depthStencilState.depthTestEnable = true;
+			psoDesc.renderState.rasterState.cullMode = nvrhi::RasterCullMode::None;
 			//psoDesc.renderState.rasterState.frontCounterClockwise = false;
 			m_terrainPipelineWithBrush = GetDevice()->createGraphicsPipeline(psoDesc, inViewportClient->getFramebuffer());
 		}
