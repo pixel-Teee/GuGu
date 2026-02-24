@@ -194,8 +194,8 @@ namespace GuGu {
 	void loadLevel()
 	{
 		GuGu::AssetData assetData;
-		assetData.m_filePath = "content/TestModel.json";
-		assetData.m_fileName = "TestModel.json";
+		assetData.m_filePath = "content/testPlanetAdventure.json";
+		assetData.m_fileName = "testPlanetAdventure.json";
 		assetData.m_assetTypeGuid = typeof(GuGu::Level).getGuid();
 		GuGu::World::getWorld()->loadLevel(assetData);
 
