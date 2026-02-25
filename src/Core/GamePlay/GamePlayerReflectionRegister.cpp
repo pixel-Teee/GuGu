@@ -49,6 +49,8 @@
 
 #include <Core/Debug/DebugDraw.h>
 
+#include <Core/Cutscenes/TrackData.h>
+
 namespace GuGu {
 
 	static bool registermetaDisplayName()
@@ -863,6 +865,20 @@ namespace GuGu {
 		return true;
 	}
 
+	static bool registerCutscenesInterpolationMode()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto id = db.AllocateType("GuGu::CutscenesInterpolationMode");
+		auto& type = db.types[id];
+		meta::TypeInfo<CutscenesInterpolationMode>::Register(id, type, true, "F5704414-BF35-420A-8624-53D8B07C252D");
+
+		type.SetEnum<GuGu::CutscenesInterpolationMode>("GuGu::CutscenesInterpolationMode", {
+			{"Linear", CutscenesInterpolationMode::Linear},
+		});
+
+		return true;
+	}
+
 	void registerThirdParty()
 	{
 		//Priority metaDisplayNamePriority;
@@ -949,6 +965,7 @@ namespace GuGu {
 		ReflectionMain::addInitialTypeFunction(registerKeys, &keysPriority);
 		ReflectionMain::addInitialTypeFunction(registerInputManager, &inputManagerPriority);
 		ReflectionMain::addInitialTypeFunction(registerDebugDraw, &debugDrawPriority);
+		ReflectionMain::addInitialTypeFunction(registerCutscenesInterpolationMode, &cutscenesEventsPriority);
 		keyPositionPriority.addPriorityThan(&mathfloat3Priority);
 		keyRotationPriority.addPriorityThan(&mathquatPriority);
 		keyScalePriority.addPriorityThan(&mathfloat3Priority);

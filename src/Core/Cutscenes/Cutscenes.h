@@ -32,6 +32,7 @@ namespace GuGu {
 		int32_t m_ticksPerSecond;
 
 		//multiple track data
+		//一种类型一种轨道
 		Array<TrackData> m_trackDatas;
 	};
 }

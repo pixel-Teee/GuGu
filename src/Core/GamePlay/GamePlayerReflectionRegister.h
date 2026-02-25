@@ -52,6 +52,18 @@ namespace GuGu {
 	static Priority inputManagerPriority;
 
 	static Priority debugDrawPriority;
+
+	//------cut scenes------
+	static Priority cutscenesInterpolationModePriority;
+
+	static Priority cutscenesKeyFramePriority;
+
+	static Priority cutscenesEventsPriority;
+	
+	static Priority sectionDataPriority;
+
+	static Priority trackDataPriority;
+	//------cut scenes------
 	//------struct------
 
 	void registerThirdParty();

@@ -7,14 +7,18 @@ namespace GuGu {
 	};
 	struct CutscenesKeyFrame
 	{
-		meta::Variant m_value;
+		Array<uint8_t> m_value;
+		//type
+		GuGuUtf8Str m_typeGuid;
 		float m_timestamp;
 	};
 	struct CutscenesEvents
 	{
 		GuGuUtf8Str m_functionName;
 
-		Array<meta::Variant> m_arguments;
+		Array<Array<uint8_t>> m_arguments;
+
+		float m_timestamp;
 	};
 	struct Section
 	{
@@ -34,6 +38,9 @@ namespace GuGu {
 		GuGuUtf8Str m_levelName;
 
 		GuGuUtf8Str m_bindingObjectName;
+
+		//will call component func
+		GuGuUtf8Str m_bindingObjectComponentType;
 	};
 	//one track
 	struct TrackData
