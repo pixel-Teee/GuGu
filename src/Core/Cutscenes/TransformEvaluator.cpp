@@ -54,7 +54,9 @@ namespace GuGu {
 						nextKeyValue.x = LittleToHostFloat(preKeyValue.x);
 						nextKeyValue.y = LittleToHostFloat(preKeyValue.y);
 						nextKeyValue.z = LittleToHostFloat(preKeyValue.z);
-						math::float3 resLerpValue = (time - preKey.m_timestamp) / (nextKey.m_timestamp - preKey.m_timestamp);
+						float percentage = (time - preKey.m_timestamp) / (nextKey.m_timestamp - preKey.m_timestamp);
+						math::float3 length = nextKeyValue - preKeyValue;
+						math::float3 resLerpValue = math::float3(percentage) * length + preKeyValue;
 						m_currentFieldName = preKey.m_fieldName;
 						return resLerpValue;
 					}
