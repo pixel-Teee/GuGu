@@ -12,11 +12,19 @@ namespace GuGu {
 		GuGuUtf8Str m_typeGuid;
 		float m_timestamp;
 	};
+	//cut scenes event argument
+	struct CutscenesEventsArgument
+	{
+		Array<uint8_t> m_argument;
+		
+		//type
+		GuGuUtf8Str m_typeGuid;
+	};
 	struct CutscenesEvents
 	{
 		GuGuUtf8Str m_functionName;
 
-		Array<Array<uint8_t>> m_arguments;
+		Array<CutscenesEventsArgument> m_arguments;
 
 		float m_timestamp;
 	};
@@ -46,7 +54,7 @@ namespace GuGu {
 	struct TrackData
 	{
 		//由轨道的数据决定类型，事件则是为 meta::Type::Invalid
-		meta::Type m_trackType;
+		GuGuUtf8Str m_typeGuid;
 		bool m_isEvent;
 		Array<Section> m_sections;
 	};

@@ -23,6 +23,19 @@ namespace GuGu {
 		//反序列化
 		virtual void OnDeserialize(const nlohmann::json& input) override;
 
+		GuGuUtf8Str& getCutscenesName();
+		void setCutscenesName(const GuGuUtf8Str& inCutScenesName);
+
+		float& getDuration();
+		void setDuration(float inDuration);
+
+		int32_t& getTicksPerSecond();
+		void setTicksPerSecond(int32_t inTicksPerSecond);
+
+		Array<TrackData>& getTrackData();
+		void setTrackData(const Array<TrackData>& inTrackData);
+
+	private:
 		GuGuUtf8Str m_cutScenesName;
 
 		//持续时间

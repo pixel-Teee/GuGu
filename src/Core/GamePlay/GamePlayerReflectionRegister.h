@@ -58,6 +58,8 @@ namespace GuGu {
 
 	static Priority cutscenesKeyFramePriority;
 
+	static Priority cutscenesEventsArgumentPriority;
+
 	static Priority cutscenesEventsPriority;
 	
 	static Priority sectionDataPriority;
