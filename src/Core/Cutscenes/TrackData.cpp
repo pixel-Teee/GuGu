@@ -41,22 +41,33 @@ namespace GuGu {
 		{
 			CutscenesKeyFrame preKeyFrame;
 			CutscenesKeyFrame nextKeyFrame;
+			bool bFoundPreKeyFrame = false;
 			for (int32_t i = 0; i < keyFrameDatas.size(); ++i)
 			{
 				if (inTime >= keyFrameDatas[i].m_timestamp)
 				{
 					preKeyFrame = keyFrameDatas[i];
-					break;
+					bFoundPreKeyFrame = true;
 				}
 			}
+			bool bFoundNextKeyFrame = false;
 			for (int32_t i = keyFrameDatas.size() - 1; i >= 0; --i)
 			{
 				if (inTime <= keyFrameDatas[i].m_timestamp)
 				{
 					nextKeyFrame = keyFrameDatas[i];
-					break;
+					bFoundNextKeyFrame = true;
 				}
 			}
+			if (bFoundPreKeyFrame && !bFoundNextKeyFrame)
+			{
+				nextKeyFrame = preKeyFrame;
+			}
+			else if(!bFoundPreKeyFrame && bFoundNextKeyFrame)
+			{
+				preKeyFrame = nextKeyFrame;
+			}
+
 			keyFrames = std::make_pair(preKeyFrame, nextKeyFrame);
 		}
 

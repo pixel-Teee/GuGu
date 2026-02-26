@@ -3,6 +3,7 @@
 #include "Applier.h"
 #include "TransformApplier.h"
 #include <Core/Math/MyMath.h>
+#include <Renderer/Color.h>
 
 namespace GuGu {
 
@@ -14,6 +15,10 @@ namespace GuGu {
 			return std::make_shared<VectorApplier>();
 		}
 		else if (currentType == typeof(math::double3))
+		{
+			return std::make_shared<VectorApplier>();
+		}
+		else if (currentType == typeof(Color))
 		{
 			return std::make_shared<VectorApplier>();
 		}
