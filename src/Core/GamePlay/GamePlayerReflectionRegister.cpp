@@ -900,6 +900,10 @@ namespace GuGu {
 			(meta::FieldGetter<CutscenesKeyFrame, GuGuUtf8Str, false>::Signature) & CutscenesKeyFrame::m_typeGuid,
 			(meta::FieldSetter<CutscenesKeyFrame, GuGuUtf8Str, false>::Signature) & CutscenesKeyFrame::m_typeGuid, {});
 
+		type.AddField<CutscenesKeyFrame, GuGuUtf8Str>("m_fieldName",
+			(meta::FieldGetter<CutscenesKeyFrame, GuGuUtf8Str, false>::Signature) & CutscenesKeyFrame::m_fieldName,
+			(meta::FieldSetter<CutscenesKeyFrame, GuGuUtf8Str, false>::Signature) & CutscenesKeyFrame::m_fieldName, {});
+
 		type.AddField<CutscenesKeyFrame, float>("m_timestamp",
 			(meta::FieldGetter<CutscenesKeyFrame, float, false>::Signature) & CutscenesKeyFrame::m_timestamp,
 			(meta::FieldSetter<CutscenesKeyFrame, float, false>::Signature) & CutscenesKeyFrame::m_timestamp, {});

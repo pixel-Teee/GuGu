@@ -10,6 +10,9 @@ namespace GuGu {
 		Array<uint8_t> m_value;
 		//type
 		GuGuUtf8Str m_typeGuid;
+
+		//field name
+		GuGuUtf8Str m_fieldName;
 		float m_timestamp;
 	};
 	//cut scenes event argument
@@ -58,4 +61,9 @@ namespace GuGu {
 		bool m_isEvent;
 		Array<Section> m_sections;
 	};
+
+	//helper function
+	std::optional<Section> findSection(const TrackData& inTrackData, float inTime);
+
+	std::optional<std::pair<CutscenesKeyFrame, CutscenesKeyFrame>> findKeyFrame(const Section& inSection, float inTime);
 }

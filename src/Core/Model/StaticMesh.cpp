@@ -7,6 +7,7 @@
 #include <Core/Reflection/MetaProperty/CustomDeserializeField.h>
 #include <Core/Reflection/MetaProperty/CustomSerializeField.h>
 #include <Core/AssetManager/Base64.h>
+#include <Core/FileSystem/ByteOrder.h>
 
 namespace GuGu {
 	static bool registerGuGuGStaticMesh()
@@ -290,8 +291,9 @@ namespace GuGu {
 			//copy into binary vec
 			for (int32_t i = 0; i < uint32Array.size(); ++i)
 			{
-				const uint8_t* bytes = reinterpret_cast<const uint8_t*>(&uint32Array[i]);
-				std::memcpy(&binaryVec[i * sizeof(uint32_t)], bytes, sizeof(uint32_t));
+				uint32_t littleEndianValue = HostToLittle32(uint32Array[i]);
+				const uint8_t* bytes = reinterpret_cast<const uint8_t*>(&littleEndianValue);
+				std::memcpy(&binaryVec[i * sizeof(uint32_t)], bytes, sizeof(uint32_t));			
 			}
 
 			GuGuUtf8Str base64Str = Base64Encode(binaryVec);
@@ -299,14 +301,16 @@ namespace GuGu {
 		}
 		if (inValue.GetType() == typeof(Array<math::float2>))
 		{
-			Array<math::float2> vec3Array = inValue.GetValue<Array<math::float2>>();
-			std::vector<uint8_t> binaryVec(vec3Array.size() * sizeof(math::float2));
+			Array<math::float2> vec2Array = inValue.GetValue<Array<math::float2>>();
+			std::vector<uint8_t> binaryVec(vec2Array.size() * sizeof(math::float2));
 
 			//copy into binary vec
-			for (int32_t i = 0; i < vec3Array.size(); ++i)
+			for (int32_t i = 0; i < vec2Array.size(); ++i)
 			{
-				const uint8_t* bytes = reinterpret_cast<const uint8_t*>(&vec3Array[i]);
-				std::memcpy(&binaryVec[i * sizeof(math::float2)], bytes, sizeof(math::float2));
+				math::float2 littleEndianValue;
+				littleEndianValue.x = HostToLittleFloat(vec2Array[i].x);
+				littleEndianValue.y = HostToLittleFloat(vec2Array[i].y);
+				std::memcpy(&binaryVec[i * sizeof(math::float2)], &littleEndianValue, sizeof(math::float2));
 			}
 
 			GuGuUtf8Str base64Str = Base64Encode(binaryVec);
@@ -321,8 +325,13 @@ namespace GuGu {
 			//copy into binary vec
 			for (int32_t i = 0; i < vec3Array.size(); ++i)
 			{
-				const uint8_t* bytes = reinterpret_cast<const uint8_t*>(&vec3Array[i]);
-				std::memcpy(&binaryVec[i * sizeof(math::float3)], bytes, sizeof(math::float3));
+				//const uint8_t* bytes = reinterpret_cast<const uint8_t*>(&vec3Array[i]);
+				//std::memcpy(&binaryVec[i * sizeof(math::float3)], bytes, sizeof(math::float3));
+				math::float3 littleEndianValue;
+				littleEndianValue.x = HostToLittleFloat(vec3Array[i].x);
+				littleEndianValue.y = HostToLittleFloat(vec3Array[i].y);
+				littleEndianValue.z = HostToLittleFloat(vec3Array[i].z);
+				std::memcpy(&binaryVec[i * sizeof(math::float3)], &littleEndianValue, sizeof(math::float3));
 			}
 
 			GuGuUtf8Str base64Str = Base64Encode(binaryVec);
@@ -331,14 +340,20 @@ namespace GuGu {
 		}
 		else if (inValue.GetType() == typeof(Array<math::float4>))
 		{
-			Array<math::float4> vec3Array = inValue.GetValue<Array<math::float4>>();
-			std::vector<uint8_t> binaryVec(vec3Array.size() * sizeof(math::float4));
+			Array<math::float4> vec4Array = inValue.GetValue<Array<math::float4>>();
+			std::vector<uint8_t> binaryVec(vec4Array.size() * sizeof(math::float4));
 
 			//copy into binary vec
-			for (int32_t i = 0; i < vec3Array.size(); ++i)
+			for (int32_t i = 0; i < vec4Array.size(); ++i)
 			{
-				const uint8_t* bytes = reinterpret_cast<const uint8_t*>(&vec3Array[i]);
-				std::memcpy(&binaryVec[i * sizeof(math::float4)], bytes, sizeof(math::float4));
+				//const uint8_t* bytes = reinterpret_cast<const uint8_t*>(&vec3Array[i]);
+				//std::memcpy(&binaryVec[i * sizeof(math::float4)], bytes, sizeof(math::float4));
+				math::float4 littleEndianValue;
+				littleEndianValue.x = HostToLittleFloat(vec4Array[i].x);
+				littleEndianValue.y = HostToLittleFloat(vec4Array[i].y);
+				littleEndianValue.z = HostToLittleFloat(vec4Array[i].z);
+				littleEndianValue.w = HostToLittleFloat(vec4Array[i].w);
+				std::memcpy(&binaryVec[i * sizeof(math::float4)], &littleEndianValue, sizeof(math::float4));
 			}
 
 			GuGuUtf8Str base64Str = Base64Encode(binaryVec);
@@ -353,8 +368,14 @@ namespace GuGu {
 			//copy into binary vec
 			for (int32_t i = 0; i < int16_4Array.size(); ++i)
 			{
-				const uint8_t* bytes = reinterpret_cast<const uint8_t*>(&int16_4Array[i]);
-				std::memcpy(&binaryVec[i * sizeof(math::int16_t4)], bytes, sizeof(math::int16_t4));
+				//const uint8_t* bytes = reinterpret_cast<const uint8_t*>(&int16_4Array[i]);
+				//std::memcpy(&binaryVec[i * sizeof(math::int16_t4)], bytes, sizeof(math::int16_t4));
+				math::int16_t4 littleEndianValue;
+				littleEndianValue.x = HostToLittleFloat(int16_4Array[i].x);
+				littleEndianValue.y = HostToLittleFloat(int16_4Array[i].y);
+				littleEndianValue.z = HostToLittleFloat(int16_4Array[i].z);
+				littleEndianValue.w = HostToLittleFloat(int16_4Array[i].w);
+				std::memcpy(&binaryVec[i * sizeof(math::int16_t4)], &littleEndianValue, sizeof(math::int16_t4));
 			}
 
 			GuGuUtf8Str base64Str = Base64Encode(binaryVec);
@@ -378,7 +399,10 @@ namespace GuGu {
 				std::vector<uint32_t> result(binaryVec.size() / sizeof(uint32_t));
 				for (int32_t i = 0; i < result.size(); ++i)
 				{
-					std::memcpy(&result[i], &binaryVec[i * sizeof(uint32_t)], sizeof(uint32_t));
+					uint32_t littleEndianValue;
+					std::memcpy(&littleEndianValue, &binaryVec[i * sizeof(uint32_t)], sizeof(uint32_t));
+					littleEndianValue = LittleToHost32(littleEndianValue);
+					result[i] = littleEndianValue;
 				}
 				return Array<uint32_t>(result);
 			}
@@ -388,7 +412,11 @@ namespace GuGu {
 				std::vector<math::float2> result(binaryVec.size() / sizeof(math::float2));
 				for (int32_t i = 0; i < result.size(); ++i)
 				{
-					std::memcpy(&result[i], &binaryVec[i * sizeof(math::float2)], sizeof(math::float2));
+					math::float2 littleEndianValue;
+					std::memcpy(&littleEndianValue, &binaryVec[i * sizeof(math::float2)], sizeof(math::float2));
+					littleEndianValue.x = LittleToHostFloat(littleEndianValue.x);
+					littleEndianValue.y = LittleToHostFloat(littleEndianValue.y);
+					result[i] = littleEndianValue;
 				}
 				return Array<math::float2>(result);
 			}
@@ -398,7 +426,12 @@ namespace GuGu {
 				std::vector<math::float3> result(binaryVec.size() / sizeof(math::float3));
 				for (int32_t i = 0; i < result.size(); ++i)
 				{
-					std::memcpy(&result[i], &binaryVec[i * sizeof(math::float3)], sizeof(math::float3));
+					math::float3 littleEndianValue;
+					std::memcpy(&littleEndianValue, &binaryVec[i * sizeof(math::float3)], sizeof(math::float3));
+					littleEndianValue.x = LittleToHostFloat(littleEndianValue.x);
+					littleEndianValue.y = LittleToHostFloat(littleEndianValue.y);
+					littleEndianValue.z = LittleToHostFloat(littleEndianValue.z);
+					result[i] = littleEndianValue;
 				}
 				return Array<math::float3>(result);
 			}
@@ -408,7 +441,13 @@ namespace GuGu {
 				std::vector<math::float4> result(binaryVec.size() / sizeof(math::float4));
 				for (int32_t i = 0; i < result.size(); ++i)
 				{
-					std::memcpy(&result[i], &binaryVec[i * sizeof(math::float4)], sizeof(math::float4));
+					math::float4 littleEndianValue;
+					std::memcpy(&littleEndianValue, &binaryVec[i * sizeof(math::float4)], sizeof(math::float4));
+					littleEndianValue.x = LittleToHostFloat(littleEndianValue.x);
+					littleEndianValue.y = LittleToHostFloat(littleEndianValue.y);
+					littleEndianValue.z = LittleToHostFloat(littleEndianValue.z);
+					littleEndianValue.w = LittleToHostFloat(littleEndianValue.w);
+					result[i] = littleEndianValue;
 				}
 				return Array<math::float4>(result);
 			}
@@ -418,11 +457,18 @@ namespace GuGu {
 				std::vector<math::int16_t4> result(binaryVec.size() / sizeof(math::int16_t4));
 				for (int32_t i = 0; i < result.size(); ++i)
 				{
-					std::memcpy(&result[i], &binaryVec[i * sizeof(math::int16_t4)], sizeof(math::int16_t4));
+					math::int16_t4 littleEndianValue;
+					std::memcpy(&littleEndianValue, &binaryVec[i * sizeof(math::int16_t4)], sizeof(math::int16_t4));
+					littleEndianValue.x = LittleToHostFloat(littleEndianValue.x);
+					littleEndianValue.y = LittleToHostFloat(littleEndianValue.y);
+					littleEndianValue.z = LittleToHostFloat(littleEndianValue.z);
+					littleEndianValue.w = LittleToHostFloat(littleEndianValue.w);
+					result[i] = littleEndianValue;
 				}
 				return Array<math::int16_t4>(result);
 			}
 		}
+		return meta::Variant();//invalid
 	}
 
 }
