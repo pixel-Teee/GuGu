@@ -41,6 +41,12 @@ function Character:init(owner)
     self.animator = GuGu.GAnimator.new()
     self.idleAnimation = self.owner:getWorld():loadAnimation("content/Idle_1.json")
     self.runningAnimation = self.owner:getWorld():loadAnimation("content/RunningInPlace.json")
+
+    --play cutscenes
+    self.cutscenes = self.owner:getWorld():loadCutscenes("content/testCutscene.json")
+    if self.cutscenes then
+        GuGu.Cutscenes.playCutscenes(self.cutscenes)
+    end
 end
 
 function Character:normalize3D(x, y, z)
@@ -221,6 +227,8 @@ function Character:update(delta)
 
     -- 4.更新动画
     self.animator:Update(delta)
+
+    GuGu.Cutscenes.getCutscenes(self.cutscenes):Update(delta)
 
     local collision3DComponent = self.player:getComponent("GuGu::Collision3DComponent")
     collision3DComponent:syncToPhysics()

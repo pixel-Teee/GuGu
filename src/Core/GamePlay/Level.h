@@ -49,6 +49,9 @@ namespace GuGu {
 		//find game object
 		std::shared_ptr<GameObject> getGameObject(const GuGuUtf8Str& name) const;
 
+		//find game object's component
+		std::shared_ptr<Component> getComponent(const GuGuUtf8Str& name, meta::Type componentType) const;
+
 		//create game object
 		std::shared_ptr<GameObject> createGameObject(const GuGuUtf8Str& name);
 

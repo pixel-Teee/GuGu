@@ -44,6 +44,9 @@ namespace GuGu {
 		//load animation
 		std::shared_ptr<AssetData> loadAnimation(const GuGuUtf8Str& filePath);
 
+		//load cutscenes
+		std::shared_ptr<AssetData> loadCutscenes(const GuGuUtf8Str& filePath);
+
 		void setLevel(std::shared_ptr<Level> inLevel);
 
 		void update(float fElapsedTimeSeconds);

@@ -287,6 +287,7 @@ namespace GuGu {
 		ADD_IMAGE(AnimationAssetIcon)
 		ADD_IMAGE(PrefabAssetIcon)
 		ADD_IMAGE(DeleteAsset_Icon);
+		ADD_IMAGE(CutscenesAssetIcon);
 
 		ADD_IMAGE(Start_Normal)
 		ADD_IMAGE(Start_Hover)

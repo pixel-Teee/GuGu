@@ -50,6 +50,7 @@
 #include <Core/Debug/DebugDraw.h>
 
 #include <Core/Cutscenes/TrackData.h>
+#include <Core/Cutscenes/Cutscenes.h>
 
 namespace GuGu {
 
@@ -1005,9 +1006,9 @@ namespace GuGu {
 			(meta::FieldGetter<Section, GuGuUtf8Str, false>::Signature) & Section::m_bindingObjectName,
 			(meta::FieldSetter<Section, GuGuUtf8Str, false>::Signature) & Section::m_bindingObjectName, {});
 
-		type.AddField<Section, GuGuUtf8Str>("m_bindingObjectComponentType",
-			(meta::FieldGetter<Section, GuGuUtf8Str, false>::Signature) & Section::m_bindingObjectComponentType,
-			(meta::FieldSetter<Section, GuGuUtf8Str, false>::Signature) & Section::m_bindingObjectComponentType, {});
+		type.AddField<Section, GuGuUtf8Str>("m_bindingObjectComponentTypeGuid",
+			(meta::FieldGetter<Section, GuGuUtf8Str, false>::Signature) & Section::m_bindingObjectComponentTypeGuid,
+			(meta::FieldSetter<Section, GuGuUtf8Str, false>::Signature) & Section::m_bindingObjectComponentTypeGuid, {});
 		return true;
 	}
 
@@ -1184,6 +1185,10 @@ namespace GuGu {
 
         Collision3DComponent::registerMainFactory();
         Collision3DComponent::registerMainFactory2();
+		
+		Cutscenes::ms_priority2.addPriorityThan(&trackDataPriority);
+		Cutscenes::registerMainFactory();
+		Cutscenes::registerMainFactory2();
 		ReflectionMain::initialize();
 
 		meta::Type::List types = meta::Type::GetTypes();

@@ -9,7 +9,7 @@ namespace GuGu {
 
 	VectorEvaluator::VectorEvaluator()
 	{
-
+		m_currentFieldName = "";
 	}
 
 	VectorEvaluator::~VectorEvaluator()
@@ -55,6 +55,7 @@ namespace GuGu {
 						nextKeyValue.y = LittleToHostFloat(preKeyValue.y);
 						nextKeyValue.z = LittleToHostFloat(preKeyValue.z);
 						math::float3 resLerpValue = (time - preKey.m_timestamp) / (nextKey.m_timestamp - preKey.m_timestamp);
+						m_currentFieldName = preKey.m_fieldName;
 						return resLerpValue;
 					}
 				}
@@ -83,10 +84,13 @@ namespace GuGu {
 						preKeyValue.x = LittleToHostFloat(preKeyValue.x);
 						preKeyValue.y = LittleToHostFloat(preKeyValue.y);
 						preKeyValue.z = LittleToHostFloat(preKeyValue.z);
-						nextKeyValue.x = LittleToHostFloat(preKeyValue.x);
-						nextKeyValue.y = LittleToHostFloat(preKeyValue.y);
-						nextKeyValue.z = LittleToHostFloat(preKeyValue.z);
-						math::double3 resLerpValue = (time - preKey.m_timestamp) / (nextKey.m_timestamp - preKey.m_timestamp);
+						nextKeyValue.x = LittleToHostFloat(nextKeyValue.x);
+						nextKeyValue.y = LittleToHostFloat(nextKeyValue.y);
+						nextKeyValue.z = LittleToHostFloat(nextKeyValue.z);
+						float percentage = (time - preKey.m_timestamp) / (nextKey.m_timestamp - preKey.m_timestamp);
+						math::double3 length = nextKeyValue - preKeyValue;
+						math::double3 resLerpValue = math::double3(percentage) * length + preKeyValue;
+						m_currentFieldName = preKey.m_fieldName;
 						return resLerpValue;
 					}
 				}
@@ -94,6 +98,11 @@ namespace GuGu {
 		}
 
 		return meta::Variant();
+	}
+
+	GuGuUtf8Str VectorEvaluator::getCurrentField()
+	{
+		return m_currentFieldName;
 	}
 
 }

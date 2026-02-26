@@ -51,7 +51,7 @@ namespace GuGu {
 		GuGuUtf8Str m_bindingObjectName;
 
 		//will call component func
-		GuGuUtf8Str m_bindingObjectComponentType;
+		GuGuUtf8Str m_bindingObjectComponentTypeGuid;
 	};
 	//one track
 	struct TrackData

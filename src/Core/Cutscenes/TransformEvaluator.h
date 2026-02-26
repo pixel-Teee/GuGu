@@ -15,5 +15,8 @@ namespace GuGu {
 
 		meta::Variant Evaluate(const TrackData& inData, float time) override;
 
+		virtual GuGuUtf8Str getCurrentField() override;
+
+		GuGuUtf8Str m_currentFieldName;
 	};
 }

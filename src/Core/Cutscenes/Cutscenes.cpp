@@ -3,8 +3,18 @@
 #include "Cutscenes.h"
 #include <Core/Reflection/TypeInfo.h>
 #include <Core/GamePlay/GamePlayerReflectionRegister.h>
+#include <Core/AssetManager/AssetManager.h>//asset data
+#include <Core/Timer.h>
+#include <Core/GamePlay/World.h>
+#include <Core/GamePlay/Level.h>
+#include <Application/Application.h> //TODO:remove this
+#include "Evaluator.h"
+#include "Applier.h"
 
 namespace GuGu {
+	std::map<GuGuUtf8Str, std::shared_ptr<Applier>> Cutscenes::m_appliers;
+	std::map<GuGuUtf8Str, std::shared_ptr<Evaluator>> Cutscenes::m_evaluators;
+
 	static bool registerGuGuCutscenes()
 	{
 		auto& db = meta::ReflectionDatabase::Instance();
@@ -70,6 +80,12 @@ namespace GuGu {
 			(meta::FieldGetter<Cutscenes, Array<TrackData>&, true>::Signature) & Cutscenes::getTrackData,
 			(meta::FieldSetter<Cutscenes, Array<TrackData>, true>::Signature) & Cutscenes::setTrackData, {});
 
+		type.AddStaticMethod<Cutscenes>("playCutscenes", &Cutscenes::playCutscenes, {});
+
+		type.AddMethod("Update", &Cutscenes::Update, {});
+
+		type.AddStaticMethod<Cutscenes>("getCutscenes", &Cutscenes::getCutscenes, {});
+
 		return true;
 	}
 	IMPLEMENT_INITIAL_BEGIN(Cutscenes)
@@ -78,11 +94,14 @@ namespace GuGu {
 	IMPLEMENT_INITIAL_END
 
 	IMPLEMENT_INITIAL_FIELDS_BEGIN(Cutscenes)
+		ADD_PRIORITY_FIELDS(AssetData)
 		if (!ms_priority2.addPriorityThan(&trackDataPriority)) return 0; //track data
 		ADD_INITIAL_FIELDS_FUNCTION_WITH_PRIORITY(registerGuGuCutscenesFields)
 	IMPLEMENT_INITIAL_FIELDS_END
 	Cutscenes::Cutscenes()
 	{
+		m_isRunning = false;
+		m_startTime = 0.0f;
 	}
 	Cutscenes::~Cutscenes()
 	{
@@ -95,7 +114,64 @@ namespace GuGu {
 
 	void Cutscenes::Update(float fElapsedTimeSeconds)
 	{
+		if (m_isRunning)
+		{
+			//TODO:FIX THIS
+			float currentTotalTime = Application::getApplication()->getTimer()->GetTotalTime();
+			//run
+			float currentTime = (currentTotalTime - m_startTime); //TODO:FIX THIS
 
+			for (int32_t i = 0; i < m_trackDatas.size(); ++i)
+			{
+				const TrackData& trackData = m_trackDatas[i];
+
+				//get evaluator
+				std::shared_ptr<Evaluator> evaluator;
+				if (m_evaluators.find(trackData.m_typeGuid) != m_evaluators.end())
+				{
+					evaluator = m_evaluators.find(trackData.m_typeGuid)->second;
+				}
+				else
+				{
+					evaluator = createEvaluator(trackData.m_typeGuid);
+					m_evaluators[trackData.m_typeGuid] = evaluator;
+				}
+				//get applier
+				std::shared_ptr<Applier> applier;
+				if (m_appliers.find(trackData.m_typeGuid) != m_appliers.end())
+				{
+					applier = m_appliers.find(trackData.m_typeGuid)->second;
+				}
+				else
+				{
+					applier = createApplier(trackData.m_typeGuid);
+					m_appliers[trackData.m_typeGuid] = applier;
+				}
+
+				//get value
+				meta::Variant res = evaluator->Evaluate(trackData, currentTime);
+
+				//get current level object
+				std::optional<Section> currentSection = findSection(trackData, currentTime);
+
+				if (currentSection.has_value())
+				{
+					Section section = currentSection.value();
+					std::shared_ptr<Level> currentLevel = World::getWorld()->getCurrentLevel();
+					std::shared_ptr<meta::Object> currentObj = currentLevel->getGameObject(section.m_bindingObjectName);
+					if (section.m_bindingObjectComponentTypeGuid != "")
+					{
+						meta::Type componetType = meta::Type::getType(section.m_bindingObjectComponentTypeGuid);
+						currentObj = currentLevel->getComponent(section.m_bindingObjectName, componetType);
+					}
+					if (evaluator->getCurrentField() != "")
+					{
+						//set value
+						applier->Apply(currentObj, res, evaluator->getCurrentField());
+					}
+				}			
+			}
+		}
 	}
 
 	meta::Type Cutscenes::GetType() const
@@ -157,6 +233,28 @@ namespace GuGu {
 	void Cutscenes::setTrackData(const Array<TrackData>& inTrackData)
 	{
 		m_trackDatas = inTrackData;
+	}
+
+	void Cutscenes::playCutscenes(std::shared_ptr<AssetData> inCutscenes)
+	{
+		std::shared_ptr<Cutscenes> cutscenes = std::static_pointer_cast<Cutscenes>(inCutscenes->m_loadedResource);
+		cutscenes->setIsRunning(true);
+		cutscenes->m_startTime = Application::getApplication()->getTimer()->GetTotalTime();
+	}
+
+	std::shared_ptr<Cutscenes> Cutscenes::getCutscenes(std::shared_ptr<AssetData> inCutscenes)
+	{
+		return std::static_pointer_cast<Cutscenes>(inCutscenes->m_loadedResource);
+	}
+
+	void Cutscenes::setIsRunning(bool inRunning)
+	{
+		m_isRunning = inRunning;
+	}
+
+	bool Cutscenes::getIsRunning()
+	{
+		return m_isRunning;
 	}
 
 }

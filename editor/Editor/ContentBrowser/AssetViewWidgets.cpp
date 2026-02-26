@@ -16,6 +16,7 @@
 #include <Core/GamePlay/GameUI/GFont.h> //GFont
 #include <Core/Animation/GAnimation.h>
 #include <Core/GamePlay/Prefab.h> //Prefab
+#include <Core/Cutscenes/Cutscenes.h> //Cutscene
 
 namespace GuGu {
     void GAssetViewItem::init(const BuilderArguments& arguments)
@@ -142,6 +143,15 @@ namespace GuGu {
 							.brush(assetImage)
 						);
                 }
+                else if (meta::Type::getType(assetViewAsset->m_data.m_assetTypeGuid).GetID() == meta::TypeIDs<Cutscenes>::ID)
+                {
+					std::shared_ptr<Brush> assetImage = EditorStyleSet::getStyleSet()->getBrush("CutscenesAssetIcon");
+					itemContentsOverlay->addSlot()
+						(
+							WIDGET_NEW(ImageWidget)
+							.brush(assetImage)
+						);
+                }
             }	
         }
 
@@ -262,6 +272,15 @@ namespace GuGu {
 				else if (meta::Type::getType(assetViewAsset->m_data.m_assetTypeGuid).GetID() == meta::TypeIDs<Prefab>::ID)
 				{
 					std::shared_ptr<Brush> assetImage = EditorStyleSet::getStyleSet()->getBrush("PrefabAssetIcon");
+					itemContentsOverlay->addSlot()
+						(
+							WIDGET_NEW(ImageWidget)
+							.brush(assetImage)
+						);
+				}
+				else if (meta::Type::getType(assetViewAsset->m_data.m_assetTypeGuid).GetID() == meta::TypeIDs<Cutscenes>::ID)
+				{
+					std::shared_ptr<Brush> assetImage = EditorStyleSet::getStyleSet()->getBrush("CutscenesAssetIcon");
 					itemContentsOverlay->addSlot()
 						(
 							WIDGET_NEW(ImageWidget)
