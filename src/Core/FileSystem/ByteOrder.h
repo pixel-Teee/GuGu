@@ -29,4 +29,8 @@ namespace GuGu {
 	double HostToLittleDouble(double x);
 
 	double LittleToHostDouble(double x);
+
+	void HostToLittle(meta::Type type, meta::Variant& instance);
+
+	void LittleToHost(meta::Type type, meta::Variant& instance);
 }

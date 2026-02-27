@@ -101,4 +101,110 @@ namespace GuGu {
 		return result;
 	}
 
+	void HostToLittle(meta::Type type, meta::Variant& instance)
+	{
+		if (type == typeof(float))
+		{
+			float& val = instance.GetValue<float>();
+			val = HostToLittleFloat(val);
+		}
+		else if (type == typeof(double))
+		{
+			double& val = instance.GetValue<double>();
+			val = HostToLittleDouble(val);
+		}
+		else if (type == typeof(int16_t))
+		{
+			int16_t& val = instance.GetValue<int16_t>();
+			val = HostToLittle16(val);
+		}
+		else if (type == typeof(uint16_t))
+		{
+			uint16_t& val = instance.GetValue<uint16_t>();
+			val = HostToLittle16(val);
+		}
+		else if (type == typeof(int32_t))
+		{
+			int32_t& val = instance.GetValue<int32_t>();
+			val = HostToLittle32(val);
+		}
+		else if (type == typeof(uint32_t))
+		{
+			uint32_t& val = instance.GetValue<uint32_t>();
+			val = HostToLittle32(val);
+		}
+		else if (type == typeof(int64_t))
+		{
+			int64_t& val = instance.GetValue<int64_t>();
+			val = HostToLittle64(val);
+		}
+		else if (type == typeof(uint64_t))
+		{
+			uint64_t& val = instance.GetValue<uint64_t>();
+			val = HostToLittle64(val);
+		}
+
+		auto& fields = meta::ReflectionDatabase::Instance().types[type.GetID()].fields;
+
+		for (auto& field : fields)
+		{
+			auto value = field.GetValueReference(instance);//variant
+
+			HostToLittle(field.GetType(), value);
+		}
+	}
+
+	void LittleToHost(meta::Type type, meta::Variant& instance)
+	{
+		if (type == typeof(float))
+		{
+			float& val = instance.GetValue<float>();
+			val = LittleToHostFloat(val);
+		}
+		else if (type == typeof(double))
+		{
+			double& val = instance.GetValue<double>();
+			val = LittleToHostDouble(val);
+		}
+		else if (type == typeof(int16_t))
+		{
+			int16_t& val = instance.GetValue<int16_t>();
+			val = LittleToHost16(val);
+		}
+		else if (type == typeof(uint16_t))
+		{
+			uint16_t& val = instance.GetValue<uint16_t>();
+			val = LittleToHost16(val);
+		}
+		else if (type == typeof(int32_t))
+		{
+			int32_t& val = instance.GetValue<int32_t>();
+			val = LittleToHost32(val);
+		}
+		else if (type == typeof(uint32_t))
+		{
+			uint32_t& val = instance.GetValue<uint32_t>();
+			val = LittleToHost32(val);
+		}
+		else if (type == typeof(int64_t))
+		{
+			int64_t& val = instance.GetValue<int64_t>();
+			val = LittleToHost64(val);
+		}
+		else if (type == typeof(uint64_t))
+		{
+			uint64_t& val = instance.GetValue<uint64_t>();
+			val = LittleToHost64(val);
+		}
+
+		auto& fields = meta::ReflectionDatabase::Instance().types[type.GetID()].fields;
+
+		for (auto& field : fields)
+		{
+			auto value = field.GetValueReference(instance);//variant
+
+			HostToLittle(field.GetType(), value);
+		}
+	}
+
 }
