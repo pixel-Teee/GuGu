@@ -55,6 +55,20 @@ namespace GuGu {
 			(meta::FieldGetter<ImageComponent, Color, false>::Signature) & ImageComponent::m_color,
 			(meta::FieldSetter<ImageComponent, Color, false>::Signature) & ImageComponent::m_color, {});
 
+		/*
+			UI Component Raw Function
+		*/
+		type.AddField<ImageComponent, std::shared_ptr<GuGuScriptDelegate>>("m_onPointerDown",
+			(meta::FieldGetter<ImageComponent, std::shared_ptr<GuGuScriptDelegate>, true>::Signature) & ImageComponent::getPointerDownScriptDelegate,
+			(meta::FieldSetter<ImageComponent, std::shared_ptr<GuGuScriptDelegate>, true>::Signature) & ImageComponent::setPointerDownScriptDelegate, {});
+
+		type.AddField<ImageComponent, std::shared_ptr<GuGuScriptDelegate>>("m_onPointerUp",
+			(meta::FieldGetter<ImageComponent, std::shared_ptr<GuGuScriptDelegate>, true>::Signature) & ImageComponent::getPointerUpScriptDelegate,
+			(meta::FieldSetter<ImageComponent, std::shared_ptr<GuGuScriptDelegate>, true>::Signature) & ImageComponent::setPointerUpScriptDelegate, {});
+		/*
+			UI Component Raw Function
+		*/
+
 		type.AddField<ImageComponent, std::weak_ptr<GameObject>>("m_owner",
 			(meta::FieldGetter<ImageComponent, std::weak_ptr<GameObject>&, true>::Signature) & ImageComponent::getParentGameObject,
 			(meta::FieldSetter<ImageComponent, std::weak_ptr<GameObject>&, true>::Signature) & ImageComponent::setParentGameObject, {});

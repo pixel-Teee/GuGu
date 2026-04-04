@@ -29,7 +29,7 @@ namespace GuGu {
 
 		void close();
 
-		void invoke(const GuGuUtf8Str& inFunctionName);
+		void invoke(const GuGuUtf8Str& inFunctionName, const std::vector<meta::Variant>& args = {});
 	private:
 		GuGuUtf8Str m_scriptPath;
 

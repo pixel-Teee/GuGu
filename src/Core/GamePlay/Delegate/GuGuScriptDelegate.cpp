@@ -109,12 +109,12 @@ namespace GuGu {
 
 	}
 
-	void GuGuScriptDelegate::invoke()
+	void GuGuScriptDelegate::invoke(const std::vector<meta::Variant>& args)
 	{
 		//invoke script function
 		if (m_scriptObject.lock())
 		{
-			m_scriptObject.lock()->invoke(m_functionName);
+			m_scriptObject.lock()->invoke(m_functionName, args);
 		}
 	}
 

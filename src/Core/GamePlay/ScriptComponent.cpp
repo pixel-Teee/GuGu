@@ -228,7 +228,7 @@ namespace GuGu {
 
 	}
 
-	void ScriptComponent::invoke(const GuGuUtf8Str& inFunctionName)
+	void ScriptComponent::invoke(const GuGuUtf8Str& inFunctionName, const std::vector<meta::Variant>& args)
 	{
 		std::shared_ptr<LuaContext> luaContext = LuaContext::getLuaContext();
 		lua_State* L = luaContext->getLuaState();
@@ -242,9 +242,18 @@ namespace GuGu {
 			if (lua_istable(L, -1)) {
 				lua_getfield(L, -1, inFunctionName.getStr());
 				if (lua_isfunction(L, -1)) {
-					//调用 deInit 方法
+					
 					lua_pushvalue(L, -2); //将脚本实例作为第一个参数
-					if (lua_pcall(L, 1, 0, 0) != LUA_OK) {
+
+					//推送额外参数
+					for (const auto& arg : args) {
+						LuaContext::pushVariantToLua(L, arg);
+					}
+
+					//参数个数
+					int nargs = 1 + args.size();
+
+					if (lua_pcall(L, nargs, 0, 0) != LUA_OK) {
 						GuGu_LOGE("error in script function %s: %s", inFunctionName.getStr(), lua_tostring(L, -1));
 						lua_pop(L, 1); //弹出错误信息
 					}

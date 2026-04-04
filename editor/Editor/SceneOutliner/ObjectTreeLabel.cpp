@@ -207,6 +207,19 @@ namespace GuGu {
 							.textColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9"))
 							.text("clone game object")
 						)
+					)
+					+ VerticalBox::Slot()
+					.FixedHeight()
+					(
+						WIDGET_NEW(Button)
+						.Clicked(this, &ObjectTreeLabel::rightClickCreateGameObject)
+						.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+						.Content
+						(
+							WIDGET_NEW(TextBlockWidget)
+							.textColor(EditorStyleSet::getStyleSet()->getColor("SecondaryColorLevel9"))
+							.text("add game object(for the current scene)")
+						)
 					);
 
 				WidgetPath widgetPath = WidgetPath();
@@ -344,8 +357,29 @@ namespace GuGu {
 			return Reply::Handled();
 		}
 
-		Reply ObjectTreeLabel::OnDragDetected(const WidgetGeometry& myGeometry, const PointerEvent& mouseEvent)
-		{
+        Reply ObjectTreeLabel::rightClickCreateGameObject()
+        {
+			m_menu->dismiss();
+            //add object
+			std::shared_ptr<GameObject> gameObject = std::make_shared<GameObject>();
+			std::shared_ptr<TransformComponent> transformComponent = std::make_shared<TransformComponent>();
+			gameObject->addComponent(transformComponent);
+			std::shared_ptr<Level> currentLevel = World::getWorld()->getCurrentLevel();
+			if (currentLevel)
+			{
+				//undo/redo
+				TransactionManager& transactionManager = TransactionManager::getTransactionManager();
+				transactionManager.beginTransaction();
+				transactionManager.modifyObject(currentLevel);
+				currentLevel->addGameObject(gameObject);
+				transactionManager.commit();
+			}
+
+			return Reply::Handled();
+        }
+
+        Reply ObjectTreeLabel::OnDragDetected(const WidgetGeometry &myGeometry, const PointerEvent &mouseEvent)
+        {
 			//note:注意，必须判断鼠标是否按下，因为OnDragDected在鼠标移动的时候触发，不然鼠标松开也会出现拖动的装饰性窗口
 			if(m_objectPtr.lock() && mouseEvent.isMouseButtonDown(Keys::LeftMouseButton))
 				return Reply::Handled().beginDragDrop(ObjectDragDropOperation::New(m_objectPtr.lock()));

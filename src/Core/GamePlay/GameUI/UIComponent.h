@@ -5,6 +5,8 @@
 
 #include "UIPointerData.h" //ui pointer data
 
+#include <Core/GamePlay/Delegate/GuGuScriptDelegate.h>
+
 namespace GuGu {
 	struct UIDrawInfo;
 	struct UIDebugInfo;
@@ -33,5 +35,20 @@ namespace GuGu {
 		virtual void onPointerDown(UIPointerData pointerData);
 
 		virtual void onPointerUp(UIPointerData pointerData);
+
+		std::shared_ptr<GuGuScriptDelegate> getPointerDownScriptDelegate();
+	
+		void setPointerDownScriptDelegate(std::shared_ptr<GuGuScriptDelegate> inScriptDelegate);
+
+		std::shared_ptr<GuGuScriptDelegate> getPointerUpScriptDelegate();
+	
+		void setPointerUpScriptDelegate(std::shared_ptr<GuGuScriptDelegate> inScriptDelegate);
+
+		/*
+			可用的基本委托
+		*/
+		std::shared_ptr<GuGuScriptDelegate> m_onPointerDown;
+
+		std::shared_ptr<GuGuScriptDelegate> m_onPointerUp;
 	};
 }

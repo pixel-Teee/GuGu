@@ -58,6 +58,13 @@ namespace GuGu {
 			(meta::FieldGetter<UIComponent, std::weak_ptr<GameObject>&, true>::Signature) & UIComponent::getParentGameObject,
 			(meta::FieldSetter<UIComponent, std::weak_ptr<GameObject>&, true>::Signature) & UIComponent::setParentGameObject, {});
 
+		type.AddField<UIComponent, std::shared_ptr<GuGuScriptDelegate>>("m_onPointerDown",
+			(meta::FieldGetter<UIComponent, std::shared_ptr<GuGuScriptDelegate>, true>::Signature) & UIComponent::getPointerDownScriptDelegate,
+			(meta::FieldSetter<UIComponent, std::shared_ptr<GuGuScriptDelegate>, true>::Signature) & UIComponent::setPointerDownScriptDelegate, {});
+
+		type.AddField<UIComponent, std::shared_ptr<GuGuScriptDelegate>>("m_onPointerUp",
+			(meta::FieldGetter<UIComponent, std::shared_ptr<GuGuScriptDelegate>, true>::Signature) & UIComponent::getPointerUpScriptDelegate,
+			(meta::FieldSetter<UIComponent, std::shared_ptr<GuGuScriptDelegate>, true>::Signature) & UIComponent::setPointerUpScriptDelegate, {});
 		return true;
 	}
 
@@ -73,7 +80,8 @@ namespace GuGu {
 
 	UIComponent::UIComponent()
 	{
-
+		m_onPointerDown = std::make_shared<GuGuScriptDelegate>();
+		m_onPointerUp = std::make_shared<GuGuScriptDelegate>();
 	}
 
 	UIComponent::~UIComponent()
@@ -299,12 +307,41 @@ namespace GuGu {
 
 	void UIComponent::onPointerDown(UIPointerData pointerData)
 	{
-		//nothing
+		if(m_onPointerDown)
+		{
+			std::vector<meta::Variant> args;
+			args.push_back(pointerData);
+			m_onPointerDown->invoke(args);
+		}
 	}
 
 	void UIComponent::onPointerUp(UIPointerData pointerData)
 	{
-		//nothing
+		if(m_onPointerUp)
+		{
+			std::vector<meta::Variant> args;
+			args.push_back(pointerData);
+			m_onPointerUp->invoke(args);
+		}
 	}
 
+    std::shared_ptr<GuGuScriptDelegate> UIComponent::getPointerDownScriptDelegate()
+    {
+        return m_onPointerDown;
+    }
+
+    void UIComponent::setPointerDownScriptDelegate(std::shared_ptr<GuGuScriptDelegate> inScriptDelegate)
+    {
+		m_onPointerDown = inScriptDelegate;
+    }
+
+    std::shared_ptr<GuGuScriptDelegate> UIComponent::getPointerUpScriptDelegate()
+    {
+        return m_onPointerUp;
+    }
+
+    void UIComponent::setPointerUpScriptDelegate(std::shared_ptr<GuGuScriptDelegate> inScriptDelegate)
+    {
+		m_onPointerUp = inScriptDelegate;
+    }
 }

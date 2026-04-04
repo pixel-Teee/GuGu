@@ -22,7 +22,7 @@ namespace GuGu {
 		virtual void OnSerialize(nlohmann::json& output) const;
 		virtual void OnDeserialize(const nlohmann::json& input);
 
-		void invoke();
+		void invoke(const std::vector<meta::Variant>& args = {});
 
 		void addFunction(std::shared_ptr<ScriptComponent> inScriptObject, const GuGuUtf8Str& inFunctionName);
 

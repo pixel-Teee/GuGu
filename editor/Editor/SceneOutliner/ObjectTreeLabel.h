@@ -42,6 +42,11 @@ namespace GuGu {
 
 			Reply rightClickCloneGameObject();
 
+			/*
+				不针对当前game object，在当前场景里面创建game object
+			*/
+			Reply rightClickCreateGameObject();
+
 			Reply OnDragDetected(const WidgetGeometry& myGeometry, const PointerEvent& mouseEvent) override;
 
 			void OnDragEnter(const WidgetGeometry& myGeometry, const DragDropEvent& dragDropEvent) override;
