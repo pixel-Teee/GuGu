@@ -28,7 +28,11 @@ namespace GuGu {
 			if (index == 2) return b;
 			if (index == 3) return a;
 		}
+		Color operator-(const Color& rhs) const { return Color(r - rhs.r, g - rhs.g, b - rhs.b, a - rhs.a); }
 
+		friend Color operator*(float value, const Color& rhs) { return Color(value * rhs.r, value * rhs.g, value * rhs.b, value * rhs.a); }
+		friend Color operator*(const Color& rhs, float value) { return Color(value * rhs.r, value * rhs.g, value * rhs.b, value * rhs.a); }
+		friend Color operator+(const Color& lhs, const Color& rhs) { return Color(lhs.r + rhs.r, lhs.g + rhs.g, lhs.b + rhs.b, lhs.a + rhs.a); }
 		Color HSVToLinearRGB() const;
 
 		Color LinearRGBToHSV() const;

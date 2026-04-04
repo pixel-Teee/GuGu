@@ -271,6 +271,16 @@ namespace GuGu {
 		return nullptr;
 	}
 
+	std::shared_ptr<GuGu::Component> Level::getComponent(const GuGuUtf8Str& name, meta::Type componentType) const
+	{
+		for (int32_t i = 0; i < m_objects.size(); ++i)
+		{
+			if (m_objects[i]->getName() == name)
+				return m_objects[i]->getComponent(componentType.GetName());
+		}
+		return nullptr;
+	}
+
 	std::shared_ptr<GameObject> Level::createGameObject(const GuGuUtf8Str& name)
 	{
 		std::shared_ptr<GameObject> gameObject = std::make_shared<GameObject>();

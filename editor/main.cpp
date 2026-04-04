@@ -21,6 +21,7 @@
 #include "Editor/StyleSet/EditorStyleSet.h"
 #include <Core/LuaContext/LuaContext.h>
 #include <Renderer/Renderer.h>
+#include <Core/Cutscenes/testCutScenes.h>
 
 #ifdef WIN32
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine, int nCmdShow)
@@ -65,8 +66,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR lpCmdLine,
     std::shared_ptr<GuGu::EditorMainWindow> editorMainWindow = GuGu::CreateEditorMainWindow();
 
 	application->init(editorMainWindow);
-
     //editorMainWindow->setRenderTarget(application->getRenderer()->getDemoPass()->getRenderTarget());
+    GuGu::testCutscenes();
 
 	application->Run();
 

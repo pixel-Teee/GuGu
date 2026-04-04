@@ -50,6 +50,7 @@
 #include <Core/Debug/DebugDraw.h>
 
 #include <Core/Cutscenes/TrackData.h>
+#include <Core/Cutscenes/Cutscenes.h>
 
 namespace GuGu {
 
@@ -879,6 +880,165 @@ namespace GuGu {
 		return true;
 	}
 
+	static bool registerCutscenesKeyFrame()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto id = db.AllocateType("GuGu::CutscenesKeyFrame");
+		auto& type = db.types[id];
+		meta::TypeInfo<CutscenesKeyFrame>::Register(id, type, true, "21832F5C-18DC-4308-9BA1-955DB2ED0CAB");
+
+		type.AddConstructor<CutscenesKeyFrame, false, false>({});
+
+		type.AddConstructor<CutscenesKeyFrame, true, false>({});
+
+		type.SetArrayConstructor<CutscenesKeyFrame>();
+
+		type.AddField<CutscenesKeyFrame, Array<uint8_t>>("m_value",
+			(meta::FieldGetter<CutscenesKeyFrame, Array<uint8_t>, false>::Signature) & CutscenesKeyFrame::m_value,
+			(meta::FieldSetter<CutscenesKeyFrame, Array<uint8_t>, false>::Signature) & CutscenesKeyFrame::m_value, {});
+
+		type.AddField<CutscenesKeyFrame, GuGuUtf8Str>("m_typeGuid",
+			(meta::FieldGetter<CutscenesKeyFrame, GuGuUtf8Str, false>::Signature) & CutscenesKeyFrame::m_typeGuid,
+			(meta::FieldSetter<CutscenesKeyFrame, GuGuUtf8Str, false>::Signature) & CutscenesKeyFrame::m_typeGuid, {});
+
+		type.AddField<CutscenesKeyFrame, GuGuUtf8Str>("m_fieldName",
+			(meta::FieldGetter<CutscenesKeyFrame, GuGuUtf8Str, false>::Signature) & CutscenesKeyFrame::m_fieldName,
+			(meta::FieldSetter<CutscenesKeyFrame, GuGuUtf8Str, false>::Signature) & CutscenesKeyFrame::m_fieldName, {});
+
+		type.AddField<CutscenesKeyFrame, float>("m_timestamp",
+			(meta::FieldGetter<CutscenesKeyFrame, float, false>::Signature) & CutscenesKeyFrame::m_timestamp,
+			(meta::FieldSetter<CutscenesKeyFrame, float, false>::Signature) & CutscenesKeyFrame::m_timestamp, {});
+		return true;
+	}
+
+	static bool registerCutscenesEventsArgument()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto id = db.AllocateType("GuGu::CutscenesEventsArgument");
+		auto& type = db.types[id];
+		meta::TypeInfo<CutscenesEventsArgument>::Register(id, type, true, "61E91432-E62F-48BC-95A5-D8066BBAA04A");
+
+		type.AddConstructor<CutscenesEventsArgument, false, false>({});
+
+		type.AddConstructor<CutscenesEventsArgument, true, false>({});
+
+		type.SetArrayConstructor<CutscenesEventsArgument>();
+
+		type.AddField<CutscenesEventsArgument, Array<uint8_t>>("m_argument",
+			(meta::FieldGetter<CutscenesEventsArgument, Array<uint8_t>, false>::Signature) & CutscenesEventsArgument::m_argument,
+			(meta::FieldSetter<CutscenesEventsArgument, Array<uint8_t>, false>::Signature) & CutscenesEventsArgument::m_argument, {});
+
+		type.AddField<CutscenesEventsArgument, GuGuUtf8Str>("m_typeGuid",
+			(meta::FieldGetter<CutscenesEventsArgument, GuGuUtf8Str, false>::Signature) & CutscenesEventsArgument::m_typeGuid,
+			(meta::FieldSetter<CutscenesEventsArgument, GuGuUtf8Str, false>::Signature) & CutscenesEventsArgument::m_typeGuid, {});
+		return true;
+	}
+
+	static bool registerCutscenesEvents()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto id = db.AllocateType("GuGu::CutscenesEvents");
+		auto& type = db.types[id];
+		meta::TypeInfo<CutscenesEvents>::Register(id, type, true, "583E25CC-1223-449E-9B31-94B454E6E9BB");
+
+		type.AddConstructor<CutscenesEvents, false, false>({});
+
+		type.AddConstructor<CutscenesEvents, true, false>({});
+
+		type.SetArrayConstructor<CutscenesEvents>();
+
+		type.AddField<CutscenesEvents, GuGuUtf8Str>("m_functionName",
+			(meta::FieldGetter<CutscenesEvents, GuGuUtf8Str, false>::Signature) & CutscenesEvents::m_functionName,
+			(meta::FieldSetter<CutscenesEvents, GuGuUtf8Str, false>::Signature) & CutscenesEvents::m_functionName, {});
+
+		type.AddField<CutscenesEvents, Array<CutscenesEventsArgument>>("m_arguments",
+			(meta::FieldGetter<CutscenesEvents, Array<CutscenesEventsArgument>, false>::Signature) & CutscenesEvents::m_arguments,
+			(meta::FieldSetter<CutscenesEvents, Array<CutscenesEventsArgument>, false>::Signature) & CutscenesEvents::m_arguments, {});
+
+		type.AddField<CutscenesEvents, float>("m_timestamp",
+			(meta::FieldGetter<CutscenesEvents, float, false>::Signature) & CutscenesEvents::m_timestamp,
+			(meta::FieldSetter<CutscenesEvents, float, false>::Signature) & CutscenesEvents::m_timestamp, {});
+		return true;
+	}
+
+	static bool registerSection()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto id = db.AllocateType("GuGu::Section");
+		auto& type = db.types[id];
+		meta::TypeInfo<Section>::Register(id, type, true, "C7052D1B-FFFC-46B4-9CB8-B203FCA2F5A7");
+
+		type.AddConstructor<Section, false, false>({});
+
+		type.AddConstructor<Section, true, false>({});
+
+		type.SetArrayConstructor<Section>();
+
+		type.AddField<Section, CutscenesInterpolationMode>("m_mode",
+			(meta::FieldGetter<Section, CutscenesInterpolationMode, false>::Signature) & Section::m_mode,
+			(meta::FieldSetter<Section, CutscenesInterpolationMode, false>::Signature) & Section::m_mode, {});
+
+		type.AddField<Section, float>("m_startTime",
+			(meta::FieldGetter<Section, float, false>::Signature) & Section::m_startTime,
+			(meta::FieldSetter<Section, float, false>::Signature) & Section::m_startTime, {});
+
+		type.AddField<Section, float>("m_endTime",
+			(meta::FieldGetter<Section, float, false>::Signature) & Section::m_endTime,
+			(meta::FieldSetter<Section, float, false>::Signature) & Section::m_endTime, {});
+
+		type.AddField<Section, Array<CutscenesKeyFrame>>("m_keyFrames",
+			(meta::FieldGetter<Section, Array<CutscenesKeyFrame>, false>::Signature) & Section::m_keyFrames,
+			(meta::FieldSetter<Section, Array<CutscenesKeyFrame>, false>::Signature) & Section::m_keyFrames, {});
+
+		type.AddField<Section, Array<CutscenesKeyFrame>>("m_events",
+			(meta::FieldGetter<Section, Array<CutscenesKeyFrame>, false>::Signature) & Section::m_events,
+			(meta::FieldSetter<Section, Array<CutscenesKeyFrame>, false>::Signature) & Section::m_events, {});
+
+		type.AddField<Section, GuGuUtf8Str>("m_levelPath",
+			(meta::FieldGetter<Section, GuGuUtf8Str, false>::Signature) & Section::m_levelPath,
+			(meta::FieldSetter<Section, GuGuUtf8Str, false>::Signature) & Section::m_levelPath, {});
+
+		type.AddField<Section, GuGuUtf8Str>("m_levelName",
+			(meta::FieldGetter<Section, GuGuUtf8Str, false>::Signature) & Section::m_levelName,
+			(meta::FieldSetter<Section, GuGuUtf8Str, false>::Signature) & Section::m_levelName, {});
+
+		type.AddField<Section, GuGuUtf8Str>("m_bindingObjectName",
+			(meta::FieldGetter<Section, GuGuUtf8Str, false>::Signature) & Section::m_bindingObjectName,
+			(meta::FieldSetter<Section, GuGuUtf8Str, false>::Signature) & Section::m_bindingObjectName, {});
+
+		type.AddField<Section, GuGuUtf8Str>("m_bindingObjectComponentTypeGuid",
+			(meta::FieldGetter<Section, GuGuUtf8Str, false>::Signature) & Section::m_bindingObjectComponentTypeGuid,
+			(meta::FieldSetter<Section, GuGuUtf8Str, false>::Signature) & Section::m_bindingObjectComponentTypeGuid, {});
+		return true;
+	}
+
+	static bool registerTrackData()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto id = db.AllocateType("GuGu::TrackData");
+		auto& type = db.types[id];
+		meta::TypeInfo<TrackData>::Register(id, type, true, "CD8BEB75-90D5-4FED-A869-01ABDA55F72E");
+
+		type.AddConstructor<TrackData, false, false>({});
+
+		type.AddConstructor<TrackData, true, false>({});
+
+		type.SetArrayConstructor<TrackData>();
+
+		type.AddField<TrackData, GuGuUtf8Str>("m_typeGuid",
+			(meta::FieldGetter<TrackData, GuGuUtf8Str, false>::Signature) & TrackData::m_typeGuid,
+			(meta::FieldSetter<TrackData, GuGuUtf8Str, false>::Signature) & TrackData::m_typeGuid, {});
+
+		type.AddField<TrackData, bool>("m_isEvent",
+			(meta::FieldGetter<TrackData, bool, false>::Signature) & TrackData::m_isEvent,
+			(meta::FieldSetter<TrackData, bool, false>::Signature) & TrackData::m_isEvent, {});
+
+		type.AddField<TrackData, Array<Section>>("m_sections",
+			(meta::FieldGetter<TrackData, Array<Section>, false>::Signature) & TrackData::m_sections,
+			(meta::FieldSetter<TrackData, Array<Section>, false>::Signature) & TrackData::m_sections, {});
+		return true;
+	}
+
 	void registerThirdParty()
 	{
 		//Priority metaDisplayNamePriority;
@@ -965,7 +1125,12 @@ namespace GuGu {
 		ReflectionMain::addInitialTypeFunction(registerKeys, &keysPriority);
 		ReflectionMain::addInitialTypeFunction(registerInputManager, &inputManagerPriority);
 		ReflectionMain::addInitialTypeFunction(registerDebugDraw, &debugDrawPriority);
-		ReflectionMain::addInitialTypeFunction(registerCutscenesInterpolationMode, &cutscenesEventsPriority);
+		ReflectionMain::addInitialTypeFunction(registerCutscenesInterpolationMode, &cutscenesInterpolationModePriority);
+		ReflectionMain::addInitialTypeFunction(registerCutscenesKeyFrame, &cutscenesKeyFramePriority);
+		ReflectionMain::addInitialTypeFunction(registerSection, &sectionDataPriority);
+		ReflectionMain::addInitialTypeFunction(registerCutscenesEventsArgument, &cutscenesEventsArgumentPriority);
+		ReflectionMain::addInitialTypeFunction(registerCutscenesEvents, &cutscenesEventsPriority);
+		ReflectionMain::addInitialTypeFunction(registerTrackData, &trackDataPriority);
 		keyPositionPriority.addPriorityThan(&mathfloat3Priority);
 		keyRotationPriority.addPriorityThan(&mathquatPriority);
 		keyScalePriority.addPriorityThan(&mathfloat3Priority);
@@ -975,6 +1140,11 @@ namespace GuGu {
 		collisionResultPriority.addPriorityThan(&mathfloat3Priority);
 		inputManagerPriority.addPriorityThan(&keysPriority);
 		debugDrawPriority.addPriorityThan(&mathfloat3Priority);
+		cutscenesEventsPriority.addPriorityThan(&cutscenesEventsArgumentPriority);
+		sectionDataPriority.addPriorityThan(&cutscenesInterpolationModePriority);
+		sectionDataPriority.addPriorityThan(&cutscenesKeyFramePriority);
+		sectionDataPriority.addPriorityThan(&cutscenesEventsPriority);
+		trackDataPriority.addPriorityThan(&sectionDataPriority);
 
 		//UIComponent register
 		UIComponent::registerMainFactory();
@@ -1015,6 +1185,10 @@ namespace GuGu {
 
         Collision3DComponent::registerMainFactory();
         Collision3DComponent::registerMainFactory2();
+		
+		Cutscenes::ms_priority2.addPriorityThan(&trackDataPriority);
+		Cutscenes::registerMainFactory();
+		Cutscenes::registerMainFactory2();
 		ReflectionMain::initialize();
 
 		meta::Type::List types = meta::Type::GetTypes();

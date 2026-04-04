@@ -20,6 +20,7 @@
 #include <Core/Animation/GAnimation.h>
 #include <Core/GamePlay/Prefab.h>
 #include <Core/GamePlay/Level.h>
+#include <Core/Cutscenes/Cutscenes.h>
 
 #include "Base64.h"
 #include <Core/Reflection/MetaProperty/CustomDeserializeField.h>
@@ -1135,6 +1136,11 @@ namespace GuGu {
 					else if (meta::Type::getType(item.second->m_assetTypeGuid) == typeof(Level))
 					{
 						std::shared_ptr<meta::Object> loadedObject = AssetManager::getAssetManager().deserializeJson<Level>(nlohmann::json::parse(json.getStr()));
+						item.second->m_loadedResource = loadedObject;
+					}
+					else if (meta::Type::getType(item.second->m_assetTypeGuid) == typeof(Cutscenes))
+					{
+						std::shared_ptr<meta::Object> loadedObject = AssetManager::getAssetManager().deserializeJson<Cutscenes>(nlohmann::json::parse(json.getStr()));
 						item.second->m_loadedResource = loadedObject;
 					}
 					//AssetManager::getAssetManager().deserializeJson(nlohmann::json::parse(modelJson.getStr()))
