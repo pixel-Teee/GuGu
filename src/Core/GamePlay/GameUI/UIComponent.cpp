@@ -4,6 +4,8 @@
 #include <Core/Reflection/TypeInfo.h>
 #include <Core/GamePlay/GameObject.h>
 #include <Core/GamePlay/GamePlayerReflectionRegister.h>
+#include <Core/GamePlay/InputManager.h>
+#include <Core/GamePlay/UIDragDropOperation.h>
 
 #include "UITransformComponent.h"
 #include "UIDrawInfo.h"
@@ -65,6 +67,12 @@ namespace GuGu {
 		type.AddField<UIComponent, std::shared_ptr<GuGuScriptDelegate>>("m_onPointerUp",
 			(meta::FieldGetter<UIComponent, std::shared_ptr<GuGuScriptDelegate>, true>::Signature) & UIComponent::getPointerUpScriptDelegate,
 			(meta::FieldSetter<UIComponent, std::shared_ptr<GuGuScriptDelegate>, true>::Signature) & UIComponent::setPointerUpScriptDelegate, {});
+
+		type.AddField<UIComponent, std::shared_ptr<GuGuScriptDelegate>>("m_onPointerMove",
+			(meta::FieldGetter<UIComponent, std::shared_ptr<GuGuScriptDelegate>, true>::Signature) & UIComponent::getPointerMoveScriptDelegate,
+			(meta::FieldSetter<UIComponent, std::shared_ptr<GuGuScriptDelegate>, true>::Signature) & UIComponent::setPointerMoveScriptDelegate, {});
+
+		type.AddMethod("detectDrag", &UIComponent::detectDrag, {});
 		return true;
 	}
 
@@ -82,6 +90,7 @@ namespace GuGu {
 	{
 		m_onPointerDown = std::make_shared<GuGuScriptDelegate>();
 		m_onPointerUp = std::make_shared<GuGuScriptDelegate>();
+		m_onPointerMove = std::make_shared<GuGuScriptDelegate>();
 	}
 
 	UIComponent::~UIComponent()
@@ -325,6 +334,30 @@ namespace GuGu {
 		}
 	}
 
+    void UIComponent::onPointerMove(UIPointerData pointerData)
+    {
+		if(m_bDragDetectionEnabled)
+		{
+			math::float2 delta = pointerData.getScreenPosition() - m_dragDetectionStartPos;
+			if(math::length(delta) >= m_dragDetectionThreshold)
+			{
+				//notify global to start drag
+				m_bIsDragging = true;
+				std::shared_ptr<UIDragDropOperation> operation = std::make_shared<UIDragDropOperation>();
+				InputManager::getInputManager()->startDrag(std::static_pointer_cast<UIComponent>(shared_from_this()), operation);
+			}
+			m_bDragDetectionEnabled = false;
+			return;
+		}
+
+		if(m_onPointerMove)
+		{
+			std::vector<meta::Variant> args;
+			args.push_back(pointerData);
+			m_onPointerMove->invoke(args);
+		}
+    }
+
     std::shared_ptr<GuGuScriptDelegate> UIComponent::getPointerDownScriptDelegate()
     {
         return m_onPointerDown;
@@ -343,5 +376,22 @@ namespace GuGu {
     void UIComponent::setPointerUpScriptDelegate(std::shared_ptr<GuGuScriptDelegate> inScriptDelegate)
     {
 		m_onPointerUp = inScriptDelegate;
+    }
+
+    std::shared_ptr<GuGuScriptDelegate> UIComponent::getPointerMoveScriptDelegate()
+    {
+        return m_onPointerMove;
+    }
+
+    void UIComponent::setPointerMoveScriptDelegate(std::shared_ptr<GuGuScriptDelegate> inScriptDelegate)
+    {
+		m_onPointerMove = inScriptDelegate;
+    }
+
+    void UIComponent::detectDrag(float threshold, math::float2 inStartPos)
+    {
+		m_bDragDetectionEnabled = true;
+		m_dragDetectionStartPos = inStartPos;
+		m_dragDetectionThreshold = threshold;
     }
 }

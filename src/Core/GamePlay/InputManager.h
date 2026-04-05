@@ -19,14 +19,29 @@ namespace GuGu {
 		Key m_keyCode;//keyboard events
 	};
 
-	struct InputManager
+	class UIComponent;
+	class UIDragDropOperation;
+
+	struct InputManager : public meta::Object
 	{
 	public:
 		InputManager();
 
 		virtual ~InputManager();
 
-		static InputManager& getInputManager();
+		virtual meta::Type GetType() const override;
+
+		virtual void PostLoad();
+
+		virtual void Update(float fElapsedTimeSeconds);
+
+		virtual Object* Clone(void) const;
+
+		// InputManager(const InputManager&) = delete;
+
+		// InputManager& operator=(const InputManager&) = delete;
+
+		static std::shared_ptr<InputManager> getInputManager();
 
 		void updatePreviousMouseState();
 
@@ -85,6 +100,15 @@ namespace GuGu {
 
 		math::float2 getViewportCenter() const;
 		void setCursorPos(math::float2 inCursorPos);
+
+		void setCaptureUIComponent(std::shared_ptr<UIComponent> inCaptureUIComponent);
+
+		std::shared_ptr<UIComponent> getCaptureUIComponent();
+
+		/*
+			开始拖拽
+		*/
+		void startDrag(std::shared_ptr<UIComponent> source, std::shared_ptr<UIDragDropOperation> inDragDropOperation);
 	private:
 		std::map<GuGuUtf8Str, bool> m_currentState;
 
@@ -101,5 +125,8 @@ namespace GuGu {
 		math::float2 m_leftUpperCornerPos;
 		float m_width;
 		float m_height;
+
+		//capture UI Component
+		std::shared_ptr<UIComponent> m_captureUIComponent;
 	};
 }

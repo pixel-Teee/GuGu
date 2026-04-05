@@ -93,9 +93,9 @@ namespace GuGu{
     {
         while (!m_alreadyExit)
         {
-			InputManager::getInputManager().clearEvents();
-			InputManager::getInputManager().updatePreviousMouseState();
-			InputManager::getInputManager().updateWheelDelta(0.0f);
+			InputManager::getInputManager()->clearEvents();
+			InputManager::getInputManager()->updatePreviousMouseState();
+			InputManager::getInputManager()->updateWheelDelta(0.0f);
             //todo:add update
             pumpMessage();
 

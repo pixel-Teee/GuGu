@@ -829,6 +829,31 @@ namespace GuGu {
 
 		type.SetArrayConstructor<InputManager>();
 
+		meta::TypeInfo<InputManager>::Defined = true;
+
+		{
+			auto id = db.AllocateType("std::shared_ptr<GuGu::InputManager>");
+			auto& type = db.types[id];
+			meta::TypeInfo<std::shared_ptr<InputManager>>::Register(id, type, false, "2621D71F-227C-438B-9EB4-6CC94A66DF43");
+		}
+
+		{
+			auto id = db.AllocateType("std::weak_ptr<GuGu::InputManager>");
+			auto& type = db.types[id];
+			meta::TypeInfo<std::weak_ptr<InputManager>>::Register(id, type, false, "C1B6C59D-B39D-47F7-A439-DAEAA3D394BB");
+		}
+	
+		return true;
+	}
+
+	static bool registerInputManagerMethod()
+	{
+		auto& db = meta::ReflectionDatabase::Instance();
+		auto& type = db.types[typeof(InputManager).GetID()];
+
+		/*
+			method
+		*/
 		type.AddMethod("isKeyDown", &InputManager::isKeyDown, {});
 
 		type.AddMethod("getMouseDelta", &InputManager::getMouseDelta, {});
@@ -842,6 +867,10 @@ namespace GuGu {
 		type.AddMethod("getViewportLeftUpperCornerPos", &InputManager::getViewportLeftUpperCornerPos, {});
 
 		type.AddMethod("getViewportWidthAndHeight", &InputManager::getViewportWidthAndHeight, {});
+
+		type.AddMethod("setCaptureUIComponent", &InputManager::setCaptureUIComponent, {});
+		
+		type.AddMethod("getCaptureUIComponent", &InputManager::getCaptureUIComponent, {});
 
 		type.AddStaticMethod<InputManager>("getInputManager", &InputManager::getInputManager, {});
 
@@ -1124,6 +1153,7 @@ namespace GuGu {
 		ReflectionMain::addInitialTypeFunction(registerCollisionResult, &collisionResultPriority);
 		ReflectionMain::addInitialTypeFunction(registerKeys, &keysPriority);
 		ReflectionMain::addInitialTypeFunction(registerInputManager, &inputManagerPriority);
+		ReflectionMain::addInitialTypeFunction(registerInputManagerMethod, &inputManagerMethodPriority);
 		ReflectionMain::addInitialTypeFunction(registerDebugDraw, &debugDrawPriority);
 		ReflectionMain::addInitialTypeFunction(registerCutscenesInterpolationMode, &cutscenesInterpolationModePriority);
 		ReflectionMain::addInitialTypeFunction(registerCutscenesKeyFrame, &cutscenesKeyFramePriority);
@@ -1139,6 +1169,8 @@ namespace GuGu {
 		channelPriority.addPriorityThan(&keyScalePriority);
 		collisionResultPriority.addPriorityThan(&mathfloat3Priority);
 		inputManagerPriority.addPriorityThan(&keysPriority);
+		inputManagerMethodPriority.addPriorityThan(&inputManagerPriority);
+		inputManagerMethodPriority.addPriorityThan(&UIComponent::ms_priority); //depend
 		debugDrawPriority.addPriorityThan(&mathfloat3Priority);
 		cutscenesEventsPriority.addPriorityThan(&cutscenesEventsArgumentPriority);
 		sectionDataPriority.addPriorityThan(&cutscenesInterpolationModePriority);

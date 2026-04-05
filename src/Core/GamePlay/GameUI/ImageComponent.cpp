@@ -65,6 +65,10 @@ namespace GuGu {
 		type.AddField<ImageComponent, std::shared_ptr<GuGuScriptDelegate>>("m_onPointerUp",
 			(meta::FieldGetter<ImageComponent, std::shared_ptr<GuGuScriptDelegate>, true>::Signature) & ImageComponent::getPointerUpScriptDelegate,
 			(meta::FieldSetter<ImageComponent, std::shared_ptr<GuGuScriptDelegate>, true>::Signature) & ImageComponent::setPointerUpScriptDelegate, {});
+
+		type.AddField<ImageComponent, std::shared_ptr<GuGuScriptDelegate>>("m_onPointerMove",
+			(meta::FieldGetter<ImageComponent, std::shared_ptr<GuGuScriptDelegate>, true>::Signature) & ImageComponent::getPointerMoveScriptDelegate,
+			(meta::FieldSetter<ImageComponent, std::shared_ptr<GuGuScriptDelegate>, true>::Signature) & ImageComponent::setPointerMoveScriptDelegate, {});
 		/*
 			UI Component Raw Function
 		*/

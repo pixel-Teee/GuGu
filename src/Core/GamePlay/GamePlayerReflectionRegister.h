@@ -51,6 +51,8 @@ namespace GuGu {
 
 	static Priority inputManagerPriority;
 
+	static Priority inputManagerMethodPriority;
+
 	static Priority debugDrawPriority;
 
 	//------cut scenes------

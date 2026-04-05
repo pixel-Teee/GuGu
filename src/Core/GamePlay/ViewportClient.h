@@ -125,6 +125,8 @@ namespace GuGu {
 
 		virtual void onMouseButtonUp(UIPointerData uiPointerData);
 
+		virtual void onMouseButtonMove(UIPointerData uiPointerData);
+
 		void setIsInTerrainEditor(bool isInTerrainEditor);
 
 		bool getIsInTerrainEditor() const;

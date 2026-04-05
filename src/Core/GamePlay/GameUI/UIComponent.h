@@ -36,6 +36,8 @@ namespace GuGu {
 
 		virtual void onPointerUp(UIPointerData pointerData);
 
+		virtual void onPointerMove(UIPointerData pointerData);
+
 		std::shared_ptr<GuGuScriptDelegate> getPointerDownScriptDelegate();
 	
 		void setPointerDownScriptDelegate(std::shared_ptr<GuGuScriptDelegate> inScriptDelegate);
@@ -44,11 +46,30 @@ namespace GuGu {
 	
 		void setPointerUpScriptDelegate(std::shared_ptr<GuGuScriptDelegate> inScriptDelegate);
 
+		std::shared_ptr<GuGuScriptDelegate> getPointerMoveScriptDelegate();
+	
+		void setPointerMoveScriptDelegate(std::shared_ptr<GuGuScriptDelegate> inScriptDelegate);
+
+		void detectDrag(float threshold, math::float2 inStartPos);
+
 		/*
 			可用的基本委托
 		*/
 		std::shared_ptr<GuGuScriptDelegate> m_onPointerDown;
 
 		std::shared_ptr<GuGuScriptDelegate> m_onPointerUp;
+
+		std::shared_ptr<GuGuScriptDelegate> m_onPointerMove;
+
+		/*
+			拖拽相关(临时数据)
+		*/
+		bool m_bDragDetectionEnabled = false;
+		
+		math::float2 m_dragDetectionStartPos;
+
+		float m_dragDetectionThreshold = 5.0f;
+
+		bool m_bIsDragging = false;
 	};
 }

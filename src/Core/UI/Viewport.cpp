@@ -94,7 +94,7 @@ namespace GuGu {
 	Reply ViewportWidget::OnMouseButtonDown(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
 	{
 		math::float2 localMousePosition = myGeometry.absoluteToLocal(inMouseEvent.m_screenSpacePosition);
-		InputManager::getInputManager().updateMouseButton(inMouseEvent.m_effectingButton, localMousePosition.x, localMousePosition.y, true);
+		InputManager::getInputManager()->updateMouseButton(inMouseEvent.m_effectingButton, localMousePosition.x, localMousePosition.y, true);
 
 		if (m_viewportClient.lock())
 		{
@@ -109,7 +109,7 @@ namespace GuGu {
 	Reply ViewportWidget::OnMouseButtonUp(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
 	{	
 		math::float2 localMousePosition = myGeometry.absoluteToLocal(inMouseEvent.m_screenSpacePosition);
-		InputManager::getInputManager().updateMouseButton(inMouseEvent.m_effectingButton, localMousePosition.x, localMousePosition.y, false);
+		InputManager::getInputManager()->updateMouseButton(inMouseEvent.m_effectingButton, localMousePosition.x, localMousePosition.y, false);
 
 		if (m_viewportClient.lock())
 		{
@@ -124,19 +124,26 @@ namespace GuGu {
 	Reply ViewportWidget::OnMouseMove(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
 	{
 		math::float2 localMousePosition = myGeometry.absoluteToLocal(inMouseEvent.m_screenSpacePosition);
-		InputManager::getInputManager().updateMouseButton(inMouseEvent.m_effectingButton, localMousePosition.x, localMousePosition.y, false);
+		InputManager::getInputManager()->updateMouseButton(inMouseEvent.m_effectingButton, localMousePosition.x, localMousePosition.y, false);
+
+		if(m_viewportClient.lock())
+		{
+			UIPointerData uiPointerData;
+			uiPointerData.setScreenPosition(localMousePosition);
+			m_viewportClient.lock()->onMouseButtonMove(uiPointerData);
+		}
 		return Reply::Handled();
 	}
 
 	void ViewportWidget::OnMouseLeave(const PointerEvent& inMouseEvent)
 	{
-		InputManager::getInputManager().clearEvents();
-		InputManager::getInputManager().clearMouseStates();
+		InputManager::getInputManager()->clearEvents();
+		InputManager::getInputManager()->clearMouseStates();
 	}
 
 	Reply ViewportWidget::OnMouseWheel(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
 	{
-		InputManager::getInputManager().updateWheelDelta(inMouseEvent.m_wheelOrGestureDelta);
+		InputManager::getInputManager()->updateWheelDelta(inMouseEvent.m_wheelOrGestureDelta);
 		return Reply();
 	}
 
@@ -144,73 +151,73 @@ namespace GuGu {
 	{
 		ModifierKeysState keysState = Application::getApplication()->getModifierKeys();
 		applyModifierKeys(keysState);
-		InputManager::getInputManager().updateKeyboard(inKeyEvent.getKey(), true); //game play 
+		InputManager::getInputManager()->updateKeyboard(inKeyEvent.getKey(), true); //game play 
 		return Reply::Unhandled();
 	}
 	Reply ViewportWidget::OnKeyUp(const WidgetGeometry& myGeometry, const KeyEvent& inKeyEvent)
 	{
 		ModifierKeysState keysState = Application::getApplication()->getModifierKeys();
 		updateModifierKeys(keysState);
-		InputManager::getInputManager().updateKeyboard(inKeyEvent.getKey(), false); //game play 
+		InputManager::getInputManager()->updateKeyboard(inKeyEvent.getKey(), false); //game play 
 		return Reply::Unhandled();
 	}
 	void ViewportWidget::OnFocusLost()
 	{
-		InputManager::getInputManager().clearEvents();
-		InputManager::getInputManager().clearMouseStates();
+		InputManager::getInputManager()->clearEvents();
+		InputManager::getInputManager()->clearMouseStates();
 	}
 	void ViewportWidget::applyModifierKeys(ModifierKeysState keyState)
 	{
 		if(keyState.isLeftShiftDown())
 		{
-			InputManager::getInputManager().updateKeyboard(Keys::LeftShift, true);
+			InputManager::getInputManager()->updateKeyboard(Keys::LeftShift, true);
 		}
 		if (keyState.isRightShiftDown())
 		{
-			InputManager::getInputManager().updateKeyboard(Keys::RightShift, true);
+			InputManager::getInputManager()->updateKeyboard(Keys::RightShift, true);
 		}
 		if (keyState.isLeftAltDown())
 		{
-			InputManager::getInputManager().updateKeyboard(Keys::LeftAlt, true);
+			InputManager::getInputManager()->updateKeyboard(Keys::LeftAlt, true);
 		}
 		if (keyState.isRightAltDown())
 		{
-			InputManager::getInputManager().updateKeyboard(Keys::RightAlt, true);
+			InputManager::getInputManager()->updateKeyboard(Keys::RightAlt, true);
 		}
 		if (keyState.isLeftControlDown())
 		{
-			InputManager::getInputManager().updateKeyboard(Keys::LeftControl, true);
+			InputManager::getInputManager()->updateKeyboard(Keys::LeftControl, true);
 		}
 		if (keyState.isRightControlDown())
 		{
-			InputManager::getInputManager().updateKeyboard(Keys::RightControl, true);
+			InputManager::getInputManager()->updateKeyboard(Keys::RightControl, true);
 		}
 	}
 	void ViewportWidget::updateModifierKeys(ModifierKeysState keyState)
 	{
 		if (!keyState.isLeftShiftDown())
 		{
-			InputManager::getInputManager().updateKeyboard(Keys::LeftShift, false);
+			InputManager::getInputManager()->updateKeyboard(Keys::LeftShift, false);
 		}
 		if (!keyState.isRightShiftDown())
 		{
-			InputManager::getInputManager().updateKeyboard(Keys::RightShift, false);
+			InputManager::getInputManager()->updateKeyboard(Keys::RightShift, false);
 		}
 		if (!keyState.isLeftAltDown())
 		{
-			InputManager::getInputManager().updateKeyboard(Keys::LeftAlt, false);
+			InputManager::getInputManager()->updateKeyboard(Keys::LeftAlt, false);
 		}
 		if (!keyState.isRightAltDown())
 		{
-			InputManager::getInputManager().updateKeyboard(Keys::RightAlt, false);
+			InputManager::getInputManager()->updateKeyboard(Keys::RightAlt, false);
 		}
 		if (!keyState.isLeftControlDown())
 		{
-			InputManager::getInputManager().updateKeyboard(Keys::LeftControl, false);
+			InputManager::getInputManager()->updateKeyboard(Keys::LeftControl, false);
 		}
 		if (!keyState.isRightControlDown())
 		{
-			InputManager::getInputManager().updateKeyboard(Keys::RightControl, false);
+			InputManager::getInputManager()->updateKeyboard(Keys::RightControl, false);
 		}
 	}
 

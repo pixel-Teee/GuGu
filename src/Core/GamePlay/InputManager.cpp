@@ -3,6 +3,7 @@
 #include "InputManager.h"
 
 #include <Application/Application.h>
+#include <Core/GamePlay/UIDragDropOperation.h>
 
 namespace GuGu {
     InputManager::InputManager()
@@ -11,9 +12,23 @@ namespace GuGu {
     InputManager::~InputManager()
     {
     }
-    InputManager& InputManager::getInputManager()
+    meta::Type InputManager::GetType() const
     {
-        static InputManager inputManager;
+        return typeof(InputManager);
+    }
+    void InputManager::PostLoad()
+    {
+    }
+    void InputManager::Update(float fElapsedTimeSeconds)
+    {
+    }
+    meta::Object *InputManager::Clone(void) const
+    {
+        return nullptr;
+    }
+    std::shared_ptr<InputManager> InputManager::getInputManager()
+    {
+        static std::shared_ptr<InputManager> inputManager = std::make_shared<InputManager>();
         return inputManager;
     }
     void InputManager::updatePreviousMouseState() //将当前状态保存到过去的状态，用于计算鼠标偏移
@@ -141,4 +156,19 @@ namespace GuGu {
         Application::getApplication()->setCursorPos(inCursorPos);
 	}
 
+    void InputManager::setCaptureUIComponent(std::shared_ptr<UIComponent> inCaptureUIComponent)
+    {
+        m_captureUIComponent = inCaptureUIComponent;
+    }
+
+    std::shared_ptr<UIComponent> InputManager::getCaptureUIComponent()
+    {
+
+        return m_captureUIComponent;
+    }
+
+    void InputManager::startDrag(std::shared_ptr<UIComponent> source, std::shared_ptr<UIDragDropOperation> inDragDropOperation)
+    {
+        //TODO:implement this
+    }
 }

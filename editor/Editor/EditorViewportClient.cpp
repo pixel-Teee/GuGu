@@ -54,9 +54,9 @@ namespace GuGu {
 	{
 		m_moveOffset = math::float3(0, 0, 0);
 
-		if (InputManager::getInputManager().isMouseDown(Keys::MiddleMouseButton) && InputManager::getInputManager().isKeyDown(Keys::LeftShift))
+		if (InputManager::getInputManager()->isMouseDown(Keys::MiddleMouseButton) && InputManager::getInputManager()->isKeyDown(Keys::LeftShift))
 		{
-			math::float2 mouseDelta = InputManager::getInputManager().getMouseDelta();
+			math::float2 mouseDelta = InputManager::getInputManager()->getMouseDelta();
 			math::float2 speedDelta = moveSpeed();
 			m_focalPoint += -getRightDirection() * mouseDelta.x * speedDelta.x * m_distance * fElapsedTimeSecond;
 			m_focalPoint += getUpDirection() * mouseDelta.y * speedDelta.y * m_distance * fElapsedTimeSecond;
@@ -66,7 +66,7 @@ namespace GuGu {
 	{
 		//m_moveOffset = math::float3(0, 0, 0);
 		//
-		float wheelDelta = InputManager::getInputManager().getWheelDelta();
+		float wheelDelta = InputManager::getInputManager()->getWheelDelta();
 		//
 		//math::float3 direction = m_forward * wheelDelta;
 		//
@@ -85,9 +85,9 @@ namespace GuGu {
 	}
 	void EditorViewportClient::rotate(float fElapsedTimeSecond)
 	{
-		if (InputManager::getInputManager().isMouseDown(Keys::MiddleMouseButton) && !InputManager::getInputManager().isKeyDown(Keys::LeftShift))
+		if (InputManager::getInputManager()->isMouseDown(Keys::MiddleMouseButton) && !InputManager::getInputManager()->isKeyDown(Keys::LeftShift))
 		{
-			math::float2 delta = InputManager::getInputManager().getMouseDelta();
+			math::float2 delta = InputManager::getInputManager()->getMouseDelta();
 			float yawSign = getUpDirection().y < 0.0f ? -1.0f : 1.0f;
 			m_yaw += yawSign * delta.x * 0.05f * fElapsedTimeSecond;
 			m_pitch += delta.y * 0.05f * fElapsedTimeSecond;
@@ -96,7 +96,7 @@ namespace GuGu {
 
 	void EditorViewportClient::focus(float fElapsedTimeSecond)
 	{
-		if (InputManager::getInputManager().isKeyDown(Keys::F))
+		if (InputManager::getInputManager()->isKeyDown(Keys::F))
 		{
 			if (m_pickedGameObject != nullptr)
 			{
@@ -199,9 +199,9 @@ namespace GuGu {
 			focus(fElapsedTimeSecond);
 
 			//save level
-			if (InputManager::getInputManager().isKeyDown(Keys::S) && InputManager::getInputManager().isKeyDown(Keys::LeftControl)) //save level
+			if (InputManager::getInputManager()->isKeyDown(Keys::S) && InputManager::getInputManager()->isKeyDown(Keys::LeftControl)) //save level
 			{
-				InputManager::getInputManager().updateKeyboard(Keys::S, false);//立马释放掉
+				InputManager::getInputManager()->updateKeyboard(Keys::S, false);//立马释放掉
 				GuGuUtf8Str ouputDir = "content";
 				GuGuUtf8Str initDir = "";
 				std::vector<GuGuUtf8Str> filterArray;
@@ -429,9 +429,9 @@ namespace GuGu {
 
 	void EditorViewportClient::terrain()
 	{
-		if (InputManager::getInputManager().isMouseDown(Keys::LeftMouseButton))
+		if (InputManager::getInputManager()->isMouseDown(Keys::LeftMouseButton))
 		{
-			math::float2 mousePosition = InputManager::getInputManager().getMousePosition();
+			math::float2 mousePosition = InputManager::getInputManager()->getMousePosition();
 
 			math::float3 triLocalPos1;
 			math::float3 triLocalPos2;
@@ -518,26 +518,26 @@ namespace GuGu {
 	{
 		if (m_bShowGizmos)
 		{
-			if (InputManager::getInputManager().isKeyDown(Keys::G)) //移动
+			if (InputManager::getInputManager()->isKeyDown(Keys::G)) //移动
 			{
 				m_gizmos = Gizmos::Move;
 				m_currentGizmos = m_moveGizmos;
 			}
-			else if (InputManager::getInputManager().isKeyDown(Keys::R)) //旋转
+			else if (InputManager::getInputManager()->isKeyDown(Keys::R)) //旋转
 			{
 				m_gizmos = Gizmos::Rotation;
 				m_currentGizmos = m_rotateGizmos;
 			}
-			else if (InputManager::getInputManager().isKeyDown(Keys::S)) //缩放
+			else if (InputManager::getInputManager()->isKeyDown(Keys::S)) //缩放
 			{
 				m_gizmos = Gizmos::Scale;
 				m_currentGizmos = m_scaleGizmos;
 			}
 
 			//和gizmos先做碰撞检测
-			if (InputManager::getInputManager().isMouseDown(Keys::LeftMouseButton))
+			if (InputManager::getInputManager()->isMouseDown(Keys::LeftMouseButton))
 			{
-				math::float2 mousePosition = InputManager::getInputManager().getMousePosition();
+				math::float2 mousePosition = InputManager::getInputManager()->getMousePosition();
 			
 				if (!m_bdragging)
 				{
@@ -744,7 +744,7 @@ namespace GuGu {
 			{
 				if (m_gizmos == Gizmos::Move)
 				{
-					math::float2 mousePosition = InputManager::getInputManager().getMousePosition();
+					math::float2 mousePosition = InputManager::getInputManager()->getMousePosition();
 					math::float3 worldRayPos;
 					math::float3 worldRayDir;
 					Collision3D::calculateRayOriginAndRayDir(mousePosition.x, mousePosition.y, m_width, m_height,
@@ -765,7 +765,7 @@ namespace GuGu {
 				}
 				else if (m_gizmos == Gizmos::Rotation)
 				{
-					math::float2 mousePosition = InputManager::getInputManager().getMousePosition();
+					math::float2 mousePosition = InputManager::getInputManager()->getMousePosition();
 					if (m_currentGizmosIndex <= 0) //y
 					{
 						math::float3 worldRayPos;
@@ -864,7 +864,7 @@ namespace GuGu {
 				}
 				else if (m_gizmos == Gizmos::Scale)
 				{
-					math::float2 mousePosition = InputManager::getInputManager().getMousePosition();
+					math::float2 mousePosition = InputManager::getInputManager()->getMousePosition();
 					math::float3 worldRayPos;
 					math::float3 worldRayDir;
 					Collision3D::calculateRayOriginAndRayDir(mousePosition.x, mousePosition.y, m_width, m_height,
@@ -900,9 +900,9 @@ namespace GuGu {
 			}
 		}
 
-		if (InputManager::getInputManager().isMouseDown(Keys::LeftMouseButton) && !m_bdragging)//不处于拖动
+		if (InputManager::getInputManager()->isMouseDown(Keys::LeftMouseButton) && !m_bdragging)//不处于拖动
 		{
-			math::float2 mousePosition = InputManager::getInputManager().getMousePosition();
+			math::float2 mousePosition = InputManager::getInputManager()->getMousePosition();
 			math::float3 triPos1;
 			math::float3 triPos2;
 			math::float3 triPos3;
