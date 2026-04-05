@@ -37,7 +37,7 @@ namespace GuGu {
 		m_rootFileSystem = std::make_shared<RootFileSystem>();
 		m_rootFileSystem->mount("content", m_nativeFileSystem);
 
-		if (!m_nativeFileSystem->fileExists(m_nativeFileSystem->getNativeFilePath() + "/AssetRgistry.json"))
+		if (!m_nativeFileSystem->fileExists("AssetRgistry.json"))
 		{
 			//create this file
 			m_rootFileSystem->OpenFile("content/AssetRgistry.json", GuGuFile::FileMode::OnlyWrite);

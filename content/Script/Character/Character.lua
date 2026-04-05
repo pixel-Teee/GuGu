@@ -1,4 +1,4 @@
-local class = require("content/Script/Common/Class")
+local class = require("Common/Class")
 local Character = class()
 
 function Character:init(owner)
@@ -125,7 +125,7 @@ function Character:updateView(inputManager, deltaTime)
     if collision3DComponent then
         local hitResult = GuGu.Collision3DComponent.rayTest(rayStart, rayEnd)
         if hitResult.m_bHaveResult then
-            print("camera hit terrain"..tostring(hitResult.m_hitPosition.y))
+            --print("camera hit terrain"..tostring(hitResult.m_hitPosition.y))
             cameraNewPos.y = hitResult.m_hitPosition.y + 0.5
         end
     end

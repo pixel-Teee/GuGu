@@ -1,4 +1,4 @@
-local class = require("content/Script/Common/Class")
+local class = require("Common/Class")
 local JoyStick = class()
 
 local JoyStickType = {

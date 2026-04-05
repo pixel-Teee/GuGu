@@ -164,7 +164,7 @@ namespace GuGu {
 						meta::Type componetType = meta::Type::getType(section.m_bindingObjectComponentTypeGuid);
 						currentObj = currentLevel->getComponent(section.m_bindingObjectName, componetType);
 					}
-					if (evaluator->getCurrentField() != "")
+					if (currentObj && evaluator->getCurrentField() != "")
 					{
 						//set value
 						applier->Apply(currentObj, res, evaluator->getCurrentField());

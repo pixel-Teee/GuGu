@@ -71,7 +71,7 @@ if(WIN32)
 
         add_library(GuGu ${SourceFile})
         target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer" PRIVATE "Core" PRIVATE "../thirdParty/nlohmann" PRIVATE "../thirdParty/bullet3-3.17/src")
-        target_link_libraries(GuGu freetype Lua)
+        target_link_libraries(GuGu freetype Lua LuaSocket)
         add_definitions(-DUSE_DX12)
     elseif(USE_VK)
         file(GLOB PlatformSourceFile "Window/Platform/Windows/*.h" "Window/Platform/Windows/*.cpp" "Application/Platform/Windows/*.h" "Application/Platform/Windows/*.cpp"
@@ -83,7 +83,7 @@ if(WIN32)
 
         add_library(GuGu ${SourceFile} ${ThirdPartyFile})
         target_include_directories(GuGu PRIVATE "." PRIVATE "Window" PRIVATE "Application" PRIVATE "Renderer" PRIVATE "Core" PRIVATE "../thirdParty/nlohmann" PRIVATE "../thirdParty/bullet3-3.17/src")
-        target_link_libraries(GuGu Vulkan::Vulkan freetype Lua Bullet3Common BulletDynamics BulletCollision LinearMath)
+        target_link_libraries(GuGu Vulkan::Vulkan freetype Lua Bullet3Common BulletDynamics BulletCollision LinearMath LuaSocket)
         add_definitions(-DUSE_VK)
     endif()
 
@@ -121,7 +121,7 @@ elseif(ANDROID)
     add_definitions(-D_DEBUG=TRUE)
     find_package(game-activity REQUIRED CONFIG)
     find_library(log-lib log) #ndk library
-    target_link_libraries(GuGu android game-activity::game-activity_static ${log-lib} vulkan freetype Lua Bullet3Common BulletDynamics BulletCollision LinearMath)
+    target_link_libraries(GuGu android game-activity::game-activity_static ${log-lib} vulkan freetype Lua Bullet3Common BulletDynamics BulletCollision LinearMath LuaSocket)
     target_compile_features(GuGu PRIVATE cxx_std_17)
 endif()
 

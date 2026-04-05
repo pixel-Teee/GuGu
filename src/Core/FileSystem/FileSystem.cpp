@@ -57,12 +57,22 @@ namespace GuGu {
 
 	bool NativeFileSystem::fileExists(const GuGuUtf8Str& filePath)
 	{
-		return m_file->fileExists(filePath);
+		GuGuUtf8Str nativePath;
+		if (m_nativePath == "")
+			nativePath = filePath;
+		else
+			nativePath = m_nativePath + "/" + filePath;
+		return m_file->fileExists(nativePath);
 	}
 
 	bool NativeFileSystem::folderExists(const GuGuUtf8Str& folderPath)
 	{
-		return m_file->folderExists(folderPath);
+		GuGuUtf8Str nativePath;
+		if (m_nativePath == "")
+			nativePath = folderPath;
+		else
+			nativePath = m_nativePath + "/" + folderPath;
+		return m_file->folderExists(nativePath);
 	}
 
 	void NativeFileSystem::rename(const GuGuUtf8Str& oldPath, const GuGuUtf8Str& newPath)
@@ -353,12 +363,28 @@ namespace GuGu {
 
 	bool RootFileSystem::fileExists(const GuGuUtf8Str& filePath)
 	{
-		return m_currentOpenFileSystem->fileExists(filePath);
+		GuGuUtf8Str relativePath;
+		std::shared_ptr<FileSystem> pFs;
+
+		if (findMountPoint(filePath, &relativePath, pFs))
+		{
+			return m_currentOpenFileSystem->fileExists(relativePath);
+		}
+
+		return false;
 	}
 
 	bool RootFileSystem::folderExists(const GuGuUtf8Str& folderPath)
 	{
-		return m_currentOpenFileSystem->folderExists(folderPath);
+		GuGuUtf8Str relativePath;
+		std::shared_ptr<FileSystem> pFs;
+
+		if (findMountPoint(folderPath, &relativePath, pFs))
+		{
+			return m_currentOpenFileSystem->folderExists(folderPath);
+		}
+
+		return false;	
 	}
 
 	void RootFileSystem::rename(const GuGuUtf8Str& oldPath, const GuGuUtf8Str& newPath)

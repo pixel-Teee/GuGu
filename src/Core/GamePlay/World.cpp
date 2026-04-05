@@ -21,6 +21,7 @@
 #include <Core/Timer.h>
 #include <Core/GamePlay/Prefab.h>
 #include <Core/GamePlay/Physics/Collision3DComponent.h>
+#include <Core/LuaContext/LuaContext.h>
 
 namespace GuGu {
 	static bool registerGuGuWorld()
@@ -191,6 +192,8 @@ namespace GuGu {
 			if (m_viewportClient->getViewportState() == ViewportClient::Runtime)
 			{
 				m_currentLevel = m_editorLevel;//todo:(clone)
+
+				LuaContext::getLuaContext()->engineRuntimeStart();
 				//start script
 				Array<std::shared_ptr<GameObject>>& gameObjects = m_currentLevel->getGameObjects();
 				for (int32_t i = 0; i < gameObjects.size(); ++i)

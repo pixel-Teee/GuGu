@@ -10,6 +10,11 @@
 #include <Core/Reflection/Method.h>
 #include <Core/Reflection/Variant.h>
 
+extern "C" {
+    int luaopen_socket_core(lua_State* L);
+    int luaopen_mime_core(lua_State* L);
+}
+
 namespace GuGu {
 	void LuaContext::debugStack(lua_State* L, const char* message)
 	{
@@ -551,7 +556,7 @@ namespace GuGu {
 	{
 		std::string path(moduleName);
 		std::replace(path.begin(), path.end(), '.', '/');
-		return path + ".lua";
+		return "content/Script/" + path + ".lua";
 	}
 
 	static int32_t customLuaLoader(lua_State* L)
@@ -562,7 +567,14 @@ namespace GuGu {
 
 		//read
 		std::shared_ptr<LuaContext> luaContext = LuaContext::getLuaContext();
+
 		luaContext->getFileSystem()->OpenFile(path, GuGuFile::FileMode::OnlyRead);
+
+		if(!(luaContext->getFileSystem()->fileExists(path)))
+		{
+			luaContext->getFileSystem()->CloseFile();
+			return 0;
+		}
 		
 		int32_t status = lua_load(L, customLuaReader, &luaContext, path.getStr(), NULL);
 		luaContext->getFileSystem()->CloseFile();
@@ -668,6 +680,21 @@ namespace GuGu {
 		{
 			registerType(m_state, typeData);
 		}
+
+		//lua socket
+		    // 获取 package.preload 表
+		lua_getglobal(m_state, "package");
+		lua_getfield(m_state, -1, "preload");
+
+		// 注册 socket.core 和 mime.core 模块
+		lua_pushcfunction(m_state, luaopen_socket_core);
+		lua_setfield(m_state, -2, "socket.core");
+
+		lua_pushcfunction(m_state, luaopen_mime_core);
+		lua_setfield(m_state, -2, "mime.core");
+
+		// 清理栈
+		lua_pop(m_state, 2);
 	
 		return true;
 	}
@@ -681,7 +708,17 @@ namespace GuGu {
 		}
 	}
 
-	bool LuaContext::executeString(const GuGuUtf8Str& code)
+    void LuaContext::engineRuntimeStart()
+    {
+		if (luaL_dostring(m_state, "require 'content/Script/Start'") != LUA_OK) {
+			//错误处理
+			const char* err = lua_tostring(m_state, -1);
+			GuGu_LOGE("require init failed: %s\n", err);
+			lua_pop(m_state, 1);
+		}
+    }
+
+    bool LuaContext::executeString(const GuGuUtf8Str& code)
 	{
 		if(luaL_dostring(m_state, code.getStr()))
 			return false;

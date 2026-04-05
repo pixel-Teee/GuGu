@@ -23,6 +23,8 @@ namespace GuGu {
 
 		void shutDown();
 
+		void engineRuntimeStart();
+
 		bool executeString(const GuGuUtf8Str& code);
 
 		static std::shared_ptr<LuaContext> getLuaContext();

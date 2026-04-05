@@ -1,4 +1,4 @@
-local class = require("content/Script/Common/Class")
+local class = require("Common/Class")
 local AnimationTest = class()
 
 function AnimationTest:init(owner)
