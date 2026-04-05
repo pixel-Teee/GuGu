@@ -682,7 +682,7 @@ namespace GuGu {
 		}
 
 		//lua socket
-		    // 获取 package.preload 表
+		// 获取 package.preload 表
 		lua_getglobal(m_state, "package");
 		lua_getfield(m_state, -1, "preload");
 
@@ -710,7 +710,7 @@ namespace GuGu {
 
     void LuaContext::engineRuntimeStart()
     {
-		if (luaL_dostring(m_state, "require 'content/Script/Start'") != LUA_OK) {
+		if (luaL_dostring(m_state, "require 'Start'") != LUA_OK) {
 			//错误处理
 			const char* err = lua_tostring(m_state, -1);
 			GuGu_LOGE("require init failed: %s\n", err);

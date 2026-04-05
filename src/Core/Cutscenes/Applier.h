@@ -1,9 +1,10 @@
 #pragma once
 
 namespace GuGu {
-	//meta
-	class meta::Object;
-	class meta::Variant;
+    namespace meta{
+        class Object;
+        class Variant;
+    }
 	class GuGuUtf8Str;
 	class Applier {
 	public:

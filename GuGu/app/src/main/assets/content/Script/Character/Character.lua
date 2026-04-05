@@ -1,4 +1,4 @@
-local class = require("content/Script/Common/Class")
+local class = require("Common/Class")
 local Character = class()
 
 function Character:init(owner)
@@ -41,6 +41,12 @@ function Character:init(owner)
     self.animator = GuGu.GAnimator.new()
     self.idleAnimation = self.owner:getWorld():loadAnimation("content/Idle_1.json")
     self.runningAnimation = self.owner:getWorld():loadAnimation("content/RunningInPlace.json")
+
+    --play cutscenes
+    self.cutscenes = self.owner:getWorld():loadCutscenes("content/testCutscene.json")
+    if self.cutscenes then
+        GuGu.Cutscenes.playCutscenes(self.cutscenes)
+    end
 end
 
 function Character:normalize3D(x, y, z)
@@ -119,7 +125,7 @@ function Character:updateView(inputManager, deltaTime)
     if collision3DComponent then
         local hitResult = GuGu.Collision3DComponent.rayTest(rayStart, rayEnd)
         if hitResult.m_bHaveResult then
-            print("camera hit terrain"..tostring(hitResult.m_hitPosition.y))
+            --print("camera hit terrain"..tostring(hitResult.m_hitPosition.y))
             cameraNewPos.y = hitResult.m_hitPosition.y + 0.5
         end
     end
@@ -221,6 +227,8 @@ function Character:update(delta)
 
     -- 4.更新动画
     self.animator:Update(delta)
+
+    GuGu.Cutscenes.getCutscenes(self.cutscenes):Update(delta)
 
     local collision3DComponent = self.player:getComponent("GuGu::Collision3DComponent")
     collision3DComponent:syncToPhysics()

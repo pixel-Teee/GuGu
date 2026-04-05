@@ -4,6 +4,7 @@
 #include <Core/GuGuUtf8Str.h>
 
 #include <android/asset_manager_jni.h>
+#include <sys/stat.h>
 
 namespace GuGu{
     GuGuUtf8Str AndroidGuGuFile::m_internalDataPath;
@@ -52,12 +53,15 @@ namespace GuGu{
     void AndroidGuGuFile::CloseFile() {
         if(!m_usingAssetManager)
         {
-            int32_t retCode = fclose(m_fileHandle);
-            if(retCode == 0)
-                GuGu_LOGD("close file success");
-            else
-                GuGu_LOGD("close file error");
-            m_fileHandle = nullptr;
+            if(m_fileHandle != nullptr)
+            {
+                int32_t retCode = fclose(m_fileHandle);
+                if(retCode == 0)
+                    GuGu_LOGD("close file success");
+                else
+                    GuGu_LOGD("close file error");
+                m_fileHandle = nullptr;
+            }
         }
         else
         {
@@ -148,12 +152,42 @@ namespace GuGu{
 
 	bool AndroidGuGuFile::fileExists(const GuGuUtf8Str& filePath)
 	{
-        return true;
+        FILE* file = fopen(filePath.getStr(), "r");
+        if(file != nullptr)
+        {
+            fclose(file);
+            return true;
+        }
+        else
+        {
+            //check asset manager
+            AAsset* asset = AAssetManager_open(m_assetManager, filePath.getStr(), AASSET_MODE_UNKNOWN);
+            if (asset != nullptr) {
+                AAsset_close(asset);
+                return true;
+            }
+        }
+        return false;
 	}
 
 	bool AndroidGuGuFile::folderExists(const GuGuUtf8Str& folderPath)
 	{
-        return true;
+        struct stat st;
+        if (stat(folderPath.getStr(), &st) == 0) {
+            return S_ISDIR(st.st_mode);
+        }
+        else {
+            AAssetDir *dir = AAssetManager_openDir(m_assetManager, folderPath.getStr());
+            if (!dir) {
+                return false;
+            }
+
+            const char *fileName = AAssetDir_getNextFileName(dir);
+            bool exists = (fileName != nullptr);
+
+            AAssetDir_close(dir);
+            return exists;
+        }
 	}
 
     std::shared_ptr<GuGuFile> CreateFileFactory()
