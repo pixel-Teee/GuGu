@@ -156,13 +156,16 @@ namespace GuGu {
 			std::shared_ptr<UITransformComponent> uiTransformComponent = owner->getComponent<UITransformComponent>();
 
 			//get global transform
-			math::affine3 worldTransform = uiTransformComponent->GetLocalToWorldTransformFloat();
+			// math::affine3 worldTransform = uiTransformComponent->GetLocalToWorldTransformFloat();
 
-			math::float3 absolutePos;
-			math::quat absoluteQuat;
-			math::float3 absoluteScale;
+			// math::float3 absolutePos;
+			// math::quat absoluteQuat;
+			// math::float3 absoluteScale;
 			
-			math::decomposeAffine(worldTransform, &absolutePos, &absoluteQuat, &absoluteScale);
+			// math::decomposeAffine(worldTransform, &absolutePos, &absoluteQuat, &absoluteScale);
+
+			math::double3 globalTrans = uiTransformComponent->getGlobalTranslation();
+			math::double2 absolutePos = math::double2(globalTrans.x, globalTrans.y);
 
 			math::float2 localSize = uiTransformComponent->getLocalSize();
 			

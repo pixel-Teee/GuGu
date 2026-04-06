@@ -361,6 +361,9 @@ namespace GuGu {
 			m_currentLevel = std::static_pointer_cast<Level>(AssetManager::getAssetManager().cloneObject(m_editorLevel));
 
 			m_currentLevel->addRigidBodyToPhysics();
+
+			LuaContext::getLuaContext()->engineRuntimeStart();
+
 			//start script
 			Array<std::shared_ptr<GameObject>>& gameObjects = m_currentLevel->getGameObjects();
 			for (int32_t i = 0; i < gameObjects.size(); ++i)

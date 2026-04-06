@@ -104,9 +104,17 @@ namespace GuGu {
 			(meta::FieldGetter<UITransformComponent, UIAnchorData&, true>::Signature) & UITransformComponent::getAnchorData,
 			(meta::FieldSetter<UITransformComponent, UIAnchorData, true>::Signature) & UITransformComponent::setAnchorData, {});
 
-		//type.AddField<UITransformComponent, math::double3>("m_Scaling",
-		//	(meta::FieldGetter<UITransformComponent, math::double3&, true>::Signature) & UITransformComponent::getScaling,
-		//	(meta::FieldSetter<UITransformComponent, math::double3, true>::Signature) & UITransformComponent::SetScaling, {});
+
+		/*
+			temp variable
+		*/
+		type.AddField<UITransformComponent, math::float2>("m_localSize",
+			(meta::FieldGetter<UITransformComponent, math::float2&, true>::Signature) & UITransformComponent::getLocalSize,
+			(meta::FieldSetter<UITransformComponent, math::float2, true>::Signature) & UITransformComponent::setLocalSize, {});
+
+		//TODO:fix this(remove this)
+		math::double3 (UITransformComponent::*getGlobalTranslation)() const = &UITransformComponent::getGlobalTranslation;
+		type.AddMethod("getGlobalTranslation", getGlobalTranslation, {});
 		return true;
 	}
 

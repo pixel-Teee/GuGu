@@ -1,5 +1,6 @@
 local class = require("Common/Class")
 local Character = class()
+local EventSystem = require("Event/EventSystem")
 
 function Character:init(owner)
 	self.owner = owner
@@ -47,6 +48,12 @@ function Character:init(owner)
     if self.cutscenes then
         GuGu.Cutscenes.playCutscenes(self.cutscenes)
     end
+
+    EventSystem:Register("JoyStickMovement", self, "JoyStickMovement")
+end
+
+function Character:deInit()
+    EventSystem:Remove("JoyStickMovement")
 end
 
 function Character:normalize3D(x, y, z)
@@ -170,8 +177,8 @@ function Character:updateMovement(inputManager, deltaTime)
     end
     
     -- 应用移动速度
-    moveInput.x = moveInput.x * self.moveSpeed * deltaTime
-    moveInput.z = moveInput.z * self.moveSpeed * deltaTime
+    -- moveInput.x = moveInput.x * self.moveSpeed * deltaTime
+    -- moveInput.z = moveInput.z * self.moveSpeed * deltaTime
     
     -- 处理跳跃
     if self.isOnGround and inputManager:isKeyDown(GuGu.Keys.SpaceBar) then
@@ -184,19 +191,41 @@ function Character:updateMovement(inputManager, deltaTime)
         self.verticalVelocity = self.verticalVelocity + self.gravity * deltaTime
         --print("verticalVelocity"..tostring(self.verticalVelocity))
     end
-    moveInput.y = self.verticalVelocity * deltaTime
+    -- moveInput.y = self.verticalVelocity * deltaTime
     
+    self:Movement(moveInput, deltaTime)
+end
+
+function Character:JoyStickMovement(normalizedMoveInput, deltaTime)
+    -- normalizedMoveInput: {x, y}，范围 [-1,1]
+    -- x: 向右为正，y: 向前为正
+    local moveInput = {x = 0, y = 0, z = 0}
+    
+    -- 将摇杆的局部输入转换到世界方向（基于角色的右和前向量）
+    moveInput.x = self.right.x * normalizedMoveInput.x + self.forward.x * normalizedMoveInput.z
+    moveInput.z = self.right.z * normalizedMoveInput.x + self.forward.z * normalizedMoveInput.z
+
+    local horizontalLen = math.sqrt(moveInput.x ^ 2 + moveInput.z ^ 2)
+    if horizontalLen > 0 then
+        moveInput.x = moveInput.x / horizontalLen
+        moveInput.z = moveInput.z / horizontalLen
+    end
+
+    self:Movement(moveInput, deltaTime)
+end
+
+function Character:Movement(normalizedMoveInput, deltaTime)
     -- 获取当前角色位置
     local transformComponent = self.player:getComponent("GuGu::TransformComponent")
     local currentPos = transformComponent:getTranslation()
     
     -- 计算新位置
     local newPos = GuGu.math.double3.new()
-    newPos.x = currentPos.x + moveInput.x
-    newPos.y = currentPos.y + moveInput.y
-    newPos.z = currentPos.z + moveInput.z
+    newPos.x = currentPos.x + normalizedMoveInput.x * self.moveSpeed * deltaTime
+    newPos.y = currentPos.y + self.verticalVelocity * deltaTime
+    newPos.z = currentPos.z + normalizedMoveInput.z * self.moveSpeed * deltaTime
 
-    if moveInput.x ~= 0.0 or moveInput.z ~= 0.0 then
+    if normalizedMoveInput.x ~= 0.0 or normalizedMoveInput.z ~= 0.0 then
         if not self.animator:currentAnimationIsRunning(self.runningAnimation) then
             print("trigger runningAnimation")
             self.animator:playAnimationWithAsset(self.runningAnimation, self.staticMesh:getStaticMeshAsset())
@@ -212,6 +241,11 @@ function Character:updateMovement(inputManager, deltaTime)
     
     -- 回退方案：直接设置位置（不推荐，会穿墙）
     transformComponent:SetTranslation(newPos)
+
+    self.animator:Update(deltaTime)
+
+    local collision3DComponent = self.player:getComponent("GuGu::Collision3DComponent")
+    collision3DComponent:syncToPhysics()
 end
 
 function Character:update(delta)
