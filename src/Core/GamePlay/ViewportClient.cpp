@@ -69,7 +69,7 @@ namespace GuGu {
 	//}
 
 	//------input------
-	void ViewportClient::onMouseButtonDown(UIPointerData uiPointerData)
+	bool ViewportClient::onMouseButtonDown(UIPointerData uiPointerData)
 	{
 		GuGu_LOGD("trigger runtime ui mouse button down");
 
@@ -111,11 +111,13 @@ namespace GuGu {
 					}
 					currentGameObject = currentGameObject->getParentGameObject().lock();
 				}
+				return true;
 			}
 		}	
+		return false;
 	}
 
-	void ViewportClient::onMouseButtonUp(UIPointerData uiPointerData)
+	bool ViewportClient::onMouseButtonUp(UIPointerData uiPointerData)
 	{
 		GuGu_LOGD("trigger runtime ui mouse button up");
 
@@ -128,6 +130,7 @@ namespace GuGu {
 			{
 				//capture
 				capturedUIComponent->onPointerUp(uiPointerData);
+				return true;
 			}
 			else
 			{
@@ -166,14 +169,16 @@ namespace GuGu {
 						}
 						currentGameObject = currentGameObject->getParentGameObject().lock();
 					}
+					return true;
 				}
 			}
 
 			InputManager::getInputManager()->setCaptureUIComponent(nullptr);
 		}
+		return false;
 	}
 
-    void ViewportClient::onMouseButtonMove(UIPointerData uiPointerData)
+    bool ViewportClient::onMouseButtonMove(UIPointerData uiPointerData)
     {
 		//check runtime
 		if (getViewportState() == ViewportState::Runtime)
@@ -184,6 +189,7 @@ namespace GuGu {
 			{
 				//capture
 				capturedUIComponent->onPointerMove(uiPointerData);
+				return false;
 			}
 			else
 			{
@@ -222,9 +228,11 @@ namespace GuGu {
 						}
 						currentGameObject = currentGameObject->getParentGameObject().lock();
 					}
+					return true;
 				}
 			}			
 		}
+		return false;
     }
 
     void ViewportClient::setIsInTerrainEditor(bool isInTerrainEditor)

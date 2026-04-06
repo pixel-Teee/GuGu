@@ -121,11 +121,11 @@ namespace GuGu {
 		virtual math::float3 getDebugDrawPos() { return math::float3(0, 0, 0); }
 
 		//input
-		virtual void onMouseButtonDown(UIPointerData uiPointerData);
+		virtual bool onMouseButtonDown(UIPointerData uiPointerData);
 
-		virtual void onMouseButtonUp(UIPointerData uiPointerData);
+		virtual bool onMouseButtonUp(UIPointerData uiPointerData);
 
-		virtual void onMouseButtonMove(UIPointerData uiPointerData);
+		virtual bool onMouseButtonMove(UIPointerData uiPointerData);
 
 		void setIsInTerrainEditor(bool isInTerrainEditor);
 

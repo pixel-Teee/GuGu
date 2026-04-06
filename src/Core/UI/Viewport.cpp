@@ -94,13 +94,16 @@ namespace GuGu {
 	Reply ViewportWidget::OnMouseButtonDown(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
 	{
 		math::float2 localMousePosition = myGeometry.absoluteToLocal(inMouseEvent.m_screenSpacePosition);
-		InputManager::getInputManager()->updateMouseButton(inMouseEvent.m_effectingButton, localMousePosition.x, localMousePosition.y, true);
-
+		bool bHandle = false;
 		if (m_viewportClient.lock())
 		{
 			UIPointerData uiPointerData;
 			uiPointerData.setScreenPosition(localMousePosition);
-			m_viewportClient.lock()->onMouseButtonDown(uiPointerData);
+			bHandle = m_viewportClient.lock()->onMouseButtonDown(uiPointerData);
+		}
+		if(!bHandle)
+		{
+			InputManager::getInputManager()->updateMouseButton(inMouseEvent.m_effectingButton, localMousePosition.x, localMousePosition.y, true);
 		}
 
 		return Reply::Handled().setFocus(shared_from_this());
@@ -109,13 +112,16 @@ namespace GuGu {
 	Reply ViewportWidget::OnMouseButtonUp(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
 	{	
 		math::float2 localMousePosition = myGeometry.absoluteToLocal(inMouseEvent.m_screenSpacePosition);
-		InputManager::getInputManager()->updateMouseButton(inMouseEvent.m_effectingButton, localMousePosition.x, localMousePosition.y, false);
-
+		bool bHandle = false;
 		if (m_viewportClient.lock())
 		{
 			UIPointerData uiPointerData;
 			uiPointerData.setScreenPosition(localMousePosition);
-			m_viewportClient.lock()->onMouseButtonUp(uiPointerData);
+			bHandle = m_viewportClient.lock()->onMouseButtonUp(uiPointerData);
+		}
+		if(!bHandle)
+		{
+			InputManager::getInputManager()->updateMouseButton(inMouseEvent.m_effectingButton, localMousePosition.x, localMousePosition.y, false);
 		}
 
 		return Reply::Handled();
@@ -124,14 +130,19 @@ namespace GuGu {
 	Reply ViewportWidget::OnMouseMove(const WidgetGeometry& myGeometry, const PointerEvent& inMouseEvent)
 	{
 		math::float2 localMousePosition = myGeometry.absoluteToLocal(inMouseEvent.m_screenSpacePosition);
-		InputManager::getInputManager()->updateMouseButton(inMouseEvent.m_effectingButton, localMousePosition.x, localMousePosition.y, false);
-
+		bool bHandle = false;
 		if(m_viewportClient.lock())
 		{
 			UIPointerData uiPointerData;
 			uiPointerData.setScreenPosition(localMousePosition);
-			m_viewportClient.lock()->onMouseButtonMove(uiPointerData);
+			bHandle = m_viewportClient.lock()->onMouseButtonMove(uiPointerData);
 		}
+		//TODO:fix this(如果控件处理了鼠标移动事件，是否把输入传播下去到玩家控制器?)
+		if(!bHandle)
+		{
+			InputManager::getInputManager()->updateMouseButton(inMouseEvent.m_effectingButton, localMousePosition.x, localMousePosition.y, false);
+		}
+		
 		return Reply::Handled();
 	}
 
