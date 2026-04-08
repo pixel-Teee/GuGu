@@ -256,5 +256,4 @@ namespace GuGu {
 	{
 		return m_isRunning;
 	}
-
 }

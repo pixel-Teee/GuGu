@@ -5,6 +5,7 @@
 
 #include <Core/Cutscenes/Cutscenes.h>
 #include <Core/AssetManager/AssetData.h>
+#include <Core/AssetManager/AssetManager.h>
 
 #include <Core/UI/CompoundWidget.h>
 #include <Core/UI/BoxPanel.h>
@@ -173,6 +174,11 @@ namespace GuGu {
 
     void CutscenesEditorPanel::setCutscenesAsset(std::shared_ptr<AssetData> inAsset)
     {
+        if(inAsset->m_loadedResource == nullptr)
+        {
+            //load
+           inAsset = AssetManager::getAssetManager().loadAssetData(inAsset->m_filePath);
+        }
         m_cutscenesAsset = inAsset;
         if (inAsset && inAsset->m_loadedResource)
         {
@@ -275,4 +281,8 @@ namespace GuGu {
         m_selectedSection = sectionIndex;
     }
 
+    void CutscenesEditorPanel::Tick(const WidgetGeometry &allocatedGeometry, const double inCurrentTime, const float inDeltaTime)
+    {
+        //TODO:implement this
+    }
 }

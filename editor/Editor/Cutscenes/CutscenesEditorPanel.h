@@ -50,6 +50,8 @@ namespace GuGu {
         // Called when a track's section is clicked to select it
         void onTrackSectionClicked(int32_t trackIndex, int32_t sectionIndex);
 
+        virtual void Tick(const WidgetGeometry& allocatedGeometry, const double inCurrentTime, const float inDeltaTime) override;
+
     private:
         std::shared_ptr<AssetData>   m_cutscenesAsset;
         std::shared_ptr<Cutscenes>   m_cutscenes;
