@@ -41,33 +41,39 @@ namespace GuGu{
 
                     std::int32_t action = event->action;
 
-                    float x = GameActivityPointerAxes_getX(&event->pointers[0]);
-                    float y = GameActivityPointerAxes_getY(&event->pointers[0]);
-
                     if (event->source == AINPUT_SOURCE_TOUCHSCREEN)
                     {
-                        if(action == AMOTION_EVENT_ACTION_DOWN)
+                        // Extract the action and the pointer index encoded in the action field
+                        int32_t actionMasked = action & AMOTION_EVENT_ACTION_MASK;
+                        int32_t pointerIndex = (action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK)
+                                               >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
+
+                        if (actionMasked == AMOTION_EVENT_ACTION_DOWN ||
+                            actionMasked == AMOTION_EVENT_ACTION_POINTER_DOWN)
                         {
-                            //find native window
+                            float px = GameActivityPointerAxes_getX(&event->pointers[pointerIndex]);
+                            float py = GameActivityPointerAxes_getY(&event->pointers[pointerIndex]);
                             std::shared_ptr<AndroidWindow> window = androidApplication->getPlatformWindow();
-
-                            androidApplication->onMouseDown(window, MouseButtons::Left, math::float2(x, y));
-
-                            //GuGu_LOGD("(%f, %f)", x, y);
+                            androidApplication->onTouchDown(window, math::float2(px, py), pointerIndex);
                         }
-                        else if(action == AMOTION_EVENT_ACTION_UP)
+                        else if (actionMasked == AMOTION_EVENT_ACTION_UP ||
+                                 actionMasked == AMOTION_EVENT_ACTION_POINTER_UP)
                         {
+                            float px = GameActivityPointerAxes_getX(&event->pointers[pointerIndex]);
+                            float py = GameActivityPointerAxes_getY(&event->pointers[pointerIndex]);
                             std::shared_ptr<AndroidWindow> window = androidApplication->getPlatformWindow();
-
-                            androidApplication->onMouseUp(window, MouseButtons::Left, math::float2(x, y));
-
-                            //GuGu_LOGD("(%f, %f)", x, y);
+                            androidApplication->onTouchUp(window, math::float2(px, py), pointerIndex);
                         }
-                        else if(action == AMOTION_EVENT_ACTION_MOVE)
+                        else if (actionMasked == AMOTION_EVENT_ACTION_MOVE)
                         {
+                            // MOVE events carry updated positions for ALL active pointers
                             std::shared_ptr<AndroidWindow> window = androidApplication->getPlatformWindow();
-
-                            androidApplication->onMouseMove(window, math::float2(x, y));
+                            for (int32_t pi = 0; pi < event->pointerCount; ++pi)
+                            {
+                                float px = GameActivityPointerAxes_getX(&event->pointers[pi]);
+                                float py = GameActivityPointerAxes_getY(&event->pointers[pi]);
+                                androidApplication->onTouchMoved(window, math::float2(px, py), pi);
+                            }
                         }
                     }
                 }

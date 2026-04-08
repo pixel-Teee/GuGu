@@ -118,13 +118,15 @@ namespace GuGu {
 			const math::float2& inLastScreenSpacePosition,
 			const std::set<Key>* inPressedButtons,
 			const Key& inKey = Keys::LeftMouseButton,
-			float inWheelDelta = 0)
+			float inWheelDelta = 0,
+			int32_t inPointerIndex = 0)
 			: m_screenSpacePosition(inScreenSpacePosition)
 			, m_lastScreenSpacePosition(inLastScreenSpacePosition)
 			, m_cursorDelta(inScreenSpacePosition - inLastScreenSpacePosition)
 			, m_pressedMouseButtons(inPressedButtons)
 			, m_effectingButton(inKey)
 			, m_wheelOrGestureDelta(inWheelDelta)
+			, m_pointerIndex(inPointerIndex)
 		{}
 
 		PointerEvent(const PointerEvent& rhs)
@@ -134,6 +136,7 @@ namespace GuGu {
 			, m_pressedMouseButtons(rhs.m_pressedMouseButtons)
 			, m_effectingButton(rhs.m_effectingButton)
 			, m_wheelOrGestureDelta(rhs.m_wheelOrGestureDelta)
+			, m_pointerIndex(rhs.m_pointerIndex)
 		{
 
 		}
@@ -153,12 +156,15 @@ namespace GuGu {
 			return m_pressedMouseButtons->find(inMouseButton) != m_pressedMouseButtons->end();
 		}
 
+		int32_t getPointerIndex() const { return m_pointerIndex; }
+
 		math::float2 m_screenSpacePosition;
 		math::float2 m_lastScreenSpacePosition;
 		math::float2 m_cursorDelta;
 		Key m_effectingButton;
 		float m_wheelOrGestureDelta;
 		const std::set<Key>* m_pressedMouseButtons;
+		int32_t m_pointerIndex;
 	};
 
 	class DragDropOperation;

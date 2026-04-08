@@ -75,7 +75,6 @@ namespace GuGu{
         m_alreadyExit = false;
         m_focused = true;
         m_timer = CreateTimerFactory();
-        m_lastCursorPos = math::float2(0.0f, 0.0f);
 		m_dragTriggerDistance = 5;
 
 		std::shared_ptr<StyleSet> coreStyleSet = std::make_shared<CoreStyle>();
@@ -236,9 +235,6 @@ namespace GuGu{
 
 	bool Application::onMouseDown(const std::shared_ptr<Window>& window, MouseButtons::Type mouseButton, math::float2 cursorPos)
 	{
-		//process mouse button down
-
-		//find window widget
 		//find window widget
 		std::shared_ptr<WindowWidget> windowWidget;
 		for (size_t i = 0; i < m_windowWidgets.size(); ++i)
@@ -253,14 +249,16 @@ namespace GuGu{
         //transfer cursorPos to local space
         math::float2 translatedCursorPos = translateCursorPos(cursorPos, windowWidget);
 
-
+		math::float2& lastCursorPos = m_lastCursorPosMap[0];
         PointerEvent mouseEvent(
             translatedCursorPos,
-            m_lastCursorPos,
+            lastCursorPos,
 			&m_pressedMouseButtons,
-			translateMouseButtonToKey(mouseButton)
+			translateMouseButtonToKey(mouseButton),
+			0.0f,
+			0
         );
-        m_lastCursorPos = translatedCursorPos;
+        lastCursorPos = translatedCursorPos;
 
         return processMouseButtonDownEvent(window, mouseEvent);
 	}
@@ -280,13 +278,16 @@ namespace GuGu{
 
         math::float2 translatedCursorPos = translateCursorPos(cursorPos, windowWidget);
 
+		math::float2& lastCursorPos = m_lastCursorPosMap[0];
 		PointerEvent mouseEvent(
             translatedCursorPos,
-			m_lastCursorPos,
+			lastCursorPos,
 			&m_pressedMouseButtons,
-			translateMouseButtonToKey(mouseButton)
+			translateMouseButtonToKey(mouseButton),
+			0.0f,
+			0
 		);
-		m_lastCursorPos = translatedCursorPos;
+		lastCursorPos = translatedCursorPos;
 
         return processMouseButtonUpEvent(window, mouseEvent);
     }
@@ -306,13 +307,16 @@ namespace GuGu{
 
 		math::float2 translatedCursorPos = translateCursorPos(cursorPos, windowWidget);
 
+		math::float2& lastCursorPos = m_lastCursorPosMap[0];
 		PointerEvent mouseEvent(
 			translatedCursorPos,
-			m_lastCursorPos,
+			lastCursorPos,
 			&m_pressedMouseButtons,
-			Keys::Invalid
+			Keys::Invalid,
+			0.0f,
+			0
 		);
-		m_lastCursorPos = translatedCursorPos;
+		lastCursorPos = translatedCursorPos;
 
 		return processMouseMoveEvent(window, mouseEvent);
     }
@@ -332,14 +336,106 @@ namespace GuGu{
 
 		math::float2 translatedCursorPos = translateCursorPos(cursorPos, windowWidget);
 
+		math::float2& lastCursorPos = m_lastCursorPosMap[0];
 		PointerEvent mouseEvent(
 			translatedCursorPos,
-			m_lastCursorPos,
+			lastCursorPos,
 			&m_pressedMouseButtons,
-			translateMouseButtonToKey(mouseButton)
+			translateMouseButtonToKey(mouseButton),
+			0.0f,
+			0
 		);
 
 		return processMouseButtonDoubleClickEvent(window, mouseEvent);
+	}
+
+	bool Application::onTouchDown(const std::shared_ptr<Window>& window, math::float2 cursorPos, int32_t pointerIndex)
+	{
+		std::shared_ptr<WindowWidget> windowWidget;
+		for (size_t i = 0; i < m_windowWidgets.size(); ++i)
+		{
+			if (m_windowWidgets[i]->getNativeWindow() == window)
+			{
+				windowWidget = m_windowWidgets[i];
+				break;
+			}
+		}
+
+		math::float2 translatedCursorPos = translateCursorPos(cursorPos, windowWidget);
+		math::float2& lastCursorPos = m_lastCursorPosMap[pointerIndex];
+
+		PointerEvent touchEvent(
+			translatedCursorPos,
+			lastCursorPos,
+			&m_pressedMouseButtons,
+			Keys::LeftMouseButton,
+			0.0f,
+			pointerIndex
+		);
+		lastCursorPos = translatedCursorPos;
+
+		return processMouseButtonDownEvent(window, touchEvent);
+	}
+
+	bool Application::onTouchUp(const std::shared_ptr<Window>& window, math::float2 cursorPos, int32_t pointerIndex)
+	{
+		std::shared_ptr<WindowWidget> windowWidget;
+		for (size_t i = 0; i < m_windowWidgets.size(); ++i)
+		{
+			if (m_windowWidgets[i]->getNativeWindow() == window)
+			{
+				windowWidget = m_windowWidgets[i];
+				break;
+			}
+		}
+
+		math::float2 translatedCursorPos = translateCursorPos(cursorPos, windowWidget);
+		math::float2& lastCursorPos = m_lastCursorPosMap[pointerIndex];
+
+		PointerEvent touchEvent(
+			translatedCursorPos,
+			lastCursorPos,
+			&m_pressedMouseButtons,
+			Keys::LeftMouseButton,
+			0.0f,
+			pointerIndex
+		);
+		lastCursorPos = translatedCursorPos;
+
+		bool result = processMouseButtonUpEvent(window, touchEvent);
+		// clean up per-pointer state when a finger is lifted
+		m_captorWidgetsPathMap.erase(pointerIndex);
+		m_widgetsUnderPointerLastEventMap.erase(pointerIndex);
+		m_lastCursorPosMap.erase(pointerIndex);
+		return result;
+	}
+
+	bool Application::onTouchMoved(const std::shared_ptr<Window>& window, math::float2 cursorPos, int32_t pointerIndex)
+	{
+		std::shared_ptr<WindowWidget> windowWidget;
+		for (size_t i = 0; i < m_windowWidgets.size(); ++i)
+		{
+			if (m_windowWidgets[i]->getNativeWindow() == window)
+			{
+				windowWidget = m_windowWidgets[i];
+				break;
+			}
+		}
+
+		math::float2 translatedCursorPos = translateCursorPos(cursorPos, windowWidget);
+		math::float2& lastCursorPos = m_lastCursorPosMap[pointerIndex];
+
+		PointerEvent touchEvent(
+			translatedCursorPos,
+			lastCursorPos,
+			&m_pressedMouseButtons,
+			Keys::Invalid,
+			0.0f,
+			pointerIndex
+		);
+		lastCursorPos = translatedCursorPos;
+
+		return processMouseMoveEvent(window, touchEvent);
 	}
 
 	bool Application::onKeyChar(const GuGuUtf8Str Character)
@@ -422,10 +518,11 @@ namespace GuGu{
 
 		PointerEvent mouseWheelEvent(
 			cursorPos,
-			m_lastCursorPos,
+			m_lastCursorPosMap[0],
 			&m_pressedMouseButtons,
 			translateMouseButtonToKey(MouseButtons::Type::Left),
-			delta
+			delta,
+			0
 		);
 
 		return processMouseWheelEvent(window, mouseWheelEvent);
@@ -433,10 +530,16 @@ namespace GuGu{
 
     std::shared_ptr<Widget> Application::getCaptorWidget() const
     {
-        if (!m_captorWidgetsPath.isEmpty())
-            return m_captorWidgetsPath.getLastWidget().lock();
-        return nullptr;
+        return getCaptorWidgetForPointer(0);
     }
+
+	std::shared_ptr<Widget> Application::getCaptorWidgetForPointer(int32_t pointerIndex) const
+	{
+		auto it = m_captorWidgetsPathMap.find(pointerIndex);
+		if (it != m_captorWidgetsPathMap.end() && !it->second.isEmpty())
+			return it->second.getLastWidget().lock();
+		return nullptr;
+	}
 
 	WindowZone::Type Application::getWindowZoneForPoint(const std::shared_ptr<Window>& window, const int32_t X, const int32_t Y)
 	{
@@ -471,18 +574,26 @@ namespace GuGu{
 
 	bool Application::doesWidgetHaveMouseCapture(std::shared_ptr<const Widget> inWidget) const
 	{
-		//if (!m_captorWidgetsPath.empty())
-		//	return m_captorWidgetsPath.front().lock() == inWidget;
-		//return false;
+		return doesWidgetHaveMouseCaptureForPointer(inWidget, 0);
+	}
 
-		if (!m_captorWidgetsPath.isEmpty())
-			return m_captorWidgetsPath.getLastWidget().lock() == inWidget;
+	bool Application::doesWidgetHaveMouseCaptureForPointer(std::shared_ptr<const Widget> inWidget, int32_t pointerIndex) const
+	{
+		auto it = m_captorWidgetsPathMap.find(pointerIndex);
+		if (it != m_captorWidgetsPathMap.end() && !it->second.isEmpty())
+			return it->second.getLastWidget().lock() == inWidget;
 		return false;
 	}
 
 	bool Application::hasCapture() const
 	{
-		return m_captorWidgetsPath.isValid();
+		return hasCaptureForPointer(0);
+	}
+
+	bool Application::hasCaptureForPointer(int32_t pointerIndex) const
+	{
+		auto it = m_captorWidgetsPathMap.find(pointerIndex);
+		return it != m_captorWidgetsPathMap.end() && it->second.isValid();
 	}
 
 	void Application::setGlobalPreRotate(float rotation)
@@ -495,35 +606,29 @@ namespace GuGu{
         return m_globalRotation;
     }
 
-	void Application::processReply(const Reply& reply, const WidgetPath& widgetPath, const PointerEvent* inMouseEvent)
+	void Application::processReply(const Reply& reply, const WidgetPath& widgetPath, const PointerEvent* inMouseEvent, int32_t pointerIndex)
 	{
 		const std::shared_ptr<DragDropOperation> replyDragDropContent = reply.getDragDropContent();
 		const bool bStartingDragDrop = replyDragDropContent != nullptr;
 
+		WeakWidgetPath& captorPath = m_captorWidgetsPathMap[pointerIndex];
+		WeakWidgetPath& lastEventPath = m_widgetsUnderPointerLastEventMap[pointerIndex];
+
 		if (reply.shouldReleaseMouse() || bStartingDragDrop)
 		{
-			m_widgetsUnderPointerLastEvent = m_captorWidgetsPath;
-			m_captorWidgetsPath.clear();
+			lastEventPath = captorPath;
+			captorPath.clear();
 		}
 
-		//释放之前的焦点路径
-		//if (m_captorWidgetsPath.isEmpty() == false)
-		//{
-		//	m_captorWidgetsPath.clear();
-		//}
 		if (bStartingDragDrop)
 		{
-			m_dragDropContent = replyDragDropContent;//将 reply 的 drag drop content 放到自己身上
+			m_dragDropContent = replyDragDropContent;
 		}
-		
+
 		std::shared_ptr<Widget> requestedMouseCaptor = reply.getMouseCaptor();
 		if (requestedMouseCaptor != nullptr)
 		{
-			//m_captorWidget = mouseCaptor;
-			//m_captorWidgetsPath.clear();
-			//for (int32_t j = i; j < widgets.size(); ++j)
-			//	m_captorWidgetsPath.push_back(widgets[i]);
-			m_captorWidgetsPath = widgetPath.pathDownTo(requestedMouseCaptor);
+			captorPath = widgetPath.pathDownTo(requestedMouseCaptor);
 		}
 
 		if (reply.getDetectDragRequest())
@@ -533,17 +638,14 @@ namespace GuGu{
 		}
 
 		std::shared_ptr<Widget> requestedFocusRecepient = reply.getFocusRecepient();
-		if (requestedFocusRecepient) //请求焦点的控件是有效的
-		{		
-			//for (int32_t j = i; j < widgets.size(); ++j)
-			//	m_focusWidgetsPath.push_back(widgets[j]);
-
+		if (requestedFocusRecepient)
+		{
 			WidgetPath pathToWidget;
 			const bool bFound = findPathToWidget(m_windowWidgets, requestedFocusRecepient, pathToWidget);
 			if (bFound)
 			{
 				setFocus(requestedFocusRecepient, pathToWidget);
-			}	
+			}
 		}
 	}
 
@@ -990,11 +1092,13 @@ namespace GuGu{
     {
 		m_pressedMouseButtons.insert(mouseEvent.getEffectingButton());
 
-		if (!m_captorWidgetsPath.isEmpty())
+		const int32_t pointerIndex = mouseEvent.getPointerIndex();
+		WeakWidgetPath& captorPathRef = m_captorWidgetsPathMap[pointerIndex];
+
+		if (!captorPathRef.isEmpty())
 		{
-			//std::vector<std::weak_ptr<Widget>> captorWidgetsPath = m_captorWidgetsPath;
 			WidgetPath captorWidgetsPath;
-			m_captorWidgetsPath.toWidgetPath(captorWidgetsPath);
+			captorPathRef.toWidgetPath(captorWidgetsPath);
 			int32_t widgetNumber = captorWidgetsPath.m_widgets.getArrangedWidgetsNumber();
 			for (int32_t i = widgetNumber - 1; i >= 0; --i)
 			{
@@ -1002,19 +1106,7 @@ namespace GuGu{
 				if (widget != nullptr)
 				{
 					Reply reply = widget->OnMouseButtonDown(captorWidgetsPath.m_widgets.getArrangedWidget(i)->getWidgetGeometry(), mouseEvent);
-					processReply(reply, captorWidgetsPath);
-					//std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
-					//if (mouseCaptor != nullptr)
-					//{
-					//	//m_captorWidget = mouseCaptor;
-					//	m_captorWidgetsPath.clear();
-					//	for (int32_t j = i; j < captorWidgetsPath.size(); ++j)
-					//		m_captorWidgetsPath.push_back(captorWidgetsPath[j]);
-					//}
-					//if (reply.shouldReleaseMouse())
-					//{
-					//	m_captorWidgetsPath.clear();
-					//}
+					processReply(reply, captorWidgetsPath, nullptr, pointerIndex);
 					if (reply.isEventHandled())
 						break;
 				}
@@ -1044,35 +1136,13 @@ namespace GuGu{
 			for (int32_t i = widgetNumber - 1; i >= 0; --i) //冒泡策略
 			{
 				reply = widgetPath.m_widgets[i]->getWidget()->OnMouseButtonDown(widgetPath.m_widgets[i]->getWidgetGeometry(), mouseEvent);
-
-				//std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
-				//if (mouseCaptor != nullptr)
-				//{
-				//	//m_captorWidget = mouseCaptor;
-				//	m_captorWidgetsPath.clear();
-				//	for (int32_t j = i; j < widgets.size(); ++j)
-				//		m_captorWidgetsPath.push_back(widgets[i]);
-				//}
-				//if (reply.shouldReleaseMouse())
-				//{
-				//	m_captorWidgetsPath.clear();
-				//}
-				//std::shared_ptr<Widget> requestedFocusRecepient = reply.getFocusRecepient();
-				//if (requestedFocusRecepient)
-				//{
-				//	m_focusWidgetsPath.clear();
-				//	for (int32_t j = i; j < widgets.size(); ++j)
-				//		m_focusWidgetsPath.push_back(widgets[j]);
-				//}
-
-				processReply(reply, widgetPath, &mouseEvent);
-
+				processReply(reply, widgetPath, &mouseEvent, pointerIndex);
 				if (reply.isEventHandled())
 					break;
 			}
 
 			const bool bFocusedChangedByEventyHandler = previousFocusedWidget != getKeyboardFocusedWidget();
-			
+
 			//焦点控件和之前不一样，或者没有焦点控件被请求
 			if (!bFocusedChangedByEventyHandler && !reply.getFocusRecepient())
 			{
@@ -1089,7 +1159,7 @@ namespace GuGu{
 				}
 			}
         }
-        
+
         return true;
     }
 
@@ -1097,15 +1167,17 @@ namespace GuGu{
     {
 		m_pressedMouseButtons.erase(mouseEvent.getEffectingButton());
 
+		const int32_t pointerIndex = mouseEvent.getPointerIndex();
+		WeakWidgetPath& captorPathRef = m_captorWidgetsPathMap[pointerIndex];
+
 		Reply reply = Reply::Unhandled();
 		const bool bIsDragDropping = m_dragDropContent != nullptr;
 		std::shared_ptr<DragDropOperation> localDragDropContent;
 
-		if (!m_captorWidgetsPath.isEmpty())
+		if (!captorPathRef.isEmpty())
 		{
-			//std::vector<std::weak_ptr<Widget>> captorWidgetsPath = m_captorWidgetsPath;
 			WidgetPath captorWidgetsPath;
-			m_captorWidgetsPath.toWidgetPath(captorWidgetsPath);
+			captorPathRef.toWidgetPath(captorWidgetsPath);
 			int32_t widgetNumber = captorWidgetsPath.m_widgets.getArrangedWidgetsNumber();
 			for (int32_t i = widgetNumber - 1; i >= 0; --i)
 			{
@@ -1113,19 +1185,7 @@ namespace GuGu{
 				if (widget != nullptr)
 				{
 					Reply reply = widget->OnMouseButtonUp(captorWidgetsPath.m_widgets.getArrangedWidget(i)->getWidgetGeometry(), mouseEvent);
-					processReply(reply, captorWidgetsPath);
-					//std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
-					//if (mouseCaptor != nullptr)
-					//{
-					//	//m_captorWidget = mouseCaptor;
-					//	m_captorWidgetsPath.clear();
-					//	for (int32_t j = i; j < captorWidgetsPath.size(); ++j)
-					//		m_captorWidgetsPath.push_back(captorWidgetsPath[j]);
-					//}
-					//if (reply.shouldReleaseMouse())
-					//{
-					//	m_captorWidgetsPath.clear();
-					//}
+					processReply(reply, captorWidgetsPath, nullptr, pointerIndex);
 					if (reply.isEventHandled())
 						break;
 				}
@@ -1170,15 +1230,15 @@ namespace GuGu{
 				{
 					reply = widgetPath.m_widgets[i]->getWidget()->OnMouseButtonUp(widgetPath.m_widgets[i]->getWidgetGeometry(), mouseEvent);
 				}
-				
-				processReply(reply, widgetPath);
+
+				processReply(reply, widgetPath, nullptr, pointerIndex);
 				if (reply.isEventHandled())
 					break;
 			}
 		}
 
 		//通知鼠标松开
-		if (!hasCapture())
+		if (!hasCaptureForPointer(pointerIndex))
 		{
 			if (localDragDropContent)
 			{
@@ -1192,6 +1252,10 @@ namespace GuGu{
     bool Application::processMouseMoveEvent(const std::shared_ptr<Window>& window, const PointerEvent& mouseEvent)
     {
 		updateToolTip(m_menuStack, true);
+
+		const int32_t pointerIndex = mouseEvent.getPointerIndex();
+		WeakWidgetPath& captorPathRef = m_captorWidgetsPathMap[pointerIndex];
+		WeakWidgetPath& lastEventPathRef = m_widgetsUnderPointerLastEventMap[pointerIndex];
 
 		//------当前获取得到的控件路径------
 		std::shared_ptr<Widget> collisionWidget = locateWidgetInWindow(window, mouseEvent.m_screenSpacePosition);
@@ -1224,7 +1288,7 @@ namespace GuGu{
 					math::float2 dragDelta = m_dragstate->m_dragStartLocation - mouseEvent.m_screenSpacePosition;
 					if (math::lengthSquared(dragDelta) > m_dragTriggerDistance * m_dragTriggerDistance)
 					{
-						GuGu_LOGD("trigger drag, dragStartLocation:(x:%f, y:%f), mousePosition:(%f, %f), dragDelta:(x:%f, y:%f)", 
+						GuGu_LOGD("trigger drag, dragStartLocation:(x:%f, y:%f), mousePosition:(%f, %f), dragDelta:(x:%f, y:%f)",
 							m_dragstate->m_dragStartLocation.x, m_dragstate->m_dragStartLocation.y,
 							mouseEvent.m_screenSpacePosition.x, mouseEvent.m_screenSpacePosition.y,
 							dragDelta.x, dragDelta.y);
@@ -1244,7 +1308,7 @@ namespace GuGu{
 					lastWidgetsUnderPointer = dragDetectionPath;
 
 					const Reply reply = detectDragForMe.getWidget()->OnDragDetected(detectDragForMe.getWidgetGeometry(), mouseEvent);
-					processReply(reply, dragDetectionPath); //获取drag drop operation
+					processReply(reply, dragDetectionPath, nullptr, pointerIndex); //获取drag drop operation
 				}
 			}
 		}
@@ -1255,7 +1319,7 @@ namespace GuGu{
 		}
 		else
 		{
-			lastWidgetsUnderPointer = m_widgetsUnderPointerLastEvent;
+			lastWidgetsUnderPointer = lastEventPathRef;
 		}
 
 		DragDropEvent dragDropEvent(mouseEvent, m_dragDropContent);
@@ -1275,16 +1339,15 @@ namespace GuGu{
 					else
 					{
 						someWidgetPreviouslyUnderCursor->OnMouseLeave(mouseEvent);
-					}			
+					}
 				}
 			}
 		}
 
-		if (!m_captorWidgetsPath.isEmpty())
+		if (!captorPathRef.isEmpty())
 		{
-			//std::vector<std::weak_ptr<Widget>> captorWidgetsPath = m_captorWidgetsPath;
 			WidgetPath captorWidgetsPath;
-			m_captorWidgetsPath.toWidgetPath(captorWidgetsPath);
+			captorPathRef.toWidgetPath(captorWidgetsPath);
 			int32_t widgetNumber = captorWidgetsPath.m_widgets.getArrangedWidgetsNumber();
 
 			int32_t widgetUnderCusorWidgetNumber = widgetPath.m_widgets.getArrangedWidgetsNumber();
@@ -1296,8 +1359,7 @@ namespace GuGu{
 					if (captorWidgetsPath.containsWidget(widgetUnderCursor.get()))
 					{
 						widgetPath.m_widgets.getArrangedWidget(i)->getWidget()->OnMouseEnter(widgetUnderCursor->getWidgetGeometry(), mouseEvent);
-						//processReply(reply, widgetPath);
-					}	
+					}
 				}
 			}
 
@@ -1307,19 +1369,7 @@ namespace GuGu{
 				if (widget != nullptr)
 				{
 					Reply reply = widget->OnMouseMove(captorWidgetsPath.m_widgets.getArrangedWidget(i)->getWidgetGeometry(), mouseEvent);
-					processReply(reply, captorWidgetsPath);
-					//std::shared_ptr<Widget> mouseCaptor = reply.getMouseCaptor();
-					//if (mouseCaptor != nullptr)
-					//{
-					//	//m_captorWidget = mouseCaptor;
-					//	m_captorWidgetsPath.clear();
-					//	for (int32_t j = i; j < captorWidgetsPath.size(); ++j)
-					//		m_captorWidgetsPath.push_back(captorWidgetsPath[j]);
-					//}
-					//if (reply.shouldReleaseMouse())
-					//{
-					//	m_captorWidgetsPath.clear();
-					//}
+					processReply(reply, captorWidgetsPath, nullptr, pointerIndex);
 					if (reply.isEventHandled())
 						break;
 				}
@@ -1339,7 +1389,6 @@ namespace GuGu{
 					if (!lastWidgetsUnderPointer.containsWidget(widgetUnderCursor.get()))
 					{
 						widgetPath.m_widgets.getArrangedWidget(i)->getWidget()->OnDragEnter(widgetPath.m_widgets.getArrangedWidget(i)->getWidgetGeometry(), dragDropEvent);
-						//processReply(reply, widgetPath);
 					}
 				}
 			}
@@ -1352,10 +1401,9 @@ namespace GuGu{
 					if (!lastWidgetsUnderPointer.containsWidget(widgetUnderCursor.get()))
 					{
 						widgetPath.m_widgets.getArrangedWidget(i)->getWidget()->OnMouseEnter(widgetPath.m_widgets.getArrangedWidget(i)->getWidgetGeometry(), mouseEvent);
-						//processReply(reply, widgetPath);
 					}
 				}
-			}	
+			}
 
 			//记录旧的焦点路径
 			WidgetPath oldFocusWidgetsPath;
@@ -1371,8 +1419,7 @@ namespace GuGu{
 				for (int32_t i = widgetNumber - 1; i >= 0; --i) //bubble policy
 				{
 					Reply reply = widgetPath.m_widgets[i]->getWidget()->OnDragOver(widgetPath.m_widgets[i]->getWidgetGeometry(), dragDropEvent);
-
-					processReply(reply, widgetPath);
+					processReply(reply, widgetPath, nullptr, pointerIndex);
 					if (reply.isEventHandled())
 						break;
 				}
@@ -1384,16 +1431,15 @@ namespace GuGu{
 				for (int32_t i = widgetNumber - 1; i >= 0; --i) //bubble policy
 				{
 					Reply reply = widgetPath.m_widgets[i]->getWidget()->OnMouseMove(widgetPath.m_widgets[i]->getWidgetGeometry(), mouseEvent);
-
-					processReply(reply, widgetPath);
+					processReply(reply, widgetPath, nullptr, pointerIndex);
 					if (reply.isEventHandled())
 						break;
 				}
-			}	
+			}
 		}
 
 		//通知鼠标移动完成
-		m_widgetsUnderPointerLastEvent = WeakWidgetPath(widgetPath);
+		lastEventPathRef = WeakWidgetPath(widgetPath);
 		if (m_dragDropContent)
 		{
 			DragDropEvent dragDropEvent(mouseEvent, m_dragDropContent);
@@ -1632,7 +1678,10 @@ namespace GuGu{
 
 	math::float2 Application::getCursorPos() const
 	{
-		return m_lastCursorPos;
+		auto it = m_lastCursorPosMap.find(0);
+		if (it != m_lastCursorPosMap.end())
+			return it->second;
+		return math::float2(0.0f, 0.0f);
 	}
 
     math::float2 Application::translateCursorPos(math::float2 cursorPos, std::shared_ptr<WindowWidget> inWindowWidget)
@@ -1716,7 +1765,7 @@ namespace GuGu{
 		math::float2 desiredLocation = m_activeTooltipInfo.m_desiredLocation;
 		if (newToolTip && newToolTip != activeToolTip)
 		{
-			desiredLocation = m_lastCursorPos + math::float2(12.0f, 8.0f);
+			desiredLocation = getCursorPos() + math::float2(12.0f, 8.0f);
 		}
 
 		if (m_toolTipWindowPtr.lock())

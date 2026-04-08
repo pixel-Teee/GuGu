@@ -1,5 +1,6 @@
 #pragma once
 
+#include <map>
 #include <Core/Math/MyMath.h>
 #include <Core/GuGuUtf8Str.h>
 
@@ -107,6 +108,13 @@ namespace GuGu {
 
 		virtual bool onMouseDoubleClick(const std::shared_ptr<Window>& window, MouseButtons::Type mouseButton, math::float2 cursorPos);
 
+		// multi-touch: pointerIndex identifies the finger (0-based)
+		virtual bool onTouchDown(const std::shared_ptr<Window>& window, math::float2 cursorPos, int32_t pointerIndex);
+
+		virtual bool onTouchUp(const std::shared_ptr<Window>& window, math::float2 cursorPos, int32_t pointerIndex);
+
+		virtual bool onTouchMoved(const std::shared_ptr<Window>& window, math::float2 cursorPos, int32_t pointerIndex);
+
 		virtual bool onKeyChar(const GuGuUtf8Str Character);
 
 		virtual bool onKeyDown(const int32_t keyCode, const uint32_t characterCode);
@@ -119,7 +127,11 @@ namespace GuGu {
 
 		virtual bool onMouseWheel(const std::shared_ptr<Window>& window, const float delta, const math::float2 cursorPos);
 
+		// returns the captor for pointer index 0 (mouse / primary touch)
 		std::shared_ptr<Widget> getCaptorWidget() const;
+
+		// returns the captor for the given pointer index
+		std::shared_ptr<Widget> getCaptorWidgetForPointer(int32_t pointerIndex) const;
 
 		virtual ModifierKeysState getModifierKeys() const { return ModifierKeysState(); }
 		//------input------
@@ -134,13 +146,17 @@ namespace GuGu {
 
 		bool doesWidgetHaveMouseCapture(std::shared_ptr<const Widget> inWidget) const;
 
+		bool doesWidgetHaveMouseCaptureForPointer(std::shared_ptr<const Widget> inWidget, int32_t pointerIndex) const;
+
 		bool hasCapture() const;
+
+		bool hasCaptureForPointer(int32_t pointerIndex) const;
 
 		void setGlobalPreRotate(float rotation);
 
 		float getGlobalPreRotate() const;
 
-		void processReply(const Reply& theReply, const WidgetPath& widgetPath, const PointerEvent* inMouseEvent = nullptr);
+		void processReply(const Reply& theReply, const WidgetPath& widgetPath, const PointerEvent* inMouseEvent = nullptr, int32_t pointerIndex = 0);
 
 		void setFocus(const std::shared_ptr<Widget>& widgetToFocus, const WidgetPath& widgetPath);
 
@@ -286,15 +302,16 @@ namespace GuGu {
 
         bool m_focused;
 
-		math::float2 m_lastCursorPos;
+		// per-pointer last cursor position (pointerIndex -> position)
+		std::map<int32_t, math::float2> m_lastCursorPosMap;
 
 		float m_globalRotation = 0;
 
-		//上一次事件处理的控件路径，用于判断鼠标移动进一个按钮或者移出一个按钮
-		WeakWidgetPath m_widgetsUnderPointerLastEvent;
+		// per-pointer widgets-under-pointer from last event
+		std::map<int32_t, WeakWidgetPath> m_widgetsUnderPointerLastEventMap;
 
-		//std::weak_ptr<Widget> m_captorWidget;
-		WeakWidgetPath m_captorWidgetsPath;
+		// per-pointer captor widget paths (pointerIndex -> captor path)
+		std::map<int32_t, WeakWidgetPath> m_captorWidgetsPathMap;
 
 		WeakWidgetPath m_focusWidgetsPath;
 
