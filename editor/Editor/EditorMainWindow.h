@@ -63,6 +63,8 @@ namespace GuGu {
 
 		Reply openFontAtlas();//font atlas
 
+		Reply openCutscenesEditor();//cutscenes frame editor
+
 		void switchEditorAndRuntime(CheckBoxState inCheckBoxState);
 
 		void switchTerrainWireFrame(CheckBoxState inCheckBoxState);

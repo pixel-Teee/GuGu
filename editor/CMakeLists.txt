@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.15.0)
 
 file(GLOB SourceFile "main.cpp" "Editor/*.*" "Editor/StyleSet/*.*"
 "Editor/ContentBrowser/*.*" "ModelImporter/*.*" "Editor/SceneOutliner/*.*" "Editor/PropertyEditor/*.*" "Editor/UI/*.*"
-"TextureImporter/*.*" "Editor/Transaction/*.h" "Editor/Transaction/*.cpp" "Editor/Debug/*.*" "Editor/Terrain/*.h" "Editor/Terrain/*.cpp")
+"TextureImporter/*.*" "Editor/Transaction/*.h" "Editor/Transaction/*.cpp" "Editor/Debug/*.*" "Editor/Terrain/*.h" "Editor/Terrain/*.cpp"
+"Editor/Cutscenes/*.h" "Editor/Cutscenes/*.cpp")
 
 if(WIN32)
 	add_executable(Editor WIN32 ${SourceFile})

@@ -46,6 +46,7 @@
 #include <Editor/StyleSet/ThemePanel.h> //theme panel
 #include <Editor/Debug/ShowTexturePanel.h>
 #include <Editor/Terrain/TerrainEditorPanel.h>
+#include <Editor/Cutscenes/CutscenesEditorPanel.h>
 #include <Editor/SceneOutliner/ObjectBrowingMode.h>
 
 namespace GuGu {
@@ -84,6 +85,8 @@ namespace GuGu {
 			std::shared_ptr<Button> themeButton;
 
 			std::shared_ptr<Button> terrainButton;
+
+			std::shared_ptr<Button> cutscenesButton;
 
 			std::shared_ptr<Button> debugView;//debug view
 
@@ -187,6 +190,25 @@ namespace GuGu {
 								(
 									WIDGET_NEW(TextBlockWidget)
 									.text(u8"Terrain")
+									.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
+								)
+							)
+						)
+						+ HorizontalBox::Slot()
+						.FixedWidth()
+						.setPadding(Padding(10.0f, 0.0f, 0.0f, 0.0f))
+						(
+							WIDGET_NEW(BoxWidget)
+							.HeightOverride(OptionalSize(38.0f))
+							.WidthOverride(OptionalSize(80.0f))
+							.Content
+							(
+								WIDGET_ASSIGN_NEW(Button, cutscenesButton)
+								.buttonSyle(EditorStyleSet::getStyleSet()->getStyle<ButtonStyle>(u8"normalBlueButton"))
+								.Content
+								(
+									WIDGET_NEW(TextBlockWidget)
+									.text(u8"Cutscenes")
 									.textColor(math::float4(0.18f, 0.16f, 0.12f, 1.0f))
 								)
 							)
@@ -441,6 +463,8 @@ namespace GuGu {
 			themeButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::openTheme, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
 
 			terrainButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::openTerrainEditorPanel, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
+
+			cutscenesButton->setOnClicked(OnClicked(std::bind(&EditorMainWindow::openCutscenesEditor, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
 
 			applyPrefab->setOnClicked(OnClicked(std::bind(&EditorMainWindow::applyPrefab, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
 			revertToPrefab->setOnClicked(OnClicked(std::bind(&EditorMainWindow::revertToPrefab, std::static_pointer_cast<EditorMainWindow>(shared_from_this()))));
@@ -872,6 +896,35 @@ namespace GuGu {
 			return math::float4(1.0f, 1.0f, 1.0f, 1.0f);
 		}
 		return math::float4(0.3f, 0.3f, 0.3f, 1.0f);
+	}
+
+	Reply EditorMainWindow::openCutscenesEditor()
+	{
+		math::float2 cursorPos = Application::getApplication()->getCursorPos();
+		std::shared_ptr<WindowWidget> window = WIDGET_NEW(WindowWidget)
+			.ScreenPosition(cursorPos)
+			.sizingRule(SizingRule::UserSize)
+			.ClientSize(math::float2(900.0f, 500.0f));
+
+		window->setContent(
+			WIDGET_NEW(VerticalBox)
+			+ VerticalBox::Slot()
+			.FixedHeight()
+			(
+				WIDGET_NEW(WindowTitleBar, window)
+			)
+			+ VerticalBox::Slot()
+			.StretchHeight(1.0f)
+			(
+				WIDGET_NEW(CutscenesEditorPanel)
+			)
+		);
+
+		WidgetPath widgetPath;
+		Application::getApplication()->generatePathToWidgetUnchecked(shared_from_this(), widgetPath);
+		Application::getApplication()->addWindowAsNativeChild(window, widgetPath.getWindow());
+
+		return Reply::Handled();
 	}
 
 	std::shared_ptr<EditorMainWindow> CreateEditorMainWindow()
