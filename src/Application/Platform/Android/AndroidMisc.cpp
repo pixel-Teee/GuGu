@@ -47,7 +47,7 @@ namespace GuGu{
                         int32_t actionMasked = action & AMOTION_EVENT_ACTION_MASK;
                         int32_t pointerIndex = (action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK)
                                                >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT;
-
+                        GuGu_LOGD("pointerIndex: %d", pointerIndex);
                         if (actionMasked == AMOTION_EVENT_ACTION_DOWN ||
                             actionMasked == AMOTION_EVENT_ACTION_POINTER_DOWN)
                         {

@@ -110,12 +110,7 @@ bool key_event_filter(const GameActivityKeyEvent *event)
 
 bool motion_event_filter(const GameActivityMotionEvent *event)
 {
-    if ((event->source == AINPUT_SOURCE_MOUSE) ||
-        (event->source == AINPUT_SOURCE_TOUCHSCREEN))
-    {
-        return true;
-    }
-    return false;
+    return true;//receive all
 }
 
 void on_content_rect_changed(GameActivity *activity, const ARect *rect)
