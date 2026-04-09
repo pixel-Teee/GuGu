@@ -216,7 +216,7 @@ namespace GuGu {
         {
             m_cutscenes = std::static_pointer_cast<Cutscenes>(inAsset->m_loadedResource);
             m_timelineWidget->setCutscenes(m_cutscenes);
-            m_currentTime = 0.0f;
+            m_cutscenes->setCurrentTime(0.0f);
             m_timelineWidget->setCurrentTime(0.0f);
             rebuildTrackList();
         }
@@ -234,11 +234,11 @@ namespace GuGu {
 
     Reply CutscenesEditorPanel::onStop()
     {
-        m_isPlaying = false;
-        m_currentTime = 0.0f;
+        m_isPlaying = false;  
         m_timelineWidget->setCurrentTime(0.0f);
         if (m_cutscenes)
         {
+            m_cutscenes->setCurrentTime(0.0f);
             m_cutscenes->setIsRunning(false);
         }
         return Reply::Handled();
@@ -253,13 +253,16 @@ namespace GuGu {
 
     void CutscenesEditorPanel::onScrubPositionChanged(float inTime)
     {
-        m_currentTime = inTime;
+        if(m_cutscenes)
+            m_cutscenes->setCurrentTime(inTime);
         m_timelineWidget->setCurrentTime(inTime);
     }
 
     float CutscenesEditorPanel::getCurrentTime() const
     {
-        return m_currentTime;
+        if(m_cutscenes)
+            return m_cutscenes->getCurrentTime();
+        return 0.0f;
     }
 
     float CutscenesEditorPanel::getDuration() const
@@ -318,6 +321,14 @@ namespace GuGu {
 
     void CutscenesEditorPanel::Tick(const WidgetGeometry &allocatedGeometry, const double inCurrentTime, const float inDeltaTime)
     {
-        //TODO:implement this
+        if(m_cutscenes)
+        {
+            m_cutscenes->Update(inDeltaTime);
+            if(m_cutscenes->getIsRunning())
+            {
+                float currentTime = m_cutscenes->getCurrentTime();
+                m_timelineWidget->setCurrentTime(currentTime);
+            }
+        }
     }
 }

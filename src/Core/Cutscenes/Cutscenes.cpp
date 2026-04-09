@@ -101,7 +101,7 @@ namespace GuGu {
 	Cutscenes::Cutscenes()
 	{
 		m_isRunning = false;
-		m_startTime = 0.0f;
+		m_currentTime = 0.0f;
 	}
 	Cutscenes::~Cutscenes()
 	{
@@ -116,10 +116,9 @@ namespace GuGu {
 	{
 		if (m_isRunning)
 		{
-			//TODO:FIX THIS
-			float currentTotalTime = Application::getApplication()->getTimer()->GetTotalTime();
-			//run
-			float currentTime = (currentTotalTime - m_startTime); //TODO:FIX THIS
+			m_currentTime = m_currentTime + fElapsedTimeSeconds;
+			if(m_currentTime > m_duration)
+				m_currentTime = 0;
 
 			for (int32_t i = 0; i < m_trackDatas.size(); ++i)
 			{
@@ -149,10 +148,10 @@ namespace GuGu {
 				}
 
 				//get value
-				meta::Variant res = evaluator->Evaluate(trackData, currentTime);
+				meta::Variant res = evaluator->Evaluate(trackData, m_currentTime);
 
 				//get current level object
-				std::optional<Section> currentSection = findSection(trackData, currentTime);
+				std::optional<Section> currentSection = findSection(trackData, m_currentTime);
 
 				if (currentSection.has_value())
 				{
@@ -239,7 +238,7 @@ namespace GuGu {
 	{
 		std::shared_ptr<Cutscenes> cutscenes = std::static_pointer_cast<Cutscenes>(inCutscenes->m_loadedResource);
 		cutscenes->setIsRunning(true);
-		cutscenes->m_startTime = Application::getApplication()->getTimer()->GetTotalTime();
+		cutscenes->m_currentTime = 0;
 	}
 
 	std::shared_ptr<Cutscenes> Cutscenes::getCutscenes(std::shared_ptr<AssetData> inCutscenes)
@@ -256,4 +255,12 @@ namespace GuGu {
 	{
 		return m_isRunning;
 	}
+    void Cutscenes::setCurrentTime(float inTime)
+    {
+		m_currentTime = inTime;
+    }
+    float Cutscenes::getCurrentTime() const
+    {
+        return m_currentTime;
+    }
 }

@@ -58,7 +58,6 @@ namespace GuGu {
         std::shared_ptr<AssetData>   m_cutscenesAsset;
         std::shared_ptr<Cutscenes>   m_cutscenes;
 
-        float m_currentTime = 0.0f;
         bool  m_isPlaying   = false;
 
         // UI

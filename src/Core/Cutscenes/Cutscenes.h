@@ -51,7 +51,12 @@ namespace GuGu {
 		bool getIsRunning();
 
 		bool m_isRunning;
-		float m_startTime;
+
+		//temp variable
+		float m_currentTime;
+
+		void setCurrentTime(float inTime);
+		float getCurrentTime() const;
 	private:
 		GuGuUtf8Str m_cutScenesName;
 
