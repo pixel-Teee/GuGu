@@ -5,6 +5,8 @@
 #include <Core/Cutscenes/TrackData.h>
 #include <functional>
 
+#include "CutscenesCommon.h"
+
 namespace GuGu {
     class Cutscenes;
 
@@ -66,11 +68,5 @@ namespace GuGu {
 
         std::function<void(float)>           m_onScrubPositionChanged;
         std::function<void(int32_t, int32_t)> m_onTrackSectionClicked;
-
-        // Layout constants
-        static constexpr float k_rulerHeight  = 24.0f;   // pixels
-        static constexpr float k_trackHeight  = 28.0f;   // pixels per track lane
-        static constexpr float k_labelWidth   = 140.0f;  // left label column
-        static constexpr float k_keyDiamondR  = 5.0f;    // keyframe diamond half-size
     };
 }

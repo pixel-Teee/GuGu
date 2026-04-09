@@ -5,6 +5,8 @@
 #include <Core/AssetManager/AssetData.h>
 #include <Core/Cutscenes/TrackData.h>
 
+#include "CutscenesCommon.h"
+
 namespace GuGu {
     class HorizontalBox;
     class VerticalBox;

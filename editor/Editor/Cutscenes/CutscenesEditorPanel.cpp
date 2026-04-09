@@ -162,8 +162,41 @@ namespace GuGu {
                 + Splitter::Slot()
                 .value(0.75f)
                 (
-                    // Right: timeline
-                    timelineBorder
+                    WIDGET_NEW(Splitter)
+                    + Splitter::Slot()
+                    .value(0.25f)
+                    (
+                        WIDGET_NEW(Border)
+                        .BorderBackgroundColor(Attribute<math::float4>::Create([=]() {
+                            return styleSet->getColor("ColorLevel3");
+                        }))
+                        .Content
+                        (
+                            WIDGET_NEW(VerticalBox)
+                            + VerticalBox::Slot()
+                            .FixedHeight()
+                            (
+                                WIDGET_NEW(BoxWidget)
+                                .HeightOverride(gRuleHeight) //rule height
+                                .Content
+                                (
+                                    NullWidget::getNullWidget()
+                                )
+                            )
+                            + VerticalBox::Slot()
+                            .FixedHeight()
+                            (
+                                m_trackListBox
+                            )
+                        )         
+                    )
+                    + Splitter::Slot()
+                    .value(0.75f)
+                    //.sizeRule(Splitter::SizeRule::SizeToContent)
+                    (
+                        // right: timeline
+                        timelineBorder
+                    )  
                 )
             );
 
@@ -251,8 +284,11 @@ namespace GuGu {
             const TrackData& track = tracks[i];
 
             GuGuUtf8Str label = track.m_isEvent ? u8"[Event] " : u8"[Track] ";
-            // Use type guid as a readable label
-            label = label + track.m_typeGuid;
+
+            meta::Type typeName = meta::Type::getType(track.m_typeGuid);
+
+            //使用类型名作为可读的名字标签
+            label = label + typeName.GetName();
 
             m_trackListBox->addSlot()
             .FixedHeight()

@@ -653,7 +653,7 @@ namespace GuGu {
 		//}
 
 		int32_t stackSize = lua_gettop(m_state);
-		GuGu_LOGD("栈中元素个数%d", stackSize);//lua_pcall会自动清理栈
+		//GuGu_LOGD("栈中元素个数%d", stackSize);//lua_pcall会自动清理栈
 
 		//全局表
 		lua_getglobal(m_state, "GuGu");

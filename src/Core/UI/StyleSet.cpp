@@ -37,7 +37,7 @@ namespace GuGu {
 		if (it != m_colors.end())
 			return it->second;
 
-		GuGu_LOGE("don't find color!");
+		GuGu_LOGE("don't find color! %s", colorName.getStr());
 
 		return math::float4(1.0f, 1.0f, 1.0f, 1.0f);
 	}

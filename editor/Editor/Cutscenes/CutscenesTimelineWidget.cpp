@@ -48,16 +48,16 @@ namespace GuGu {
 
     float CutscenesTimelineWidget::timeToPixel(float time, float widgetWidth) const
     {
-        const float trackWidth = widgetWidth - k_labelWidth;
-        if (m_duration <= 0.0f) return k_labelWidth;
-        return k_labelWidth + (time / m_duration) * trackWidth;
+        const float trackWidth = widgetWidth - gLabelWidth;
+        if (m_duration <= 0.0f) return gLabelWidth;
+        return gLabelWidth + (time / m_duration) * trackWidth;
     }
 
     float CutscenesTimelineWidget::pixelToTime(float x, float widgetWidth) const
     {
-        const float trackWidth = widgetWidth - k_labelWidth;
+        const float trackWidth = widgetWidth - gLabelWidth;
         if (trackWidth <= 0.0f) return 0.0f;
-        float t = (x - k_labelWidth) / trackWidth * m_duration;
+        float t = (x - gLabelWidth) / trackWidth * m_duration;
         if (t < 0.0f) t = 0.0f;
         if (t > m_duration) t = m_duration;
         return t;
@@ -80,7 +80,7 @@ namespace GuGu {
         // ---- Ruler (top band) -------------------------------------------------
         {
             WidgetGeometry rulerGeom = allocatedGeometry.getChildGeometry(
-                math::float2(W, k_rulerHeight), math::float2(0.0f, 0.0f));
+                math::float2(W, gRuleHeight), math::float2(0.0f, 0.0f));
             math::float4 rulerBg = styleSet->getColor("ColorLevel3");
             ElementList::addBoxElement(elementList, rulerGeom, rulerBg,
                 styleSet->getBrush("NoBorder"), layer + 1);
@@ -92,14 +92,14 @@ namespace GuGu {
                 for (int32_t t = 0; t <= numTicks; ++t)
                 {
                     const float px = timeToPixel((float)t, W);
-                    if (px < k_labelWidth || px > W) continue;
+                    if (px < gLabelWidth || px > W) continue;
 
-                    const float tickH = (t % 5 == 0) ? k_rulerHeight * 0.6f : k_rulerHeight * 0.35f;
-                    const float tickY = k_rulerHeight - tickH;
+                    const float tickH = (t % 5 == 0) ? gRuleHeight * 0.6f : gRuleHeight * 0.35f;
+                    const float tickY = gRuleHeight - tickH;
 
                     std::vector<math::float2> tickLine = {
                         math::float2(px, tickY),
-                        math::float2(px, k_rulerHeight)
+                        math::float2(px, gRuleHeight)
                     };
                     WidgetGeometry lineGeom = allocatedGeometry.getChildGeometry(
                         allocatedGeometry.getLocalSize(), math::float2(0.0f, 0.0f));
@@ -115,7 +115,7 @@ namespace GuGu {
             const Array<TrackData>& tracks = m_cutscenes->getTrackData();
             for (int32_t ti = 0; ti < (int32_t)tracks.size(); ++ti)
             {
-                const float laneY = k_rulerHeight + (float)ti * k_trackHeight;
+                const float laneY = gRuleHeight + (float)ti * gTrackHeight;
                 const TrackData& track = tracks[ti];
 
                 // Lane background alternation
@@ -124,13 +124,13 @@ namespace GuGu {
                     : styleSet->getColor("ColorLevel3");
 
                 WidgetGeometry laneGeom = allocatedGeometry.getChildGeometry(
-                    math::float2(W, k_trackHeight), math::float2(0.0f, laneY));
+                    math::float2(W, gTrackHeight), math::float2(0.0f, laneY));
                 ElementList::addBoxElement(elementList, laneGeom, laneColor,
                     styleSet->getBrush("NoBorder"), layer + 1);
 
                 // Label column background
                 WidgetGeometry labelGeom = allocatedGeometry.getChildGeometry(
-                    math::float2(k_labelWidth, k_trackHeight), math::float2(0.0f, laneY));
+                    math::float2(gLabelWidth, gTrackHeight), math::float2(0.0f, laneY));
                 math::float4 labelBg = styleSet->getColor("ColorLevel4");
                 ElementList::addBoxElement(elementList, labelGeom, labelBg,
                     styleSet->getBrush("NoBorder"), layer + 2);
@@ -141,10 +141,10 @@ namespace GuGu {
                     const Section& sec = track.m_sections[si];
                     const float x0 = timeToPixel(sec.m_startTime, W);
                     const float x1 = timeToPixel(sec.m_endTime,   W);
-                    const float barH = k_trackHeight - 6.0f;
+                    const float barH = gTrackHeight - 6.0f;
                     const float barY = laneY + 3.0f;
 
-                    math::float4 barColor = styleSet->getColor("AccentColorLevel1");
+                    math::float4 barColor = styleSet->getColor("ColorLevel1");
                     WidgetGeometry barGeom = allocatedGeometry.getChildGeometry(
                         math::float2(std::max(x1 - x0, 2.0f), barH),
                         math::float2(x0, barY));
@@ -155,14 +155,14 @@ namespace GuGu {
                     for (const CutscenesKeyFrame& kf : sec.m_keyFrames)
                     {
                         const float kx = timeToPixel(kf.m_timestamp, W);
-                        const float ky = laneY + k_trackHeight * 0.5f;
+                        const float ky = laneY + gTrackHeight * 0.5f;
 
                         std::vector<math::float2> diamond = {
-                            math::float2(kx,                    ky - k_keyDiamondR),
-                            math::float2(kx + k_keyDiamondR,   ky),
-                            math::float2(kx,                    ky + k_keyDiamondR),
-                            math::float2(kx - k_keyDiamondR,   ky),
-                            math::float2(kx,                    ky - k_keyDiamondR),
+                            math::float2(kx,                    ky - gKeyDiamondR),
+                            math::float2(kx + gKeyDiamondR,   ky),
+                            math::float2(kx,                    ky + gKeyDiamondR),
+                            math::float2(kx - gKeyDiamondR,   ky),
+                            math::float2(kx,                    ky - gKeyDiamondR),
                         };
                         WidgetGeometry kfGeom = allocatedGeometry.getChildGeometry(
                             allocatedGeometry.getLocalSize(), math::float2(0.0f, 0.0f));
@@ -196,7 +196,7 @@ namespace GuGu {
         {
             trackCount = (int32_t)m_cutscenes->getTrackData().size();
         }
-        const float h = k_rulerHeight + (float)std::max(trackCount, 1) * k_trackHeight;
+        const float h = gRuleHeight + (float)std::max(trackCount, 1) * gTrackHeight;
         return math::float2(0.0f, h); // width stretches; height is computed
     }
 
@@ -214,9 +214,9 @@ namespace GuGu {
                 m_onScrubPositionChanged(newTime);
 
             // Check track section click
-            if (m_cutscenes && localPos.y > k_rulerHeight)
+            if (m_cutscenes && localPos.y > gRuleHeight)
             {
-                int32_t ti = (int32_t)((localPos.y - k_rulerHeight) / k_trackHeight);
+                int32_t ti = (int32_t)((localPos.y - gRuleHeight) / gTrackHeight);
                 const Array<TrackData>& tracks = m_cutscenes->getTrackData();
                 if (ti >= 0 && ti < (int32_t)tracks.size())
                 {
