@@ -209,7 +209,7 @@ namespace GuGu {
             const float W = myGeometry.getLocalSize().x;
             const math::float2 localPos = myGeometry.absoluteToLocal(inMouseEvent.m_screenSpacePosition);
             const float newTime = pixelToTime(localPos.x, W);
-            m_currentTime = newTime;
+            //m_currentTime = newTime;
             if (m_onScrubPositionChanged)
                 m_onScrubPositionChanged(newTime);
 
