@@ -192,7 +192,6 @@ namespace GuGu {
                     )
                     + Splitter::Slot()
                     .value(0.75f)
-                    //.sizeRule(Splitter::SizeRule::SizeToContent)
                     (
                         // right: timeline
                         timelineBorder
